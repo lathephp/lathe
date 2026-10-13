@@ -1,5 +1,6 @@
 <?php
 
+use Pest\Browser\Api\AwaitableWebpage;
 use Workbench\App\Models\Order;
 
 require_once __DIR__.'/records.php';
@@ -10,7 +11,7 @@ const CONFLICT_DIALOG = '[role="dialog"]';
  * Two people on order 12's edit form, each in their own browser context. The second saves
  * shipped two seconds later, so the first form's token is stale.
  *
- * @return array{0: Pest\Browser\Api\AwaitableWebpage, 1: Pest\Browser\Api\AwaitableWebpage}
+ * @return array{0: AwaitableWebpage, 1: AwaitableWebpage}
  */
 function staleOrderForm(): array
 {

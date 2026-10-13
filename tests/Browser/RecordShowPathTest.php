@@ -1,5 +1,6 @@
 <?php
 
+use Pest\Browser\Api\AwaitableWebpage;
 use Workbench\App\Models\Post;
 
 require_once __DIR__.'/records.php';
@@ -9,7 +10,7 @@ const SCRIPT_BODY = "**Bold** words\n\n<script>alert(1)</script>";
 /** True when the record's detail region holds no script element and no alert(1) text. */
 const DETAIL_IS_SCRIPT_FREE = "!document.querySelector('main').innerHTML.includes('<script') && !document.querySelector('main').textContent.includes('alert(1)')";
 
-function createPostWithScript(string $project, ?string $cover = null): Pest\Browser\Api\AwaitableWebpage
+function createPostWithScript(string $project, ?string $cover = null): AwaitableWebpage
 {
     $page = signedInAt('/lathe/resources/posts', $project);
     recordDialogs($page);
