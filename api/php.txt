@@ -477,7 +477,12 @@ Lathe\Query\ResourceQuery::Lathe\Http\Requests\LatheRequest $request  [protected
 Lathe\Query\ResourceQuery::Lathe\Query\QueryContext $context  [protected]
 Lathe\Query\ResourceQuery::Lathe\Resources\Resource $resource  [protected]
 Lathe\Query\ResourceQuery::__construct(Lathe\Resources\Resource $resource, Lathe\Http\Requests\LatheRequest $request, Lathe\Query\QueryContext $context = Lathe\Query\QueryContext::Index)
+Lathe\Query\ResourceQuery::applyFilters(Illuminate\Database\Eloquent\Builder $query): Illuminate\Database\Eloquent\Builder  [protected]
 Lathe\Query\ResourceQuery::applyHook(Illuminate\Database\Eloquent\Builder $query): Illuminate\Database\Eloquent\Builder  [protected]
+Lathe\Query\ResourceQuery::applySavedTab(Illuminate\Database\Eloquent\Builder $query): Illuminate\Database\Eloquent\Builder  [protected]
+Lathe\Query\ResourceQuery::applySearch(Illuminate\Database\Eloquent\Builder $query): Illuminate\Database\Eloquent\Builder  [protected]
+Lathe\Query\ResourceQuery::applySort(Illuminate\Database\Eloquent\Builder $query): Illuminate\Database\Eloquent\Builder  [protected]
+Lathe\Query\ResourceQuery::applyTab(Illuminate\Database\Eloquent\Builder $query): Illuminate\Database\Eloquent\Builder  [protected]
 Lathe\Query\ResourceQuery::applyTrashed(Illuminate\Database\Eloquent\Builder $query): Illuminate\Database\Eloquent\Builder  [protected]
 Lathe\Query\ResourceQuery::array $withoutScopes  [protected]
 Lathe\Query\ResourceQuery::bool $hasMorePages  [protected]
@@ -494,6 +499,7 @@ Lathe\Query\ResourceQuery::perPageOptionsInUse(): array
 Lathe\Query\ResourceQuery::readPagination(): array  [protected]
 Lathe\Query\ResourceQuery::rows(): Illuminate\Database\Eloquent\Collection
 Lathe\Query\ResourceQuery::scoped(): Illuminate\Database\Eloquent\Builder
+Lathe\Query\ResourceQuery::validate(): void
 Lathe\Query\ResourceQuery::withTrashed(): static
 Lathe\Query\ResourceQuery::withoutScope(string $globalScope): static
 Lathe\Resources\Resource::?Illuminate\Database\Eloquent\Model $model  [protected]
