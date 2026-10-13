@@ -122,7 +122,11 @@ class ApiCheckCommand extends Command
             return null;
         }
 
-        return array_values(array_filter(array_map('trim', explode("\n", $result->output()))));
+        // pnpm may print install notes first in a fresh checkout; every export line names a package.
+        return array_values(array_filter(
+            array_map('trim', explode("\n", $result->output())),
+            fn (string $line) => str_starts_with($line, '@lathephp/'),
+        ));
     }
 
     protected function name(string $line): string

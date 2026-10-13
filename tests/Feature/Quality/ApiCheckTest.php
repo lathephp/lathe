@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Process;
 use Illuminate\Testing\PendingCommand;
 
 /**
@@ -91,3 +92,14 @@ it('fails on a JavaScript export missing from the snapshot', function () {
         ->assertFailed()
         ->expectsOutputToContain('js.txt: not in the snapshot: @lathephp/core extra');
 })->group('frontend');
+
+it('keeps pnpm chatter out of the JavaScript snapshot', function () {
+    Process::fake([
+        '*js-api.mjs*' => Process::result("Scope: all 5 workspace projects\nLockfile is up to date\n@lathephp/core addShortcut\n@lathephp/ui type ButtonProps\n"),
+    ]);
+    [$root] = apiFixture('    public function ping(): bool { return true; }');
+
+    $this->artisan('lathe:api-check', ['--src' => "{$root}/src", '--api' => "{$root}/api", '--js-root' => $root, '--write' => true])->assertSuccessful();
+
+    expect(File::get("{$root}/api/js.txt"))->toBe("@lathephp/core addShortcut\n@lathephp/ui type ButtonProps\n");
+});
