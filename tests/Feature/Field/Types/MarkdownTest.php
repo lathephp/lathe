@@ -121,3 +121,16 @@ it('saves the typed source and shows no script on detail', function () {
         ->assertJsonPath('fields.2.key', 'body')
         ->assertJsonPath('fields.2.value', '<script>alert(1)</script>');
 });
+
+it('never shows the text of an inline script or style', function (string $source) {
+    $html = Field::markdown('Body')->previewFor($source)->toHtml();
+
+    expect($html)->not->toContain('alert(1)')->not->toContain('<script')->not->toContain('p{}')
+        ->and($html)->toContain('Hi');
+})->with([
+    'inline' => ['Hi <script>alert(1)</script> there'],
+    'unclosed' => ["Hi\n\n<script>alert(1)"],
+    'upper case' => ['Hi <SCRIPT type="x">alert(1)</SCRIPT>'],
+    'style' => ['Hi <style>p{}</style> there'],
+    'own line' => ["Hi\n\n<script>alert(1)</script>\n"],
+]);

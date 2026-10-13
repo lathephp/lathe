@@ -69,7 +69,17 @@ class MarkdownField extends Field implements PreviewsContent
 
     public function previewFor(string $value): SafeHtml
     {
-        return SafeHtml::from((new MarkdownConverter($this->environment()))->convert($value)->getContent());
+        return SafeHtml::from((new MarkdownConverter($this->environment()))->convert(self::withoutScriptBodies($value))->getContent());
+    }
+
+    /**
+     * html_input strip drops a raw tag but keeps the text inside it, so an inline
+     * <script>alert(1)</script> would show "alert(1)". Script and style bodies go first;
+     * this only ever removes text, and strip and the allow-list still run after it.
+     */
+    protected static function withoutScriptBodies(string $value): string
+    {
+        return (string) preg_replace('#<(script|style)\b[^>]*>.*?(</\1\s*>|$)#is', '', $value);
     }
 
     /**
