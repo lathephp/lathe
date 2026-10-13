@@ -1,0 +1,84 @@
+import { screen, within } from '@testing-library/react';
+import { describe, expect, it } from 'vitest';
+import { renderPage } from './support';
+
+const columns = [
+  { key: 'number', label: 'Number', component: 'text' },
+  { key: 'status', label: 'Status', component: 'text' },
+  { key: 'total_cents', label: 'Total', component: 'text' },
+  { key: 'items', label: 'Quantity', component: 'text' },
+];
+
+const rows = Array.from({ length: 25 }, (_, index) => ({
+  id: index + 1,
+  title: `ORD-${String(index + 1)}`,
+  cells: {
+    number: { value: `ORD-${String(index + 1)}`, display: `ORD-${String(index + 1)}` },
+    status: { value: 'paid', display: 'paid' },
+    total_cents: { value: '10.00', display: '10.00' },
+    items: { value: 2, display: '2' },
+  },
+  abilities: { view: true },
+}));
+
+function renderSummaries(summaries: unknown) {
+  return renderPage(
+    'Resources/Index',
+    {
+      resource: { uriKey: 'orders', label: 'Orders', singularLabel: 'Order', perPageOptions: [25] },
+      table: { columns, rows, rowKey: 'id' },
+      state: { page: 1, perPage: 25, hasMorePages: true },
+      count: { value: 10000, exact: false, capped: false, estimated: false },
+      summaries,
+    },
+    { url: '/lathe/resources/orders' },
+  );
+}
+
+function footerRows(): string[][] {
+  const footer = screen.getAllByRole('rowgroup')[2] as HTMLElement;
+
+  return within(footer)
+    .getAllByRole('row')
+    .map((row) => Array.from(row.children, (cell) => cell.textContent));
+}
+
+describe('summary rows', () => {
+  it('puts each total under its column with its label', () => {
+    renderSummaries({
+      allRecords: {
+        total_cents: [{ label: 'Revenue', value: '1234.50' }],
+        items: [
+          { label: 'Sum', value: '9' },
+          { label: null, value: '4' },
+        ],
+      },
+      page: { total_cents: [{ label: 'Revenue', value: '250.00' }] },
+      message: null,
+    });
+
+    expect(footerRows()).toEqual([
+      ['This page', '', 'Revenue250.00', ''],
+      ['All records', '', 'Revenue1234.50', 'Sum94'],
+    ]);
+  });
+
+  it('shows the page totals and the message above the cap', () => {
+    renderSummaries({
+      allRecords: null,
+      page: { total_cents: [{ label: 'Revenue', value: '250.00' }] },
+      message: 'Narrow the filters to total all rows',
+    });
+
+    expect(footerRows()).toEqual([
+      ['This page', '', 'Revenue250.00', ''],
+      ['All records', 'Narrow the filters to total all rows'],
+    ]);
+  });
+
+  it('draws no footer before the summaries arrive', () => {
+    renderSummaries(undefined);
+
+    expect(screen.getAllByRole('rowgroup')).toHaveLength(2);
+  });
+});

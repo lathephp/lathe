@@ -4,6 +4,7 @@ import { ArrowDown, ArrowUp } from 'lucide-react';
 import { cn } from '../lib/cn';
 import { TableCell } from '../table/cells';
 import type { SharedProps } from '../types';
+import { TableSummaryRow } from './TableSummaryRow';
 import type { IndexProps } from './types';
 
 const rowHeights = { compact: 'h-8', comfortable: 'h-10', spacious: 'h-12' };
@@ -48,6 +49,8 @@ function direction(sort: string | undefined, key: string): 'ascending' | 'descen
 export function ResourceTable({ resource, table, state, loading, sort, onSort }: ResourceTableProps) {
   const { __ } = useTranslation();
   const { density, striped } = usePage<SharedProps>().props.tableStyle;
+  // Deferred with the count, so the footer arrives after the rows.
+  const { summaries } = usePage<Pick<IndexProps, 'summaries'>>().props;
   const rowClass = cn('border-b border-border last:border-0', rowHeights[density], striped && 'even:bg-muted/50');
 
   return (
@@ -112,6 +115,9 @@ export function ResourceTable({ resource, table, state, loading, sort, onSort }:
                 </tr>
               ))}
         </tbody>
+        {!loading && summaries !== undefined && summaries !== null && (
+          <TableSummaryRow columns={table.columns} summaries={summaries} firstColumn={firstColumn} />
+        )}
       </table>
     </div>
   );

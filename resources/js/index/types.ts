@@ -32,6 +32,21 @@ export interface IndexProps {
   count?: Count | null;
   /** A bad URL parameter: the page shows its message in place of the rows. */
   error?: { key: string; message: string };
+  /** Deferred; null when no field is summarized. */
+  summaries?: Summaries | null;
+}
+
+export interface SummaryValue {
+  /** Null when the summary hides its label. */
+  label: string | null;
+  value: string | null;
+}
+
+/** Footer totals keyed by column. allRecords is null above the count cap, page when one page holds every row. */
+export interface Summaries {
+  allRecords: Record<string, SummaryValue[] | undefined> | null;
+  page: Record<string, SummaryValue[] | undefined> | null;
+  message: string | null;
 }
 
 export interface Count {
