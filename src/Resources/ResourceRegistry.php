@@ -134,6 +134,10 @@ class ResourceRegistry
         $definition = (new $class)->buildDefinition();
         $this->validate($class, $definition);
 
+        if ($definition->allowsAll()) {
+            $this->app->make('log')->warning("{$class} calls ->allowAll(), so it skips every policy check.");
+        }
+
         return $this->definitions[$class] = $definition;
     }
 

@@ -13,6 +13,13 @@ use Lathe\Http\Requests\LatheRequest;
  */
 abstract class Resource
 {
+    /**
+     * The policy class, when it is not the one the Gate resolves for the model.
+     *
+     * @var class-string|null
+     */
+    public static ?string $policy = null;
+
     public function __construct(protected ?Model $model = null)
     {
         //

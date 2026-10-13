@@ -5,6 +5,7 @@ namespace Lathe\Resources;
 use Closure;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Http\Request;
 use LogicException;
 
 /**
@@ -42,6 +43,9 @@ class ResourceDefinition
     protected ?bool $softDeletes = null;
 
     protected bool $allowAll = false;
+
+    /** @var (Closure(Request): bool)|null */
+    protected ?Closure $seeCallback = null;
 
     protected bool $frozen = false;
 
@@ -136,6 +140,21 @@ class ResourceDefinition
     public function allowAll(bool $allow = true): static
     {
         return $this->set(fn () => $this->allowAll = $allow);
+    }
+
+    /**
+     * Hide the Resource from requests the callback refuses; every endpoint then answers 403.
+     *
+     * @param  Closure(Request): bool  $callback
+     */
+    public function canSee(Closure $callback): static
+    {
+        return $this->set(fn () => $this->seeCallback = $callback);
+    }
+
+    public function seenBy(Request $request): bool
+    {
+        return $this->seeCallback === null || ($this->seeCallback)($request);
     }
 
     public function freeze(): static

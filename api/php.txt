@@ -10,6 +10,15 @@ Lathe\Assets\AssetRegistry::script(string $name, string $path): void
 Lathe\Assets\AssetRegistry::scriptUrl(string $prefix, string $name): ?string
 Lathe\Assets\AssetRegistry::scripts(): array
 Lathe\Assets\AssetRegistry::style(string $name, string $path): void
+Lathe\Auth\ResourceAuthorization::Illuminate\Contracts\Auth\Access\Gate $gate  [protected]
+Lathe\Auth\ResourceAuthorization::Lathe\Resources\ResourceRegistry $resources  [protected]
+Lathe\Auth\ResourceAuthorization::__construct(Illuminate\Contracts\Auth\Access\Gate $gate, Lathe\Resources\ResourceRegistry $resources)
+Lathe\Auth\ResourceAuthorization::abilitiesFor(?Illuminate\Contracts\Auth\Authenticatable $user, string $resource, Illuminate\Support\Collection $models, array $abilities): array
+Lathe\Auth\ResourceAuthorization::allows(?Illuminate\Contracts\Auth\Authenticatable $user, string $resource, string $ability, ?Illuminate\Database\Eloquent\Model $model = NULL, array $arguments = array ( )): bool
+Lathe\Auth\ResourceAuthorization::array $policies  [protected]
+Lathe\Auth\ResourceAuthorization::canSee(Illuminate\Http\Request $request, string $resource): bool
+Lathe\Auth\ResourceAuthorization::denialMessage(string $resource): string
+Lathe\Auth\ResourceAuthorization::policyFor(string $resource): ?object  [protected]
 Lathe\Console\CacheCommand::$description  [protected]
 Lathe\Console\CacheCommand::$signature  [protected]
 Lathe\Console\CacheCommand::handle(Lathe\Resources\ResourceRegistry $registry): int
@@ -165,6 +174,7 @@ Lathe\Query\ResourceQuery::scoped(): Illuminate\Database\Eloquent\Builder
 Lathe\Query\ResourceQuery::withTrashed(): static
 Lathe\Query\ResourceQuery::withoutScope(string $globalScope): static
 Lathe\Resources\Resource::?Illuminate\Database\Eloquent\Model $model  [protected]
+Lathe\Resources\Resource::?string $policy
 Lathe\Resources\Resource::__construct(?Illuminate\Database\Eloquent\Model $model = NULL)
 Lathe\Resources\Resource::configure(Lathe\Resources\ResourceDefinition $definition): Lathe\Resources\ResourceDefinition  [protected]
 Lathe\Resources\Resource::definition(): Lathe\Resources\ResourceDefinition
@@ -189,6 +199,7 @@ Lathe\Resources\Resource::title(): string
 Lathe\Resources\Resource::uriKey(): string  [static]
 Lathe\Resources\Resource::widgetQuery(Lathe\Http\Requests\LatheRequest $request, Illuminate\Database\Eloquent\Builder $query): Illuminate\Database\Eloquent\Builder  [static]
 Lathe\Resources\Resource::with(): array
+Lathe\Resources\ResourceDefinition::?Closure $seeCallback  [protected]
 Lathe\Resources\ResourceDefinition::?array $perPage  [protected]
 Lathe\Resources\ResourceDefinition::?bool $softDeletes  [protected]
 Lathe\Resources\ResourceDefinition::?string $group  [protected]
@@ -205,6 +216,7 @@ Lathe\Resources\ResourceDefinition::bool $canonical  [protected]
 Lathe\Resources\ResourceDefinition::bool $displayInNavigation  [protected]
 Lathe\Resources\ResourceDefinition::bool $frozen  [protected]
 Lathe\Resources\ResourceDefinition::bool $globallySearchable  [protected]
+Lathe\Resources\ResourceDefinition::canSee(Closure $callback): static
 Lathe\Resources\ResourceDefinition::canonical(bool $canonical = true): static
 Lathe\Resources\ResourceDefinition::displayInNavigation(bool $display = true): static
 Lathe\Resources\ResourceDefinition::freeze(): static
@@ -224,6 +236,7 @@ Lathe\Resources\ResourceDefinition::isGloballySearchable(): bool
 Lathe\Resources\ResourceDefinition::model(string $model): static
 Lathe\Resources\ResourceDefinition::navigationLabel(?string $label): static
 Lathe\Resources\ResourceDefinition::perPage(array $options): static
+Lathe\Resources\ResourceDefinition::seenBy(Illuminate\Http\Request $request): bool
 Lathe\Resources\ResourceDefinition::set(Closure $change): static  [protected]
 Lathe\Resources\ResourceDefinition::shouldDisplayInNavigation(): bool
 Lathe\Resources\ResourceDefinition::softDeletes(?bool $softDeletes = true): static
@@ -286,6 +299,7 @@ Lathe\Support\Util::isLatheRequest(Illuminate\Http\Request $request): bool  [sta
 class Lathe\Assets\AssetManifest
 class Lathe\Assets\AssetRegistry
 class Lathe\Auth\FortifyConfig
+class Lathe\Auth\ResourceAuthorization
 class Lathe\Console\CacheCommand
 class Lathe\Console\ClearCommand
 class Lathe\Console\DoctorCommand
