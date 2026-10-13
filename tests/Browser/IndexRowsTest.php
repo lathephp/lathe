@@ -54,7 +54,7 @@ it('deletes an order through the row menu after the confirm', function (string $
     $number = firstRowTitle($page);
 
     $page->click('[aria-label="Actions for '.$number.'"]')
-        ->click('[role="menuitem"]')
+        ->click('button[role="menuitem"]')
         ->assertSeeIn('[role="alertdialog"]', 'Delete '.$number.'?')
         ->click('[role="alertdialog"] div > button:last-child')
         ->assertSee($number.' was deleted.')
