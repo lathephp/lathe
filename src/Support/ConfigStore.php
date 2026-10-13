@@ -26,6 +26,13 @@ class ConfigStore
         return is_string($value) ? $value : '';
     }
 
+    public function nullableString(string $key): ?string
+    {
+        $value = $this->get($key);
+
+        return is_string($value) && $value !== '' ? $value : null;
+    }
+
     public function integer(string $key): int
     {
         $value = $this->get($key);

@@ -2,17 +2,12 @@
 
 namespace Lathe\Http\Middleware;
 
-use Closure;
-use Illuminate\Http\Request;
-use Symfony\Component\HttpFoundation\Response;
+use Inertia\Middleware;
 
-class HandleInertiaRequests
+class HandleInertiaRequests extends Middleware
 {
     /**
-     * @param  Closure(Request): Response  $next
+     * @var string
      */
-    public function handle(Request $request, Closure $next): Response
-    {
-        return $next($request);
-    }
+    protected $rootView = 'lathe::app';
 }

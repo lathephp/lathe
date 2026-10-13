@@ -7,5 +7,11 @@ namespace Lathe\Assets;
  */
 class AssetManifest
 {
-    //
+    /**
+     * The content hash of the built entry file, or "dev" before the first build.
+     */
+    public function hash(): string
+    {
+        return 'dev';
+    }
 }

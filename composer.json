@@ -13,6 +13,8 @@
     "type": "library",
     "require": {
         "php": "^8.4",
+        "inertiajs/inertia-laravel": "^3.5.1",
+        "laravel/fortify": "^1.41",
         "laravel/framework": "^13.32"
     },
     "require-dev": {

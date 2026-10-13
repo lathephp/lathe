@@ -2,12 +2,18 @@
 
 namespace Lathe;
 
+use Illuminate\Auth\Middleware\RedirectIfAuthenticated;
+use Illuminate\Contracts\Http\Kernel;
 use Illuminate\Foundation\Console\AboutCommand;
+use Illuminate\Routing\Router;
 use Illuminate\Support\ServiceProvider;
 use Lathe\Assets\AssetManifest;
 use Lathe\Auth\FortifyConfig;
 use Lathe\Dashboards\DashboardRegistry;
 use Lathe\Exceptions\InvalidConfigurationException;
+use Lathe\Http\Middleware\ServeLathe;
+use Lathe\Http\Middleware\ServePlugins;
+use Lathe\Http\PanelRoutes;
 use Lathe\Plugins\PluginRegistry;
 use Lathe\Resources\ResourceRegistry;
 use Lathe\Support\ConfigStore;
@@ -34,11 +40,35 @@ class LatheServiceProvider extends ServiceProvider
 
         AboutCommand::add('Lathe', fn () => ['Version' => Lathe::version()]);
 
+        $this->loadViewsFrom(__DIR__.'/../resources/views', 'lathe');
+        $this->registerMiddleware();
+
+        if (! $this->app->routesAreCached()) {
+            $this->app->make(PanelRoutes::class)->register();
+        }
+
         if ($this->app->runningInConsole()) {
             $this->publishes([
                 __DIR__.'/../config/lathe.php' => config_path('lathe.php'),
             ], 'lathe-config');
         }
+    }
+
+    protected function registerMiddleware(): void
+    {
+        $router = $this->app->make(Router::class);
+        $config = $this->app->make(ConfigStore::class);
+
+        /** @var list<string> $middleware */
+        $middleware = $config->get('middleware', []);
+        /** @var list<string> $apiMiddleware */
+        $apiMiddleware = $config->get('api_middleware', []);
+
+        $router->middlewareGroup('lathe', [ServePlugins::class, ...$middleware]);
+        $router->middlewareGroup('lathe.api', $apiMiddleware);
+        $router->aliasMiddleware('lathe.guest', RedirectIfAuthenticated::class);
+
+        $this->app->make(Kernel::class)->pushMiddleware(ServeLathe::class);
     }
 
     protected function validateConfig(): void
