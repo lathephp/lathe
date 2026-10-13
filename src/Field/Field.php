@@ -6,6 +6,7 @@ use Closure;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
 use JsonSerializable;
+use Lathe\Filters\FieldFilter;
 
 /**
  * A column of a Resource: where its value comes from and which cell component draws it.
@@ -17,6 +18,8 @@ class Field implements JsonSerializable
     protected string $component = 'text';
 
     protected bool $sortable = false;
+
+    protected bool $filterable = false;
 
     /**
      * @param  (Closure(Model): (string|int|float|bool|null))|null  $resolver
@@ -59,6 +62,26 @@ class Field implements JsonSerializable
     public function isSortable(): bool
     {
         return $this->sortable;
+    }
+
+    /**
+     * Give the index a min/max range filter on this field's column. Only for a numeric column.
+     */
+    public function filterable(bool $filterable = true): static
+    {
+        $this->filterable = $filterable;
+
+        return $this;
+    }
+
+    public function isFilterable(): bool
+    {
+        return $this->filterable;
+    }
+
+    public function makeFieldFilter(): FieldFilter
+    {
+        return new FieldFilter($this->label, $this->attribute);
     }
 
     /**

@@ -6,6 +6,7 @@ use Closure;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
+use Lathe\Field\Field;
 use Lathe\Filters\Filter;
 use Lathe\Http\Requests\LatheRequest;
 use Lathe\Search\SearchableColumn;
@@ -47,7 +48,19 @@ abstract class Resource
      */
     public function availableFilters(LatheRequest $request): array
     {
-        return array_values(array_filter($this->filters($request), fn (Filter $filter) => $filter->authorizedToSee($request)));
+        $generated = array_map(fn (Field $field) => $field->makeFieldFilter(), $this->filterableFields($request));
+
+        return array_values(array_filter([...$this->filters($request), ...$generated], fn (Filter $filter) => $filter->authorizedToSee($request)));
+    }
+
+    /**
+     * The fields marked filterable(); each one generates a FieldFilter.
+     *
+     * @return list<Field>
+     */
+    public function filterableFields(LatheRequest $request): array
+    {
+        return array_values(array_filter($this->fields($request), fn (mixed $field) => $field instanceof Field && $field->isFilterable()));
     }
 
     public static function make(?Model $model = null): static

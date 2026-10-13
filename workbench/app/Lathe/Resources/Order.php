@@ -30,7 +30,7 @@ class Order extends Resource
             Field::make('Status'),
             Field::make('Total', 'total_cents', fn (Model $order) => $order instanceof OrderModel
                 ? number_format($order->total_cents / 100, 2, '.', '')
-                : null)->sortable(),
+                : null)->sortable()->filterable(),
             Field::make('Placed', 'placed_at', fn (Model $order) => $order instanceof OrderModel
                 ? $order->placed_at->utc()->toIso8601ZuluString()
                 : null)->sortable(),

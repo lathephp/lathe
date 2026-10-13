@@ -296,14 +296,18 @@ Lathe\Events\ServingLathe::Illuminate\Http\Request $request
 Lathe\Events\ServingLathe::__construct(Illuminate\Http\Request $request)
 Lathe\Field\Field::?Closure $resolver  [protected]
 Lathe\Field\Field::__construct(string $label, string $attribute, ?Closure $resolver = NULL)
+Lathe\Field\Field::bool $filterable  [protected]
 Lathe\Field\Field::bool $sortable  [protected]
 Lathe\Field\Field::cell(Illuminate\Database\Eloquent\Model $model): array
 Lathe\Field\Field::component(string $component): static
+Lathe\Field\Field::filterable(bool $filterable = true): static
+Lathe\Field\Field::isFilterable(): bool
 Lathe\Field\Field::isSortable(): bool
 Lathe\Field\Field::jsonSerialize(): array
 Lathe\Field\Field::key(): string
 Lathe\Field\Field::label(): string
 Lathe\Field\Field::make(string $label, ?string $attribute = NULL, ?Closure $resolver = NULL): static  [static]
+Lathe\Field\Field::makeFieldFilter(): Lathe\Filters\FieldFilter
 Lathe\Field\Field::resolve(Illuminate\Database\Eloquent\Model $model): string|int|float|bool|null
 Lathe\Field\Field::sortable(bool $sortable = true): static
 Lathe\Field\Field::sortableUriKey(): string
@@ -315,6 +319,12 @@ Lathe\Filters\BooleanFilter::normalize(Lathe\Http\Requests\LatheRequest $request
 Lathe\Filters\DateFilter::component(): string
 Lathe\Filters\DateFilter::date(mixed $side): ?string  [protected]
 Lathe\Filters\DateFilter::normalize(Lathe\Http\Requests\LatheRequest $request, mixed $value, bool $remote): array
+Lathe\Filters\FieldFilter::__construct(string $label, string $attribute)
+Lathe\Filters\FieldFilter::apply(Lathe\Http\Requests\LatheRequest $request, Illuminate\Database\Eloquent\Builder $query, mixed $value): Illuminate\Database\Eloquent\Builder
+Lathe\Filters\FieldFilter::key(): string
+Lathe\Filters\FieldFilter::name(): string
+Lathe\Filters\FieldFilter::string $attribute  [protected]
+Lathe\Filters\FieldFilter::string $label  [protected]
 Lathe\Filters\Filter::?Closure $seeCallback  [protected]
 Lathe\Filters\Filter::Closure|bool $searchable  [protected]
 Lathe\Filters\Filter::apply(Lathe\Http\Requests\LatheRequest $request, Illuminate\Database\Eloquent\Builder $query, mixed $value): Illuminate\Database\Eloquent\Builder
@@ -324,6 +334,7 @@ Lathe\Filters\Filter::bool $multiple  [protected]
 Lathe\Filters\Filter::canSee(Closure $callback): static
 Lathe\Filters\Filter::component(): string
 Lathe\Filters\Filter::default(): mixed
+Lathe\Filters\Filter::definition(Lathe\Http\Requests\LatheRequest $request, int $threshold): array
 Lathe\Filters\Filter::getPlacement(): string
 Lathe\Filters\Filter::immediate(bool $immediate = true): static
 Lathe\Filters\Filter::invalid(): never  [protected]
@@ -335,6 +346,7 @@ Lathe\Filters\Filter::name(): string
 Lathe\Filters\Filter::normalize(Lathe\Http\Requests\LatheRequest $request, mixed $value, bool $remote): mixed
 Lathe\Filters\Filter::options(Lathe\Http\Requests\LatheRequest $request): array
 Lathe\Filters\Filter::placement(string $slot): static
+Lathe\Filters\Filter::searchOptions(Lathe\Http\Requests\LatheRequest $request, string $term, int $page, int $perPage): array
 Lathe\Filters\Filter::searchable(Closure|bool $searchable = true): static
 Lathe\Filters\Filter::string $placement  [protected]
 Lathe\Filters\FilterApplicator::Lathe\Resources\Resource $resource  [protected]
@@ -366,6 +378,9 @@ Lathe\Http\Controllers\Resources\DeleteController::forceDelete(Lathe\Http\Reques
 Lathe\Http\Controllers\Resources\DeleteController::purgeAttachments(Illuminate\Database\Eloquent\Model $model): void  [protected]
 Lathe\Http\Controllers\Resources\DeleteController::restore(Lathe\Http\Requests\LatheRequest $request, Lathe\Auth\ResourceAuthorization $authorization, string $resource, string $resourceId): Illuminate\Http\JsonResponse
 Lathe\Http\Controllers\Resources\DeleteController::run(Lathe\Http\Requests\LatheRequest $request, string $class, Illuminate\Database\Eloquent\Model $model, string $hook, Closure $write, string $event, bool $purge = false): Illuminate\Http\JsonResponse  [protected]
+Lathe\Http\Controllers\Resources\FilterController::PER_PAGE
+Lathe\Http\Controllers\Resources\FilterController::index(Lathe\Http\Requests\LatheRequest $request, Lathe\Auth\ResourceAuthorization $authorization): Illuminate\Http\JsonResponse
+Lathe\Http\Controllers\Resources\FilterController::options(Lathe\Http\Requests\LatheRequest $request, Lathe\Auth\ResourceAuthorization $authorization): Illuminate\Http\JsonResponse
 Lathe\Http\Controllers\Resources\IndexController::__invoke(Lathe\Http\Requests\LatheRequest $request, Lathe\Auth\ResourceAuthorization $authorization, Lathe\Http\Payloads\IndexPayload $payload): Illuminate\Http\JsonResponse
 Lathe\Http\Controllers\Resources\IndexPageController::__invoke(Lathe\Http\Requests\LatheRequest $request, Lathe\Auth\ResourceAuthorization $authorization, Lathe\Http\Payloads\IndexPayload $payload): Symfony\Component\HttpFoundation\Response
 Lathe\Http\ErrorPages::Lathe\Auth\FortifyConfig $fortify  [protected]
@@ -584,6 +599,7 @@ Lathe\Resources\Resource::definition(): Lathe\Resources\ResourceDefinition
 Lathe\Resources\Resource::detailQuery(Lathe\Http\Requests\LatheRequest $request, Illuminate\Database\Eloquent\Builder $query): Illuminate\Database\Eloquent\Builder  [static]
 Lathe\Resources\Resource::editQuery(Lathe\Http\Requests\LatheRequest $request, Illuminate\Database\Eloquent\Builder $query): Illuminate\Database\Eloquent\Builder  [static]
 Lathe\Resources\Resource::fields(Lathe\Http\Requests\LatheRequest $request): array
+Lathe\Resources\Resource::filterableFields(Lathe\Http\Requests\LatheRequest $request): array
 Lathe\Resources\Resource::filters(Lathe\Http\Requests\LatheRequest $request): array
 Lathe\Resources\Resource::forModel(?Illuminate\Database\Eloquent\Model $model): static
 Lathe\Resources\Resource::getModel(): ?Illuminate\Database\Eloquent\Model
@@ -843,6 +859,7 @@ class Lathe\Exceptions\ResourceUriKeyCollisionException
 class Lathe\Field\Field
 class Lathe\Filters\BooleanFilter
 class Lathe\Filters\DateFilter
+class Lathe\Filters\FieldFilter
 class Lathe\Filters\Filter
 class Lathe\Filters\FilterApplicator
 class Lathe\Filters\RangeFilter
@@ -856,6 +873,7 @@ class Lathe\Http\Controllers\Plugins\PluginApiController
 class Lathe\Http\Controllers\Plugins\PluginPageController
 class Lathe\Http\Controllers\Resources\CountController
 class Lathe\Http\Controllers\Resources\DeleteController
+class Lathe\Http\Controllers\Resources\FilterController
 class Lathe\Http\Controllers\Resources\IndexController
 class Lathe\Http\Controllers\Resources\IndexPageController
 class Lathe\Http\ErrorPages

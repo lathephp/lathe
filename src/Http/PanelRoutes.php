@@ -15,6 +15,7 @@ use Lathe\Http\Controllers\Plugins\PluginApiController;
 use Lathe\Http\Controllers\Plugins\PluginPageController;
 use Lathe\Http\Controllers\Resources\CountController;
 use Lathe\Http\Controllers\Resources\DeleteController;
+use Lathe\Http\Controllers\Resources\FilterController;
 use Lathe\Http\Controllers\Resources\IndexController;
 use Lathe\Http\Controllers\Resources\IndexPageController;
 use Lathe\Http\Middleware\Authenticate;
@@ -74,6 +75,8 @@ class PanelRoutes
         $this->api()->prefix($this->apiPrefix())->name('lathe.api.')->group(function (Router $router) {
             $router->get('resources/{resource}', IndexController::class)->name('resources.index');
             $router->get('resources/{resource}/count', CountController::class)->name('resources.count');
+            $router->get('resources/{resource}/filters', [FilterController::class, 'index'])->name('resources.filters');
+            $router->get('resources/{resource}/filters/{filter}/options', [FilterController::class, 'options'])->name('resources.filters.options');
             $router->delete('resources/{resource}/{resourceId}', [DeleteController::class, 'delete'])->name('resources.delete');
             $router->delete('resources/{resource}/{resourceId}/force', [DeleteController::class, 'forceDelete'])->name('resources.forceDelete');
             $router->put('resources/{resource}/{resourceId}/restore', [DeleteController::class, 'restore'])->name('resources.restore');

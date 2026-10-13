@@ -30,6 +30,19 @@ class OrderCustomer extends Filter
             ->all();
     }
 
+    public function searchOptions(LatheRequest $request, string $term, int $page, int $perPage): array
+    {
+        $customers = Customer::where('name', 'like', addcslashes($term, '%_\\').'%')
+            ->orderBy('id')
+            ->offset(($page - 1) * $perPage)
+            ->limit($perPage + 1)
+            ->get(['id', 'name']);
+
+        return array_values($customers
+            ->map(fn (Customer $customer) => ['label' => $customer->name, 'value' => $customer->id])
+            ->all());
+    }
+
     public function apply(LatheRequest $request, Builder $query, mixed $value): Builder
     {
         return $query->where($query->qualifyColumn('customer_id'), $value);

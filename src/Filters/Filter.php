@@ -50,6 +50,52 @@ abstract class Filter
         return [];
     }
 
+    /**
+     * One page of options whose label starts with the term, for a remote picker. The default
+     * reads options(); a filter over a large table overrides it with a query. It may return one
+     * option more than $perPage: the extra one tells the caller another page follows.
+     *
+     * @return list<array{label: string, value: mixed}>
+     */
+    public function searchOptions(LatheRequest $request, string $term, int $page, int $perPage): array
+    {
+        $matches = [];
+
+        foreach ($this->options($request) as $label => $value) {
+            if ($term === '' || str_starts_with(mb_strtolower((string) $label), mb_strtolower($term))) {
+                $matches[] = ['label' => (string) $label, 'value' => $value];
+            }
+        }
+
+        return array_slice($matches, ($page - 1) * $perPage, $perPage + 1);
+    }
+
+    /**
+     * What the index and the filters endpoint send about this filter. A remote one sends no options.
+     *
+     * @return array<string, mixed>
+     */
+    public function definition(LatheRequest $request, int $threshold): array
+    {
+        $remote = $this->isRemote($request, $threshold);
+        $options = $remote ? null : $this->options($request);
+
+        return [
+            'key' => $this->key(),
+            'name' => $this->name(),
+            'component' => $this->component(),
+            'options' => $options === null ? null : array_map(
+                fn (string|int $label, mixed $value) => ['label' => (string) $label, 'value' => $value],
+                array_keys($options),
+                array_values($options),
+            ),
+            'remote' => $remote,
+            'immediate' => $this->immediate,
+            'placement' => $this->placement,
+            'default' => $this->default(),
+        ];
+    }
+
     public function default(): mixed
     {
         return null;
