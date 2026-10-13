@@ -109,7 +109,7 @@ it('code_field_json_round_trips', function () {
 
     LatheTest::resource('code-samples')->update($id, ['name' => 'a', 'settings' => '{a:'])->assertUnprocessable()->assertJsonValidationErrors('settings');
 
-    expect(CodeSample::findOrFail($id)->settings)->toBe(['title' => 'Zoë é', 'n' => [1, 2]]);
+    expect(CodeSample::findOrFail($id)->settings)->toMatchStoredJson(['title' => 'Zoë é', 'n' => [1, 2]]);
 })->group('regression');
 
 it('keeps plain code as typed', function () {
