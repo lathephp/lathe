@@ -14,6 +14,33 @@ abstract class LatheApplicationServiceProvider extends ServiceProvider
     {
         $this->authorization();
         $this->gate();
+        $this->registerResources();
+        $this->registerDashboards();
+        $this->registerPlugins();
+    }
+
+    /**
+     * The Resources of the panel. By default every Resource in app/Lathe/Resources, read on first need.
+     */
+    protected function registerResources(): void
+    {
+        Lathe::discoverResources(app_path('Lathe/Resources'));
+    }
+
+    /**
+     * Dashboards besides the built-in Main.
+     */
+    protected function registerDashboards(): void
+    {
+        //
+    }
+
+    /**
+     * Plugins registered by hand; a hand-registered plugin wins over the same one found by discovery.
+     */
+    protected function registerPlugins(): void
+    {
+        //
     }
 
     /**

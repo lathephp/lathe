@@ -3,7 +3,6 @@
 namespace Workbench\App\Providers;
 
 use Illuminate\Support\ServiceProvider;
-use Lathe\Lathe;
 use Workbench\App\Console\Commands\DemoSeedCommand;
 
 class WorkbenchServiceProvider extends ServiceProvider
@@ -23,6 +22,5 @@ class WorkbenchServiceProvider extends ServiceProvider
     {
         $this->commands([DemoSeedCommand::class]);
 
-        Lathe::discoverResources(dirname(__DIR__).'/Lathe/Resources', 'Workbench\\App\\Lathe\\Resources');
     }
 }

@@ -3,11 +3,20 @@
 namespace Workbench\App\Providers;
 
 use Illuminate\Support\Facades\Gate;
+use Lathe\Lathe;
 use Lathe\LatheApplicationServiceProvider;
 use Workbench\App\Models\User;
 
 class LatheServiceProvider extends LatheApplicationServiceProvider
 {
+    /**
+     * The workbench keeps its Resources under workbench/app/Lathe/Resources.
+     */
+    protected function registerResources(): void
+    {
+        Lathe::discoverResources(dirname(__DIR__).'/Lathe/Resources', 'Workbench\\App\\Lathe\\Resources');
+    }
+
     /**
      * The viewLathe gate: only the listed emails may open the panel.
      */

@@ -349,6 +349,9 @@ Lathe\Lathe::getFacadeAccessor(): string  [protected static]
 Lathe\LatheApplicationServiceProvider::authorization(): void  [protected]
 Lathe\LatheApplicationServiceProvider::boot(): void
 Lathe\LatheApplicationServiceProvider::gate(): void  [protected]
+Lathe\LatheApplicationServiceProvider::registerDashboards(): void  [protected]
+Lathe\LatheApplicationServiceProvider::registerPlugins(): void  [protected]
+Lathe\LatheApplicationServiceProvider::registerResources(): void  [protected]
 Lathe\LatheManager::?Closure $footer  [protected]
 Lathe\LatheManager::Illuminate\Contracts\Container\Container $container  [protected]
 Lathe\LatheManager::__construct(Illuminate\Contracts\Container\Container $container)
