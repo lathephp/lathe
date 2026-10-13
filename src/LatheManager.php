@@ -23,6 +23,9 @@ class LatheManager
     /** @var (Closure(Request): string)|null */
     protected ?Closure $footer = null;
 
+    /** @var (Closure(Request): ?string)|null */
+    protected ?Closure $userTimezone = null;
+
     public function __construct(protected Container $container)
     {
         //
@@ -94,6 +97,28 @@ class LatheManager
     public function check(Request $request): bool
     {
         return $this->container->make(PanelGate::class)->check($request);
+    }
+
+    /**
+     * Name the user's IANA timezone for display, such as a column on the user.
+     *
+     * @param  Closure(Request): ?string  $callback
+     */
+    public function userTimezone(Closure $callback): static
+    {
+        $this->userTimezone = $callback;
+
+        return $this;
+    }
+
+    /**
+     * The callback's timezone when it is a real IANA name, else null.
+     */
+    public function resolveUserTimezone(Request $request): ?string
+    {
+        $timezone = $this->userTimezone === null ? null : ($this->userTimezone)($request);
+
+        return is_string($timezone) && in_array($timezone, \DateTimeZone::listIdentifiers(), true) ? $timezone : null;
     }
 
     /**

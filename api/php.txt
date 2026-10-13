@@ -373,6 +373,7 @@ Lathe\LatheApplicationServiceProvider::registerDashboards(): void  [protected]
 Lathe\LatheApplicationServiceProvider::registerPlugins(): void  [protected]
 Lathe\LatheApplicationServiceProvider::registerResources(): void  [protected]
 Lathe\LatheManager::?Closure $footer  [protected]
+Lathe\LatheManager::?Closure $userTimezone  [protected]
 Lathe\LatheManager::Illuminate\Contracts\Container\Container $container  [protected]
 Lathe\LatheManager::__construct(Illuminate\Contracts\Container\Container $container)
 Lathe\LatheManager::assets(): Lathe\Assets\AssetManifest
@@ -391,7 +392,9 @@ Lathe\LatheManager::plugins(): Lathe\Plugins\PluginRegistry
 Lathe\LatheManager::registerPlugins(Lathe\Plugins\Plugin ...$plugins): void
 Lathe\LatheManager::registerResources(string ...$classes): void
 Lathe\LatheManager::resolveSidebarDefaultOpen(Illuminate\Http\Request $request): bool
+Lathe\LatheManager::resolveUserTimezone(Illuminate\Http\Request $request): ?string
 Lathe\LatheManager::resources(): Lathe\Resources\ResourceRegistry
+Lathe\LatheManager::userTimezone(Closure $callback): static
 Lathe\LatheManager::version(): string
 Lathe\LatheManager::versionLabel(): ?string
 Lathe\LatheServiceProvider::boot(): void
@@ -465,6 +468,8 @@ Lathe\Query\CountStrategy::Exact
 Lathe\Query\CountStrategy::None
 Lathe\Query\CountStrategy::string $name
 Lathe\Query\CountStrategy::string $value
+Lathe\Query\DateBucket::day(Illuminate\Database\Connection $connection, string $column): string  [static]
+Lathe\Query\DateBucket::month(Illuminate\Database\Connection $connection, string $column): string  [static]
 Lathe\Query\QueryContext::Detail
 Lathe\Query\QueryContext::Edit
 Lathe\Query\QueryContext::Index
@@ -696,6 +701,11 @@ Lathe\Support\ConfigValidator::string(): Closure  [protected]
 Lathe\Support\ConfigValidator::stringList(): Closure  [protected]
 Lathe\Support\ConfigValidator::unknownIn(array $given, array $known, string $prefix): array  [protected]
 Lathe\Support\ConfigValidator::unknownKeys(array $config): array
+Lathe\Support\Timezone::Lathe\LatheManager $lathe  [protected]
+Lathe\Support\Timezone::__construct(Lathe\LatheManager $lathe)
+Lathe\Support\Timezone::dayBounds(string $day, string $timezone): array
+Lathe\Support\Timezone::forRequest(Illuminate\Http\Request $request): string
+Lathe\Support\Timezone::localDay(Carbon\CarbonInterface $moment, string $timezone): string
 Lathe\Support\Util::isLatheRequest(Illuminate\Http\Request $request): bool  [static]
 Lathe\Testing\InteractsWithLathe::assertQueryCount(int $expected, Closure $request): void  [protected]
 Lathe\Testing\InteractsWithLathe::assertScoped(string $model, Closure $request): void  [protected]
@@ -775,12 +785,14 @@ class Lathe\Plugins\Plugin
 class Lathe\Plugins\PluginDiscovery
 class Lathe\Plugins\PluginRegistry
 class Lathe\Query\Count
+class Lathe\Query\DateBucket
 class Lathe\Query\ResourceQuery
 class Lathe\Resources\Resource
 class Lathe\Resources\ResourceDefinition
 class Lathe\Resources\ResourceRegistry
 class Lathe\Support\ConfigStore
 class Lathe\Support\ConfigValidator
+class Lathe\Support\Timezone
 class Lathe\Support\Util
 class Lathe\Testing\LatheTest
 class Lathe\Testing\ResourceTester

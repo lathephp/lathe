@@ -20,6 +20,8 @@ use Illuminate\Support\Facades\Facade;
  * @method static array{text: string, href: string|null}|null footerFor(\Illuminate\Http\Request $request)
  * @method static string|null versionLabel()
  * @method static bool resolveSidebarDefaultOpen(\Illuminate\Http\Request $request)
+ * @method static \Lathe\LatheManager userTimezone(\Closure $callback)
+ * @method static string|null resolveUserTimezone(\Illuminate\Http\Request $request)
  * @method static string name()
  * @method static string version()
  * @method static string path()
