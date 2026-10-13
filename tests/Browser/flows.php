@@ -19,4 +19,5 @@ return [
     'index-filters' => 'IndexFiltersTest.php',
     'lens' => 'LensTest.php',
     'index-rows' => 'IndexRowsTest.php',
+    'index-tabs' => 'IndexTabsTest.php',
 ];
