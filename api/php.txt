@@ -570,6 +570,11 @@ Lathe\Field\DefaultLifecycle::parse(Lathe\Http\Requests\LatheRequest $request, s
 Lathe\Field\DefaultLifecycle::persist(object $model, string $attribute, mixed $value): ?Closure
 Lathe\Field\DefaultLifecycle::present(mixed $raw, object $record, string $attribute): mixed
 Lathe\Field\DefaultLifecycle::wire(mixed $value): mixed  [static]
+Lathe\Field\Dependency::?Lathe\Field\FieldContext $context
+Lathe\Field\Dependency::Closure $callback
+Lathe\Field\Dependency::__construct(array $attributes, Closure $callback, ?Lathe\Field\FieldContext $context = NULL)
+Lathe\Field\Dependency::appliesTo(Lathe\Field\FieldContext $context): bool
+Lathe\Field\Dependency::array $attributes
 Lathe\Field\Evaluator::__construct()
 Lathe\Field\Evaluator::call(Closure $callback, array $values = array ( ), array $positional = array ( )): mixed
 Lathe\Field\Evaluator::currentRequest(): ?Lathe\Http\Requests\LatheRequest  [static]
@@ -587,6 +592,7 @@ Lathe\Field\Field::?Lathe\Field\Condition $requiredWhen  [protected]
 Lathe\Field\Field::?Lathe\Field\Condition $visibleWhen  [protected]
 Lathe\Field\Field::?Lathe\Field\FieldContext $context  [protected]
 Lathe\Field\Field::?WeakMap $seen  [protected]
+Lathe\Field\Field::?array $optionsFrom  [protected]
 Lathe\Field\Field::?string $validationAttribute  [protected]
 Lathe\Field\Field::Closure|array $nullValues  [protected]
 Lathe\Field\Field::Closure|bool $immutable  [protected]
@@ -594,7 +600,9 @@ Lathe\Field\Field::Closure|bool $readonly  [protected]
 Lathe\Field\Field::Closure|bool $required  [protected]
 Lathe\Field\Field::Lathe\Field\FieldLifecycle $lifecycle  [protected]
 Lathe\Field\Field::__construct(string $label, Closure|string|null $attribute = NULL, ?Closure $resolver = NULL)
+Lathe\Field\Field::addDependency(array|string $attributes, Closure $callback, ?Lathe\Field\FieldContext $context): static  [protected]
 Lathe\Field\Field::array $creationRules  [protected]
+Lathe\Field\Field::array $dependencies  [protected]
 Lathe\Field\Field::array $hides  [protected]
 Lathe\Field\Field::array $messages  [protected]
 Lathe\Field\Field::array $meta  [protected]
@@ -621,6 +629,10 @@ Lathe\Field\Field::conditionValues(?Lathe\Http\Requests\LatheRequest $request, m
 Lathe\Field\Field::creationRules(mixed ...$rules): static
 Lathe\Field\Field::decide(Closure|bool $value, ?Lathe\Http\Requests\LatheRequest $request, mixed $model): bool  [protected]
 Lathe\Field\Field::default(mixed $value): static
+Lathe\Field\Field::dependencies(): array
+Lathe\Field\Field::dependsOn(array|string $attributes, Closure $callback): static
+Lathe\Field\Field::dependsOnCreating(array|string $attributes, Closure $callback): static
+Lathe\Field\Field::dependsOnUpdating(array|string $attributes, Closure $callback): static
 Lathe\Field\Field::displayUsing(Closure $callback): static
 Lathe\Field\Field::evaluate(Closure $callback, array $values = array ( ), array $positional = array ( )): mixed  [protected]
 Lathe\Field\Field::exceptOnForms(): static
@@ -680,6 +692,7 @@ Lathe\Field\Field::onlyOnForms(): static
 Lathe\Field\Field::onlyOnIndex(): static
 Lathe\Field\Field::onlyOnPreview(): static
 Lathe\Field\Field::option(string $name, mixed $value): static  [protected]
+Lathe\Field\Field::optionsFrom(string $attribute, Closure|array $source): static
 Lathe\Field\Field::placeholder(string $placeholder): static
 Lathe\Field\Field::readonly(Closure|bool $readonly = true): static
 Lathe\Field\Field::readonlyWhen(Lathe\Field\Condition $condition): static
@@ -737,6 +750,19 @@ Lathe\Field\FieldLifecycle::extract(object $record, string $attribute): mixed
 Lathe\Field\FieldLifecycle::parse(Lathe\Http\Requests\LatheRequest $request, string $attribute): mixed
 Lathe\Field\FieldLifecycle::persist(object $model, string $attribute, mixed $value): ?Closure
 Lathe\Field\FieldLifecycle::present(mixed $raw, object $record, string $attribute): mixed
+Lathe\Field\FieldPatch::Lathe\Field\Field $field
+Lathe\Field\FieldPatch::__construct(Lathe\Field\Field $field)
+Lathe\Field\FieldPatch::array $changes  [protected]
+Lathe\Field\FieldPatch::hasValue(): bool
+Lathe\Field\FieldPatch::hide(): static
+Lathe\Field\FieldPatch::jsonSerialize(): array
+Lathe\Field\FieldPatch::options(array $options): static
+Lathe\Field\FieldPatch::readonly(bool $readonly = true): static
+Lathe\Field\FieldPatch::required(bool $required = true): static
+Lathe\Field\FieldPatch::setValue(mixed $value): static
+Lathe\Field\FieldPatch::show(): static
+Lathe\Field\FieldPatch::value(): mixed
+Lathe\Field\FieldPatch::withoutValue(): static
 Lathe\Field\FieldResolver::cells(Illuminate\Database\Eloquent\Model $model, iterable $fields): array  [static]
 Lathe\Field\FileField::?Closure $deleteCallback  [protected]
 Lathe\Field\FileField::?Closure $downloadCallback  [protected]
@@ -792,6 +818,16 @@ Lathe\Field\FileField::string $component  [protected]
 Lathe\Field\FileField::string $directory  [protected]
 Lathe\Field\FileField::stringOf(mixed $value): string  [protected]
 Lathe\Field\FileField::thumbnail(Closure $callback): static
+Lathe\Field\FormData::Lathe\Http\Requests\LatheRequest $request  [protected]
+Lathe\Field\FormData::__construct(array $values, Lathe\Http\Requests\LatheRequest $request)
+Lathe\Field\FormData::all(): array
+Lathe\Field\FormData::array $values  [protected]
+Lathe\Field\FormData::boolean(string $key): bool
+Lathe\Field\FormData::file(string $key): ?Illuminate\Http\UploadedFile
+Lathe\Field\FormData::get(string $key, mixed $default = NULL): mixed
+Lathe\Field\FormData::has(string $key): bool
+Lathe\Field\FormData::request(): Lathe\Http\Requests\LatheRequest
+Lathe\Field\FormData::resource(string $uriKey, mixed $value): ?Illuminate\Database\Eloquent\Model
 Lathe\Field\GravatarField::?string $source  [protected]
 Lathe\Field\GravatarField::emailOf(object $record): string  [protected]
 Lathe\Field\GravatarField::imageUrl(object $record): ?string  [protected]
@@ -1079,6 +1115,10 @@ Lathe\Http\Controllers\Resources\DeleteController::forceDelete(Lathe\Http\Reques
 Lathe\Http\Controllers\Resources\DeleteController::purgeAttachments(Illuminate\Database\Eloquent\Model $model): void  [protected]
 Lathe\Http\Controllers\Resources\DeleteController::restore(Lathe\Http\Requests\LatheRequest $request, Lathe\Auth\ResourceAuthorization $authorization, string $resource, string $resourceId): Illuminate\Http\JsonResponse
 Lathe\Http\Controllers\Resources\DeleteController::run(Lathe\Http\Requests\LatheRequest $request, string $class, Illuminate\Database\Eloquent\Model $model, string $hook, Closure $write, string $event, bool $purge = false): Illuminate\Http\JsonResponse  [protected]
+Lathe\Http\Controllers\Resources\DependencyController::MAX_DEPTH
+Lathe\Http\Controllers\Resources\DependencyController::__invoke(Lathe\Http\Requests\LatheRequest $request, Lathe\Auth\ResourceAuthorization $authorization, string $resource): Illuminate\Http\JsonResponse
+Lathe\Http\Controllers\Resources\DependencyController::call(Lathe\Field\Dependency $dependency, Lathe\Field\FieldPatch $patch, Lathe\Http\Requests\LatheRequest $request, Lathe\Field\FormData $data): void  [protected]
+Lathe\Http\Controllers\Resources\DependencyController::model(Lathe\Http\Requests\LatheRequest $request, Lathe\Auth\ResourceAuthorization $authorization, string $class, Lathe\Field\FieldContext $context, mixed $id): ?Illuminate\Database\Eloquent\Model  [protected]
 Lathe\Http\Controllers\Resources\DetailPageController::__invoke(Lathe\Http\Requests\LatheRequest $request, Lathe\Auth\ResourceAuthorization $authorization, Lathe\Http\Payloads\IndexPayload $index, Lathe\Http\Payloads\RecordPayload $payload, string $resource, string $resourceId): Symfony\Component\HttpFoundation\Response
 Lathe\Http\Controllers\Resources\FieldFileController::destroy(Lathe\Http\Requests\LatheRequest $request, Lathe\Auth\ResourceAuthorization $authorization, string $resource, string $resourceId, string $field): Illuminate\Http\Response
 Lathe\Http\Controllers\Resources\FieldFileController::download(Lathe\Http\Requests\LatheRequest $request, Lathe\Auth\ResourceAuthorization $authorization, string $resource, string $resourceId, string $field): Symfony\Component\HttpFoundation\Response
@@ -2055,11 +2095,14 @@ class Lathe\Field\CurrencyField
 class Lathe\Field\DateField
 class Lathe\Field\DateTimeField
 class Lathe\Field\DefaultLifecycle
+class Lathe\Field\Dependency
 class Lathe\Field\Evaluator
 class Lathe\Field\Field
 class Lathe\Field\FieldCollection
+class Lathe\Field\FieldPatch
 class Lathe\Field\FieldResolver
 class Lathe\Field\FileField
+class Lathe\Field\FormData
 class Lathe\Field\GravatarField
 class Lathe\Field\HeadingField
 class Lathe\Field\IconField
@@ -2100,6 +2143,7 @@ class Lathe\Http\Controllers\Plugins\PluginApiController
 class Lathe\Http\Controllers\Plugins\PluginPageController
 class Lathe\Http\Controllers\Resources\CountController
 class Lathe\Http\Controllers\Resources\DeleteController
+class Lathe\Http\Controllers\Resources\DependencyController
 class Lathe\Http\Controllers\Resources\DetailPageController
 class Lathe\Http\Controllers\Resources\FieldFileController
 class Lathe\Http\Controllers\Resources\FieldPreviewController

@@ -16,6 +16,7 @@ use Lathe\Http\Controllers\Plugins\PluginApiController;
 use Lathe\Http\Controllers\Plugins\PluginPageController;
 use Lathe\Http\Controllers\Resources\CountController;
 use Lathe\Http\Controllers\Resources\DeleteController;
+use Lathe\Http\Controllers\Resources\DependencyController;
 use Lathe\Http\Controllers\Resources\DetailPageController;
 use Lathe\Http\Controllers\Resources\FieldFileController;
 use Lathe\Http\Controllers\Resources\FieldPreviewController;
@@ -107,6 +108,7 @@ class PanelRoutes
             $router->get('resources/{resource}/creation-fields', [FormFieldsController::class, 'creation'])->name('resources.creationFields');
             $router->post('resources/{resource}/field/{field}/preview', [FieldPreviewController::class, 'create'])->name('resources.field.preview');
             $router->post('resources/{resource}', [RecordController::class, 'store'])->name('resources.store');
+            $router->post('resources/{resource}/field-dependencies', DependencyController::class)->name('resources.dependencies');
             $router->get('resources/{resource}/{resourceId}/update-fields', [FormFieldsController::class, 'update'])->name('resources.updateFields');
             $router->post('resources/{resource}/{resourceId}/field/{field}/preview', [FieldPreviewController::class, 'update'])->name('resources.record.field.preview');
             $router->get('resources/{resource}/{resourceId}/peek', [PeekController::class, 'peek'])->name('resources.peek');

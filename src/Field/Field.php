@@ -112,6 +112,12 @@ class Field implements JsonSerializable
 
     protected ?Condition $readonlyWhen = null;
 
+    /** @var list<Dependency> */
+    protected array $dependencies = [];
+
+    /** @var array{field: string, map: array<string, mixed>}|null An array optionsFrom: the browser picks the options. */
+    protected ?array $optionsFrom = null;
+
     protected bool|Closure $required = false;
 
     protected bool|Closure $immutable = false;
@@ -803,6 +809,70 @@ class Field implements JsonSerializable
     }
 
     /**
+     * Ask the server about this field when the watched values change:
+     * fn (FieldPatch $field, LatheRequest $request, FormData $formData).
+     *
+     * @param  list<string>|string  $attributes
+     */
+    public function dependsOn(array|string $attributes, Closure $callback): static
+    {
+        return $this->addDependency($attributes, $callback, null);
+    }
+
+    /**
+     * @param  list<string>|string  $attributes
+     */
+    public function dependsOnCreating(array|string $attributes, Closure $callback): static
+    {
+        return $this->addDependency($attributes, $callback, FieldContext::Create);
+    }
+
+    /**
+     * @param  list<string>|string  $attributes
+     */
+    public function dependsOnUpdating(array|string $attributes, Closure $callback): static
+    {
+        return $this->addDependency($attributes, $callback, FieldContext::Update);
+    }
+
+    /**
+     * Take the options from another field's value: an array maps each value to its options in
+     * the browser; a Closure fn ($value) is a server lookup of at most 100 options.
+     *
+     * @param  array<string, mixed>|Closure  $source
+     */
+    public function optionsFrom(string $attribute, array|Closure $source): static
+    {
+        if ($source instanceof Closure) {
+            return $this->dependsOn([$attribute], fn (FieldPatch $field, FormData $formData) => $field->options((array) $this->evaluate($source, ['value' => $formData->get($attribute)], [$formData->get($attribute)])));
+        }
+
+        $this->mutate();
+        $this->optionsFrom = ['field' => $attribute, 'map' => $source];
+
+        return $this;
+    }
+
+    /**
+     * @return list<Dependency>
+     */
+    public function dependencies(): array
+    {
+        return $this->dependencies;
+    }
+
+    /**
+     * @param  list<string>|string  $attributes
+     */
+    protected function addDependency(array|string $attributes, Closure $callback, ?FieldContext $context): static
+    {
+        $this->mutate();
+        $this->dependencies[] = new Dependency(is_string($attributes) ? [$attributes] : $attributes, $callback, $context);
+
+        return $this;
+    }
+
+    /**
      * Whether visibleWhen lets the field through for the values of a write.
      */
     public function isVisibleFor(?LatheRequest $request = null, mixed $model = null): bool
@@ -1139,6 +1209,11 @@ class Field implements JsonSerializable
             'visibleWhen' => $this->visibleWhen,
             'requiredWhen' => $this->requiredWhen,
             'readonlyWhen' => $this->readonlyWhen,
+            'dependsOn' => array_values(array_unique(array_merge([], ...array_map(fn (Dependency $dependency) => $dependency->attributes, $this->dependencies)))),
+            'optionsFrom' => $this->optionsFrom === null ? null : [
+                'field' => $this->optionsFrom['field'],
+                'map' => array_map(fn (mixed $options) => is_array($options) ? OptionList::normalize($options, $this->label) : [], $this->optionsFrom['map']),
+            ],
             ...$this->options,
             'meta' => (object) $this->meta,
         ];

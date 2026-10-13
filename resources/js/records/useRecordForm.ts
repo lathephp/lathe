@@ -152,5 +152,11 @@ export function useRecordForm({ resource, mode, id, form }: Pick<FormProps, 'res
     cancelConflict: () => {
       setConflict(null);
     },
+    /** Values the server set (dependsOn), merged without counting as typed. */
+    applyValues: (changed: Record<string, unknown>) => {
+      if (Object.keys(changed).length > 0) {
+        setValues((current) => ({ ...current, ...changed }));
+      }
+    },
   };
 }

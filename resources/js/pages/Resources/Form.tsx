@@ -1,14 +1,15 @@
 import { Head, Link, router, usePage } from '@inertiajs/react';
 import { useTranslation } from '@lathephp/core';
-import { useEffect, useMemo, useRef } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { FieldError } from '../../components/FieldError';
 import { passes } from '../../fields/conditions';
-import { FormField } from '../../fields/registry';
+import { FormField, stringValue } from '../../fields/registry';
 import type { FormFieldData, FormProps } from '../../fields/types';
 import { cn } from '../../lib/cn';
 import { Breadcrumbs } from '../../records/Breadcrumbs';
 import { ConflictDialog } from '../../records/ConflictDialog';
 import { ReauthModal } from '../../records/ReauthModal';
+import { useDependentFields } from '../../records/useDependentFields';
 import { RecordLayout } from '../../records/RecordLayout';
 import { useRecordForm, type SubmitIntent } from '../../records/useRecordForm';
 import type { SharedProps } from '../../types';
@@ -22,6 +23,17 @@ export default function Form({ resource, mode, id, title, breadcrumbs, form, sub
     router.visit(`${basePath}/resources/${redirect}`);
   });
   const byKey = new Map(record.payload.fields.map((field) => [field.key, field]));
+  // The attributes the user typed in: a dependsOn patch never overwrites them.
+  const [dirty, setDirty] = useState<ReadonlySet<string>>(() => new Set());
+  const patches = useDependentFields({
+    uriKey: resource.uriKey,
+    mode,
+    id,
+    fields: record.payload.fields,
+    values: record.values,
+    dirty,
+    apply: record.applyValues,
+  });
   // One Set per failed submit, so the layout opens the marked tab once.
   const errorKeys = useMemo(() => new Set(Object.keys(record.errors).map((key) => key.split('.')[0] ?? key)), [record.errors]);
   const updating = mode === 'update';
@@ -59,14 +71,19 @@ export default function Form({ resource, mode, id, title, breadcrumbs, form, sub
           renderField={(key) => {
             const field = byKey.get(key);
 
-            if (field === undefined || (field.visibleWhen != null && !passes(field.visibleWhen, record.values))) {
+            const patch = patches[key] ?? {};
+
+            if (field === undefined || patch.visible === false || (patch.visible !== true && field.visibleWhen != null && !passes(field.visibleWhen, record.values))) {
               return null;
             }
 
+            const from = field.optionsFrom as { field: string; map: Record<string, unknown> } | null | undefined;
             const decided = {
               ...field,
-              required: field.required === true || (field.requiredWhen != null && passes(field.requiredWhen, record.values)),
-              readonly: field.readonly === true || (field.readonlyWhen != null && passes(field.readonlyWhen, record.values)),
+              ...(from == null ? {} : { options: from.map[stringValue(record.values[from.field])] ?? [] }),
+              ...(patch.options === undefined ? {} : { options: patch.options }),
+              required: patch.required ?? (field.required === true || (field.requiredWhen != null && passes(field.requiredWhen, record.values))),
+              readonly: patch.readonly ?? (field.readonly === true || (field.readonlyWhen != null && passes(field.readonlyWhen, record.values))),
             };
 
             return (
@@ -75,6 +92,7 @@ export default function Form({ resource, mode, id, title, breadcrumbs, form, sub
                 value={record.values[field.attribute]}
                 error={record.errors[field.attribute]}
                 onChange={(value) => {
+                  setDirty((current) => new Set(current).add(field.attribute));
                   record.setValue(field.attribute, value);
                 }}
               />
