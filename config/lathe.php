@@ -62,6 +62,7 @@ return [
         'bulk_inline_max' => 500,
         'id_list_max' => 1000,
         'metrics_ttl' => 60,
+        'repeater_rows' => 200,
     ],
 
     'uploads' => [
