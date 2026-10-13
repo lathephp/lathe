@@ -1,0 +1,4 @@
+{
+    "preset": "laravel",
+    "exclude": ["dist", "node_modules", "vendor", "stubs", ".claude"]
+}

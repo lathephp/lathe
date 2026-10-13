@@ -1,0 +1,79 @@
+{
+    "name": "lathe/lathe",
+    "description": "An admin panel for Laravel, built with React and Inertia.",
+    "keywords": [
+        "laravel",
+        "admin",
+        "panel",
+        "inertia",
+        "react"
+    ],
+    "homepage": "https://lathephp.com",
+    "license": "MIT",
+    "type": "library",
+    "require": {
+        "php": "^8.4",
+        "laravel/framework": "^13.32"
+    },
+    "require-dev": {
+        "larastan/larastan": "^3.13",
+        "laravel/pint": "^1.25",
+        "orchestra/testbench": "^11.3",
+        "pestphp/pest": "^5.3",
+        "pestphp/pest-plugin-laravel": "^5.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Lathe\\": "src/",
+            "Lathe\\Database\\Factories\\": "database/factories/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Lathe\\Tests\\": "tests/",
+            "Workbench\\App\\": "workbench/app/",
+            "Workbench\\Database\\Factories\\": "workbench/database/factories/",
+            "Workbench\\Database\\Seeders\\": "workbench/database/seeders/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Lathe\\LatheServiceProvider"
+            ]
+        }
+    },
+    "scripts": {
+        "post-autoload-dump": [
+            "@clear",
+            "@prepare"
+        ],
+        "clear": "@php vendor/bin/testbench package:purge-skeleton --ansi",
+        "prepare": "@php vendor/bin/testbench package:discover --ansi",
+        "build": "@php vendor/bin/testbench workbench:build --ansi",
+        "serve": [
+            "Composer\\Config::disableProcessTimeout",
+            "@build",
+            "@php vendor/bin/testbench serve --ansi"
+        ],
+        "lint": "pint --test",
+        "format": "pint",
+        "analyse": "phpstan analyse --memory-limit=1G",
+        "test": [
+            "@php vendor/bin/pest --parallel --exclude-group=browser,benchmark,scaffold"
+        ],
+        "qa": [
+            "@lint",
+            "@analyse",
+            "@test"
+        ]
+    },
+    "config": {
+        "sort-packages": true,
+        "allow-plugins": {
+            "pestphp/pest-plugin": true
+        }
+    },
+    "minimum-stability": "stable",
+    "prefer-stable": true
+}
