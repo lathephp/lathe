@@ -1,5 +1,5 @@
 import { router } from '@inertiajs/react';
-import { sharedProps } from '@lathephp/core';
+import { __panel } from '@lathephp/core';
 import { fireEvent, render, screen, within } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { DetailField, FormField, IndexField } from '../fields/registry';
@@ -8,7 +8,6 @@ import { renderPage } from './support';
 
 afterEach(() => {
   vi.restoreAllMocks();
-  sharedProps.set({});
 });
 
 // Newer ICU puts a narrow no-break space before AM/PM; compare with plain spaces.
@@ -98,7 +97,7 @@ describe('date-time-field', () => {
   const field = schema('date-time-field', { localValue: '2026-10-14T09:00' });
 
   it('shows the four values on index, detail and form', () => {
-    sharedProps.set({ locale: 'en', timezone: 'Pacific/Kiritimati' });
+    __panel.sharedProps.set({ locale: 'en', timezone: 'Pacific/Kiritimati' });
 
     expect(plain(renderIndex(field, '2026-10-13T19:00:00Z').textContent)).toBe('Oct 14, 2026, 9:00 AM');
     expect(plain(renderDetail(field, '2026-10-13T19:00:00Z').textContent)).toBe('Oct 14, 2026, 9:00 AM');
