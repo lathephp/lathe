@@ -40,7 +40,8 @@ function TiptapForm(props: FormFieldProps) {
 
 /** Register the renderers of the code, markdown, tiptap, slug and keyValue fields. */
 export function registerRichFields(): void {
-  registerField('markdown-field', { detail: MarkdownDetail, form: MarkdownForm });
+  registerField('markdown-field', { detail: RichDetail, form: MarkdownForm });
+  registerField('tiptap-field', { detail: RichDetail, form: TiptapForm });
   registerSlugAndKeyValueFields();
 }
 
@@ -52,6 +53,4 @@ function SlugIndex({ cell }: IndexFieldProps) {
 function registerSlugAndKeyValueFields(): void {
   registerField('slug-field', { index: SlugIndex, form: SlugInput });
   registerField('key-value-field', { detail: KeyValueDetail, form: KeyValueForm });
-  registerField('markdown-field', { detail: RichDetail, form: MarkdownForm });
-  registerField('tiptap-field', { detail: RichDetail, form: TiptapForm });
 }

@@ -471,6 +471,7 @@ Lathe\Field\Concerns\RepeaterFactories::repeater(string $name, ?string $attribut
 Lathe\Field\Concerns\RichFactories::keyValue(string $label, ?string $attribute = NULL): Lathe\Field\KeyValueField  [static]
 Lathe\Field\Concerns\RichFactories::markdown(string $label, ?string $attribute = NULL): Lathe\Field\MarkdownField  [static]
 Lathe\Field\Concerns\RichFactories::slug(string $label, ?string $attribute = NULL): Lathe\Field\SlugField  [static]
+Lathe\Field\Concerns\RichFactories::tiptap(string $label, ?string $attribute = NULL): Lathe\Field\TiptapField  [static]
 Lathe\Field\Concerns\TextFactories::color(string $label, ?string $attribute = NULL): Lathe\Field\Field  [static]
 Lathe\Field\Concerns\TextFactories::email(string $label = 'Email', Closure|string|null $attribute = NULL): Lathe\Field\TextField  [static]
 Lathe\Field\Concerns\TextFactories::heading(string $label): Lathe\Field\HeadingField  [static]
@@ -1061,6 +1062,10 @@ Lathe\Field\TextareaField::schema(Lathe\Field\FieldContext $context, Lathe\Http\
 Lathe\Field\TextareaField::shouldShow(Closure $callback): static
 Lathe\Field\TextareaField::string $component  [protected]
 Lathe\Field\TextareaField::supportsInline(): bool  [protected]
+Lathe\Field\TiptapField::__construct(string $label, Closure|string|null $attribute = NULL, ?Closure $resolver = NULL)
+Lathe\Field\TiptapField::cell(Illuminate\Database\Eloquent\Model $model): array
+Lathe\Field\TiptapField::previewFor(string $value): Lathe\Support\SafeHtml
+Lathe\Field\TiptapField::string $component  [protected]
 Lathe\Field\TokenField::?int $maskLength  [protected]
 Lathe\Field\TokenField::int $maskStart  [protected]
 Lathe\Field\TokenField::mask(int $start, ?int $length = NULL, string $char = '*'): static
@@ -2217,6 +2222,7 @@ class Lathe\Field\StackField
 class Lathe\Field\StatusField
 class Lathe\Field\TextField
 class Lathe\Field\TextareaField
+class Lathe\Field\TiptapField
 class Lathe\Field\TokenField
 class Lathe\Field\TranslatableLifecycle
 class Lathe\Field\UiAvatarField

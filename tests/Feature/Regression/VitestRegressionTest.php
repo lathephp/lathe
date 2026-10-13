@@ -9,6 +9,7 @@ const LATHE_VITEST_REGRESSIONS = [
     'collapsible_toggle_does_not_submit_form',
     'server_error_shows_retry_toast',
     'multi_select_keeps_selection',
+    'rich_text_editor_registers_each_extension_once',
 ];
 
 it('keeps_each_client_regression_test', function (string $name) {
