@@ -177,3 +177,18 @@ it('holds no password or remember token in a User index', function () {
 
     expect($json)->not->toContain('password')->not->toContain('remember_token');
 });
+
+it('shows a page past the cap or a bad page as an error on the page, never a redirect', function (string $query, string $message) {
+    signInAs('admin@lathephp.com');
+
+    $this->get("/lathe/resources/orders?{$query}")
+        ->assertStatus(422)
+        ->assertInertia(fn (AssertableInertia $page) => $page
+            ->component('Error', false)
+            ->where('status', 422)
+            ->where('message', $message)
+            ->where('shell', true));
+})->with([
+    ['page=401', 'Narrow the filters'],
+    ['page=abc', 'The page must be a whole number of 1 or more.'],
+]);

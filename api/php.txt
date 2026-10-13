@@ -297,7 +297,7 @@ Lathe\Http\Controllers\Plugins\PluginPageController::__invoke(Illuminate\Http\Re
 Lathe\Http\Controllers\Resources\AuthorizesResources::viewableResource(Lathe\Http\Requests\LatheRequest $request, Lathe\Auth\ResourceAuthorization $authorization): string  [protected]
 Lathe\Http\Controllers\Resources\CountController::__invoke(Lathe\Http\Requests\LatheRequest $request, Lathe\Auth\ResourceAuthorization $authorization, Lathe\Http\Payloads\IndexPayload $payload): Illuminate\Http\JsonResponse
 Lathe\Http\Controllers\Resources\IndexController::__invoke(Lathe\Http\Requests\LatheRequest $request, Lathe\Auth\ResourceAuthorization $authorization, Lathe\Http\Payloads\IndexPayload $payload): Illuminate\Http\JsonResponse
-Lathe\Http\Controllers\Resources\IndexPageController::__invoke(Lathe\Http\Requests\LatheRequest $request, Lathe\Auth\ResourceAuthorization $authorization, Lathe\Http\Payloads\IndexPayload $payload): Inertia\Response
+Lathe\Http\Controllers\Resources\IndexPageController::__invoke(Lathe\Http\Requests\LatheRequest $request, Lathe\Auth\ResourceAuthorization $authorization, Lathe\Http\Payloads\IndexPayload $payload): Symfony\Component\HttpFoundation\Response
 Lathe\Http\ErrorPages::Lathe\Auth\FortifyConfig $fortify  [protected]
 Lathe\Http\ErrorPages::STATUSES
 Lathe\Http\ErrorPages::__construct(Lathe\Auth\FortifyConfig $fortify)

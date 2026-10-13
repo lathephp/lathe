@@ -1,3 +1,4 @@
+import { Head } from '@inertiajs/react';
 import { useTranslation } from '@lathephp/core';
 import { Card } from '@lathephp/ui';
 
@@ -11,6 +12,7 @@ export default function Dashboard({ dashboard, widgets }: DashboardProps) {
 
   return (
     <div className="space-y-6">
+      <Head title={dashboard.title} />
       <h1 className="text-2xl font-semibold">{dashboard.title}</h1>
       {widgets.length === 0 && (
         <Card className="p-12 text-center text-sm text-muted-foreground">

@@ -46,7 +46,8 @@ class HandleInertiaRequests extends Middleware
             ],
             'latheVersion' => Lathe::version(),
             'assetHash' => Lathe::assets()->hash(),
-            'navigation' => fn () => $user === null ? [] : app(Navigation::class)->build($request),
+            // A user who may not open the panel sees no Resource or plugin names.
+            'navigation' => fn () => $user === null || ! Lathe::check($request) ? [] : app(Navigation::class)->build($request),
             'sidebarOpen' => Lathe::resolveSidebarDefaultOpen($request),
         ];
     }

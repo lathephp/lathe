@@ -1,4 +1,4 @@
-import { useForm, usePage } from '@inertiajs/react';
+import { Head, useForm, usePage } from '@inertiajs/react';
 import { useTranslation } from '@lathephp/core';
 import { Button, Card } from '@lathephp/ui';
 import type { SubmitEvent } from 'react';
@@ -21,12 +21,18 @@ export default function Login({ username, errors }: LoginProps) {
 
   function submit(event: SubmitEvent<HTMLFormElement>) {
     event.preventDefault();
-    form.post(`${basePath}/login`);
+    // A failed sign-in leaves no password in the field.
+    form.post(`${basePath}/login`, {
+      onFinish: () => {
+        form.reset('password');
+      },
+    });
   }
 
   return (
     <main className="grid min-h-svh place-items-center bg-muted p-6 text-foreground">
       <div className="w-full max-w-sm space-y-6">
+        <Head title={__('Sign in')} />
         <h1 className="text-center text-xl font-semibold">{appName}</h1>
         <Card className="p-6">
           <form className="space-y-4" noValidate onSubmit={submit}>

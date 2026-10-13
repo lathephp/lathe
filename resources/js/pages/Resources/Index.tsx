@@ -1,4 +1,4 @@
-import { Deferred, router, usePage } from '@inertiajs/react';
+import { Deferred, Head, router, usePage } from '@inertiajs/react';
 import { useTranslation } from '@lathephp/core';
 import { Button, Card } from '@lathephp/ui';
 import { useState } from 'react';
@@ -71,6 +71,7 @@ export default function Index({ resource, table, state, count }: IndexProps) {
 
   return (
     <div className="space-y-6">
+      <Head title={resource.label} />
       <h1 className="text-2xl font-semibold">{resource.label}</h1>
       {table.rows.length === 0 ? (
         <Card className="p-12 text-center text-sm text-muted-foreground">

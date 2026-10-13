@@ -71,3 +71,11 @@ it('builds one Resource definition for the sidebar and the Orders index among 50
     Lathe::resources()->clearCache();
     File::deleteDirectory($directory);
 });
+
+it('sends no navigation to a user who fails viewLathe', function () {
+    $guest = User::where('email', 'guest@lathephp.com')->firstOrFail();
+
+    $props = $this->actingAs($guest)->get('/lathe')->assertForbidden()->viewData('page')['props'];
+
+    expect($props['navigation'])->toBe([]);
+});

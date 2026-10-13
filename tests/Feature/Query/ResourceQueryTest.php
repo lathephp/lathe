@@ -186,6 +186,8 @@ it('pages by the allowed sizes and falls back for others', function (string $que
     'hundred' => ['per_page=100', 100],
     'not an option' => ['per_page=7', 25],
     'above the maximum' => ['per_page=101', 25],
+    'negative' => ['per_page=-1', 25],
+    'zero' => ['per_page=0', 25],
 ]);
 
 it('rejects a non-integer page size and a page past the cap', function (string $query, string $key, ?string $message) {

@@ -7,6 +7,7 @@ import { StaleAssetScreen } from './components/StaleAssetScreen';
 import { Toaster } from './components/Toaster';
 import { panelLayout } from './layout/panelLayout';
 import { assetHashFromUrl, markBuildStale, setEntryHash } from './lib/assets';
+import { pageTitle } from './lib/title';
 import { showFlash } from './lib/visits';
 import type { SharedProps } from './types';
 
@@ -28,6 +29,7 @@ void createInertiaApp({
   nonce: nonce === '' ? undefined : nonce,
   // The bar shows only for foreground work that takes longer than 150 ms.
   progress: { delay: 150 },
+  title: (title) => pageTitle(title, __panel.sharedProps.get().appName ?? 'Lathe'),
   resolve: async (name) => {
     const page = pages[`./pages/${name}.tsx`];
 

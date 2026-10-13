@@ -1,6 +1,6 @@
 import { router } from '@inertiajs/react';
 import { __panel } from '@lathephp/core';
-import { fireEvent, screen } from '@testing-library/react';
+import { fireEvent, screen, within } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { bracketed, renderPage, visibleStrings } from './support';
 
@@ -156,5 +156,14 @@ describe('error page', () => {
 
     // The status code is a number, not text.
     expect(visibleStrings().filter((text) => text !== '419' && !/^\[.+\]$/.test(text))).toEqual([]);
+  });
+});
+
+describe('error page for a bad address', () => {
+  it('shows the reason for a 422 inside the shell', () => {
+    renderPage('Error', { status: 422, message: 'Narrow the filters', shell: true });
+
+    expect(within(screen.getByRole('main')).getByText('Narrow the filters')).toBeTruthy();
+    expect(within(screen.getByRole('main')).getByRole('heading', { name: 'This page cannot be shown' })).toBeTruthy();
   });
 });

@@ -1,10 +1,10 @@
-import { Link, router, usePage } from '@inertiajs/react';
+import { Head, Link, router, usePage } from '@inertiajs/react';
 import { useTranslation } from '@lathephp/core';
 import { Button } from '@lathephp/ui';
 import type { SharedProps } from '../types';
 
 interface ErrorProps {
-  status: 403 | 404 | 419 | 500 | 503;
+  status: 403 | 404 | 419 | 422 | 500 | 503;
   message: string | null;
   shell: boolean;
 }
@@ -18,12 +18,14 @@ export default function ErrorPage({ status, message, shell }: ErrorProps) {
     403: [__('Forbidden'), __('You do not have permission to open this page.')],
     404: [__('Page not found'), __('The page you are looking for does not exist.')],
     419: [__('Your session expired'), __('Reload the page and try again.')],
+    422: [__('This page cannot be shown'), __('Check the address and try again.')],
     500: [__('Server error'), __('Something went wrong on the server.')],
     503: [__('Service unavailable'), __('The panel is down for maintenance. Try again soon.')],
   }[status];
 
   const content = (
     <div className="mx-auto max-w-md space-y-4 py-16 text-center">
+      <Head title={copy[0]} />
       <p className="text-sm font-medium text-muted-foreground">{status}</p>
       <h1 className="text-2xl font-semibold">{copy[0]}</h1>
       <p className="text-sm text-muted-foreground">{message ?? copy[1]}</p>

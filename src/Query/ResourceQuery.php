@@ -177,7 +177,8 @@ class ResourceQuery
         $page = $this->request->query('page');
         $options = $this->perPageOptionsInUse();
 
-        if ($perPage !== null && (! is_string($perPage) || ! ctype_digit($perPage))) {
+        // A whole number outside the options falls back below; anything else is 422.
+        if ($perPage !== null && (! is_string($perPage) || preg_match('/^-?\d+$/', $perPage) !== 1)) {
             throw ValidationException::withMessages(['per_page' => 'The page size must be a whole number.']);
         }
 
