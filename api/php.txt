@@ -1,0 +1,289 @@
+Lathe\Assets\AssetManifest::hash(): string
+Lathe\Assets\AssetRegistry::array $scripts  [protected]
+Lathe\Assets\AssetRegistry::array $styles  [protected]
+Lathe\Assets\AssetRegistry::hash(string $path): string
+Lathe\Assets\AssetRegistry::resolve(string $type, string $file): ?string
+Lathe\Assets\AssetRegistry::script(string $name, string $path): void
+Lathe\Assets\AssetRegistry::scriptUrl(string $prefix, string $name): ?string
+Lathe\Assets\AssetRegistry::scripts(): array
+Lathe\Assets\AssetRegistry::style(string $name, string $path): void
+Lathe\Console\CacheCommand::$description  [protected]
+Lathe\Console\CacheCommand::$signature  [protected]
+Lathe\Console\CacheCommand::handle(Lathe\Resources\ResourceRegistry $registry): int
+Lathe\Console\ClearCommand::$description  [protected]
+Lathe\Console\ClearCommand::$signature  [protected]
+Lathe\Console\ClearCommand::handle(Lathe\Resources\ResourceRegistry $registry): int
+Lathe\Events\ServingLathe::Illuminate\Http\Request $request
+Lathe\Events\ServingLathe::__construct(Illuminate\Http\Request $request)
+Lathe\Http\Controllers\DashboardController::__invoke(): Inertia\Response
+Lathe\Http\Controllers\Plugins\ModuleController::__invoke(Lathe\Assets\AssetRegistry $assets, string $file, string $type = 'scripts'): Symfony\Component\HttpFoundation\BinaryFileResponse
+Lathe\Http\Controllers\Plugins\PluginApiController::__invoke(Illuminate\Http\Request $request, Lathe\Plugins\PluginRegistry $plugins, string $plugin, string $path = ''): Symfony\Component\HttpFoundation\Response
+Lathe\Http\Controllers\Plugins\PluginPageController::__invoke(Illuminate\Http\Request $request, Lathe\Plugins\PluginRegistry $plugins, string $plugin, string $path = ''): Inertia\Response
+Lathe\Http\Middleware\Authenticate::handle(Illuminate\Http\Request $request, Closure $next): Symfony\Component\HttpFoundation\Response
+Lathe\Http\Middleware\Authorize::handle(Illuminate\Http\Request $request, Closure $next): Symfony\Component\HttpFoundation\Response
+Lathe\Http\Middleware\AuthorizePlugin::Lathe\Plugins\PluginRegistry $plugins  [protected]
+Lathe\Http\Middleware\AuthorizePlugin::__construct(Lathe\Plugins\PluginRegistry $plugins)
+Lathe\Http\Middleware\AuthorizePlugin::handle(Illuminate\Http\Request $request, Closure $next, string $uriKey): Symfony\Component\HttpFoundation\Response
+Lathe\Http\Middleware\EnsureJson::handle(Illuminate\Http\Request $request, Closure $next): Symfony\Component\HttpFoundation\Response
+Lathe\Http\Middleware\HandleInertiaRequests::$rootView  [protected]
+Lathe\Http\Middleware\ServeLathe::Illuminate\Contracts\Container\Container $container  [protected]
+Lathe\Http\Middleware\ServeLathe::__construct(Illuminate\Contracts\Container\Container $container)
+Lathe\Http\Middleware\ServeLathe::handle(Illuminate\Http\Request $request, Closure $next): Symfony\Component\HttpFoundation\Response
+Lathe\Http\Middleware\ServePlugins::Lathe\Plugins\PluginRegistry $plugins  [protected]
+Lathe\Http\Middleware\ServePlugins::__construct(Lathe\Plugins\PluginRegistry $plugins)
+Lathe\Http\Middleware\ServePlugins::handle(Illuminate\Http\Request $request, Closure $next): Symfony\Component\HttpFoundation\Response
+Lathe\Http\PanelRoutes::Illuminate\Routing\Router $router  [protected]
+Lathe\Http\PanelRoutes::Lathe\Plugins\PluginRegistry $plugins  [protected]
+Lathe\Http\PanelRoutes::Lathe\Support\ConfigStore $config  [protected]
+Lathe\Http\PanelRoutes::__construct(Illuminate\Routing\Router $router, Lathe\Support\ConfigStore $config, Lathe\Plugins\PluginRegistry $plugins)
+Lathe\Http\PanelRoutes::api(): Illuminate\Routing\RouteRegistrar  [protected]
+Lathe\Http\PanelRoutes::apiPrefix(): string  [protected]
+Lathe\Http\PanelRoutes::group(): Illuminate\Routing\RouteRegistrar  [protected]
+Lathe\Http\PanelRoutes::register(): void
+Lathe\Http\Requests\LatheRequest::config(): Lathe\Support\ConfigStore  [protected]
+Lathe\Http\Requests\LatheRequest::orderByDirection(): string
+Lathe\Http\Requests\LatheRequest::perPage(): int
+Lathe\Http\Requests\LatheRequest::searchKeyword(): string
+Lathe\Http\Requests\LatheRequest::trashed(): string
+Lathe\Http\Requests\LatheRequest::user($guard = NULL): ?Illuminate\Contracts\Auth\Authenticatable
+Lathe\Lathe::getFacadeAccessor(): string  [protected static]
+Lathe\LatheManager::Illuminate\Contracts\Container\Container $container  [protected]
+Lathe\LatheManager::__construct(Illuminate\Contracts\Container\Container $container)
+Lathe\LatheManager::assets(): Lathe\Assets\AssetManifest
+Lathe\LatheManager::config(): Lathe\Support\ConfigStore
+Lathe\LatheManager::dashboards(): Lathe\Dashboards\DashboardRegistry
+Lathe\LatheManager::discoverResources(string $directory, ?string $namespace = NULL): void
+Lathe\LatheManager::fortify(): Lathe\Auth\FortifyConfig
+Lathe\LatheManager::loginPath(): string
+Lathe\LatheManager::name(): string
+Lathe\LatheManager::path(): string
+Lathe\LatheManager::plugins(): Lathe\Plugins\PluginRegistry
+Lathe\LatheManager::registerPlugins(Lathe\Plugins\Plugin ...$plugins): void
+Lathe\LatheManager::registerResources(string ...$classes): void
+Lathe\LatheManager::resources(): Lathe\Resources\ResourceRegistry
+Lathe\LatheManager::version(): string
+Lathe\LatheServiceProvider::boot(): void
+Lathe\LatheServiceProvider::register(): void
+Lathe\LatheServiceProvider::registerMiddleware(): void  [protected]
+Lathe\LatheServiceProvider::validateConfig(): void  [protected]
+Lathe\Plugins\Plugin::?Closure $seeCallback  [protected]
+Lathe\Plugins\Plugin::assets(): array
+Lathe\Plugins\Plugin::authorize(Illuminate\Http\Request $request): bool
+Lathe\Plugins\Plugin::boot(): void
+Lathe\Plugins\Plugin::canSee(Closure $callback): static
+Lathe\Plugins\Plugin::canSeeWhen(string $ability, mixed $arguments = array ( )): static
+Lathe\Plugins\Plugin::handleRequest(Illuminate\Http\Request $request, string $path): Symfony\Component\HttpFoundation\Response
+Lathe\Plugins\Plugin::make(): static  [static]
+Lathe\Plugins\Plugin::name(): string
+Lathe\Plugins\Plugin::policies(): array
+Lathe\Plugins\Plugin::register(): void
+Lathe\Plugins\Plugin::requires(): array
+Lathe\Plugins\Plugin::routes(Illuminate\Routing\Router $router): void
+Lathe\Plugins\Plugin::serving(Illuminate\Http\Request $request): void
+Lathe\Plugins\Plugin::uriKey(): string  [static]
+Lathe\Plugins\PluginDiscovery::__construct(string $vendorPath)
+Lathe\Plugins\PluginDiscovery::classes(): array
+Lathe\Plugins\PluginDiscovery::register(Lathe\Plugins\PluginRegistry $registry): void
+Lathe\Plugins\PluginDiscovery::string $vendorPath  [protected]
+Lathe\Plugins\PluginRegistry::Lathe\Assets\AssetRegistry $assets  [protected]
+Lathe\Plugins\PluginRegistry::Lathe\Support\ConfigStore $config  [protected]
+Lathe\Plugins\PluginRegistry::__construct(Lathe\Assets\AssetRegistry $assets, Lathe\Support\ConfigStore $config)
+Lathe\Plugins\PluginRegistry::all(): array
+Lathe\Plugins\PluginRegistry::array $plugins  [protected]
+Lathe\Plugins\PluginRegistry::authorized(Illuminate\Http\Request $request): array
+Lathe\Plugins\PluginRegistry::checkRequirements(Lathe\Plugins\Plugin $plugin): void  [protected]
+Lathe\Plugins\PluginRegistry::find(string $uriKey): ?Lathe\Plugins\Plugin
+Lathe\Plugins\PluginRegistry::moduleUrls(): array
+Lathe\Plugins\PluginRegistry::register(Lathe\Plugins\Plugin ...$plugins): void
+Lathe\Plugins\PluginRegistry::registered(string $class): bool  [protected]
+Lathe\Plugins\PluginRegistry::serve(Illuminate\Http\Request $request): void
+Lathe\Query\Count::__construct(int $value, bool $capped)
+Lathe\Query\Count::bool $capped
+Lathe\Query\Count::int $value
+Lathe\Query\QueryContext::Detail
+Lathe\Query\QueryContext::Edit
+Lathe\Query\QueryContext::Index
+Lathe\Query\QueryContext::Relatable
+Lathe\Query\QueryContext::Replicate
+Lathe\Query\QueryContext::Search
+Lathe\Query\QueryContext::Widget
+Lathe\Query\QueryContext::string $name
+Lathe\Query\ResourceQuery::?Illuminate\Database\Eloquent\Builder $scoped  [protected]
+Lathe\Query\ResourceQuery::?string $trashed  [protected]
+Lathe\Query\ResourceQuery::Lathe\Http\Requests\LatheRequest $request  [protected]
+Lathe\Query\ResourceQuery::Lathe\Query\QueryContext $context  [protected]
+Lathe\Query\ResourceQuery::Lathe\Resources\Resource $resource  [protected]
+Lathe\Query\ResourceQuery::__construct(Lathe\Resources\Resource $resource, Lathe\Http\Requests\LatheRequest $request, Lathe\Query\QueryContext $context = Lathe\Query\QueryContext::Index)
+Lathe\Query\ResourceQuery::applyHook(Illuminate\Database\Eloquent\Builder $query): Illuminate\Database\Eloquent\Builder  [protected]
+Lathe\Query\ResourceQuery::applyTrashed(Illuminate\Database\Eloquent\Builder $query): Illuminate\Database\Eloquent\Builder  [protected]
+Lathe\Query\ResourceQuery::array $withoutScopes  [protected]
+Lathe\Query\ResourceQuery::change(Closure $change): static  [protected]
+Lathe\Query\ResourceQuery::config(): Lathe\Support\ConfigStore  [protected]
+Lathe\Query\ResourceQuery::count(): Lathe\Query\Count
+Lathe\Query\ResourceQuery::find(string|int $id): Illuminate\Database\Eloquent\Model
+Lathe\Query\ResourceQuery::onlyTrashed(): static
+Lathe\Query\ResourceQuery::pagination(): array  [protected]
+Lathe\Query\ResourceQuery::perPageOptions(): array  [protected]
+Lathe\Query\ResourceQuery::rows(): Illuminate\Database\Eloquent\Collection
+Lathe\Query\ResourceQuery::scoped(): Illuminate\Database\Eloquent\Builder
+Lathe\Query\ResourceQuery::withTrashed(): static
+Lathe\Query\ResourceQuery::withoutScope(string $globalScope): static
+Lathe\Resources\Resource::?Illuminate\Database\Eloquent\Model $model  [protected]
+Lathe\Resources\Resource::__construct(?Illuminate\Database\Eloquent\Model $model = NULL)
+Lathe\Resources\Resource::configure(Lathe\Resources\ResourceDefinition $definition): Lathe\Resources\ResourceDefinition  [protected]
+Lathe\Resources\Resource::definition(): Lathe\Resources\ResourceDefinition
+Lathe\Resources\Resource::detailQuery(Lathe\Http\Requests\LatheRequest $request, Illuminate\Database\Eloquent\Builder $query): Illuminate\Database\Eloquent\Builder  [static]
+Lathe\Resources\Resource::editQuery(Lathe\Http\Requests\LatheRequest $request, Illuminate\Database\Eloquent\Builder $query): Illuminate\Database\Eloquent\Builder  [static]
+Lathe\Resources\Resource::fields(Lathe\Http\Requests\LatheRequest $request): array
+Lathe\Resources\Resource::forModel(?Illuminate\Database\Eloquent\Model $model): static
+Lathe\Resources\Resource::getModel(): ?Illuminate\Database\Eloquent\Model
+Lathe\Resources\Resource::indexQuery(Lathe\Http\Requests\LatheRequest $request, Illuminate\Database\Eloquent\Builder $query): Illuminate\Database\Eloquent\Builder  [static]
+Lathe\Resources\Resource::label(): string  [static]
+Lathe\Resources\Resource::make(?Illuminate\Database\Eloquent\Model $model = NULL): static  [static]
+Lathe\Resources\Resource::model(): string  [static]
+Lathe\Resources\Resource::newModel(): Illuminate\Database\Eloquent\Model  [static]
+Lathe\Resources\Resource::relatableQuery(Lathe\Http\Requests\LatheRequest $request, Illuminate\Database\Eloquent\Builder $query): Illuminate\Database\Eloquent\Builder  [static]
+Lathe\Resources\Resource::replicateQuery(Lathe\Http\Requests\LatheRequest $request, Illuminate\Database\Eloquent\Builder $query): Illuminate\Database\Eloquent\Builder  [static]
+Lathe\Resources\Resource::resolveText(Closure|string $source): string  [protected]
+Lathe\Resources\Resource::scoutQuery(Lathe\Http\Requests\LatheRequest $request, mixed $query): mixed  [static]
+Lathe\Resources\Resource::searchQuery(Lathe\Http\Requests\LatheRequest $request, Illuminate\Database\Eloquent\Builder $query): Illuminate\Database\Eloquent\Builder  [static]
+Lathe\Resources\Resource::singularLabel(): string  [static]
+Lathe\Resources\Resource::subtitle(): string
+Lathe\Resources\Resource::title(): string
+Lathe\Resources\Resource::uriKey(): string  [static]
+Lathe\Resources\Resource::widgetQuery(Lathe\Http\Requests\LatheRequest $request, Illuminate\Database\Eloquent\Builder $query): Illuminate\Database\Eloquent\Builder  [static]
+Lathe\Resources\Resource::with(): array
+Lathe\Resources\ResourceDefinition::?array $perPage  [protected]
+Lathe\Resources\ResourceDefinition::?bool $softDeletes  [protected]
+Lathe\Resources\ResourceDefinition::?string $group  [protected]
+Lathe\Resources\ResourceDefinition::?string $icon  [protected]
+Lathe\Resources\ResourceDefinition::?string $model  [protected]
+Lathe\Resources\ResourceDefinition::?string $navigationLabel  [protected]
+Lathe\Resources\ResourceDefinition::Closure|string $subtitle  [protected]
+Lathe\Resources\ResourceDefinition::Closure|string $title  [protected]
+Lathe\Resources\ResourceDefinition::allowAll(bool $allow = true): static
+Lathe\Resources\ResourceDefinition::allowsAll(): bool
+Lathe\Resources\ResourceDefinition::array $with  [protected]
+Lathe\Resources\ResourceDefinition::bool $allowAll  [protected]
+Lathe\Resources\ResourceDefinition::bool $canonical  [protected]
+Lathe\Resources\ResourceDefinition::bool $displayInNavigation  [protected]
+Lathe\Resources\ResourceDefinition::bool $frozen  [protected]
+Lathe\Resources\ResourceDefinition::bool $globallySearchable  [protected]
+Lathe\Resources\ResourceDefinition::canonical(bool $canonical = true): static
+Lathe\Resources\ResourceDefinition::displayInNavigation(bool $display = true): static
+Lathe\Resources\ResourceDefinition::freeze(): static
+Lathe\Resources\ResourceDefinition::getGroup(): ?string
+Lathe\Resources\ResourceDefinition::getIcon(): ?string
+Lathe\Resources\ResourceDefinition::getModel(): ?string
+Lathe\Resources\ResourceDefinition::getNavigationLabel(): ?string
+Lathe\Resources\ResourceDefinition::getPerPage(): ?array
+Lathe\Resources\ResourceDefinition::getSubtitle(): Closure|string
+Lathe\Resources\ResourceDefinition::getTitle(): Closure|string
+Lathe\Resources\ResourceDefinition::getWith(): array
+Lathe\Resources\ResourceDefinition::globallySearchable(bool $searchable = true): static
+Lathe\Resources\ResourceDefinition::group(?string $group): static
+Lathe\Resources\ResourceDefinition::icon(?string $icon): static
+Lathe\Resources\ResourceDefinition::isCanonical(): bool
+Lathe\Resources\ResourceDefinition::isGloballySearchable(): bool
+Lathe\Resources\ResourceDefinition::model(string $model): static
+Lathe\Resources\ResourceDefinition::navigationLabel(?string $label): static
+Lathe\Resources\ResourceDefinition::perPage(array $options): static
+Lathe\Resources\ResourceDefinition::set(Closure $change): static  [protected]
+Lathe\Resources\ResourceDefinition::shouldDisplayInNavigation(): bool
+Lathe\Resources\ResourceDefinition::softDeletes(?bool $softDeletes = true): static
+Lathe\Resources\ResourceDefinition::subtitle(Closure|string $subtitle): static
+Lathe\Resources\ResourceDefinition::title(Closure|string $title): static
+Lathe\Resources\ResourceDefinition::usesSoftDeletes(): bool
+Lathe\Resources\ResourceDefinition::with(array $relations): static
+Lathe\Resources\ResourceRegistry::?array $manifest  [protected]
+Lathe\Resources\ResourceRegistry::?string $cachePath  [protected]
+Lathe\Resources\ResourceRegistry::Illuminate\Contracts\Foundation\Application $app  [protected]
+Lathe\Resources\ResourceRegistry::Illuminate\Filesystem\Filesystem $files  [protected]
+Lathe\Resources\ResourceRegistry::Lathe\Support\ConfigStore $config  [protected]
+Lathe\Resources\ResourceRegistry::__construct(Illuminate\Contracts\Foundation\Application $app, Illuminate\Filesystem\Filesystem $files, Lathe\Support\ConfigStore $config)
+Lathe\Resources\ResourceRegistry::all(): array
+Lathe\Resources\ResourceRegistry::array $classes  [protected]
+Lathe\Resources\ResourceRegistry::array $definitions  [protected]
+Lathe\Resources\ResourceRegistry::array $directories  [protected]
+Lathe\Resources\ResourceRegistry::bool $scanned  [protected]
+Lathe\Resources\ResourceRegistry::build(): array  [protected]
+Lathe\Resources\ResourceRegistry::cache(): void
+Lathe\Resources\ResourceRegistry::cachePath(): string
+Lathe\Resources\ResourceRegistry::classes(): array  [protected]
+Lathe\Resources\ResourceRegistry::clearCache(): void
+Lathe\Resources\ResourceRegistry::count(): int
+Lathe\Resources\ResourceRegistry::definition(string $class): Lathe\Resources\ResourceDefinition
+Lathe\Resources\ResourceRegistry::definitionsBuilt(): int
+Lathe\Resources\ResourceRegistry::discover(string $directory, ?string $namespace = NULL): void
+Lathe\Resources\ResourceRegistry::flush(): void
+Lathe\Resources\ResourceRegistry::forKey(string $uriKey): ?string
+Lathe\Resources\ResourceRegistry::forModel(string $model): ?string
+Lathe\Resources\ResourceRegistry::int $definitionsBuilt  [protected]
+Lathe\Resources\ResourceRegistry::manifest(): array
+Lathe\Resources\ResourceRegistry::namespaceFor(string $directory): string  [protected]
+Lathe\Resources\ResourceRegistry::register(string ...$classes): void
+Lathe\Resources\ResourceRegistry::scan(string $directory, string $namespace): array  [protected]
+Lathe\Resources\ResourceRegistry::scanned(): bool
+Lathe\Resources\ResourceRegistry::useCachePath(string $path): void
+Lathe\Resources\ResourceRegistry::validate(string $class, Lathe\Resources\ResourceDefinition $definition): void  [protected]
+Lathe\Support\ConfigStore::Illuminate\Contracts\Config\Repository $config  [protected]
+Lathe\Support\ConfigStore::__construct(Illuminate\Contracts\Config\Repository $config)
+Lathe\Support\ConfigStore::all(): array
+Lathe\Support\ConfigStore::boolean(string $key): bool
+Lathe\Support\ConfigStore::get(string $key, mixed $default = NULL): mixed
+Lathe\Support\ConfigStore::integer(string $key): int
+Lathe\Support\ConfigStore::nullableString(string $key): ?string
+Lathe\Support\ConfigStore::string(string $key): string
+Lathe\Support\ConfigValidator::boolean(): Closure  [protected]
+Lathe\Support\ConfigValidator::defaults(): array  [static]
+Lathe\Support\ConfigValidator::errors(array $config): array
+Lathe\Support\ConfigValidator::integer(int $min): Closure  [protected]
+Lathe\Support\ConfigValidator::nullable(Closure $rule): Closure  [protected]
+Lathe\Support\ConfigValidator::oneOf(array $allowed): Closure  [protected]
+Lathe\Support\ConfigValidator::rules(int $max): array  [protected]
+Lathe\Support\ConfigValidator::show(mixed $value): string  [protected]
+Lathe\Support\ConfigValidator::string(): Closure  [protected]
+Lathe\Support\ConfigValidator::stringList(): Closure  [protected]
+Lathe\Support\ConfigValidator::unknownIn(array $given, array $known, string $prefix): array  [protected]
+Lathe\Support\ConfigValidator::unknownKeys(array $config): array
+Lathe\Support\Util::isLatheRequest(Illuminate\Http\Request $request): bool  [static]
+class Lathe\Assets\AssetManifest
+class Lathe\Assets\AssetRegistry
+class Lathe\Auth\FortifyConfig
+class Lathe\Console\CacheCommand
+class Lathe\Console\ClearCommand
+class Lathe\Dashboards\DashboardRegistry
+class Lathe\Events\ServingLathe
+class Lathe\Exceptions\InvalidConfigurationException
+class Lathe\Exceptions\LatheException
+class Lathe\Exceptions\PluginDependencyException
+class Lathe\Exceptions\ResourceModelCollisionException
+class Lathe\Exceptions\ResourceUriKeyCollisionException
+class Lathe\Http\Controllers\DashboardController
+class Lathe\Http\Controllers\Plugins\ModuleController
+class Lathe\Http\Controllers\Plugins\PluginApiController
+class Lathe\Http\Controllers\Plugins\PluginPageController
+class Lathe\Http\Middleware\Authenticate
+class Lathe\Http\Middleware\Authorize
+class Lathe\Http\Middleware\AuthorizePlugin
+class Lathe\Http\Middleware\EnsureJson
+class Lathe\Http\Middleware\HandleInertiaRequests
+class Lathe\Http\Middleware\ServeLathe
+class Lathe\Http\Middleware\ServePlugins
+class Lathe\Http\PanelRoutes
+class Lathe\Http\Requests\LatheRequest
+class Lathe\Lathe
+class Lathe\LatheManager
+class Lathe\LatheServiceProvider
+class Lathe\Plugins\Plugin
+class Lathe\Plugins\PluginDiscovery
+class Lathe\Plugins\PluginRegistry
+class Lathe\Query\Count
+class Lathe\Query\ResourceQuery
+class Lathe\Resources\Resource
+class Lathe\Resources\ResourceDefinition
+class Lathe\Resources\ResourceRegistry
+class Lathe\Support\ConfigStore
+class Lathe\Support\ConfigValidator
+class Lathe\Support\Util
+enum Lathe\Query\QueryContext

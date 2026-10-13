@@ -11,6 +11,7 @@ use Illuminate\Support\ServiceProvider;
 use Lathe\Assets\AssetManifest;
 use Lathe\Assets\AssetRegistry;
 use Lathe\Auth\FortifyConfig;
+use Lathe\Console\ApiCheckCommand;
 use Lathe\Console\CacheCommand;
 use Lathe\Console\ClearCommand;
 use Lathe\Dashboards\DashboardRegistry;
@@ -63,7 +64,7 @@ class LatheServiceProvider extends ServiceProvider
         });
 
         if ($this->app->runningInConsole()) {
-            $this->commands([CacheCommand::class, ClearCommand::class]);
+            $this->commands([ApiCheckCommand::class, CacheCommand::class, ClearCommand::class]);
             $this->optimizes(optimize: 'lathe:cache', clear: 'lathe:clear', key: 'lathe');
 
             $this->publishes([
