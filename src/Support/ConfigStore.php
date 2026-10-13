@@ -3,20 +3,22 @@
 namespace Lathe\Support;
 
 use Illuminate\Contracts\Config\Repository;
+use Illuminate\Contracts\Container\Container;
 
 /**
- * Typed reads of the lathe config.
+ * Typed reads of the lathe config. Each read asks the container for the config, because
+ * Octane gives every request its own copy and this store lives for the whole worker.
  */
 class ConfigStore
 {
-    public function __construct(protected Repository $config)
+    public function __construct(protected Container $container)
     {
         //
     }
 
     public function get(string $key, mixed $default = null): mixed
     {
-        return $this->config->get("lathe.{$key}", $default);
+        return $this->repository()->get("lathe.{$key}", $default);
     }
 
     public function string(string $key): string
@@ -50,8 +52,13 @@ class ConfigStore
      */
     public function all(): array
     {
-        $value = $this->config->get('lathe', []);
+        $value = $this->repository()->get('lathe', []);
 
         return is_array($value) ? $value : [];
+    }
+
+    protected function repository(): Repository
+    {
+        return $this->container->make('config');
     }
 }

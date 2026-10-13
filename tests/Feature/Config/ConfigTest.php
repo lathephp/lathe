@@ -2,6 +2,7 @@
 
 use Lathe\Exceptions\InvalidConfigurationException;
 use Lathe\LatheServiceProvider;
+use Lathe\Support\ConfigStore;
 use Lathe\Support\ConfigValidator;
 
 it('publishes a config file equal to the merged defaults key for key', function () {
@@ -44,4 +45,14 @@ it('rejects a default page size outside the limits', function () {
 
     expect(app(ConfigValidator::class)->errors(config('lathe')))
         ->toBe(['config/lathe.php: pagination.per_page: must be an integer from 1 to 100; got 0. Set it inside that range or raise limits.max_per_page.']);
+});
+
+it('reads the config the container holds now, as Octane swaps it per request', function () {
+    $store = app(ConfigStore::class);
+    $sandbox = clone app('config');
+    $sandbox->set('lathe.table.striped', true);
+    app()->instance('config', $sandbox);
+
+    expect($store->boolean('table.striped'))->toBeTrue()
+        ->and($store->all()['table']['striped'])->toBeTrue();
 });

@@ -1054,13 +1054,14 @@ Lathe\Summaries\Summary::range(): static  [static]
 Lathe\Summaries\Summary::string $function  [protected]
 Lathe\Summaries\Summary::sum(): static  [static]
 Lathe\Summaries\Summary::value(mixed $result): ?string  [protected]
-Lathe\Support\ConfigStore::Illuminate\Contracts\Config\Repository $config  [protected]
-Lathe\Support\ConfigStore::__construct(Illuminate\Contracts\Config\Repository $config)
+Lathe\Support\ConfigStore::Illuminate\Contracts\Container\Container $container  [protected]
+Lathe\Support\ConfigStore::__construct(Illuminate\Contracts\Container\Container $container)
 Lathe\Support\ConfigStore::all(): array
 Lathe\Support\ConfigStore::boolean(string $key): bool
 Lathe\Support\ConfigStore::get(string $key, mixed $default = NULL): mixed
 Lathe\Support\ConfigStore::integer(string $key): int
 Lathe\Support\ConfigStore::nullableString(string $key): ?string
+Lathe\Support\ConfigStore::repository(): Illuminate\Contracts\Config\Repository  [protected]
 Lathe\Support\ConfigStore::string(string $key): string
 Lathe\Support\ConfigValidator::boolean(): Closure  [protected]
 Lathe\Support\ConfigValidator::defaults(): array  [static]
