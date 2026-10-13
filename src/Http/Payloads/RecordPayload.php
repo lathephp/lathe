@@ -125,7 +125,7 @@ class RecordPayload
 
         return [
             'fields' => array_map(
-                fn (Field $field) => [...$field->schema(FieldContext::Create, $this->request), 'value' => $field->resolve($replica)],
+                fn (Field $field) => [...$field->schema(FieldContext::Create, $this->request, $replica), 'value' => $field->resolve($replica)],
                 $this->fields($class, FieldContext::Create),
             ),
             'defaults' => $class::defaultAttributes($this->request),
