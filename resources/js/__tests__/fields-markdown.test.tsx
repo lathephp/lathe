@@ -112,7 +112,8 @@ describe('markdown-field', () => {
       [null, ''],
     ] as const) {
       const { unmount } = renderForm(value);
-      expect((await screen.findByLabelText<HTMLTextAreaElement>(/Body/)).value).toBe(shown);
+      const control = await screen.findByLabelText<HTMLTextAreaElement>(/Body/);
+      expect([control.tagName, control.value]).toEqual(['TEXTAREA', shown]);
       unmount();
     }
 
