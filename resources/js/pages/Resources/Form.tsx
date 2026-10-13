@@ -2,6 +2,7 @@ import { Head, Link, router, usePage } from '@inertiajs/react';
 import { useTranslation } from '@lathephp/core';
 import { useEffect, useMemo, useRef } from 'react';
 import { FieldError } from '../../components/FieldError';
+import { passes } from '../../fields/conditions';
 import { FormField } from '../../fields/registry';
 import type { FormFieldData, FormProps } from '../../fields/types';
 import { cn } from '../../lib/cn';
@@ -58,9 +59,19 @@ export default function Form({ resource, mode, id, title, breadcrumbs, form, sub
           renderField={(key) => {
             const field = byKey.get(key);
 
-            return field === undefined ? null : (
+            if (field === undefined || (field.visibleWhen != null && !passes(field.visibleWhen, record.values))) {
+              return null;
+            }
+
+            const decided = {
+              ...field,
+              required: field.required === true || (field.requiredWhen != null && passes(field.requiredWhen, record.values)),
+              readonly: field.readonly === true || (field.readonlyWhen != null && passes(field.readonlyWhen, record.values)),
+            };
+
+            return (
               <FormRow
-                field={field}
+                field={decided}
                 value={record.values[field.attribute]}
                 error={record.errors[field.attribute]}
                 onChange={(value) => {

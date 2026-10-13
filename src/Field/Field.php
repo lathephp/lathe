@@ -106,6 +106,12 @@ class Field implements JsonSerializable
 
     protected bool|Closure $readonly = false;
 
+    protected ?Condition $visibleWhen = null;
+
+    protected ?Condition $requiredWhen = null;
+
+    protected ?Condition $readonlyWhen = null;
+
     protected bool|Closure $required = false;
 
     protected bool|Closure $immutable = false;
@@ -762,14 +768,71 @@ class Field implements JsonSerializable
         return $copy;
     }
 
+    /**
+     * Show the field only while the other form values pass the condition. On save the server
+     * checks it again: a hidden field is not filled and its rules are skipped.
+     */
+    public function visibleWhen(Condition $condition): static
+    {
+        $this->mutate();
+        $this->visibleWhen = $condition;
+
+        return $this;
+    }
+
+    /**
+     * Require the field while the condition holds; the server adds the required rule itself.
+     */
+    public function requiredWhen(Condition $condition): static
+    {
+        $this->mutate();
+        $this->requiredWhen = $condition;
+
+        return $this;
+    }
+
+    /**
+     * Lock the field while the condition holds; a locked field is not filled.
+     */
+    public function readonlyWhen(Condition $condition): static
+    {
+        $this->mutate();
+        $this->readonlyWhen = $condition;
+
+        return $this;
+    }
+
+    /**
+     * Whether visibleWhen lets the field through for the values of a write.
+     */
+    public function isVisibleFor(?LatheRequest $request = null, mixed $model = null): bool
+    {
+        return $this->visibleWhen === null || $this->visibleWhen->passes(self::conditionValues($request, $model));
+    }
+
     public function isReadonly(?LatheRequest $request = null, mixed $model = null): bool
     {
-        return $this->decide($this->readonly, $request, $model);
+        return $this->decide($this->readonly, $request, $model)
+            || ($this->readonlyWhen !== null && $request !== null && $this->readonlyWhen->passes(self::conditionValues($request, $model)));
     }
 
     public function isRequired(?LatheRequest $request = null, mixed $model = null): bool
     {
-        return $this->decide($this->required, $request, $model);
+        return $this->decide($this->required, $request, $model)
+            || ($this->requiredWhen !== null && $request !== null && $this->requiredWhen->passes(self::conditionValues($request, $model)));
+    }
+
+    /**
+     * The values a condition reads: the stored record under what the request sends.
+     *
+     * @return array<array-key, mixed>
+     */
+    protected static function conditionValues(?LatheRequest $request, mixed $model): array
+    {
+        return [
+            ...($model instanceof Model ? $model->attributesToArray() : []),
+            ...($request?->all() ?? []),
+        ];
     }
 
     public function isImmutable(?LatheRequest $request = null, mixed $model = null): bool
@@ -1073,6 +1136,9 @@ class Field implements JsonSerializable
             'sortKey' => $this->sortableUriKey(),
             'computed' => $this->isComputed(),
             'inline' => $this->isInlineEditable(Evaluator::currentRequest()),
+            'visibleWhen' => $this->visibleWhen,
+            'requiredWhen' => $this->requiredWhen,
+            'readonlyWhen' => $this->readonlyWhen,
             ...$this->options,
             'meta' => (object) $this->meta,
         ];

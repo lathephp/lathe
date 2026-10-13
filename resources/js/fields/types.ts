@@ -1,4 +1,5 @@
 import type { SafeHtml } from '@lathephp/core';
+import type { ConditionData } from './conditions';
 
 /** A field as the server describes it: its schema, the same in every context. */
 export interface FieldSchema {
@@ -24,6 +25,9 @@ export interface FieldSchema {
   autocomplete: string | null;
   readonly?: boolean;
   required?: boolean;
+  visibleWhen?: ConditionData | null;
+  requiredWhen?: ConditionData | null;
+  readonlyWhen?: ConditionData | null;
   immutable?: boolean;
   meta: Record<string, unknown>;
   [option: string]: unknown;

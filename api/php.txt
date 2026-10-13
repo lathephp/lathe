@@ -463,6 +463,34 @@ Lathe\Field\Concerns\TextFactories::text(string $label, Closure|string|null $att
 Lathe\Field\Concerns\TextFactories::textarea(string $label, Closure|string|null $attribute = NULL): Lathe\Field\TextareaField  [static]
 Lathe\Field\Concerns\TextFactories::url(string $label = 'URL', ?string $attribute = NULL): Lathe\Field\TextField  [static]
 Lathe\Field\Concerns\UploadFactories::file(string $label, ?string $attribute = NULL): Lathe\Field\FileField  [static]
+Lathe\Field\Condition::?string $field  [protected]
+Lathe\Field\Condition::__construct(string $operator, ?string $field = NULL, mixed $value = NULL, array $conditions = array ( ))  [protected]
+Lathe\Field\Condition::allOf(Lathe\Field\Condition ...$conditions): static  [static]
+Lathe\Field\Condition::anyOf(Lathe\Field\Condition ...$conditions): static  [static]
+Lathe\Field\Condition::array $conditions  [protected]
+Lathe\Field\Condition::attributes(): array
+Lathe\Field\Condition::compare(mixed $actual): bool  [protected]
+Lathe\Field\Condition::field(string $attribute): Lathe\Field\ConditionBuilder  [static]
+Lathe\Field\Condition::isBlank(mixed $value): bool  [protected static]
+Lathe\Field\Condition::jsonSerialize(): array
+Lathe\Field\Condition::mixed $value  [protected]
+Lathe\Field\Condition::passes(array $values): bool
+Lathe\Field\Condition::same(mixed $actual, mixed $expected): bool  [protected static]
+Lathe\Field\Condition::string $operator  [protected]
+Lathe\Field\Condition::text(mixed $value): ?string  [protected static]
+Lathe\Field\Condition::within(mixed $actual): bool  [protected]
+Lathe\Field\ConditionBuilder::__construct(string $attribute)
+Lathe\Field\ConditionBuilder::blank(): Lathe\Field\Condition
+Lathe\Field\ConditionBuilder::eq(mixed $value): Lathe\Field\Condition
+Lathe\Field\ConditionBuilder::filled(): Lathe\Field\Condition
+Lathe\Field\ConditionBuilder::gt(int|float $value): Lathe\Field\Condition
+Lathe\Field\ConditionBuilder::gte(int|float $value): Lathe\Field\Condition
+Lathe\Field\ConditionBuilder::in(array $values): Lathe\Field\Condition
+Lathe\Field\ConditionBuilder::lt(int|float $value): Lathe\Field\Condition
+Lathe\Field\ConditionBuilder::lte(int|float $value): Lathe\Field\Condition
+Lathe\Field\ConditionBuilder::neq(mixed $value): Lathe\Field\Condition
+Lathe\Field\ConditionBuilder::notIn(array $values): Lathe\Field\Condition
+Lathe\Field\ConditionBuilder::string $attribute  [protected]
 Lathe\Field\Contracts\Deletable::columnsThatShouldBeDeleted(): array
 Lathe\Field\Contracts\Deletable::isDeletable(): bool
 Lathe\Field\Contracts\Deletable::isPrunable(): bool
@@ -529,6 +557,9 @@ Lathe\Field\Field::?Closure $fillCallback  [protected]
 Lathe\Field\Field::?Closure $resolveCallback  [protected]
 Lathe\Field\Field::?Closure $resolver  [protected]
 Lathe\Field\Field::?Closure $seeCallback  [protected]
+Lathe\Field\Field::?Lathe\Field\Condition $readonlyWhen  [protected]
+Lathe\Field\Field::?Lathe\Field\Condition $requiredWhen  [protected]
+Lathe\Field\Field::?Lathe\Field\Condition $visibleWhen  [protected]
 Lathe\Field\Field::?Lathe\Field\FieldContext $context  [protected]
 Lathe\Field\Field::?WeakMap $seen  [protected]
 Lathe\Field\Field::?string $validationAttribute  [protected]
@@ -561,6 +592,7 @@ Lathe\Field\Field::cell(Illuminate\Database\Eloquent\Model $model): array
 Lathe\Field\Field::columnSpan(?int $span): static
 Lathe\Field\Field::compact(bool $compact = true): static
 Lathe\Field\Field::component(string $component): static
+Lathe\Field\Field::conditionValues(?Lathe\Http\Requests\LatheRequest $request, mixed $model): array  [protected static]
 Lathe\Field\Field::creationRules(mixed ...$rules): static
 Lathe\Field\Field::decide(Closure|bool $value, ?Lathe\Http\Requests\LatheRequest $request, mixed $model): bool  [protected]
 Lathe\Field\Field::default(mixed $value): static
@@ -604,6 +636,7 @@ Lathe\Field\Field::isReadonly(?Lathe\Http\Requests\LatheRequest $request = NULL,
 Lathe\Field\Field::isRequired(?Lathe\Http\Requests\LatheRequest $request = NULL, mixed $model = NULL): bool
 Lathe\Field\Field::isShownOn(Lathe\Field\FieldContext $context, ?Lathe\Http\Requests\LatheRequest $request = NULL, mixed $model = NULL): bool
 Lathe\Field\Field::isSortable(): bool
+Lathe\Field\Field::isVisibleFor(?Lathe\Http\Requests\LatheRequest $request = NULL, mixed $model = NULL): bool
 Lathe\Field\Field::jsonSerialize(): array
 Lathe\Field\Field::key(): string
 Lathe\Field\Field::label(): string
@@ -624,7 +657,9 @@ Lathe\Field\Field::onlyOnPreview(): static
 Lathe\Field\Field::option(string $name, mixed $value): static  [protected]
 Lathe\Field\Field::placeholder(string $placeholder): static
 Lathe\Field\Field::readonly(Closure|bool $readonly = true): static
+Lathe\Field\Field::readonlyWhen(Lathe\Field\Condition $condition): static
 Lathe\Field\Field::required(Closure|bool $required = true): static
+Lathe\Field\Field::requiredWhen(Lathe\Field\Condition $condition): static
 Lathe\Field\Field::resolve(object $record, ?string $attribute = NULL): mixed
 Lathe\Field\Field::resolveDefaultValue(?Lathe\Http\Requests\LatheRequest $request = NULL): mixed
 Lathe\Field\Field::resolveForDisplay(object $record, ?string $attribute = NULL): mixed
@@ -651,6 +686,7 @@ Lathe\Field\Field::textAlign(string $align): static
 Lathe\Field\Field::updateRules(mixed ...$rules): static
 Lathe\Field\Field::useLifecycle(Lathe\Field\FieldLifecycle $lifecycle): static
 Lathe\Field\Field::validationAttribute(string $name): static
+Lathe\Field\Field::visibleWhen(Lathe\Field\Condition $condition): static
 Lathe\Field\Field::withContext(Lathe\Field\FieldContext $context): static
 Lathe\Field\Field::withMeta(array $meta): static
 Lathe\Field\Field::withSection(string $section): static
@@ -1930,6 +1966,8 @@ class Lathe\Exceptions\ResourceUriKeyCollisionException
 class Lathe\Field\BadgeField
 class Lathe\Field\BooleanField
 class Lathe\Field\BooleanGroupField
+class Lathe\Field\Condition
+class Lathe\Field\ConditionBuilder
 class Lathe\Field\CurrencyField
 class Lathe\Field\DateField
 class Lathe\Field\DateTimeField

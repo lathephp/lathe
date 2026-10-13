@@ -5,6 +5,7 @@ namespace Lathe\Resources;
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Validator as ValidatorFactory;
+use Lathe\Field\Field;
 use Lathe\Field\FieldCollection;
 use Lathe\Field\FieldContext;
 use Lathe\Http\Requests\LatheRequest;
@@ -69,6 +70,9 @@ class ValidationPipeline
         return $fields->forContext($context, $request, $model)
             ->authorized($request)
             ->withoutReadonly($request, $model)
-            ->withoutComputed();
+            ->withoutComputed()
+            // A field its visibleWhen hides is neither validated nor filled, whatever the browser sent.
+            ->filter(fn (Field $field) => $field->isVisibleFor($request, $model))
+            ->values();
     }
 }
