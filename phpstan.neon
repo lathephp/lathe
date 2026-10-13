@@ -7,6 +7,8 @@ parameters:
         - src
         - workbench/app
         - config
+        - database
     reportUnmatchedIgnoredErrors: true
     configDirectories:
         - config
+        - database

@@ -41,6 +41,7 @@ class LatheServiceProvider extends ServiceProvider
         AboutCommand::add('Lathe', fn () => ['Version' => Lathe::version()]);
 
         $this->loadViewsFrom(__DIR__.'/../resources/views', 'lathe');
+        $this->loadMigrationsFrom(__DIR__.'/../database/migrations');
         $this->registerMiddleware();
 
         if (! $this->app->routesAreCached()) {
@@ -51,6 +52,11 @@ class LatheServiceProvider extends ServiceProvider
             $this->publishes([
                 __DIR__.'/../config/lathe.php' => config_path('lathe.php'),
             ], 'lathe-config');
+
+            // Plain publishes keeps the fixed migration stamps; publishesMigrations would restamp them.
+            $this->publishes([
+                __DIR__.'/../database/migrations' => database_path('migrations'),
+            ], 'lathe-migrations');
         }
     }
 
