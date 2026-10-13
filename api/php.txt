@@ -418,6 +418,7 @@ Lathe\Filters\FieldFilter::__construct(string $label, string $attribute)
 Lathe\Filters\FieldFilter::apply(Lathe\Http\Requests\LatheRequest $request, Illuminate\Database\Eloquent\Builder $query, mixed $value): Illuminate\Database\Eloquent\Builder
 Lathe\Filters\FieldFilter::key(): string
 Lathe\Filters\FieldFilter::name(): string
+Lathe\Filters\FieldFilter::normalize(Lathe\Http\Requests\LatheRequest $request, mixed $value, bool $remote): array
 Lathe\Filters\FieldFilter::string $attribute  [protected]
 Lathe\Filters\FieldFilter::string $label  [protected]
 Lathe\Filters\Filter::?Closure $seeCallback  [protected]
@@ -450,7 +451,9 @@ Lathe\Filters\FilterApplicator::__construct(Lathe\Resources\Resource $resource, 
 Lathe\Filters\FilterApplicator::apply(Lathe\Http\Requests\LatheRequest $request, Illuminate\Database\Eloquent\Builder $query, array $filters): Illuminate\Database\Eloquent\Builder
 Lathe\Filters\FilterApplicator::resolve(Lathe\Http\Requests\LatheRequest $request, array $filters): array  [protected]
 Lathe\Filters\FilterApplicator::values(Lathe\Http\Requests\LatheRequest $request, array $filters): array
+Lathe\Filters\RangeFilter::bool $integers  [protected]
 Lathe\Filters\RangeFilter::component(): string
+Lathe\Filters\RangeFilter::integers(bool $integers = true): static
 Lathe\Filters\RangeFilter::normalize(Lathe\Http\Requests\LatheRequest $request, mixed $value, bool $remote): array
 Lathe\Filters\RangeFilter::number(mixed $side): int|float|null  [protected]
 Lathe\Groups\Group::?Closure $description  [protected]

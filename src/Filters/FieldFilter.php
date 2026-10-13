@@ -27,6 +27,22 @@ class FieldFilter extends RangeFilter
     }
 
     /**
+     * Whole numbers only when the Resource's model casts the attribute to an integer.
+     *
+     * @return array{min: int|float|null, max: int|float|null}
+     */
+    public function normalize(LatheRequest $request, mixed $value, bool $remote): array
+    {
+        $resource = $request->resource();
+
+        if ($resource !== null && in_array($resource::newModel()->getCasts()[$this->attribute] ?? null, ['int', 'integer'], true)) {
+            $this->integers();
+        }
+
+        return parent::normalize($request, $value, $remote);
+    }
+
+    /**
      * @param  Builder<Model>  $query
      * @param  array{min: int|float|null, max: int|float|null}  $value
      * @return Builder<Model>
