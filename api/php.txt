@@ -387,6 +387,28 @@ Lathe\Support\ConfigValidator::stringList(): Closure  [protected]
 Lathe\Support\ConfigValidator::unknownIn(array $given, array $known, string $prefix): array  [protected]
 Lathe\Support\ConfigValidator::unknownKeys(array $config): array
 Lathe\Support\Util::isLatheRequest(Illuminate\Http\Request $request): bool  [static]
+Lathe\Testing\InteractsWithLathe::assertQueryCount(int $expected, Closure $request): void  [protected]
+Lathe\Testing\InteractsWithLathe::assertScoped(string $model, Closure $request): void  [protected]
+Lathe\Testing\InteractsWithLathe::flushLathe(): void  [protected]
+Lathe\Testing\InteractsWithLathe::latheRequest(string $uri = '/lathe/api', string $method = 'GET', array $parameters = array ( )): Lathe\Http\Requests\LatheRequest  [protected]
+Lathe\Testing\InteractsWithLathe::registerResources(string ...$classes): void  [protected]
+Lathe\Testing\LatheTest::actingAs(Illuminate\Contracts\Auth\Authenticatable $user): void  [static]
+Lathe\Testing\LatheTest::resource(string $classOrKey): Lathe\Testing\ResourceTester  [static]
+Lathe\Testing\ResourceTester::$defaultCookies  [protected]
+Lathe\Testing\ResourceTester::$defaultHeaders  [protected]
+Lathe\Testing\ResourceTester::$encryptCookies  [protected]
+Lathe\Testing\ResourceTester::$followRedirects  [protected]
+Lathe\Testing\ResourceTester::$serverVariables  [protected]
+Lathe\Testing\ResourceTester::$unencryptedCookies  [protected]
+Lathe\Testing\ResourceTester::$withCredentials  [protected]
+Lathe\Testing\ResourceTester::Illuminate\Contracts\Foundation\Application $app  [protected]
+Lathe\Testing\ResourceTester::__construct(string $uriKey)
+Lathe\Testing\ResourceTester::index(array $query = array ( )): Illuminate\Testing\TestResponse
+Lathe\Testing\ResourceTester::string $uriKey  [protected]
+Lathe\Testing\ResourceTester::uri(): string  [protected]
+Lathe\Testing\TestCase::getPackageProviders($app): array  [protected]
+Lathe\Testing\TestCase::setUp(): void  [protected]
+Lathe\Testing\TestCase::tearDown(): void  [protected]
 class Lathe\Assets\AssetManifest
 class Lathe\Assets\AssetRegistry
 class Lathe\Assets\RootTags
@@ -441,5 +463,9 @@ class Lathe\Resources\ResourceRegistry
 class Lathe\Support\ConfigStore
 class Lathe\Support\ConfigValidator
 class Lathe\Support\Util
+class Lathe\Testing\LatheTest
+class Lathe\Testing\ResourceTester
+class Lathe\Testing\TestCase
 enum Lathe\Query\QueryContext
 trait Lathe\Http\Controllers\Resources\AuthorizesResources
+trait Lathe\Testing\InteractsWithLathe
