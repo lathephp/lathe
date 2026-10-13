@@ -23,6 +23,7 @@ export { QueryClientProvider, queryClient, queryKeys, useQuery, useQueryClient }
 export { useLathe, useTranslation } from './hooks';
 export type { LatheContext } from './hooks';
 export type { SharedData } from './props';
+export type { SafeHtml } from './safe-html';
 export type { Translator } from './translation';
 
 /**
