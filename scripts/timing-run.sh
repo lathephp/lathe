@@ -56,9 +56,12 @@ run() {
 
     # The script serves the workbench itself. testbench.yaml pins that server to the SQLite
     # workbench (10,000 orders), so the browser budgets measure render and input, not the
-    # 10 million rows; workbench:build makes that database when it is missing.
-    php vendor/bin/testbench workbench:build >/dev/null || return 1
-    env -u DB_CONNECTION -u DB_HOST -u DB_PORT -u DB_DATABASE -u DB_USERNAME -u DB_PASSWORD node scripts/bench-browser.mjs
+    # 10 million rows; workbench:build makes that database when it is missing. Both run
+    # without the lane's DB_* variables: with them, the build seeds MySQL and the served
+    # SQLite workbench has no user to sign in.
+    local sqlite=(env -u DB_CONNECTION -u DB_HOST -u DB_PORT -u DB_DATABASE -u DB_USERNAME -u DB_PASSWORD)
+    "${sqlite[@]}" php vendor/bin/testbench workbench:build >/dev/null || return 1
+    "${sqlite[@]}" node scripts/bench-browser.mjs
     local browser=$?
 
     return $((pest != 0 ? pest : browser))
