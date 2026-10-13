@@ -22,6 +22,8 @@ use Lathe\Http\Controllers\Resources\IndexPageController;
 use Lathe\Http\Controllers\Resources\LensController;
 use Lathe\Http\Controllers\Resources\RecordController;
 use Lathe\Http\Controllers\Resources\SavedTabController;
+use Lathe\Http\Controllers\Uploads\StartUploadController;
+use Lathe\Http\Controllers\Uploads\UploadController;
 use Lathe\Http\Middleware\Authenticate;
 use Lathe\Http\Middleware\AuthorizePlugin;
 use Lathe\Http\Middleware\EnsureJson;
@@ -96,6 +98,12 @@ class PanelRoutes
             $router->delete('resources/{resource}/{resourceId}', [DeleteController::class, 'delete'])->name('resources.delete');
             $router->delete('resources/{resource}/{resourceId}/force', [DeleteController::class, 'forceDelete'])->name('resources.forceDelete');
             $router->put('resources/{resource}/{resourceId}/restore', [DeleteController::class, 'restore'])->name('resources.restore');
+            $router->post('resources/{resource}/uploads/{field}', [StartUploadController::class, 'field'])->name('resources.uploads.start');
+            $router->post('uploads', [StartUploadController::class, 'custom'])->name('uploads.start');
+            $router->get('uploads/{upload}', [UploadController::class, 'show'])->name('uploads.show');
+            $router->put('uploads/{upload}/chunks/{index}', [UploadController::class, 'chunk'])->where('index', '[0-9]+')->name('uploads.chunk');
+            $router->post('uploads/{upload}/complete', [UploadController::class, 'complete'])->name('uploads.complete');
+            $router->delete('uploads/{upload}', [UploadController::class, 'destroy'])->name('uploads.destroy');
             $router->get('search', GlobalSearchController::class)->name('search');
 
             // Registered after every plugin's own routes, so those win.

@@ -67,6 +67,8 @@ return [
     'uploads' => [
         'max_file_size_mb' => 10,
         'max_image_size_mb' => 5,
+        'chunk_size' => 5242880,
+        'pending_hours' => 24,
     ],
 
     'storage_disk' => env('LATHE_STORAGE_DISK', 'public'),

@@ -398,6 +398,12 @@ Lathe\Events\ResourceUpdated::array $original
 Lathe\Events\ResourceUpdated::string $resource
 Lathe\Events\ServingLathe::Illuminate\Http\Request $request
 Lathe\Events\ServingLathe::__construct(Illuminate\Http\Request $request)
+Lathe\Field\Contracts\Deletable::columnsThatShouldBeDeleted(): array
+Lathe\Field\Contracts\Deletable::isDeletable(): bool
+Lathe\Field\Contracts\Deletable::isPrunable(): bool
+Lathe\Field\Contracts\Storable::getStorageDir(): string
+Lathe\Field\Contracts\Storable::getStorageDisk(): string
+Lathe\Field\Contracts\Storable::getStoragePath(): ?string
 Lathe\Field\DefaultLifecycle::MAX_SAFE_INTEGER
 Lathe\Field\DefaultLifecycle::extract(object $record, string $attribute): mixed
 Lathe\Field\DefaultLifecycle::parse(Lathe\Http\Requests\LatheRequest $request, string $attribute): mixed
@@ -560,6 +566,28 @@ Lathe\Field\FieldLifecycle::parse(Lathe\Http\Requests\LatheRequest $request, str
 Lathe\Field\FieldLifecycle::persist(object $model, string $attribute, mixed $value): ?Closure
 Lathe\Field\FieldLifecycle::present(mixed $raw, object $record, string $attribute): mixed
 Lathe\Field\FieldResolver::cells(Illuminate\Database\Eloquent\Model $model, iterable $fields): array  [static]
+Lathe\Field\FileField::?int $maxSizeMb  [protected]
+Lathe\Field\FileField::?string $disk  [protected]
+Lathe\Field\FileField::acceptedTypes(string ...$mimesOrExtensions): static
+Lathe\Field\FileField::accepts(string $name, string $mime): bool
+Lathe\Field\FileField::array $acceptedTypes  [protected]
+Lathe\Field\FileField::bool $deletable  [protected]
+Lathe\Field\FileField::bool $prunable  [protected]
+Lathe\Field\FileField::columnsThatShouldBeDeleted(): array
+Lathe\Field\FileField::deletable(bool $deletable = true): static
+Lathe\Field\FileField::disk(string $disk): static
+Lathe\Field\FileField::getAcceptedTypes(): array
+Lathe\Field\FileField::getMaxSizeBytes(): int
+Lathe\Field\FileField::getStorageDir(): string
+Lathe\Field\FileField::getStorageDisk(): string
+Lathe\Field\FileField::getStoragePath(): ?string
+Lathe\Field\FileField::isDeletable(): bool
+Lathe\Field\FileField::isPrunable(): bool
+Lathe\Field\FileField::maxSize(int $mb): static
+Lathe\Field\FileField::path(string $directory): static
+Lathe\Field\FileField::prunable(bool $prunable = true): static
+Lathe\Field\FileField::string $component  [protected]
+Lathe\Field\FileField::string $directory  [protected]
 Lathe\Field\IdField::__construct(string $label = 'ID', Closure|string|null $attribute = 'id', ?Closure $resolver = NULL)
 Lathe\Field\IdField::asBigInt(): static
 Lathe\Field\IdField::bool $bigInt  [protected]
@@ -698,6 +726,18 @@ Lathe\Http\Controllers\Resources\SavedTabController::reorder(Lathe\Http\Requests
 Lathe\Http\Controllers\Resources\SavedTabController::store(Lathe\Http\Requests\LatheRequest $request, Lathe\Auth\ResourceAuthorization $authorization, Lathe\Support\ConfigStore $config): Illuminate\Http\JsonResponse
 Lathe\Http\Controllers\Resources\SavedTabController::update(Lathe\Http\Requests\LatheRequest $request, Lathe\Auth\ResourceAuthorization $authorization, Lathe\Support\ConfigStore $config): Illuminate\Http\JsonResponse
 Lathe\Http\Controllers\Resources\SavedTabController::userId(Lathe\Http\Requests\LatheRequest $request): string  [protected]
+Lathe\Http\Controllers\Uploads\StartUploadController::Lathe\Support\ConfigStore $config  [protected]
+Lathe\Http\Controllers\Uploads\StartUploadController::Lathe\Uploads\UploadHandler $uploads  [protected]
+Lathe\Http\Controllers\Uploads\StartUploadController::__construct(Lathe\Uploads\UploadHandler $uploads, Lathe\Support\ConfigStore $config)
+Lathe\Http\Controllers\Uploads\StartUploadController::custom(Lathe\Http\Requests\LatheRequest $request): Illuminate\Http\JsonResponse
+Lathe\Http\Controllers\Uploads\StartUploadController::field(Lathe\Http\Requests\LatheRequest $request, Lathe\Auth\ResourceAuthorization $authorization, string $resource, string $field): Illuminate\Http\JsonResponse
+Lathe\Http\Controllers\Uploads\StartUploadController::start(Lathe\Http\Requests\LatheRequest $request, string $field, string $disk, string $directory, int $maxBytes, ?Lathe\Field\FileField $target = NULL): Illuminate\Http\JsonResponse  [protected]
+Lathe\Http\Controllers\Uploads\UploadController::Lathe\Uploads\UploadHandler $uploads  [protected]
+Lathe\Http\Controllers\Uploads\UploadController::__construct(Lathe\Uploads\UploadHandler $uploads)
+Lathe\Http\Controllers\Uploads\UploadController::chunk(Lathe\Http\Requests\LatheRequest $request, string $upload, string $index): Illuminate\Http\Response
+Lathe\Http\Controllers\Uploads\UploadController::complete(Lathe\Http\Requests\LatheRequest $request, string $upload): Illuminate\Http\JsonResponse
+Lathe\Http\Controllers\Uploads\UploadController::destroy(Lathe\Http\Requests\LatheRequest $request, string $upload): Illuminate\Http\Response
+Lathe\Http\Controllers\Uploads\UploadController::show(Lathe\Http\Requests\LatheRequest $request, string $upload): Illuminate\Http\JsonResponse
 Lathe\Http\ErrorPages::Lathe\Auth\FortifyConfig $fortify  [protected]
 Lathe\Http\ErrorPages::STATUSES
 Lathe\Http\ErrorPages::__construct(Lathe\Auth\FortifyConfig $fortify)
@@ -1502,6 +1542,29 @@ Lathe\Testing\ResourceTester::uri(): string  [protected]
 Lathe\Testing\TestCase::getPackageProviders($app): array  [protected]
 Lathe\Testing\TestCase::setUp(): void  [protected]
 Lathe\Testing\TestCase::tearDown(): void  [protected]
+Lathe\Uploads\PendingUpload::$fillable  [protected]
+Lathe\Uploads\PendingUpload::$table  [protected]
+Lathe\Uploads\PendingUpload::COMPLETE
+Lathe\Uploads\PendingUpload::PENDING
+Lathe\Uploads\PendingUpload::UPDATED_AT
+Lathe\Uploads\PendingUpload::casts(): array  [protected]
+Lathe\Uploads\PendingUpload::findOwned(string $userId, string $id): ?Lathe\Uploads\PendingUpload  [static]
+Lathe\Uploads\PendingUpload::folder(): string
+Lathe\Uploads\PendingUpload::prunable(): Illuminate\Database\Eloquent\Builder
+Lathe\Uploads\PendingUpload::pruning(): void  [protected]
+Lathe\Uploads\UploadHandler::Lathe\Support\ConfigStore $config  [protected]
+Lathe\Uploads\UploadHandler::__construct(Lathe\Support\ConfigStore $config)
+Lathe\Uploads\UploadHandler::assemble(Lathe\Uploads\PendingUpload $upload, string $path): void  [protected]
+Lathe\Uploads\UploadHandler::cancel(Lathe\Uploads\PendingUpload $upload): void
+Lathe\Uploads\UploadHandler::chunkSize(): int
+Lathe\Uploads\UploadHandler::complete(Lathe\Uploads\PendingUpload $upload): void
+Lathe\Uploads\UploadHandler::disk(): Illuminate\Contracts\Filesystem\Filesystem  [protected]
+Lathe\Uploads\UploadHandler::extensionAllows(string $name, string $mime): bool  [protected]
+Lathe\Uploads\UploadHandler::owned(?Illuminate\Contracts\Auth\Authenticatable $user, string $id): Lathe\Uploads\PendingUpload
+Lathe\Uploads\UploadHandler::ownerId(?Illuminate\Contracts\Auth\Authenticatable $user): string
+Lathe\Uploads\UploadHandler::received(Lathe\Uploads\PendingUpload $upload): array
+Lathe\Uploads\UploadHandler::start(?Illuminate\Contracts\Auth\Authenticatable $user, string $field, string $disk, string $directory, array $file): Lathe\Uploads\PendingUpload
+Lathe\Uploads\UploadHandler::storeChunk(Lathe\Uploads\PendingUpload $upload, int $index, string $bytes): void
 class Lathe\Assets\AssetManifest
 class Lathe\Assets\AssetRegistry
 class Lathe\Assets\RootTags
@@ -1567,6 +1630,7 @@ class Lathe\Field\Evaluator
 class Lathe\Field\Field
 class Lathe\Field\FieldCollection
 class Lathe\Field\FieldResolver
+class Lathe\Field\FileField
 class Lathe\Field\IdField
 class Lathe\Filters\BooleanFilter
 class Lathe\Filters\DateFilter
@@ -1592,6 +1656,8 @@ class Lathe\Http\Controllers\Resources\IndexPageController
 class Lathe\Http\Controllers\Resources\LensController
 class Lathe\Http\Controllers\Resources\RecordController
 class Lathe\Http\Controllers\Resources\SavedTabController
+class Lathe\Http\Controllers\Uploads\StartUploadController
+class Lathe\Http\Controllers\Uploads\UploadController
 class Lathe\Http\ErrorPages
 class Lathe\Http\Middleware\Authenticate
 class Lathe\Http\Middleware\Authorize
@@ -1654,6 +1720,8 @@ class Lathe\Tabs\Tab
 class Lathe\Testing\LatheTest
 class Lathe\Testing\ResourceTester
 class Lathe\Testing\TestCase
+class Lathe\Uploads\PendingUpload
+class Lathe\Uploads\UploadHandler
 enum Lathe\Enums\ClickAction
 enum Lathe\Enums\Icon
 enum Lathe\Enums\PaginationType
@@ -1662,6 +1730,8 @@ enum Lathe\Field\FieldContext
 enum Lathe\Query\CountStrategy
 enum Lathe\Query\QueryContext
 interface Lathe\Attributes\Resource\ResourceAttribute
+interface Lathe\Field\Contracts\Deletable
+interface Lathe\Field\Contracts\Storable
 interface Lathe\Field\FieldLifecycle
 interface Lathe\Search\SearchableColumn
 trait Lathe\Http\Controllers\Resources\AuthorizesResources

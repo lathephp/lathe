@@ -137,6 +137,8 @@ class ConfigValidator
             'limits.metrics_ttl' => $positive,
             'uploads.max_file_size_mb' => $positive,
             'uploads.max_image_size_mb' => $positive,
+            'uploads.chunk_size' => $positive,
+            'uploads.pending_hours' => $positive,
             'storage_disk' => $string,
             'global_search.enabled' => $bool,
             'global_search.debounce' => fn (mixed $v) => (is_int($v) || is_float($v)) && $v >= 0
