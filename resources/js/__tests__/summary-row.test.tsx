@@ -25,7 +25,22 @@ function renderSummaries(summaries: unknown) {
   return renderPage(
     'Resources/Index',
     {
-      resource: { uriKey: 'orders', label: 'Orders', singularLabel: 'Order', perPageOptions: [25] },
+      resource: {
+        uriKey: 'orders',
+        label: 'Orders',
+        singularLabel: 'Order',
+        perPageOptions: [25],
+        definition: {
+          debounce: 0.5,
+          paginationType: 'links',
+          clickAction: 'detail',
+          polling: null,
+          showPollingToggle: false,
+          tableStyle: 'default',
+          showColumnBorders: false,
+          softDeletes: false,
+        },
+      },
       table: { columns, rows, rowKey: 'id' },
       state: { page: 1, perPage: 25, hasMorePages: true },
       count: { value: 10000, exact: false, capped: false, estimated: false },
@@ -58,8 +73,9 @@ describe('summary rows', () => {
     });
 
     expect(footerRows()).toEqual([
-      ['This page', '', 'Revenue250.00', ''],
-      ['All records', '', 'Revenue1234.50', 'Sum94'],
+      // The first cell sits under the row checkboxes.
+      ['', 'This page', '', 'Revenue250.00', ''],
+      ['', 'All records', '', 'Revenue1234.50', 'Sum94'],
     ]);
   });
 
@@ -71,8 +87,8 @@ describe('summary rows', () => {
     });
 
     expect(footerRows()).toEqual([
-      ['This page', '', 'Revenue250.00', ''],
-      ['All records', 'Narrow the filters to total all rows'],
+      ['', 'This page', '', 'Revenue250.00', ''],
+      ['', 'All records', 'Narrow the filters to total all rows'],
     ]);
   });
 
