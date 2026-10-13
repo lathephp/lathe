@@ -237,6 +237,14 @@ export function useChunkedUpload(
     setProgress(null);
     setName(file.name);
     const types = Array.isArray(field.acceptedTypes) ? field.acceptedTypes.filter((type): type is string => typeof type === 'string') : [];
+    // A file over the limit says so whatever its type, unless the browser shrinks it below.
+    const shrinks = typeof field.maxWidth === 'number' && RESIZABLE.has(file.type);
+
+    if (!shrinks && file.size > limit * MB) {
+      setError(tooLarge);
+
+      return;
+    }
 
     // Too big and nothing can shrink it: the size is the answer, whatever the type.
     if (file.size > limit * MB && (typeof field.maxWidth !== 'number' || !RESIZABLE.has(file.type))) {
