@@ -247,6 +247,6 @@ it('immutable_boolean_and_currency_survive_update', function () {
 
     $row = DB::table('number_things')->where('id', $id)->first();
     expect($row->name)->toBe('Original')
-        ->and($row->active)->toBe(1)
+        ->and((bool) $row->active)->toBeTrue()
         ->and($row->total_cents)->toBe(123450);
 })->group('regression');
