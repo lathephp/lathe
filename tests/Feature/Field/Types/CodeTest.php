@@ -94,7 +94,7 @@ it('code_field_json_round_trips', function () {
 
     expect(CodeSample::findOrFail($id)->settings)->toBe(['a' => 1]);
 
-    LatheTest::resource('code-samples')->update($id, ['name' => 'a', 'settings' => '{"title":"Zoë é","n":[1,2]}'])->assertSuccessful();
+    LatheTest::resource('code-samples')->update($id, ['name' => 'a', 'settings' => '{"title":"Zoë \\u00e9","n":[1,2]}'])->assertSuccessful();
 
     expect(CodeSample::findOrFail($id)->settings)->toBe(['title' => 'Zoë é', 'n' => [1, 2]])
         ->and(Field::code('Settings')->json()->resolve(CodeSample::findOrFail($id)))
@@ -120,5 +120,5 @@ it('honours custom json flags', function () {
     $record = new CodeSample(['settings' => ['a' => 'é']]);
 
     expect(Field::code('Settings')->json(JSON_UNESCAPED_UNICODE)->resolve($record))->toBe('{"a":"é"}')
-        ->and(Field::code('Settings')->json(0)->resolve($record))->toBe('{"a":"é"}');
+        ->and(Field::code('Settings')->json(0)->resolve($record))->toBe('{"a":"\\u00e9"}');
 });

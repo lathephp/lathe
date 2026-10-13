@@ -171,6 +171,7 @@
     "The :attribute field has a pair with an empty key.": "The :attribute field has a pair with an empty key.",
     "The :attribute field holds an option that does not exist.": "The :attribute field holds an option that does not exist.",
     "The :attribute field must be a list of key and value pairs.": "The :attribute field must be a list of key and value pairs.",
+    "The :attribute field must be valid JSON.": "The :attribute field must be valid JSON.",
     "The :attribute field takes at most :max pairs.": "The :attribute field takes at most :max pairs.",
     "The :field field has more than 1,000 options. Use a relation field instead.": "The :field field has more than 1,000 options. Use a relation field instead.",
     "The file type is not one of: :types.": "The file type is not one of: :types.",

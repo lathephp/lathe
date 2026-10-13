@@ -2,6 +2,7 @@
 
 namespace Lathe\Field\Concerns;
 
+use Lathe\Field\CodeField;
 use Lathe\Field\KeyValueField;
 use Lathe\Field\MarkdownField;
 use Lathe\Field\SlugField;
@@ -30,5 +31,10 @@ trait RichFactories
     public static function tiptap(string $label, ?string $attribute = null): TiptapField
     {
         return new TiptapField($label, $attribute);
+    }
+
+    public static function code(string $label, ?string $attribute = null): CodeField
+    {
+        return new CodeField($label, $attribute);
     }
 }
