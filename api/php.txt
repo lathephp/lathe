@@ -699,6 +699,7 @@ Lathe\Field\Field::isFilterable(): bool
 Lathe\Field\Field::isFrozen(): bool
 Lathe\Field\Field::isImmutable(?Lathe\Http\Requests\LatheRequest $request = NULL, mixed $model = NULL): bool
 Lathe\Field\Field::isInlineEditable(?Lathe\Http\Requests\LatheRequest $request = NULL): bool
+Lathe\Field\Field::isLocked(?Lathe\Http\Requests\LatheRequest $request = NULL, mixed $model = NULL): bool
 Lathe\Field\Field::isNullValue(mixed $value): bool  [protected]
 Lathe\Field\Field::isNullable(): bool
 Lathe\Field\Field::isReadonly(?Lathe\Http\Requests\LatheRequest $request = NULL, mixed $model = NULL): bool
@@ -811,6 +812,8 @@ Lathe\Field\FileField::acceptedTypes(string ...$mimesOrExtensions): static
 Lathe\Field\FileField::accepts(string $name, string $mime): bool
 Lathe\Field\FileField::afterCommit(object $model, Closure $callback): void  [protected]
 Lathe\Field\FileField::array $acceptedTypes  [protected]
+Lathe\Field\FileField::attachToRow(Lathe\Http\Requests\LatheRequest $request, Illuminate\Database\Eloquent\Model $record, object $row, string $requestAttribute, string $uploadId): Closure
+Lathe\Field\FileField::attachableUpload(Lathe\Http\Requests\LatheRequest $request, Lathe\Uploads\UploadHandler $uploads, string $uploadId, string $requestAttribute): Lathe\Uploads\PendingUpload  [protected]
 Lathe\Field\FileField::bool $deletable  [protected]
 Lathe\Field\FileField::bool $downloadable  [protected]
 Lathe\Field\FileField::bool $prunable  [protected]

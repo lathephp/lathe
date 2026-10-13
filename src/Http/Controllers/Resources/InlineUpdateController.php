@@ -42,6 +42,11 @@ class InlineUpdateController
 
         abort_if($target === null, 403, Lathe::__('This field cannot be edited inline.'));
 
+        // Only the edited cell is the user's to write; its conditions read the rest from the record.
+        $request->attributes->set('lathe.writable', [$target->attribute()]);
+        $request->merge([$target->attribute() => $request->input('value')]);
+        abort_if($target->isReadonly($request, $model) || ! $target->isVisibleFor($request, $model), 403, Lathe::__('This field cannot be edited inline.'));
+
         if ($class::make()->definition()->usesTrafficCop() && TrafficCop::isStale($model, $request->input('_updated_at'))) {
             return new JsonResponse([
                 'error' => 'conflict',
@@ -51,8 +56,7 @@ class InlineUpdateController
             ], 409);
         }
 
-        // The value takes the field's own key, so the normal parse and validate path runs.
-        $request->merge([$target->attribute() => $request->input('value')]);
+        // The value took the field's own key above, so the normal parse and validate path runs.
         (new ValidationPipeline(new FieldCollection([$target]), $request, FieldContext::Update, $class, $model))->validate();
 
         $this->save($request, $class, $model, $target);

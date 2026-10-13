@@ -930,6 +930,14 @@ class Field implements JsonSerializable
         return $this->visibleWhen === null || $this->visibleWhen->passes(self::conditionValues($request, $model));
     }
 
+    /**
+     * readonly() alone, without readonlyWhen: whether the field is locked whatever the form holds.
+     */
+    public function isLocked(?LatheRequest $request = null, mixed $model = null): bool
+    {
+        return $this->decide($this->readonly, $request, $model);
+    }
+
     public function isReadonly(?LatheRequest $request = null, mixed $model = null): bool
     {
         return $this->decide($this->readonly, $request, $model)
@@ -949,9 +957,17 @@ class Field implements JsonSerializable
      */
     protected static function conditionValues(?LatheRequest $request, mixed $model): array
     {
+        $sent = $request?->all() ?? [];
+        $writable = $request?->attributes->get('lathe.writable');
+
+        // A key the user cannot write keeps its stored value, so a forged one cannot unlock another field.
+        if (is_array($writable)) {
+            $sent = array_intersect_key($sent, array_flip(array_filter($writable, is_string(...))));
+        }
+
         return [
             ...($model instanceof Model ? $model->attributesToArray() : []),
-            ...($request?->all() ?? []),
+            ...$sent,
         ];
     }
 

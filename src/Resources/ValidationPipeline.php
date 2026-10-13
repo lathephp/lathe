@@ -67,6 +67,13 @@ class ValidationPipeline
      */
     public static function writable(FieldCollection $fields, FieldContext $context, LatheRequest $request, ?Model $model = null): FieldCollection
     {
+        $visible = $fields->forContext($context, $request, $model)->authorized($request)->withoutComputed();
+        // Conditions read the stored record for every key outside this set.
+        $request->attributes->set('lathe.writable', array_values($visible
+            ->reject(fn (Field $field) => $field->isLocked($request, $model) || ($model instanceof Model && $model->exists && $field->isImmutable($request, $model)))
+            ->map(fn (Field $field) => $field->attribute())
+            ->all()));
+
         return $fields->forContext($context, $request, $model)
             ->authorized($request)
             ->withoutReadonly($request, $model)
