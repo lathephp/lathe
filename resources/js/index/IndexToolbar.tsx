@@ -1,3 +1,4 @@
+import { Filters } from './FilterPanel';
 import type { IndexProps } from './types';
 import { ToolbarSearch } from './ToolbarSearch';
 import type { IndexUrlState } from './useIndexState';
@@ -9,8 +10,8 @@ interface IndexToolbarProps extends Pick<IndexProps, 'resource'> {
 
 export function IndexToolbar({ resource, q, visit }: IndexToolbarProps) {
   return (
-    <div className="flex flex-wrap items-center justify-between gap-3">
-      <h1 className="text-2xl font-semibold">{resource.label}</h1>
+    <div className="flex flex-wrap items-center gap-3">
+      <h1 className="me-auto text-2xl font-semibold">{resource.label}</h1>
       {resource.searchable && (
         <ToolbarSearch
           label={resource.label}
@@ -22,6 +23,7 @@ export function IndexToolbar({ resource, q, visit }: IndexToolbarProps) {
           }}
         />
       )}
+      <Filters visit={visit} />
     </div>
   );
 }

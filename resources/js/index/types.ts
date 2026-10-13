@@ -1,4 +1,5 @@
 import type { Cell } from '../table/cells';
+import type { FilterValue } from './useIndexState';
 
 export interface Column {
   key: string;
@@ -14,6 +15,36 @@ export interface Row {
   title: string;
   cells: Record<string, Cell | undefined>;
   abilities: Record<string, boolean>;
+  /** Sent only by a soft-deleting Resource. */
+  trashed?: boolean;
+}
+
+export interface FilterOption {
+  label: string;
+  value: string;
+}
+
+export interface AvailableFilter {
+  key: string;
+  name: string;
+  /** select-filter, multi-select-filter, boolean-filter, range-filter or date-filter. */
+  component: string;
+  /** Null for a remote picker, which pages its options from the server. */
+  options: FilterOption[] | null;
+  remote: boolean;
+  immediate: boolean;
+  placement: string;
+  default: unknown;
+}
+
+/** What the panel hands each filter control, keyed by the server's component name. */
+export interface FilterControlProps {
+  filter: AvailableFilter;
+  value: FilterValue | undefined;
+  onChange: (value: FilterValue) => void;
+  /** The filters endpoint of the Resource; a remote picker reads `{endpoint}/{key}/options`. */
+  endpoint: string;
+  resource: string;
 }
 
 export interface IndexProps {
@@ -23,11 +54,15 @@ export interface IndexProps {
     singularLabel: string;
     perPageOptions: number[];
     searchable: boolean;
+    softDeletes: boolean;
     abilities: { create: boolean };
     definition: { debounce: number };
   };
   table: { columns: Column[]; sortKeys: string[]; rows: Row[]; rowKey: string };
   state: { page: number; perPage: number; hasMorePages: boolean; sort: string };
+  filters?: { available: AvailableFilter[]; applied: Record<string, unknown> };
+  /** Filter keys in the URL that the Resource no longer declares; the server dropped them. */
+  staleFilters?: string[];
   /** Null when the Resource counts nothing. */
   count?: Count | null;
   /** A bad URL parameter: the page shows its message in place of the rows. */
