@@ -225,6 +225,24 @@ describe('filtered empty state', () => {
     expect((visit.mock.calls[0]?.[1] as { data: Record<string, unknown> }).data).toEqual({ sort: '-total_cents' });
   });
 
+  it('empties the search box once the cleared URL lands', () => {
+    // The visit lands at once with the URL it asked for, keeping the page's state as a real one does.
+    const visit = vi.spyOn(router, 'visit').mockImplementation((_url, options) => {
+      const data = (options as { data: Record<string, string> }).data;
+      router.replace({ url: `/lathe/resources/orders?${new URLSearchParams(data).toString()}`, preserveState: true });
+    });
+    renderOrders({ url: '/lathe/resources/orders?q=zzzz', rows: [] });
+
+    expect(screen.getByRole<HTMLInputElement>('searchbox', { name: 'Search orders' }).value).toBe('zzzz');
+
+    fireEvent.click(screen.getByRole('button', { name: 'Clear filters' }));
+
+    expect(visit).toHaveBeenCalledTimes(1);
+    return vi.waitFor(() => {
+      expect(screen.getByRole<HTMLInputElement>('searchbox', { name: 'Search orders' }).value).toBe('');
+    });
+  });
+
   it('links to the create page when the user may create', () => {
     renderOrders({ url: '/lathe/resources/orders?q=zzzz', rows: [], create: true });
 

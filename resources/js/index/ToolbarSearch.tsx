@@ -12,8 +12,15 @@ interface ToolbarSearchProps {
 export function ToolbarSearch({ label, value, debounce, onSearch }: ToolbarSearchProps) {
   const { __ } = useTranslation();
   const [term, setTerm] = useState(value);
+  const [seen, setSeen] = useState(value);
   const input = useRef<HTMLInputElement>(null);
   const timer = useRef<ReturnType<typeof setTimeout>>(undefined);
+
+  // The page keeps its state across visits, so a q changed elsewhere (Clear filters) is copied in.
+  if (value !== seen) {
+    setSeen(value);
+    setTerm(value);
+  }
 
   useEffect(
     () =>
