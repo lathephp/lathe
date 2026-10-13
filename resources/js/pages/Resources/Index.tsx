@@ -37,7 +37,7 @@ const firstColumn = 'sticky start-0 bg-background';
 export default function Index({ resource, table, state, count }: IndexProps) {
   const { __ } = useTranslation();
   const page = usePage<SharedProps>();
-  const { density, striped } = page.props.table;
+  const { density, striped } = page.props.tableStyle;
   const [loading, setLoading] = useState(false);
 
   function visit(pageNumber: number, perPage: number) {

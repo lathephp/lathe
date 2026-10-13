@@ -60,7 +60,7 @@ it('shares the layout and table settings', function () {
         'sidebar' => ['collapsible' => 'none', 'width' => '16rem', 'widthIcon' => '3rem'],
         'header' => ['sticky' => false],
         'content' => ['width' => 'contained'],
-    ])->and($props['table'])->toBe(['density' => 'compact', 'striped' => true]);
+    ])->and($props['tableStyle'])->toBe(['density' => 'compact', 'striped' => true]);
 });
 
 it('renders the Main dashboard', function () {

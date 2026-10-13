@@ -45,7 +45,7 @@ interface Options {
   rows?: ReturnType<typeof rows>;
   state?: { page: number; perPage: number; hasMorePages: boolean };
   count?: { count: number; capped: boolean } | undefined;
-  table?: SharedProps['table'];
+  tableStyle?: SharedProps['tableStyle'];
   page?: Record<string, unknown>;
 }
 
@@ -64,7 +64,7 @@ function renderOrders(options: Options = {}) {
 
   return renderPage('Resources/Index', props, {
     url: '/lathe/resources/orders',
-    shared: options.table === undefined ? {} : { table: options.table },
+    shared: options.tableStyle === undefined ? {} : { tableStyle: options.tableStyle },
     page: options.page,
   });
 }
@@ -152,13 +152,13 @@ describe('orders table', () => {
     ['comfortable', 'h-10'],
     ['spacious', 'h-12'],
   ] as const)('gives %s rows the %s height', (density, height) => {
-    renderOrders({ table: { density, striped: false } });
+    renderOrders({ tableStyle: { density, striped: false } });
 
     expect(bodyRows().every((element) => element.classList.contains(height))).toBe(true);
   });
 
   it('alternates the row background when striped', () => {
-    const { unmount } = renderOrders({ table: { density: 'comfortable', striped: true } });
+    const { unmount } = renderOrders({ tableStyle: { density: 'comfortable', striped: true } });
 
     expect(bodyRows()[0]?.classList.contains('even:bg-muted/50')).toBe(true);
     unmount();

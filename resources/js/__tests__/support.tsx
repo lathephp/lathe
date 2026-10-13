@@ -30,7 +30,7 @@ export function sharedProps(overrides: Partial<SharedProps> = {}): SharedProps {
       header: { sticky: true },
       content: { width: 'full' },
     },
-    table: { density: 'comfortable', striped: false },
+    tableStyle: { density: 'comfortable', striped: false },
     ...overrides,
   };
 }

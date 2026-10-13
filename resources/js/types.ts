@@ -15,7 +15,7 @@ export interface SharedProps {
     header: { sticky: boolean };
     content: { width: 'full' | 'contained' };
   };
-  table: { density: 'compact' | 'comfortable' | 'spacious'; striped: boolean };
+  tableStyle: { density: 'compact' | 'comfortable' | 'spacious'; striped: boolean };
   [key: string]: unknown;
 }
 

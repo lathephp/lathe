@@ -73,7 +73,7 @@ class HandleInertiaRequests extends Middleware
                 'header' => ['sticky' => Lathe::config()->boolean('layout.header.sticky')],
                 'content' => ['width' => Lathe::config()->string('layout.content.width')],
             ],
-            'table' => fn () => [
+            'tableStyle' => fn () => [
                 'density' => Lathe::config()->string('table.density'),
                 'striped' => Lathe::config()->boolean('table.striped'),
             ],
