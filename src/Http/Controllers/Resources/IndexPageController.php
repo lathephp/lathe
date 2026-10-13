@@ -42,6 +42,7 @@ class IndexPageController
             'resource' => fn () => $part('resource'),
             'table' => fn () => $part('table'),
             'state' => fn () => $part('state'),
+            'filters' => fn () => $part('filters'),
             'count' => Inertia::defer(fn () => $payload->count($class)),
         ])->toResponse($request);
     }

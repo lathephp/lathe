@@ -149,7 +149,9 @@ it('shows only pending orders for filter[status]=pending, on the API and the pag
         ->assertOk()
         ->assertInertia(fn (AssertableInertia $page) => $page
             ->component('Resources/Index', shouldExist: false)
-            ->where('table.rows', fn ($pageRows) => array_column($pageRows->all(), 'id') === array_column($rows, 'id')));
+            ->where('table.rows', fn ($pageRows) => array_column($pageRows->all(), 'id') === array_column($rows, 'id'))
+            ->where('filters.applied', ['status' => 'pending'])
+            ->has('filters.available', 2));
 });
 
 it('narrows filter[customer]=12 to the orders of customer 12', function () {
