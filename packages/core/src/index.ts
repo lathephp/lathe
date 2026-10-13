@@ -4,7 +4,7 @@ import { boot, pluginPage } from './registry';
 import { dismissToast, toasts } from './toast';
 import { loadModules } from './loader';
 import { shortcutPauseCount } from './shortcuts';
-import { setTranslator } from './translation';
+import { setTranslator, translatorFor } from './translation';
 
 /** The plugin API version this package provides. */
 export const apiVersion = '1.0.0';
@@ -41,4 +41,5 @@ export const __panel = {
   sharedProps,
   shortcutPauseCount,
   toasts,
+  translatorFor,
 };

@@ -1,7 +1,7 @@
-import { useSyncExternalStore } from 'react';
+import { useMemo, useSyncExternalStore } from 'react';
 import { config } from './navigation';
 import { sharedProps, type SharedData } from './props';
-import { __, type Translator } from './translation';
+import { translatorFor, type Translator } from './translation';
 
 export interface LatheContext {
   basePath: string;
@@ -18,7 +18,9 @@ export function useLathe(): LatheContext {
   return { basePath: base, apiPath: `${base}/api`, config, auth: props.auth };
 }
 
-/** The translation function. Lathe ships English; translations arrive in a later release. */
+/** The translation function, over the catalogue the server shares for the user's locale. */
 export function useTranslation(): { __: Translator } {
-  return { __ };
+  const props = useSyncExternalStore(sharedProps.subscribe, sharedProps.get);
+
+  return useMemo(() => ({ __: translatorFor(props) }), [props]);
 }
