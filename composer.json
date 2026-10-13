@@ -21,7 +21,8 @@
         "php": "^8.4",
         "inertiajs/inertia-laravel": "^3.5.1",
         "laravel/fortify": "^1.41",
-        "laravel/framework": "^13.32"
+        "laravel/framework": "^13.32",
+        "symfony/html-sanitizer": "^8.1"
     },
     "require-dev": {
         "acme/heartbeat": "@dev",
