@@ -4,6 +4,8 @@ import { EmptyState } from '../../index/EmptyState';
 import { IndexBanner } from '../../index/IndexBanner';
 import { IndexFooter } from '../../index/IndexFooter';
 import { IndexToolbar } from '../../index/IndexToolbar';
+import { useLoadMore } from '../../index/Pagination';
+import { usePolling, usePollingChoice } from '../../index/PollingToggle';
 import { ResourceTable } from '../../index/ResourceTable';
 import type { IndexProps } from '../../index/types';
 import { useIndexState } from '../../index/useIndexState';
@@ -13,11 +15,22 @@ export default function Index({ resource, table, state, count, error, lens, lens
   const { basePath } = usePage<SharedProps>().props;
   const index = useIndexState({ perPage: resource.perPageOptions[0] ?? state.perPage });
   const filtered = index.state.q !== undefined || index.state.filter !== undefined;
+  const { polling, showPollingToggle } = resource.definition;
+  const pollingChoice = usePollingChoice(resource.uriKey);
+  const more = useLoadMore(resource.uriKey, table, state);
+  usePolling(polling, !showPollingToggle || pollingChoice.on);
 
   return (
     <div className="space-y-6">
       <Head title={lens?.name ?? resource.label} />
-      <IndexToolbar resource={resource} lens={lens} lenses={lenses} q={index.state.q} visit={index.visit} />
+      <IndexToolbar
+        resource={resource}
+        lens={lens}
+        lenses={lenses}
+        q={index.state.q}
+        visit={index.visit}
+        polling={polling !== null && showPollingToggle ? pollingChoice : null}
+      />
       {error !== undefined ? (
         <IndexBanner message={error.message} onReset={index.reset} />
       ) : table.rows.length === 0 ? (
@@ -33,7 +46,7 @@ export default function Index({ resource, table, state, count, error, lens, lens
         <Card className="overflow-hidden">
           <ResourceTable
             resource={resource}
-            table={table}
+            table={{ ...table, rows: more.rows }}
             state={state}
             loading={index.loading}
             sort={index.state.sort}
@@ -41,7 +54,18 @@ export default function Index({ resource, table, state, count, error, lens, lens
               index.visit({ sort });
             }}
           />
-          <IndexFooter resource={resource} state={state} count={count} rowCount={table.rows.length} visit={index.visit} />
+          <IndexFooter
+            resource={resource}
+            state={state}
+            count={count}
+            rowCount={more.rows.length}
+            hasMorePages={more.hasMorePages}
+            loadingMore={more.loading}
+            visit={index.visit}
+            onLoadMore={() => {
+              void more.loadMore();
+            }}
+          />
         </Card>
       )}
     </div>

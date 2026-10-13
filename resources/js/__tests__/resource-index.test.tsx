@@ -10,7 +10,22 @@ afterEach(() => {
   vi.useRealTimers();
 });
 
-const resource = { uriKey: 'orders', label: 'Orders', singularLabel: 'Order', perPageOptions: [25, 50, 100] };
+const resource = {
+  uriKey: 'orders',
+  label: 'Orders',
+  singularLabel: 'Order',
+  perPageOptions: [25, 50, 100],
+  definition: {
+    debounce: 0.5,
+    paginationType: 'links',
+    clickAction: 'detail',
+    polling: null,
+    showPollingToggle: false,
+    tableStyle: 'default',
+    showColumnBorders: false,
+    softDeletes: false,
+  },
+};
 
 const columns = [
   { key: 'number', label: 'Number', component: 'text' },

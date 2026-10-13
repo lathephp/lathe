@@ -52,6 +52,18 @@ export interface FilterControlProps {
   resource: string;
 }
 
+export interface ResourceDefinition {
+  debounce: number;
+  paginationType: 'links' | 'simple' | 'load-more';
+  clickAction: 'detail' | 'edit' | 'select' | 'preview' | 'ignore';
+  /** Seconds between table reloads, null for none. */
+  polling: number | null;
+  showPollingToggle: boolean;
+  tableStyle: 'default' | 'tight';
+  showColumnBorders: boolean;
+  softDeletes: boolean;
+}
+
 export interface IndexProps {
   resource: {
     uriKey: string;
@@ -61,7 +73,7 @@ export interface IndexProps {
     searchable: boolean;
     softDeletes: boolean;
     abilities: { create: boolean };
-    definition: { debounce: number };
+    definition: ResourceDefinition;
   };
   table: { columns: Column[]; sortKeys: string[]; rows: Row[]; rowKey: string };
   /** The open lens; null on the plain index. */

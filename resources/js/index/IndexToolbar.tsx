@@ -1,6 +1,7 @@
 import { Link, usePage } from '@inertiajs/react';
 import { Filters } from './FilterPanel';
 import { LensSelector } from './LensSelector';
+import { PollingToggle } from './PollingToggle';
 import type { IndexProps } from './types';
 import { ToolbarSearch } from './ToolbarSearch';
 import type { IndexUrlState } from './useIndexState';
@@ -9,9 +10,11 @@ import type { SharedProps } from '../types';
 interface IndexToolbarProps extends Pick<IndexProps, 'resource' | 'lens' | 'lenses'> {
   q: string | undefined;
   visit: (changes: IndexUrlState) => void;
+  /** Null when the Resource shows no polling toggle. */
+  polling: { on: boolean; onToggle: () => void } | null;
 }
 
-export function IndexToolbar({ resource, lens, lenses, q, visit }: IndexToolbarProps) {
+export function IndexToolbar({ resource, lens, lenses, q, visit, polling }: IndexToolbarProps) {
   const { basePath } = usePage<SharedProps>().props;
   const resourcePath = `${basePath}/resources/${resource.uriKey}`;
 
@@ -41,6 +44,7 @@ export function IndexToolbar({ resource, lens, lenses, q, visit }: IndexToolbarP
           />
         )}
         <Filters visit={visit} />
+        {polling !== null && <PollingToggle on={polling.on} onToggle={polling.onToggle} />}
       </div>
     </div>
   );
