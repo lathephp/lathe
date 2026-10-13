@@ -3,6 +3,7 @@
 namespace Lathe\Resources;
 
 use Closure;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
 use Lathe\Http\Requests\LatheRequest;
@@ -65,6 +66,103 @@ abstract class Resource
         $model = static::model();
 
         return new $model;
+    }
+
+    /**
+     * The base model query. Only ResourceQuery calls this.
+     *
+     * @internal
+     *
+     * @return Builder<Model>
+     */
+    public static function query(): Builder
+    {
+        return static::newModel()->newQuery();
+    }
+
+    /**
+     * Narrow the index rows, counts and exports.
+     *
+     * @param  Builder<Model>  $query
+     * @return Builder<Model>
+     */
+    public static function indexQuery(LatheRequest $request, Builder $query): Builder
+    {
+        return $query;
+    }
+
+    /**
+     * Narrow the rows a detail, delete or restore can reach.
+     *
+     * @param  Builder<Model>  $query
+     * @return Builder<Model>
+     */
+    public static function detailQuery(LatheRequest $request, Builder $query): Builder
+    {
+        return $query;
+    }
+
+    /**
+     * Narrow the rows an edit form, update or inline edit can reach.
+     *
+     * @param  Builder<Model>  $query
+     * @return Builder<Model>
+     */
+    public static function editQuery(LatheRequest $request, Builder $query): Builder
+    {
+        return $query;
+    }
+
+    /**
+     * Narrow global search results; defaults to indexQuery().
+     *
+     * @param  Builder<Model>  $query
+     * @return Builder<Model>
+     */
+    public static function searchQuery(LatheRequest $request, Builder $query): Builder
+    {
+        return static::indexQuery($request, $query);
+    }
+
+    /**
+     * Narrow the rows a widget reads; defaults to indexQuery().
+     *
+     * @param  Builder<Model>  $query
+     * @return Builder<Model>
+     */
+    public static function widgetQuery(LatheRequest $request, Builder $query): Builder
+    {
+        return static::indexQuery($request, $query);
+    }
+
+    /**
+     * Narrow the records a relation picker offers.
+     *
+     * @param  Builder<Model>  $query
+     * @return Builder<Model>
+     */
+    public static function relatableQuery(LatheRequest $request, Builder $query): Builder
+    {
+        return $query;
+    }
+
+    /**
+     * Narrow the records a replicate can copy.
+     *
+     * @param  Builder<Model>  $query
+     * @return Builder<Model>
+     */
+    public static function replicateQuery(LatheRequest $request, Builder $query): Builder
+    {
+        return $query;
+    }
+
+    /**
+     * Narrow a Scout search.
+     */
+    public static function scoutQuery(LatheRequest $request, mixed $query): mixed
+    {
+        return $query;
     }
 
     public function getModel(): ?Model
