@@ -88,6 +88,12 @@ export function ResourceTable({ resource, table, state, loading, selection, sort
   const [previewing, setPreviewing] = useState<Row['id'] | null>(null);
   // Cells and tokens an inline save sent back, by row, over the rows the page loaded.
   const [saved, setSaved] = useState<Record<string, { cells: Row['cells']; updatedAt: string | null | undefined }>>({});
+  // Each column's cell classes, worked out once per render rather than once per cell.
+  const cellClasses = table.columns.map((column, index) => {
+    const base = cn('max-w-80 px-3 whitespace-nowrap', alignClass(column), index === 0 && firstColumn, border);
+
+    return { plain: cn(base, 'truncate'), inline: base };
+  });
   const ids = table.rows.map((row) => row.id);
   const ticked = ids.filter((id) => selection.selected.has(id)).length;
 
@@ -251,7 +257,7 @@ export function ResourceTable({ resource, table, state, loading, selection, sort
                           const inline = column.inline === true && row.abilities.update === true;
 
                           return (
-                            <td key={column.key} className={cn('max-w-80 px-3 whitespace-nowrap', !inline && 'truncate', alignClass(column), index === 0 && firstColumn, border)}>
+                            <td key={column.key} className={inline ? cellClasses[index]?.inline : cellClasses[index]?.plain}>
                               {cell !== undefined &&
                                 (inline ? (
                                   <InlineCell

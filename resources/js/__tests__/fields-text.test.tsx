@@ -260,10 +260,12 @@ describe('wrapping', () => {
     expect(container.firstElementChild?.getAttribute('data-wrapping')).toBe('true');
   });
 
-  it('shows one line with an ellipsis when wrapping is false', () => {
-    const { container } = render(<TableCell column={schema('text-field', { wrapping: false })} cell={cell} />);
+  it('adds no element around a one-line cell: the table cell truncates it', () => {
+    const column = schema('text-field', { wrapping: false });
+    const bare = render(<IndexField field={column} cell={cell} />).container.innerHTML;
+    const { container } = render(<TableCell column={column} cell={cell} />);
 
-    expect(container.firstElementChild?.className).toBe('truncate');
-    expect(container.firstElementChild?.hasAttribute('data-wrapping')).toBe(false);
+    // A page of 100 rows of 20 columns would mount 2,000 more elements on every render (budget B5).
+    expect(container.innerHTML).toBe(bare);
   });
 });

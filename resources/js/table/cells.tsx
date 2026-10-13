@@ -13,8 +13,14 @@ export function TableCell({ column, cell }: { column: { component: string; wrapp
   const field = column as FieldSchema;
   const wrapping = column.wrapping === true;
 
+  // One line needs no element of its own: the cell's td truncates, and a page of 100 rows of
+  // 20 columns would mount 2,000 more elements on every render (budget B5).
+  if (!wrapping) {
+    return <IndexField field={field} cell={cell} />;
+  }
+
   return (
-    <div data-wrapping={wrapping || undefined} className={wrapping ? 'line-clamp-5 whitespace-normal' : 'truncate'}>
+    <div data-wrapping="true" className="line-clamp-5 whitespace-normal">
       <IndexField field={field} cell={cell} />
     </div>
   );

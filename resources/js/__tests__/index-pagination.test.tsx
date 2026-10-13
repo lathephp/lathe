@@ -251,3 +251,15 @@ describe('polling', () => {
     expect(tableReloads(reload)).toHaveLength(2);
   });
 });
+
+describe('cells', () => {
+  it('renders a one-line cell as text in a truncating td, with no element of its own', () => {
+    renderOrders({ rows: rows(3) });
+    const cell = within(bodyRows()[0] as HTMLElement).getByText('ORD-00001');
+
+    // 100 rows of 20 columns would mount 2,000 more elements on every render (budget B5).
+    expect(cell.tagName).toBe('TD');
+    expect(cell.childElementCount).toBe(0);
+    expect(cell.className).toContain('truncate');
+  });
+});

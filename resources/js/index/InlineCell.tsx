@@ -193,7 +193,7 @@ export function InlineCell({ uriKey, rowId, column, cell, token, onRow }: Inline
         type="button"
         aria-label={__('Edit :field', { field: column.label })}
         aria-describedby={describedBy}
-        className="w-full cursor-text text-start"
+        className="w-full cursor-text truncate text-start"
         onClick={() => {
           setEditing(stringValue(cell.value));
         }}
