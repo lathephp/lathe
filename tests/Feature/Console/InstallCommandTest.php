@@ -165,3 +165,24 @@ it('exits 1 and names the migrate task when the database cannot be reached', fun
         ->and($install->getOutput().$install->getErrorOutput())->toMatch('/Run the migrations.*FAIL/')
         ->and($install->getOutput().$install->getErrorOutput())->toContain('Run the migrations failed');
 });
+
+it('serves the prebuilt entry from the package with no node_modules and no publish step', function () {
+    $app = scaffoldApp();
+    File::put("{$app}/entry-probe.php", <<<'PHP'
+    <?php
+    require __DIR__.'/vendor/autoload.php';
+    $app = require __DIR__.'/bootstrap/app.php';
+    $kernel = $app->make(Illuminate\Contracts\Http\Kernel::class);
+    $app->make(Illuminate\Contracts\Console\Kernel::class)->bootstrap();
+    $url = Lathe\Lathe::assets()->entryUrl('/'.trim(Lathe\Lathe::path(), '/'));
+    $response = $kernel->handle(Illuminate\Http\Request::create($url ?? '/missing'));
+    echo $url, ' ', $response->getStatusCode(), ' ', $response->headers->get('Cache-Control');
+    PHP);
+
+    $probe = inScaffold(['php', 'entry-probe.php']);
+    File::delete("{$app}/entry-probe.php");
+
+    expect(is_dir("{$app}/node_modules"))->toBeFalse()
+        ->and(is_dir("{$app}/public/vendor/lathe"))->toBeFalse()
+        ->and($probe->getOutput())->toMatch('#^/lathe/assets/[0-9a-z]{8}/app-[0-9a-z]{8}\.js 200 immutable#');
+});
