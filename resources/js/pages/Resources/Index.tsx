@@ -41,7 +41,7 @@ export default function Index({ resource, table, state, count, error, lens, lens
         <EmptyState
           label={resource.label}
           filtered={filtered}
-          createHref={filtered && resource.abilities.create ?`${basePath}/resources/${resource.uriKey}/new` : null}
+          createHref={resource.abilities.create && lens == null ? `${basePath}/resources/${resource.uriKey}/new` : null}
           onClear={() => {
             index.visit({ q: undefined, filter: undefined });
           }}

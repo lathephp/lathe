@@ -1,5 +1,5 @@
-import { Head, Link, usePage } from '@inertiajs/react';
-import { useTranslation } from '@lathephp/core';
+import { Head, Link, router, usePage } from '@inertiajs/react';
+import { shortcutsEnabled, useShortcut, useTranslation } from '@lathephp/core';
 import { DetailField } from '../../fields/registry';
 import type { DetailFieldData, DetailProps } from '../../fields/types';
 import { cn } from '../../lib/cn';
@@ -15,6 +15,14 @@ export default function Detail({ resource, record, breadcrumbs }: DetailProps) {
   const byKey = new Map(fields.map((field) => [field.key, field]));
   const recordPath = `${basePath}/resources/${resource.uriKey}/${String(id)}`;
 
+  useShortcut(
+    'e',
+    () => {
+      router.visit(`${recordPath}/edit`);
+    },
+    abilities.update,
+  );
+
   return (
     <div className="space-y-6">
       <Head title={title} />
@@ -27,9 +35,13 @@ export default function Detail({ resource, record, breadcrumbs }: DetailProps) {
         {abilities.update ? (
           <Link
             href={`${recordPath}/edit`}
-            className="inline-flex h-9 items-center rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground"
+            aria-keyshortcuts="e"
+            className="inline-flex h-9 items-center gap-2 rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground"
           >
             {__('Edit')}
+            {shortcutsEnabled() && (
+              <kbd aria-hidden="true" className="text-xs opacity-80 max-md:hidden">{'e'.toUpperCase()}</kbd>
+            )}
           </Link>
         ) : null}
       </header>

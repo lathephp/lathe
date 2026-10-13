@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { __panel, addShortcut, pauseShortcuts, resumeShortcuts } from '../index';
+import { __panel, addShortcut, disableShortcut, enableShortcut, pauseShortcuts, resumeShortcuts, shortcutsEnabled } from '../index';
 
 const removers: Array<() => void> = [];
 
@@ -114,5 +114,56 @@ describe('shortcuts', () => {
     press({ key: '/' });
 
     expect(handler).toHaveBeenCalledTimes(1);
+  });
+});
+
+describe('dispatcher exports', () => {
+  it('completes a sequence such as g d within 1 s and drops a slower one', () => {
+    vi.useFakeTimers();
+    const handler = vi.fn();
+    register('g d', handler);
+
+    press({ key: 'g' });
+    vi.advanceTimersByTime(900);
+    press({ key: 'd' });
+    expect(handler).toHaveBeenCalledTimes(1);
+
+    press({ key: 'g' });
+    vi.advanceTimersByTime(1100);
+    press({ key: 'd' });
+    expect(handler).toHaveBeenCalledTimes(1);
+    vi.useRealTimers();
+  });
+
+  it('turns one combination off with disableShortcut and back on with enableShortcut', () => {
+    const handler = vi.fn();
+    register('c', handler);
+
+    disableShortcut('c');
+    press({ key: 'c' });
+    enableShortcut('c');
+    press({ key: 'c' });
+
+    expect(handler).toHaveBeenCalledTimes(1);
+  });
+
+  it('runs nothing when keyboard_shortcuts.enabled is false', () => {
+    setPlatform('Linux x86_64');
+    const handlers = ['mod+k', '/', 'c', 'e'].map((keys) => {
+      const handler = vi.fn();
+      register(keys, handler);
+
+      return handler;
+    });
+    __panel.sharedProps.set({ keyboardShortcuts: false });
+
+    press({ key: 'k', ctrlKey: true });
+    press({ key: '/' });
+    press({ key: 'c' });
+    press({ key: 'e' });
+    __panel.sharedProps.set({});
+
+    expect(handlers.every((handler) => handler.mock.calls.length === 0)).toBe(true);
+    expect(shortcutsEnabled()).toBe(true);
   });
 });

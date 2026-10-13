@@ -73,6 +73,7 @@ class HandleInertiaRequests extends Middleware
             'appName' => fn () => Lathe::name(),
             'basePath' => fn () => '/'.trim(Lathe::path(), '/'),
             'versionLabel' => fn () => Lathe::versionLabel(),
+            'keyboardShortcuts' => fn () => Lathe::config()->boolean('keyboard_shortcuts.enabled'),
             'locale' => fn () => Lathe::resolveUserLocale($request),
             'timezone' => fn () => Lathe::resolveUserTimezone($request),
             'translations' => fn () => app(TranslationManager::class)->all(Lathe::resolveUserLocale($request)),

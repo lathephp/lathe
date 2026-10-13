@@ -1,4 +1,5 @@
-import { Link, usePage } from '@inertiajs/react';
+import { Link, router, usePage } from '@inertiajs/react';
+import { shortcutsEnabled, useShortcut, useTranslation } from '@lathephp/core';
 import { Filters } from './FilterPanel';
 import { GroupMenu } from './GroupMenu';
 import { LensSelector } from './LensSelector';
@@ -16,8 +17,18 @@ interface IndexToolbarProps extends Pick<IndexProps, 'resource' | 'lens' | 'lens
 }
 
 export function IndexToolbar({ resource, lens, lenses, q, visit, polling }: IndexToolbarProps) {
+  const { __ } = useTranslation();
   const { basePath } = usePage<SharedProps>().props;
   const resourcePath = `${basePath}/resources/${resource.uriKey}`;
+  const canCreate = resource.abilities.create && lens == null;
+
+  useShortcut(
+    'c',
+    () => {
+      router.visit(`${resourcePath}/new`);
+    },
+    canCreate,
+  );
 
   return (
     <div className="flex flex-wrap items-center justify-between gap-3">
@@ -47,6 +58,18 @@ export function IndexToolbar({ resource, lens, lenses, q, visit, polling }: Inde
         <Filters visit={visit} />
         <GroupMenu visit={visit} />
         {polling !== null && <PollingToggle on={polling.on} onToggle={polling.onToggle} />}
+        {canCreate && (
+          <Link
+            href={`${resourcePath}/new`}
+            aria-keyshortcuts="c"
+            className="inline-flex h-9 items-center gap-2 rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground outline-none hover:bg-primary/90 focus-visible:ring-2 focus-visible:ring-ring"
+          >
+            {__('Create :resource', { resource: resource.singularLabel })}
+            {shortcutsEnabled() && (
+              <kbd aria-hidden="true" className="text-xs opacity-80 max-md:hidden">{'c'.toUpperCase()}</kbd>
+            )}
+          </Link>
+        )}
       </div>
     </div>
   );

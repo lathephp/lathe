@@ -15,6 +15,7 @@ const resource = {
   label: 'Orders',
   singularLabel: 'Order',
   perPageOptions: [25, 50, 100],
+  abilities: { create: false },
   definition: {
     debounce: 0.5,
     paginationType: 'links',

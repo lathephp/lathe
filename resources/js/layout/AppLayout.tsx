@@ -1,5 +1,5 @@
 import { usePage } from '@inertiajs/react';
-import { addShortcut, QueryClientProvider, queryClient, useTranslation } from '@lathephp/core';
+import { addShortcut, QueryClientProvider, queryClient, shortcutsEnabled, useTranslation } from '@lathephp/core';
 import { Button } from '@lathephp/ui';
 import { Menu, PanelLeft, Search } from 'lucide-react';
 import { useEffect, useState, type CSSProperties, type ReactNode } from 'react';
@@ -111,9 +111,11 @@ export function AppLayout({ children }: { children: ReactNode }) {
               }}
             >
               <Search aria-hidden="true" className="size-4" />
-              <kbd aria-hidden="true" className="text-xs text-muted-foreground max-md:hidden">
-                {/mac/i.test(navigator.platform) ? '⌘K' : 'Ctrl K'}
-              </kbd>
+              {shortcutsEnabled() && (
+                <kbd aria-hidden="true" className="text-xs text-muted-foreground max-md:hidden">
+                  {/mac/i.test(navigator.platform) ? '⌘K' : 'Ctrl K'}
+                </kbd>
+              )}
             </Button>
           )}
         </header>

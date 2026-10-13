@@ -18,7 +18,7 @@ export type { RequestOptions } from './http';
 export { toast } from './toast';
 export type { ToastAction, ToastMessage, ToastOptions, ToastType } from './toast';
 export { emit, off, on, once } from './events';
-export { addShortcut, pauseShortcuts, resumeShortcuts } from './shortcuts';
+export { addShortcut, disableShortcut, enableShortcut, pauseShortcuts, resumeShortcuts, shortcutsEnabled, useShortcut, usePauseShortcuts } from './shortcuts';
 export { QueryClientProvider, queryClient, queryKeys, useQuery, useQueryClient } from './query';
 export { formatCurrency, formatDate, formatDateTime, formatNumber } from './format';
 export { useLathe,useTranslation } from './hooks';

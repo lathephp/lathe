@@ -14,10 +14,21 @@ interface EmptyStateProps {
 export function EmptyState({ label, filtered, createHref, onClear }: EmptyStateProps) {
   const { __ } = useTranslation();
 
+  const create =
+    createHref === null ? null : (
+      <Link
+        href={createHref}
+        className="inline-flex h-9 items-center rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground outline-none hover:bg-primary/90 focus-visible:ring-2 focus-visible:ring-ring"
+      >
+        {__('Create')}
+      </Link>
+    );
+
   if (!filtered) {
     return (
-      <Card className="p-12 text-center text-sm text-muted-foreground">
+      <Card className="space-y-4 p-12 text-center text-sm text-muted-foreground">
         <p>{__('No :resource yet', { resource: label.toLowerCase() })}</p>
+        {create}
       </Card>
     );
   }
@@ -29,14 +40,7 @@ export function EmptyState({ label, filtered, createHref, onClear }: EmptyStateP
         <Button variant="outline" onClick={onClear}>
           {__('Clear filters')}
         </Button>
-        {createHref !== null && (
-          <Link
-            href={createHref}
-            className="inline-flex h-9 items-center rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground outline-none hover:bg-primary/90 focus-visible:ring-2 focus-visible:ring-ring"
-          >
-            {__('Create')}
-          </Link>
-        )}
+        {create}
       </div>
     </Card>
   );

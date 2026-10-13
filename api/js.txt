@@ -4,7 +4,9 @@
 @lathephp/core apiVersion
 @lathephp/core booting
 @lathephp/core config
+@lathephp/core disableShortcut
 @lathephp/core emit
+@lathephp/core enableShortcut
 @lathephp/core formatCurrency
 @lathephp/core formatDate
 @lathephp/core formatDateTime
@@ -19,6 +21,7 @@
 @lathephp/core request
 @lathephp/core resumeShortcuts
 @lathephp/core router
+@lathephp/core shortcutsEnabled
 @lathephp/core toast
 @lathephp/core type ComponentOrLazy
 @lathephp/core type LatheContext
@@ -34,8 +37,10 @@
 @lathephp/core type Translator
 @lathephp/core url
 @lathephp/core useLathe
+@lathephp/core usePauseShortcuts
 @lathephp/core useQuery
 @lathephp/core useQueryClient
+@lathephp/core useShortcut
 @lathephp/core useTranslation
 @lathephp/core visit
 @lathephp/ui Badge

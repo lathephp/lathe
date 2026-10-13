@@ -2,6 +2,8 @@ import { createStore } from './store';
 
 /** The shared Inertia props of the current page, set by the panel on every visit. */
 export interface SharedData {
+  /** keyboard_shortcuts.enabled; absent means on. */
+  keyboardShortcuts?: boolean;
   appName?: string;
   basePath?: string;
   latheVersion?: string;

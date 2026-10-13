@@ -30,6 +30,7 @@ function renderSummaries(summaries: unknown) {
         label: 'Orders',
         singularLabel: 'Order',
         perPageOptions: [25],
+        abilities: { create: false },
         definition: {
           debounce: 0.5,
           paginationType: 'links',
