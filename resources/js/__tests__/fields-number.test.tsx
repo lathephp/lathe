@@ -1,5 +1,5 @@
 import { __panel } from '@lathephp/core';
-import { fireEvent, render, screen } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { DetailField, FormField, IndexField } from '../fields/registry';
 import type { FieldSchema } from '../fields/types';
@@ -36,7 +36,7 @@ function schema(component: string, overrides: Partial<FieldSchema> = {}): FieldS
 }
 
 function display(value: unknown): string {
-  return value === null ? '' : String(value);
+  return value === null ? '' : typeof value === 'string' ? value : JSON.stringify(value);
 }
 
 function renderIndex(field: FieldSchema, value: unknown, shown = display(value)) {
@@ -49,10 +49,10 @@ function renderDetail(field: FieldSchema, value: unknown, shown = display(value)
 
 function renderForm(field: FieldSchema, value: unknown, onChange: (value: unknown) => void = () => undefined) {
   return render(
-    <label>
-      Amount
+    <>
+      <label htmlFor="amount">Amount</label>
       <FormField field={{ ...field, value }} value={value} onChange={onChange} id="amount" describedBy={undefined} invalid={false} disabled={false} />
-    </label>,
+    </>,
   ).container;
 }
 
@@ -133,9 +133,9 @@ describe('token-field', () => {
     expect(renderDetail(field, null, '').textContent).toBe('—');
   });
 
-  it('edits the raw value in a masked input that can be revealed and copied', () => {
+  it('edits the raw value in a masked input that can be revealed and copied', async () => {
     const writeText = vi.fn().mockResolvedValue(undefined);
-    vi.stubGlobal('navigator', { ...navigator, clipboard: { writeText } });
+    vi.stubGlobal('navigator', { clipboard: { writeText } });
     const onChange = vi.fn();
     renderForm(field, 'abcd1234efgh', onChange);
     const input = screen.getByLabelText<HTMLInputElement>('Amount');
@@ -150,7 +150,9 @@ describe('token-field', () => {
 
     fireEvent.click(screen.getByRole('button', { name: 'Copy' }));
     expect(writeText).toHaveBeenCalledWith('abcd1234efgh');
-    expect(__panel.toasts.get().map((toast) => toast.message)).toEqual(['Copied']);
+    await waitFor(() => {
+      expect(__panel.toasts.get().map((toast) => toast.message)).toEqual(['Copied']);
+    });
 
     fireEvent.change(input, { target: { value: 'zzzz' } });
     expect(onChange).toHaveBeenCalledWith('zzzz');
