@@ -14,6 +14,7 @@ use Lathe\Field\Field;
 use Lathe\Filters\FilterApplicator;
 use Lathe\Http\Requests\LatheRequest;
 use Lathe\Resources\Resource;
+use Lathe\Search\SearchApplicator;
 use Lathe\Support\ConfigStore;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
@@ -337,7 +338,10 @@ class ResourceQuery
      */
     protected function applySearch(Builder $query): Builder
     {
-        return $query;
+        $definition = $this->resource->definition();
+        $term = SearchApplicator::term($this->request->query('q'), $definition->getSearchTermChars(), $definition->getSearchTermWords());
+
+        return $term === null ? $query : SearchApplicator::for($this->resource)->apply($query, $term);
     }
 
     /**

@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
 use Lathe\Filters\Filter;
 use Lathe\Http\Requests\LatheRequest;
+use Lathe\Search\SearchableColumn;
 
 /**
  * @phpstan-consistent-constructor
@@ -288,6 +289,16 @@ abstract class Resource
     public function with(): array
     {
         return $this->definition()->getWith();
+    }
+
+    /**
+     * The columns the definition declares searchable.
+     *
+     * @return list<string|SearchableColumn>
+     */
+    public function searchableColumns(): array
+    {
+        return $this->definition()->getSearchable();
     }
 
     /**

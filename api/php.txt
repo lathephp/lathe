@@ -598,6 +598,7 @@ Lathe\Resources\Resource::replicateQuery(Lathe\Http\Requests\LatheRequest $reque
 Lathe\Resources\Resource::resolveText(Closure|string $source): string  [protected]
 Lathe\Resources\Resource::scoutQuery(Lathe\Http\Requests\LatheRequest $request, mixed $query): mixed  [static]
 Lathe\Resources\Resource::searchQuery(Lathe\Http\Requests\LatheRequest $request, Illuminate\Database\Eloquent\Builder $query): Illuminate\Database\Eloquent\Builder  [static]
+Lathe\Resources\Resource::searchableColumns(): array
 Lathe\Resources\Resource::singularLabel(): string  [static]
 Lathe\Resources\Resource::subtitle(): string
 Lathe\Resources\Resource::title(): string
@@ -623,6 +624,7 @@ Lathe\Resources\ResourceDefinition::Lathe\Query\CountStrategy $countStrategy  [p
 Lathe\Resources\ResourceDefinition::allowAll(bool $allow = true): static
 Lathe\Resources\ResourceDefinition::allowsAll(): bool
 Lathe\Resources\ResourceDefinition::array $limits  [protected]
+Lathe\Resources\ResourceDefinition::array $searchable  [protected]
 Lathe\Resources\ResourceDefinition::array $with  [protected]
 Lathe\Resources\ResourceDefinition::bool $allowAll  [protected]
 Lathe\Resources\ResourceDefinition::bool $borderless  [protected]
@@ -669,6 +671,7 @@ Lathe\Resources\ResourceDefinition::getPolling(): ?int
 Lathe\Resources\ResourceDefinition::getScoutSearchResults(): int
 Lathe\Resources\ResourceDefinition::getSearchTermChars(): int
 Lathe\Resources\ResourceDefinition::getSearchTermWords(): int
+Lathe\Resources\ResourceDefinition::getSearchable(): array
 Lathe\Resources\ResourceDefinition::getSubtitle(): Closure|string
 Lathe\Resources\ResourceDefinition::getTableStyle(): Lathe\Enums\TableStyle
 Lathe\Resources\ResourceDefinition::getTitle(): Closure|string
@@ -698,6 +701,7 @@ Lathe\Resources\ResourceDefinition::savedTabs(bool $enabled = true): static
 Lathe\Resources\ResourceDefinition::scoutSearchResults(int $results): static
 Lathe\Resources\ResourceDefinition::searchTermChars(int $chars): static
 Lathe\Resources\ResourceDefinition::searchTermWords(int $words): static
+Lathe\Resources\ResourceDefinition::searchable(array $columns): static
 Lathe\Resources\ResourceDefinition::seenBy(Illuminate\Http\Request $request): bool
 Lathe\Resources\ResourceDefinition::set(Closure $change): static  [protected]
 Lathe\Resources\ResourceDefinition::shouldDisplayInNavigation(): bool
@@ -747,6 +751,23 @@ Lathe\Resources\ResourceRegistry::scan(string $directory, string $namespace): ar
 Lathe\Resources\ResourceRegistry::scanned(): bool
 Lathe\Resources\ResourceRegistry::useCachePath(string $path): void
 Lathe\Resources\ResourceRegistry::validate(string $class, Lathe\Resources\ResourceDefinition $definition): void  [protected]
+Lathe\Search\LikeSearch::__construct(string $column, bool $contains = false)
+Lathe\Search\LikeSearch::apply(Illuminate\Database\Eloquent\Builder $query, string $term, string $boolean): void
+Lathe\Search\LikeSearch::bool $contains
+Lathe\Search\LikeSearch::contains(string $column): Lathe\Search\LikeSearch  [static]
+Lathe\Search\LikeSearch::prefix(string $column): Lathe\Search\LikeSearch  [static]
+Lathe\Search\LikeSearch::string $column
+Lathe\Search\LikeSearch::where(Illuminate\Database\Eloquent\Builder $query, Lathe\Search\LikeExpression $like, string $term, bool $contains, string $boolean): void  [static]
+Lathe\Search\SearchApplicator::__construct(array $columns)
+Lathe\Search\SearchApplicator::apply(Illuminate\Database\Eloquent\Builder $query, string $term): Illuminate\Database\Eloquent\Builder
+Lathe\Search\SearchApplicator::array $columns  [protected]
+Lathe\Search\SearchApplicator::for(Lathe\Resources\Resource $resource): Lathe\Search\SearchApplicator  [static]
+Lathe\Search\SearchApplicator::term(mixed $q, int $maxChars, int $maxWords): ?string  [static]
+Lathe\Search\SearchableColumn::apply(Illuminate\Database\Eloquent\Builder $query, string $term, string $boolean): void
+Lathe\Search\SearchablePrimaryKey::__construct(int $maxSize = PHP_INT_MAX)
+Lathe\Search\SearchablePrimaryKey::apply(Illuminate\Database\Eloquent\Builder $query, string $term, string $boolean): void
+Lathe\Search\SearchablePrimaryKey::fits(string $term): bool  [protected]
+Lathe\Search\SearchablePrimaryKey::int $maxSize
 Lathe\Support\ConfigStore::Illuminate\Contracts\Config\Repository $config  [protected]
 Lathe\Support\ConfigStore::__construct(Illuminate\Contracts\Config\Repository $config)
 Lathe\Support\ConfigStore::all(): array
@@ -865,6 +886,9 @@ class Lathe\Query\ResourceQuery
 class Lathe\Resources\Resource
 class Lathe\Resources\ResourceDefinition
 class Lathe\Resources\ResourceRegistry
+class Lathe\Search\LikeSearch
+class Lathe\Search\SearchApplicator
+class Lathe\Search\SearchablePrimaryKey
 class Lathe\Support\ConfigStore
 class Lathe\Support\ConfigValidator
 class Lathe\Support\Timezone
@@ -878,5 +902,6 @@ enum Lathe\Enums\PaginationType
 enum Lathe\Enums\TableStyle
 enum Lathe\Query\CountStrategy
 enum Lathe\Query\QueryContext
+interface Lathe\Search\SearchableColumn
 trait Lathe\Http\Controllers\Resources\AuthorizesResources
 trait Lathe\Testing\InteractsWithLathe

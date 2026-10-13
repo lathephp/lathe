@@ -10,6 +10,7 @@ use Lathe\Enums\ClickAction;
 use Lathe\Enums\PaginationType;
 use Lathe\Enums\TableStyle;
 use Lathe\Query\CountStrategy;
+use Lathe\Search\SearchableColumn;
 use Lathe\Support\ConfigStore;
 use LogicException;
 
@@ -44,6 +45,9 @@ class ResourceDefinition
     protected bool $displayInNavigation = true;
 
     protected bool $globallySearchable = false;
+
+    /** @var list<string|SearchableColumn> */
+    protected array $searchable = [];
 
     protected ?bool $softDeletes = null;
 
@@ -167,6 +171,16 @@ class ResourceDefinition
     public function globallySearchable(bool $searchable = true): static
     {
         return $this->set(fn () => $this->globallySearchable = $searchable);
+    }
+
+    /**
+     * The columns `q` searches. A bare string matches by prefix.
+     *
+     * @param  list<string|SearchableColumn>  $columns
+     */
+    public function searchable(array $columns): static
+    {
+        return $this->set(fn () => $this->searchable = $columns);
     }
 
     /**
@@ -422,6 +436,14 @@ class ResourceDefinition
     public function isGloballySearchable(): bool
     {
         return $this->globallySearchable;
+    }
+
+    /**
+     * @return list<string|SearchableColumn>
+     */
+    public function getSearchable(): array
+    {
+        return $this->searchable;
     }
 
     public function usesSoftDeletes(): bool

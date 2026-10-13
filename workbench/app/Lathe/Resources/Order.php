@@ -17,6 +17,7 @@ class Order extends Resource
     {
         return $definition->model(OrderModel::class)
             ->title('number')
+            ->searchable(['number'])
             ->with(['customer'])
             ->icon('ShoppingCart');
     }
