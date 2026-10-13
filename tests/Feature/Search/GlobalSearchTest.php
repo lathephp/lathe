@@ -4,6 +4,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Events\QueryExecuted;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Exceptions;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Schema;
 use Lathe\Http\Requests\LatheRequest;
@@ -138,13 +139,37 @@ class GlobalSearchHelpProvider extends SearchProvider
 
     public function search(LatheRequest $request): array
     {
-        $results = [GlobalSearchResult::make('Refunds')->subtitle('Docs')->url('/plugins/help/refunds')->id('refunds')];
+        // The draft has no url, so the palette could not open it.
+        $results = [GlobalSearchResult::make('Refunds')->subtitle('Docs')->url('/plugins/help/refunds')->id('refunds'), GlobalSearchResult::make('Draft')];
 
         foreach (range(2, 7) as $i) {
-            $results[] = GlobalSearchResult::make("Article {$i}");
+            $results[] = GlobalSearchResult::make("Article {$i}")->url("/plugins/help/article-{$i}");
         }
 
         return $results;
+    }
+}
+
+class GlobalSearchBrokenProvider extends SearchProvider
+{
+    public function title(): string
+    {
+        return 'Broken Help';
+    }
+
+    public function uriKey(): string
+    {
+        return 'broken-help';
+    }
+
+    public function authorize(LatheRequest $request): bool
+    {
+        return true;
+    }
+
+    public function search(LatheRequest $request): array
+    {
+        throw new RuntimeException('help index is down');
     }
 }
 
@@ -377,4 +402,23 @@ it('lists a provider\'s rows under its title, capped, and none when it is not au
     GlobalSearchHelpProvider::$allowed = false;
 
     expect(globalSearchGroups('ann'))->not->toHaveKey('help');
+});
+
+it('drops a provider row without a url before it caps the group', function () {
+    Lathe::registerSearchProviders(new GlobalSearchHelpProvider);
+
+    $help = globalSearchGroups('ann')['help'];
+
+    expect(array_column($help['results'], 'title'))->toBe(['Refunds', 'Article 2', 'Article 3', 'Article 4', 'Article 5']);
+});
+
+it('skips a provider that throws, reports it, lists its title and returns the others', function () {
+    Exceptions::fake();
+    Lathe::registerSearchProviders(new GlobalSearchBrokenProvider, new GlobalSearchHelpProvider);
+
+    $response = $this->getJson('/lathe/api/search?q=ann')->assertOk();
+
+    expect($response->json('skipped'))->toBe(['Broken Help'])
+        ->and(array_column($response->json('groups'), 'resourceName'))->toBe(['customers', 'orders', 'help']);
+    Exceptions::assertReported(fn (RuntimeException $e) => $e->getMessage() === 'help index is down');
 });

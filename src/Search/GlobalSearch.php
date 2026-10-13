@@ -88,12 +88,22 @@ class GlobalSearch
         }
 
         foreach ($this->providers as $provider) {
-            if ($remaining <= 0 || ! $provider->authorize($request)) {
+            if ($remaining <= 0) {
                 continue;
             }
 
-            $results = array_slice($provider->search($request), 0, min($this->config->integer('global_search.results'), $remaining));
-            $rows = array_map(fn (GlobalSearchResult $result) => $result->toRow($provider), $results);
+            try {
+                $results = $provider->authorize($request) ? $provider->search($request) : [];
+            } catch (Throwable $e) {
+                report($e);
+                $skipped[] = $provider->title();
+
+                continue;
+            }
+
+            // The palette opens a row by its url, so a row without one is left out.
+            $rows = array_filter(array_map(fn (GlobalSearchResult $result) => $result->toRow($provider), $results), fn (array $row) => $row['url'] !== null);
+            $rows = array_slice($rows, 0, min($this->config->integer('global_search.results'), $remaining));
 
             if ($rows !== []) {
                 $groups[] = ['resourceName' => $provider->uriKey(), 'label' => $provider->title(), 'results' => $rows];
