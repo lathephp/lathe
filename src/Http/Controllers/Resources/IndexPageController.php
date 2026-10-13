@@ -5,6 +5,8 @@ namespace Lathe\Http\Controllers\Resources;
 use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
 use Lathe\Auth\ResourceAuthorization;
+use Lathe\Field\Field;
+use Lathe\Filters\Filter;
 use Lathe\Http\Payloads\IndexPayload;
 use Lathe\Http\Requests\LatheRequest;
 use Lathe\Query\ResourceQuery;
@@ -17,6 +19,27 @@ class IndexPageController
     public function __invoke(LatheRequest $request, ResourceAuthorization $authorization, IndexPayload $payload): Response
     {
         $class = $this->viewableResource($request, $authorization);
+
+        // A link may carry a filter the Resource no longer declares. The page drops it and
+        // names it, so the person sees a banner; a hidden filter still counts as declared and 422s.
+        $stale = [];
+        $filters = $request->query('filter');
+
+        if (is_array($filters)) {
+            $resource = $class::make();
+            $declared = array_map(fn (Filter $filter) => $filter->key(), [
+                ...$resource->filters($request),
+                ...array_map(fn (Field $field) => $field->makeFieldFilter(), $resource->filterableFields($request)),
+            ]);
+            $stale = array_values(array_diff(array_map(strval(...), array_keys($filters)), $declared));
+            $kept = array_diff_key($filters, array_flip($stale));
+
+            if ($kept === []) {
+                $request->query->remove('filter');
+            } else {
+                $request->query->set('filter', $kept);
+            }
+        }
 
         // A bad parameter shows as an error on the page, not a redirect back.
         // Checking it reads no rows, so the deferred count request stays cheap.
@@ -50,6 +73,7 @@ class IndexPageController
             'state' => fn () => $part('state'),
             'filters' => fn () => $part('filters'),
             'tabs' => fn () => $part('tabs'),
+            'staleFilters' => $stale,
             // One group, so a single follow-up visit loads them all.
             'count' => Inertia::defer(fn () => $payload->count($class), 'counts'),
             'tabCounts' => Inertia::defer(fn () => $payload->tabCounts($class), 'counts'),

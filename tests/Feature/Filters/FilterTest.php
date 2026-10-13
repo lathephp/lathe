@@ -194,8 +194,27 @@ it('answers 422 with errors.filter for a bad filter, never 500', function (strin
     'a filter that is not a map' => ['filter=paid'],
 ]);
 
-it('answers 422 for a bad filter on the page too', function () {
-    $this->get('/lathe/resources/orders?filter[nothing]=1')->assertStatus(422);
+it('answers 422 for a malformed or hidden filter on the page too', function (string $query) {
+    $this->get("/lathe/resources/filtered-orders?{$query}")->assertStatus(422);
+})->with([
+    'malformed range' => ['filter[total][min]=abc'],
+    'hidden by canSee' => ['filter[secret]=1'],
+]);
+
+it('drops a removed filter key from a page link and names it in staleFilters', function () {
+    $unfiltered = filteredRows('orders', 'filter[status]=pending');
+
+    $this->get('/lathe/resources/orders?per_page=100&filter[status]=pending&filter[gone]=1')
+        ->assertOk()
+        ->assertInertia(fn (AssertableInertia $page) => $page
+            ->component('Resources/Index', shouldExist: false)
+            ->where('staleFilters', ['gone'])
+            ->where('filters.applied', ['status' => 'pending'])
+            ->where('table.rows', fn ($rows) => array_column($rows->all(), 'id') === array_column($unfiltered, 'id')));
+
+    $this->getJson('/lathe/api/resources/orders?filter[gone]=1')
+        ->assertUnprocessable()
+        ->assertJsonValidationErrors(['filter']);
 });
 
 it('lists Status with four inline options and Customer as a remote picker', function () {
