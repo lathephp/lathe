@@ -12,6 +12,7 @@ use Illuminate\Validation\ValidationException;
 use Lathe\Auth\ResourceAuthorization;
 use Lathe\Filters\FilterApplicator;
 use Lathe\Http\Requests\LatheRequest;
+use Lathe\Lathe;
 use Lathe\Query\ResourceQuery;
 use Lathe\Resources\Resource;
 use Lathe\SavedTabs\SavedTab;
@@ -40,7 +41,7 @@ class SavedTabController
         $max = $config->integer('saved_tabs.max_per_resource');
 
         if ($this->owned($request, $class)->count() >= $max) {
-            throw ValidationException::withMessages(['name' => "Maximum of {$max} saved tabs per resource"]);
+            throw ValidationException::withMessages(['name' => Lathe::__('Maximum of :max saved tabs per resource', ['max' => $max])]);
         }
 
         $attributes = $this->attributes($request, $class::make(), true);
@@ -73,14 +74,14 @@ class SavedTabController
         $ids = $request->input('ids');
 
         if (! is_array($ids) || ! array_is_list($ids) || $ids === [] || array_filter($ids, fn (mixed $id) => ! is_int($id) && ! (is_string($id) && ctype_digit($id))) !== []) {
-            throw ValidationException::withMessages(['ids' => 'Send the saved tab ids as a list']);
+            throw ValidationException::withMessages(['ids' => Lathe::__('Send the saved tab ids as a list')]);
         }
 
         $ids = array_map(fn (mixed $id): int => is_scalar($id) ? (int) $id : 0, $ids);
         $owned = $this->owned($request, $class)->get()->map(fn (SavedTab $tab): int => $tab->id)->all();
 
         if (count($ids) !== count($owned) || array_diff($ids, $owned) !== [] || array_diff($owned, $ids) !== []) {
-            throw ValidationException::withMessages(['ids' => 'Send every one of your saved tabs once']);
+            throw ValidationException::withMessages(['ids' => Lathe::__('Send every one of your saved tabs once')]);
         }
 
         SavedTab::reorder($this->userId($request), $class, $ids);

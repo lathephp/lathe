@@ -7,6 +7,7 @@ use Illuminate\Console\Command;
 use Illuminate\Console\View\TaskResult;
 use Illuminate\Filesystem\Filesystem;
 use Illuminate\Support\ServiceProvider;
+use Lathe\Lathe;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Throwable;
 
@@ -33,16 +34,16 @@ class InstallCommand extends Command
             });
 
             if ($error !== null) {
-                $this->components->error("{$name} failed: {$error}");
+                $this->components->error(Lathe::__(':name failed: :error', ['name' => $name, 'error' => $error]));
 
                 return self::FAILURE;
             }
         }
 
         $this->newLine();
-        $this->line('  Next steps:');
-        $this->line('  1. Run php artisan lathe:user to create a panel user.');
-        $this->line("  2. Add that user's email to gate() in app/Providers/LatheServiceProvider.php.");
+        $this->line('  '.Lathe::__('Next steps:'));
+        $this->line('  '.Lathe::__('1. Run php artisan lathe:user to create a panel user.'));
+        $this->line('  '.Lathe::__("2. Add that user's email to gate() in app/Providers/LatheServiceProvider.php."));
 
         return self::SUCCESS;
     }

@@ -4,6 +4,7 @@ namespace Lathe\Console;
 
 use Illuminate\Console\Command;
 use Lathe\Exceptions\LatheException;
+use Lathe\Lathe;
 use Lathe\Resources\ResourceRegistry;
 use Symfony\Component\Console\Attribute\AsCommand;
 
@@ -24,7 +25,7 @@ class CacheCommand extends Command
             return self::FAILURE;
         }
 
-        $this->components->info('Lathe Resources cached.');
+        $this->components->info(Lathe::__('Lathe Resources cached.'));
 
         return self::SUCCESS;
     }

@@ -29,7 +29,7 @@ class Authenticate
         }
 
         if (static::answersJson($request)) {
-            return response()->json(['message' => 'Unauthenticated.'], 401);
+            return response()->json(['message' => Lathe::__('Unauthenticated.')], 401);
         }
 
         return redirect()->guest(route('lathe.login'));

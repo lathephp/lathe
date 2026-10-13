@@ -22,7 +22,7 @@ class Authorize
         }
 
         if (Authenticate::answersJson($request)) {
-            return response()->json(['message' => 'This action is unauthorized.'], 403);
+            return response()->json(['message' => Lathe::__('This action is unauthorized.')], 403);
         }
 
         abort(403);

@@ -3,6 +3,7 @@
 namespace Lathe\Console;
 
 use Illuminate\Console\Command;
+use Lathe\Lathe;
 use Lathe\Resources\ResourceRegistry;
 use Symfony\Component\Console\Attribute\AsCommand;
 
@@ -17,7 +18,7 @@ class ClearCommand extends Command
     {
         $registry->clearCache();
 
-        $this->components->info('Lathe Resource cache cleared.');
+        $this->components->info(Lathe::__('Lathe Resource cache cleared.'));
 
         return self::SUCCESS;
     }
