@@ -9,6 +9,9 @@ RUN apt-get update \
     && docker-php-ext-enable pcov \
     && rm -rf /var/lib/apt/lists/* /tmp/pear
 
+# The image's default 128M is too small for the demo seed on the server databases.
+RUN echo 'memory_limit=1G' > /usr/local/etc/php/conf.d/memory-limit.ini
+
 COPY --from=docker.io/library/composer:2 /usr/bin/composer /usr/local/bin/composer
 
 RUN git config --system --add safe.directory '*'
