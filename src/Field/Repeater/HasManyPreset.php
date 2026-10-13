@@ -110,7 +110,7 @@ class HasManyPreset implements FieldLifecycle
 
         // An upsert row is an insert first, so a matched child also sends its stored columns:
         // one the form does not edit, such as a NOT NULL product_id, would fail the insert.
-        $stored = fn (Model $child) => Arr::except($child->getRawOriginal(), [$related->getCreatedAtColumn(), $related->getUpdatedAtColumn()]);
+        $stored = fn (Model $child) => Arr::except($child->getRawOriginal(), array_filter([$related->getCreatedAtColumn(), $related->getUpdatedAtColumn()]));
 
         // Two upserts whatever the row count: one keyed by id updates, one without ids inserts.
         if ($matched !== []) {
