@@ -909,6 +909,7 @@ Lathe\Resources\ResourceRegistry::cache(): void
 Lathe\Resources\ResourceRegistry::cachePath(): string
 Lathe\Resources\ResourceRegistry::classes(): array  [protected]
 Lathe\Resources\ResourceRegistry::clearCache(): void
+Lathe\Resources\ResourceRegistry::columnListing(Illuminate\Database\Eloquent\Model $model): array  [protected]
 Lathe\Resources\ResourceRegistry::count(): int
 Lathe\Resources\ResourceRegistry::definition(string $class): Lathe\Resources\ResourceDefinition
 Lathe\Resources\ResourceRegistry::definitionsBuilt(): int
@@ -923,8 +924,10 @@ Lathe\Resources\ResourceRegistry::register(string ...$classes): void
 Lathe\Resources\ResourceRegistry::reset(): void
 Lathe\Resources\ResourceRegistry::scan(string $directory, string $namespace): array  [protected]
 Lathe\Resources\ResourceRegistry::scanned(): bool
+Lathe\Resources\ResourceRegistry::searchTargets(Illuminate\Database\Eloquent\Model $model, Lathe\Search\SearchableColumn|string $column): array  [protected]
 Lathe\Resources\ResourceRegistry::useCachePath(string $path): void
 Lathe\Resources\ResourceRegistry::validate(string $class, Lathe\Resources\ResourceDefinition $definition): void  [protected]
+Lathe\Resources\ResourceRegistry::validateSearchColumns(string $class, Lathe\Resources\ResourceDefinition $definition, array $tables): void  [protected]
 Lathe\SavedTabs\SavedTab::$fillable  [protected]
 Lathe\SavedTabs\SavedTab::$table  [protected]
 Lathe\SavedTabs\SavedTab::casts(): array  [protected]
@@ -987,10 +990,32 @@ Lathe\Search\SearchProvider::search(Lathe\Http\Requests\LatheRequest $request): 
 Lathe\Search\SearchProvider::title(): string
 Lathe\Search\SearchProvider::uriKey(): string
 Lathe\Search\SearchableColumn::apply(Illuminate\Database\Eloquent\Builder $query, string $term, string $boolean): void
+Lathe\Search\SearchableExact::__construct(string $column)
+Lathe\Search\SearchableExact::apply(Illuminate\Database\Eloquent\Builder $query, string $term, string $boolean): void
+Lathe\Search\SearchableExact::string $column
+Lathe\Search\SearchableJson::__construct(string $path, string $mode = 'prefix')
+Lathe\Search\SearchableJson::apply(Illuminate\Database\Eloquent\Builder $query, string $term, string $boolean): void
+Lathe\Search\SearchableJson::string $mode
+Lathe\Search\SearchableJson::string $path
+Lathe\Search\SearchableMorphToRelation::__construct(string $relation, string $column, array $types = array ( ), string $mode = 'prefix')
+Lathe\Search\SearchableMorphToRelation::apply(Illuminate\Database\Eloquent\Builder $query, string $term, string $boolean): void
+Lathe\Search\SearchableMorphToRelation::array $types
+Lathe\Search\SearchableMorphToRelation::string $column
+Lathe\Search\SearchableMorphToRelation::string $mode
+Lathe\Search\SearchableMorphToRelation::string $relation
 Lathe\Search\SearchablePrimaryKey::__construct(int $maxSize = PHP_INT_MAX)
 Lathe\Search\SearchablePrimaryKey::apply(Illuminate\Database\Eloquent\Builder $query, string $term, string $boolean): void
 Lathe\Search\SearchablePrimaryKey::fits(string $term): bool  [protected]
 Lathe\Search\SearchablePrimaryKey::int $maxSize
+Lathe\Search\SearchableRelation::__construct(string $relation, string $column, string $mode = 'prefix')
+Lathe\Search\SearchableRelation::apply(Illuminate\Database\Eloquent\Builder $query, string $term, string $boolean): void
+Lathe\Search\SearchableRelation::string $column
+Lathe\Search\SearchableRelation::string $mode
+Lathe\Search\SearchableRelation::string $relation
+Lathe\Search\SearchableText::__construct(string $column, array $options = array ( ))
+Lathe\Search\SearchableText::apply(Illuminate\Database\Eloquent\Builder $query, string $term, string $boolean): void
+Lathe\Search\SearchableText::array $options
+Lathe\Search\SearchableText::string $column
 Lathe\Summaries\ResourceSummaries::CAPPED_MESSAGE
 Lathe\Summaries\ResourceSummaries::Lathe\Query\ResourceQuery $query  [protected]
 Lathe\Summaries\ResourceSummaries::__construct(Lathe\Query\ResourceQuery $query, array $fields, int $cap)
@@ -1147,6 +1172,7 @@ class Lathe\Events\ResourceForceDeleted
 class Lathe\Events\ResourceRestored
 class Lathe\Events\ServingLathe
 class Lathe\Exceptions\InvalidConfigurationException
+class Lathe\Exceptions\InvalidSearchColumn
 class Lathe\Exceptions\LatheException
 class Lathe\Exceptions\PluginDependencyException
 class Lathe\Exceptions\ResourceModelCollisionException
@@ -1211,7 +1237,12 @@ class Lathe\Search\GlobalSearchResult
 class Lathe\Search\LikeSearch
 class Lathe\Search\SearchApplicator
 class Lathe\Search\SearchProvider
+class Lathe\Search\SearchableExact
+class Lathe\Search\SearchableJson
+class Lathe\Search\SearchableMorphToRelation
 class Lathe\Search\SearchablePrimaryKey
+class Lathe\Search\SearchableRelation
+class Lathe\Search\SearchableText
 class Lathe\Summaries\ResourceSummaries
 class Lathe\Summaries\Summary
 class Lathe\Support\ConfigStore

@@ -4,12 +4,23 @@ namespace Lathe\Resources;
 
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Filesystem\Filesystem;
+use Illuminate\Support\Str;
 use Lathe\Exceptions\InvalidConfigurationException;
+use Lathe\Exceptions\InvalidSearchColumn;
 use Lathe\Exceptions\ResourceModelCollisionException;
 use Lathe\Exceptions\ResourceUriKeyCollisionException;
+use Lathe\Search\LikeSearch;
+use Lathe\Search\SearchableColumn;
+use Lathe\Search\SearchableExact;
+use Lathe\Search\SearchableJson;
+use Lathe\Search\SearchableMorphToRelation;
+use Lathe\Search\SearchableRelation;
+use Lathe\Search\SearchableText;
 use Lathe\Support\ConfigStore;
 use Symfony\Component\Finder\Finder;
+use Throwable;
 
 /**
  * Maps URI keys and models to Resource classes from a manifest, without loading
@@ -152,11 +163,16 @@ class ResourceRegistry
     }
 
     /**
-     * Write the manifest to the cache file.
+     * Write the manifest to the cache file, once every searched column is found in its table.
      */
     public function cache(): void
     {
         $manifest = $this->build();
+        $tables = [];
+
+        foreach ($manifest as $entry) {
+            $this->validateSearchColumns($entry['class'], $this->definition($entry['class']), $tables);
+        }
 
         $this->files->ensureDirectoryExists(dirname($this->cachePath()));
         $this->files->put($this->cachePath(), '<?php return '.var_export($manifest, true).';'.PHP_EOL);
@@ -324,6 +340,84 @@ class ResourceRegistry
 
         if (($polling = $definition->getPolling()) !== null && $polling < 1) {
             throw new InvalidConfigurationException("{$class}: polling: the interval must be at least 1 second; got {$polling}. Pass 1 or more, or remove polling().");
+        }
+
+        /** @var Model $model */
+        $model = new ($definition->getModel());
+        /** @var list<mixed> $searchable */
+        $searchable = $definition->getSearchable();
+
+        foreach ($searchable as $index => $column) {
+            if (is_string($column)) {
+                continue;
+            }
+
+            if (! $column instanceof SearchableColumn) {
+                $name = is_object($column) ? (get_object_vars($column)['column'] ?? null) : null;
+                $label = (is_object($column) ? $column::class : get_debug_type($column)).(is_string($name) ? " (column \"{$name}\")" : " (entry {$index})");
+
+                throw new InvalidSearchColumn("{$class}: searchable: {$label} does not implement ".SearchableColumn::class.'. Implement that interface or use a strategy from Lathe\\Search.');
+            }
+
+            if (($column instanceof SearchableRelation || $column instanceof SearchableMorphToRelation) && ! $model->isRelation($column->relation)) {
+                throw new InvalidSearchColumn("{$class}: searchable: column \"{$column->column}\" uses the relation \"{$column->relation}\", which ".$model::class." does not define. Add a {$column->relation}() relation to the model or remove the column from searchable().");
+            }
+        }
+    }
+
+    /**
+     * Check that every searched column is in its table. This reads the database, one column
+     * listing per table, so only lathe:cache runs it: a request that builds the manifest
+     * itself makes no query for it. A missing table or a database that cannot be reached,
+     * as in a deploy build step, skips the check; lathe:doctor reports those.
+     *
+     * @param  class-string<\Lathe\Resources\Resource>  $class
+     * @param  array<string, list<string>>  $tables  the column listings read so far, by connection and table
+     */
+    protected function validateSearchColumns(string $class, ResourceDefinition $definition, array &$tables): void
+    {
+        /** @var Model $model */
+        $model = new ($definition->getModel());
+
+        foreach ($definition->getSearchable() as $column) {
+            foreach ($this->searchTargets($model, $column) as [$target, $name]) {
+                $table = $target->getTable();
+                $columns = $tables[$target->getConnectionName().'.'.$table] ??= $this->columnListing($target);
+
+                if ($columns !== [] && ! in_array($name, $columns, true)) {
+                    throw new InvalidSearchColumn("{$class}: searchable: column \"{$name}\" is not in the {$table} table. Add the column with a migration or remove it from searchable().");
+                }
+            }
+        }
+    }
+
+    /**
+     * The models and columns one declared search column reads. A morph relation with
+     * types [] reads types known only from its rows, so it names none.
+     *
+     * @return list<array{0: Model, 1: string}>
+     */
+    protected function searchTargets(Model $model, string|SearchableColumn $column): array
+    {
+        return match (true) {
+            is_string($column) => [[$model, $column]],
+            $column instanceof LikeSearch, $column instanceof SearchableExact, $column instanceof SearchableText => [[$model, $column->column]],
+            $column instanceof SearchableJson => [[$model, Str::before($column->path, '->')]],
+            $column instanceof SearchableRelation => ($relation = $model->{$column->relation}()) instanceof Relation ? [[$relation->getRelated(), $column->column]] : [],
+            $column instanceof SearchableMorphToRelation => array_map(fn (string $type) => [new $type, $column->column], $column->types),
+            default => [],
+        };
+    }
+
+    /**
+     * @return list<string>
+     */
+    protected function columnListing(Model $model): array
+    {
+        try {
+            return $model->getConnection()->getSchemaBuilder()->getColumnListing($model->getTable());
+        } catch (Throwable) {
+            return [];
         }
     }
 

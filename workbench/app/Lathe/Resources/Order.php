@@ -8,6 +8,7 @@ use Lathe\Field\Field;
 use Lathe\Http\Requests\LatheRequest;
 use Lathe\Resources\Resource;
 use Lathe\Resources\ResourceDefinition;
+use Lathe\Search\SearchableRelation;
 use Lathe\Summaries\Summary;
 use Lathe\Tabs\Tab;
 use Workbench\App\Lathe\Filters\OrderCustomer;
@@ -21,7 +22,7 @@ class Order extends Resource
     {
         return $definition->model(OrderModel::class)
             ->title('number')
-            ->searchable(['number'])
+            ->searchable(['number', new SearchableRelation('customer', 'name')])
             ->globallySearchable()
             ->with(['customer'])
             ->icon('ShoppingCart')
