@@ -510,10 +510,13 @@ Lathe\Http\Payloads\IndexPayload::Lathe\Auth\ResourceAuthorization $authorizatio
 Lathe\Http\Payloads\IndexPayload::Lathe\Http\Requests\LatheRequest $request  [protected]
 Lathe\Http\Payloads\IndexPayload::ROW_ABILITIES
 Lathe\Http\Payloads\IndexPayload::__construct(Lathe\Http\Requests\LatheRequest $request, Lathe\Auth\ResourceAuthorization $authorization)
+Lathe\Http\Payloads\IndexPayload::activeSavedTab(Lathe\Resources\Resource $resource): ?int  [protected]
 Lathe\Http\Payloads\IndexPayload::build(string $class): array
 Lathe\Http\Payloads\IndexPayload::count(string $class): ?array
 Lathe\Http\Payloads\IndexPayload::filter(Lathe\Filters\Filter $filter, int $threshold): array  [protected]
 Lathe\Http\Payloads\IndexPayload::key(Illuminate\Database\Eloquent\Model $model): string|int  [protected]
+Lathe\Http\Payloads\IndexPayload::savedTabModels(Lathe\Resources\Resource $resource): Illuminate\Database\Eloquent\Collection  [protected]
+Lathe\Http\Payloads\IndexPayload::savedTabs(Lathe\Resources\Resource $resource, Lathe\Query\ResourceQuery $query): array  [protected]
 Lathe\Http\Payloads\IndexPayload::tabCounts(string $class): array
 Lathe\Http\Requests\LatheRequest::config(): Lathe\Support\ConfigStore  [protected]
 Lathe\Http\Requests\LatheRequest::orderByDirection(): string
@@ -668,6 +671,7 @@ Lathe\Query\ResourceQuery::perPageOptions(): array  [protected]
 Lathe\Query\ResourceQuery::perPageOptionsInUse(): array
 Lathe\Query\ResourceQuery::readPagination(): array  [protected]
 Lathe\Query\ResourceQuery::rows(): Illuminate\Database\Eloquent\Collection
+Lathe\Query\ResourceQuery::savedTabCount(Lathe\SavedTabs\SavedTab $tab): Lathe\Query\Count
 Lathe\Query\ResourceQuery::scoped(): Illuminate\Database\Eloquent\Builder
 Lathe\Query\ResourceQuery::scoutKeys(string $term): array  [protected]
 Lathe\Query\ResourceQuery::sortKeys(): array
@@ -871,6 +875,22 @@ Lathe\SavedTabs\SavedTab::$guarded  [protected]
 Lathe\SavedTabs\SavedTab::$table  [protected]
 Lathe\SavedTabs\SavedTab::casts(): array  [protected]
 Lathe\SavedTabs\SavedTab::toPayload(): array
+Lathe\SavedTabs\SavedTabQueryApplicator::Lathe\Http\Requests\LatheRequest $request  [protected]
+Lathe\SavedTabs\SavedTabQueryApplicator::Lathe\Resources\Resource $resource  [protected]
+Lathe\SavedTabs\SavedTabQueryApplicator::Lathe\SavedTabs\SavedTab $tab  [protected]
+Lathe\SavedTabs\SavedTabQueryApplicator::__construct(Lathe\Resources\Resource $resource, Lathe\Http\Requests\LatheRequest $request, Lathe\SavedTabs\SavedTab $tab)
+Lathe\SavedTabs\SavedTabQueryApplicator::active(Lathe\Resources\Resource $resource, Lathe\Http\Requests\LatheRequest $request): ?Lathe\SavedTabs\SavedTab  [static]
+Lathe\SavedTabs\SavedTabQueryApplicator::applyBase(Illuminate\Database\Eloquent\Builder $query): Illuminate\Database\Eloquent\Builder
+Lathe\SavedTabs\SavedTabQueryApplicator::applySort(array $sortKeys): ?string
+Lathe\SavedTabs\SavedTabQueryApplicator::countForSavedTab(Illuminate\Database\Eloquent\Builder $base): Lathe\Query\Count
+Lathe\SavedTabs\SavedTabQueryApplicator::enabled(Lathe\Resources\Resource $resource): bool  [static]
+Lathe\SavedTabs\SavedTabQueryApplicator::filters(): array
+Lathe\SavedTabs\SavedTabQueryApplicator::isStale(array $sortKeys, string $schemaHash): bool
+Lathe\SavedTabs\SavedTabQueryApplicator::keptSortTokens(array $sortKeys): array  [protected]
+Lathe\SavedTabs\SavedTabQueryApplicator::listFor(Lathe\Resources\Resource $resource, Lathe\Http\Requests\LatheRequest $request): Illuminate\Database\Eloquent\Collection  [static]
+Lathe\SavedTabs\SavedTabQueryApplicator::owned(Lathe\Resources\Resource $resource, Lathe\Http\Requests\LatheRequest $request): Illuminate\Database\Eloquent\Builder  [protected static]
+Lathe\SavedTabs\SavedTabQueryApplicator::sortTokens(): array  [protected]
+Lathe\SavedTabs\SavedTabQueryApplicator::term(): ?string  [protected]
 Lathe\SavedTabs\SchemaHash::for(Lathe\Resources\Resource $resource, Lathe\Http\Requests\LatheRequest $request): string  [static]
 Lathe\Search\LikeSearch::__construct(string $column, bool $contains = false)
 Lathe\Search\LikeSearch::apply(Illuminate\Database\Eloquent\Builder $query, string $term, string $boolean): void
@@ -1061,6 +1081,7 @@ class Lathe\Resources\Resource
 class Lathe\Resources\ResourceDefinition
 class Lathe\Resources\ResourceRegistry
 class Lathe\SavedTabs\SavedTab
+class Lathe\SavedTabs\SavedTabQueryApplicator
 class Lathe\SavedTabs\SchemaHash
 class Lathe\Search\LikeSearch
 class Lathe\Search\SearchApplicator

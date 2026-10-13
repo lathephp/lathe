@@ -14,6 +14,8 @@ use Lathe\Field\Field;
 use Lathe\Filters\FilterApplicator;
 use Lathe\Http\Requests\LatheRequest;
 use Lathe\Resources\Resource;
+use Lathe\SavedTabs\SavedTab;
+use Lathe\SavedTabs\SavedTabQueryApplicator;
 use Lathe\Search\SearchApplicator;
 use Lathe\Support\ConfigStore;
 use Lathe\Tabs\Tab;
@@ -420,7 +422,41 @@ class ResourceQuery
      */
     protected function applySavedTab(Builder $query): Builder
     {
-        return $query;
+        $tab = SavedTabQueryApplicator::active($this->resource, $this->request);
+
+        return $tab === null ? $query : (new SavedTabQueryApplicator($this->resource, $this->request, $tab))->applyBase($query);
+    }
+
+    /**
+     * A capped count of a saved tab for its badge, over the Resource's own scope.
+     */
+    public function savedTabCount(SavedTab $tab): Count
+    {
+        $query = $this->resource::query();
+
+        foreach ($this->withoutScopes as $scope) {
+            $query->withoutGlobalScope($scope);
+        }
+
+        $base = $this->resource::indexQuery($this->request, $this->applyTrashed($query));
+
+        return (new SavedTabQueryApplicator($this->resource, $this->request, $tab))->countForSavedTab($base);
+    }
+
+    /**
+     * The active saved tab's stored sort when the request names none, cut to the sortable keys.
+     */
+    private function savedSort(): ?string
+    {
+        $sort = $this->request->query('sort');
+
+        if ($this->context !== QueryContext::Index || ($sort !== null && $sort !== '')) {
+            return null;
+        }
+
+        $tab = SavedTabQueryApplicator::active($this->resource, $this->request);
+
+        return $tab === null ? null : (new SavedTabQueryApplicator($this->resource, $this->request, $tab))->applySort($this->sortKeys());
     }
 
     /**
@@ -487,6 +523,13 @@ class ResourceQuery
      */
     protected function applySort(Builder $query): Builder
     {
+        $savedSort = $this->savedSort();
+
+        // sortPlan() and sortString() read the request, so the stored sort becomes the request's.
+        if ($savedSort !== null) {
+            $this->request->query->set('sort', $savedSort);
+        }
+
         $model = $query->getModel();
         $plan = $this->sortPlan($model);
         $joined = [];

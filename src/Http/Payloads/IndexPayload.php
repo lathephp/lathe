@@ -2,6 +2,7 @@
 
 namespace Lathe\Http\Payloads;
 
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Lathe\Auth\ResourceAuthorization;
 use Lathe\Field\Field;
@@ -10,6 +11,9 @@ use Lathe\Filters\FilterApplicator;
 use Lathe\Http\Requests\LatheRequest;
 use Lathe\Query\ResourceQuery;
 use Lathe\Resources\Resource;
+use Lathe\SavedTabs\SavedTab;
+use Lathe\SavedTabs\SavedTabQueryApplicator;
+use Lathe\SavedTabs\SchemaHash;
 use Lathe\Tabs\Tab;
 
 /**
@@ -29,7 +33,7 @@ class IndexPayload
 
     /**
      * @param  class-string<\Lathe\Resources\Resource>  $class
-     * @return array{resource: array<string, mixed>, table: array<string, mixed>, filters: array{available: list<array<string, mixed>>, applied: array<string, mixed>}, state: array<string, mixed>, tabs: array{items: list<array<string, mixed>>, active: string|null}}
+     * @return array{resource: array<string, mixed>, table: array<string, mixed>, filters: array{available: list<array<string, mixed>>, applied: array<string, mixed>}, state: array<string, mixed>, tabs: array{items: list<array<string, mixed>>, active: string|null, saved: list<array<string, mixed>>, activeSaved: int|null}}
      */
     public function build(string $class): array
     {
@@ -75,6 +79,8 @@ class IndexPayload
             'tabs' => [
                 'items' => array_map(fn (Tab $tab) => $tab->toArray(), $query->tabs()),
                 'active' => $query->activeTabKey(),
+                'saved' => $this->savedTabs($resource, $query),
+                'activeSaved' => $this->activeSavedTab($resource),
             ],
             'state' => [
                 'page' => $page,
@@ -102,7 +108,8 @@ class IndexPayload
      */
     public function tabCounts(string $class): array
     {
-        $query = new ResourceQuery($class::make(), $this->request);
+        $resource = $class::make();
+        $query = new ResourceQuery($resource, $this->request);
         $counts = [];
 
         foreach ($query->tabs() as $tab) {
@@ -115,7 +122,57 @@ class IndexPayload
             }
         }
 
+        foreach ($this->savedTabModels($resource) as $tab) {
+            if ($tab->show_count) {
+                $counts["saved:{$tab->id}"]['count'] = $query->savedTabCount($tab)->toArray();
+            }
+        }
+
         return $counts;
+    }
+
+    /**
+     * The user's saved tabs: filters and sort are the cleaned values a Reset saves back.
+     *
+     * @return list<array{id: int, name: string, badgeType: string|null, showCount: bool, stale: bool, filters: array<string, mixed>, sort: string|null}>
+     */
+    protected function savedTabs(Resource $resource, ResourceQuery $query): array
+    {
+        $tabs = $this->savedTabModels($resource);
+
+        if ($tabs->isEmpty()) {
+            return [];
+        }
+
+        $hash = SchemaHash::for($resource, $this->request);
+        $sortKeys = $query->sortKeys();
+
+        return array_values($tabs->map(function (SavedTab $tab) use ($resource, $hash, $sortKeys) {
+            $applicator = new SavedTabQueryApplicator($resource, $this->request, $tab);
+
+            return [
+                'id' => $tab->id,
+                'name' => $tab->name,
+                'badgeType' => $tab->badge_type,
+                'showCount' => $tab->show_count,
+                'stale' => $applicator->isStale($sortKeys, $hash),
+                'filters' => $applicator->filters(),
+                'sort' => $applicator->applySort($sortKeys),
+            ];
+        })->all());
+    }
+
+    protected function activeSavedTab(Resource $resource): ?int
+    {
+        return SavedTabQueryApplicator::active($resource, $this->request)?->id;
+    }
+
+    /**
+     * @return Collection<int, SavedTab>
+     */
+    protected function savedTabModels(Resource $resource): Collection
+    {
+        return SavedTabQueryApplicator::enabled($resource) ? SavedTabQueryApplicator::listFor($resource, $this->request) : new Collection;
     }
 
     /**
