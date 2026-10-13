@@ -33,7 +33,7 @@ beforeEach(function () {
         $table->json('items')->nullable();
         $table->softDeletes();
     });
-    Lathe::registerResources(FilePeople::class, FileUsers::class, HardFileDocs::class, SoftFileDocs::class, HookedFileDocs::class);
+    Lathe::registerResources(FilePeople::class, FileUsers::class, StrictFileDocs::class, HardFileDocs::class, SoftFileDocs::class, HookedFileDocs::class);
     Storage::fake('local');
     Storage::fake('public');
     FileFieldLog::$entries = [];
@@ -126,6 +126,25 @@ class FileUsers extends Resource
     public function fields(LatheRequest $request): array
     {
         return [Field::make('Name'), Field::make('Email'), Field::file('Avatar', 'avatar')->showOnIndex()];
+    }
+}
+
+/** A photo field that takes only small PNG images. */
+class StrictFileDocs extends Resource
+{
+    public static function uriKey(): string
+    {
+        return 'strict-file-docs';
+    }
+
+    protected function configure(ResourceDefinition $definition): ResourceDefinition
+    {
+        return $definition->model(HardFileDoc::class)->title('name')->canonical(false)->allowAll();
+    }
+
+    public function fields(LatheRequest $request): array
+    {
+        return [Field::make('Name'), Field::file('Photo', 'photo')->acceptedTypes('image/png')->maxSize(1)];
     }
 }
 
@@ -553,3 +572,21 @@ it('refuses a dotted path that names no file sub-field', function () {
     expect($doc->fresh()?->items)->toBe([['photo' => 'zero.png', 'title' => 'zero.png']])
         ->and(Storage::disk('public')->allFiles())->toBe(['zero.png']);
 });
+
+it('refuses an upload started on a looser field when it does not fit this one', function (array $upload, ?string $content) {
+    $pending = ffUpload(['field' => 'photo', ...$upload]);
+
+    if ($content !== null) {
+        Storage::disk('local')->put($pending->folder().'/assembled', $content);
+    }
+
+    $doc = HardFileDoc::create(['name' => 'A']);
+
+    LatheTest::resource('strict-file-docs')->update($doc->getKey(), ['photo' => $pending->id])
+        ->assertUnprocessable()->assertJsonValidationErrors(['photo']);
+
+    expect($doc->fresh()?->photo)->toBeNull();
+})->with([
+    'a type the field refuses' => [['original_name' => 'notes.txt'], 'plain text'],
+    'a size over the field limit' => [['size' => 2 * 1024 * 1024], null],
+]);

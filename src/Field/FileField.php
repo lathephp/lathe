@@ -15,6 +15,7 @@ use Lathe\Field\Contracts\Storable;
 use Lathe\Http\Requests\LatheRequest;
 use Lathe\Lathe;
 use Lathe\Support\ConfigStore;
+use Lathe\Uploads\PendingUpload;
 use Lathe\Uploads\UploadHandler;
 use LogicException;
 use Symfony\Component\HttpFoundation\Response;
@@ -313,8 +314,7 @@ class FileField extends Field implements Deletable, Storable
             $uploads = app(UploadHandler::class);
 
             // Only the user who uploaded the file may attach it, and only to the field it was started for.
-            $upload = $uploads->attachable($request->user(), $uploadId, $this->attribute)
-                ?? throw ValidationException::withMessages([$requestAttribute => Lathe::__('The upload is missing or not finished.')]);
+            $upload = $this->attachableUpload($request, $uploads, $uploadId, $requestAttribute);
 
             $path = $this->storeFile($request, $model, $uploads->file($upload));
 
@@ -352,11 +352,27 @@ class FileField extends Field implements Deletable, Storable
      *
      * @internal
      */
+    /**
+     * The caller's finished upload for this field, checked again against this field's own size and
+     * types, so an upload started on a looser field elsewhere cannot land here.
+     */
+    protected function attachableUpload(LatheRequest $request, UploadHandler $uploads, string $uploadId, string $requestAttribute): PendingUpload
+    {
+        $upload = $uploads->attachable($request->user(), $uploadId, $this->attribute)
+            ?? throw ValidationException::withMessages([$requestAttribute => Lathe::__('The upload is missing or not finished.')]);
+        $file = $uploads->file($upload);
+
+        if ($upload->size > $this->getMaxSizeBytes() || ! $this->accepts($upload->original_name, (string) $file->getMimeType())) {
+            throw ValidationException::withMessages([$requestAttribute => Lathe::__('The upload does not fit this field.')]);
+        }
+
+        return $upload;
+    }
+
     public function attachToRow(LatheRequest $request, Model $record, object $row, string $requestAttribute, string $uploadId): Closure
     {
         $uploads = app(UploadHandler::class);
-        $upload = $uploads->attachable($request->user(), $uploadId, $this->attribute)
-            ?? throw ValidationException::withMessages([$requestAttribute => Lathe::__('The upload is missing or not finished.')]);
+        $upload = $this->attachableUpload($request, $uploads, $uploadId, $requestAttribute);
 
         data_set($row, $this->attribute, $this->storeFile($request, $record, $uploads->file($upload)));
 

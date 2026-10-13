@@ -181,6 +181,7 @@
     "The panel is down for maintenance. Try again soon.": "The panel is down for maintenance. Try again soon.",
     "The preload strategy must be auto, metadata or none.": "The preload strategy must be auto, metadata or none.",
     "The preview could not be loaded.": "The preview could not be loaded.",
+    "The upload does not fit this field.": "The upload does not fit this field.",
     "The upload failed.": "The upload failed.",
     "The upload is missing or not finished.": "The upload is missing or not finished.",
     "The value may not be greater than :max bytes.": "The value may not be greater than :max bytes.",
