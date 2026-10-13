@@ -9,6 +9,7 @@ use Lathe\Http\Controllers\Assets\AssetController;
 use Lathe\Http\Controllers\Auth\AuthenticatedSessionController;
 use Lathe\Http\Controllers\Auth\LoginPageController;
 use Lathe\Http\Controllers\DashboardController;
+use Lathe\Http\Controllers\PageFallbackController;
 use Lathe\Http\Controllers\Plugins\ModuleController;
 use Lathe\Http\Controllers\Plugins\PluginApiController;
 use Lathe\Http\Controllers\Plugins\PluginPageController;
@@ -80,6 +81,11 @@ class PanelRoutes
 
             // Matches last: an unknown API URL still runs Authenticate, so signed out it answers 401, not 404.
             $router->any('{any}', fn () => abort(404))->where('any', '.*')->fallback()->name('fallback');
+        });
+
+        // An unknown page answers the Error page: in the shell when signed in, full screen when not.
+        $this->group()->middleware('lathe')->group(function (Router $router) {
+            $router->any('{any}', PageFallbackController::class)->where('any', '.*')->fallback()->name('lathe.fallback');
         });
     }
 

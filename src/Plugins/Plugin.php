@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Routing\Router;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Str;
+use Lathe\Menu\MenuSection;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
@@ -111,6 +112,16 @@ abstract class Plugin
     public function serving(Request $request): void
     {
         //
+    }
+
+    /**
+     * Sidebar sections for this plugin; null adds none.
+     *
+     * @return list<MenuSection>|null
+     */
+    public function menu(Request $request): ?array
+    {
+        return null;
     }
 
     /**

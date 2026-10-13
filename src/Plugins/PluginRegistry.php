@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Lathe\Assets\AssetRegistry;
 use Lathe\Exceptions\LatheException;
 use Lathe\Exceptions\PluginDependencyException;
+use Lathe\Menu\MenuSection;
 use Lathe\Support\ConfigStore;
 
 /**
@@ -82,6 +83,24 @@ class PluginRegistry
         foreach ($this->authorized($request) as $plugin) {
             $plugin->serving($request);
         }
+    }
+
+    /**
+     * The sidebar sections of the plugins the request is authorized for.
+     *
+     * @return list<MenuSection>
+     */
+    public function menus(Request $request): array
+    {
+        $sections = [];
+
+        foreach ($this->authorized($request) as $plugin) {
+            foreach ($plugin->menu($request) ?? [] as $section) {
+                $sections[] = $section;
+            }
+        }
+
+        return $sections;
     }
 
     /**

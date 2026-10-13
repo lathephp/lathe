@@ -15,7 +15,7 @@ use Symfony\Component\Finder\Finder;
  * Maps URI keys and models to Resource classes from a manifest, without loading
  * the Resources a request does not use. Nothing is scanned until the manifest is needed.
  *
- * @phpstan-type ManifestEntry array{class: class-string<\Lathe\Resources\Resource>, uriKey: string, model: class-string<\Illuminate\Database\Eloquent\Model>, canonical: bool, label: string, group: string|null, icon: string|null, displayInNavigation: bool, globallySearchable: bool, softDeletes: bool, hasBadge: bool}
+ * @phpstan-type ManifestEntry array{class: class-string<\Lathe\Resources\Resource>, uriKey: string, model: class-string<\Illuminate\Database\Eloquent\Model>, canonical: bool, label: string, group: string|null, icon: string|null, displayInNavigation: bool, globallySearchable: bool, softDeletes: bool, hasBadge: bool, allowAll: bool, canSee: bool}
  */
 class ResourceRegistry
 {
@@ -242,6 +242,8 @@ class ResourceRegistry
                 'globallySearchable' => $definition->isGloballySearchable(),
                 'softDeletes' => $definition->usesSoftDeletes(),
                 'hasBadge' => false,
+                'allowAll' => $definition->allowsAll(),
+                'canSee' => $definition->hasSeeCallback(),
             ];
         }
 

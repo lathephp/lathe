@@ -91,6 +91,8 @@ it('records each Resource in the manifest', function () {
         'globallySearchable' => false,
         'softDeletes' => true,
         'hasBadge' => false,
+        'allowAll' => false,
+        'canSee' => false,
     ]);
 });
 

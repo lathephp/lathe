@@ -52,6 +52,7 @@ Lathe\Auth\ResourceAuthorization::Lathe\Resources\ResourceRegistry $resources  [
 Lathe\Auth\ResourceAuthorization::__construct(Illuminate\Contracts\Auth\Access\Gate $gate, Lathe\Resources\ResourceRegistry $resources)
 Lathe\Auth\ResourceAuthorization::abilitiesFor(?Illuminate\Contracts\Auth\Authenticatable $user, string $resource, Illuminate\Support\Collection $models, array $abilities): array
 Lathe\Auth\ResourceAuthorization::allows(?Illuminate\Contracts\Auth\Authenticatable $user, string $resource, string $ability, ?Illuminate\Database\Eloquent\Model $model = NULL, array $arguments = array ( )): bool
+Lathe\Auth\ResourceAuthorization::allowsViewAnyFromManifest(Illuminate\Http\Request $request, array $entry): bool
 Lathe\Auth\ResourceAuthorization::array $policies  [protected]
 Lathe\Auth\ResourceAuthorization::canSee(Illuminate\Http\Request $request, string $resource): bool
 Lathe\Auth\ResourceAuthorization::denialMessage(string $resource): string
@@ -95,6 +96,164 @@ Lathe\Doctor\Doctor::pluginPackages(): array  [protected]
 Lathe\Doctor\Doctor::resourceChecks(): array  [protected]
 Lathe\Doctor\Doctor::run(): array
 Lathe\Doctor\Doctor::stringConfig(string $key): string  [protected]
+Lathe\Enums\Icon::Activity
+Lathe\Enums\Icon::AlertCircle
+Lathe\Enums\Icon::AlertTriangle
+Lathe\Enums\Icon::Archive
+Lathe\Enums\Icon::ArrowDown
+Lathe\Enums\Icon::ArrowLeft
+Lathe\Enums\Icon::ArrowRight
+Lathe\Enums\Icon::ArrowUp
+Lathe\Enums\Icon::AtSign
+Lathe\Enums\Icon::Award
+Lathe\Enums\Icon::Ban
+Lathe\Enums\Icon::Banknote
+Lathe\Enums\Icon::BarChart
+Lathe\Enums\Icon::Bell
+Lathe\Enums\Icon::BellRing
+Lathe\Enums\Icon::BookOpen
+Lathe\Enums\Icon::Bookmark
+Lathe\Enums\Icon::Box
+Lathe\Enums\Icon::Briefcase
+Lathe\Enums\Icon::Bug
+Lathe\Enums\Icon::Building
+Lathe\Enums\Icon::Calendar
+Lathe\Enums\Icon::CalendarDays
+Lathe\Enums\Icon::Camera
+Lathe\Enums\Icon::Check
+Lathe\Enums\Icon::CheckCircle
+Lathe\Enums\Icon::Circle
+Lathe\Enums\Icon::CircleDot
+Lathe\Enums\Icon::CircleX
+Lathe\Enums\Icon::Clipboard
+Lathe\Enums\Icon::Clock
+Lathe\Enums\Icon::Cloud
+Lathe\Enums\Icon::Code
+Lathe\Enums\Icon::Cog
+Lathe\Enums\Icon::Coins
+Lathe\Enums\Icon::Contact
+Lathe\Enums\Icon::Copy
+Lathe\Enums\Icon::Cpu
+Lathe\Enums\Icon::CreditCard
+Lathe\Enums\Icon::Crown
+Lathe\Enums\Icon::Database
+Lathe\Enums\Icon::DollarSign
+Lathe\Enums\Icon::Download
+Lathe\Enums\Icon::Edit
+Lathe\Enums\Icon::ExternalLink
+Lathe\Enums\Icon::Eye
+Lathe\Enums\Icon::EyeOff
+Lathe\Enums\Icon::File
+Lathe\Enums\Icon::FileCode
+Lathe\Enums\Icon::FilePlus
+Lathe\Enums\Icon::FileText
+Lathe\Enums\Icon::Files
+Lathe\Enums\Icon::Filter
+Lathe\Enums\Icon::Fingerprint
+Lathe\Enums\Icon::Flag
+Lathe\Enums\Icon::Flame
+Lathe\Enums\Icon::Folder
+Lathe\Enums\Icon::FolderOpen
+Lathe\Enums\Icon::FolderPlus
+Lathe\Enums\Icon::Gauge
+Lathe\Enums\Icon::Gift
+Lathe\Enums\Icon::Globe
+Lathe\Enums\Icon::Grid
+Lathe\Enums\Icon::HardDrive
+Lathe\Enums\Icon::Hash
+Lathe\Enums\Icon::Heart
+Lathe\Enums\Icon::HelpCircle
+Lathe\Enums\Icon::Home
+Lathe\Enums\Icon::Hourglass
+Lathe\Enums\Icon::Image
+Lathe\Enums\Icon::Inbox
+Lathe\Enums\Icon::Info
+Lathe\Enums\Icon::Key
+Lathe\Enums\Icon::Languages
+Lathe\Enums\Icon::Laptop
+Lathe\Enums\Icon::Layers
+Lathe\Enums\Icon::LayoutDashboard
+Lathe\Enums\Icon::LifeBuoy
+Lathe\Enums\Icon::Lightbulb
+Lathe\Enums\Icon::Link
+Lathe\Enums\Icon::List
+Lathe\Enums\Icon::Lock
+Lathe\Enums\Icon::LogOut
+Lathe\Enums\Icon::Mail
+Lathe\Enums\Icon::Map
+Lathe\Enums\Icon::MapPin
+Lathe\Enums\Icon::Megaphone
+Lathe\Enums\Icon::MessageCircle
+Lathe\Enums\Icon::MessageSquare
+Lathe\Enums\Icon::Mic
+Lathe\Enums\Icon::Monitor
+Lathe\Enums\Icon::Moon
+Lathe\Enums\Icon::Music
+Lathe\Enums\Icon::Navigation
+Lathe\Enums\Icon::Newspaper
+Lathe\Enums\Icon::Package
+Lathe\Enums\Icon::Palette
+Lathe\Enums\Icon::Paperclip
+Lathe\Enums\Icon::PenTool
+Lathe\Enums\Icon::Percent
+Lathe\Enums\Icon::Phone
+Lathe\Enums\Icon::PieChart
+Lathe\Enums\Icon::Pin
+Lathe\Enums\Icon::Play
+Lathe\Enums\Icon::Plus
+Lathe\Enums\Icon::Power
+Lathe\Enums\Icon::Printer
+Lathe\Enums\Icon::QrCode
+Lathe\Enums\Icon::Radio
+Lathe\Enums\Icon::Receipt
+Lathe\Enums\Icon::RefreshCw
+Lathe\Enums\Icon::Repeat
+Lathe\Enums\Icon::Rocket
+Lathe\Enums\Icon::RotateCcw
+Lathe\Enums\Icon::Save
+Lathe\Enums\Icon::Scan
+Lathe\Enums\Icon::ScrollText
+Lathe\Enums\Icon::Search
+Lathe\Enums\Icon::Send
+Lathe\Enums\Icon::Server
+Lathe\Enums\Icon::Settings
+Lathe\Enums\Icon::Share
+Lathe\Enums\Icon::Shield
+Lathe\Enums\Icon::ShieldCheck
+Lathe\Enums\Icon::ShoppingBag
+Lathe\Enums\Icon::ShoppingCart
+Lathe\Enums\Icon::SlidersHorizontal
+Lathe\Enums\Icon::Smartphone
+Lathe\Enums\Icon::Sparkles
+Lathe\Enums\Icon::Star
+Lathe\Enums\Icon::Store
+Lathe\Enums\Icon::Sun
+Lathe\Enums\Icon::Table
+Lathe\Enums\Icon::Tag
+Lathe\Enums\Icon::Target
+Lathe\Enums\Icon::Terminal
+Lathe\Enums\Icon::ThumbsDown
+Lathe\Enums\Icon::ThumbsUp
+Lathe\Enums\Icon::Timer
+Lathe\Enums\Icon::ToggleLeft
+Lathe\Enums\Icon::Trash
+Lathe\Enums\Icon::TrendingDown
+Lathe\Enums\Icon::TrendingUp
+Lathe\Enums\Icon::Truck
+Lathe\Enums\Icon::Unlock
+Lathe\Enums\Icon::Upload
+Lathe\Enums\Icon::User
+Lathe\Enums\Icon::UserCheck
+Lathe\Enums\Icon::UserPlus
+Lathe\Enums\Icon::UserX
+Lathe\Enums\Icon::Users
+Lathe\Enums\Icon::Video
+Lathe\Enums\Icon::Wallet
+Lathe\Enums\Icon::Wifi
+Lathe\Enums\Icon::Wrench
+Lathe\Enums\Icon::Zap
+Lathe\Enums\Icon::string $name
+Lathe\Enums\Icon::string $value
 Lathe\Events\ServingLathe::Illuminate\Http\Request $request
 Lathe\Events\ServingLathe::__construct(Illuminate\Http\Request $request)
 Lathe\Field\Field::?Closure $resolver  [protected]
@@ -118,6 +277,7 @@ Lathe\Http\Controllers\Auth\AuthenticatedSessionController::destroy(Illuminate\H
 Lathe\Http\Controllers\Auth\AuthenticatedSessionController::store(Illuminate\Http\Request $request): Symfony\Component\HttpFoundation\Response
 Lathe\Http\Controllers\Auth\LoginPageController::__invoke(Lathe\Auth\FortifyConfig $fortify): Inertia\Response
 Lathe\Http\Controllers\DashboardController::__invoke(): Inertia\Response
+Lathe\Http\Controllers\PageFallbackController::__invoke(Illuminate\Http\Request $request, Illuminate\Routing\Router $router): never
 Lathe\Http\Controllers\Plugins\ModuleController::__invoke(Lathe\Assets\AssetRegistry $assets, string $file, string $type = 'scripts'): Symfony\Component\HttpFoundation\BinaryFileResponse
 Lathe\Http\Controllers\Plugins\PluginApiController::__invoke(Illuminate\Http\Request $request, Lathe\Plugins\PluginRegistry $plugins, string $plugin, string $path = ''): Symfony\Component\HttpFoundation\Response
 Lathe\Http\Controllers\Plugins\PluginPageController::__invoke(Illuminate\Http\Request $request, Lathe\Plugins\PluginRegistry $plugins, string $plugin, string $path = ''): Inertia\Response
@@ -125,6 +285,10 @@ Lathe\Http\Controllers\Resources\AuthorizesResources::viewableResource(Lathe\Htt
 Lathe\Http\Controllers\Resources\CountController::__invoke(Lathe\Http\Requests\LatheRequest $request, Lathe\Auth\ResourceAuthorization $authorization, Lathe\Http\Payloads\IndexPayload $payload): Illuminate\Http\JsonResponse
 Lathe\Http\Controllers\Resources\IndexController::__invoke(Lathe\Http\Requests\LatheRequest $request, Lathe\Auth\ResourceAuthorization $authorization, Lathe\Http\Payloads\IndexPayload $payload): Illuminate\Http\JsonResponse
 Lathe\Http\Controllers\Resources\IndexPageController::__invoke(Lathe\Http\Requests\LatheRequest $request, Lathe\Auth\ResourceAuthorization $authorization, Lathe\Http\Payloads\IndexPayload $payload): Inertia\Response
+Lathe\Http\ErrorPages::Lathe\Auth\FortifyConfig $fortify  [protected]
+Lathe\Http\ErrorPages::STATUSES
+Lathe\Http\ErrorPages::__construct(Lathe\Auth\FortifyConfig $fortify)
+Lathe\Http\ErrorPages::render(Throwable $e, Illuminate\Http\Request $request): ?Symfony\Component\HttpFoundation\Response
 Lathe\Http\Middleware\Authenticate::Illuminate\Contracts\Auth\Factory $auth  [protected]
 Lathe\Http\Middleware\Authenticate::Lathe\Auth\FortifyConfig $fortify  [protected]
 Lathe\Http\Middleware\Authenticate::__construct(Illuminate\Contracts\Auth\Factory $auth, Lathe\Auth\FortifyConfig $fortify)
@@ -174,6 +338,7 @@ Lathe\Lathe::getFacadeAccessor(): string  [protected static]
 Lathe\LatheApplicationServiceProvider::authorization(): void  [protected]
 Lathe\LatheApplicationServiceProvider::boot(): void
 Lathe\LatheApplicationServiceProvider::gate(): void  [protected]
+Lathe\LatheManager::?Closure $footer  [protected]
 Lathe\LatheManager::Illuminate\Contracts\Container\Container $container  [protected]
 Lathe\LatheManager::__construct(Illuminate\Contracts\Container\Container $container)
 Lathe\LatheManager::assets(): Lathe\Assets\AssetManifest
@@ -182,6 +347,8 @@ Lathe\LatheManager::check(Illuminate\Http\Request $request): bool
 Lathe\LatheManager::config(): Lathe\Support\ConfigStore
 Lathe\LatheManager::dashboards(): Lathe\Dashboards\DashboardRegistry
 Lathe\LatheManager::discoverResources(string $directory, ?string $namespace = NULL): void
+Lathe\LatheManager::footer(Closure $callback): static
+Lathe\LatheManager::footerFor(Illuminate\Http\Request $request): ?array
 Lathe\LatheManager::fortify(): Lathe\Auth\FortifyConfig
 Lathe\LatheManager::loginPath(): string
 Lathe\LatheManager::name(): string
@@ -189,12 +356,35 @@ Lathe\LatheManager::path(): string
 Lathe\LatheManager::plugins(): Lathe\Plugins\PluginRegistry
 Lathe\LatheManager::registerPlugins(Lathe\Plugins\Plugin ...$plugins): void
 Lathe\LatheManager::registerResources(string ...$classes): void
+Lathe\LatheManager::resolveSidebarDefaultOpen(Illuminate\Http\Request $request): bool
 Lathe\LatheManager::resources(): Lathe\Resources\ResourceRegistry
 Lathe\LatheManager::version(): string
+Lathe\LatheManager::versionLabel(): ?string
 Lathe\LatheServiceProvider::boot(): void
 Lathe\LatheServiceProvider::register(): void
 Lathe\LatheServiceProvider::registerMiddleware(): void  [protected]
 Lathe\LatheServiceProvider::validateConfig(): void  [protected]
+Lathe\Menu\MenuItem::?Lathe\Enums\Icon $icon  [protected]
+Lathe\Menu\MenuItem::__construct(string $label, string $path)
+Lathe\Menu\MenuItem::icon(?Lathe\Enums\Icon $icon): static
+Lathe\Menu\MenuItem::jsonSerialize(): array
+Lathe\Menu\MenuItem::link(string $label, string $path): static  [static]
+Lathe\Menu\MenuItem::plugin(string $plugin, ?string $label = NULL, ?string $subPath = NULL): static  [static]
+Lathe\Menu\MenuItem::string $label  [protected]
+Lathe\Menu\MenuItem::string $path  [protected]
+Lathe\Menu\MenuSection::?Lathe\Enums\Icon $icon  [protected]
+Lathe\Menu\MenuSection::?string $label  [protected]
+Lathe\Menu\MenuSection::__construct(?string $label, array $items = array ( ))
+Lathe\Menu\MenuSection::array $items  [protected]
+Lathe\Menu\MenuSection::icon(?Lathe\Enums\Icon $icon): static
+Lathe\Menu\MenuSection::item(Lathe\Menu\MenuItem $item): static
+Lathe\Menu\MenuSection::jsonSerialize(): array
+Lathe\Menu\MenuSection::section(?string $label, array $items = array ( )): static  [static]
+Lathe\Menu\Navigation::Lathe\Auth\ResourceAuthorization $authorization  [protected]
+Lathe\Menu\Navigation::Lathe\Plugins\PluginRegistry $plugins  [protected]
+Lathe\Menu\Navigation::Lathe\Resources\ResourceRegistry $resources  [protected]
+Lathe\Menu\Navigation::__construct(Lathe\Resources\ResourceRegistry $resources, Lathe\Plugins\PluginRegistry $plugins, Lathe\Auth\ResourceAuthorization $authorization)
+Lathe\Menu\Navigation::build(Illuminate\Http\Request $request): array
 Lathe\Plugins\Plugin::?Closure $seeCallback  [protected]
 Lathe\Plugins\Plugin::assets(): array
 Lathe\Plugins\Plugin::authorize(Illuminate\Http\Request $request): bool
@@ -203,6 +393,7 @@ Lathe\Plugins\Plugin::canSee(Closure $callback): static
 Lathe\Plugins\Plugin::canSeeWhen(string $ability, mixed $arguments = array ( )): static
 Lathe\Plugins\Plugin::handleRequest(Illuminate\Http\Request $request, string $path): Symfony\Component\HttpFoundation\Response
 Lathe\Plugins\Plugin::make(): static  [static]
+Lathe\Plugins\Plugin::menu(Illuminate\Http\Request $request): ?array
 Lathe\Plugins\Plugin::name(): string
 Lathe\Plugins\Plugin::policies(): array
 Lathe\Plugins\Plugin::register(): void
@@ -222,6 +413,7 @@ Lathe\Plugins\PluginRegistry::array $plugins  [protected]
 Lathe\Plugins\PluginRegistry::authorized(Illuminate\Http\Request $request): array
 Lathe\Plugins\PluginRegistry::checkRequirements(Lathe\Plugins\Plugin $plugin): void  [protected]
 Lathe\Plugins\PluginRegistry::find(string $uriKey): ?Lathe\Plugins\Plugin
+Lathe\Plugins\PluginRegistry::menus(Illuminate\Http\Request $request): array
 Lathe\Plugins\PluginRegistry::moduleUrls(): array
 Lathe\Plugins\PluginRegistry::register(Lathe\Plugins\Plugin ...$plugins): void
 Lathe\Plugins\PluginRegistry::registered(string $class): bool  [protected]
@@ -320,6 +512,7 @@ Lathe\Resources\ResourceDefinition::getTitle(): Closure|string
 Lathe\Resources\ResourceDefinition::getWith(): array
 Lathe\Resources\ResourceDefinition::globallySearchable(bool $searchable = true): static
 Lathe\Resources\ResourceDefinition::group(?string $group): static
+Lathe\Resources\ResourceDefinition::hasSeeCallback(): bool
 Lathe\Resources\ResourceDefinition::icon(?string $icon): static
 Lathe\Resources\ResourceDefinition::isCanonical(): bool
 Lathe\Resources\ResourceDefinition::isGloballySearchable(): bool
@@ -432,12 +625,14 @@ class Lathe\Http\Controllers\Assets\AssetController
 class Lathe\Http\Controllers\Auth\AuthenticatedSessionController
 class Lathe\Http\Controllers\Auth\LoginPageController
 class Lathe\Http\Controllers\DashboardController
+class Lathe\Http\Controllers\PageFallbackController
 class Lathe\Http\Controllers\Plugins\ModuleController
 class Lathe\Http\Controllers\Plugins\PluginApiController
 class Lathe\Http\Controllers\Plugins\PluginPageController
 class Lathe\Http\Controllers\Resources\CountController
 class Lathe\Http\Controllers\Resources\IndexController
 class Lathe\Http\Controllers\Resources\IndexPageController
+class Lathe\Http\ErrorPages
 class Lathe\Http\Middleware\Authenticate
 class Lathe\Http\Middleware\Authorize
 class Lathe\Http\Middleware\AuthorizePlugin
@@ -452,6 +647,9 @@ class Lathe\Lathe
 class Lathe\LatheApplicationServiceProvider
 class Lathe\LatheManager
 class Lathe\LatheServiceProvider
+class Lathe\Menu\MenuItem
+class Lathe\Menu\MenuSection
+class Lathe\Menu\Navigation
 class Lathe\Plugins\Plugin
 class Lathe\Plugins\PluginDiscovery
 class Lathe\Plugins\PluginRegistry
@@ -466,6 +664,7 @@ class Lathe\Support\Util
 class Lathe\Testing\LatheTest
 class Lathe\Testing\ResourceTester
 class Lathe\Testing\TestCase
+enum Lathe\Enums\Icon
 enum Lathe\Query\QueryContext
 trait Lathe\Http\Controllers\Resources\AuthorizesResources
 trait Lathe\Testing\InteractsWithLathe

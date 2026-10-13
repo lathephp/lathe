@@ -20,6 +20,9 @@ use Lathe\Support\ConfigStore;
  */
 class LatheManager
 {
+    /** @var (Closure(Request): string)|null */
+    protected ?Closure $footer = null;
+
     public function __construct(protected Container $container)
     {
         //
@@ -91,6 +94,60 @@ class LatheManager
     public function check(Request $request): bool
     {
         return $this->container->make(PanelGate::class)->check($request);
+    }
+
+    /**
+     * Replace the footer text; a callback that returns an empty string hides the footer.
+     *
+     * @param  Closure(Request): string  $callback
+     */
+    public function footer(Closure $callback): static
+    {
+        $this->footer = $callback;
+
+        return $this;
+    }
+
+    /**
+     * The footer for this request, or null when it is hidden.
+     *
+     * @return array{text: string, href: string|null}|null
+     */
+    public function footerFor(Request $request): ?array
+    {
+        if ($this->footer === null) {
+            return ['text' => 'Powered by Lathe', 'href' => 'https://lathephp.com'];
+        }
+
+        $text = ($this->footer)($request);
+
+        return $text === '' ? null : ['text' => $text, 'href' => null];
+    }
+
+    /**
+     * The sidebar's version label: the installed version, a custom label, or null when hidden.
+     */
+    public function versionLabel(): ?string
+    {
+        $setting = $this->config()->get('version');
+
+        return match (true) {
+            $setting === false => null,
+            is_string($setting) && $setting !== '' => $setting,
+            default => $this->version(),
+        };
+    }
+
+    /**
+     * Whether the sidebar paints open: the sidebar_state cookie, else the layout default.
+     */
+    public function resolveSidebarDefaultOpen(Request $request): bool
+    {
+        return match ($request->cookie('sidebar_state')) {
+            'true' => true,
+            'false' => false,
+            default => $this->config()->get('layout.sidebar.default_open') !== false,
+        };
     }
 
     public function name(): string

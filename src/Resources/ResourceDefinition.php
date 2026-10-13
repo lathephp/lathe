@@ -152,6 +152,11 @@ class ResourceDefinition
         return $this->set(fn () => $this->seeCallback = $callback);
     }
 
+    public function hasSeeCallback(): bool
+    {
+        return $this->seeCallback !== null;
+    }
+
     public function seenBy(Request $request): bool
     {
         return $this->seeCallback === null || ($this->seeCallback)($request);

@@ -3,9 +3,12 @@
 namespace Lathe;
 
 use Illuminate\Auth\Middleware\RedirectIfAuthenticated;
+use Illuminate\Contracts\Debug\ExceptionHandler;
 use Illuminate\Contracts\Http\Kernel;
+use Illuminate\Cookie\Middleware\EncryptCookies;
 use Illuminate\Foundation\Console\AboutCommand;
 use Illuminate\Foundation\PackageManifest;
+use Illuminate\Http\Request;
 use Illuminate\Routing\Router;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\ServiceProvider;
@@ -20,6 +23,7 @@ use Lathe\Console\ClearCommand;
 use Lathe\Console\DoctorCommand;
 use Lathe\Dashboards\DashboardRegistry;
 use Lathe\Exceptions\InvalidConfigurationException;
+use Lathe\Http\ErrorPages;
 use Lathe\Http\Middleware\ServeLathe;
 use Lathe\Http\Middleware\ServePlugins;
 use Lathe\Http\PanelRoutes;
@@ -28,6 +32,7 @@ use Lathe\Plugins\PluginRegistry;
 use Lathe\Resources\ResourceRegistry;
 use Lathe\Support\ConfigStore;
 use Lathe\Support\ConfigValidator;
+use Throwable;
 
 class LatheServiceProvider extends ServiceProvider
 {
@@ -59,6 +64,13 @@ class LatheServiceProvider extends ServiceProvider
         Blade::directive('latheScripts', fn () => '<?php echo app('.RootTags::class.'::class)->scripts(); ?>');
         $this->loadMigrationsFrom(__DIR__.'/../database/migrations');
         $this->registerMiddleware();
+
+        // The sidebar writes this cookie in the browser, so it is read unencrypted.
+        EncryptCookies::except(['sidebar_state']);
+
+        $this->app->make(ExceptionHandler::class)->renderable(
+            fn (Throwable $e, Request $request) => $this->app->make(ErrorPages::class)->render($e, $request),
+        );
 
         // After every provider has booted: hand-registered plugins first, then discovered
         // ones, then the routes, so package routes land before the plugin catch-all.

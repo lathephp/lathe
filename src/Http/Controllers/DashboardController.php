@@ -9,6 +9,9 @@ class DashboardController
 {
     public function __invoke(): Response
     {
-        return Inertia::render('Dashboard');
+        return Inertia::render('Dashboard', [
+            'dashboard' => ['uriKey' => 'main', 'title' => 'Dashboard'],
+            'widgets' => [],
+        ]);
     }
 }

@@ -75,6 +75,35 @@ class ResourceAuthorization
     }
 
     /**
+     * viewAny for a sidebar entry, read from the manifest and the model's policy, so
+     * no Resource definition is built unless the Resource declares canSee.
+     *
+     * @param  array{class: class-string<\Lathe\Resources\Resource>, model: class-string<Model>, allowAll: bool, canSee: bool}  $entry
+     */
+    public function allowsViewAnyFromManifest(Request $request, array $entry): bool
+    {
+        if ($entry['canSee'] && ! $this->canSee($request, $entry['class'])) {
+            return false;
+        }
+
+        if ($entry['allowAll']) {
+            return true;
+        }
+
+        $user = $request->user(app(FortifyConfig::class)->guard());
+        $named = $entry['class']::$policy;
+        $policy = $named !== null ? app($named) : $this->gate->getPolicyFor($entry['model']);
+
+        if ($user === null || ! is_object($policy) || ! method_exists($policy, 'viewAny')) {
+            return false;
+        }
+
+        return $named !== null
+            ? $policy->viewAny($user, $entry['model']) === true
+            : $this->gate->forUser($user)->allows('viewAny', [$entry['model']]);
+    }
+
+    /**
      * Abilities for a whole page of rows, keyed by model key. One call to the policy's
      * abilitiesFor() when it has one; otherwise the gate per row and ability, from memory.
      *

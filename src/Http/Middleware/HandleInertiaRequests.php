@@ -5,6 +5,7 @@ namespace Lathe\Http\Middleware;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
 use Lathe\Lathe;
+use Lathe\Menu\Navigation;
 
 class HandleInertiaRequests extends Middleware
 {
@@ -45,6 +46,8 @@ class HandleInertiaRequests extends Middleware
             ],
             'latheVersion' => Lathe::version(),
             'assetHash' => Lathe::assets()->hash(),
+            'navigation' => fn () => $user === null ? [] : app(Navigation::class)->build($request),
+            'sidebarOpen' => Lathe::resolveSidebarDefaultOpen($request),
         ];
     }
 
@@ -59,6 +62,21 @@ class HandleInertiaRequests extends Middleware
             ...parent::shareOnce($request),
             'appName' => fn () => Lathe::name(),
             'basePath' => fn () => '/'.trim(Lathe::path(), '/'),
+            'versionLabel' => fn () => Lathe::versionLabel(),
+            'footer' => fn () => Lathe::footerFor($request),
+            'layout' => fn () => [
+                'sidebar' => [
+                    'collapsible' => Lathe::config()->string('layout.sidebar.collapsible'),
+                    'width' => Lathe::config()->string('layout.sidebar.width'),
+                    'widthIcon' => Lathe::config()->string('layout.sidebar.width_icon'),
+                ],
+                'header' => ['sticky' => Lathe::config()->boolean('layout.header.sticky')],
+                'content' => ['width' => Lathe::config()->string('layout.content.width')],
+            ],
+            'table' => fn () => [
+                'density' => Lathe::config()->string('table.density'),
+                'striped' => Lathe::config()->boolean('table.striped'),
+            ],
         ];
     }
 }
