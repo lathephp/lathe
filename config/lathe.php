@@ -63,6 +63,8 @@ return [
         'id_list_max' => 1000,
         'metrics_ttl' => 60,
         'repeater_rows' => 200,
+        'key_value_rows' => 200,
+        'key_length' => 255,
     ],
 
     'uploads' => [

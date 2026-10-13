@@ -468,7 +468,9 @@ Lathe\Field\Concerns\NumberFactories::currency(string $label, ?string $attribute
 Lathe\Field\Concerns\NumberFactories::number(string $label, Closure|string|null $attribute = NULL): Lathe\Field\NumberField  [static]
 Lathe\Field\Concerns\NumberFactories::token(string $label, ?string $attribute = NULL): Lathe\Field\TokenField  [static]
 Lathe\Field\Concerns\RepeaterFactories::repeater(string $name, ?string $attribute = NULL): Lathe\Field\RepeaterField  [static]
+Lathe\Field\Concerns\RichFactories::keyValue(string $label, ?string $attribute = NULL): Lathe\Field\KeyValueField  [static]
 Lathe\Field\Concerns\RichFactories::markdown(string $label, ?string $attribute = NULL): Lathe\Field\MarkdownField  [static]
+Lathe\Field\Concerns\RichFactories::slug(string $label, ?string $attribute = NULL): Lathe\Field\SlugField  [static]
 Lathe\Field\Concerns\TextFactories::color(string $label, ?string $attribute = NULL): Lathe\Field\Field  [static]
 Lathe\Field\Concerns\TextFactories::email(string $label = 'Email', Closure|string|null $attribute = NULL): Lathe\Field\TextField  [static]
 Lathe\Field\Concerns\TextFactories::heading(string $label): Lathe\Field\HeadingField  [static]
@@ -878,6 +880,20 @@ Lathe\Field\ImageField::resolveThumbnailUrl(object $record): ?string
 Lathe\Field\ImageField::rounded(): static
 Lathe\Field\ImageField::squared(): static
 Lathe\Field\ImageField::string $component  [protected]
+Lathe\Field\KeyValueField::Closure|bool $lockKeys  [protected]
+Lathe\Field\KeyValueField::__construct(string $label, Closure|string|null $attribute = NULL, ?Closure $resolver = NULL)
+Lathe\Field\KeyValueField::actionText(string $text): static
+Lathe\Field\KeyValueField::disableAddingRows(bool $disable = true): static
+Lathe\Field\KeyValueField::disableDeletingRows(bool $disable = true): static
+Lathe\Field\KeyValueField::disableEditingKeys(Closure|bool $disable = true): static
+Lathe\Field\KeyValueField::impliedRules(): array  [protected]
+Lathe\Field\KeyValueField::jsonSerialize(): array
+Lathe\Field\KeyValueField::keyLabel(string $label): static
+Lathe\Field\KeyValueField::noValueText(string $text): static
+Lathe\Field\KeyValueField::rows(mixed $input): ?array  [static]
+Lathe\Field\KeyValueField::schema(Lathe\Field\FieldContext $context, Lathe\Http\Requests\LatheRequest $request, ?Illuminate\Database\Eloquent\Model $model = NULL): array
+Lathe\Field\KeyValueField::string $component  [protected]
+Lathe\Field\KeyValueField::valueLabel(string $label): static
 Lathe\Field\LineField::__construct(string $label, Closure|string|null $attribute = NULL, ?Closure $resolver = NULL)
 Lathe\Field\LineField::asBase(): static
 Lathe\Field\LineField::asHeading(): static
@@ -990,6 +1006,12 @@ Lathe\Field\SelectField::bool $displayUsingLabels  [protected]
 Lathe\Field\SelectField::impliedRules(): array  [protected]
 Lathe\Field\SelectField::string $component  [protected]
 Lathe\Field\SelectField::supportsInline(): bool  [protected]
+Lathe\Field\SlugField::__construct(string $label, Closure|string|null $attribute = NULL, ?Closure $resolver = NULL)
+Lathe\Field\SlugField::from(Lathe\Field\Field|string $source): static
+Lathe\Field\SlugField::schema(Lathe\Field\FieldContext $context, Lathe\Http\Requests\LatheRequest $request, ?Illuminate\Database\Eloquent\Model $model = NULL): array
+Lathe\Field\SlugField::separator(string $separator = '-'): static
+Lathe\Field\SlugField::showCustomizeButton(bool $show = true): static
+Lathe\Field\SlugField::string $component  [protected]
 Lathe\Field\SparklineField::__construct(string $label, Closure|string|null $attribute = NULL, ?Closure $resolver = NULL)
 Lathe\Field\SparklineField::asBarChart(bool $bars = true): static
 Lathe\Field\SparklineField::cell(Illuminate\Database\Eloquent\Model $model): array
@@ -2177,6 +2199,7 @@ class Lathe\Field\HeadingField
 class Lathe\Field\IconField
 class Lathe\Field\IdField
 class Lathe\Field\ImageField
+class Lathe\Field\KeyValueField
 class Lathe\Field\LineField
 class Lathe\Field\MarkdownField
 class Lathe\Field\MultiSelectField
@@ -2188,6 +2211,7 @@ class Lathe\Field\PasswordLifecycle
 class Lathe\Field\RepeaterField
 class Lathe\Field\Repeater\Repeatable
 class Lathe\Field\SelectField
+class Lathe\Field\SlugField
 class Lathe\Field\SparklineField
 class Lathe\Field\StackField
 class Lathe\Field\StatusField

@@ -136,6 +136,8 @@ class ConfigValidator
             'limits.id_list_max' => $positive,
             'limits.metrics_ttl' => $positive,
             'limits.repeater_rows' => $positive,
+            'limits.key_value_rows' => $positive,
+            'limits.key_length' => $positive,
             'uploads.max_file_size_mb' => $positive,
             'uploads.max_image_size_mb' => $positive,
             'uploads.chunk_size' => $positive,
