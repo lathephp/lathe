@@ -4,6 +4,7 @@ import { DetailField } from '../../fields/registry';
 import type { DetailFieldData, DetailProps } from '../../fields/types';
 import { cn } from '../../lib/cn';
 import { Breadcrumbs } from '../../records/Breadcrumbs';
+import { RecordActions } from '../../records/RecordActions';
 import { RecordLayout } from '../../records/RecordLayout';
 import type { SharedProps } from '../../types';
 
@@ -20,7 +21,7 @@ export default function Detail({ resource, record, breadcrumbs }: DetailProps) {
     () => {
       router.visit(`${recordPath}/edit`);
     },
-    abilities.update,
+    abilities.update && !record.trashed,
   );
 
   return (
@@ -32,27 +33,35 @@ export default function Detail({ resource, record, breadcrumbs }: DetailProps) {
           <h1 className="truncate text-xl font-semibold">{title}</h1>
           {subtitle === '' ? null : <p className="text-sm text-muted-foreground">{subtitle}</p>}
         </div>
-        {abilities.replicate ? (
-          <Link
-            href={`${recordPath}/replicate`}
-            className="inline-flex h-9 items-center rounded-md border border-border px-4 text-sm font-medium"
-          >
-            {__('Replicate')}
-          </Link>
-        ) : null}
-        {abilities.update ? (
-          <Link
-            href={`${recordPath}/edit`}
-            aria-keyshortcuts="e"
-            className="inline-flex h-9 items-center gap-2 rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground"
-          >
-            {__('Edit')}
-            {shortcutsEnabled() && (
-              <kbd aria-hidden="true" className="text-xs opacity-80 max-md:hidden">{'e'.toUpperCase()}</kbd>
-            )}
-          </Link>
-        ) : null}
+        <div className="flex flex-wrap items-center gap-2">
+          <RecordActions uriKey={resource.uriKey} record={record} />
+          {!record.trashed && abilities.replicate ? (
+            <Link
+              href={`${recordPath}/replicate`}
+              className="inline-flex h-9 items-center rounded-md border border-border px-4 text-sm font-medium"
+            >
+              {__('Replicate')}
+            </Link>
+          ) : null}
+          {!record.trashed && abilities.update ? (
+            <Link
+              href={`${recordPath}/edit`}
+              aria-keyshortcuts="e"
+              className="inline-flex h-9 items-center gap-2 rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground"
+            >
+              {__('Edit')}
+              {shortcutsEnabled() && (
+                <kbd aria-hidden="true" className="text-xs opacity-80 max-md:hidden">{'e'.toUpperCase()}</kbd>
+              )}
+            </Link>
+          ) : null}
+        </div>
       </header>
+      {record.trashed ? (
+        <div role="status" className="rounded-md border border-amber-300 bg-amber-50 px-4 py-3 text-sm font-medium text-amber-900">
+          {__('Soft Deleted')}
+        </div>
+      ) : null}
       <RecordLayout
         detail
         blocks={layout}
