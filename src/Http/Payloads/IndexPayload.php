@@ -10,6 +10,7 @@ use Lathe\Filters\FilterApplicator;
 use Lathe\Http\Requests\LatheRequest;
 use Lathe\Query\ResourceQuery;
 use Lathe\Resources\Resource;
+use Lathe\Tabs\Tab;
 
 /**
  * The index data the page and the JSON API both send. Built from fields, never from a model.
@@ -28,7 +29,7 @@ class IndexPayload
 
     /**
      * @param  class-string<\Lathe\Resources\Resource>  $class
-     * @return array{resource: array<string, mixed>, table: array<string, mixed>, filters: array{available: list<array<string, mixed>>, applied: array<string, mixed>}, state: array<string, mixed>}
+     * @return array{resource: array<string, mixed>, table: array<string, mixed>, filters: array{available: list<array<string, mixed>>, applied: array<string, mixed>}, state: array<string, mixed>, tabs: array{items: list<array<string, mixed>>, active: string|null}}
      */
     public function build(string $class): array
     {
@@ -71,6 +72,10 @@ class IndexPayload
                 'available' => array_map(fn (Filter $filter) => $this->filter($filter, $threshold), $resource->availableFilters($this->request)),
                 'applied' => (new FilterApplicator($resource))->values($this->request, is_array($filters) ? $filters : []),
             ],
+            'tabs' => [
+                'items' => array_map(fn (Tab $tab) => $tab->toArray(), $query->tabs()),
+                'active' => $query->activeTabKey(),
+            ],
             'state' => [
                 'page' => $page,
                 'perPage' => $perPage,
@@ -87,6 +92,30 @@ class IndexPayload
     public function count(string $class): ?array
     {
         return (new ResourceQuery($class::make(), $this->request))->count()?->toArray();
+    }
+
+    /**
+     * The badges of the tabs that need a query: one capped count or one closure result each.
+     *
+     * @param  class-string<\Lathe\Resources\Resource>  $class
+     * @return array<string, array{count?: array{value: int, exact: bool, capped: bool, estimated: bool}, badge?: string|int|null}>
+     */
+    public function tabCounts(string $class): array
+    {
+        $query = new ResourceQuery($class::make(), $this->request);
+        $counts = [];
+
+        foreach ($query->tabs() as $tab) {
+            if ($tab->hasCount()) {
+                $counts[$tab->key()]['count'] = $query->tabCount($tab)->toArray();
+            }
+
+            if ($tab->hasBadgeClosure()) {
+                $counts[$tab->key()]['badge'] = $query->tabBadge($tab);
+            }
+        }
+
+        return $counts;
     }
 
     /**

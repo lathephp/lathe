@@ -2,11 +2,13 @@
 
 namespace Workbench\App\Lathe\Resources;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Lathe\Field\Field;
 use Lathe\Http\Requests\LatheRequest;
 use Lathe\Resources\Resource;
 use Lathe\Resources\ResourceDefinition;
+use Lathe\Tabs\Tab;
 use Workbench\App\Lathe\Filters\OrderCustomer;
 use Workbench\App\Lathe\Filters\OrderStatus;
 use Workbench\App\Models\Order as OrderModel;
@@ -40,5 +42,17 @@ class Order extends Resource
     public function filters(LatheRequest $request): array
     {
         return [new OrderStatus, new OrderCustomer];
+    }
+
+    public function tabs(LatheRequest $request): array
+    {
+        return [
+            Tab::make('All'),
+            Tab::make('Pending')
+                ->modifyQueryUsing(fn (Builder $query) => $query->where($query->qualifyColumn('status'), 'pending'))
+                ->withCount(),
+            Tab::make('Paid')
+                ->modifyQueryUsing(fn (Builder $query) => $query->where($query->qualifyColumn('status'), 'paid')),
+        ];
     }
 }

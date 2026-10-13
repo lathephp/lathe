@@ -43,7 +43,10 @@ class IndexPageController
             'table' => fn () => $part('table'),
             'state' => fn () => $part('state'),
             'filters' => fn () => $part('filters'),
-            'count' => Inertia::defer(fn () => $payload->count($class)),
+            'tabs' => fn () => $part('tabs'),
+            // One group, so a single follow-up visit loads both.
+            'count' => Inertia::defer(fn () => $payload->count($class), 'counts'),
+            'tabCounts' => Inertia::defer(fn () => $payload->tabCounts($class), 'counts'),
         ])->toResponse($request);
     }
 }

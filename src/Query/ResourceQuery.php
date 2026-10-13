@@ -16,6 +16,7 @@ use Lathe\Http\Requests\LatheRequest;
 use Lathe\Resources\Resource;
 use Lathe\Search\SearchApplicator;
 use Lathe\Support\ConfigStore;
+use Lathe\Tabs\Tab;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 /**
@@ -318,7 +319,97 @@ class ResourceQuery
      */
     protected function applyTab(Builder $query): Builder
     {
-        return $query;
+        $tabs = $this->tabs();
+
+        if ($tabs === []) {
+            return $query;
+        }
+
+        return $this->activeTab($tabs)->modify($query);
+    }
+
+    /**
+     * The tabs this request may see. With none declared and saved tabs on, a counted All tab.
+     *
+     * @return list<Tab>
+     */
+    public function tabs(): array
+    {
+        $declared = $this->resource->tabs($this->request);
+
+        if ($declared === [] && $this->resource->definition()->usesSavedTabs() && $this->config()->boolean('saved_tabs.enabled')) {
+            return [Tab::make('All')->withCount()];
+        }
+
+        return array_values(array_filter($declared, fn (Tab $tab) => $tab->authorizedToSee($this->request)));
+    }
+
+    /**
+     * The key of the tab the request shows: the first one unless ?tab= names another.
+     */
+    public function activeTabKey(): ?string
+    {
+        $tabs = $this->tabs();
+
+        return $tabs === [] ? null : $this->activeTab($tabs)->key();
+    }
+
+    /**
+     * One capped count of the tab over the Resource's own scope, never the user's filters or search.
+     */
+    public function tabCount(Tab $tab): Count
+    {
+        $cap = $this->resource->definition()->getCountCap();
+        $base = $this->tabBase($tab);
+
+        $count = DB::connection($base->getModel()->getConnectionName())
+            ->query()
+            ->fromSub($base->toBase()->limit($cap + 1), 'lathe_count')
+            ->count();
+
+        return new Count(min($count, $cap), $count > $cap);
+    }
+
+    /**
+     * What a badge closure answers for the tab, or the plain badge.
+     */
+    public function tabBadge(Tab $tab): string|int|null
+    {
+        return $tab->badgeFor($this->tabBase($tab));
+    }
+
+    /**
+     * @param  list<Tab>  $tabs
+     */
+    private function activeTab(array $tabs): Tab
+    {
+        $key = $this->request->query('tab');
+
+        if ($key === null || $key === '') {
+            return $tabs[0];
+        }
+
+        foreach ($tabs as $tab) {
+            if ($key === $tab->key()) {
+                return $tab;
+            }
+        }
+
+        throw ValidationException::withMessages(['tab' => 'The tab is not available.']);
+    }
+
+    /**
+     * @return Builder<Model>
+     */
+    private function tabBase(Tab $tab): Builder
+    {
+        $query = $this->resource::query();
+
+        foreach ($this->withoutScopes as $scope) {
+            $query->withoutGlobalScope($scope);
+        }
+
+        return $tab->modify($this->resource::indexQuery($this->request, $this->applyTrashed($query)));
     }
 
     /**

@@ -10,6 +10,7 @@ use Lathe\Field\Field;
 use Lathe\Filters\Filter;
 use Lathe\Http\Requests\LatheRequest;
 use Lathe\Search\SearchableColumn;
+use Lathe\Tabs\Tab;
 
 /**
  * @phpstan-consistent-constructor
@@ -37,6 +38,16 @@ abstract class Resource
      * @return list<Filter>
      */
     public function filters(LatheRequest $request): array
+    {
+        return [];
+    }
+
+    /**
+     * The index tabs, the first being the default view.
+     *
+     * @return list<Tab>
+     */
+    public function tabs(LatheRequest $request): array
     {
         return [];
     }
