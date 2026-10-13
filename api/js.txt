@@ -1,4 +1,6 @@
 @lathephp/core ApiError
+@lathephp/core QueryClientProvider
+@lathephp/core addShortcut
 @lathephp/core apiVersion
 @lathephp/core booting
 @lathephp/core config
@@ -6,8 +8,12 @@
 @lathephp/core off
 @lathephp/core on
 @lathephp/core once
+@lathephp/core pauseShortcuts
 @lathephp/core plugin
+@lathephp/core queryClient
+@lathephp/core queryKeys
 @lathephp/core request
+@lathephp/core resumeShortcuts
 @lathephp/core router
 @lathephp/core toast
 @lathephp/core type ComponentOrLazy
@@ -21,6 +27,8 @@
 @lathephp/core type Translator
 @lathephp/core url
 @lathephp/core useLathe
+@lathephp/core useQuery
+@lathephp/core useQueryClient
 @lathephp/core useTranslation
 @lathephp/core visit
 @lathephp/ui Badge

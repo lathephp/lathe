@@ -1,6 +1,6 @@
 import '../css/app.css';
 import { createInertiaApp, router } from '@inertiajs/react';
-import { __panel } from '@lathephp/core';
+import { __panel, QueryClientProvider, queryClient } from '@lathephp/core';
 import type { ComponentType } from 'react';
 import { createRoot } from 'react-dom/client';
 import { StaleAssetScreen } from './components/StaleAssetScreen';
@@ -60,11 +60,11 @@ void createInertiaApp({
     });
 
     createRoot(el).render(
-      <>
+      <QueryClientProvider client={queryClient}>
         <App {...props} />
         <Toaster />
         <StaleAssetScreen />
-      </>,
+      </QueryClientProvider>,
     );
   },
 });

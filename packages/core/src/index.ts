@@ -3,6 +3,7 @@ import { sharedProps } from './props';
 import { boot, pluginPage } from './registry';
 import { dismissToast, toasts } from './toast';
 import { loadModules } from './loader';
+import { shortcutPauseCount } from './shortcuts';
 import { setTranslator } from './translation';
 
 /** The plugin API version this package provides. */
@@ -17,6 +18,8 @@ export type { RequestOptions } from './http';
 export { toast } from './toast';
 export type { ToastMessage, ToastType } from './toast';
 export { emit, off, on, once } from './events';
+export { addShortcut, pauseShortcuts, resumeShortcuts } from './shortcuts';
+export { QueryClientProvider, queryClient, queryKeys, useQuery, useQueryClient } from './query';
 export { useLathe, useTranslation } from './hooks';
 export type { LatheContext } from './hooks';
 export type { SharedData } from './props';
@@ -35,5 +38,6 @@ export const __panel = {
   setRouter,
   setTranslator,
   sharedProps,
+  shortcutPauseCount,
   toasts,
 };
