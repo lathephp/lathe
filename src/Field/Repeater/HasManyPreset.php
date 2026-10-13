@@ -109,17 +109,17 @@ class HasManyPreset implements FieldLifecycle
 
         // Two upserts whatever the row count: one keyed by id updates, one without ids inserts.
         if ($matched !== []) {
-            $related->newQuery()->upsert(array_values(array_map(fn (Model $child) => [$keyName => $child->getKey(), ...$values($child)], $matched)), [$keyName], $columns);
+            $relation->getQuery()->upsert(array_values(array_map(fn (Model $child) => [$keyName => $child->getKey(), ...$values($child)], $matched)), [$keyName], $columns);
         }
 
         if ($created !== []) {
-            $related->newQuery()->upsert(array_map($values, $created), [$keyName], $columns);
+            $relation->getQuery()->upsert(array_map($values, $created), [$keyName], $columns);
         }
 
         $missing = $children->reject(fn (Model $child) => isset($matched[$this->keyOf($child->getKey())]))->modelKeys();
 
         if ($missing !== []) {
-            $related->newQuery()->whereKey($missing)->delete();
+            $relation->getQuery()->whereKey($missing)->delete();
         }
 
         if ($model instanceof Model) {
