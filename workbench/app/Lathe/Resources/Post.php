@@ -35,8 +35,8 @@ class Post extends Resource
             Field::slug('Slug')->from('title')->showCustomizeButton()->hideFromIndex(),
             Field::select('Status')->options(['draft', 'published', 'archived'])->default('draft')->required()->inline(),
             Field::image('Cover', 'cover')->hideFromIndex(),
-            Field::tiptap('Body')->required(),
-            Field::markdown('Markdown body', 'markdown_body')->nullable(),
+            Field::tiptap('Body')->required()->withFiles(),
+            Field::markdown('Markdown body', 'markdown_body')->nullable()->withFiles(),
         ];
     }
 }
