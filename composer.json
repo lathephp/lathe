@@ -22,6 +22,7 @@
         "inertiajs/inertia-laravel": "^3.5.1",
         "laravel/fortify": "^1.41",
         "laravel/framework": "^13.32",
+        "league/commonmark": "^2.10.3",
         "symfony/html-sanitizer": "^8.1"
     },
     "require-dev": {
