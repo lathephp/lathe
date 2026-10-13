@@ -105,6 +105,8 @@ it('refuses bad input with 422', function (array $payload, string $field) {
     'bad badge' => [['badge_type' => 'info'], 'badge_type'],
     'bad trashed' => [['trashed' => 'all'], 'trashed'],
     'unknown filter' => [['filters' => ['nope' => 'x']], 'filter'],
+    'bad sort direction' => [['sort' => '-total_cents:up'], 'sort'],
+    'unknown sort key' => [['sort' => 'password'], 'sort'],
 ]);
 
 it('refuses the eleventh tab with the limit in the message', function () {

@@ -4,6 +4,7 @@ namespace Lathe\Http\Controllers\Resources;
 
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
@@ -119,12 +120,18 @@ class SavedTabController
             'name' => [$creating ? 'required' : 'sometimes', 'string', 'max:100'],
             'filters' => ['sometimes', 'nullable', 'array'],
             'q' => ['sometimes', 'nullable', 'string', 'max:500'],
-            // Stored as given: the applicator whitelists it against the sortable keys when it applies the tab.
+            // Checked by the index's own sort parser below; the applicator still drops a key that
+            // stops being sortable later.
             'sort' => ['sometimes', 'nullable', 'string', 'max:255'],
             'trashed' => ['sometimes', 'nullable', Rule::in(['with', 'only'])],
             'show_count' => ['sometimes', 'boolean'],
             'badge_type' => ['sometimes', 'nullable', Rule::in(['success', 'danger', 'warning'])],
         ])->validate();
+
+        if (is_string($data['sort'] ?? null) && $data['sort'] !== '') {
+            // A sort the index would refuse would make the tab answer 422 every time it opens.
+            (new ResourceQuery($resource, LatheRequest::createFrom(Request::create('/', 'GET', ['sort' => $data['sort']]))))->validate();
+        }
 
         if (array_key_exists('filters', $data)) {
             $data['filters'] = (new FilterApplicator($resource))->values($request, is_array($data['filters'] ?? null) ? $data['filters'] : []);
