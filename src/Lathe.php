@@ -14,6 +14,7 @@ use Illuminate\Support\Facades\Facade;
  * @method static void registerResources(class-string<\Lathe\Resources\Resource> ...$classes)
  * @method static void discoverResources(string $directory, ?string $namespace = null)
  * @method static void registerPlugins(\Lathe\Plugins\Plugin ...$plugins)
+ * @method static void registerSearchProviders(\Lathe\Search\SearchProvider ...$providers)
  * @method static \Lathe\LatheManager auth(\Closure $callback)
  * @method static bool check(\Illuminate\Http\Request $request)
  * @method static \Lathe\LatheManager footer(\Closure $callback)

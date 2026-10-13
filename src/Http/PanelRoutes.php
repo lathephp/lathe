@@ -9,6 +9,7 @@ use Lathe\Http\Controllers\Assets\AssetController;
 use Lathe\Http\Controllers\Auth\AuthenticatedSessionController;
 use Lathe\Http\Controllers\Auth\LoginPageController;
 use Lathe\Http\Controllers\DashboardController;
+use Lathe\Http\Controllers\GlobalSearchController;
 use Lathe\Http\Controllers\PageFallbackController;
 use Lathe\Http\Controllers\Plugins\ModuleController;
 use Lathe\Http\Controllers\Plugins\PluginApiController;
@@ -92,6 +93,7 @@ class PanelRoutes
             $router->delete('resources/{resource}/{resourceId}', [DeleteController::class, 'delete'])->name('resources.delete');
             $router->delete('resources/{resource}/{resourceId}/force', [DeleteController::class, 'forceDelete'])->name('resources.forceDelete');
             $router->put('resources/{resource}/{resourceId}/restore', [DeleteController::class, 'restore'])->name('resources.restore');
+            $router->get('search', GlobalSearchController::class)->name('search');
 
             // Registered after every plugin's own routes, so those win.
             $router->any('plugins/{plugin}/{path?}', PluginApiController::class)

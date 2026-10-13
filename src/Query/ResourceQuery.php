@@ -135,6 +135,27 @@ class ResourceQuery
     }
 
     /**
+     * At most $limit rows for global search. When the title and subtitle are plain
+     * attributes, only the key, title and subtitle columns are read.
+     *
+     * @return Collection<int, Model>
+     */
+    public function searchResults(int $limit): Collection
+    {
+        $query = $this->scoped();
+        $definition = $this->resource->definition();
+        $title = $definition->getTitle();
+        $subtitle = $definition->getSubtitle();
+
+        if (is_string($title) && is_string($subtitle)) {
+            $columns = array_unique(array_filter([$query->getModel()->getKeyName(), $title, $subtitle]));
+            $query->select(array_map(fn (string $column) => $query->qualifyColumn($column), array_values($columns)));
+        }
+
+        return $query->limit($limit)->get();
+    }
+
+    /**
      * Whether the last rows() call found a row past its page.
      */
     public function hasMorePages(): bool

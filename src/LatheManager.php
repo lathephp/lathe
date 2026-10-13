@@ -13,6 +13,8 @@ use Lathe\Dashboards\DashboardRegistry;
 use Lathe\Plugins\Plugin;
 use Lathe\Plugins\PluginRegistry;
 use Lathe\Resources\ResourceRegistry;
+use Lathe\Search\GlobalSearch;
+use Lathe\Search\SearchProvider;
 use Lathe\Support\ConfigStore;
 
 /**
@@ -72,6 +74,11 @@ class LatheManager
     public function registerPlugins(Plugin ...$plugins): void
     {
         $this->plugins()->register(...$plugins);
+    }
+
+    public function registerSearchProviders(SearchProvider ...$providers): void
+    {
+        $this->container->make(GlobalSearch::class)->register(...$providers);
     }
 
     public function discoverResources(string $directory, ?string $namespace = null): void

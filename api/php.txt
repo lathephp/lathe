@@ -455,6 +455,7 @@ Lathe\Http\Controllers\Auth\AuthenticatedSessionController::destroy(Illuminate\H
 Lathe\Http\Controllers\Auth\AuthenticatedSessionController::store(Illuminate\Http\Request $request): Symfony\Component\HttpFoundation\Response
 Lathe\Http\Controllers\Auth\LoginPageController::__invoke(Lathe\Auth\FortifyConfig $fortify): Inertia\Response
 Lathe\Http\Controllers\DashboardController::__invoke(): Inertia\Response
+Lathe\Http\Controllers\GlobalSearchController::__invoke(Lathe\Http\Requests\LatheRequest $request, Lathe\Support\ConfigStore $config, Illuminate\Contracts\Auth\Access\Gate $gate, Lathe\Search\GlobalSearch $search, Lathe\Auth\ResourceAuthorization $authorization): Illuminate\Http\JsonResponse
 Lathe\Http\Controllers\PageFallbackController::__invoke(Illuminate\Http\Request $request, Illuminate\Routing\Router $router): never
 Lathe\Http\Controllers\Plugins\ModuleController::__invoke(Lathe\Assets\AssetRegistry $assets, string $file, string $type = 'scripts'): Symfony\Component\HttpFoundation\BinaryFileResponse
 Lathe\Http\Controllers\Plugins\PluginApiController::__invoke(Illuminate\Http\Request $request, Lathe\Plugins\PluginRegistry $plugins, string $plugin, string $path = ''): Symfony\Component\HttpFoundation\Response
@@ -572,6 +573,7 @@ Lathe\LatheManager::path(): string
 Lathe\LatheManager::plugins(): Lathe\Plugins\PluginRegistry
 Lathe\LatheManager::registerPlugins(Lathe\Plugins\Plugin ...$plugins): void
 Lathe\LatheManager::registerResources(string ...$classes): void
+Lathe\LatheManager::registerSearchProviders(Lathe\Search\SearchProvider ...$providers): void
 Lathe\LatheManager::resolveSidebarDefaultOpen(Illuminate\Http\Request $request): bool
 Lathe\LatheManager::resolveUserTimezone(Illuminate\Http\Request $request): ?string
 Lathe\LatheManager::resources(): Lathe\Resources\ResourceRegistry
@@ -719,6 +721,7 @@ Lathe\Query\ResourceQuery::rows(): Illuminate\Database\Eloquent\Collection
 Lathe\Query\ResourceQuery::savedTabCount(Lathe\SavedTabs\SavedTab $tab): Lathe\Query\Count
 Lathe\Query\ResourceQuery::scoped(): Illuminate\Database\Eloquent\Builder
 Lathe\Query\ResourceQuery::scoutKeys(string $term): array  [protected]
+Lathe\Query\ResourceQuery::searchResults(int $limit): Illuminate\Database\Eloquent\Collection
 Lathe\Query\ResourceQuery::sortKeys(): array
 Lathe\Query\ResourceQuery::sortString(): string
 Lathe\Query\ResourceQuery::tabBadge(Lathe\Tabs\Tab $tab): string|int|null
@@ -939,6 +942,29 @@ Lathe\SavedTabs\SavedTabQueryApplicator::owned(Lathe\Resources\Resource $resourc
 Lathe\SavedTabs\SavedTabQueryApplicator::sortTokens(): array  [protected]
 Lathe\SavedTabs\SavedTabQueryApplicator::term(): ?string  [protected]
 Lathe\SavedTabs\SchemaHash::for(Lathe\Resources\Resource $resource, Lathe\Http\Requests\LatheRequest $request): string  [static]
+Lathe\Search\GlobalSearch::Lathe\Resources\ResourceRegistry $resources  [protected]
+Lathe\Search\GlobalSearch::Lathe\Support\ConfigStore $config  [protected]
+Lathe\Search\GlobalSearch::MAX_ROWS
+Lathe\Search\GlobalSearch::__construct(Lathe\Resources\ResourceRegistry $resources, Lathe\Support\ConfigStore $config)
+Lathe\Search\GlobalSearch::array $providers  [protected]
+Lathe\Search\GlobalSearch::candidates(): array  [protected]
+Lathe\Search\GlobalSearch::register(Lathe\Search\SearchProvider ...$providers): void
+Lathe\Search\GlobalSearch::resourceRows(Lathe\Http\Requests\LatheRequest $request, array $entry, int $remaining): array  [protected]
+Lathe\Search\GlobalSearch::search(Lathe\Http\Requests\LatheRequest $request, Lathe\Auth\ResourceAuthorization $authorization): array
+Lathe\Search\GlobalSearchResult::?string $avatar  [protected]
+Lathe\Search\GlobalSearchResult::?string $id  [protected]
+Lathe\Search\GlobalSearchResult::?string $subtitle  [protected]
+Lathe\Search\GlobalSearchResult::?string $url  [protected]
+Lathe\Search\GlobalSearchResult::__construct(string $title)
+Lathe\Search\GlobalSearchResult::avatar(string $avatar): static
+Lathe\Search\GlobalSearchResult::bool $rounded  [protected]
+Lathe\Search\GlobalSearchResult::id(string $id): static
+Lathe\Search\GlobalSearchResult::make(string $title): static  [static]
+Lathe\Search\GlobalSearchResult::rounded(bool $rounded = true): static
+Lathe\Search\GlobalSearchResult::string $title  [protected]
+Lathe\Search\GlobalSearchResult::subtitle(string $subtitle): static
+Lathe\Search\GlobalSearchResult::toRow(Lathe\Search\SearchProvider $provider): array
+Lathe\Search\GlobalSearchResult::url(string $url): static
 Lathe\Search\LikeSearch::__construct(string $column, bool $contains = false)
 Lathe\Search\LikeSearch::apply(Illuminate\Database\Eloquent\Builder $query, string $term, string $boolean): void
 Lathe\Search\LikeSearch::bool $contains
@@ -951,6 +977,10 @@ Lathe\Search\SearchApplicator::apply(Illuminate\Database\Eloquent\Builder $query
 Lathe\Search\SearchApplicator::array $columns  [protected]
 Lathe\Search\SearchApplicator::for(Lathe\Resources\Resource $resource): Lathe\Search\SearchApplicator  [static]
 Lathe\Search\SearchApplicator::term(mixed $q, int $maxChars, int $maxWords): ?string  [static]
+Lathe\Search\SearchProvider::authorize(Lathe\Http\Requests\LatheRequest $request): bool
+Lathe\Search\SearchProvider::search(Lathe\Http\Requests\LatheRequest $request): array
+Lathe\Search\SearchProvider::title(): string
+Lathe\Search\SearchProvider::uriKey(): string
 Lathe\Search\SearchableColumn::apply(Illuminate\Database\Eloquent\Builder $query, string $term, string $boolean): void
 Lathe\Search\SearchablePrimaryKey::__construct(int $maxSize = PHP_INT_MAX)
 Lathe\Search\SearchablePrimaryKey::apply(Illuminate\Database\Eloquent\Builder $query, string $term, string $boolean): void
@@ -1093,6 +1123,7 @@ class Lathe\Http\Controllers\Assets\AssetController
 class Lathe\Http\Controllers\Auth\AuthenticatedSessionController
 class Lathe\Http\Controllers\Auth\LoginPageController
 class Lathe\Http\Controllers\DashboardController
+class Lathe\Http\Controllers\GlobalSearchController
 class Lathe\Http\Controllers\PageFallbackController
 class Lathe\Http\Controllers\Plugins\ModuleController
 class Lathe\Http\Controllers\Plugins\PluginApiController
@@ -1136,8 +1167,11 @@ class Lathe\Resources\ResourceRegistry
 class Lathe\SavedTabs\SavedTab
 class Lathe\SavedTabs\SavedTabQueryApplicator
 class Lathe\SavedTabs\SchemaHash
+class Lathe\Search\GlobalSearch
+class Lathe\Search\GlobalSearchResult
 class Lathe\Search\LikeSearch
 class Lathe\Search\SearchApplicator
+class Lathe\Search\SearchProvider
 class Lathe\Search\SearchablePrimaryKey
 class Lathe\Support\ConfigStore
 class Lathe\Support\ConfigValidator

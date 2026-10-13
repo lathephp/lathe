@@ -21,6 +21,7 @@ class Order extends Resource
         return $definition->model(OrderModel::class)
             ->title('number')
             ->searchable(['number'])
+            ->globallySearchable()
             ->with(['customer'])
             ->icon('ShoppingCart')
             ->savedTabs();
