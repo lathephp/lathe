@@ -288,3 +288,18 @@ it('deletes the attachments of a force deleted record and keeps those of a soft 
     expect(FieldAttachment::find($attachment->id))->toBeNull()
         ->and(Storage::disk('s3')->exists('kept.png'))->toBeFalse();
 });
+
+it('prunes an attached image of a draft never saved with its file on the field disk', function () {
+    $this->travel(-25)->hours();
+    $old = faUpload(faDraftId());
+    $this->travelBack();
+    $oldPath = (string) PendingUpload::findOrFail($old['id'])->path;
+    $fresh = faUpload(faDraftId());
+    $freshPath = (string) PendingUpload::findOrFail($fresh['id'])->path;
+
+    $this->artisan('model:prune', ['--model' => [PendingUpload::class]])->assertSuccessful();
+
+    expect(PendingUpload::find($old['id']))->toBeNull()
+        ->and(Storage::disk('s3')->exists($oldPath))->toBeFalse()
+        ->and(Storage::disk('s3')->exists($freshPath))->toBeTrue();
+});
