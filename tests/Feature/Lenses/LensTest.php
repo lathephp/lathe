@@ -402,3 +402,7 @@ it('offers the lenses on the plain index page for the switcher', function () {
             ->where('lens', null)
             ->where('lenses', [['uriKey' => 'pending-orders', 'name' => 'Pending Orders']]));
 });
+
+it('labels a lens after its class, with a singular form', function () {
+    expect([PendingOrders::label(), PendingOrders::singularLabel()])->toBe(['Pending Orders', 'Pending Order']);
+});

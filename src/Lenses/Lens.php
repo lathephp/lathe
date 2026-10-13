@@ -73,6 +73,16 @@ abstract class Lens
         return Str::headline(class_basename(static::class));
     }
 
+    public static function label(): string
+    {
+        return Str::headline(class_basename(static::class));
+    }
+
+    public static function singularLabel(): string
+    {
+        return Str::singular(static::label());
+    }
+
     public function uriKey(): string
     {
         return Str::kebab(class_basename(static::class));

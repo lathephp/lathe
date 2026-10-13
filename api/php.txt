@@ -638,6 +638,7 @@ Lathe\Lenses\Lens::canSee(Closure $callback): static
 Lathe\Lenses\Lens::countQuery(Lathe\Http\Requests\LatheRequest $request, Illuminate\Database\Eloquent\Builder $query): Illuminate\Database\Eloquent\Builder|int|null  [static]
 Lathe\Lenses\Lens::fields(Lathe\Http\Requests\LatheRequest $request): array
 Lathe\Lenses\Lens::filters(Lathe\Http\Requests\LatheRequest $request): array
+Lathe\Lenses\Lens::label(): string  [static]
 Lathe\Lenses\Lens::name(): string
 Lathe\Lenses\Lens::perPageOptions(): ?array  [static]
 Lathe\Lenses\Lens::polling(): bool
@@ -646,6 +647,7 @@ Lathe\Lenses\Lens::query(Lathe\Http\Requests\LatheRequest $request, Illuminate\D
 Lathe\Lenses\Lens::searchable(): bool  [static]
 Lathe\Lenses\Lens::searchableColumns(): array
 Lathe\Lenses\Lens::showPollingToggle(): bool
+Lathe\Lenses\Lens::singularLabel(): string  [static]
 Lathe\Lenses\Lens::uriKey(): string
 Lathe\Lenses\Lens::withFilters(Lathe\Http\Requests\LatheRequest $request, Illuminate\Database\Eloquent\Builder $query): Illuminate\Database\Eloquent\Builder  [static]
 Lathe\Lenses\Lens::withOrdering(Lathe\Http\Requests\LatheRequest $request, Illuminate\Database\Eloquent\Builder $query, ?Closure $default = NULL): Illuminate\Database\Eloquent\Builder  [static]
@@ -1172,6 +1174,7 @@ Lathe\Testing\TestCase::tearDown(): void  [protected]
 class Lathe\Assets\AssetManifest
 class Lathe\Assets\AssetRegistry
 class Lathe\Assets\RootTags
+class Lathe\Attributes\Filter\Searchable
 class Lathe\Attributes\Lens\PerPage
 class Lathe\Attributes\Lens\Polling
 class Lathe\Attributes\Lens\Search

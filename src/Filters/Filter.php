@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
+use Lathe\Attributes\Filter\Searchable;
 use Lathe\Http\Requests\LatheRequest;
 
 /**
@@ -178,7 +179,9 @@ abstract class Filter
      */
     public function isRemote(LatheRequest $request, int $threshold): bool
     {
-        return $this->searchable !== false || count($this->options($request)) > $threshold;
+        return $this->searchable !== false
+            || (new \ReflectionClass($this))->getAttributes(Searchable::class) !== []
+            || count($this->options($request)) > $threshold;
     }
 
     /**
