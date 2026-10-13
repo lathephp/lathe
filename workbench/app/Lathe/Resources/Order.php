@@ -41,16 +41,16 @@ class Order extends Resource
     {
         return [
             Section::make('Order', [
-                Field::text('Number')->required()->sortable(),
-                $this->status(),
-                Field::dateTime('Placed', 'placed_at')->sortable()->required(),
+                Field::text('Number')->required()->sortable()->showOnPreview(),
+                $this->status()->showOnPreview(),
+                Field::dateTime('Placed', 'placed_at')->sortable()->required()->showOnPreview(),
                 Field::make('Created', 'created_at')->onlyOnDetail()->canSee(fn (LatheRequest $request) => $request->user() instanceof User && $request->user()->email === 'admin@lathephp.com'),
             ]),
             Section::make('Customer', [
                 Field::make('Customer', 'customer.name')->exceptOnForms(),
             ]),
             LayoutTab::group(null, [
-                LayoutTab::make('Billing', [$this->total()->required()]),
+                LayoutTab::make('Billing', [$this->total()->required()->showOnPreview()]),
                 // Picking a product is m4's relation field, so a row edits its quantity and price only.
                 LayoutTab::make('Items', [
                     Field::repeater('Items')->asHasMany('items')->fields([

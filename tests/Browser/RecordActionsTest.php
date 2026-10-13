@@ -128,3 +128,17 @@ it('force deletes a trashed post after the confirm, and its old address answers 
     $page->navigate("/lathe/resources/posts/{$post->id}")
         ->assertSee('Page not found');
 });
+
+it('previews order 12 from its row in a modal without leaving the list', function () {
+    $order = Order::findOrFail(12);
+    $page = signedInAt('/lathe/resources/orders?q='.$order->number);
+
+    $page->click('[aria-label="Preview '.$order->number.'"]')
+        ->assertVisible('[role="dialog"]')
+        ->assertSeeIn('[role="dialog"] h2', $order->number)
+        ->assertSeeIn('[role="dialog"] dl', 'Placed')
+        ->assertSeeIn('[role="dialog"] dl', 'Total')
+        ->assertPathIs('/lathe/resources/orders');
+
+    assertCleanPage($page);
+});
