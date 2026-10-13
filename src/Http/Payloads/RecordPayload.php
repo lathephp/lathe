@@ -32,7 +32,7 @@ class RecordPayload
      * The detail page's record: its fields with their values, the layout and the abilities.
      *
      * @param  class-string<\Lathe\Resources\Resource>  $class
-     * @return array{id: mixed, title: string, subtitle: string, avatar: null, fields: list<array<string, mixed>>, layout: list<array<string, mixed>>, abilities: array<string, bool>, trashed: bool}
+     * @return array{id: mixed, title: string, subtitle: string, avatar: array{url: string|null, initials: string|null, style: array<string, mixed>, rounded: bool}|null, fields: list<array<string, mixed>>, layout: list<array<string, mixed>>, abilities: array<string, bool>, trashed: bool}
      */
     public function detail(string $class, Model $model): array
     {
@@ -43,7 +43,7 @@ class RecordPayload
             'id' => $model->getKey(),
             'title' => $resource->title(),
             'subtitle' => $resource->subtitle(),
-            'avatar' => null,
+            'avatar' => $resource->resolveAvatar()?->jsonSerialize(),
             'fields' => array_map(
                 fn (Field $field) => [...$field->schema(FieldContext::Detail, $this->request, $model), ...$field->cell($model)],
                 $this->fields($class, FieldContext::Detail, $model),
@@ -62,7 +62,7 @@ class RecordPayload
      * fields will be dropped from the default peek list once they exist.
      *
      * @param  class-string<\Lathe\Resources\Resource>  $class
-     * @return array{id: mixed, title: string, subtitle: string, avatar: null, fields: list<array<string, mixed>>}
+     * @return array{id: mixed, title: string, subtitle: string, avatar: array{url: string|null, initials: string|null, style: array<string, mixed>, rounded: bool}|null, fields: list<array<string, mixed>>}
      */
     public function summary(string $class, Model $model, FieldContext $context): array
     {
@@ -72,7 +72,7 @@ class RecordPayload
             'id' => $model->getKey(),
             'title' => $resource->title(),
             'subtitle' => $resource->subtitle(),
-            'avatar' => null,
+            'avatar' => $resource->resolveAvatar()?->jsonSerialize(),
             'fields' => array_map(
                 fn (Field $field) => [...$field->schema($context, $this->request, $model), ...$field->cell($model)],
                 $this->fields($class, $context, $model),

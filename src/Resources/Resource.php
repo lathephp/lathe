@@ -7,6 +7,8 @@ use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
+use Lathe\Field\Avatar;
+use Lathe\Field\Contracts\Cover;
 use Lathe\Field\Field;
 use Lathe\Field\FieldCollection;
 use Lathe\Field\FieldContext;
@@ -576,6 +578,33 @@ abstract class Resource
     public function subtitle(): string
     {
         return $this->resolveText($this->definition()->getSubtitle());
+    }
+
+    /**
+     * The picture beside the title: the first Cover field of the detail fields. A record
+     * with no picture of its own gets the initials of its title.
+     */
+    public function resolveAvatar(): ?Avatar
+    {
+        if ($this->model === null) {
+            return null;
+        }
+
+        $request = LatheRequest::createFrom(request());
+        $cover = $this->fieldsFor(FieldContext::Detail, $request)
+            ->forContext(FieldContext::Detail, $request, $this->model)
+            ->authorized($request)
+            ->first(fn (Field $field) => $field instanceof Cover);
+
+        if (! $cover instanceof Cover) {
+            return null;
+        }
+
+        $avatar = $cover->resolveAvatar($this->model);
+
+        return $avatar->url === null && $avatar->initials === null
+            ? new Avatar(null, Avatar::initialsOf($this->title()), $avatar->style, $avatar->rounded)
+            : $avatar;
     }
 
     /**

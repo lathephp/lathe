@@ -27,6 +27,7 @@ use Illuminate\Support\Facades\Facade;
  * @method static string resolveUserLocale(\Illuminate\Http\Request $request)
  * @method static string __(string $key, array<string, scalar|\Stringable|null> $replace = [], ?string $default = null)
  * @method static \Lathe\LatheManager loadTranslations(string|array<string, string> $translations)
+ * @method static list<string> cspImageSources()
  * @method static string name()
  * @method static string version()
  * @method static string path()

@@ -228,7 +228,15 @@ class FileField extends Field implements Deletable, Storable
 
     public function getMaxSizeBytes(): int
     {
-        return ($this->maxSizeMb ?? app(ConfigStore::class)->integer('uploads.max_file_size_mb')) * 1024 * 1024;
+        return ($this->maxSizeMb ?? $this->defaultMaxSizeMb()) * 1024 * 1024;
+    }
+
+    /**
+     * The limit in megabytes when maxSize() is not called; a subclass names its own config key.
+     */
+    protected function defaultMaxSizeMb(): int
+    {
+        return app(ConfigStore::class)->integer('uploads.max_file_size_mb');
     }
 
     /**
@@ -357,12 +365,30 @@ class FileField extends Field implements Deletable, Storable
         ];
     }
 
+    /**
+     * The file name as the display text, and the download address when the file can be downloaded.
+     */
     public function cell(Model $model): array
     {
         $cell = parent::cell($model);
         $name = is_array($cell['value']) ? ($cell['value']['name'] ?? null) : null;
 
-        return is_string($name) ? ['value' => $cell['value'], 'display' => $name] : $cell;
+        if (! is_string($name)) {
+            return $cell;
+        }
+
+        $cell = ['value' => $cell['value'], 'display' => $name];
+        $download = $this->downloadUrl($model);
+
+        return $download === null ? $cell : [...$cell, 'download' => $download];
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    public function jsonSerialize(): array
+    {
+        return [...parent::jsonSerialize(), 'deletable' => $this->deletable];
     }
 
     /**
@@ -450,6 +476,20 @@ class FileField extends Field implements Deletable, Storable
         if ($column !== null) {
             $model->setAttribute($column, $value);
         }
+    }
+
+    /**
+     * The download route of this record, known only inside a Resource request.
+     */
+    protected function downloadUrl(Model $model): ?string
+    {
+        $resource = Evaluator::currentRequest()?->route('resource');
+
+        if (! $this->downloadable || ! is_string($resource)) {
+            return null;
+        }
+
+        return route('lathe.api.resources.field.download', ['resource' => $resource, 'resourceId' => $model->getKey(), 'field' => $this->attribute], false);
     }
 
     protected function fileUrl(?Closure $callback, string $path): ?string

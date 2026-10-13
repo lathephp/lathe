@@ -10,6 +10,10 @@ use Lathe\Assets\AssetManifest;
 use Lathe\Auth\FortifyConfig;
 use Lathe\Auth\PanelGate;
 use Lathe\Dashboards\DashboardRegistry;
+use Lathe\Field\Field;
+use Lathe\Field\FieldContext;
+use Lathe\Field\GravatarField;
+use Lathe\Http\Requests\LatheRequest;
 use Lathe\Plugins\Plugin;
 use Lathe\Plugins\PluginRegistry;
 use Lathe\Resources\ResourceRegistry;
@@ -232,6 +236,28 @@ class LatheManager
             'false' => false,
             default => $this->config()->get('layout.sidebar.default_open') !== false,
         };
+    }
+
+    /**
+     * The origins the strict policy adds to img-src: Gravatar when a registered Resource has a
+     * Gravatar field, nothing otherwise. It builds the fields of every Resource with a plain
+     * request and reads no record, so the caller computes it once per response.
+     *
+     * @return list<string>
+     */
+    public function cspImageSources(): array
+    {
+        $request = LatheRequest::createFrom(Request::create('/'));
+
+        foreach ($this->resources()->all() as $class) {
+            foreach (FieldContext::cases() as $context) {
+                if ($class::make()->fieldsFor($context, $request)->contains(fn (Field $field) => $field instanceof GravatarField)) {
+                    return ['https://www.gravatar.com'];
+                }
+            }
+        }
+
+        return [];
     }
 
     public function name(): string
