@@ -23,10 +23,16 @@ class IndexPageController
         try {
             (new ResourceQuery($class::make(), $request))->validate();
         } catch (ValidationException $e) {
-            return Inertia::render('Error', [
-                'status' => 422,
-                'message' => collect($e->errors())->flatten()->first(),
-                'shell' => true,
+            $resource = $payload->resource($class);
+
+            // The index draws the message as a banner with Reset, so the toolbar stays usable.
+            return Inertia::render('Resources/Index', [
+                'resource' => $resource,
+                'table' => ['columns' => [], 'sortKeys' => [], 'rows' => [], 'rowKey' => 'id'],
+                'filters' => ['available' => [], 'applied' => []],
+                'tabs' => ['items' => [], 'active' => null],
+                'state' => ['page' => 1, 'perPage' => $resource['perPageOptions'][0], 'hasMorePages' => false, 'sort' => ''],
+                'error' => ['key' => array_key_first($e->errors()), 'message' => collect($e->errors())->flatten()->first()],
             ])->toResponse($request)->setStatusCode(422);
         }
 

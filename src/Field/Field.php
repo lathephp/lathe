@@ -136,10 +136,16 @@ class Field implements JsonSerializable
     }
 
     /**
-     * @return array{key: string, label: string, component: string, sortable: bool}
+     * @return array{key: string, label: string, component: string, sortable: bool, sortKey: string}
      */
     public function jsonSerialize(): array
     {
-        return ['key' => $this->key(), 'label' => $this->label, 'component' => $this->component, 'sortable' => $this->sortable];
+        return [
+            'key' => $this->key(),
+            'label' => $this->label,
+            'component' => $this->component,
+            'sortable' => $this->sortable,
+            'sortKey' => $this->sortableUriKey(),
+        ];
     }
 }

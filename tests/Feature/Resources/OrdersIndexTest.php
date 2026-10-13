@@ -179,17 +179,19 @@ it('holds no password or remember token in a User index', function () {
     expect($json)->not->toContain('password')->not->toContain('remember_token');
 });
 
-it('shows a page past the cap or a bad page as an error on the page, never a redirect', function (string $query, string $message) {
+it('shows a bad parameter as a banner on the index with no rows, never a redirect', function (string $query, string $key, string $message) {
     signInAs('admin@lathephp.com');
 
     $this->get("/lathe/resources/orders?{$query}")
         ->assertStatus(422)
         ->assertInertia(fn (AssertableInertia $page) => $page
-            ->component('Error', false)
-            ->where('status', 422)
-            ->where('message', $message)
-            ->where('shell', true));
+            ->component('Resources/Index', false)
+            ->where('error', ['key' => $key, 'message' => $message])
+            ->where('resource.uriKey', 'orders')
+            ->where('table.rows', [])
+            ->missing('count'));
 })->with([
-    ['page=401', 'Narrow the filters'],
-    ['page=abc', 'The page must be a whole number of 1 or more.'],
+    ['page=401', 'page', 'Narrow the filters'],
+    ['page=abc', 'page', 'The page must be a whole number of 1 or more.'],
+    ['sort=password', 'sort', 'sort is invalid'],
 ]);
