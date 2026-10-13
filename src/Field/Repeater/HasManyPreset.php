@@ -6,6 +6,7 @@ use Closure;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Arr;
 use Lathe\Field\FieldLifecycle;
 use Lathe\Http\Requests\LatheRequest;
 use Lathe\Support\ConfigStore;
@@ -107,9 +108,13 @@ class HasManyPreset implements FieldLifecycle
             $relation->getForeignKeyName() => $relation->getParentKey(),
         ];
 
+        // An upsert row is an insert first, so a matched child also sends its stored columns:
+        // one the form does not edit, such as a NOT NULL product_id, would fail the insert.
+        $stored = fn (Model $child) => Arr::except($child->getRawOriginal(), [$related->getCreatedAtColumn(), $related->getUpdatedAtColumn()]);
+
         // Two upserts whatever the row count: one keyed by id updates, one without ids inserts.
         if ($matched !== []) {
-            $relation->getQuery()->upsert(array_values(array_map(fn (Model $child) => [$keyName => $child->getKey(), ...$values($child)], $matched)), [$keyName], $columns);
+            $relation->getQuery()->upsert(array_values(array_map(fn (Model $child) => [...$stored($child), $keyName => $child->getKey(), ...$values($child)], $matched)), [$keyName], $columns);
         }
 
         if ($created !== []) {
