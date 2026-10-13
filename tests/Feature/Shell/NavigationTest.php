@@ -32,6 +32,7 @@ it('lists the dashboard and the Resources', function () {
             ['label' => 'Customers', 'href' => '/lathe/resources/customers', 'icon' => 'Users'],
             ['label' => 'Orders', 'href' => '/lathe/resources/orders', 'icon' => 'ShoppingCart'],
             ['label' => 'Posts', 'href' => '/lathe/resources/posts', 'icon' => null],
+            ['label' => 'Products', 'href' => '/lathe/resources/products', 'icon' => 'Package'],
             ['label' => 'Users', 'href' => '/lathe/resources/users', 'icon' => null],
         ]],
     ]);
@@ -68,7 +69,7 @@ it('builds one Resource definition for the sidebar and the Orders index among 50
     });
     $this->actingAs(User::where('email', 'admin@lathephp.com')->firstOrFail())
         ->get('/lathe/resources/orders')->assertOk()
-        ->assertInertia(fn (AssertableInertia $page) => $page->has('navigation.2.items', 4));
+        ->assertInertia(fn (AssertableInertia $page) => $page->has('navigation.2.items', 5));
 
     expect(Lathe::resources()->definitionsBuilt())->toBe(1)
         ->and(collect($queries)->filter(fn ($sql) => str_contains($sql, 'invoices'))->all())->toBe([]);

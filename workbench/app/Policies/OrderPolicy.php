@@ -22,6 +22,16 @@ class OrderPolicy
         return $user->email === 'admin@lathephp.com';
     }
 
+    public function inlineEdit(User $user, Order $order): bool
+    {
+        return $user->email === 'admin@lathephp.com';
+    }
+
+    public function replicate(User $user, Order $order): bool
+    {
+        return $user->email === 'admin@lathephp.com';
+    }
+
     public function delete(User $user, Order $order): bool
     {
         return $user->email === 'admin@lathephp.com';

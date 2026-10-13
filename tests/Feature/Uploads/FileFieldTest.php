@@ -31,7 +31,7 @@ beforeEach(function () {
         $table->json('items')->nullable();
         $table->softDeletes();
     });
-    Lathe::registerResources(FilePeople::class, HardFileDocs::class, SoftFileDocs::class, HookedFileDocs::class);
+    Lathe::registerResources(FilePeople::class, FileUsers::class, HardFileDocs::class, SoftFileDocs::class, HookedFileDocs::class);
     Storage::fake('local');
     Storage::fake('public');
     FileFieldLog::$entries = [];
@@ -105,6 +105,25 @@ class FilePeople extends Resource
     public static function editQuery(LatheRequest $request, Builder $query): Builder
     {
         return $query->where('email', 'admin@lathephp.com');
+    }
+}
+
+/** Users through the workbench policy, with a plain downloadable file field. */
+class FileUsers extends Resource
+{
+    public static function uriKey(): string
+    {
+        return 'file-users';
+    }
+
+    protected function configure(ResourceDefinition $definition): ResourceDefinition
+    {
+        return $definition->model(User::class)->title('name')->canonical(false);
+    }
+
+    public function fields(LatheRequest $request): array
+    {
+        return [Field::make('Name'), Field::make('Email'), Field::file('Avatar', 'avatar')];
     }
 }
 
@@ -230,7 +249,7 @@ it('stores an upload under 40 random characters on the storage disk and drops th
 
     $upload = ffUpload();
 
-    LatheTest::resource('users')->update(ffAdmin()->getKey(), ['avatar' => $upload->id])->assertOk();
+    LatheTest::resource('file-users')->update(ffAdmin()->getKey(), ['avatar' => $upload->id])->assertOk();
 
     $path = (string) ffAdmin()->avatar;
 
@@ -271,7 +290,7 @@ it('answers 422 on the field for an upload the user may not attach', function (s
     });
     $id = $case === 'missing' ? '01JYYYYYYYYYYYYYYYYYYYYYYY' : $upload->id;
 
-    LatheTest::resource('users')->update(ffAdmin()->getKey(), ['avatar' => $id])
+    LatheTest::resource('file-users')->update(ffAdmin()->getKey(), ['avatar' => $id])
         ->assertUnprocessable()
         ->assertJsonValidationErrors('avatar');
 
@@ -369,7 +388,7 @@ it('removes the file and nulls its columns when the field is deletable and pruna
     ffAdminWithAvatar();
 
     // The workbench avatar is not prunable: the columns go, the file stays.
-    LatheTest::resource('users')->update(ffAdmin()->getKey(), ['avatar' => null, 'avatar_removed' => 1])->assertOk();
+    LatheTest::resource('file-users')->update(ffAdmin()->getKey(), ['avatar' => null, 'avatar_removed' => 1])->assertOk();
 
     expect(ffAdmin()->avatar)->toBeNull()
         ->and(Storage::disk('public')->exists('old.png'))->toBeTrue();
@@ -446,14 +465,14 @@ it('downloads under the original name, else the basename', function (string $res
         ->and($response->streamedContent())->toBe('old bytes');
 })->with([
     'original name column' => ['file-people', '"Old Name.png"'],
-    'basename' => ['users', 'abc.png'],
+    'basename' => ['file-users', 'abc.png'],
 ]);
 
 it('answers 403 to a download without view', function () {
     ffAdminWithAvatar();
     Gate::before(fn ($user, string $ability) => $ability === 'view' ? false : null);
 
-    $this->get('/lathe/api/resources/users/'.ffAdmin()->getKey().'/download/avatar')->assertForbidden();
+    $this->get('/lathe/api/resources/file-users/'.ffAdmin()->getKey().'/download/avatar')->assertForbidden();
 });
 
 it('answers 404 to a download of a missing file, a disabled download and a cross-scope id', function () {
@@ -464,10 +483,10 @@ it('answers 404 to a download of a missing file, a disabled download and a cross
     ffEditor()->forceFill(['avatar' => 'e.png'])->save();
     Storage::disk('public')->put('e.png', 'e');
 
-    $this->get("/lathe/api/resources/users/{$admin->getKey()}/download/avatar")->assertNotFound();
+    $this->get("/lathe/api/resources/file-users/{$admin->getKey()}/download/avatar")->assertNotFound();
     $this->get("/lathe/api/resources/hooked-file-docs/{$doc->getKey()}/download/photo")->assertNotFound();
     $this->get('/lathe/api/resources/file-people/'.ffEditor()->getKey().'/download/avatar')->assertNotFound();
-    $this->get('/lathe/api/resources/users/'.ffEditor()->getKey().'/download/avatar')->assertOk();
+    $this->get('/lathe/api/resources/file-users/'.ffEditor()->getKey().'/download/avatar')->assertOk();
 });
 
 // Destroy
@@ -492,7 +511,7 @@ it('answers 403 to a destroy without update and 404 for a field that is not dele
     $this->deleteJson('/lathe/api/resources/file-people/'.ffEditor()->getKey().'/field/avatar')->assertNotFound();
 
     Gate::before(fn ($user, string $ability) => $ability === 'update' ? false : null);
-    $this->deleteJson('/lathe/api/resources/users/'.ffAdmin()->getKey().'/field/avatar')->assertForbidden();
+    $this->deleteJson('/lathe/api/resources/file-users/'.ffAdmin()->getKey().'/field/avatar')->assertForbidden();
 
     expect(ffAdmin()->avatar)->toBe('old.png')
         ->and(Storage::disk('public')->allFiles())->toBe(['old.png', 'p.png']);

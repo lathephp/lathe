@@ -138,7 +138,7 @@ it('gives each row the abilities of its user', function (string $email, bool $ca
 
     $row = $this->getJson('/lathe/api/resources/orders')->json('table.rows.0');
 
-    expect($row['abilities'])->toBe(['view' => true, 'update' => $canChange, 'delete' => $canChange, 'replicate' => false]);
+    expect($row['abilities'])->toBe(['view' => true, 'update' => $canChange, 'delete' => $canChange, 'replicate' => $canChange]);
 })->with([
     ['admin@lathephp.com', true],
     ['editor@lathephp.com', false],

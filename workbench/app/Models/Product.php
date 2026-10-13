@@ -18,6 +18,14 @@ use Illuminate\Database\Eloquent\Relations\MorphMany;
 class Product extends Model
 {
     /**
+     * @return array<string, string>
+     */
+    protected function casts(): array
+    {
+        return ['specifications' => 'array'];
+    }
+
+    /**
      * @return BelongsTo<Category, $this>
      */
     public function category(): BelongsTo

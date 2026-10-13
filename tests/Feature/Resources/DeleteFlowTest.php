@@ -306,7 +306,7 @@ it('gives post rows their trashed state and restore and force delete abilities, 
     expect($post['trashed'])->toBeTrue()
         ->and($post['abilities'])->toBe(['view' => true, 'update' => false, 'delete' => false, 'replicate' => false, 'restore' => true, 'forceDelete' => true])
         ->and($order)->not->toHaveKey('trashed')
-        ->and($order['abilities'])->toBe(['view' => true, 'update' => true, 'delete' => true, 'replicate' => false]);
+        ->and($order['abilities'])->toBe(['view' => true, 'update' => true, 'delete' => true, 'replicate' => true]);
 });
 
 it('answers 404 before any query for an id the key cannot hold', function (string $url, string $table) {

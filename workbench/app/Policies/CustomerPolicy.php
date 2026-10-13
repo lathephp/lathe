@@ -16,4 +16,19 @@ class CustomerPolicy
     {
         return true;
     }
+
+    public function create(User $user): bool
+    {
+        return true;
+    }
+
+    public function update(User $user, Customer $customer): bool
+    {
+        return true;
+    }
+
+    public function inlineEdit(User $user, Customer $customer): bool
+    {
+        return true;
+    }
 }

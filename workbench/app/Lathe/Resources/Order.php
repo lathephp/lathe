@@ -4,9 +4,13 @@ namespace Workbench\App\Lathe\Resources;
 
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Lathe\Field\CurrencyField;
 use Lathe\Field\Field;
+use Lathe\Field\SelectField;
 use Lathe\Groups\Group;
 use Lathe\Http\Requests\LatheRequest;
+use Lathe\Layout\Section;
+use Lathe\Layout\Tab as LayoutTab;
 use Lathe\Resources\Resource;
 use Lathe\Resources\ResourceDefinition;
 use Lathe\Search\SearchableRelation;
@@ -36,18 +40,50 @@ class Order extends Resource
     public function fields(LatheRequest $request): array
     {
         return [
-            Field::make('Number')->sortable(),
+            Section::make('Order', [
+                Field::text('Number')->required()->sortable(),
+                $this->status(),
+                Field::dateTime('Placed', 'placed_at')->sortable()->required(),
+                Field::make('Created', 'created_at')->onlyOnDetail()->canSee(fn (LatheRequest $request) => $request->user() instanceof User && $request->user()->email === 'admin@lathephp.com'),
+            ]),
+            Section::make('Customer', [
+                Field::make('Customer', 'customer.name')->exceptOnForms(),
+            ]),
+            LayoutTab::group(null, [
+                LayoutTab::make('Billing', [$this->total()->required()]),
+            ]),
+        ];
+    }
+
+    /**
+     * The index keeps its m2 columns in their order; the record pages group them.
+     */
+    public function fieldsForIndex(LatheRequest $request): array
+    {
+        return [
+            Field::text('Number')->sortable(),
             Field::make('Customer', 'customer.name')->sortable(),
-            Field::make('Status'),
-            Field::make('Total', 'total_cents', fn (Model $order) => $order instanceof OrderModel
-                ? number_format($order->total_cents / 100, 2, '.', '')
-                : null)->sortable()->filterable(scale: 100)
-                ->summarize(Summary::sum()->label('Revenue')->format(fn (int|float|string $cents) => number_format((float) $cents / 100, 2, '.', ''))),
+            $this->status(),
+            $this->total()->summarize(Summary::sum()->label('Revenue')->format(fn (int|float|string $cents) => number_format((float) $cents / 100, 2, '.', ''))),
             Field::make('Placed', 'placed_at', fn (Model $order) => $order instanceof OrderModel
                 ? $order->placed_at->utc()->toIso8601ZuluString()
                 : null)->sortable(),
-            Field::make('Created', 'created_at')->onlyOnDetail()->canSee(fn (LatheRequest $request) => $request->user() instanceof User && $request->user()->email === 'admin@lathephp.com'),
         ];
+    }
+
+    public static function replicateExcept(): array
+    {
+        return ['number'];
+    }
+
+    protected function status(): SelectField
+    {
+        return Field::select('Status')->options(['pending', 'paid', 'shipped', 'cancelled'])->inline();
+    }
+
+    protected function total(): CurrencyField
+    {
+        return Field::currency('Total', 'total_cents')->asMinorUnits()->sortable()->filterable(scale: 100);
     }
 
     public function filters(LatheRequest $request): array

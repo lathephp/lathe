@@ -24,9 +24,14 @@ class FormClosureLog
 
 class Product extends Resource
 {
+    public static function uriKey(): string
+    {
+        return 'form-products';
+    }
+
     protected function configure(ResourceDefinition $definition): ResourceDefinition
     {
-        return $definition->model(ProductModel::class)->title('name')->allowAll()->borderless();
+        return $definition->model(ProductModel::class)->title('name')->canonical(false)->allowAll()->borderless();
     }
 
     public function fields(LatheRequest $request): array
@@ -82,7 +87,7 @@ it('page_shells_check_the_ability', function () {
     $this->get('/lathe/resources/orders/12/edit')
         ->assertOk()
         ->assertInertia(fn (AssertableInertia $page) => $page->component('Resources/Form', false));
-    $this->get('/lathe/resources/products/new')
+    $this->get('/lathe/resources/form-products/new')
         ->assertOk()
         ->assertInertia(fn (AssertableInertia $page) => $page->component('Resources/Form', false));
 })->group('regression');
@@ -90,7 +95,7 @@ it('page_shells_check_the_ability', function () {
 it('returns the creation fields with defaults, layout and borderless', function () {
     $this->actingAs(User::where('email', 'admin@lathephp.com')->firstOrFail());
 
-    $json = LatheTest::resource('products')->creationFields()->assertOk()->json();
+    $json = LatheTest::resource('form-products')->creationFields()->assertOk()->json();
 
     expect(array_keys($json))->toBe(['fields', 'defaults', 'layout', 'borderless'])
         ->and(array_column($json['fields'], 'key'))->toBe(['name', 'sku', 'price_cents'])
@@ -114,9 +119,10 @@ it('returns the update fields with their values and the traffic-cop token', func
     $json = LatheTest::resource('orders')->updateFields(12)->assertOk()->json();
 
     expect(array_keys($json))->toBe(['fields', 'layout', 'updatedAt'])
-        ->and(array_column($json['fields'], 'key'))->toBe(['number', 'customer', 'status', 'total_cents', 'placed_at'])
+        ->and(array_column($json['fields'], 'key'))->toBe(['number', 'status', 'placed_at', 'total_cents'])
         ->and($json['fields'][0]['value'])->toBe('ORD-00099454')
-        ->and($json['layout'][0]['fields'])->toBe(['number', 'customer', 'status', 'total_cents', 'placed_at'])
+        ->and($json['layout'][0]['fields'])->toBe(['number', 'status', 'placed_at'])
+        ->and($json['layout'][1]['type'])->toBe('tab-group')
         ->and($json['updatedAt'])->toBe('2026-03-04T05:06:07.000Z');
 });
 
@@ -131,8 +137,8 @@ it('resolves only the fields ?only= names and runs no other field closure', func
     $this->actingAs(User::where('email', 'admin@lathephp.com')->firstOrFail());
     $product = ProductModel::query()->orderBy('id')->firstOrFail();
 
-    $created = LatheTest::resource('products')->creationFields(['only' => 'name'])->assertOk()->json();
-    $updated = $this->getJson("/lathe/api/resources/products/{$product->id}/update-fields?only=name")->assertOk()->json();
+    $created = LatheTest::resource('form-products')->creationFields(['only' => 'name'])->assertOk()->json();
+    $updated = $this->getJson("/lathe/api/resources/form-products/{$product->id}/update-fields?only=name")->assertOk()->json();
 
     expect(array_column($created['fields'], 'key'))->toBe(['name'])
         ->and($created['defaults'])->toBe(['sku' => 'SKU-', 'price_cents' => 100, 'name' => 'New product'])
@@ -143,13 +149,13 @@ it('resolves only the fields ?only= names and runs no other field closure', func
 
 it('renders the create page with the creation fields and the create label', function () {
     $this->actingAs(User::where('email', 'admin@lathephp.com')->firstOrFail());
-    $form = LatheTest::resource('products')->creationFields()->json();
+    $form = LatheTest::resource('form-products')->creationFields()->json();
 
-    $this->get('/lathe/resources/products/new')
+    $this->get('/lathe/resources/form-products/new')
         ->assertOk()
         ->assertInertia(fn (AssertableInertia $page) => $page
             ->component('Resources/Form', false)
-            ->where('resource.uriKey', 'products')
+            ->where('resource.uriKey', 'form-products')
             ->where('mode', 'create')
             ->where('id', null)
             ->where('title', 'Create Product')
@@ -157,7 +163,7 @@ it('renders the create page with the creation fields and the create label', func
             ->where('form', $form)
             ->where('breadcrumbs', [
                 ['label' => 'Dashboard', 'href' => '/lathe'],
-                ['label' => 'Products', 'href' => '/lathe/resources/products'],
+                ['label' => 'Products', 'href' => '/lathe/resources/form-products'],
                 ['label' => 'Create Product', 'href' => null],
             ]));
 });
