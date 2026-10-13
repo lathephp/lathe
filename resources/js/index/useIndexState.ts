@@ -164,5 +164,10 @@ export function useIndexState(defaults: IndexDefaults) {
     });
   }
 
-  return { state, visit, loading };
+  /** Back to the bare index URL, every param dropped. */
+  function reset() {
+    router.get(path);
+  }
+
+  return { state, visit, reset, loading };
 }
