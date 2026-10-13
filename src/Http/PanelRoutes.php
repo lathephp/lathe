@@ -17,6 +17,7 @@ use Lathe\Http\Controllers\Plugins\PluginPageController;
 use Lathe\Http\Controllers\Resources\CountController;
 use Lathe\Http\Controllers\Resources\DeleteController;
 use Lathe\Http\Controllers\Resources\DetailPageController;
+use Lathe\Http\Controllers\Resources\FieldFileController;
 use Lathe\Http\Controllers\Resources\FilterController;
 use Lathe\Http\Controllers\Resources\FormFieldsController;
 use Lathe\Http\Controllers\Resources\FormPageController;
@@ -112,6 +113,8 @@ class PanelRoutes
             $router->delete('resources/{resource}/{resourceId}', [DeleteController::class, 'delete'])->name('resources.delete');
             $router->delete('resources/{resource}/{resourceId}/force', [DeleteController::class, 'forceDelete'])->name('resources.forceDelete');
             $router->put('resources/{resource}/{resourceId}/restore', [DeleteController::class, 'restore'])->name('resources.restore');
+            $router->get('resources/{resource}/{resourceId}/download/{field}', [FieldFileController::class, 'download'])->name('resources.field.download');
+            $router->delete('resources/{resource}/{resourceId}/field/{field}', [FieldFileController::class, 'destroy'])->where('field', '.*')->name('resources.field.destroy');
             $router->post('resources/{resource}/uploads/{field}', [StartUploadController::class, 'field'])->name('resources.uploads.start');
             $router->post('uploads', [StartUploadController::class, 'custom'])->name('uploads.start');
             $router->get('uploads/{upload}', [UploadController::class, 'show'])->name('uploads.show');

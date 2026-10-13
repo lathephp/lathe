@@ -9,6 +9,8 @@ use Lathe\Auth\ResourceAuthorization;
 use Lathe\Events\ResourceDeleted;
 use Lathe\Events\ResourceForceDeleted;
 use Lathe\Events\ResourceRestored;
+use Lathe\Field\FieldContext;
+use Lathe\Field\FileField;
 use Lathe\Http\Requests\LatheRequest;
 use Lathe\Query\QueryContext;
 use Lathe\Query\ResourceQuery;
@@ -93,10 +95,21 @@ class DeleteController
     }
 
     /**
-     * Removes the files the record's fields stored, after the delete commits. Fields store none yet.
+     * Removes the files of the record's prunable file fields, after the delete commits.
      */
     protected function purgeAttachments(Model $model): void
     {
-        //
+        // A soft-deleted model still exists and keeps its files for a restore.
+        if ($model->exists) {
+            return;
+        }
+
+        $request = app(LatheRequest::class);
+
+        foreach ($request->resourceOrFail()::make($model)->fieldsFor(FieldContext::Detail, $request) as $field) {
+            if ($field instanceof FileField && $field->isPrunable()) {
+                $field->deleteFile($request, $model);
+            }
+        }
     }
 }
