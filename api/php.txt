@@ -423,6 +423,8 @@ Lathe\Field\Concerns\ChoiceFactories::country(?string $name = NULL): Lathe\Field
 Lathe\Field\Concerns\ChoiceFactories::multiSelect(string $name, ?string $attribute = NULL): Lathe\Field\MultiSelectField  [static]
 Lathe\Field\Concerns\ChoiceFactories::select(string $name, Closure|string|null $attribute = NULL): Lathe\Field\SelectField  [static]
 Lathe\Field\Concerns\ChoiceFactories::timezone(?string $name = NULL): Lathe\Field\SelectField  [static]
+Lathe\Field\Concerns\DateFactories::date(string $label, ?string $attribute = NULL): Lathe\Field\DateField  [static]
+Lathe\Field\Concerns\DateFactories::dateTime(string $label, ?string $attribute = NULL): Lathe\Field\DateTimeField  [static]
 Lathe\Field\Concerns\NumberFactories::currency(string $label, ?string $attribute = NULL): Lathe\Field\CurrencyField  [static]
 Lathe\Field\Concerns\NumberFactories::number(string $label, Closure|string|null $attribute = NULL): Lathe\Field\NumberField  [static]
 Lathe\Field\Concerns\NumberFactories::token(string $label, ?string $attribute = NULL): Lathe\Field\TokenField  [static]
@@ -464,6 +466,24 @@ Lathe\Field\CurrencyField::string $component  [protected]
 Lathe\Field\CurrencyField::symbol(string $symbol): static
 Lathe\Field\CurrencyField::toMinor(string $decimal): ?int  [protected]
 Lathe\Field\CurrencyField::wireMoney(mixed $value): mixed  [protected]
+Lathe\Field\DateField::FORMAT
+Lathe\Field\DateField::__construct(string $label, Closure|string|null $attribute = NULL, ?Closure $resolver = NULL)
+Lathe\Field\DateField::assertCast(object $record): void  [protected]
+Lathe\Field\DateField::bound(DateTimeInterface|string $bound): string  [protected]
+Lathe\Field\DateField::fill(Lathe\Http\Requests\LatheRequest $request, object $model, ?string $requestAttribute = NULL): ?Closure
+Lathe\Field\DateField::impliedRules(): array  [protected]
+Lathe\Field\DateField::max(DateTimeInterface|string $max): static
+Lathe\Field\DateField::min(DateTimeInterface|string $min): static
+Lathe\Field\DateField::optionText(string $name): string  [protected]
+Lathe\Field\DateField::resolve(object $record, ?string $attribute = NULL): mixed
+Lathe\Field\DateField::string $component  [protected]
+Lathe\Field\DateTimeField::FORMAT
+Lathe\Field\DateTimeField::assertCast(object $record): void  [protected]
+Lathe\Field\DateTimeField::fill(Lathe\Http\Requests\LatheRequest $request, object $model, ?string $requestAttribute = NULL): ?Closure
+Lathe\Field\DateTimeField::impliedRules(): array  [protected]
+Lathe\Field\DateTimeField::resolve(object $record, ?string $attribute = NULL): mixed
+Lathe\Field\DateTimeField::schema(Lathe\Field\FieldContext $context, Lathe\Http\Requests\LatheRequest $request, ?Illuminate\Database\Eloquent\Model $model = NULL): array
+Lathe\Field\DateTimeField::string $component  [protected]
 Lathe\Field\DefaultLifecycle::MAX_SAFE_INTEGER
 Lathe\Field\DefaultLifecycle::extract(object $record, string $attribute): mixed
 Lathe\Field\DefaultLifecycle::parse(Lathe\Http\Requests\LatheRequest $request, string $attribute): mixed
@@ -1813,6 +1833,8 @@ class Lathe\Exceptions\ResourceUriKeyCollisionException
 class Lathe\Field\BooleanField
 class Lathe\Field\BooleanGroupField
 class Lathe\Field\CurrencyField
+class Lathe\Field\DateField
+class Lathe\Field\DateTimeField
 class Lathe\Field\DefaultLifecycle
 class Lathe\Field\Evaluator
 class Lathe\Field\Field
