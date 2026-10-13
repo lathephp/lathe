@@ -13,6 +13,7 @@ use Lathe\Field\FieldContext;
 use Lathe\Filters\Filter;
 use Lathe\Groups\Group;
 use Lathe\Http\Requests\LatheRequest;
+use Lathe\Lathe;
 use Lathe\Layout\SectionPresenter;
 use Lathe\Lenses\Lens;
 use Lathe\Search\SearchableColumn;
@@ -491,6 +492,32 @@ abstract class Resource
     public static function redirectAfterUpdate(LatheRequest $request, self $resource): string
     {
         return static::uriKey().'/'.static::keyOf($resource);
+    }
+
+    /**
+     * The detail page's breadcrumbs; null keeps Dashboard / Resource / #id.
+     *
+     * @return list<array{label: string, href: string|null}>|null
+     */
+    public function detailBreadcrumbs(LatheRequest $request): ?array
+    {
+        return null;
+    }
+
+    /**
+     * The label of the create form's main button.
+     */
+    public static function createButtonLabel(): string
+    {
+        return Lathe::__('Create :resource', ['resource' => static::singularLabel()]);
+    }
+
+    /**
+     * The label of the edit form's main button.
+     */
+    public static function updateButtonLabel(): string
+    {
+        return Lathe::__('Update :resource', ['resource' => static::singularLabel()]);
     }
 
     protected static function keyOf(self $resource): string

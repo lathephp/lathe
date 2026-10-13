@@ -16,7 +16,10 @@ use Lathe\Http\Controllers\Plugins\PluginApiController;
 use Lathe\Http\Controllers\Plugins\PluginPageController;
 use Lathe\Http\Controllers\Resources\CountController;
 use Lathe\Http\Controllers\Resources\DeleteController;
+use Lathe\Http\Controllers\Resources\DetailPageController;
 use Lathe\Http\Controllers\Resources\FilterController;
+use Lathe\Http\Controllers\Resources\FormFieldsController;
+use Lathe\Http\Controllers\Resources\FormPageController;
 use Lathe\Http\Controllers\Resources\IndexController;
 use Lathe\Http\Controllers\Resources\IndexPageController;
 use Lathe\Http\Controllers\Resources\LensController;
@@ -67,6 +70,10 @@ class PanelRoutes
             $router->get('/', DashboardController::class)->name('lathe.dashboard');
             $router->get('resources/{resource}', IndexPageController::class)->name('lathe.resources.index');
             $router->get('resources/{resource}/lens/{lens}', [LensController::class, 'page'])->name('lathe.resources.lens');
+            // Before {resourceId}, so "new" never reads as a record id.
+            $router->get('resources/{resource}/new', [FormPageController::class, 'create'])->name('lathe.resources.create');
+            $router->get('resources/{resource}/{resourceId}', DetailPageController::class)->name('lathe.resources.show');
+            $router->get('resources/{resource}/{resourceId}/edit', [FormPageController::class, 'edit'])->name('lathe.resources.edit');
             $router->get('plugins/{plugin}/{path?}', PluginPageController::class)
                 ->where('path', '.*')
                 ->name('lathe.plugins.show');
@@ -93,7 +100,9 @@ class PanelRoutes
             $router->get('resources/{resource}/lenses/{lens}', [LensController::class, 'index'])->name('resources.lenses.index');
             $router->get('resources/{resource}/lenses/{lens}/count', [LensController::class, 'count'])->name('resources.lenses.count');
             $router->get('resources/{resource}/lenses/{lens}/filters', [LensController::class, 'filters'])->name('resources.lenses.filters');
+            $router->get('resources/{resource}/creation-fields', [FormFieldsController::class, 'creation'])->name('resources.creationFields');
             $router->post('resources/{resource}', [RecordController::class, 'store'])->name('resources.store');
+            $router->get('resources/{resource}/{resourceId}/update-fields', [FormFieldsController::class, 'update'])->name('resources.updateFields');
             $router->put('resources/{resource}/{resourceId}', [RecordController::class, 'update'])->name('resources.update');
             $router->delete('resources/{resource}/{resourceId}', [DeleteController::class, 'delete'])->name('resources.delete');
             $router->delete('resources/{resource}/{resourceId}/force', [DeleteController::class, 'forceDelete'])->name('resources.forceDelete');

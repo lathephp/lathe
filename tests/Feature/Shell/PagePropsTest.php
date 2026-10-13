@@ -10,6 +10,7 @@ use Lathe\Http\Middleware\HandleInertiaRequests;
 use Lathe\Http\Payloads\IndexPayload;
 use Workbench\App\Lathe\Resources\Order;
 use Workbench\App\Models\User;
+use Workbench\Database\Seeders\DemoSeeder;
 
 beforeEach(function () {
     $this->artisan('migrate')->assertSuccessful();
@@ -63,4 +64,20 @@ it('sends every part of the index payload to the index page', function () {
     $this->get('/lathe/resources/orders')->assertOk();
 
     expect(array_values(array_diff(array_keys($payload), $this->pageProps['Resources/Index'])))->toBe([]);
+});
+
+it('gives the record pages no prop named like a shared prop', function () {
+    $this->seed(DemoSeeder::class);
+    $this->actingAs(User::where('email', 'admin@lathephp.com')->firstOrFail());
+
+    $this->get('/lathe/resources/orders/12')->assertOk();
+    $this->get('/lathe/resources/orders/12/edit')->assertOk();
+
+    $middleware = app(HandleInertiaRequests::class);
+    $request = Request::create('/lathe');
+    $shared = array_keys([...$middleware->share($request), ...$middleware->shareOnce($request)]);
+
+    foreach (['Resources/Detail', 'Resources/Form'] as $component) {
+        expect(array_values(array_intersect($this->pageProps[$component], $shared)))->toBe([], "{$component} shadows a shared prop");
+    }
 });

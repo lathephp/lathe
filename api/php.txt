@@ -703,9 +703,14 @@ Lathe\Http\Controllers\Resources\DeleteController::forceDelete(Lathe\Http\Reques
 Lathe\Http\Controllers\Resources\DeleteController::purgeAttachments(Illuminate\Database\Eloquent\Model $model): void  [protected]
 Lathe\Http\Controllers\Resources\DeleteController::restore(Lathe\Http\Requests\LatheRequest $request, Lathe\Auth\ResourceAuthorization $authorization, string $resource, string $resourceId): Illuminate\Http\JsonResponse
 Lathe\Http\Controllers\Resources\DeleteController::run(Lathe\Http\Requests\LatheRequest $request, string $class, Illuminate\Database\Eloquent\Model $model, string $hook, Closure $write, string $event, bool $purge = false): Illuminate\Http\JsonResponse  [protected]
+Lathe\Http\Controllers\Resources\DetailPageController::__invoke(Lathe\Http\Requests\LatheRequest $request, Lathe\Auth\ResourceAuthorization $authorization, Lathe\Http\Payloads\IndexPayload $index, Lathe\Http\Payloads\RecordPayload $payload, string $resource, string $resourceId): Symfony\Component\HttpFoundation\Response
 Lathe\Http\Controllers\Resources\FilterController::PER_PAGE
 Lathe\Http\Controllers\Resources\FilterController::index(Lathe\Http\Requests\LatheRequest $request, Lathe\Auth\ResourceAuthorization $authorization): Illuminate\Http\JsonResponse
 Lathe\Http\Controllers\Resources\FilterController::options(Lathe\Http\Requests\LatheRequest $request, Lathe\Auth\ResourceAuthorization $authorization): Illuminate\Http\JsonResponse
+Lathe\Http\Controllers\Resources\FormFieldsController::creation(Lathe\Http\Requests\LatheRequest $request, Lathe\Auth\ResourceAuthorization $authorization, Lathe\Http\Payloads\RecordPayload $payload): Illuminate\Http\JsonResponse
+Lathe\Http\Controllers\Resources\FormFieldsController::update(Lathe\Http\Requests\LatheRequest $request, Lathe\Auth\ResourceAuthorization $authorization, Lathe\Http\Payloads\RecordPayload $payload, string $resource, string $resourceId): Illuminate\Http\JsonResponse
+Lathe\Http\Controllers\Resources\FormPageController::create(Lathe\Http\Requests\LatheRequest $request, Lathe\Auth\ResourceAuthorization $authorization, Lathe\Http\Payloads\IndexPayload $index, Lathe\Http\Payloads\RecordPayload $payload): Symfony\Component\HttpFoundation\Response
+Lathe\Http\Controllers\Resources\FormPageController::edit(Lathe\Http\Requests\LatheRequest $request, Lathe\Auth\ResourceAuthorization $authorization, Lathe\Http\Payloads\IndexPayload $index, Lathe\Http\Payloads\RecordPayload $payload, string $resource, string $resourceId): Symfony\Component\HttpFoundation\Response
 Lathe\Http\Controllers\Resources\IndexController::__invoke(Lathe\Http\Requests\LatheRequest $request, Lathe\Auth\ResourceAuthorization $authorization, Lathe\Http\Payloads\IndexPayload $payload): Illuminate\Http\JsonResponse
 Lathe\Http\Controllers\Resources\IndexPageController::__invoke(Lathe\Http\Requests\LatheRequest $request, Lathe\Auth\ResourceAuthorization $authorization, Lathe\Http\Payloads\IndexPayload $payload): Symfony\Component\HttpFoundation\Response
 Lathe\Http\Controllers\Resources\LensController::count(Lathe\Http\Requests\LatheRequest $request, Lathe\Auth\ResourceAuthorization $authorization, Lathe\Http\Payloads\IndexPayload $payload): Illuminate\Http\JsonResponse
@@ -792,6 +797,17 @@ Lathe\Http\Payloads\IndexPayload::savedTabs(Lathe\Resources\Resource $resource, 
 Lathe\Http\Payloads\IndexPayload::summaries(string $class): ?array
 Lathe\Http\Payloads\IndexPayload::tabCounts(string $class): array
 Lathe\Http\Payloads\IndexPayload::visibleLenses(string $class): array
+Lathe\Http\Payloads\RecordPayload::ABILITIES
+Lathe\Http\Payloads\RecordPayload::Lathe\Auth\ResourceAuthorization $authorization  [protected]
+Lathe\Http\Payloads\RecordPayload::Lathe\Http\Requests\LatheRequest $request  [protected]
+Lathe\Http\Payloads\RecordPayload::Lathe\Support\ConfigStore $config  [protected]
+Lathe\Http\Payloads\RecordPayload::__construct(Lathe\Http\Requests\LatheRequest $request, Lathe\Auth\ResourceAuthorization $authorization, Lathe\Support\ConfigStore $config)
+Lathe\Http\Payloads\RecordPayload::breadcrumbs(string $class, array $tail): array
+Lathe\Http\Payloads\RecordPayload::creationFields(string $class): array
+Lathe\Http\Payloads\RecordPayload::detail(string $class, Illuminate\Database\Eloquent\Model $model): array
+Lathe\Http\Payloads\RecordPayload::fields(string $class, Lathe\Field\FieldContext $context, ?Illuminate\Database\Eloquent\Model $model = NULL): array  [protected]
+Lathe\Http\Payloads\RecordPayload::href(string $path): string
+Lathe\Http\Payloads\RecordPayload::updateFields(string $class, Illuminate\Database\Eloquent\Model $model): array
 Lathe\Http\Requests\LatheRequest::config(): Lathe\Support\ConfigStore  [protected]
 Lathe\Http\Requests\LatheRequest::orderByDirection(): string
 Lathe\Http\Requests\LatheRequest::perPage(): int
@@ -1115,8 +1131,10 @@ Lathe\Resources\Resource::beforeForceDelete(Lathe\Http\Requests\LatheRequest $re
 Lathe\Resources\Resource::beforeRestore(Lathe\Http\Requests\LatheRequest $request, Illuminate\Database\Eloquent\Model $model): void  [static]
 Lathe\Resources\Resource::beforeUpdate(Lathe\Http\Requests\LatheRequest $request, Illuminate\Database\Eloquent\Model $model): void  [static]
 Lathe\Resources\Resource::configure(Lathe\Resources\ResourceDefinition $definition): Lathe\Resources\ResourceDefinition  [protected]
+Lathe\Resources\Resource::createButtonLabel(): string  [static]
 Lathe\Resources\Resource::defaultAttributes(Lathe\Http\Requests\LatheRequest $request): array  [static]
 Lathe\Resources\Resource::definition(): Lathe\Resources\ResourceDefinition
+Lathe\Resources\Resource::detailBreadcrumbs(Lathe\Http\Requests\LatheRequest $request): ?array
 Lathe\Resources\Resource::detailQuery(Lathe\Http\Requests\LatheRequest $request, Illuminate\Database\Eloquent\Builder $query): Illuminate\Database\Eloquent\Builder  [static]
 Lathe\Resources\Resource::editQuery(Lathe\Http\Requests\LatheRequest $request, Illuminate\Database\Eloquent\Builder $query): Illuminate\Database\Eloquent\Builder  [static]
 Lathe\Resources\Resource::fields(Lathe\Http\Requests\LatheRequest $request): array
@@ -1154,6 +1172,7 @@ Lathe\Resources\Resource::singularLabel(): string  [static]
 Lathe\Resources\Resource::subtitle(): string
 Lathe\Resources\Resource::tabs(Lathe\Http\Requests\LatheRequest $request): array
 Lathe\Resources\Resource::title(): string
+Lathe\Resources\Resource::updateButtonLabel(): string  [static]
 Lathe\Resources\Resource::uriKey(): string  [static]
 Lathe\Resources\Resource::usesScout(): bool
 Lathe\Resources\Resource::widgetQuery(Lathe\Http\Requests\LatheRequest $request, Illuminate\Database\Eloquent\Builder $query): Illuminate\Database\Eloquent\Builder  [static]
@@ -1311,6 +1330,7 @@ Lathe\Resources\ResourceRegistry::searchTargets(Illuminate\Database\Eloquent\Mod
 Lathe\Resources\ResourceRegistry::useCachePath(string $path): void
 Lathe\Resources\ResourceRegistry::validate(string $class, Lathe\Resources\ResourceDefinition $definition): void  [protected]
 Lathe\Resources\ResourceRegistry::validateSearchColumns(string $class, Lathe\Resources\ResourceDefinition $definition, array $tables): void  [protected]
+Lathe\Resources\TrafficCop::token(Illuminate\Database\Eloquent\Model $model): ?string  [static]
 Lathe\Resources\ValidationPipeline::?Illuminate\Database\Eloquent\Model $model  [protected]
 Lathe\Resources\ValidationPipeline::Lathe\Field\FieldCollection $fields  [protected]
 Lathe\Resources\ValidationPipeline::Lathe\Field\FieldContext $context  [protected]
@@ -1531,6 +1551,7 @@ Lathe\Testing\ResourceTester::$unencryptedCookies  [protected]
 Lathe\Testing\ResourceTester::$withCredentials  [protected]
 Lathe\Testing\ResourceTester::Illuminate\Contracts\Foundation\Application $app  [protected]
 Lathe\Testing\ResourceTester::__construct(string $uriKey)
+Lathe\Testing\ResourceTester::creationFields(array $query = array ( )): Illuminate\Testing\TestResponse
 Lathe\Testing\ResourceTester::delete(string|int $id): Illuminate\Testing\TestResponse
 Lathe\Testing\ResourceTester::forceDelete(string|int $id): Illuminate\Testing\TestResponse
 Lathe\Testing\ResourceTester::index(array $query = array ( )): Illuminate\Testing\TestResponse
@@ -1538,6 +1559,7 @@ Lathe\Testing\ResourceTester::restore(string|int $id): Illuminate\Testing\TestRe
 Lathe\Testing\ResourceTester::store(array $data): Illuminate\Testing\TestResponse
 Lathe\Testing\ResourceTester::string $uriKey  [protected]
 Lathe\Testing\ResourceTester::update(string|int $id, array $data): Illuminate\Testing\TestResponse
+Lathe\Testing\ResourceTester::updateFields(string|int $id): Illuminate\Testing\TestResponse
 Lathe\Testing\ResourceTester::uri(): string  [protected]
 Lathe\Testing\TestCase::getPackageProviders($app): array  [protected]
 Lathe\Testing\TestCase::setUp(): void  [protected]
@@ -1650,7 +1672,10 @@ class Lathe\Http\Controllers\Plugins\PluginApiController
 class Lathe\Http\Controllers\Plugins\PluginPageController
 class Lathe\Http\Controllers\Resources\CountController
 class Lathe\Http\Controllers\Resources\DeleteController
+class Lathe\Http\Controllers\Resources\DetailPageController
 class Lathe\Http\Controllers\Resources\FilterController
+class Lathe\Http\Controllers\Resources\FormFieldsController
+class Lathe\Http\Controllers\Resources\FormPageController
 class Lathe\Http\Controllers\Resources\IndexController
 class Lathe\Http\Controllers\Resources\IndexPageController
 class Lathe\Http\Controllers\Resources\LensController
@@ -1669,6 +1694,7 @@ class Lathe\Http\Middleware\ServeLathe
 class Lathe\Http\Middleware\ServePlugins
 class Lathe\Http\PanelRoutes
 class Lathe\Http\Payloads\IndexPayload
+class Lathe\Http\Payloads\RecordPayload
 class Lathe\Http\Requests\LatheRequest
 class Lathe\Lathe
 class Lathe\LatheApplicationServiceProvider
@@ -1692,6 +1718,7 @@ class Lathe\Query\ResourceQuery
 class Lathe\Resources\Resource
 class Lathe\Resources\ResourceDefinition
 class Lathe\Resources\ResourceRegistry
+class Lathe\Resources\TrafficCop
 class Lathe\Resources\ValidationPipeline
 class Lathe\SavedTabs\SavedTab
 class Lathe\SavedTabs\SavedTabQueryApplicator

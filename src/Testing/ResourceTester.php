@@ -47,6 +47,27 @@ class ResourceTester
     }
 
     /**
+     * The create form's fields, defaults and layout.
+     *
+     * @param  array<string, mixed>  $query
+     * @return TestResponse<Response>
+     */
+    public function creationFields(array $query = []): TestResponse
+    {
+        return $this->getJson($this->uri().'/creation-fields'.($query === [] ? '' : '?'.http_build_query($query)));
+    }
+
+    /**
+     * The edit form's fields with the record's values and its traffic-cop token.
+     *
+     * @return TestResponse<Response>
+     */
+    public function updateFields(string|int $id): TestResponse
+    {
+        return $this->getJson($this->uri().'/'.$id.'/update-fields');
+    }
+
+    /**
      * Update a record.
      *
      * @param  array<string, mixed>  $data
