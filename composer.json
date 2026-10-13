@@ -79,10 +79,10 @@
             "@test"
         ],
         "test:scaffold": "@php vendor/bin/pest --group=scaffold",
-        "types":"@php vendor/bin/pest --type-coverage --min=100",
+        "types": "@php vendor/bin/pest --type-coverage --min=100",
         "mutate": [
-            "@php vendor/bin/pest --mutate --parallel --covered-only --class=Lathe\\\\Query --min=80",
-            "@php vendor/bin/pest --mutate --parallel --covered-only --class=Lathe\\\\Auth --min=80"
+            "@php -d pcov.enabled=1 vendor/bin/pest --mutate --parallel --covered-only --class=Lathe\\\\Query --min=80",
+            "@php -d pcov.enabled=1 vendor/bin/pest --mutate --parallel --covered-only --class=Lathe\\\\Auth --min=80"
         ]
     },
     "config": {
