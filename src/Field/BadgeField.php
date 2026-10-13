@@ -84,6 +84,19 @@ class BadgeField extends Field
     }
 
     /**
+     * Add types over the ones already set, where types() replaces them.
+     *
+     * @param  list<string>  $types
+     */
+    public function addTypes(array $types): static
+    {
+        $this->mutate();
+        $this->types = array_values(array_unique([...$this->types, ...$types]));
+
+        return $this;
+    }
+
+    /**
      * @param  array<array-key, mixed>  $labels  value to label
      */
     public function labels(array $labels): static
@@ -112,6 +125,16 @@ class BadgeField extends Field
         $this->nullLabel = $label;
 
         return $this;
+    }
+
+    /**
+     * The icon of each badge type, as withIcons() with a map.
+     *
+     * @param  array<string, string>  $icons
+     */
+    public function icons(array $icons): static
+    {
+        return $this->withIcons($icons);
     }
 
     /**

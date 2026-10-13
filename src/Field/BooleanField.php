@@ -41,6 +41,14 @@ class BooleanField extends Field
     }
 
     /**
+     * Both stored values at once, as trueValue() and falseValue().
+     */
+    public function values(mixed $true, mixed $false): static
+    {
+        return $this->trueValue($true)->falseValue($false);
+    }
+
+    /**
      * Draw a checkbox instead of a switch.
      */
     public function asCheckbox(bool $checkbox = true): static

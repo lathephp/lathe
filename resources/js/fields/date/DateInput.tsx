@@ -37,6 +37,7 @@ function TemporalInput({ field, onChange, id, describedBy, invalid, disabled, ty
       value={shown}
       min={attribute(field.min)}
       max={attribute(field.max)}
+      step={typeof field.step === 'number' ? field.step : undefined}
       aria-describedby={describedBy}
       aria-invalid={invalid || undefined}
       aria-required={field.required === true || undefined}

@@ -35,6 +35,14 @@ class DateField extends Field
         return $this->option('max', $this->bound($max));
     }
 
+    /**
+     * The input's step: days for a date, seconds for a date-time.
+     */
+    public function step(int $step): static
+    {
+        return $this->option('step', max(1, $step));
+    }
+
     public function resolve(object $record, ?string $attribute = null): mixed
     {
         if ($this->resolveCallback === null) {

@@ -417,10 +417,12 @@ Lathe\Field\BadgeField::?array $icons  [protected]
 Lathe\Field\BadgeField::?string $nullLabel  [protected]
 Lathe\Field\BadgeField::ICONS
 Lathe\Field\BadgeField::__construct(string $label, Closure|string|null $attribute = NULL, ?Closure $resolver = NULL)
+Lathe\Field\BadgeField::addTypes(array $types): static
 Lathe\Field\BadgeField::array $labels  [protected]
 Lathe\Field\BadgeField::array $map  [protected]
 Lathe\Field\BadgeField::array $types  [protected]
 Lathe\Field\BadgeField::cell(Illuminate\Database\Eloquent\Model $model): array
+Lathe\Field\BadgeField::icons(array $icons): static
 Lathe\Field\BadgeField::jsonSerialize(): array
 Lathe\Field\BadgeField::labelUsing(Closure $callback): static
 Lathe\Field\BadgeField::labels(array $labels): static
@@ -439,6 +441,7 @@ Lathe\Field\BooleanField::mixed $trueValue  [protected]
 Lathe\Field\BooleanField::string $component  [protected]
 Lathe\Field\BooleanField::supportsInline(): bool  [protected]
 Lathe\Field\BooleanField::trueValue(mixed $value): static
+Lathe\Field\BooleanField::values(mixed $true, mixed $false): static
 Lathe\Field\BooleanGroupField::Closure|array|string $optionSource  [protected]
 Lathe\Field\BooleanGroupField::Closure|bool $searchable  [protected]
 Lathe\Field\BooleanGroupField::__construct(string $label, Closure|string|null $attribute = NULL, ?Closure $resolver = NULL)
@@ -560,6 +563,7 @@ Lathe\Field\DateField::max(DateTimeInterface|string $max): static
 Lathe\Field\DateField::min(DateTimeInterface|string $min): static
 Lathe\Field\DateField::optionText(string $name): string  [protected]
 Lathe\Field\DateField::resolve(object $record, ?string $attribute = NULL): mixed
+Lathe\Field\DateField::step(int $step): static
 Lathe\Field\DateField::string $component  [protected]
 Lathe\Field\DateTimeField::FORMAT
 Lathe\Field\DateTimeField::assertCast(object $record): void  [protected]
