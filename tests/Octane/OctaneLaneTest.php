@@ -8,13 +8,15 @@ use Lathe\Tests\Octane\LaneSession;
 $octaneUrl = getenv('LATHE_OCTANE_URL') ?: null;
 $goldenUrl = getenv('LATHE_GOLDEN_URL') ?: null;
 
-it('answers 600 requests over three contexts the way a fresh PHP process does', function () use ($octaneUrl, $goldenUrl) {
+it('answers 600 requests over four contexts the way a fresh PHP process does', function () use ($octaneUrl, $goldenUrl) {
     $contexts = [
         'admin, UTC' => ['admin@lathephp.com', []],
         // PostPolicy denies the editor delete, and the Post Resource shows the editor only published posts.
         'editor, UTC' => ['editor@lathephp.com', []],
         // StripedTables stripes this one request; the workbench reads the user's timezone from the header.
         'admin, Pacific/Kiritimati, striped' => ['admin@lathephp.com', ['X-Bench-Timezone' => 'Pacific/Kiritimati', 'X-Bench-Striped' => '1']],
+        // ArabicContext serves this one request in Arabic, right to left.
+        'admin, ar' => ['admin@lathephp.com', ['X-Bench-Locale' => 'ar']],
     ];
     $paths = ['/lathe/resources/orders', '/lathe/resources/posts'];
 
@@ -32,13 +34,17 @@ it('answers 600 requests over three contexts the way a fresh PHP process does', 
     // The fresh process stripes the third context, so a worker that drops the change shows as a difference.
     expect($goldens['admin, Pacific/Kiritimati, striped'][$paths[0]]['body']['props']['tableStyle']['striped'])->toBeTrue();
 
+    // The fresh process answers the ar context in Arabic, right to left, and the admin context in English.
+    expect($goldens['admin, ar'][$paths[0]]['body']['props'])->toMatchArray(['locale' => 'ar', 'rtl' => true])
+        ->and($goldens['admin, UTC'][$paths[0]]['body']['props'])->toMatchArray(['locale' => 'en', 'rtl' => false]);
+
     $goldenProbe = $golden['admin, UTC']->get('/bench/probe');
     $names = array_keys($contexts);
     $memory = [];
 
     for ($i = 0; $i < 600; $i++) {
-        $name = $names[$i % 3];
-        $path = $paths[intdiv($i, 3) % 2];
+        $name = $names[$i % 4];
+        $path = $paths[intdiv($i, 4) % 2];
         $response = $octane[$name]->get($path, $contexts[$name][1]);
 
         expect($response['status'])->toBe($goldens[$name][$path]['status'], "request {$i}, {$name}, {$path}: status")
@@ -55,6 +61,12 @@ it('answers 600 requests over three contexts the way a fresh PHP process does', 
                 'timezone' => 'UTC',
                 'scope' => 190,
             ], "probe after request {$i}");
+        }
+
+        if ($name === $names[3] && $i % 100 === 3) {
+            // The page root reads lang and dir for the ar request, and is back to en and ltr for the admin's next one.
+            expect($octane[$name]->html($paths[0], $contexts[$name][1]))->toContain('<html lang="ar" dir="rtl">')
+                ->and($octane['admin, UTC']->html($paths[0]))->toContain('<html lang="en" dir="ltr">');
         }
     }
 

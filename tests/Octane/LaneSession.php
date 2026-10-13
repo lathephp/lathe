@@ -64,6 +64,16 @@ class LaneSession
     }
 
     /**
+     * GET a path as a full page load, the HTML the browser receives.
+     *
+     * @param  array<string, string>  $headers
+     */
+    public function html(string $path, array $headers = []): string
+    {
+        return (string) $this->client->get($path, ['headers' => $headers])->getBody();
+    }
+
+    /**
      * The value without its volatile keys, at any depth.
      */
     public static function stable(mixed $value): mixed
