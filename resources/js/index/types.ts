@@ -62,6 +62,7 @@ export interface ResourceDefinition {
   tableStyle: 'default' | 'tight';
   showColumnBorders: boolean;
   softDeletes: boolean;
+  savedTabs: boolean;
 }
 
 export interface IndexProps {
@@ -90,6 +91,43 @@ export interface IndexProps {
   error?: { key: string; message: string };
   /** Deferred; null when no field is summarized. */
   summaries?: Summaries | null;
+  /** The page for a bad URL parameter sends no saved tabs. */
+  tabs?: Tabs;
+  /** Deferred: the badges keyed by tab key, and by `saved:{id}` for a saved tab. */
+  tabCounts?: Record<string, TabCount | undefined>;
+}
+
+export type BadgeType = 'info' | 'success' | 'warning' | 'danger';
+
+export interface Tab {
+  key: string;
+  name: string;
+  icon: string | null;
+  badge: string | number | null;
+  badgeType: BadgeType | null;
+}
+
+export interface SavedTab {
+  id: number;
+  name: string;
+  badgeType: BadgeType | null;
+  showCount: boolean;
+  /** The Resource's filters or sorts changed since the save; filters and sort are what still applies. */
+  stale: boolean;
+  filters: Record<string, unknown>;
+  sort: string | null;
+}
+
+export interface Tabs {
+  items: Tab[];
+  active: string | null;
+  saved?: SavedTab[];
+  activeSaved?: number | null;
+}
+
+export interface TabCount {
+  count?: Count;
+  badge?: string | number | null;
 }
 
 export interface SummaryValue {

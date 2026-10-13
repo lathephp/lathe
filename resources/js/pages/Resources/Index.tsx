@@ -7,6 +7,7 @@ import { IndexToolbar } from '../../index/IndexToolbar';
 import { useLoadMore } from '../../index/Pagination';
 import { usePolling, usePollingChoice } from '../../index/PollingToggle';
 import { ResourceTable } from '../../index/ResourceTable';
+import { TabBar } from '../../index/TabBar';
 import type { IndexProps } from '../../index/types';
 import { useIndexState } from '../../index/useIndexState';
 import { useRowSelection } from '../../index/useRowSelection';
@@ -25,6 +26,7 @@ export default function Index({ resource, table, state, count, error, lens, lens
   return (
     <div className="space-y-6">
       <Head title={lens?.name ?? resource.label} />
+      <TabBar resource={resource} state={index.state} visit={index.visit} />
       <IndexToolbar
         resource={resource}
         lens={lens}
