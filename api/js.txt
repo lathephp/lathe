@@ -27,7 +27,9 @@
 @lathephp/core type RequestOptions
 @lathephp/core type SafeHtml
 @lathephp/core type SharedData
+@lathephp/core type ToastAction
 @lathephp/core type ToastMessage
+@lathephp/core type ToastOptions
 @lathephp/core type ToastType
 @lathephp/core type Translator
 @lathephp/core url

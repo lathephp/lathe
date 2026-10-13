@@ -16,7 +16,7 @@ export type { PanelRouter } from './navigation';
 export { ApiError, request } from './http';
 export type { RequestOptions } from './http';
 export { toast } from './toast';
-export type { ToastMessage, ToastType } from './toast';
+export type { ToastAction, ToastMessage, ToastOptions, ToastType } from './toast';
 export { emit, off, on, once } from './events';
 export { addShortcut, pauseShortcuts, resumeShortcuts } from './shortcuts';
 export { QueryClientProvider, queryClient, queryKeys, useQuery, useQueryClient } from './query';

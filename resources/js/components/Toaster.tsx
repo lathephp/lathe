@@ -24,6 +24,18 @@ export function Toaster() {
           )}
         >
           <p className="flex-1">{toast.message}</p>
+          {toast.action !== undefined ? (
+            <button
+              type="button"
+              className="rounded-sm font-medium underline outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              onClick={() => {
+                __panel.dismissToast(toast.id);
+                toast.action?.onClick();
+              }}
+            >
+              {toast.action.label}
+            </button>
+          ) : null}
           <button
             type="button"
             aria-label={__('Dismiss')}
