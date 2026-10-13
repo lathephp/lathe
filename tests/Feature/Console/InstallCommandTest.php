@@ -167,6 +167,7 @@ it('exits 1 and names the migrate task when the database cannot be reached', fun
 });
 
 it('serves the prebuilt entry from the package with no node_modules and no publish step', function () {
+    holdBuildLock();
     $app = scaffoldApp();
     File::put("{$app}/entry-probe.php", <<<'PHP'
     <?php
