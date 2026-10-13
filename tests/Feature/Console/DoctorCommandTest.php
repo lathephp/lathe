@@ -145,6 +145,11 @@ function snapshotTree(array $folders): array
     $files = [];
     foreach ($folders as $folder) {
         foreach (File::allFiles($folder) as $file) {
+            // Parallel test processes write sessions and logs under the shared skeleton's storage.
+            if (str_starts_with($file->getPathname(), base_path('storage'))) {
+                continue;
+            }
+
             $files[$file->getPathname()] = $file->getSize().':'.$file->getMTime();
         }
     }
