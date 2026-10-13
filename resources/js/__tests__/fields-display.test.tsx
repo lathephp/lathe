@@ -66,7 +66,7 @@ function renderForm(component: string, value: unknown, onChange: (value: unknown
   return render(<Form {...props} />);
 }
 
-const fourValues: unknown[] = [5, 'x', true, null];
+const fourValues: (number | string | boolean | null)[] = [5, 'x', true, null];
 
 describe('renderer matrix', () => {
   it('registers exactly the contexts the matrix lists', () => {

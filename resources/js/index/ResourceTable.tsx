@@ -36,6 +36,13 @@ interface ResourceTableProps extends Pick<IndexProps, 'resource' | 'table' | 'st
  * A click cycles one column through ascending, descending and off. A plain click makes it the
  * only sort; with append the other columns stay and a new one goes last.
  */
+/** The text alignment of a column; the index sends each column as the field's full payload, `textAlign` included. */
+function alignClass(column: object): string {
+  const align = 'textAlign' in column ? column.textAlign : undefined;
+
+  return align === 'right' ? 'text-end' : align === 'center' ? 'text-center' : 'text-start';
+}
+
 function nextSort(sort: string | undefined, key: string, append: boolean): string {
   const tokens = (sort ?? '').split(',').filter((token) => token !== '');
   const index = tokens.findIndex((token) => token.replace(/^-/, '') === key);
@@ -157,7 +164,7 @@ export function ResourceTable({ resource, table, state, loading, selection, sort
                   key={column.key}
                   scope="col"
                   aria-sort={sortable ? sorted : undefined}
-                  className={cn('px-3 text-start font-medium whitespace-nowrap', index === 0 && firstColumn, border)}
+                  className={cn('px-3 font-medium whitespace-nowrap', alignClass(column), index === 0 && firstColumn, border)}
                 >
                   {sortable ? (
                     <button
@@ -244,7 +251,7 @@ export function ResourceTable({ resource, table, state, loading, selection, sort
                           const inline = column.inline === true && row.abilities.update === true;
 
                           return (
-                            <td key={column.key} className={cn('max-w-80 px-3 whitespace-nowrap', !inline && 'truncate', index === 0 && firstColumn, border)}>
+                            <td key={column.key} className={cn('max-w-80 px-3 whitespace-nowrap', !inline && 'truncate', alignClass(column), index === 0 && firstColumn, border)}>
                               {cell !== undefined &&
                                 (inline ? (
                                   <InlineCell
