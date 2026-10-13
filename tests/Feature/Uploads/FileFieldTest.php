@@ -95,7 +95,7 @@ class FilePeople extends Resource
         return [
             Field::make('Name')->rules('filled'),
             Field::make('Email'),
-            Field::file('Avatar', 'avatar')->prunable()->storeOriginalName('avatar_name')->storeSize('avatar_size'),
+            Field::file('Avatar', 'avatar')->showOnIndex()->prunable()->storeOriginalName('avatar_name')->storeSize('avatar_size'),
         ];
     }
 
@@ -125,7 +125,7 @@ class FileUsers extends Resource
 
     public function fields(LatheRequest $request): array
     {
-        return [Field::make('Name'), Field::make('Email'), Field::file('Avatar', 'avatar')];
+        return [Field::make('Name'), Field::make('Email'), Field::file('Avatar', 'avatar')->showOnIndex()];
     }
 }
 
@@ -140,9 +140,9 @@ class HardFileDocs extends Resource
     {
         return [
             Field::make('Name'),
-            Field::file('File', 'file')->prunable(),
-            Field::file('Photo', 'photo')->prunable(),
-            Field::file('Items', 'items')->prunable(),
+            Field::file('File', 'file')->showOnIndex()->prunable(),
+            Field::file('Photo', 'photo')->showOnIndex()->prunable(),
+            Field::file('Items', 'items')->showOnIndex()->prunable(),
         ];
     }
 }
@@ -158,8 +158,8 @@ class SoftFileDocs extends Resource
     {
         return [
             Field::make('Name'),
-            Field::file('File', 'file')->prunable(),
-            Field::file('Photo', 'photo')->prunable(),
+            Field::file('File', 'file')->showOnIndex()->prunable(),
+            Field::file('Photo', 'photo')->showOnIndex()->prunable(),
         ];
     }
 }
@@ -176,12 +176,12 @@ class HookedFileDocs extends Resource
     {
         return [
             Field::make('Name'),
-            Field::file('File', 'file')->disk('local')->path('named')->prunable()
+            Field::file('File', 'file')->showOnIndex()->disk('local')->path('named')->prunable()
                 ->storeAs(fn (UploadedFile $file) => 'kept-'.$file->getClientOriginalName())
                 ->preview(fn (string $path, string $disk) => "preview:{$disk}:{$path}")
                 ->thumbnail(fn (string $path, string $disk) => "thumb:{$disk}:{$path}")
                 ->download(fn ($request, $model, $disk, $path) => response("custom {$disk}:{$path}")),
-            Field::file('Photo', 'photo')->prunable()->disableDownload()->deletable(false)
+            Field::file('Photo', 'photo')->showOnIndex()->prunable()->disableDownload()->deletable(false)
                 ->store(function ($request, $file, $model, $attribute, $disk, $path) {
                     FileFieldLog::$entries[] = "store {$attribute} {$disk}:{$path}";
 
@@ -435,9 +435,9 @@ it('deletes nothing when validation fails', function () {
 });
 
 it('sends the size limit in megabytes and the accepted types to the browser', function () {
-    expect(Field::file('File', 'file')->jsonSerialize())->toMatchArray(['maxSize' => 10, 'acceptedTypes' => []])
+    expect(Field::file('File', 'file')->showOnIndex()->jsonSerialize())->toMatchArray(['maxSize' => 10, 'acceptedTypes' => []])
         ->and(Field::image('Photo', 'photo')->jsonSerialize())->toMatchArray(['maxSize' => 5, 'acceptedTypes' => ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'image/avif', 'image/bmp']])
-        ->and(Field::file('File', 'file')->maxSize(2)->acceptedTypes('pdf')->jsonSerialize())->toMatchArray(['maxSize' => 2, 'acceptedTypes' => ['pdf']]);
+        ->and(Field::file('File', 'file')->showOnIndex()->maxSize(2)->acceptedTypes('pdf')->jsonSerialize())->toMatchArray(['maxSize' => 2, 'acceptedTypes' => ['pdf']]);
 });
 
 // Record deletion

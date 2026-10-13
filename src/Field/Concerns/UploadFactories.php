@@ -15,7 +15,7 @@ trait UploadFactories
 {
     public static function file(string $label, ?string $attribute = null): FileField
     {
-        return new FileField($label, $attribute);
+        return (new FileField($label, $attribute))->hideFromIndex();
     }
 
     public static function image(string $label, ?string $attribute = null): ImageField
