@@ -394,3 +394,11 @@ it('menu_item_links_to_a_lens', function () {
     expect(MenuItem::lens('orders', 'pending-orders')->jsonSerialize())
         ->toBe(['label' => 'Pending Orders', 'href' => '/lathe/resources/orders/lens/pending-orders', 'icon' => null]);
 })->group('regression');
+
+it('offers the lenses on the plain index page for the switcher', function () {
+    $this->actingAs(User::where('email', 'admin@lathephp.com')->firstOrFail())
+        ->get('/lathe/resources/orders')->assertOk()
+        ->assertInertia(fn ($page) => $page
+            ->where('lens', null)
+            ->where('lenses', [['uriKey' => 'pending-orders', 'name' => 'Pending Orders']]));
+});

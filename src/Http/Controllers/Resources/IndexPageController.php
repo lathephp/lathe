@@ -54,6 +54,8 @@ class IndexPageController
                 'table' => ['columns' => [], 'sortKeys' => [], 'rows' => [], 'rowKey' => 'id'],
                 'filters' => ['available' => [], 'applied' => []],
                 'tabs' => ['items' => [], 'active' => null],
+                'lens' => null,
+                'lenses' => [],
                 'state' => ['page' => 1, 'perPage' => $resource['perPageOptions'][0], 'hasMorePages' => false, 'sort' => ''],
                 'error' => ['key' => array_key_first($e->errors()), 'message' => collect($e->errors())->flatten()->first()],
             ])->toResponse($request)->setStatusCode(422);
@@ -73,6 +75,8 @@ class IndexPageController
             'state' => fn () => $part('state'),
             'filters' => fn () => $part('filters'),
             'tabs' => fn () => $part('tabs'),
+            'lens' => null,
+            'lenses' => fn () => $part('lenses'),
             'staleFilters' => $stale,
             // One group, so a single follow-up visit loads them all.
             'count' => Inertia::defer(fn () => $payload->count($class), 'counts'),
