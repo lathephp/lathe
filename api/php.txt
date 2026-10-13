@@ -477,6 +477,13 @@ Lathe\Field\Concerns\DisplayFactories::line(string $name, Closure|string|null $a
 Lathe\Field\Concerns\DisplayFactories::sparkline(string $name, ?string $attribute = NULL): Lathe\Field\SparklineField  [static]
 Lathe\Field\Concerns\DisplayFactories::stack(string $name, ?string $attribute = NULL, array $lines = array ( )): Lathe\Field\StackField  [static]
 Lathe\Field\Concerns\DisplayFactories::status(string $name, Closure|string|null $attribute = NULL): Lathe\Field\StatusField  [static]
+Lathe\Field\Concerns\HasAttachments::?string $attachmentDisk  [protected]
+Lathe\Field\Concerns\HasAttachments::acceptsAttachment(string $mime): bool
+Lathe\Field\Concerns\HasAttachments::bool $withFiles  [protected]
+Lathe\Field\Concerns\HasAttachments::fill(Lathe\Http\Requests\LatheRequest $request, object $model, ?string $requestAttribute = NULL): ?Closure
+Lathe\Field\Concerns\HasAttachments::getAttachmentDisk(): string
+Lathe\Field\Concerns\HasAttachments::hasFiles(): bool
+Lathe\Field\Concerns\HasAttachments::withFiles(?string $disk = NULL): static
 Lathe\Field\Concerns\NumberFactories::currency(string $label, ?string $attribute = NULL): Lathe\Field\CurrencyField  [static]
 Lathe\Field\Concerns\NumberFactories::number(string $label, Closure|string|null $attribute = NULL): Lathe\Field\NumberField  [static]
 Lathe\Field\Concerns\NumberFactories::token(string $label, ?string $attribute = NULL): Lathe\Field\TokenField  [static]
@@ -918,8 +925,10 @@ Lathe\Field\LineField::asSubTitle(): static
 Lathe\Field\LineField::cell(Illuminate\Database\Eloquent\Model $model): array
 Lathe\Field\LineField::extraClasses(array|string $classes): static
 Lathe\Field\LineField::string $component  [protected]
+Lathe\Field\MarkdownField::?string $attachmentDisk  [protected]
 Lathe\Field\MarkdownField::PRESETS
 Lathe\Field\MarkdownField::__construct(string $label, Closure|string|null $attribute = NULL, ?Closure $resolver = NULL)
+Lathe\Field\MarkdownField::bool $withFiles  [protected]
 Lathe\Field\MarkdownField::cell(Illuminate\Database\Eloquent\Model $model): array
 Lathe\Field\MarkdownField::environment(): League\CommonMark\Environment\Environment  [protected]
 Lathe\Field\MarkdownField::preset(string $preset): static
@@ -1079,7 +1088,9 @@ Lathe\Field\TextareaField::schema(Lathe\Field\FieldContext $context, Lathe\Http\
 Lathe\Field\TextareaField::shouldShow(Closure $callback): static
 Lathe\Field\TextareaField::string $component  [protected]
 Lathe\Field\TextareaField::supportsInline(): bool  [protected]
+Lathe\Field\TiptapField::?string $attachmentDisk  [protected]
 Lathe\Field\TiptapField::__construct(string $label, Closure|string|null $attribute = NULL, ?Closure $resolver = NULL)
+Lathe\Field\TiptapField::bool $withFiles  [protected]
 Lathe\Field\TiptapField::cell(Illuminate\Database\Eloquent\Model $model): array
 Lathe\Field\TiptapField::previewFor(string $value): Lathe\Support\SafeHtml
 Lathe\Field\TiptapField::string $component  [protected]
@@ -1226,6 +1237,14 @@ Lathe\Http\Controllers\Resources\DependencyController::__invoke(Lathe\Http\Reque
 Lathe\Http\Controllers\Resources\DependencyController::call(Lathe\Field\Dependency $dependency, Lathe\Field\FieldPatch $patch, Lathe\Http\Requests\LatheRequest $request, Lathe\Field\FormData $data): void  [protected]
 Lathe\Http\Controllers\Resources\DependencyController::model(Lathe\Http\Requests\LatheRequest $request, Lathe\Auth\ResourceAuthorization $authorization, string $class, Lathe\Field\FieldContext $context, mixed $id): ?Illuminate\Database\Eloquent\Model  [protected]
 Lathe\Http\Controllers\Resources\DetailPageController::__invoke(Lathe\Http\Requests\LatheRequest $request, Lathe\Auth\ResourceAuthorization $authorization, Lathe\Http\Payloads\IndexPayload $index, Lathe\Http\Payloads\RecordPayload $payload, string $resource, string $resourceId): Symfony\Component\HttpFoundation\Response
+Lathe\Http\Controllers\Resources\FieldAttachmentController::Lathe\Uploads\UploadHandler $uploads  [protected]
+Lathe\Http\Controllers\Resources\FieldAttachmentController::__construct(Lathe\Uploads\UploadHandler $uploads)
+Lathe\Http\Controllers\Resources\FieldAttachmentController::destroy(Lathe\Http\Requests\LatheRequest $request, Lathe\Auth\ResourceAuthorization $authorization, string $resource, string $field): Illuminate\Http\Response
+Lathe\Http\Controllers\Resources\FieldAttachmentController::destroyDraft(Lathe\Http\Requests\LatheRequest $request, Lathe\Auth\ResourceAuthorization $authorization, string $resource, string $field, string $draftId): Illuminate\Http\Response
+Lathe\Http\Controllers\Resources\FieldAttachmentController::draftId(Lathe\Http\Requests\LatheRequest $request, Lathe\Auth\ResourceAuthorization $authorization, string $resource, string $field): Illuminate\Http\JsonResponse
+Lathe\Http\Controllers\Resources\FieldAttachmentController::editorField(Lathe\Http\Requests\LatheRequest $request, Lathe\Auth\ResourceAuthorization $authorization, string $field): Lathe\Field\MarkdownField|Lathe\Field\TiptapField  [protected]
+Lathe\Http\Controllers\Resources\FieldAttachmentController::findEditorField(Lathe\Http\Requests\LatheRequest $request, string $class, string $field, ?Illuminate\Database\Eloquent\Model $model): Lathe\Field\MarkdownField|Lathe\Field\TiptapField  [protected]
+Lathe\Http\Controllers\Resources\FieldAttachmentController::store(Lathe\Http\Requests\LatheRequest $request, Lathe\Auth\ResourceAuthorization $authorization, string $resource, string $field): Illuminate\Http\JsonResponse
 Lathe\Http\Controllers\Resources\FieldFileController::destroy(Lathe\Http\Requests\LatheRequest $request, Lathe\Auth\ResourceAuthorization $authorization, string $resource, string $resourceId, string $field): Illuminate\Http\Response
 Lathe\Http\Controllers\Resources\FieldFileController::download(Lathe\Http\Requests\LatheRequest $request, Lathe\Auth\ResourceAuthorization $authorization, string $resource, string $resourceId, string $field): Symfony\Component\HttpFoundation\Response
 Lathe\Http\Controllers\Resources\FieldPreviewController::MAX_BYTES
@@ -1272,6 +1291,7 @@ Lathe\Http\Controllers\Uploads\StartUploadController::__construct(Lathe\Uploads\
 Lathe\Http\Controllers\Uploads\StartUploadController::custom(Lathe\Http\Requests\LatheRequest $request): Illuminate\Http\JsonResponse
 Lathe\Http\Controllers\Uploads\StartUploadController::field(Lathe\Http\Requests\LatheRequest $request, Lathe\Auth\ResourceAuthorization $authorization, string $resource, string $field): Illuminate\Http\JsonResponse
 Lathe\Http\Controllers\Uploads\StartUploadController::start(Lathe\Http\Requests\LatheRequest $request, string $field, string $disk, string $directory, int $maxBytes, ?Lathe\Field\FileField $target = NULL): Illuminate\Http\JsonResponse  [protected]
+Lathe\Http\Controllers\Uploads\StartUploadController::startAttachment(Lathe\Http\Requests\LatheRequest $request, Lathe\Field\MarkdownField|Lathe\Field\TiptapField $target): Illuminate\Http\JsonResponse  [protected]
 Lathe\Http\Controllers\Uploads\UploadController::Lathe\Uploads\UploadHandler $uploads  [protected]
 Lathe\Http\Controllers\Uploads\UploadController::__construct(Lathe\Uploads\UploadHandler $uploads)
 Lathe\Http\Controllers\Uploads\UploadController::chunk(Lathe\Http\Requests\LatheRequest $request, string $upload, string $index): Illuminate\Http\Response
@@ -2112,6 +2132,11 @@ Lathe\Testing\ResourceTester::uri(): string  [protected]
 Lathe\Testing\TestCase::getPackageProviders($app): array  [protected]
 Lathe\Testing\TestCase::setUp(): void  [protected]
 Lathe\Testing\TestCase::tearDown(): void  [protected]
+Lathe\Uploads\FieldAttachment::$fillable  [protected]
+Lathe\Uploads\FieldAttachment::$table  [protected]
+Lathe\Uploads\FieldAttachment::keyOf(Illuminate\Database\Eloquent\Model $model): string  [static]
+Lathe\Uploads\FieldAttachment::of(Illuminate\Database\Eloquent\Model $model): Illuminate\Database\Eloquent\Builder  [static]
+Lathe\Uploads\FieldAttachment::purge(): void
 Lathe\Uploads\PendingUpload::$fillable  [protected]
 Lathe\Uploads\PendingUpload::$table  [protected]
 Lathe\Uploads\PendingUpload::COMPLETE
@@ -2122,18 +2147,23 @@ Lathe\Uploads\PendingUpload::findOwned(string $userId, string $id): ?Lathe\Uploa
 Lathe\Uploads\PendingUpload::folder(): string
 Lathe\Uploads\PendingUpload::prunable(): Illuminate\Database\Eloquent\Builder
 Lathe\Uploads\PendingUpload::pruning(): void  [protected]
+Lathe\Uploads\UploadHandler::ATTACHED
 Lathe\Uploads\UploadHandler::Lathe\Support\ConfigStore $config  [protected]
 Lathe\Uploads\UploadHandler::__construct(Lathe\Support\ConfigStore $config)
 Lathe\Uploads\UploadHandler::assemble(Lathe\Uploads\PendingUpload $upload, string $path): void  [protected]
+Lathe\Uploads\UploadHandler::attachToDraft(Lathe\Uploads\PendingUpload $upload, string $disk): string
 Lathe\Uploads\UploadHandler::attachable(?Illuminate\Contracts\Auth\Authenticatable $user, string $id, string $field): ?Lathe\Uploads\PendingUpload
 Lathe\Uploads\UploadHandler::cancel(Lathe\Uploads\PendingUpload $upload): void
 Lathe\Uploads\UploadHandler::chunkSize(): int
 Lathe\Uploads\UploadHandler::complete(Lathe\Uploads\PendingUpload $upload): void
+Lathe\Uploads\UploadHandler::discardDraft(?Illuminate\Contracts\Auth\Authenticatable $user, string $draftId, string $field): void
 Lathe\Uploads\UploadHandler::disk(): Illuminate\Contracts\Filesystem\Filesystem  [protected]
+Lathe\Uploads\UploadHandler::draft(?Illuminate\Contracts\Auth\Authenticatable $user, string $draftId, string $field): Illuminate\Database\Eloquent\Builder  [protected]
 Lathe\Uploads\UploadHandler::extensionAllows(string $name, string $mime): bool  [protected]
 Lathe\Uploads\UploadHandler::file(Lathe\Uploads\PendingUpload $upload): Illuminate\Http\UploadedFile
 Lathe\Uploads\UploadHandler::owned(?Illuminate\Contracts\Auth\Authenticatable $user, string $id): Lathe\Uploads\PendingUpload
 Lathe\Uploads\UploadHandler::ownerId(?Illuminate\Contracts\Auth\Authenticatable $user): string
+Lathe\Uploads\UploadHandler::persistDraft(?Illuminate\Contracts\Auth\Authenticatable $user, string $draftId, string $field, Illuminate\Database\Eloquent\Model $model): void
 Lathe\Uploads\UploadHandler::received(Lathe\Uploads\PendingUpload $upload): array
 Lathe\Uploads\UploadHandler::start(?Illuminate\Contracts\Auth\Authenticatable $user, string $field, string $disk, string $directory, array $file): Lathe\Uploads\PendingUpload
 Lathe\Uploads\UploadHandler::storeChunk(Lathe\Uploads\PendingUpload $upload, int $index, string $bytes): void
@@ -2264,6 +2294,7 @@ class Lathe\Http\Controllers\Resources\CountController
 class Lathe\Http\Controllers\Resources\DeleteController
 class Lathe\Http\Controllers\Resources\DependencyController
 class Lathe\Http\Controllers\Resources\DetailPageController
+class Lathe\Http\Controllers\Resources\FieldAttachmentController
 class Lathe\Http\Controllers\Resources\FieldFileController
 class Lathe\Http\Controllers\Resources\FieldPreviewController
 class Lathe\Http\Controllers\Resources\FilterController
@@ -2342,6 +2373,7 @@ class Lathe\Tabs\Tab
 class Lathe\Testing\LatheTest
 class Lathe\Testing\ResourceTester
 class Lathe\Testing\TestCase
+class Lathe\Uploads\FieldAttachment
 class Lathe\Uploads\PendingUpload
 class Lathe\Uploads\UploadHandler
 enum Lathe\Enums\ClickAction
@@ -2362,6 +2394,7 @@ interface Lathe\Search\SearchableColumn
 trait Lathe\Field\Concerns\ChoiceFactories
 trait Lathe\Field\Concerns\DateFactories
 trait Lathe\Field\Concerns\DisplayFactories
+trait Lathe\Field\Concerns\HasAttachments
 trait Lathe\Field\Concerns\NumberFactories
 trait Lathe\Field\Concerns\RepeaterFactories
 trait Lathe\Field\Concerns\RichFactories
