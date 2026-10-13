@@ -1,5 +1,6 @@
 import { ApiError, request, toast, useLathe, useTranslation } from '@lathephp/core';
 import { useState } from 'react';
+import { asFile } from '../fields/upload/file';
 import { persistable, readDraft, useFormDraft } from './useFormDraft';
 import type { FormFieldData, FormPayload, FormProps } from '../fields/types';
 
@@ -13,6 +14,21 @@ interface WriteResult {
 /** The starting values of a form: each field's value, keyed by attribute. */
 export function initialValues(fields: FormFieldData[]): Record<string, unknown> {
   return Object.fromEntries(fields.map((field) => [field.attribute, field.value]));
+}
+
+/** Components whose value is a stored file; the same list as the draft's. */
+const FILE_COMPONENTS = new Set(['file-field', 'image-field', 'audio-field']);
+
+/**
+ * The values as the server reads them: a file field cleared of the file it started with sends
+ * `<attribute>_removed`, because a bare null means "keep the stored file".
+ */
+function submittable(values: Record<string, unknown>, fields: FormFieldData[]): Record<string, unknown> {
+  const removed = fields
+    .filter((field) => FILE_COMPONENTS.has(field.component) && asFile(field.value) !== null && values[field.attribute] === null)
+    .map((field): [string, number] => [`${field.attribute}_removed`, 1]);
+
+  return { ...values, ...Object.fromEntries(removed) };
 }
 
 /** The first message of each attribute in a 422 body. */
@@ -57,7 +73,7 @@ export function useRecordForm({ resource, mode, id, form }: Pick<FormProps, 'res
       try {
         const result = await request<WriteResult>(updating ? `${base}/${String(id)}` : base, {
           method: updating ? 'PUT' : 'POST',
-          body: updating && token !== undefined ? { ...values, _updated_at: token } : values,
+          body: updating && token !== undefined ? { ...submittable(values, payload.fields), _updated_at: token } : submittable(values, payload.fields),
         });
 
         draft.clear();
