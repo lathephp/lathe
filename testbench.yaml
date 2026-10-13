@@ -10,10 +10,16 @@ migrations:
 seeders:
   - Workbench\Database\Seeders\DatabaseSeeder
 
+env:
+  - DB_CONNECTION=sqlite
+  - SESSION_DRIVER=file
+  - QUEUE_CONNECTION=database
+  - MAIL_MAILER=log
+
 workbench:
   start: '/lathe'
   install: true
-  health: false
+  health: true
   discovers:
     web: true
     api: true
@@ -22,10 +28,10 @@ workbench:
     factories: true
     views: false
   build:
-    - asset-publish
     - create-sqlite-db
-    - db-wipe
-    - migrate-fresh
+    - migrate:
+        --seed: true
+        --seeder: 'Workbench\Database\Seeders\DatabaseSeeder'
   assets:
     - laravel-assets
   sync:

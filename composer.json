@@ -56,7 +56,7 @@
         "serve": [
             "Composer\\Config::disableProcessTimeout",
             "@build",
-            "@php vendor/bin/testbench serve --ansi"
+            "trap 'kill $(jobs -p) 2>/dev/null' EXIT; php vendor/bin/testbench queue:work --tries=1 --ansi & php vendor/bin/testbench serve --ansi"
         ],
         "lint": "pint --test",
         "format": "pint",

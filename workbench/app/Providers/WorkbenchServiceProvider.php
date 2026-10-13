@@ -3,6 +3,7 @@
 namespace Workbench\App\Providers;
 
 use Illuminate\Support\ServiceProvider;
+use Workbench\App\Console\Commands\DemoSeedCommand;
 
 class WorkbenchServiceProvider extends ServiceProvider
 {
@@ -19,6 +20,6 @@ class WorkbenchServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //
+        $this->commands([DemoSeedCommand::class]);
     }
 }
