@@ -7,6 +7,7 @@ export default defineConfig({
     lib: { entry: 'src/index.ts', formats: ['es'], fileName: 'index' },
     emptyOutDir: false,
     rolldownOptions: {
+      external: ['react'],
       output: {
         banner:
           "throw new Error('@lathephp/core must run inside the Lathe panel. Mark it external in your build so the panel import map serves it.');",

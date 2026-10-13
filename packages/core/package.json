@@ -18,7 +18,12 @@
     "build": "vite build && tsc -b"
   },
   "devDependencies": {
+    "@types/react": "19.3.0",
+    "react": "19.3.0",
     "typescript": "6.0.3",
     "vite": "8.3.4"
+  },
+  "peerDependencies": {
+    "react": "19.3.0"
   }
 }
