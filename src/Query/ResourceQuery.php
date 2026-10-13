@@ -4,11 +4,14 @@ namespace Lathe\Query;
 
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\Concerns\HasUlids;
+use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 use Lathe\Field\Field;
 use Lathe\Filters\FilterApplicator;
@@ -273,11 +276,41 @@ class ResourceQuery
      */
     public function find(string|int $id): Model
     {
+        if (! static::holdsKey($this->resource::newModel(), $id)) {
+            throw new NotFoundHttpException;
+        }
+
         try {
             return $this->scoped()->findOrFail($id);
         } catch (ModelNotFoundException $e) {
             throw new NotFoundHttpException(previous: $e);
         }
+    }
+
+    /**
+     * Whether the id can be a key of the model. PostgreSQL answers 500 for "abc" against a
+     * bigint or uuid column, so a caller checks this and answers 404 before any query.
+     */
+    public static function holdsKey(Model $model, string|int $id): bool
+    {
+        $id = (string) $id;
+
+        if (in_array($model->getKeyType(), ['int', 'integer'], true)) {
+            // filter_var() bounds the digits at PHP_INT_MAX but refuses a leading zero.
+            return ctype_digit($id) && filter_var(ltrim($id, '0') ?: '0', FILTER_VALIDATE_INT) !== false;
+        }
+
+        if ($model->getIncrementing() || ! in_array($model->getKeyName(), $model->uniqueIds(), true)) {
+            return true;
+        }
+
+        $traits = class_uses_recursive($model);
+
+        return match (true) {
+            in_array(HasUuids::class, $traits, true) => Str::isUuid($id),
+            in_array(HasUlids::class, $traits, true) => Str::isUlid($id),
+            default => true,
+        };
     }
 
     /**

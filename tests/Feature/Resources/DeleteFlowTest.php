@@ -1,10 +1,16 @@
 <?php
 
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Concerns\HasUlids;
+use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Events\QueryExecuted;
+use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Str;
 use Lathe\Events\ResourceDeleted;
 use Lathe\Events\ResourceForceDeleted;
 use Lathe\Events\ResourceRestored;
@@ -144,6 +150,50 @@ class ScopedOrders extends Resource
     }
 }
 
+class DeleteFlowUuidRecord extends Model
+{
+    use HasUuids;
+
+    protected $table = 'delete_flow_uuid_records';
+}
+
+class DeleteFlowUlidRecord extends Model
+{
+    use HasUlids;
+
+    protected $table = 'delete_flow_ulid_records';
+}
+
+class DeleteFlowUuidRecords extends Resource
+{
+    public static ?string $policy = DeleteFlowPolicy::class;
+
+    protected function configure(ResourceDefinition $definition): ResourceDefinition
+    {
+        return $definition->model(DeleteFlowUuidRecord::class);
+    }
+
+    public function fields(LatheRequest $request): array
+    {
+        return [];
+    }
+}
+
+class DeleteFlowUlidRecords extends Resource
+{
+    public static ?string $policy = DeleteFlowPolicy::class;
+
+    protected function configure(ResourceDefinition $definition): ResourceDefinition
+    {
+        return $definition->model(DeleteFlowUlidRecord::class);
+    }
+
+    public function fields(LatheRequest $request): array
+    {
+        return [];
+    }
+}
+
 function signInForDelete(string $email): void
 {
     test()->actingAs(User::where('email', $email)->firstOrFail());
@@ -258,3 +308,40 @@ it('gives post rows their trashed state and restore and force delete abilities, 
         ->and($order)->not->toHaveKey('trashed')
         ->and($order['abilities'])->toBe(['view' => true, 'update' => true, 'delete' => true]);
 });
+
+it('answers 404 before any query for an id the key cannot hold', function (string $url, string $table) {
+    signInForDelete('admin@lathephp.com');
+    Lathe::registerResources(DeleteFlowUuidRecords::class, DeleteFlowUlidRecords::class);
+    $queries = [];
+    DB::listen(function (QueryExecuted $event) use (&$queries) {
+        $queries[] = $event->sql;
+    });
+
+    $this->deleteJson($url)->assertNotFound();
+
+    expect(array_filter($queries, fn (string $sql) => str_contains($sql, $table)))->toBe([]);
+})->with([
+    'a word for an integer key' => ['/lathe/api/resources/posts/abc', 'posts'],
+    'a number past PHP_INT_MAX' => ['/lathe/api/resources/orders/99999999999999999999', 'orders'],
+    'the bare saved tabs path' => ['/lathe/api/resources/orders/saved-tabs', 'orders'],
+    'a word for a uuid key' => ['/lathe/api/resources/delete-flow-uuid-records/abc', 'delete_flow_uuid_records'],
+    'a uuid for a ulid key' => ['/lathe/api/resources/delete-flow-ulid-records/'.Str::uuid(), 'delete_flow_ulid_records'],
+]);
+
+it('deletes a record by its uuid or ulid key', function (string $class, string $resource, Closure $idColumn) {
+    signInForDelete('admin@lathephp.com');
+    Lathe::registerResources($resource);
+    $table = (new $class)->getTable();
+    Schema::create($table, function (Blueprint $blueprint) use ($idColumn) {
+        $idColumn($blueprint);
+        $blueprint->timestamps();
+    });
+    $record = $class::create();
+
+    $this->deleteJson('/lathe/api/resources/'.$resource::uriKey().'/'.$record->getKey())->assertOk();
+
+    expect($class::find($record->getKey()))->toBeNull();
+})->with([
+    'uuid' => [DeleteFlowUuidRecord::class, DeleteFlowUuidRecords::class, fn (Blueprint $table) => $table->uuid('id')->primary()],
+    'ulid' => [DeleteFlowUlidRecord::class, DeleteFlowUlidRecords::class, fn (Blueprint $table) => $table->ulid('id')->primary()],
+]);

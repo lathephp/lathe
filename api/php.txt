@@ -766,6 +766,7 @@ Lathe\Query\ResourceQuery::estimatedCount(): ?Lathe\Query\Count  [protected]
 Lathe\Query\ResourceQuery::find(string|int $id): Illuminate\Database\Eloquent\Model
 Lathe\Query\ResourceQuery::forLens(Lathe\Lenses\Lens $lens): static
 Lathe\Query\ResourceQuery::hasMorePages(): bool
+Lathe\Query\ResourceQuery::holdsKey(Illuminate\Database\Eloquent\Model $model, string|int $id): bool  [static]
 Lathe\Query\ResourceQuery::onlyTrashed(): static
 Lathe\Query\ResourceQuery::page(): array
 Lathe\Query\ResourceQuery::pagination(): array  [protected]
