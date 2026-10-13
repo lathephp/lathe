@@ -14,6 +14,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 use Lathe\Field\Field;
+use Lathe\Field\FieldContext;
 use Lathe\Filters\FilterApplicator;
 use Lathe\Groups\Group;
 use Lathe\Http\Requests\LatheRequest;
@@ -837,7 +838,7 @@ class ResourceQuery
     {
         $fields = [];
 
-        foreach ($this->lens?->fields($this->request) ?? $this->resource->fields($this->request) as $field) {
+        foreach ($this->lens?->fields($this->request) ?? $this->resource->fieldsFor(FieldContext::Index, $this->request) as $field) {
             if ($field instanceof Field && $field->isSortable()) {
                 $fields[$field->sortableUriKey()] = $field;
             }

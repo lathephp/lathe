@@ -7,6 +7,8 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
 use Lathe\Field\Field;
+use Lathe\Field\FieldCollection;
+use Lathe\Field\FieldContext;
 use Lathe\Filters\Filter;
 use Lathe\Groups\Group;
 use Lathe\Http\Requests\LatheRequest;
@@ -35,6 +37,89 @@ abstract class Resource
      * @return list<mixed>
      */
     abstract public function fields(LatheRequest $request): array;
+
+    /**
+     * The fields of the index when it differs from fields(); [] keeps fields().
+     *
+     * @return list<mixed>
+     */
+    public function fieldsForIndex(LatheRequest $request): array
+    {
+        return [];
+    }
+
+    /**
+     * @return list<mixed>
+     */
+    public function fieldsForDetail(LatheRequest $request): array
+    {
+        return [];
+    }
+
+    /**
+     * @return list<mixed>
+     */
+    public function fieldsForCreate(LatheRequest $request): array
+    {
+        return [];
+    }
+
+    /**
+     * @return list<mixed>
+     */
+    public function fieldsForUpdate(LatheRequest $request): array
+    {
+        return [];
+    }
+
+    /**
+     * @return list<mixed>
+     */
+    public function fieldsForPreview(LatheRequest $request): array
+    {
+        return [];
+    }
+
+    /**
+     * @return list<mixed>
+     */
+    public function fieldsForPeeking(LatheRequest $request): array
+    {
+        return [];
+    }
+
+    /**
+     * The frozen fields of a context: its own list when it returns any, else fields().
+     * Built once per request and context, so canSee and closures never run twice.
+     */
+    public function fieldsFor(FieldContext $context, LatheRequest $request): FieldCollection
+    {
+        $key = 'lathe.fields.'.static::class.'.'.$context->value;
+        $cached = $request->attributes->get($key);
+
+        if ($cached instanceof FieldCollection) {
+            return $cached;
+        }
+
+        $items = match ($context) {
+            FieldContext::Index => $this->fieldsForIndex($request),
+            FieldContext::Detail => $this->fieldsForDetail($request),
+            FieldContext::Create => $this->fieldsForCreate($request),
+            FieldContext::Update => $this->fieldsForUpdate($request),
+            FieldContext::Preview => $this->fieldsForPreview($request),
+            FieldContext::Peeking => $this->fieldsForPeeking($request),
+        };
+
+        $fields = new FieldCollection(array_values(array_filter(
+            $items === [] ? $this->fields($request) : $items,
+            fn (mixed $field) => $field instanceof Field,
+        )));
+        $fields->each(fn (Field $field) => $field->freeze());
+
+        $request->attributes->set($key, $fields);
+
+        return $fields;
+    }
 
     /**
      * @return list<Filter>
@@ -93,7 +178,7 @@ abstract class Resource
      */
     public function filterableFields(LatheRequest $request): array
     {
-        return array_values(array_filter($this->fields($request), fn (mixed $field) => $field instanceof Field && $field->isFilterable()));
+        return array_values($this->fieldsFor(FieldContext::Index, $request)->filter(fn (Field $field) => $field->isFilterable())->all());
     }
 
     public static function make(?Model $model = null): static

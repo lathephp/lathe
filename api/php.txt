@@ -386,30 +386,107 @@ Lathe\Events\ResourceRestored::__construct(Illuminate\Database\Eloquent\Model $m
 Lathe\Events\ResourceRestored::string $resource
 Lathe\Events\ServingLathe::Illuminate\Http\Request $request
 Lathe\Events\ServingLathe::__construct(Illuminate\Http\Request $request)
+Lathe\Field\Evaluator::__construct()
+Lathe\Field\Evaluator::call(Closure $callback, array $values = array ( ), array $positional = array ( )): mixed
+Lathe\Field\Evaluator::currentRequest(): ?Lathe\Http\Requests\LatheRequest  [static]
+Lathe\Field\Evaluator::for(?Lathe\Http\Requests\LatheRequest $request = NULL): Lathe\Field\Evaluator  [static]
+Lathe\Field\Evaluator::int $reflections
+Lathe\Field\Field::$macros  [protected]
+Lathe\Field\Field::?Closure $computed  [protected]
 Lathe\Field\Field::?Closure $resolver  [protected]
-Lathe\Field\Field::__construct(string $label, string $attribute, ?Closure $resolver = NULL)
+Lathe\Field\Field::?Closure $seeCallback  [protected]
+Lathe\Field\Field::?WeakMap $seen  [protected]
+Lathe\Field\Field::__construct(string $label, Closure|string|null $attribute = NULL, ?Closure $resolver = NULL)
+Lathe\Field\Field::array $hides  [protected]
+Lathe\Field\Field::array $meta  [protected]
+Lathe\Field\Field::array $options  [protected]
 Lathe\Field\Field::array $summaries  [protected]
+Lathe\Field\Field::array $visibility  [protected]
+Lathe\Field\Field::attribute(): string
+Lathe\Field\Field::authorizedToSee(Lathe\Http\Requests\LatheRequest $request): bool
 Lathe\Field\Field::bool $filterable  [protected]
+Lathe\Field\Field::bool $frozen  [protected]
 Lathe\Field\Field::bool $sortable  [protected]
+Lathe\Field\Field::borderless(bool $borderless = true): static
+Lathe\Field\Field::canSee(Closure $callback): static
+Lathe\Field\Field::canSeeWhen(string $ability, mixed $arguments = array ( )): static
 Lathe\Field\Field::cell(Illuminate\Database\Eloquent\Model $model): array
+Lathe\Field\Field::columnSpan(?int $span): static
+Lathe\Field\Field::compact(bool $compact = true): static
 Lathe\Field\Field::component(string $component): static
+Lathe\Field\Field::exceptOnForms(): static
 Lathe\Field\Field::filterable(bool $filterable = true, int $scale = 1): static
+Lathe\Field\Field::fullWidth(bool $fullWidth = true): static
+Lathe\Field\Field::getColumnSpan(): ?int
+Lathe\Field\Field::getComponent(): string
+Lathe\Field\Field::getSection(): ?string
 Lathe\Field\Field::getSummaries(): array
+Lathe\Field\Field::help(string $help): static
+Lathe\Field\Field::helpWidth(string|int $width): static
+Lathe\Field\Field::hideFromDetail(Closure|bool $hide = true): static
+Lathe\Field\Field::hideFromIndex(Closure|bool $hide = true): static
+Lathe\Field\Field::hideFromPreview(Closure|bool $hide = true): static
+Lathe\Field\Field::hideWhenCreating(Closure|bool $hide = true): static
+Lathe\Field\Field::hideWhenPeeking(Closure|bool $hide = true): static
+Lathe\Field\Field::hideWhenUpdating(Closure|bool $hide = true): static
+Lathe\Field\Field::indexWidth(int $pixels): static
 Lathe\Field\Field::int $filterScale  [protected]
+Lathe\Field\Field::isComputed(): bool
 Lathe\Field\Field::isFilterable(): bool
+Lathe\Field\Field::isFrozen(): bool
+Lathe\Field\Field::isNullable(): bool
+Lathe\Field\Field::isShownOn(Lathe\Field\FieldContext $context, ?Lathe\Http\Requests\LatheRequest $request = NULL, mixed $model = NULL): bool
 Lathe\Field\Field::isSortable(): bool
 Lathe\Field\Field::jsonSerialize(): array
 Lathe\Field\Field::key(): string
 Lathe\Field\Field::label(): string
-Lathe\Field\Field::make(string $label, ?string $attribute = NULL, ?Closure $resolver = NULL): static  [static]
+Lathe\Field\Field::make(string $label, Closure|string|null $attribute = NULL, ?Closure $resolver = NULL): static  [static]
 Lathe\Field\Field::makeFieldFilter(): Lathe\Filters\FieldFilter
+Lathe\Field\Field::meta(): array
+Lathe\Field\Field::mutate(): void  [protected]
+Lathe\Field\Field::nullable(bool $nullable = true): static
+Lathe\Field\Field::onlyOn(Lathe\Field\FieldContext ...$contexts): static  [protected]
+Lathe\Field\Field::onlyOnDetail(): static
+Lathe\Field\Field::onlyOnForms(): static
+Lathe\Field\Field::onlyOnIndex(): static
+Lathe\Field\Field::onlyOnPreview(): static
+Lathe\Field\Field::option(string $name, mixed $value): static  [protected]
+Lathe\Field\Field::placeholder(string $placeholder): static
 Lathe\Field\Field::resolve(Illuminate\Database\Eloquent\Model $model): string|int|float|bool|null
+Lathe\Field\Field::setVisibility(Lathe\Field\FieldContext $context, Closure|bool $value, bool $hide = false): static  [protected]
+Lathe\Field\Field::showOnCreating(Closure|bool $show = true): static
+Lathe\Field\Field::showOnDetail(Closure|bool $show = true): static
+Lathe\Field\Field::showOnIndex(Closure|bool $show = true): static
+Lathe\Field\Field::showOnPreview(Closure|bool $show = true): static
+Lathe\Field\Field::showOnUpdating(Closure|bool $show = true): static
+Lathe\Field\Field::showWhenPeeking(Closure|bool $show = true): static
 Lathe\Field\Field::sortable(bool $sortable = true): static
 Lathe\Field\Field::sortableUriKey(): string
+Lathe\Field\Field::stacked(bool $stacked = true): static
 Lathe\Field\Field::string $attribute  [protected]
 Lathe\Field\Field::string $component  [protected]
 Lathe\Field\Field::string $label  [protected]
 Lathe\Field\Field::summarize(Lathe\Summaries\Summary ...$summaries): static
+Lathe\Field\Field::textAlign(string $align): static
+Lathe\Field\Field::withMeta(array $meta): static
+Lathe\Field\Field::withSection(string $section): static
+Lathe\Field\Field::wrapping(bool $wrapping = true): static
+Lathe\Field\FieldCollection::authorized(Lathe\Http\Requests\LatheRequest $request): static
+Lathe\Field\FieldCollection::findByAttribute(string $attribute): ?Lathe\Field\Field
+Lathe\Field\FieldCollection::forContext(Lathe\Field\FieldContext $context, ?Lathe\Http\Requests\LatheRequest $request = NULL, mixed $model = NULL): static
+Lathe\Field\FieldCollection::onlyKeys(?array $keys): static
+Lathe\Field\FieldCollection::sortable(): static
+Lathe\Field\FieldCollection::withoutComputed(): static
+Lathe\Field\FieldContext::Create
+Lathe\Field\FieldContext::Detail
+Lathe\Field\FieldContext::Index
+Lathe\Field\FieldContext::Peeking
+Lathe\Field\FieldContext::Preview
+Lathe\Field\FieldContext::Update
+Lathe\Field\FieldContext::isForm(): bool
+Lathe\Field\FieldContext::string $name
+Lathe\Field\FieldContext::string $value
+Lathe\Field\FieldResolver::cells(Illuminate\Database\Eloquent\Model $model, iterable $fields): array  [static]
 Lathe\Filters\BooleanFilter::component(): string
 Lathe\Filters\BooleanFilter::normalize(Lathe\Http\Requests\LatheRequest $request, mixed $value, bool $remote): array
 Lathe\Filters\DateFilter::component(): string
@@ -580,6 +657,7 @@ Lathe\Http\Payloads\IndexPayload::__construct(Lathe\Http\Requests\LatheRequest $
 Lathe\Http\Payloads\IndexPayload::activeSavedTab(Lathe\Resources\Resource $resource): ?int  [protected]
 Lathe\Http\Payloads\IndexPayload::build(string $class, ?Lathe\Lenses\Lens $lens = NULL): array
 Lathe\Http\Payloads\IndexPayload::checkRowKeys(string $class, string $rowKey, Illuminate\Database\Eloquent\Collection $rows): void  [protected]
+Lathe\Http\Payloads\IndexPayload::columns(Lathe\Resources\Resource $resource, ?Lathe\Lenses\Lens $lens = NULL): array
 Lathe\Http\Payloads\IndexPayload::count(string $class, ?Lathe\Lenses\Lens $lens = NULL): ?array
 Lathe\Http\Payloads\IndexPayload::groups(Lathe\Resources\Resource $resource, ?array $active, ?Lathe\Lenses\Lens $lens): array  [protected]
 Lathe\Http\Payloads\IndexPayload::key(Illuminate\Database\Eloquent\Model $model): string|int  [protected]
@@ -803,6 +881,13 @@ Lathe\Resources\Resource::definition(): Lathe\Resources\ResourceDefinition
 Lathe\Resources\Resource::detailQuery(Lathe\Http\Requests\LatheRequest $request, Illuminate\Database\Eloquent\Builder $query): Illuminate\Database\Eloquent\Builder  [static]
 Lathe\Resources\Resource::editQuery(Lathe\Http\Requests\LatheRequest $request, Illuminate\Database\Eloquent\Builder $query): Illuminate\Database\Eloquent\Builder  [static]
 Lathe\Resources\Resource::fields(Lathe\Http\Requests\LatheRequest $request): array
+Lathe\Resources\Resource::fieldsFor(Lathe\Field\FieldContext $context, Lathe\Http\Requests\LatheRequest $request): Lathe\Field\FieldCollection
+Lathe\Resources\Resource::fieldsForCreate(Lathe\Http\Requests\LatheRequest $request): array
+Lathe\Resources\Resource::fieldsForDetail(Lathe\Http\Requests\LatheRequest $request): array
+Lathe\Resources\Resource::fieldsForIndex(Lathe\Http\Requests\LatheRequest $request): array
+Lathe\Resources\Resource::fieldsForPeeking(Lathe\Http\Requests\LatheRequest $request): array
+Lathe\Resources\Resource::fieldsForPreview(Lathe\Http\Requests\LatheRequest $request): array
+Lathe\Resources\Resource::fieldsForUpdate(Lathe\Http\Requests\LatheRequest $request): array
 Lathe\Resources\Resource::filterableFields(Lathe\Http\Requests\LatheRequest $request): array
 Lathe\Resources\Resource::filters(Lathe\Http\Requests\LatheRequest $request): array
 Lathe\Resources\Resource::forModel(?Illuminate\Database\Eloquent\Model $model): static
@@ -1237,7 +1322,10 @@ class Lathe\Exceptions\LatheException
 class Lathe\Exceptions\PluginDependencyException
 class Lathe\Exceptions\ResourceModelCollisionException
 class Lathe\Exceptions\ResourceUriKeyCollisionException
+class Lathe\Field\Evaluator
 class Lathe\Field\Field
+class Lathe\Field\FieldCollection
+class Lathe\Field\FieldResolver
 class Lathe\Filters\BooleanFilter
 class Lathe\Filters\DateFilter
 class Lathe\Filters\FieldFilter
@@ -1318,6 +1406,7 @@ enum Lathe\Enums\ClickAction
 enum Lathe\Enums\Icon
 enum Lathe\Enums\PaginationType
 enum Lathe\Enums\TableStyle
+enum Lathe\Field\FieldContext
 enum Lathe\Query\CountStrategy
 enum Lathe\Query\QueryContext
 interface Lathe\Attributes\Resource\ResourceAttribute

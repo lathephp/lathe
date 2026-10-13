@@ -8,6 +8,9 @@ use Illuminate\Support\Facades\Log;
 use Lathe\Auth\ResourceAuthorization;
 use Lathe\Exceptions\DuplicateRowKeyException;
 use Lathe\Field\Field;
+use Lathe\Field\FieldCollection;
+use Lathe\Field\FieldContext;
+use Lathe\Field\FieldResolver;
 use Lathe\Filters\Filter;
 use Lathe\Filters\FilterApplicator;
 use Lathe\Groups\Group;
@@ -50,7 +53,7 @@ class IndexPayload
         $rowKey = $class::rowKey();
         $this->checkRowKeys($class, $rowKey, $rows);
         [$perPage, $page] = $query->page();
-        $fields = array_values(array_filter($lens?->fields($this->request) ?? $resource->fields($this->request), fn (mixed $field) => $field instanceof Field));
+        $fields = $this->columns($resource, $lens);
         $available = $lens?->availableFilters($this->request) ?? $resource->availableFilters($this->request);
         $softDeletes = $resource->definition()->usesSoftDeletes();
         $abilities = $this->authorization->abilitiesFor(
@@ -73,7 +76,7 @@ class IndexPayload
                 'rows' => $rows->map(fn (Model $model) => [
                     'id' => $model->getAttribute($rowKey),
                     'title' => $resource->forModel($model)->title(),
-                    'cells' => collect($fields)->mapWithKeys(fn (Field $field) => [$field->key() => $field->cell($model)])->all(),
+                    'cells' => FieldResolver::cells($model, $fields),
                     'abilities' => $abilities[$this->key($model)] ?? [],
                     ...($softDeletes ? ['trashed' => method_exists($model, 'trashed') && $model->trashed() === true] : []),
                     ...($group !== null ? ['group' => ['key' => $group->keyFor($model), 'title' => $group->titleFor($model), 'description' => $group->descriptionFor($model)]] : []),
@@ -99,6 +102,20 @@ class IndexPayload
                 'sort' => $query->sortString(),
             ],
         ];
+    }
+
+    /**
+     * The index columns: the fields shown on Index that this request may see.
+     *
+     * @return list<Field>
+     */
+    public function columns(Resource $resource, ?Lens $lens = null): array
+    {
+        $fields = $lens !== null
+            ? new FieldCollection(array_values(array_filter($lens->fields($this->request), fn (mixed $field) => $field instanceof Field)))
+            : $resource->fieldsFor(FieldContext::Index, $this->request);
+
+        return array_values($fields->forContext(FieldContext::Index, $this->request)->authorized($this->request)->all());
     }
 
     /**
@@ -190,7 +207,7 @@ class IndexPayload
         $query = new ResourceQuery($resource, $this->request);
         $rows = $query->rows();
         [, $page] = $query->page();
-        $summaries = new ResourceSummaries($query, $resource->fields($this->request), $resource->definition()->getCountCap());
+        $summaries = new ResourceSummaries($query, $this->columns($resource), $resource->definition()->getCountCap());
         $totals = $summaries->compute($rows, $page > 1 || $query->hasMorePages());
         $active = $query->activeGroup();
 

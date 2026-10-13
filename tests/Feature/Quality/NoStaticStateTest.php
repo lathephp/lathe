@@ -12,6 +12,8 @@ use PHPUnit\Architecture\Elements\ObjectDescription;
 const LATHE_STATIC_ALLOWED = [
     // Declared once per Resource class in its source.
     'Lathe\Resources\Resource::$policy',
+    // Macroable: macros are registered at boot, by class.
+    'Lathe\Field\Field::$macros',
 ];
 
 expect()->extend('toKeepNoStaticState', function () {
