@@ -8,6 +8,7 @@ use Illuminate\Support\Str;
 use Lathe\Auth\ResourceAuthorization;
 use Lathe\Field\FieldContext;
 use Lathe\Field\FileField;
+use Lathe\Field\RepeaterField;
 use Lathe\Http\Requests\LatheRequest;
 use Lathe\Query\QueryContext;
 use Lathe\Query\ResourceQuery;
@@ -57,15 +58,19 @@ class FieldFileController
             ->authorized($request)
             ->findByAttribute($attribute);
 
-        abort_unless($target instanceof FileField && $target->isDeletable(), 404);
-
         if ($nested === null) {
+            abort_unless($target instanceof FileField && $target->isDeletable(), 404);
+            $file = $target;
             $path = $target->storedPath($model);
 
             foreach ($target->columnsThatShouldBeDeleted() as $column) {
                 $model->setAttribute($column, null);
             }
         } else {
+            // items.2.photo: the repeater's own file sub-field, read from the row the record stores.
+            $file = $target instanceof RepeaterField ? $target->findSubField($nested) : null;
+            abort_unless($file instanceof FileField && $file->isDeletable(), 404);
+
             $value = $model->getAttribute($attribute);
             abort_unless(is_array($value) && Arr::has($value, $nested), 404);
 
@@ -77,7 +82,7 @@ class FieldFileController
         $model->save();
 
         if (is_string($path) && $path !== '') {
-            $target->deleteFile($request, $model, $path);
+            $file->deleteFile($request, $model, $path);
         }
 
         return new Response(status: 204);

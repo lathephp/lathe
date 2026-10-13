@@ -142,7 +142,7 @@ class HardFileDocs extends Resource
             Field::make('Name'),
             Field::file('File', 'file')->showOnIndex()->prunable(),
             Field::file('Photo', 'photo')->showOnIndex()->prunable(),
-            Field::file('Items', 'items')->showOnIndex()->prunable(),
+            Field::repeater('Items')->fields([Field::text('Title'), Field::file('Photo', 'photo')->prunable()]),
         ];
     }
 }
@@ -540,5 +540,16 @@ it('finds a dotted path in the stored record', function () {
 
     expect($doc->fresh()?->items)->toBe([['photo' => 'zero.png', 'title' => 'a'], ['photo' => null, 'title' => 'b'], ['photo' => null, 'title' => 'c']])
         ->and($doc->fresh()?->name)->toBe('A')
+        ->and(Storage::disk('public')->allFiles())->toBe(['zero.png']);
+});
+
+it('refuses a dotted path that names no file sub-field', function () {
+    Storage::disk('public')->put('zero.png', '0');
+    $doc = HardFileDoc::create(['name' => 'A', 'items' => [['photo' => 'zero.png', 'title' => 'zero.png']]]);
+
+    $this->deleteJson("/lathe/api/resources/hard-file-docs/{$doc->getKey()}/field/items.0.title")->assertNotFound();
+    $this->deleteJson("/lathe/api/resources/hard-file-docs/{$doc->getKey()}/field/name.0.x")->assertNotFound();
+
+    expect($doc->fresh()?->items)->toBe([['photo' => 'zero.png', 'title' => 'zero.png']])
         ->and(Storage::disk('public')->allFiles())->toBe(['zero.png']);
 });
