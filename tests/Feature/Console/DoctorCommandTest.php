@@ -1,13 +1,51 @@
 <?php
 
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\PackageManifest;
 use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Http;
+use Lathe\Doctor\Doctor;
+use Lathe\Http\Requests\LatheRequest;
 use Lathe\Lathe;
+use Lathe\Resources\Resource;
+use Lathe\Resources\ResourceDefinition;
+use Lathe\Search\SearchableText;
 use Lathe\Tests\Fixtures\Plugins\Beacon;
 use Lathe\Tests\Fixtures\Plugins\BillingPlugin;
+use Workbench\App\Lathe\Resources\Customer;
+use Workbench\App\Models\Post;
+
+/**
+ * A doctor that reads a fixed row count for every table instead of counting.
+ */
+class FixedRowsDoctor extends Doctor
+{
+    public static int $rows = 0;
+
+    protected function rowCount(Model $model): int
+    {
+        return self::$rows;
+    }
+}
+
+/**
+ * Full text search on posts.title, which has no FULLTEXT index.
+ */
+class DoctorTitleTextPost extends Resource
+{
+    protected function configure(ResourceDefinition $definition): ResourceDefinition
+    {
+        return $definition->model(Post::class)->canonical(false)->searchable([new SearchableText('title')])->allowAll();
+    }
+
+    public function fields(LatheRequest $request): array
+    {
+        return [];
+    }
+}
 
 beforeEach(function () {
     $this->artisan('migrate')->assertSuccessful();
@@ -154,6 +192,38 @@ it('fails on a plugin manifest whose core range misses the installed @lathephp/c
     File::put("{$dir}/lathe-plugin.json", json_encode(['name' => 'beacon', 'core' => '*']));
     [, $lines] = doctor();
     expect($lines)->toContain("OK   Plugin beacon: {$dir}/lathe-plugin.json (@lathephp/core *)");
+});
+
+it('warns about a contains search column on a table of more than 100,000 rows, except on SQLite', function () {
+    $this->artisan('lathe:cache')->assertSuccessful();
+    app()->bind(Doctor::class, FixedRowsDoctor::class);
+    $warning = 'WARN '.Customer::class.': search column email matches anywhere (contains) in the customers table, which has more than 100,000 rows, so every search reads the whole table. Search it by prefix or with SearchableText.';
+
+    FixedRowsDoctor::$rows = 100_000;
+    [, $lines] = doctor();
+    expect($lines)->not->toContain($warning);
+
+    FixedRowsDoctor::$rows = 100_001;
+    [$code, $lines] = doctor();
+    $sqlite = DB::connection()->getDriverName() === 'sqlite';
+
+    expect($code)->toBe(0)
+        ->and(end($lines))->toMatch('/ 0 FAIL$/')
+        ->and(in_array($warning, $lines, true))->toBe(! $sqlite);
+});
+
+it('fails a full text search column the driver cannot run', function () {
+    Lathe::registerResources(DoctorTitleTextPost::class);
+    $driver = DB::connection()->getDriverName();
+    $fail = 'FAIL '.DoctorTitleTextPost::class.": SearchableText(title) cannot run on {$driver}: the posts table has no FULLTEXT index on title alone. Add \$table->fullText('title') in a migration.";
+
+    [$code, $lines] = doctor();
+
+    if (in_array($driver, ['mysql', 'mariadb'], true)) {
+        expect($code)->toBe(1)->and($lines)->toContain($fail);
+    } else {
+        expect(array_filter($lines, fn ($line) => str_starts_with($line, 'FAIL')))->toBe([]);
+    }
 });
 
 it('writes no file and makes no network call', function () {

@@ -16,7 +16,10 @@ use Lathe\Exceptions\LatheException;
 use Lathe\Plugins\Plugin;
 use Lathe\Plugins\PluginDiscovery;
 use Lathe\Plugins\PluginRegistry;
+use Lathe\Resources\ResourceDefinition;
 use Lathe\Resources\ResourceRegistry;
+use Lathe\Search\LikeSearch;
+use Lathe\Search\SearchableText;
 use Lathe\Support\ConfigStore;
 use Lathe\Support\ConfigValidator;
 use Throwable;
@@ -31,6 +34,11 @@ class Doctor
         'lathe_pending_uploads', 'lathe_action_events', 'lathe_bulk_runs', 'lathe_saved_tabs', 'notifications',
         'lathe_exports', 'lathe_imports', 'lathe_failed_import_rows', 'lathe_field_attachments', 'lathe_plugin_settings',
     ];
+
+    /**
+     * Above this many rows a contains search, which no index helps, gets a warning.
+     */
+    public const int LARGE_TABLE_ROWS = 100_000;
 
     public function __construct(
         protected Application $app,
@@ -194,6 +202,8 @@ class Doctor
             } elseif ($this->gate->getPolicyFor($entry['model']) === null) {
                 $results[] = CheckResult::warn("{$entry['class']} has no policy, so every ability is denied. Write a policy for {$entry['model']}.");
             }
+
+            array_push($results, ...$this->searchChecks($entry['class'], $definition));
         }
 
         $results[] = file_exists($this->resources->cachePath())
@@ -201,6 +211,70 @@ class Doctor
             : CheckResult::warn('The Resource discovery cache is missing. Run php artisan optimize or lathe:cache.');
 
         return $results;
+    }
+
+    /**
+     * A WARN for each contains column on a large table, and a FAIL for each full text column
+     * the database cannot run. SQLite gets no WARN: it serves small apps.
+     *
+     * @return list<CheckResult>
+     */
+    protected function searchChecks(string $class, ResourceDefinition $definition): array
+    {
+        /** @var Model $model */
+        $model = new ($definition->getModel());
+        $table = $model->getTable();
+        $results = [];
+
+        try {
+            $driver = $model->getConnection()->getDriverName();
+
+            foreach ($definition->getSearchable() as $column) {
+                if ($column instanceof LikeSearch && $column->contains && $driver !== 'sqlite' && $this->rowCount($model) > self::LARGE_TABLE_ROWS) {
+                    $results[] = CheckResult::warn("{$class}: search column {$column->column} matches anywhere (contains) in the {$table} table, which has more than 100,000 rows, so every search reads the whole table. Search it by prefix or with SearchableText.");
+                }
+
+                if ($column instanceof SearchableText && ! $this->runsFullText($model, $column->column)) {
+                    $results[] = CheckResult::fail(in_array($driver, ['mysql', 'mariadb'], true)
+                        ? "{$class}: SearchableText({$column->column}) cannot run on {$driver}: the {$table} table has no FULLTEXT index on {$column->column} alone. Add \$table->fullText('{$column->column}') in a migration."
+                        : "{$class}: SearchableText({$column->column}) cannot run on {$driver}. Use MySQL, MariaDB, PostgreSQL or SQLite, or search the column with LikeSearch.");
+                }
+            }
+        } catch (Throwable $e) {
+            return [CheckResult::skip("{$class}: search columns: ".$e->getMessage())];
+        }
+
+        return $results;
+    }
+
+    /**
+     * The rows in the model's table, counted up to one past the large-table limit, so a
+     * table of millions of rows costs no full count.
+     */
+    protected function rowCount(Model $model): int
+    {
+        $connection = $model->getConnection();
+
+        return $connection->query()
+            ->fromSub($connection->table($model->getTable())->select($model->getKeyName())->limit(self::LARGE_TABLE_ROWS + 1), 'rows')
+            ->count();
+    }
+
+    /**
+     * Whether the database can run a full text match on the column. MySQL and MariaDB need
+     * a FULLTEXT index on exactly that column; PostgreSQL runs without one, and SQLite
+     * searches with contains instead.
+     */
+    protected function runsFullText(Model $model, string $column): bool
+    {
+        $connection = $model->getConnection();
+
+        return match ($connection->getDriverName()) {
+            'pgsql', 'sqlite' => true,
+            'mysql', 'mariadb' => collect($connection->getSchemaBuilder()->getIndexes($model->getTable()))
+                ->contains(fn (array $index) => $index['type'] === 'fulltext' && $index['columns'] === [$column]),
+            default => false,
+        };
     }
 
     /**

@@ -178,6 +178,7 @@ Lathe\Doctor\CheckResult::string $status
 Lathe\Doctor\CheckResult::warn(string $message): Lathe\Doctor\CheckResult  [static]
 Lathe\Doctor\Doctor::Illuminate\Contracts\Auth\Access\Gate $gate  [protected]
 Lathe\Doctor\Doctor::Illuminate\Contracts\Foundation\Application $app  [protected]
+Lathe\Doctor\Doctor::LARGE_TABLE_ROWS
 Lathe\Doctor\Doctor::Lathe\Plugins\PluginRegistry $plugins  [protected]
 Lathe\Doctor\Doctor::Lathe\Resources\ResourceRegistry $resources  [protected]
 Lathe\Doctor\Doctor::Lathe\Support\ConfigStore $config  [protected]
@@ -195,7 +196,10 @@ Lathe\Doctor\Doctor::manifestChecks(Lathe\Plugins\Plugin $plugin): array  [prote
 Lathe\Doctor\Doctor::pluginChecks(): array  [protected]
 Lathe\Doctor\Doctor::pluginPackages(): array  [protected]
 Lathe\Doctor\Doctor::resourceChecks(): array  [protected]
+Lathe\Doctor\Doctor::rowCount(Illuminate\Database\Eloquent\Model $model): int  [protected]
 Lathe\Doctor\Doctor::run(): array
+Lathe\Doctor\Doctor::runsFullText(Illuminate\Database\Eloquent\Model $model, string $column): bool  [protected]
+Lathe\Doctor\Doctor::searchChecks(string $class, Lathe\Resources\ResourceDefinition $definition): array  [protected]
 Lathe\Doctor\Doctor::stringConfig(string $key): string  [protected]
 Lathe\Enums\ClickAction::Detail
 Lathe\Enums\ClickAction::Edit
