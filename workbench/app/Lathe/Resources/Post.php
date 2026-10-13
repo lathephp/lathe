@@ -31,8 +31,11 @@ class Post extends Resource
     public function fields(LatheRequest $request): array
     {
         return [
-            Field::make('Title'),
-            Field::make('Status'),
+            Field::text('Title')->required()->rules('max:255'),
+            Field::select('Status')->options(['draft', 'published', 'archived'])->default('draft')->required()->inline(),
+            Field::image('Cover', 'cover')->hideFromIndex(),
+            Field::textarea('Body')->required(),
+            Field::markdown('Markdown body', 'markdown_body')->nullable(),
         ];
     }
 }

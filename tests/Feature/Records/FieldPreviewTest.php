@@ -37,8 +37,24 @@ class PreviewPosts extends Resource
 }
 
 /** PostPolicy has no create or update method, so both are denied. */
+/** Views posts but never creates or updates one. */
+class LockedPostPolicy
+{
+    public function viewAny(mixed $user): bool
+    {
+        return true;
+    }
+
+    public function view(mixed $user, mixed $post): bool
+    {
+        return true;
+    }
+}
+
 class LockedPosts extends Resource
 {
+    public static ?string $policy = LockedPostPolicy::class;
+
     protected function configure(ResourceDefinition $definition): ResourceDefinition
     {
         return $definition->model(Post::class)->title('title')->canonical(false);

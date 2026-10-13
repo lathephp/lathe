@@ -304,7 +304,7 @@ it('gives post rows their trashed state and restore and force delete abilities, 
     $order = $this->getJson('/lathe/api/resources/orders')->json('table.rows.0');
 
     expect($post['trashed'])->toBeTrue()
-        ->and($post['abilities'])->toBe(['view' => true, 'update' => false, 'delete' => false, 'replicate' => false, 'restore' => true, 'forceDelete' => true])
+        ->and($post['abilities'])->toBe(['view' => true, 'update' => true, 'delete' => false, 'replicate' => true, 'restore' => true, 'forceDelete' => true])
         ->and($order)->not->toHaveKey('trashed')
         ->and($order['abilities'])->toBe(['view' => true, 'update' => true, 'delete' => true, 'replicate' => true]);
 });

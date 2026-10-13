@@ -92,8 +92,8 @@ it('shows a trashed post with its fields and the trash abilities', function () {
             ->component('Resources/Detail', false)
             ->where('record.trashed', true)
             ->where('record.title', $post->title)
-            ->where('record.fields', fn ($fields) => collect($fields)->pluck('key')->all() === ['title', 'status'])
-            ->where('record.abilities', ['view' => true, 'update' => false, 'delete' => false, 'replicate' => false, 'restore' => true, 'forceDelete' => true]));
+            ->where('record.fields', fn ($fields) => collect($fields)->pluck('key')->all() === ['title', 'status', 'cover', 'body', 'markdown_body'])
+            ->where('record.abilities', ['view' => true, 'update' => true, 'delete' => false, 'replicate' => true, 'restore' => true, 'forceDelete' => true]));
 });
 
 it('shows the 404 page inside the shell for a missing order', function () {
