@@ -20,4 +20,5 @@ return [
     'lens' => 'LensTest.php',
     'index-rows' => 'IndexRowsTest.php',
     'index-tabs' => 'IndexTabsTest.php',
+    'narrow-screen' => 'NarrowScreenTest.php',
 ];

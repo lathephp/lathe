@@ -113,7 +113,8 @@ export function ResourceTable({ resource, table, state, loading, selection, sort
 
   return (
     // Focusable, so a keyboard user can scroll a wide table sideways.
-    <div className="overflow-x-auto" role="region" aria-label={__(':resource table', { resource: resource.label })} tabIndex={0}>
+    // Relative, so the visually hidden header labels stay inside the scroll box on a narrow screen.
+    <div className="relative overflow-x-auto" role="region" aria-label={__(':resource table', { resource: resource.label })} tabIndex={0}>
       <table className="w-full text-sm">
         <thead>
           <tr className="h-10 border-b border-border text-start text-muted-foreground">

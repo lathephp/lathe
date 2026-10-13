@@ -165,8 +165,10 @@ export function TabBar({ resource, state, visit }: TabBarProps) {
                 onKeyDown={(event) => {
                   onTabKeyDown(event, tab, index);
                 }}
+                title={tab.name}
               >
-                {tab.name}
+                {/* A long name ends in an ellipsis so the tab's menu stays on screen. */}
+                <span className="max-w-40 truncate">{tab.name}</span>
                 <TabBadge text={badgeText(tabCounts?.[`saved:${String(tab.id)}`])} type={tab.badgeType} />
               </button>
               <button
