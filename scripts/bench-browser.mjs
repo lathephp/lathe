@@ -177,8 +177,22 @@ async function interactionToNextPaint(browser, url) {
     await rows.first().click();
   }
 
-  const inp = await page.waitForFunction(() => window.latheInp, null, { timeout: 10_000 }).then((handle) => handle.jsonValue());
+  // A frame and a task after the last tick, so web-vitals has seen its event entry.
+  const inp = await page.evaluate(
+    () =>
+      new Promise((resolve) => {
+        requestAnimationFrame(() => {
+          window.setTimeout(() => {
+            resolve(window.latheInp);
+          }, 0);
+        });
+      }),
+  );
   await context.close();
+
+  if (typeof inp !== 'number') {
+    throw new Error('web-vitals reported no INP for the Orders interactions.');
+  }
 
   return inp;
 }
