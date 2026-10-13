@@ -22,6 +22,7 @@ beforeEach(function () {
 });
 
 it('denies every signed-in user while the viewLathe gate is undefined', function () {
+    forgetGate('viewLathe');
     expect(Gate::has('viewLathe'))->toBeFalse();
 
     $this->actingAs($this->admin)->get('/lathe')->assertForbidden();

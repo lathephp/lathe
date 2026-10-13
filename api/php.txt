@@ -10,6 +10,25 @@ Lathe\Assets\AssetRegistry::script(string $name, string $path): void
 Lathe\Assets\AssetRegistry::scriptUrl(string $prefix, string $name): ?string
 Lathe\Assets\AssetRegistry::scripts(): array
 Lathe\Assets\AssetRegistry::style(string $name, string $path): void
+Lathe\Auth\FortifyConfig::Illuminate\Contracts\Config\Repository $config  [protected]
+Lathe\Auth\FortifyConfig::Lathe\Support\ConfigStore $lathe  [protected]
+Lathe\Auth\FortifyConfig::__construct(Lathe\Support\ConfigStore $lathe, Illuminate\Contracts\Config\Repository $config)
+Lathe\Auth\FortifyConfig::email(): string
+Lathe\Auth\FortifyConfig::featureEnabled(string $feature): bool
+Lathe\Auth\FortifyConfig::features(): array
+Lathe\Auth\FortifyConfig::guard(): string
+Lathe\Auth\FortifyConfig::passwordBroker(): string
+Lathe\Auth\FortifyConfig::scoped(Closure $callback): mixed
+Lathe\Auth\FortifyConfig::string(string $key): string  [protected]
+Lathe\Auth\FortifyConfig::userModel(): ?string
+Lathe\Auth\FortifyConfig::username(): string
+Lathe\Auth\PanelGate::?Closure $callback  [protected]
+Lathe\Auth\PanelGate::Illuminate\Contracts\Auth\Access\Gate $gate  [protected]
+Lathe\Auth\PanelGate::Illuminate\Contracts\Auth\Factory $auth  [protected]
+Lathe\Auth\PanelGate::Lathe\Auth\FortifyConfig $fortify  [protected]
+Lathe\Auth\PanelGate::__construct(Illuminate\Contracts\Auth\Factory $auth, Illuminate\Contracts\Auth\Access\Gate $gate, Lathe\Auth\FortifyConfig $fortify)
+Lathe\Auth\PanelGate::check(Illuminate\Http\Request $request): bool
+Lathe\Auth\PanelGate::using(Closure $callback): void
 Lathe\Auth\ResourceAuthorization::Illuminate\Contracts\Auth\Access\Gate $gate  [protected]
 Lathe\Auth\ResourceAuthorization::Lathe\Resources\ResourceRegistry $resources  [protected]
 Lathe\Auth\ResourceAuthorization::__construct(Illuminate\Contracts\Auth\Access\Gate $gate, Lathe\Resources\ResourceRegistry $resources)
@@ -72,6 +91,13 @@ Lathe\Field\Field::resolve(Illuminate\Database\Eloquent\Model $model): string|in
 Lathe\Field\Field::string $attribute  [protected]
 Lathe\Field\Field::string $component  [protected]
 Lathe\Field\Field::string $label  [protected]
+Lathe\Http\Controllers\Auth\AuthenticatedSessionController::Illuminate\Contracts\Container\Container $container  [protected]
+Lathe\Http\Controllers\Auth\AuthenticatedSessionController::Lathe\Auth\FortifyConfig $fortify  [protected]
+Lathe\Http\Controllers\Auth\AuthenticatedSessionController::__construct(Illuminate\Contracts\Container\Container $container, Lathe\Auth\FortifyConfig $fortify)
+Lathe\Http\Controllers\Auth\AuthenticatedSessionController::callFortify(Illuminate\Http\Request $request, string $method): Symfony\Component\HttpFoundation\Response  [protected]
+Lathe\Http\Controllers\Auth\AuthenticatedSessionController::destroy(Illuminate\Http\Request $request): Symfony\Component\HttpFoundation\Response
+Lathe\Http\Controllers\Auth\AuthenticatedSessionController::store(Illuminate\Http\Request $request): Symfony\Component\HttpFoundation\Response
+Lathe\Http\Controllers\Auth\LoginPageController::__invoke(Lathe\Auth\FortifyConfig $fortify): Inertia\Response
 Lathe\Http\Controllers\DashboardController::__invoke(): Inertia\Response
 Lathe\Http\Controllers\Plugins\ModuleController::__invoke(Lathe\Assets\AssetRegistry $assets, string $file, string $type = 'scripts'): Symfony\Component\HttpFoundation\BinaryFileResponse
 Lathe\Http\Controllers\Plugins\PluginApiController::__invoke(Illuminate\Http\Request $request, Lathe\Plugins\PluginRegistry $plugins, string $plugin, string $path = ''): Symfony\Component\HttpFoundation\Response
@@ -80,6 +106,10 @@ Lathe\Http\Controllers\Resources\AuthorizesResources::viewableResource(Lathe\Htt
 Lathe\Http\Controllers\Resources\CountController::__invoke(Lathe\Http\Requests\LatheRequest $request, Lathe\Auth\ResourceAuthorization $authorization, Lathe\Http\Payloads\IndexPayload $payload): Illuminate\Http\JsonResponse
 Lathe\Http\Controllers\Resources\IndexController::__invoke(Lathe\Http\Requests\LatheRequest $request, Lathe\Auth\ResourceAuthorization $authorization, Lathe\Http\Payloads\IndexPayload $payload): Illuminate\Http\JsonResponse
 Lathe\Http\Controllers\Resources\IndexPageController::__invoke(Lathe\Http\Requests\LatheRequest $request, Lathe\Auth\ResourceAuthorization $authorization, Lathe\Http\Payloads\IndexPayload $payload): Inertia\Response
+Lathe\Http\Middleware\Authenticate::Illuminate\Contracts\Auth\Factory $auth  [protected]
+Lathe\Http\Middleware\Authenticate::Lathe\Auth\FortifyConfig $fortify  [protected]
+Lathe\Http\Middleware\Authenticate::__construct(Illuminate\Contracts\Auth\Factory $auth, Lathe\Auth\FortifyConfig $fortify)
+Lathe\Http\Middleware\Authenticate::answersJson(Illuminate\Http\Request $request): bool  [static]
 Lathe\Http\Middleware\Authenticate::handle(Illuminate\Http\Request $request, Closure $next): Symfony\Component\HttpFoundation\Response
 Lathe\Http\Middleware\Authorize::handle(Illuminate\Http\Request $request, Closure $next): Symfony\Component\HttpFoundation\Response
 Lathe\Http\Middleware\AuthorizePlugin::Lathe\Plugins\PluginRegistry $plugins  [protected]
@@ -94,9 +124,10 @@ Lathe\Http\Middleware\ServePlugins::Lathe\Plugins\PluginRegistry $plugins  [prot
 Lathe\Http\Middleware\ServePlugins::__construct(Lathe\Plugins\PluginRegistry $plugins)
 Lathe\Http\Middleware\ServePlugins::handle(Illuminate\Http\Request $request, Closure $next): Symfony\Component\HttpFoundation\Response
 Lathe\Http\PanelRoutes::Illuminate\Routing\Router $router  [protected]
+Lathe\Http\PanelRoutes::Lathe\Auth\FortifyConfig $fortify  [protected]
 Lathe\Http\PanelRoutes::Lathe\Plugins\PluginRegistry $plugins  [protected]
 Lathe\Http\PanelRoutes::Lathe\Support\ConfigStore $config  [protected]
-Lathe\Http\PanelRoutes::__construct(Illuminate\Routing\Router $router, Lathe\Support\ConfigStore $config, Lathe\Plugins\PluginRegistry $plugins)
+Lathe\Http\PanelRoutes::__construct(Illuminate\Routing\Router $router, Lathe\Support\ConfigStore $config, Lathe\Plugins\PluginRegistry $plugins, Lathe\Auth\FortifyConfig $fortify)
 Lathe\Http\PanelRoutes::api(): Illuminate\Routing\RouteRegistrar  [protected]
 Lathe\Http\PanelRoutes::apiPrefix(): string  [protected]
 Lathe\Http\PanelRoutes::group(): Illuminate\Routing\RouteRegistrar  [protected]
@@ -118,9 +149,14 @@ Lathe\Http\Requests\LatheRequest::searchKeyword(): string
 Lathe\Http\Requests\LatheRequest::trashed(): string
 Lathe\Http\Requests\LatheRequest::user($guard = NULL): ?Illuminate\Contracts\Auth\Authenticatable
 Lathe\Lathe::getFacadeAccessor(): string  [protected static]
+Lathe\LatheApplicationServiceProvider::authorization(): void  [protected]
+Lathe\LatheApplicationServiceProvider::boot(): void
+Lathe\LatheApplicationServiceProvider::gate(): void  [protected]
 Lathe\LatheManager::Illuminate\Contracts\Container\Container $container  [protected]
 Lathe\LatheManager::__construct(Illuminate\Contracts\Container\Container $container)
 Lathe\LatheManager::assets(): Lathe\Assets\AssetManifest
+Lathe\LatheManager::auth(Closure $callback): static
+Lathe\LatheManager::check(Illuminate\Http\Request $request): bool
 Lathe\LatheManager::config(): Lathe\Support\ConfigStore
 Lathe\LatheManager::dashboards(): Lathe\Dashboards\DashboardRegistry
 Lathe\LatheManager::discoverResources(string $directory, ?string $namespace = NULL): void
@@ -332,6 +368,7 @@ Lathe\Support\Util::isLatheRequest(Illuminate\Http\Request $request): bool  [sta
 class Lathe\Assets\AssetManifest
 class Lathe\Assets\AssetRegistry
 class Lathe\Auth\FortifyConfig
+class Lathe\Auth\PanelGate
 class Lathe\Auth\ResourceAuthorization
 class Lathe\Console\CacheCommand
 class Lathe\Console\ClearCommand
@@ -346,6 +383,8 @@ class Lathe\Exceptions\PluginDependencyException
 class Lathe\Exceptions\ResourceModelCollisionException
 class Lathe\Exceptions\ResourceUriKeyCollisionException
 class Lathe\Field\Field
+class Lathe\Http\Controllers\Auth\AuthenticatedSessionController
+class Lathe\Http\Controllers\Auth\LoginPageController
 class Lathe\Http\Controllers\DashboardController
 class Lathe\Http\Controllers\Plugins\ModuleController
 class Lathe\Http\Controllers\Plugins\PluginApiController
@@ -364,6 +403,7 @@ class Lathe\Http\PanelRoutes
 class Lathe\Http\Payloads\IndexPayload
 class Lathe\Http\Requests\LatheRequest
 class Lathe\Lathe
+class Lathe\LatheApplicationServiceProvider
 class Lathe\LatheManager
 class Lathe\LatheServiceProvider
 class Lathe\Plugins\Plugin

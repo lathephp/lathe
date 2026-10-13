@@ -70,6 +70,7 @@ it('admits only on a callback that returns true itself', function () {
 });
 
 it('denies when the viewLathe gate is not defined', function () {
+    forgetGate('viewLathe');
     auth('panel')->setUser($this->admin);
 
     expect(Gate::has('viewLathe'))->toBeFalse()

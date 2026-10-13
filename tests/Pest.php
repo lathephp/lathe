@@ -1,5 +1,6 @@
 <?php
 
+use Illuminate\Contracts\Auth\Access\Gate;
 use Illuminate\Routing\RouteCollection;
 use Lathe\Http\PanelRoutes;
 use Lathe\Tests\TestCase;
@@ -15,4 +16,15 @@ function reloadLatheRoutes(): void
     $router->setRoutes(new RouteCollection);
     app(PanelRoutes::class)->register();
     $router->getRoutes()->refreshNameLookups();
+}
+
+/**
+ * Remove a gate ability, for tests of what happens when the app never defined it.
+ */
+function forgetGate(string $ability): void
+{
+    $gate = app(Gate::class);
+    $abilities = (fn () => $this->abilities)->call($gate);
+    unset($abilities[$ability]);
+    (fn () => $this->abilities = $abilities)->call($gate);
 }

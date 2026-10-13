@@ -82,10 +82,7 @@ it('warns about an unknown config key and still exits 0', function () {
 });
 
 it('fails when the viewLathe gate is undefined', function () {
-    $gate = app(Illuminate\Contracts\Auth\Access\Gate::class);
-    $abilities = (fn () => $this->abilities)->call($gate);
-    unset($abilities['viewLathe']);
-    (fn () => $this->abilities = $abilities)->call($gate);
+    forgetGate('viewLathe');
 
     [$code, $lines] = doctor();
 

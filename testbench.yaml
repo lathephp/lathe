@@ -3,6 +3,7 @@ laravel: '@testbench'
 providers:
   - Lathe\LatheServiceProvider
   - Workbench\App\Providers\WorkbenchServiceProvider
+  - Workbench\App\Providers\LatheServiceProvider
 
 migrations:
   - workbench/database/migrations
