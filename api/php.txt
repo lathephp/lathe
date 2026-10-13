@@ -803,6 +803,109 @@ Lathe\LatheServiceProvider::boot(): void
 Lathe\LatheServiceProvider::register(): void
 Lathe\LatheServiceProvider::registerMiddleware(): void  [protected]
 Lathe\LatheServiceProvider::validateConfig(): void  [protected]
+Lathe\Layout\Grid::__construct(int $columns = 2)
+Lathe\Layout\Grid::array $items  [protected]
+Lathe\Layout\Grid::getColumns(): int
+Lathe\Layout\Grid::getItems(): array
+Lathe\Layout\Grid::int $columns  [protected]
+Lathe\Layout\Grid::make(int $columns = 2): static  [static]
+Lathe\Layout\Grid::schema(array $items): static
+Lathe\Layout\Section::?int $columnSpan  [protected]
+Lathe\Layout\Section::?int $columns  [protected]
+Lathe\Layout\Section::?int $limit  [protected]
+Lathe\Layout\Section::?string $help  [protected]
+Lathe\Layout\Section::__construct(Stringable|string $name, array $fields = array ( ), ?string $attribute = NULL)
+Lathe\Layout\Section::array $fields  [protected]
+Lathe\Layout\Section::bool $borderless  [protected]
+Lathe\Layout\Section::bool $collapsed  [protected]
+Lathe\Layout\Section::bool $collapsible  [protected]
+Lathe\Layout\Section::bool $headingInCard  [protected]
+Lathe\Layout\Section::bool $hideHeading  [protected]
+Lathe\Layout\Section::bool $toolbar  [protected]
+Lathe\Layout\Section::borderless(bool $borderless = true): static
+Lathe\Layout\Section::collapsable(bool $collapsible = true): static
+Lathe\Layout\Section::collapsed(bool $collapsed = true): static
+Lathe\Layout\Section::collapsedByDefault(bool $collapsed = true): static
+Lathe\Layout\Section::collapsible(bool $collapsible = true): static
+Lathe\Layout\Section::columnSpan(?int $span): static
+Lathe\Layout\Section::columns(?int $columns): static
+Lathe\Layout\Section::getAttribute(): string
+Lathe\Layout\Section::getColumnSpan(): ?int
+Lathe\Layout\Section::getColumns(): ?int
+Lathe\Layout\Section::getFields(): array
+Lathe\Layout\Section::getName(): string
+Lathe\Layout\Section::headingInCard(bool $inCard = true): static
+Lathe\Layout\Section::help(string $html): static
+Lathe\Layout\Section::hideHeading(bool $hide = true): static
+Lathe\Layout\Section::limit(int $limit): static
+Lathe\Layout\Section::make(Stringable|string $name, array $fields = array ( ), ?string $attribute = NULL): static  [static]
+Lathe\Layout\Section::panel(array $fields): array
+Lathe\Layout\Section::schema(array $fields): static
+Lathe\Layout\Section::string $attribute  [protected]
+Lathe\Layout\Section::string $name  [protected]
+Lathe\Layout\Section::withAttribute(string $attribute): static
+Lathe\Layout\Section::withToolbar(bool $toolbar = true): static
+Lathe\Layout\SectionPresenter::columns(?int $columns, string $what): ?int  [static]
+Lathe\Layout\SectionPresenter::filterLayoutForForm(array $layout): array  [static]
+Lathe\Layout\SectionPresenter::flattenFields(array $items, ?string $defaultHeading = NULL): array  [static]
+Lathe\Layout\SectionPresenter::layout(array $items, Lathe\Field\FieldCollection $visible, Lathe\Http\Requests\LatheRequest $request, Lathe\Field\FieldContext $context, ?Illuminate\Database\Eloquent\Model $model = NULL, ?string $defaultHeading = 'Details'): array  [static]
+Lathe\Layout\Tab::?Closure $canSee  [protected]
+Lathe\Layout\Tab::?Lathe\Enums\Icon $icon  [protected]
+Lathe\Layout\Tab::?int $columns  [protected]
+Lathe\Layout\Tab::?string $badgeType  [protected]
+Lathe\Layout\Tab::BADGE_TYPES
+Lathe\Layout\Tab::Closure|string|null $badge  [protected]
+Lathe\Layout\Tab::__construct(string $label, array $fields = array ( ))
+Lathe\Layout\Tab::array $items  [protected]
+Lathe\Layout\Tab::badge(Closure|string|null $badge): static
+Lathe\Layout\Tab::badgeType(string $type): static
+Lathe\Layout\Tab::bool $borderless  [protected]
+Lathe\Layout\Tab::borderless(bool $borderless = true): static
+Lathe\Layout\Tab::canSee(Closure $callback): static
+Lathe\Layout\Tab::columns(?int $columns): static
+Lathe\Layout\Tab::getAttribute(): string
+Lathe\Layout\Tab::getBadge(): Closure|string|null
+Lathe\Layout\Tab::getBadgeType(): ?string
+Lathe\Layout\Tab::getCanSee(): ?Closure
+Lathe\Layout\Tab::getColumns(): ?int
+Lathe\Layout\Tab::getIcon(): ?Lathe\Enums\Icon
+Lathe\Layout\Tab::getItems(): array
+Lathe\Layout\Tab::getLabel(): string
+Lathe\Layout\Tab::group(?string $label = NULL, array $tabs = array ( )): Lathe\Layout\TabGroup  [static]
+Lathe\Layout\Tab::icon(Lathe\Enums\Icon $icon): static
+Lathe\Layout\Tab::isBorderless(): bool
+Lathe\Layout\Tab::make(string $label, array $fields = array ( )): static  [static]
+Lathe\Layout\Tab::schema(array $items): static
+Lathe\Layout\Tab::string $attribute  [protected]
+Lathe\Layout\Tab::string $label  [protected]
+Lathe\Layout\Tab::withAttribute(string $attribute): static
+Lathe\Layout\TabGroup::?int $columnSpan  [protected]
+Lathe\Layout\TabGroup::?string $attribute  [protected]
+Lathe\Layout\TabGroup::?string $label  [protected]
+Lathe\Layout\TabGroup::?string $queryKey  [protected]
+Lathe\Layout\TabGroup::__construct(?string $label = NULL, Lathe\Layout\Tab ...$tabs)
+Lathe\Layout\TabGroup::activeTab(int $index): static
+Lathe\Layout\TabGroup::array $tabs  [protected]
+Lathe\Layout\TabGroup::bool $contained  [protected]
+Lathe\Layout\TabGroup::bool $vertical  [protected]
+Lathe\Layout\TabGroup::columnSpan(?int $span): static
+Lathe\Layout\TabGroup::contained(bool $contained = true): static
+Lathe\Layout\TabGroup::getActiveTab(): int
+Lathe\Layout\TabGroup::getAttribute(): ?string
+Lathe\Layout\TabGroup::getColumnSpan(): ?int
+Lathe\Layout\TabGroup::getLabel(): ?string
+Lathe\Layout\TabGroup::getQueryKey(): ?string
+Lathe\Layout\TabGroup::getTabs(): array
+Lathe\Layout\TabGroup::int $activeTab  [protected]
+Lathe\Layout\TabGroup::isContained(): bool
+Lathe\Layout\TabGroup::isVertical(): bool
+Lathe\Layout\TabGroup::label(?string $label): static
+Lathe\Layout\TabGroup::make(?string $label = NULL, Lathe\Layout\Tab ...$tabs): static  [static]
+Lathe\Layout\TabGroup::persistTab(?string $queryKey = 'tab'): static
+Lathe\Layout\TabGroup::tab(Lathe\Layout\Tab $tab): static
+Lathe\Layout\TabGroup::tabs(array $tabs): static
+Lathe\Layout\TabGroup::vertical(bool $vertical = true): static
+Lathe\Layout\TabGroup::withAttribute(string $attribute): static
 Lathe\Lenses\Lens::?Closure $seeCallback  [protected]
 Lathe\Lenses\Lens::attribute(string $attribute): ?object  [protected static]
 Lathe\Lenses\Lens::authorizedToSee(Illuminate\Http\Request $request): bool
@@ -992,6 +1095,7 @@ Lathe\Resources\Resource::groups(Lathe\Http\Requests\LatheRequest $request): arr
 Lathe\Resources\Resource::indexQuery(Lathe\Http\Requests\LatheRequest $request, Illuminate\Database\Eloquent\Builder $query): Illuminate\Database\Eloquent\Builder  [static]
 Lathe\Resources\Resource::keyOf(Lathe\Resources\Resource $resource): string  [protected static]
 Lathe\Resources\Resource::label(): string  [static]
+Lathe\Resources\Resource::layoutFor(Lathe\Field\FieldContext $context, Lathe\Http\Requests\LatheRequest $request, ?Illuminate\Database\Eloquent\Model $model = NULL): array
 Lathe\Resources\Resource::lenses(Lathe\Http\Requests\LatheRequest $request): array
 Lathe\Resources\Resource::make(?Illuminate\Database\Eloquent\Model $model = NULL): static  [static]
 Lathe\Resources\Resource::model(): string  [static]
@@ -1504,6 +1608,11 @@ class Lathe\Lathe
 class Lathe\LatheApplicationServiceProvider
 class Lathe\LatheManager
 class Lathe\LatheServiceProvider
+class Lathe\Layout\Grid
+class Lathe\Layout\Section
+class Lathe\Layout\SectionPresenter
+class Lathe\Layout\Tab
+class Lathe\Layout\TabGroup
 class Lathe\Lenses\Lens
 class Lathe\Menu\MenuItem
 class Lathe\Menu\MenuSection

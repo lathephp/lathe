@@ -13,11 +13,21 @@ use Lathe\Field\FieldContext;
 use Lathe\Filters\Filter;
 use Lathe\Groups\Group;
 use Lathe\Http\Requests\LatheRequest;
+use Lathe\Layout\SectionPresenter;
 use Lathe\Lenses\Lens;
 use Lathe\Search\SearchableColumn;
+use Lathe\Support\SafeHtml;
 use Lathe\Tabs\Tab;
 
 /**
+ * One block of the layout tree.
+ *
+ * @phpstan-type LayoutPanel array{type: 'panel', attribute: string, name: string, fields: list<string>, toolbar: bool, collapsible: bool, collapsed: bool, hideHeading: bool, headingInCard: bool, help: SafeHtml|null, limit: int|null, columns: int|null, columnSpan: int|null, borderless: bool}
+ * @phpstan-type LayoutGrid array{type: 'grid', columns: int, items: list<array<string, mixed>>}
+ * @phpstan-type LayoutTab array{attribute: string, label: string, icon: string|null, badge: string|null, badgeType: 'info'|'success'|'warning'|'danger'|null, columns: int|null, borderless: bool, items: list<array<string, mixed>>}
+ * @phpstan-type LayoutTabGroup array{type: 'tab-group', attribute: string, label: string|null, queryKey: string, activeTab: int, vertical: bool, contained: bool, columnSpan: int|null, tabs: list<LayoutTab>}
+ * @phpstan-type LayoutBlock LayoutPanel|LayoutGrid|LayoutTabGroup
+ *
  * @phpstan-consistent-constructor
  */
 abstract class Resource
@@ -91,6 +101,7 @@ abstract class Resource
 
     /**
      * The frozen fields of a context: its own list when it returns any, else fields().
+     * Layout containers are flattened in declaration order, each field linked to its section.
      * Built once per request and context, so canSee and closures never run twice.
      */
     public function fieldsFor(FieldContext $context, LatheRequest $request): FieldCollection
@@ -102,6 +113,44 @@ abstract class Resource
             return $cached;
         }
 
+        $fields = new FieldCollection(SectionPresenter::flattenFields($this->layoutItemsFor($context, $request), 'Details'));
+        $fields->each(fn (Field $field) => $field->freeze());
+
+        $request->attributes->set($key, $fields);
+
+        return $fields;
+    }
+
+    /**
+     * The layout tree of a context, built from the same items as fieldsFor(). Only the fields
+     * shown in the context and allowed for this user appear.
+     *
+     * @return list<LayoutBlock>
+     */
+    public function layoutFor(FieldContext $context, LatheRequest $request, ?Model $model = null): array
+    {
+        $fields = $this->fieldsFor($context, $request)->forContext($context, $request, $model)->authorized($request);
+
+        /** @var list<LayoutBlock> $layout */
+        $layout = SectionPresenter::layout($this->layoutItemsFor($context, $request), $fields, $request, $context, $model);
+
+        return $layout;
+    }
+
+    /**
+     * The raw items of a context, read from fields() once per request.
+     *
+     * @return list<mixed>
+     */
+    private function layoutItemsFor(FieldContext $context, LatheRequest $request): array
+    {
+        $key = 'lathe.layout-items.'.static::class.'.'.$context->value;
+        $cached = $request->attributes->get($key);
+
+        if (is_array($cached)) {
+            return array_values($cached);
+        }
+
         $items = match ($context) {
             FieldContext::Index => $this->fieldsForIndex($request),
             FieldContext::Detail => $this->fieldsForDetail($request),
@@ -110,16 +159,11 @@ abstract class Resource
             FieldContext::Preview => $this->fieldsForPreview($request),
             FieldContext::Peeking => $this->fieldsForPeeking($request),
         };
+        $items = $items === [] ? $this->fields($request) : $items;
 
-        $fields = new FieldCollection(array_values(array_filter(
-            $items === [] ? $this->fields($request) : $items,
-            fn (mixed $field) => $field instanceof Field,
-        )));
-        $fields->each(fn (Field $field) => $field->freeze());
+        $request->attributes->set($key, $items);
 
-        $request->attributes->set($key, $fields);
-
-        return $fields;
+        return $items;
     }
 
     /**
