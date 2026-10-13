@@ -195,6 +195,7 @@ it('answers 422 with errors.filter for a bad filter, never 500', function (strin
     'a decimal for an integer column' => ['filter[field_total_cents][min]=10.5'],
     'an exponent for an integer column' => ['filter[field_total_cents][max]=1e20'],
     'an integer past PHP_INT_MAX' => ['filter[field_total_cents][min]=99999999999999999999'],
+    'a remote value the filter refuses' => ['filter[customer]=abc'],
 ]);
 
 it('answers 422 for a malformed or hidden filter on the page too', function (string $query) {

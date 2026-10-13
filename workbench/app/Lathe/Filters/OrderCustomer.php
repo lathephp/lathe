@@ -49,6 +49,12 @@ class OrderCustomer extends Filter
             ->all());
     }
 
+    // customer_id is a bigint: PostgreSQL answers 500 for "abc" or a number past its range.
+    protected function acceptsRemoteValue(string $value): bool
+    {
+        return ctype_digit($value) && filter_var($value, FILTER_VALIDATE_INT) !== false;
+    }
+
     public function apply(LatheRequest $request, Builder $query, mixed $value): Builder
     {
         return $query->where($query->qualifyColumn('customer_id'), $value);

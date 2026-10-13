@@ -423,6 +423,7 @@ Lathe\Filters\FieldFilter::string $attribute  [protected]
 Lathe\Filters\FieldFilter::string $label  [protected]
 Lathe\Filters\Filter::?Closure $seeCallback  [protected]
 Lathe\Filters\Filter::Closure|bool $searchable  [protected]
+Lathe\Filters\Filter::acceptsRemoteValue(string $value): bool  [protected]
 Lathe\Filters\Filter::apply(Lathe\Http\Requests\LatheRequest $request, Illuminate\Database\Eloquent\Builder $query, mixed $value): Illuminate\Database\Eloquent\Builder
 Lathe\Filters\Filter::authorizedToSee(Lathe\Http\Requests\LatheRequest $request): bool
 Lathe\Filters\Filter::bool $immediate  [protected]

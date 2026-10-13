@@ -198,12 +198,21 @@ abstract class Filter
         $options = $remote ? [] : array_map(fn (mixed $option) => is_scalar($option) ? (string) $option : '', array_values($this->options($request)));
 
         foreach ($values as $item) {
-            if (! is_string($item) || ($options !== [] && ! in_array($item, $options, true))) {
+            if (! is_string($item) || ($options !== [] && ! in_array($item, $options, true)) || ($remote && ! $this->acceptsRemoteValue($item))) {
                 $this->invalid();
             }
         }
 
         return $this->multiple ? $values : $value;
+    }
+
+    /**
+     * Whether a remote filter takes this value. Its options are never loaded to check it, so a
+     * filter over integer keys refuses a value its column cannot hold; refused is 422.
+     */
+    protected function acceptsRemoteValue(string $value): bool
+    {
+        return true;
     }
 
     protected function invalid(): never
