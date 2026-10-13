@@ -20,6 +20,7 @@ use Lathe\Http\Controllers\Resources\FilterController;
 use Lathe\Http\Controllers\Resources\IndexController;
 use Lathe\Http\Controllers\Resources\IndexPageController;
 use Lathe\Http\Controllers\Resources\LensController;
+use Lathe\Http\Controllers\Resources\RecordController;
 use Lathe\Http\Controllers\Resources\SavedTabController;
 use Lathe\Http\Middleware\Authenticate;
 use Lathe\Http\Middleware\AuthorizePlugin;
@@ -90,6 +91,8 @@ class PanelRoutes
             $router->get('resources/{resource}/lenses/{lens}', [LensController::class, 'index'])->name('resources.lenses.index');
             $router->get('resources/{resource}/lenses/{lens}/count', [LensController::class, 'count'])->name('resources.lenses.count');
             $router->get('resources/{resource}/lenses/{lens}/filters', [LensController::class, 'filters'])->name('resources.lenses.filters');
+            $router->post('resources/{resource}', [RecordController::class, 'store'])->name('resources.store');
+            $router->put('resources/{resource}/{resourceId}', [RecordController::class, 'update'])->name('resources.update');
             $router->delete('resources/{resource}/{resourceId}', [DeleteController::class, 'delete'])->name('resources.delete');
             $router->delete('resources/{resource}/{resourceId}/force', [DeleteController::class, 'forceDelete'])->name('resources.forceDelete');
             $router->put('resources/{resource}/{resourceId}/restore', [DeleteController::class, 'restore'])->name('resources.restore');

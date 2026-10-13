@@ -105,6 +105,20 @@ class Field implements JsonSerializable
     /** @var array<int, mixed>|Closure */
     protected array|Closure $nullValues = [''];
 
+    /** @var list<mixed> */
+    protected array $rules = [];
+
+    /** @var list<mixed> */
+    protected array $creationRules = [];
+
+    /** @var list<mixed> */
+    protected array $updateRules = [];
+
+    /** @var array<string, string> */
+    protected array $messages = [];
+
+    protected ?string $validationAttribute = null;
+
     /** The context closures read while this copy resolves; see withContext(). */
     protected ?FieldContext $context = null;
 
@@ -752,6 +766,147 @@ class Field implements JsonSerializable
             'field' => $this,
             'context' => $this->context,
         ], $positional);
+    }
+
+    // Validation
+
+    /**
+     * Rules for every write. `{{resourceId}}` in a rule string becomes the record key on update.
+     */
+    public function rules(mixed ...$rules): static
+    {
+        $this->mutate();
+        $this->rules = self::ruleList($rules);
+
+        return $this;
+    }
+
+    public function creationRules(mixed ...$rules): static
+    {
+        $this->mutate();
+        $this->creationRules = self::ruleList($rules);
+
+        return $this;
+    }
+
+    public function updateRules(mixed ...$rules): static
+    {
+        $this->mutate();
+        $this->updateRules = self::ruleList($rules);
+
+        return $this;
+    }
+
+    /**
+     * @param  array<string, string>  $messages  keyed by rule name, such as required
+     */
+    public function messages(array $messages): static
+    {
+        $this->mutate();
+        $this->messages = $messages;
+
+        return $this;
+    }
+
+    /**
+     * The name validation messages use for this field.
+     */
+    public function validationAttribute(string $name): static
+    {
+        $this->mutate();
+        $this->validationAttribute = $name;
+
+        return $this;
+    }
+
+    /**
+     * The rules of one write, keyed by the input key they check.
+     *
+     * @return array<string, list<mixed>>
+     */
+    public function getRules(FieldContext $context, ?LatheRequest $request = null, ?Model $model = null): array
+    {
+        $rules = [
+            ...$this->rules,
+            ...($context === FieldContext::Update ? $this->updateRules : $this->creationRules),
+        ];
+
+        if ($this->isRequired($request, $model) && ! in_array('required', $rules, true)) {
+            array_unshift($rules, 'required');
+        } elseif ($this->isNullable() && ! in_array('nullable', $rules, true)) {
+            array_unshift($rules, 'nullable');
+        }
+
+        $rules = [...$rules, ...array_filter($this->impliedRules(), fn (mixed $rule) => ! is_string($rule) || ! self::hasRule($rules, $rule))];
+        $key = $model?->getKey();
+
+        return [$this->attribute => array_map(
+            fn (mixed $rule) => is_string($rule) && is_scalar($key) ? str_replace('{{resourceId}}', (string) $key, $rule) : $rule,
+            $rules,
+        )];
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    public function getMessages(): array
+    {
+        $messages = [];
+
+        foreach ($this->messages as $rule => $message) {
+            $messages["{$this->attribute}.{$rule}"] = $message;
+        }
+
+        return $messages;
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    public function getValidationAttributes(): array
+    {
+        return $this->validationAttribute === null ? [] : [$this->attribute => $this->validationAttribute];
+    }
+
+    /**
+     * The rules the type implies, added when the field does not state them (numeric, in, date ...).
+     *
+     * @return list<mixed>
+     */
+    protected function impliedRules(): array
+    {
+        return [];
+    }
+
+    /**
+     * @param  list<mixed>  $rules
+     */
+    protected static function hasRule(array $rules, string $rule): bool
+    {
+        $name = Str::before($rule, ':');
+
+        return array_filter($rules, fn (mixed $given) => is_string($given) && Str::before($given, ':') === $name) !== [];
+    }
+
+    /**
+     * Rules as given: arrays, pipe strings, rule objects and Closure rules.
+     *
+     * @param  array<mixed>  $rules
+     * @return list<mixed>
+     */
+    protected static function ruleList(array $rules): array
+    {
+        $list = [];
+
+        foreach ($rules as $rule) {
+            array_push($list, ...match (true) {
+                is_array($rule) => array_values($rule),
+                is_string($rule) => explode('|', $rule),
+                default => [$rule],
+            });
+        }
+
+        return $list;
     }
 
     // Values

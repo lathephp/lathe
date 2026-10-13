@@ -379,6 +379,9 @@ Lathe\Enums\TableStyle::Default
 Lathe\Enums\TableStyle::Tight
 Lathe\Enums\TableStyle::string $name
 Lathe\Enums\TableStyle::string $value
+Lathe\Events\ResourceCreated::Illuminate\Database\Eloquent\Model $model
+Lathe\Events\ResourceCreated::__construct(Illuminate\Database\Eloquent\Model $model, string $resource)
+Lathe\Events\ResourceCreated::string $resource
 Lathe\Events\ResourceDeleted::Illuminate\Database\Eloquent\Model $model
 Lathe\Events\ResourceDeleted::__construct(Illuminate\Database\Eloquent\Model $model, string $resource)
 Lathe\Events\ResourceDeleted::string $resource
@@ -388,6 +391,11 @@ Lathe\Events\ResourceForceDeleted::string $resource
 Lathe\Events\ResourceRestored::Illuminate\Database\Eloquent\Model $model
 Lathe\Events\ResourceRestored::__construct(Illuminate\Database\Eloquent\Model $model, string $resource)
 Lathe\Events\ResourceRestored::string $resource
+Lathe\Events\ResourceUpdated::Illuminate\Database\Eloquent\Model $model
+Lathe\Events\ResourceUpdated::__construct(Illuminate\Database\Eloquent\Model $model, string $resource, array $original = array ( ), array $changes = array ( ))
+Lathe\Events\ResourceUpdated::array $changes
+Lathe\Events\ResourceUpdated::array $original
+Lathe\Events\ResourceUpdated::string $resource
 Lathe\Events\ServingLathe::Illuminate\Http\Request $request
 Lathe\Events\ServingLathe::__construct(Illuminate\Http\Request $request)
 Lathe\Field\DefaultLifecycle::MAX_SAFE_INTEGER
@@ -410,16 +418,21 @@ Lathe\Field\Field::?Closure $resolver  [protected]
 Lathe\Field\Field::?Closure $seeCallback  [protected]
 Lathe\Field\Field::?Lathe\Field\FieldContext $context  [protected]
 Lathe\Field\Field::?WeakMap $seen  [protected]
+Lathe\Field\Field::?string $validationAttribute  [protected]
 Lathe\Field\Field::Closure|array $nullValues  [protected]
 Lathe\Field\Field::Closure|bool $immutable  [protected]
 Lathe\Field\Field::Closure|bool $readonly  [protected]
 Lathe\Field\Field::Closure|bool $required  [protected]
 Lathe\Field\Field::Lathe\Field\FieldLifecycle $lifecycle  [protected]
 Lathe\Field\Field::__construct(string $label, Closure|string|null $attribute = NULL, ?Closure $resolver = NULL)
+Lathe\Field\Field::array $creationRules  [protected]
 Lathe\Field\Field::array $hides  [protected]
+Lathe\Field\Field::array $messages  [protected]
 Lathe\Field\Field::array $meta  [protected]
 Lathe\Field\Field::array $options  [protected]
+Lathe\Field\Field::array $rules  [protected]
 Lathe\Field\Field::array $summaries  [protected]
+Lathe\Field\Field::array $updateRules  [protected]
 Lathe\Field\Field::array $visibility  [protected]
 Lathe\Field\Field::attribute(): string
 Lathe\Field\Field::authorizedToSee(Lathe\Http\Requests\LatheRequest $request): bool
@@ -434,6 +447,7 @@ Lathe\Field\Field::cell(Illuminate\Database\Eloquent\Model $model): array
 Lathe\Field\Field::columnSpan(?int $span): static
 Lathe\Field\Field::compact(bool $compact = true): static
 Lathe\Field\Field::component(string $component): static
+Lathe\Field\Field::creationRules(mixed ...$rules): static
 Lathe\Field\Field::decide(Closure|bool $value, ?Lathe\Http\Requests\LatheRequest $request, mixed $model): bool  [protected]
 Lathe\Field\Field::default(mixed $value): static
 Lathe\Field\Field::displayUsing(Closure $callback): static
@@ -445,8 +459,12 @@ Lathe\Field\Field::filterable(bool $filterable = true, int $scale = 1): static
 Lathe\Field\Field::fullWidth(bool $fullWidth = true): static
 Lathe\Field\Field::getColumnSpan(): ?int
 Lathe\Field\Field::getComponent(): string
+Lathe\Field\Field::getMessages(): array
+Lathe\Field\Field::getRules(Lathe\Field\FieldContext $context, ?Lathe\Http\Requests\LatheRequest $request = NULL, ?Illuminate\Database\Eloquent\Model $model = NULL): array
 Lathe\Field\Field::getSection(): ?string
 Lathe\Field\Field::getSummaries(): array
+Lathe\Field\Field::getValidationAttributes(): array
+Lathe\Field\Field::hasRule(array $rules, string $rule): bool  [protected static]
 Lathe\Field\Field::help(string $help): static
 Lathe\Field\Field::helpWidth(string|int $width): static
 Lathe\Field\Field::hideFromDetail(Closure|bool $hide = true): static
@@ -457,6 +475,7 @@ Lathe\Field\Field::hideWhenPeeking(Closure|bool $hide = true): static
 Lathe\Field\Field::hideWhenUpdating(Closure|bool $hide = true): static
 Lathe\Field\Field::id(string $label = 'ID', string $attribute = 'id'): Lathe\Field\IdField  [static]
 Lathe\Field\Field::immutable(Closure|bool $immutable = true): static
+Lathe\Field\Field::impliedRules(): array  [protected]
 Lathe\Field\Field::indexWidth(int $pixels): static
 Lathe\Field\Field::int $filterScale  [protected]
 Lathe\Field\Field::isComputed(): bool
@@ -475,6 +494,7 @@ Lathe\Field\Field::label(): string
 Lathe\Field\Field::lifecycle(): Lathe\Field\FieldLifecycle
 Lathe\Field\Field::make(string $label, Closure|string|null $attribute = NULL, ?Closure $resolver = NULL): static  [static]
 Lathe\Field\Field::makeFieldFilter(): Lathe\Filters\FieldFilter
+Lathe\Field\Field::messages(array $messages): static
 Lathe\Field\Field::meta(): array
 Lathe\Field\Field::mixed $default  [protected]
 Lathe\Field\Field::mutate(): void  [protected]
@@ -493,6 +513,8 @@ Lathe\Field\Field::resolve(object $record, ?string $attribute = NULL): mixed
 Lathe\Field\Field::resolveDefaultValue(?Lathe\Http\Requests\LatheRequest $request = NULL): mixed
 Lathe\Field\Field::resolveForDisplay(object $record, ?string $attribute = NULL): mixed
 Lathe\Field\Field::resolveUsing(Closure $callback): static
+Lathe\Field\Field::ruleList(array $rules): array  [protected static]
+Lathe\Field\Field::rules(mixed ...$rules): static
 Lathe\Field\Field::schema(Lathe\Field\FieldContext $context, Lathe\Http\Requests\LatheRequest $request, ?Illuminate\Database\Eloquent\Model $model = NULL): array
 Lathe\Field\Field::setVisibility(Lathe\Field\FieldContext $context, Closure|bool $value, bool $hide = false): static  [protected]
 Lathe\Field\Field::showOnCreating(Closure|bool $show = true): static
@@ -509,7 +531,9 @@ Lathe\Field\Field::string $component  [protected]
 Lathe\Field\Field::string $label  [protected]
 Lathe\Field\Field::summarize(Lathe\Summaries\Summary ...$summaries): static
 Lathe\Field\Field::textAlign(string $align): static
+Lathe\Field\Field::updateRules(mixed ...$rules): static
 Lathe\Field\Field::useLifecycle(Lathe\Field\FieldLifecycle $lifecycle): static
+Lathe\Field\Field::validationAttribute(string $name): static
 Lathe\Field\Field::withContext(Lathe\Field\FieldContext $context): static
 Lathe\Field\Field::withMeta(array $meta): static
 Lathe\Field\Field::withSection(string $section): static
@@ -661,6 +685,9 @@ Lathe\Http\Controllers\Resources\LensController::filters(Lathe\Http\Requests\Lat
 Lathe\Http\Controllers\Resources\LensController::index(Lathe\Http\Requests\LatheRequest $request, Lathe\Auth\ResourceAuthorization $authorization, Lathe\Http\Payloads\IndexPayload $payload): Illuminate\Http\JsonResponse
 Lathe\Http\Controllers\Resources\LensController::page(Lathe\Http\Requests\LatheRequest $request, Lathe\Auth\ResourceAuthorization $authorization, Lathe\Http\Payloads\IndexPayload $payload): Symfony\Component\HttpFoundation\Response
 Lathe\Http\Controllers\Resources\LensController::viewableLens(Lathe\Http\Requests\LatheRequest $request, Lathe\Auth\ResourceAuthorization $authorization): array  [protected]
+Lathe\Http\Controllers\Resources\RecordController::fillAndSave(Lathe\Http\Requests\LatheRequest $request, Illuminate\Database\Eloquent\Model $model, array $fields): void  [protected]
+Lathe\Http\Controllers\Resources\RecordController::store(Lathe\Http\Requests\LatheRequest $request, Lathe\Auth\ResourceAuthorization $authorization, string $resource): Illuminate\Http\JsonResponse
+Lathe\Http\Controllers\Resources\RecordController::update(Lathe\Http\Requests\LatheRequest $request, Lathe\Auth\ResourceAuthorization $authorization, string $resource, string $resourceId): Illuminate\Http\JsonResponse
 Lathe\Http\Controllers\Resources\SavedTabController::attributes(Lathe\Http\Requests\LatheRequest $request, Lathe\Resources\Resource $resource, bool $creating): array  [protected]
 Lathe\Http\Controllers\Resources\SavedTabController::destroy(Lathe\Http\Requests\LatheRequest $request, Lathe\Auth\ResourceAuthorization $authorization, Lathe\Support\ConfigStore $config): Illuminate\Http\Response
 Lathe\Http\Controllers\Resources\SavedTabController::enabledResource(Lathe\Http\Requests\LatheRequest $request, Lathe\Auth\ResourceAuthorization $authorization, Lathe\Support\ConfigStore $config): string  [protected]
@@ -930,14 +957,22 @@ Lathe\Query\ResourceQuery::withoutScope(string $globalScope): static
 Lathe\Resources\Resource::?Illuminate\Database\Eloquent\Model $model  [protected]
 Lathe\Resources\Resource::?string $policy
 Lathe\Resources\Resource::__construct(?Illuminate\Database\Eloquent\Model $model = NULL)
+Lathe\Resources\Resource::afterCreate(Lathe\Http\Requests\LatheRequest $request, Illuminate\Database\Eloquent\Model $model): void  [static]
+Lathe\Resources\Resource::afterCreationValidation(Lathe\Http\Requests\LatheRequest $request, Illuminate\Contracts\Validation\Validator $validator): void  [static]
 Lathe\Resources\Resource::afterDelete(Lathe\Http\Requests\LatheRequest $request, Illuminate\Database\Eloquent\Model $model): void  [static]
 Lathe\Resources\Resource::afterForceDelete(Lathe\Http\Requests\LatheRequest $request, Illuminate\Database\Eloquent\Model $model): void  [static]
 Lathe\Resources\Resource::afterRestore(Lathe\Http\Requests\LatheRequest $request, Illuminate\Database\Eloquent\Model $model): void  [static]
+Lathe\Resources\Resource::afterUpdate(Lathe\Http\Requests\LatheRequest $request, Illuminate\Database\Eloquent\Model $model): void  [static]
+Lathe\Resources\Resource::afterUpdateValidation(Lathe\Http\Requests\LatheRequest $request, Illuminate\Contracts\Validation\Validator $validator): void  [static]
+Lathe\Resources\Resource::afterValidation(Lathe\Http\Requests\LatheRequest $request, Illuminate\Contracts\Validation\Validator $validator): void  [static]
 Lathe\Resources\Resource::availableFilters(Lathe\Http\Requests\LatheRequest $request): array
+Lathe\Resources\Resource::beforeCreate(Lathe\Http\Requests\LatheRequest $request, Illuminate\Database\Eloquent\Model $model): void  [static]
 Lathe\Resources\Resource::beforeDelete(Lathe\Http\Requests\LatheRequest $request, Illuminate\Database\Eloquent\Model $model): void  [static]
 Lathe\Resources\Resource::beforeForceDelete(Lathe\Http\Requests\LatheRequest $request, Illuminate\Database\Eloquent\Model $model): void  [static]
 Lathe\Resources\Resource::beforeRestore(Lathe\Http\Requests\LatheRequest $request, Illuminate\Database\Eloquent\Model $model): void  [static]
+Lathe\Resources\Resource::beforeUpdate(Lathe\Http\Requests\LatheRequest $request, Illuminate\Database\Eloquent\Model $model): void  [static]
 Lathe\Resources\Resource::configure(Lathe\Resources\ResourceDefinition $definition): Lathe\Resources\ResourceDefinition  [protected]
+Lathe\Resources\Resource::defaultAttributes(Lathe\Http\Requests\LatheRequest $request): array  [static]
 Lathe\Resources\Resource::definition(): Lathe\Resources\ResourceDefinition
 Lathe\Resources\Resource::detailQuery(Lathe\Http\Requests\LatheRequest $request, Illuminate\Database\Eloquent\Builder $query): Illuminate\Database\Eloquent\Builder  [static]
 Lathe\Resources\Resource::editQuery(Lathe\Http\Requests\LatheRequest $request, Illuminate\Database\Eloquent\Builder $query): Illuminate\Database\Eloquent\Builder  [static]
@@ -955,12 +990,15 @@ Lathe\Resources\Resource::forModel(?Illuminate\Database\Eloquent\Model $model): 
 Lathe\Resources\Resource::getModel(): ?Illuminate\Database\Eloquent\Model
 Lathe\Resources\Resource::groups(Lathe\Http\Requests\LatheRequest $request): array
 Lathe\Resources\Resource::indexQuery(Lathe\Http\Requests\LatheRequest $request, Illuminate\Database\Eloquent\Builder $query): Illuminate\Database\Eloquent\Builder  [static]
+Lathe\Resources\Resource::keyOf(Lathe\Resources\Resource $resource): string  [protected static]
 Lathe\Resources\Resource::label(): string  [static]
 Lathe\Resources\Resource::lenses(Lathe\Http\Requests\LatheRequest $request): array
 Lathe\Resources\Resource::make(?Illuminate\Database\Eloquent\Model $model = NULL): static  [static]
 Lathe\Resources\Resource::model(): string  [static]
 Lathe\Resources\Resource::newModel(): Illuminate\Database\Eloquent\Model  [static]
+Lathe\Resources\Resource::redirectAfterCreate(Lathe\Http\Requests\LatheRequest $request, Lathe\Resources\Resource $resource): string  [static]
 Lathe\Resources\Resource::redirectAfterDelete(Lathe\Http\Requests\LatheRequest $request): string  [static]
+Lathe\Resources\Resource::redirectAfterUpdate(Lathe\Http\Requests\LatheRequest $request, Lathe\Resources\Resource $resource): string  [static]
 Lathe\Resources\Resource::relatableQuery(Lathe\Http\Requests\LatheRequest $request, Illuminate\Database\Eloquent\Builder $query): Illuminate\Database\Eloquent\Builder  [static]
 Lathe\Resources\Resource::replicateQuery(Lathe\Http\Requests\LatheRequest $request, Illuminate\Database\Eloquent\Builder $query): Illuminate\Database\Eloquent\Builder  [static]
 Lathe\Resources\Resource::resolveText(Closure|string $source): string  [protected]
@@ -1129,6 +1167,15 @@ Lathe\Resources\ResourceRegistry::searchTargets(Illuminate\Database\Eloquent\Mod
 Lathe\Resources\ResourceRegistry::useCachePath(string $path): void
 Lathe\Resources\ResourceRegistry::validate(string $class, Lathe\Resources\ResourceDefinition $definition): void  [protected]
 Lathe\Resources\ResourceRegistry::validateSearchColumns(string $class, Lathe\Resources\ResourceDefinition $definition, array $tables): void  [protected]
+Lathe\Resources\ValidationPipeline::?Illuminate\Database\Eloquent\Model $model  [protected]
+Lathe\Resources\ValidationPipeline::Lathe\Field\FieldCollection $fields  [protected]
+Lathe\Resources\ValidationPipeline::Lathe\Field\FieldContext $context  [protected]
+Lathe\Resources\ValidationPipeline::Lathe\Http\Requests\LatheRequest $request  [protected]
+Lathe\Resources\ValidationPipeline::__construct(Lathe\Field\FieldCollection $fields, Lathe\Http\Requests\LatheRequest $request, Lathe\Field\FieldContext $context, string $resource, ?Illuminate\Database\Eloquent\Model $model = NULL)
+Lathe\Resources\ValidationPipeline::string $resource  [protected]
+Lathe\Resources\ValidationPipeline::validate(): void
+Lathe\Resources\ValidationPipeline::validator(): Illuminate\Contracts\Validation\Validator
+Lathe\Resources\ValidationPipeline::writable(Lathe\Field\FieldCollection $fields, Lathe\Field\FieldContext $context, Lathe\Http\Requests\LatheRequest $request, ?Illuminate\Database\Eloquent\Model $model = NULL): Lathe\Field\FieldCollection  [static]
 Lathe\SavedTabs\SavedTab::$fillable  [protected]
 Lathe\SavedTabs\SavedTab::$table  [protected]
 Lathe\SavedTabs\SavedTab::casts(): array  [protected]
@@ -1340,8 +1387,13 @@ Lathe\Testing\ResourceTester::$unencryptedCookies  [protected]
 Lathe\Testing\ResourceTester::$withCredentials  [protected]
 Lathe\Testing\ResourceTester::Illuminate\Contracts\Foundation\Application $app  [protected]
 Lathe\Testing\ResourceTester::__construct(string $uriKey)
+Lathe\Testing\ResourceTester::delete(string|int $id): Illuminate\Testing\TestResponse
+Lathe\Testing\ResourceTester::forceDelete(string|int $id): Illuminate\Testing\TestResponse
 Lathe\Testing\ResourceTester::index(array $query = array ( )): Illuminate\Testing\TestResponse
+Lathe\Testing\ResourceTester::restore(string|int $id): Illuminate\Testing\TestResponse
+Lathe\Testing\ResourceTester::store(array $data): Illuminate\Testing\TestResponse
 Lathe\Testing\ResourceTester::string $uriKey  [protected]
+Lathe\Testing\ResourceTester::update(string|int $id, array $data): Illuminate\Testing\TestResponse
 Lathe\Testing\ResourceTester::uri(): string  [protected]
 Lathe\Testing\TestCase::getPackageProviders($app): array  [protected]
 Lathe\Testing\TestCase::setUp(): void  [protected]
@@ -1393,9 +1445,11 @@ class Lathe\Dashboards\DashboardRegistry
 class Lathe\Dashboards\Main
 class Lathe\Doctor\CheckResult
 class Lathe\Doctor\Doctor
+class Lathe\Events\ResourceCreated
 class Lathe\Events\ResourceDeleted
 class Lathe\Events\ResourceForceDeleted
 class Lathe\Events\ResourceRestored
+class Lathe\Events\ResourceUpdated
 class Lathe\Events\ServingLathe
 class Lathe\Exceptions\DuplicateRowKeyException
 class Lathe\Exceptions\InvalidConfigurationException
@@ -1432,6 +1486,7 @@ class Lathe\Http\Controllers\Resources\FilterController
 class Lathe\Http\Controllers\Resources\IndexController
 class Lathe\Http\Controllers\Resources\IndexPageController
 class Lathe\Http\Controllers\Resources\LensController
+class Lathe\Http\Controllers\Resources\RecordController
 class Lathe\Http\Controllers\Resources\SavedTabController
 class Lathe\Http\ErrorPages
 class Lathe\Http\Middleware\Authenticate
@@ -1462,6 +1517,7 @@ class Lathe\Query\ResourceQuery
 class Lathe\Resources\Resource
 class Lathe\Resources\ResourceDefinition
 class Lathe\Resources\ResourceRegistry
+class Lathe\Resources\ValidationPipeline
 class Lathe\SavedTabs\SavedTab
 class Lathe\SavedTabs\SavedTabQueryApplicator
 class Lathe\SavedTabs\SchemaHash

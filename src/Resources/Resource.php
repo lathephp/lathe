@@ -3,6 +3,7 @@
 namespace Lathe\Resources;
 
 use Closure;
+use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
@@ -370,6 +371,89 @@ abstract class Resource
     public static function afterRestore(LatheRequest $request, Model $model): void
     {
         //
+    }
+
+    /**
+     * Attributes a new model starts with, under the field defaults.
+     *
+     * @return array<string, mixed>
+     */
+    public static function defaultAttributes(LatheRequest $request): array
+    {
+        return [];
+    }
+
+    /**
+     * Runs after the rules of a create or an update; add errors to the validator to refuse the write.
+     */
+    public static function afterValidation(LatheRequest $request, Validator $validator): void
+    {
+        //
+    }
+
+    public static function afterCreationValidation(LatheRequest $request, Validator $validator): void
+    {
+        //
+    }
+
+    public static function afterUpdateValidation(LatheRequest $request, Validator $validator): void
+    {
+        //
+    }
+
+    /**
+     * Runs inside the create transaction, before the fields fill the model.
+     */
+    public static function beforeCreate(LatheRequest $request, Model $model): void
+    {
+        //
+    }
+
+    /**
+     * Runs once the create has committed.
+     */
+    public static function afterCreate(LatheRequest $request, Model $model): void
+    {
+        //
+    }
+
+    /**
+     * Runs inside the update transaction, before the fields fill the model.
+     */
+    public static function beforeUpdate(LatheRequest $request, Model $model): void
+    {
+        //
+    }
+
+    /**
+     * Runs once the update has committed.
+     */
+    public static function afterUpdate(LatheRequest $request, Model $model): void
+    {
+        //
+    }
+
+    /**
+     * Where the panel goes after a create: the new record's detail page.
+     */
+    public static function redirectAfterCreate(LatheRequest $request, self $resource): string
+    {
+        return static::uriKey().'/'.static::keyOf($resource);
+    }
+
+    /**
+     * Where the panel goes after an update: the record's detail page.
+     */
+    public static function redirectAfterUpdate(LatheRequest $request, self $resource): string
+    {
+        return static::uriKey().'/'.static::keyOf($resource);
+    }
+
+    protected static function keyOf(self $resource): string
+    {
+        $key = $resource->getModel()?->getKey();
+
+        return is_scalar($key) ? (string) $key : '';
     }
 
     /**

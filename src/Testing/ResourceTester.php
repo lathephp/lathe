@@ -35,6 +35,52 @@ class ResourceTester
         return $this->getJson($this->uri().($query === [] ? '' : '?'.http_build_query($query)));
     }
 
+    /**
+     * Create a record.
+     *
+     * @param  array<string, mixed>  $data
+     * @return TestResponse<Response>
+     */
+    public function store(array $data): TestResponse
+    {
+        return $this->postJson($this->uri(), $data);
+    }
+
+    /**
+     * Update a record.
+     *
+     * @param  array<string, mixed>  $data
+     * @return TestResponse<Response>
+     */
+    public function update(string|int $id, array $data): TestResponse
+    {
+        return $this->putJson($this->uri().'/'.$id, $data);
+    }
+
+    /**
+     * @return TestResponse<Response>
+     */
+    public function delete(string|int $id): TestResponse
+    {
+        return $this->deleteJson($this->uri().'/'.$id);
+    }
+
+    /**
+     * @return TestResponse<Response>
+     */
+    public function forceDelete(string|int $id): TestResponse
+    {
+        return $this->deleteJson($this->uri().'/'.$id.'/force');
+    }
+
+    /**
+     * @return TestResponse<Response>
+     */
+    public function restore(string|int $id): TestResponse
+    {
+        return $this->putJson($this->uri().'/'.$id.'/restore');
+    }
+
     protected function uri(): string
     {
         return rtrim(Lathe::path(), '/').'/api/resources/'.$this->uriKey;
