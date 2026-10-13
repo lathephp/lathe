@@ -128,8 +128,7 @@ export default function Index({ resource, table, state, count }: IndexProps) {
               <Deferred
                 data="count"
                 fallback={__('Showing :from to :to', { from, to })}
-                // A failed count keeps the rows and shows an em dash for the total. The
-                // placeholder is :count because the translator would replace :to inside :total.
+                // A failed count keeps the rows and shows an em dash for the total.
                 rescue={__('Showing :from to :to of :count', { from, to, count: '—' })}
               >
                 {count !== undefined &&

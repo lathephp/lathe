@@ -1,5 +1,6 @@
 import { __panel, plugin, type PluginPageProps } from '@lathephp/core';
 import { screen, within } from '@testing-library/react';
+import { lazy } from 'react';
 import { describe, expect, it } from 'vitest';
 import { bracketed, renderPage } from './support';
 
@@ -26,8 +27,18 @@ describe('plugin page', () => {
     expect(screen.getByRole('complementary')).toBeTruthy();
   });
 
+  it('renders a component that takes no props', () => {
+    function Bare() {
+      return <p>bare page</p>;
+    }
+    plugin('bare', Bare);
+    renderPlugin('bare');
+
+    expect(within(screen.getByRole('main')).getByText('bare page')).toBeTruthy();
+  });
+
   it('loads a lazy registration', async () => {
-    plugin('beacon', () => Promise.resolve({ default: Status }));
+    plugin('beacon', lazy(() => Promise.resolve({ default: Status })));
     renderPlugin('beacon');
 
     expect(await screen.findByText('beacon at /lathe on')).toBeTruthy();

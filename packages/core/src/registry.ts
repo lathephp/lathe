@@ -1,4 +1,4 @@
-import type { ComponentType } from 'react';
+import type { ComponentType, LazyExoticComponent } from 'react';
 
 /** The props a plugin page receives. */
 export interface PluginPageProps {
@@ -7,7 +7,8 @@ export interface PluginPageProps {
   path?: string;
 }
 
-export type ComponentOrLazy<P> = ComponentType<P> | (() => Promise<{ default: ComponentType<P> }>);
+/** A page component; pass React.lazy(() => import('./Page')) to load it on first use. */
+export type ComponentOrLazy<P> = ComponentType<P> | LazyExoticComponent<ComponentType<P>>;
 
 const pluginPages = new Map<string, ComponentOrLazy<PluginPageProps>>();
 const bootingCallbacks: (() => void)[] = [];

@@ -21,7 +21,13 @@ const modules = document.getElementById('lathe-modules')?.textContent ?? '[]';
 await __panel.loadModules(JSON.parse(modules) as string[]);
 __panel.boot();
 
+// The server's CSP nonce, read off our own entry tag, so Inertia's progress-bar style carries it too.
+const nonce = document.querySelector<HTMLScriptElement>('script[type="module"][nonce]')?.nonce;
+
 void createInertiaApp({
+  nonce: nonce === '' ? undefined : nonce,
+  // The bar shows only for foreground work that takes longer than 150 ms.
+  progress: { delay: 150 },
   resolve: async (name) => {
     const page = pages[`./pages/${name}.tsx`];
 
