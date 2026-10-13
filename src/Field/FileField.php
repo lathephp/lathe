@@ -6,6 +6,7 @@ use Closure;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Filesystem\FilesystemAdapter;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
@@ -322,13 +323,14 @@ class FileField extends Field implements Deletable, Storable
             $this->fillColumn($model, $this->sizeColumn, $upload->size);
 
             // A failed save never reaches this, so the pending upload stays for a retry.
-            return function () use ($request, $model, $uploads, $upload, $old, $path) {
+            // Files cannot roll back, so they go only once the write has committed.
+            return fn () => $this->afterCommit($model, function () use ($request, $model, $uploads, $upload, $old, $path) {
                 $uploads->cancel($upload);
 
                 if ($old !== null && $old !== $path && $this->prunable) {
                     $this->deleteFile($request, $model, $old);
                 }
-            };
+            });
         }
 
         if (! $request->boolean($requestAttribute.'_removed') || ! $this->deletable) {
@@ -339,7 +341,9 @@ class FileField extends Field implements Deletable, Storable
             $model->setAttribute($column, null);
         }
 
-        return $old !== null && $this->prunable ? fn () => $this->deleteFile($request, $model, $old) : null;
+        return $old !== null && $this->prunable
+            ? fn () => $this->afterCommit($model, fn () => $this->deleteFile($request, $model, $old))
+            : null;
     }
 
     /**
@@ -412,6 +416,14 @@ class FileField extends Field implements Deletable, Storable
     /**
      * Delete a file of this field from its disk, the stored one when no path is given.
      */
+    /**
+     * Run after the model's transaction commits; at once when none is open.
+     */
+    protected function afterCommit(object $model, Closure $callback): void
+    {
+        ($model instanceof Model ? $model->getConnection() : DB::connection())->afterCommit($callback);
+    }
+
     public function deleteFile(LatheRequest $request, Model $model, ?string $path = null): void
     {
         $path ??= $this->storedPath($model);

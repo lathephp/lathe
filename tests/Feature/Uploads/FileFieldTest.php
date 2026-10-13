@@ -6,9 +6,11 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Filesystem\FilesystemAdapter;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Storage;
+use Lathe\Events\ResourceUpdated;
 use Lathe\Field\Field;
 use Lathe\Http\Requests\LatheRequest;
 use Lathe\Lathe;
@@ -382,6 +384,17 @@ it('stores the new file before it deletes the old one, after the save', function
     expect(FileFieldLog::$entries)->toBe([['old' => true, 'new' => true]])
         ->and(Storage::disk('public')->exists('old.png'))->toBeFalse()
         ->and(Storage::disk('public')->allFiles())->toBe([ffAdmin()->avatar]);
+});
+
+it('keeps the old file when the write rolls back after the save', function () {
+    ffAdminWithAvatar();
+    Event::listen(ResourceUpdated::class, fn () => throw new RuntimeException('listener failed'));
+
+    LatheTest::resource('file-people')->update(ffAdmin()->getKey(), ['avatar' => ffUpload()->id])->assertStatus(500);
+    LatheTest::resource('file-people')->update(ffAdmin()->getKey(), ['avatar' => null, 'avatar_removed' => 1])->assertStatus(500);
+
+    expect(ffAdmin()->avatar)->toBe('old.png')
+        ->and(Storage::disk('public')->exists('old.png'))->toBeTrue();
 });
 
 it('removes the file and nulls its columns when the field is deletable and prunable', function () {
