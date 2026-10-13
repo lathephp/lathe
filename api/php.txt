@@ -1521,6 +1521,7 @@ Lathe\Query\ResourceQuery::cappedCount(int $cap, ?Illuminate\Database\Eloquent\B
 Lathe\Query\ResourceQuery::change(Closure $change): static  [protected]
 Lathe\Query\ResourceQuery::config(): Lathe\Support\ConfigStore  [protected]
 Lathe\Query\ResourceQuery::count(): ?Lathe\Query\Count
+Lathe\Query\ResourceQuery::coverColumn(): ?string  [protected]
 Lathe\Query\ResourceQuery::estimatedCount(): ?Lathe\Query\Count  [protected]
 Lathe\Query\ResourceQuery::find(string|int $id): Illuminate\Database\Eloquent\Model
 Lathe\Query\ResourceQuery::forLens(Lathe\Lenses\Lens $lens): static

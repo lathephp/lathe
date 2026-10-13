@@ -13,6 +13,7 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
+use Lathe\Field\Contracts\Cover;
 use Lathe\Field\Field;
 use Lathe\Field\FieldContext;
 use Lathe\Filters\FilterApplicator;
@@ -157,12 +158,22 @@ class ResourceQuery
         $subtitle = $definition->getSubtitle();
 
         if (is_string($title) && is_string($subtitle)) {
-            $columns = array_unique(array_filter([$query->getModel()->getKeyName(), $title, $subtitle]));
+            $columns = array_unique(array_filter([$query->getModel()->getKeyName(), $title, $subtitle, $this->coverColumn()]));
             $query->select(array_map(fn (string $column) => $query->qualifyColumn($column), array_values($columns)));
         }
 
         // A stable order, so the same term lists the same rows on every database.
         return $query->orderBy($query->getModel()->getQualifiedKeyName())->limit($limit)->get();
+    }
+
+    /**
+     * The column the Resource's avatar reads, so a search row can carry its image.
+     */
+    protected function coverColumn(): ?string
+    {
+        $cover = $this->resource->fieldsFor(FieldContext::Detail, $this->request)->first(fn (Field $field) => $field instanceof Cover);
+
+        return $cover !== null && ! $cover->isComputed() && ! str_contains($cover->attribute(), '.') ? $cover->attribute() : null;
     }
 
     /**

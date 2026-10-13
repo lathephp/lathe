@@ -12,6 +12,7 @@ use Lathe\Field\Avatar;
 use Lathe\Field\Contracts\Cover;
 use Lathe\Field\Contracts\Deletable;
 use Lathe\Field\Contracts\Storable;
+use Lathe\Field\Evaluator;
 use Lathe\Field\Field;
 use Lathe\Field\FieldCollection;
 use Lathe\Field\FieldContext;
@@ -626,7 +627,8 @@ abstract class Resource
             return null;
         }
 
-        $request = LatheRequest::createFrom(request());
+        // The request's own LatheRequest, so the fields build once however many records ask.
+        $request = Evaluator::currentRequest() ?? LatheRequest::createFrom(request());
         $cover = $this->fieldsFor(FieldContext::Detail, $request)
             ->forContext(FieldContext::Detail, $request, $this->model)
             ->authorized($request)

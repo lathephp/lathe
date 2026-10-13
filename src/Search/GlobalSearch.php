@@ -135,6 +135,8 @@ class GlobalSearch
         foreach ((new ResourceQuery($resource, $request, QueryContext::Search))->searchResults($limit) as $model) {
             $record = $resource->forModel($model);
             $key = $model->getKey();
+            // The palette draws the title's initials when the cover has no image.
+            $avatar = $record->resolveAvatar();
 
             $rows[] = [
                 'resourceTitle' => $entry['label'],
@@ -142,8 +144,8 @@ class GlobalSearch
                 'subTitle' => $record->subtitle() !== '' ? $record->subtitle() : null,
                 'resourceName' => $entry['uriKey'],
                 'resourceId' => $key,
-                'avatar' => null,
-                'rounded' => false,
+                'avatar' => $avatar?->url,
+                'rounded' => $avatar !== null && $avatar->rounded,
                 'url' => '/resources/'.$entry['uriKey'].'/'.(is_scalar($key) ? $key : ''),
             ];
         }
