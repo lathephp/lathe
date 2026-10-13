@@ -6,6 +6,7 @@ use Closure;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Validation\Rule;
 use InvalidArgumentException;
+use Lathe\Field\Repeater\HasManyPreset;
 use Lathe\Field\Repeater\Repeatable;
 use Lathe\Field\Repeater\RowsLifecycle;
 use Lathe\Http\Requests\LatheRequest;
@@ -38,6 +39,38 @@ class RepeaterField extends Field
     protected ?Closure $beforeFill = null;
 
     protected ?Closure $beforeSave = null;
+
+    /**
+     * Rows carry their child's key as `_key` (the hasMany preset).
+     *
+     * @internal
+     */
+    protected bool $keyed = false;
+
+    /**
+     * The record a fill() writes to, while it runs: file sub-fields store under it.
+     *
+     * @internal
+     */
+    protected ?Model $fillRecord = null;
+
+    /**
+     * The stored rows, while a fill() runs: a file sub-field keeps only a path found here.
+     *
+     * @internal
+     *
+     * @var list<mixed>
+     */
+    protected array $storedRows = [];
+
+    /**
+     * What the sub-fields deferred until after save, while a fill() runs.
+     *
+     * @internal
+     *
+     * @var list<Closure>
+     */
+    protected array $rowCallbacks = [];
 
     public function __construct(string $label, string|Closure|null $attribute = null, ?Closure $resolver = null)
     {
@@ -114,7 +147,22 @@ class RepeaterField extends Field
      */
     public function asJson(): static
     {
+        $this->keyed = false;
+
         return $this->useLifecycle(new RowsLifecycle($this, new DefaultLifecycle));
+    }
+
+    /**
+     * Keep each row as a child of this hasMany relation. A row matches its child by `_key`, else
+     * by the uniqueField value; the row index goes to the orderColumn. A beforeSave() that
+     * rebuilds the rows must keep `_key`, or every child is created anew.
+     */
+    public function asHasMany(string $relationship, ?string $uniqueField = null, ?string $orderColumn = null): static
+    {
+        $this->useLifecycle(new RowsLifecycle($this, new HasManyPreset($relationship, $uniqueField, $orderColumn)));
+        $this->keyed = true;
+
+        return $this;
     }
 
     // Options
@@ -278,6 +326,10 @@ class RepeaterField extends Field
                     $values[$field->attribute()] = $field->resolve((object) $row);
                 }
 
+                if ($this->keyed && isset($row['_key'])) {
+                    $values['_key'] = $row['_key'];
+                }
+
                 $presented[] = $this->mode === 'repeatables' ? ['type' => $row['type'], ...$values] : $values;
             }
         }
@@ -322,8 +374,12 @@ class RepeaterField extends Field
 
                 foreach ($fields as $field) {
                     if (! $field->isComputed()) {
-                        $field->fill($request, $target, "{$attribute}.{$index}.{$field->attribute()}");
+                        $this->fillCell($field, $request, $target, "{$attribute}.{$index}.{$field->attribute()}");
                     }
+                }
+
+                if ($this->keyed && is_scalar($row['_key'] ?? null)) {
+                    $target->_key = $row['_key'];
                 }
 
                 $rows[] = $this->mode === 'repeatables' ? ['type' => $row['type'], ...(array) $target] : (array) $target;
@@ -331,6 +387,82 @@ class RepeaterField extends Field
         }
 
         return $this->shape($this->beforeSave, $rows);
+    }
+
+    /**
+     * Fill one sub-field of a row and keep what it defers until after save. A file sub-field
+     * attaches its upload to the row, keeps a path only when the stored rows hold it, and
+     * otherwise clears its columns, so a client never names a file of its own choosing.
+     *
+     * @internal
+     */
+    protected function fillCell(Field $field, LatheRequest $request, object $target, string $path): void
+    {
+        if (! $field instanceof FileField || $this->fillRecord === null || $field->fillCallback !== null) {
+            $after = $field->fill($request, $target, $path);
+        } else {
+            $value = $request->input($path);
+            $after = is_string($value) && $value !== '' ? $field->attachToRow($request, $this->fillRecord, $target, $path, $value) : null;
+            $stored = $after === null ? $this->storedRow($field, $value) : null;
+
+            foreach ($after === null ? $field->columnsThatShouldBeDeleted() : [] as $column) {
+                data_set($target, $column, $stored === null ? null : data_get($stored, $column));
+            }
+        }
+
+        if ($after !== null) {
+            $this->rowCallbacks[] = $after;
+        }
+    }
+
+    /**
+     * The stored row whose file of this sub-field is the path the request names, if any.
+     *
+     * @internal
+     *
+     * @return array<mixed>|null
+     */
+    protected function storedRow(FileField $field, mixed $value): ?array
+    {
+        $path = is_array($value) ? ($value['path'] ?? null) : null;
+
+        foreach (is_string($path) && $path !== '' ? $this->storedRows : [] as $row) {
+            if (is_array($row) && ($row[$field->attribute()] ?? null) === $path) {
+                return $row;
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * The sub-field at a dotted path below this repeater, such as `0.photo` or `2.children.0.photo`.
+     *
+     * @internal
+     */
+    public function findSubField(string $path): ?Field
+    {
+        $segments = explode('.', $path, 3);
+
+        if (count($segments) < 2 || ! ctype_digit($segments[0]) || $this->mode === 'simple') {
+            return null;
+        }
+
+        $fields = $this->mode === 'repeatables'
+            ? array_merge(...array_map(fn (Repeatable $block) => $block->getFields(), $this->blocks))
+            : $this->subFields;
+
+        foreach ($fields as $field) {
+            if ($field->attribute() === $segments[1]) {
+                return match (true) {
+                    ! isset($segments[2]) => $field,
+                    $field instanceof self => $field->findSubField($segments[2]),
+                    default => null,
+                };
+            }
+        }
+
+        return null;
     }
 
     /**
@@ -403,6 +535,47 @@ class RepeaterField extends Field
         }
 
         return $row;
+    }
+
+    /**
+     * Fill the rows, then return one Closure that runs what the sub-fields deferred and what
+     * the storage deferred, in that order, after the save.
+     */
+    public function fill(LatheRequest $request, object $model, ?string $requestAttribute = null): ?Closure
+    {
+        $this->fillRecord = $model instanceof Model ? $model : null;
+        $this->storedRows = $this->fillRecord?->exists === true ? $this->storedRowsOf($this->fillRecord) : [];
+        $this->rowCallbacks = [];
+
+        try {
+            $stored = parent::fill($request, $model, $requestAttribute);
+            $callbacks = $stored === null ? $this->rowCallbacks : [...$this->rowCallbacks, $stored];
+        } finally {
+            $this->fillRecord = null;
+            $this->storedRows = [];
+            $this->rowCallbacks = [];
+        }
+
+        return $callbacks === [] ? null : function () use ($callbacks) {
+            foreach ($callbacks as $callback) {
+                $callback();
+            }
+        };
+    }
+
+    /**
+     * The stored rows a file sub-field may keep a path from; none without a file sub-field.
+     *
+     * @internal
+     *
+     * @return list<mixed>
+     */
+    protected function storedRowsOf(Model $model): array
+    {
+        $fields = array_merge($this->subFields, ...array_map(fn (Repeatable $block) => $block->getFields(), $this->blocks));
+        $raw = array_filter($fields, fn (Field $field) => $field instanceof FileField) === [] ? null : $this->lifecycle->extract($model, $this->attribute);
+
+        return is_array($raw) ? array_values($raw) : [];
     }
 
     // Validation

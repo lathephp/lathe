@@ -954,6 +954,7 @@ Lathe\Field\RepeaterField::addButtonText(string $text): static
 Lathe\Field\RepeaterField::addable(bool $addable = true): static
 Lathe\Field\RepeaterField::array $blocks  [protected]
 Lathe\Field\RepeaterField::array $subFields  [protected]
+Lathe\Field\RepeaterField::asHasMany(string $relationship, ?string $uniqueField = NULL, ?string $orderColumn = NULL): static
 Lathe\Field\RepeaterField::asJson(): static
 Lathe\Field\RepeaterField::beforeFill(Closure $callback): static
 Lathe\Field\RepeaterField::beforeSave(Closure $callback): static
@@ -968,6 +969,7 @@ Lathe\Field\RepeaterField::distinct(string $subFieldAttribute): static
 Lathe\Field\RepeaterField::emptyRow(array $fields, ?Lathe\Http\Requests\LatheRequest $request): array  [protected]
 Lathe\Field\RepeaterField::fieldRules(array $fields, string $rowPath, Lathe\Field\FieldContext $context, ?Lathe\Http\Requests\LatheRequest $request): array  [protected]
 Lathe\Field\RepeaterField::fields(array $fields): static
+Lathe\Field\RepeaterField::fill(Lathe\Http\Requests\LatheRequest $request, object $model, ?string $requestAttribute = NULL): ?Closure
 Lathe\Field\RepeaterField::getMessages(): array
 Lathe\Field\RepeaterField::getRules(Lathe\Field\FieldContext $context, ?Lathe\Http\Requests\LatheRequest $request = NULL, ?Illuminate\Database\Eloquent\Model $model = NULL): array
 Lathe\Field\RepeaterField::getValidationAttributes(): array

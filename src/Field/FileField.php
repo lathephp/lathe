@@ -347,6 +347,29 @@ class FileField extends Field implements Deletable, Storable
     }
 
     /**
+     * Attach an upload to a repeater row: the file stores under the record, and its path, name
+     * and size land in the row. The returned Closure drops the pending upload after the save.
+     *
+     * @internal
+     */
+    public function attachToRow(LatheRequest $request, Model $record, object $row, string $requestAttribute, string $uploadId): Closure
+    {
+        $uploads = app(UploadHandler::class);
+        $upload = $uploads->attachable($request->user(), $uploadId, $this->attribute)
+            ?? throw ValidationException::withMessages([$requestAttribute => Lathe::__('The upload is missing or not finished.')]);
+
+        data_set($row, $this->attribute, $this->storeFile($request, $record, $uploads->file($upload)));
+
+        foreach ([[$this->originalNameColumn, $upload->original_name], [$this->sizeColumn, $upload->size]] as [$column, $value]) {
+            if ($column !== null) {
+                data_set($row, $column, $value);
+            }
+        }
+
+        return fn () => $uploads->cancel($upload);
+    }
+
+    /**
      * The file as the client shows it. Only URLs are built, so a list never touches the disk.
      */
     public function resolve(object $record, ?string $attribute = null): mixed

@@ -4,10 +4,12 @@ namespace Lathe\Http\Controllers\Uploads;
 
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 use Lathe\Auth\ResourceAuthorization;
 use Lathe\Field\FieldContext;
 use Lathe\Field\FileField;
+use Lathe\Field\RepeaterField;
 use Lathe\Http\Controllers\Resources\AuthorizesResources;
 use Lathe\Http\Requests\LatheRequest;
 use Lathe\Query\QueryContext;
@@ -31,6 +33,7 @@ class StartUploadController
     /**
      * An upload to a Resource's file field. With a resource_id the field comes from the Update
      * fields of that record, found through the scoped query; without one, from the Create fields.
+     * The pending upload names the bare sub-field attribute, since rows move before the save.
      */
     public function field(LatheRequest $request, ResourceAuthorization $authorization, string $resource, string $field): JsonResponse
     {
@@ -46,7 +49,12 @@ class StartUploadController
         $target = $class::make($model)->fieldsFor($context, $request)
             ->forContext($context, $request, $model)
             ->authorized($request)
-            ->findByAttribute($field);
+            ->findByAttribute(Str::before($field, '.'));
+
+        // A dotted key such as items.0.photo names a file sub-field of a repeater row.
+        if (str_contains($field, '.')) {
+            $target = $target instanceof RepeaterField ? $target->findSubField(Str::after($field, '.')) : null;
+        }
 
         abort_unless($target instanceof FileField, 404);
 
