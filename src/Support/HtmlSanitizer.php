@@ -15,14 +15,14 @@ use Symfony\Component\HtmlSanitizer\Visitor\AttributeSanitizer\AttributeSanitize
 class HtmlSanitizer
 {
     /** Elements that keep no attribute. */
-    private const PLAIN = [
+    private const array PLAIN = [
         'p', 'br', 'hr', 'strong', 'b', 'em', 'i', 'u', 's', 'del', 'ins', 'sub', 'sup', 'blockquote',
         'ul', 'li', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'table', 'thead', 'tbody', 'tr', 'figure',
         'figcaption', 'span',
     ];
 
     /** Elements and the attributes they keep; code and pre keep class through languageClass(). */
-    private const WITH_ATTRIBUTES = [
+    private const array WITH_ATTRIBUTES = [
         'a' => ['href', 'title', 'target', 'rel'],
         'img' => ['src', 'alt', 'title', 'width', 'height'],
         'th' => ['colspan', 'rowspan', 'align'],

@@ -14,7 +14,7 @@ use Lathe\Http\Requests\LatheRequest;
 class TranslationManager
 {
     /** The container key of the per-request bag. */
-    public const REQUEST_BAG = 'lathe.translations.request';
+    public const string REQUEST_BAG = 'lathe.translations.request';
 
     /** @var array<string, array<string, string>> */
     protected array $catalogues = [];
