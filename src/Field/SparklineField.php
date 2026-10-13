@@ -5,6 +5,7 @@ namespace Lathe\Field;
 use Closure;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
+use Lathe\Field\Contracts\PrimesForPage;
 use Traversable;
 use WeakMap;
 
@@ -20,7 +21,7 @@ use WeakMap;
  *    Without that call (a detail page) it gets the one record.
  * With no data() the attribute itself holds the series, as a JSON array.
  */
-class SparklineField extends Field
+class SparklineField extends Field implements PrimesForPage
 {
     protected string $component = 'sparkline-field';
 

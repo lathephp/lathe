@@ -398,6 +398,25 @@ Lathe\Events\ResourceUpdated::array $original
 Lathe\Events\ResourceUpdated::string $resource
 Lathe\Events\ServingLathe::Illuminate\Http\Request $request
 Lathe\Events\ServingLathe::__construct(Illuminate\Http\Request $request)
+Lathe\Field\BadgeField::?Closure $labelCallback  [protected]
+Lathe\Field\BadgeField::?array $icons  [protected]
+Lathe\Field\BadgeField::?string $nullLabel  [protected]
+Lathe\Field\BadgeField::ICONS
+Lathe\Field\BadgeField::__construct(string $label, Closure|string|null $attribute = NULL, ?Closure $resolver = NULL)
+Lathe\Field\BadgeField::array $labels  [protected]
+Lathe\Field\BadgeField::array $map  [protected]
+Lathe\Field\BadgeField::array $types  [protected]
+Lathe\Field\BadgeField::cell(Illuminate\Database\Eloquent\Model $model): array
+Lathe\Field\BadgeField::jsonSerialize(): array
+Lathe\Field\BadgeField::labelUsing(Closure $callback): static
+Lathe\Field\BadgeField::labels(array $labels): static
+Lathe\Field\BadgeField::map(array $map): static
+Lathe\Field\BadgeField::nullLabel(string $label): static
+Lathe\Field\BadgeField::pick(array $map, mixed $value): mixed  [static]
+Lathe\Field\BadgeField::string $component  [protected]
+Lathe\Field\BadgeField::typeFor(mixed $value): string  [protected]
+Lathe\Field\BadgeField::types(array $types): static
+Lathe\Field\BadgeField::withIcons(?array $icons = NULL): static
 Lathe\Field\BooleanField::__construct(string $label, Closure|string|null $attribute = NULL, ?Closure $resolver = NULL)
 Lathe\Field\BooleanField::asCheckbox(bool $checkbox = true): static
 Lathe\Field\BooleanField::falseValue(mixed $value): static
@@ -425,6 +444,12 @@ Lathe\Field\Concerns\ChoiceFactories::select(string $name, Closure|string|null $
 Lathe\Field\Concerns\ChoiceFactories::timezone(?string $name = NULL): Lathe\Field\SelectField  [static]
 Lathe\Field\Concerns\DateFactories::date(string $label, ?string $attribute = NULL): Lathe\Field\DateField  [static]
 Lathe\Field\Concerns\DateFactories::dateTime(string $label, ?string $attribute = NULL): Lathe\Field\DateTimeField  [static]
+Lathe\Field\Concerns\DisplayFactories::badge(string $name, Closure|string|null $attribute = NULL): Lathe\Field\BadgeField  [static]
+Lathe\Field\Concerns\DisplayFactories::icon(string $name, Closure|string|null $attribute = NULL): Lathe\Field\IconField  [static]
+Lathe\Field\Concerns\DisplayFactories::line(string $name, Closure|string|null $attribute = NULL): Lathe\Field\LineField  [static]
+Lathe\Field\Concerns\DisplayFactories::sparkline(string $name, ?string $attribute = NULL): Lathe\Field\SparklineField  [static]
+Lathe\Field\Concerns\DisplayFactories::stack(string $name, ?string $attribute = NULL, array $lines = array ( )): Lathe\Field\StackField  [static]
+Lathe\Field\Concerns\DisplayFactories::status(string $name, Closure|string|null $attribute = NULL): Lathe\Field\StatusField  [static]
 Lathe\Field\Concerns\NumberFactories::currency(string $label, ?string $attribute = NULL): Lathe\Field\CurrencyField  [static]
 Lathe\Field\Concerns\NumberFactories::number(string $label, Closure|string|null $attribute = NULL): Lathe\Field\NumberField  [static]
 Lathe\Field\Concerns\NumberFactories::token(string $label, ?string $attribute = NULL): Lathe\Field\TokenField  [static]
@@ -441,6 +466,7 @@ Lathe\Field\Concerns\UploadFactories::file(string $label, ?string $attribute = N
 Lathe\Field\Contracts\Deletable::columnsThatShouldBeDeleted(): array
 Lathe\Field\Contracts\Deletable::isDeletable(): bool
 Lathe\Field\Contracts\Deletable::isPrunable(): bool
+Lathe\Field\Contracts\PrimesForPage::primeForPage(Illuminate\Database\Eloquent\Collection $records): void
 Lathe\Field\Contracts\Storable::getStorageDir(): string
 Lathe\Field\Contracts\Storable::getStorageDisk(): string
 Lathe\Field\Contracts\Storable::getStoragePath(): ?string
@@ -717,6 +743,15 @@ Lathe\Field\HeadingField::__construct(string $label, Closure|string|null $attrib
 Lathe\Field\HeadingField::fill(Lathe\Http\Requests\LatheRequest $request, object $model, ?string $requestAttribute = NULL): ?Closure
 Lathe\Field\HeadingField::jsonSerialize(): array
 Lathe\Field\HeadingField::string $component  [protected]
+Lathe\Field\IconField::Lathe\Enums\Icon|string|null $fallback  [protected]
+Lathe\Field\IconField::__construct(string $label, Closure|string|null $attribute = NULL, ?Closure $resolver = NULL)
+Lathe\Field\IconField::array $colors  [protected]
+Lathe\Field\IconField::array $map  [protected]
+Lathe\Field\IconField::cell(Illuminate\Database\Eloquent\Model $model): array
+Lathe\Field\IconField::colors(array $colors): static
+Lathe\Field\IconField::fallback(Lathe\Enums\Icon|string $icon): static
+Lathe\Field\IconField::map(array $map): static
+Lathe\Field\IconField::string $component  [protected]
 Lathe\Field\IdField::__construct(string $label = 'ID', Closure|string|null $attribute = 'id', ?Closure $resolver = NULL)
 Lathe\Field\IdField::asBigInt(): static
 Lathe\Field\IdField::bool $bigInt  [protected]
@@ -724,6 +759,14 @@ Lathe\Field\IdField::forModel(Illuminate\Database\Eloquent\Model $model, string 
 Lathe\Field\IdField::hidden(string $label = 'ID', string $attribute = 'id'): static  [static]
 Lathe\Field\IdField::resolve(object $record, ?string $attribute = NULL): mixed
 Lathe\Field\IdField::string $component  [protected]
+Lathe\Field\LineField::__construct(string $label, Closure|string|null $attribute = NULL, ?Closure $resolver = NULL)
+Lathe\Field\LineField::asBase(): static
+Lathe\Field\LineField::asHeading(): static
+Lathe\Field\LineField::asSmall(): static
+Lathe\Field\LineField::asSubTitle(): static
+Lathe\Field\LineField::cell(Illuminate\Database\Eloquent\Model $model): array
+Lathe\Field\LineField::extraClasses(array|string $classes): static
+Lathe\Field\LineField::string $component  [protected]
 Lathe\Field\MultiSelectField::Closure|array|string $optionSource  [protected]
 Lathe\Field\MultiSelectField::Closure|bool $searchable  [protected]
 Lathe\Field\MultiSelectField::__construct(string $label, Closure|string|null $attribute = NULL, ?Closure $resolver = NULL)
@@ -758,6 +801,26 @@ Lathe\Field\SelectField::bool $displayUsingLabels  [protected]
 Lathe\Field\SelectField::impliedRules(): array  [protected]
 Lathe\Field\SelectField::string $component  [protected]
 Lathe\Field\SelectField::supportsInline(): bool  [protected]
+Lathe\Field\SparklineField::__construct(string $label, Closure|string|null $attribute = NULL, ?Closure $resolver = NULL)
+Lathe\Field\SparklineField::asBarChart(bool $bars = true): static
+Lathe\Field\SparklineField::cell(Illuminate\Database\Eloquent\Model $model): array
+Lathe\Field\SparklineField::data(Traversable|object|array $source): static
+Lathe\Field\SparklineField::height(int $pixels): static
+Lathe\Field\SparklineField::mixed $source  [protected]
+Lathe\Field\SparklineField::primeForPage(Illuminate\Database\Eloquent\Collection $records): void
+Lathe\Field\SparklineField::string $component  [protected]
+Lathe\Field\SparklineField::width(int $pixels): static
+Lathe\Field\StackField::__construct(string $label, Closure|string|null $attribute = NULL, ?Closure $resolver = NULL)
+Lathe\Field\StackField::array $lines  [protected]
+Lathe\Field\StackField::cell(Illuminate\Database\Eloquent\Model $model): array
+Lathe\Field\StackField::lines(array $fields): static
+Lathe\Field\StackField::string $component  [protected]
+Lathe\Field\StatusField::array $failed  [protected]
+Lathe\Field\StatusField::array $loading  [protected]
+Lathe\Field\StatusField::failedWhen(mixed $values): static
+Lathe\Field\StatusField::loadingWhen(mixed $values): static
+Lathe\Field\StatusField::string $component  [protected]
+Lathe\Field\StatusField::typeFor(mixed $value): string  [protected]
 Lathe\Field\TextField::Closure|array $suggestions  [protected]
 Lathe\Field\TextField::SUGGESTION_LIMIT
 Lathe\Field\TextField::__construct(string $label, Closure|string|null $attribute = NULL, ?Closure $resolver = NULL)
@@ -1864,6 +1927,7 @@ class Lathe\Exceptions\LatheException
 class Lathe\Exceptions\PluginDependencyException
 class Lathe\Exceptions\ResourceModelCollisionException
 class Lathe\Exceptions\ResourceUriKeyCollisionException
+class Lathe\Field\BadgeField
 class Lathe\Field\BooleanField
 class Lathe\Field\BooleanGroupField
 class Lathe\Field\CurrencyField
@@ -1876,7 +1940,9 @@ class Lathe\Field\FieldCollection
 class Lathe\Field\FieldResolver
 class Lathe\Field\FileField
 class Lathe\Field\HeadingField
+class Lathe\Field\IconField
 class Lathe\Field\IdField
+class Lathe\Field\LineField
 class Lathe\Field\MultiSelectField
 class Lathe\Field\NumberField
 class Lathe\Field\OptionGroup
@@ -1884,6 +1950,9 @@ class Lathe\Field\OptionList
 class Lathe\Field\PasswordField
 class Lathe\Field\PasswordLifecycle
 class Lathe\Field\SelectField
+class Lathe\Field\SparklineField
+class Lathe\Field\StackField
+class Lathe\Field\StatusField
 class Lathe\Field\TextField
 class Lathe\Field\TextareaField
 class Lathe\Field\TokenField
@@ -1995,6 +2064,7 @@ enum Lathe\Query\CountStrategy
 enum Lathe\Query\QueryContext
 interface Lathe\Attributes\Resource\ResourceAttribute
 interface Lathe\Field\Contracts\Deletable
+interface Lathe\Field\Contracts\PrimesForPage
 interface Lathe\Field\Contracts\Storable
 interface Lathe\Field\FieldLifecycle
 interface Lathe\Search\SearchableColumn

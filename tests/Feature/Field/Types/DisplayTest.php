@@ -23,6 +23,7 @@ use Lathe\Lathe;
 use Lathe\Resources\Resource;
 use Lathe\Resources\ResourceDefinition;
 use Lathe\Testing\LatheTest;
+use Workbench\App\Models\Order;
 use Workbench\App\Models\User;
 use Workbench\Database\Seeders\DemoSeeder;
 
@@ -306,4 +307,48 @@ it('sets the line text style', function (string $method, string $style) {
 it('accepts extra classes as a list or a string', function () {
     expect(Field::line('A')->extraClasses(['a', 'b'])->jsonSerialize()['extraClasses'])->toBe('a b')
         ->and(Field::line('A')->extraClasses('c d')->jsonSerialize()['extraClasses'])->toBe('c d');
+});
+
+class SparkCount
+{
+    public static int $calls = 0;
+}
+
+class SparkOrders extends Resource
+{
+    protected function configure(ResourceDefinition $definition): ResourceDefinition
+    {
+        return $definition->model(Order::class)->title('number')->canonical(false)->allowAll();
+    }
+
+    public function fields(LatheRequest $request): array
+    {
+        return [
+            Field::make('Number'),
+            Field::sparkline('Trend')->data(function ($records) {
+                SparkCount::$calls++;
+
+                return collect($records)->mapWithKeys(fn ($order) => [$order->getKey() => [1, 2, 3]])->all();
+            }),
+        ];
+    }
+}
+
+it('runs a sparkline Closure once for a 100-row index with no query per row', function () {
+    Lathe::registerResources(SparkOrders::class);
+    SparkCount::$calls = 0;
+    $queries = 0;
+    DB::listen(function () use (&$queries) {
+        $queries++;
+    });
+
+    $rows = $this->getJson('/lathe/api/resources/spark-orders?per_page=100')->assertOk()->json('table.rows');
+    $perPage = $queries;
+    $queries = 0;
+    $this->getJson('/lathe/api/resources/spark-orders?per_page=25')->assertOk();
+
+    expect($rows)->toHaveCount(100)
+        ->and($rows[0]['cells']['trend']['value'])->toBe([1, 2, 3])
+        ->and(SparkCount::$calls)->toBe(2)
+        ->and($perPage)->toBe($queries);
 });

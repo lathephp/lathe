@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Log;
 use Lathe\Auth\ResourceAuthorization;
 use Lathe\Exceptions\DuplicateRowKeyException;
+use Lathe\Field\Contracts\PrimesForPage;
 use Lathe\Field\Field;
 use Lathe\Field\FieldCollection;
 use Lathe\Field\FieldContext;
@@ -55,6 +56,12 @@ class IndexPayload
         $this->checkRowKeys($class, $rowKey, $rows);
         [$perPage, $page] = $query->page();
         $fields = $this->columns($resource, $lens);
+
+        foreach ($fields as $field) {
+            if ($field instanceof PrimesForPage) {
+                $field->primeForPage($rows);
+            }
+        }
         $available = $lens?->availableFilters($this->request) ?? $resource->availableFilters($this->request);
         $softDeletes = $resource->definition()->usesSoftDeletes();
         $abilities = $this->authorization->abilitiesFor(
