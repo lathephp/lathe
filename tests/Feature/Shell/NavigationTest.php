@@ -24,11 +24,14 @@ function navigationFor(string $email): array
     return $props['navigation'];
 }
 
-it('lists the dashboard and the Orders Resource', function () {
+it('lists the dashboard and the Resources', function () {
     expect(navigationFor('admin@lathephp.com'))->toBe([
         ['label' => null, 'icon' => null, 'items' => [['label' => 'Dashboard', 'href' => '/lathe', 'icon' => 'LayoutDashboard']]],
         ['label' => 'Heartbeat', 'icon' => null, 'items' => [['label' => 'Heartbeat', 'href' => '/lathe/plugins/heartbeat', 'icon' => 'Activity']]],
-        ['label' => 'Resources', 'icon' => null, 'items' => [['label' => 'Orders', 'href' => '/lathe/resources/orders', 'icon' => 'ShoppingCart']]],
+        ['label' => 'Resources', 'icon' => null, 'items' => [
+            ['label' => 'Orders', 'href' => '/lathe/resources/orders', 'icon' => 'ShoppingCart'],
+            ['label' => 'Posts', 'href' => '/lathe/resources/posts', 'icon' => null],
+        ]],
     ]);
 });
 
@@ -43,7 +46,7 @@ it('adds the sections an authorized plugin returns from menu()', function () {
 it('leaves out a Resource the user may not viewAny', function () {
     Gate::policy(Order::class, EmptyPolicy::class);
 
-    expect(collect(navigationFor('admin@lathephp.com'))->pluck('label')->all())->toBe([null, 'Heartbeat']);
+    expect(collect(navigationFor('admin@lathephp.com'))->pluck('items.*.label')->flatten()->all())->not->toContain('Orders');
 });
 
 it('builds one Resource definition for the sidebar and the Orders index among 500 Resources', function () {
@@ -63,7 +66,7 @@ it('builds one Resource definition for the sidebar and the Orders index among 50
     });
     $this->actingAs(User::where('email', 'admin@lathephp.com')->firstOrFail())
         ->get('/lathe/resources/orders')->assertOk()
-        ->assertInertia(fn (AssertableInertia $page) => $page->has('navigation.2.items', 1));
+        ->assertInertia(fn (AssertableInertia $page) => $page->has('navigation.2.items', 2));
 
     expect(Lathe::resources()->definitionsBuilt())->toBe(1)
         ->and(collect($queries)->filter(fn ($sql) => str_contains($sql, 'invoices'))->all())->toBe([]);
