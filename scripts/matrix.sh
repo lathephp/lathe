@@ -10,7 +10,8 @@
 set -uo pipefail
 
 repo=$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)
-image=lathe-php84
+# Tagged with the Containerfile hash, so an edit to it builds a fresh image.
+image=lathe-php84:$(sha256sum "$repo/scripts/php84.Containerfile" | cut -c1-12)
 scratch=$(mktemp -d -t lathe-matrix.XXXXXX)
 lowest=$scratch/lowest
 composer_cache=$(composer config --global cache-dir 2>/dev/null || echo "$scratch/composer-cache")
