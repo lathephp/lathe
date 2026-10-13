@@ -14,6 +14,7 @@ use Lathe\Http\Controllers\Plugins\ModuleController;
 use Lathe\Http\Controllers\Plugins\PluginApiController;
 use Lathe\Http\Controllers\Plugins\PluginPageController;
 use Lathe\Http\Controllers\Resources\CountController;
+use Lathe\Http\Controllers\Resources\DeleteController;
 use Lathe\Http\Controllers\Resources\IndexController;
 use Lathe\Http\Controllers\Resources\IndexPageController;
 use Lathe\Http\Middleware\Authenticate;
@@ -73,6 +74,9 @@ class PanelRoutes
         $this->api()->prefix($this->apiPrefix())->name('lathe.api.')->group(function (Router $router) {
             $router->get('resources/{resource}', IndexController::class)->name('resources.index');
             $router->get('resources/{resource}/count', CountController::class)->name('resources.count');
+            $router->delete('resources/{resource}/{resourceId}', [DeleteController::class, 'delete'])->name('resources.delete');
+            $router->delete('resources/{resource}/{resourceId}/force', [DeleteController::class, 'forceDelete'])->name('resources.forceDelete');
+            $router->put('resources/{resource}/{resourceId}/restore', [DeleteController::class, 'restore'])->name('resources.restore');
 
             // Registered after every plugin's own routes, so those win.
             $router->any('plugins/{plugin}/{path?}', PluginApiController::class)

@@ -283,6 +283,15 @@ Lathe\Enums\TableStyle::Default
 Lathe\Enums\TableStyle::Tight
 Lathe\Enums\TableStyle::string $name
 Lathe\Enums\TableStyle::string $value
+Lathe\Events\ResourceDeleted::Illuminate\Database\Eloquent\Model $model
+Lathe\Events\ResourceDeleted::__construct(Illuminate\Database\Eloquent\Model $model, string $resource)
+Lathe\Events\ResourceDeleted::string $resource
+Lathe\Events\ResourceForceDeleted::Illuminate\Database\Eloquent\Model $model
+Lathe\Events\ResourceForceDeleted::__construct(Illuminate\Database\Eloquent\Model $model, string $resource)
+Lathe\Events\ResourceForceDeleted::string $resource
+Lathe\Events\ResourceRestored::Illuminate\Database\Eloquent\Model $model
+Lathe\Events\ResourceRestored::__construct(Illuminate\Database\Eloquent\Model $model, string $resource)
+Lathe\Events\ResourceRestored::string $resource
 Lathe\Events\ServingLathe::Illuminate\Http\Request $request
 Lathe\Events\ServingLathe::__construct(Illuminate\Http\Request $request)
 Lathe\Field\Field::?Closure $resolver  [protected]
@@ -351,6 +360,12 @@ Lathe\Http\Controllers\Plugins\PluginApiController::__invoke(Illuminate\Http\Req
 Lathe\Http\Controllers\Plugins\PluginPageController::__invoke(Illuminate\Http\Request $request, Lathe\Plugins\PluginRegistry $plugins, string $plugin, string $path = ''): Inertia\Response
 Lathe\Http\Controllers\Resources\AuthorizesResources::viewableResource(Lathe\Http\Requests\LatheRequest $request, Lathe\Auth\ResourceAuthorization $authorization): string  [protected]
 Lathe\Http\Controllers\Resources\CountController::__invoke(Lathe\Http\Requests\LatheRequest $request, Lathe\Auth\ResourceAuthorization $authorization, Lathe\Http\Payloads\IndexPayload $payload): Illuminate\Http\JsonResponse
+Lathe\Http\Controllers\Resources\DeleteController::authorizedModel(Lathe\Http\Requests\LatheRequest $request, Lathe\Auth\ResourceAuthorization $authorization, string $class, string $id, string $ability, bool $withTrashed): Illuminate\Database\Eloquent\Model  [protected]
+Lathe\Http\Controllers\Resources\DeleteController::delete(Lathe\Http\Requests\LatheRequest $request, Lathe\Auth\ResourceAuthorization $authorization, string $resource, string $resourceId): Illuminate\Http\JsonResponse
+Lathe\Http\Controllers\Resources\DeleteController::forceDelete(Lathe\Http\Requests\LatheRequest $request, Lathe\Auth\ResourceAuthorization $authorization, string $resource, string $resourceId): Illuminate\Http\JsonResponse
+Lathe\Http\Controllers\Resources\DeleteController::purgeAttachments(Illuminate\Database\Eloquent\Model $model): void  [protected]
+Lathe\Http\Controllers\Resources\DeleteController::restore(Lathe\Http\Requests\LatheRequest $request, Lathe\Auth\ResourceAuthorization $authorization, string $resource, string $resourceId): Illuminate\Http\JsonResponse
+Lathe\Http\Controllers\Resources\DeleteController::run(Lathe\Http\Requests\LatheRequest $request, string $class, Illuminate\Database\Eloquent\Model $model, string $hook, Closure $write, string $event, bool $purge = false): Illuminate\Http\JsonResponse  [protected]
 Lathe\Http\Controllers\Resources\IndexController::__invoke(Lathe\Http\Requests\LatheRequest $request, Lathe\Auth\ResourceAuthorization $authorization, Lathe\Http\Payloads\IndexPayload $payload): Illuminate\Http\JsonResponse
 Lathe\Http\Controllers\Resources\IndexPageController::__invoke(Lathe\Http\Requests\LatheRequest $request, Lathe\Auth\ResourceAuthorization $authorization, Lathe\Http\Payloads\IndexPayload $payload): Symfony\Component\HttpFoundation\Response
 Lathe\Http\ErrorPages::Lathe\Auth\FortifyConfig $fortify  [protected]
@@ -557,7 +572,13 @@ Lathe\Query\ResourceQuery::withoutScope(string $globalScope): static
 Lathe\Resources\Resource::?Illuminate\Database\Eloquent\Model $model  [protected]
 Lathe\Resources\Resource::?string $policy
 Lathe\Resources\Resource::__construct(?Illuminate\Database\Eloquent\Model $model = NULL)
+Lathe\Resources\Resource::afterDelete(Lathe\Http\Requests\LatheRequest $request, Illuminate\Database\Eloquent\Model $model): void  [static]
+Lathe\Resources\Resource::afterForceDelete(Lathe\Http\Requests\LatheRequest $request, Illuminate\Database\Eloquent\Model $model): void  [static]
+Lathe\Resources\Resource::afterRestore(Lathe\Http\Requests\LatheRequest $request, Illuminate\Database\Eloquent\Model $model): void  [static]
 Lathe\Resources\Resource::availableFilters(Lathe\Http\Requests\LatheRequest $request): array
+Lathe\Resources\Resource::beforeDelete(Lathe\Http\Requests\LatheRequest $request, Illuminate\Database\Eloquent\Model $model): void  [static]
+Lathe\Resources\Resource::beforeForceDelete(Lathe\Http\Requests\LatheRequest $request, Illuminate\Database\Eloquent\Model $model): void  [static]
+Lathe\Resources\Resource::beforeRestore(Lathe\Http\Requests\LatheRequest $request, Illuminate\Database\Eloquent\Model $model): void  [static]
 Lathe\Resources\Resource::configure(Lathe\Resources\ResourceDefinition $definition): Lathe\Resources\ResourceDefinition  [protected]
 Lathe\Resources\Resource::definition(): Lathe\Resources\ResourceDefinition
 Lathe\Resources\Resource::detailQuery(Lathe\Http\Requests\LatheRequest $request, Illuminate\Database\Eloquent\Builder $query): Illuminate\Database\Eloquent\Builder  [static]
@@ -571,6 +592,7 @@ Lathe\Resources\Resource::label(): string  [static]
 Lathe\Resources\Resource::make(?Illuminate\Database\Eloquent\Model $model = NULL): static  [static]
 Lathe\Resources\Resource::model(): string  [static]
 Lathe\Resources\Resource::newModel(): Illuminate\Database\Eloquent\Model  [static]
+Lathe\Resources\Resource::redirectAfterDelete(Lathe\Http\Requests\LatheRequest $request): string  [static]
 Lathe\Resources\Resource::relatableQuery(Lathe\Http\Requests\LatheRequest $request, Illuminate\Database\Eloquent\Builder $query): Illuminate\Database\Eloquent\Builder  [static]
 Lathe\Resources\Resource::replicateQuery(Lathe\Http\Requests\LatheRequest $request, Illuminate\Database\Eloquent\Builder $query): Illuminate\Database\Eloquent\Builder  [static]
 Lathe\Resources\Resource::resolveText(Closure|string $source): string  [protected]
@@ -788,6 +810,9 @@ class Lathe\Dashboards\DashboardRegistry
 class Lathe\Dashboards\Main
 class Lathe\Doctor\CheckResult
 class Lathe\Doctor\Doctor
+class Lathe\Events\ResourceDeleted
+class Lathe\Events\ResourceForceDeleted
+class Lathe\Events\ResourceRestored
 class Lathe\Events\ServingLathe
 class Lathe\Exceptions\InvalidConfigurationException
 class Lathe\Exceptions\LatheException
@@ -809,6 +834,7 @@ class Lathe\Http\Controllers\Plugins\ModuleController
 class Lathe\Http\Controllers\Plugins\PluginApiController
 class Lathe\Http\Controllers\Plugins\PluginPageController
 class Lathe\Http\Controllers\Resources\CountController
+class Lathe\Http\Controllers\Resources\DeleteController
 class Lathe\Http\Controllers\Resources\IndexController
 class Lathe\Http\Controllers\Resources\IndexPageController
 class Lathe\Http\ErrorPages

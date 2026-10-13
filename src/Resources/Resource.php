@@ -191,6 +191,62 @@ abstract class Resource
         return $query;
     }
 
+    /**
+     * Runs inside the delete's transaction, before the delete.
+     */
+    public static function beforeDelete(LatheRequest $request, Model $model): void
+    {
+        //
+    }
+
+    /**
+     * Runs after the delete's transaction commits.
+     */
+    public static function afterDelete(LatheRequest $request, Model $model): void
+    {
+        //
+    }
+
+    /**
+     * Runs inside the force delete's transaction, before the force delete.
+     */
+    public static function beforeForceDelete(LatheRequest $request, Model $model): void
+    {
+        //
+    }
+
+    /**
+     * Runs after the force delete's transaction commits.
+     */
+    public static function afterForceDelete(LatheRequest $request, Model $model): void
+    {
+        //
+    }
+
+    /**
+     * Runs inside the restore's transaction, before the restore.
+     */
+    public static function beforeRestore(LatheRequest $request, Model $model): void
+    {
+        //
+    }
+
+    /**
+     * Runs after the restore's transaction commits.
+     */
+    public static function afterRestore(LatheRequest $request, Model $model): void
+    {
+        //
+    }
+
+    /**
+     * Where the panel goes after a delete, force delete or restore.
+     */
+    public static function redirectAfterDelete(LatheRequest $request): string
+    {
+        return static::uriKey();
+    }
+
     public function getModel(): ?Model
     {
         return $this->model;

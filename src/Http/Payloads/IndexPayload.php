@@ -37,7 +37,13 @@ class IndexPayload
         $rows = $query->rows();
         [$perPage, $page] = $query->page();
         $fields = array_values(array_filter($resource->fields($this->request), fn (mixed $field) => $field instanceof Field));
-        $abilities = $this->authorization->abilitiesFor($this->request->user(), $class, $rows, self::ROW_ABILITIES);
+        $softDeletes = $resource->definition()->usesSoftDeletes();
+        $abilities = $this->authorization->abilitiesFor(
+            $this->request->user(),
+            $class,
+            $rows,
+            $softDeletes ? [...self::ROW_ABILITIES, 'restore', 'forceDelete'] : self::ROW_ABILITIES,
+        );
         $threshold = $resource->definition()->getFilterRemoteThreshold();
         $filters = $this->request->query('filter');
 
@@ -58,6 +64,7 @@ class IndexPayload
                     'title' => $resource->forModel($model)->title(),
                     'cells' => collect($fields)->mapWithKeys(fn (Field $field) => [$field->key() => $field->cell($model)])->all(),
                     'abilities' => $abilities[$this->key($model)] ?? [],
+                    ...($softDeletes ? ['trashed' => method_exists($model, 'trashed') && $model->trashed() === true] : []),
                 ])->values()->all(),
             ],
             'filters' => [
