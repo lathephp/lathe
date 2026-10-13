@@ -51,6 +51,13 @@ class Order extends Resource
             ]),
             LayoutTab::group(null, [
                 LayoutTab::make('Billing', [$this->total()->required()]),
+                // Picking a product is m4's relation field, so a row edits its quantity and price only.
+                LayoutTab::make('Items', [
+                    Field::repeater('Items')->asHasMany('items')->fields([
+                        Field::number('Quantity')->min(1)->required(),
+                        Field::currency('Price', 'price_cents')->asMinorUnits()->required(),
+                    ])->addable(false)->confirmRemoval()->rowLabel('quantity', 'Item #{{index}}'),
+                ]),
             ]),
         ];
     }

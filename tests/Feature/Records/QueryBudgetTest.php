@@ -68,7 +68,8 @@ it('runs the same pinned query count for an order with one item and with five', 
 
     expect($one)->toBe($budget)->and($five)->toBe($budget);
 })->with([
-    'detail' => ['/lathe/resources/orders/{id}', 2],
-    'edit' => ['/lathe/resources/orders/{id}/edit', 1],
+    // Items: one query loads the order's children, however many.
+    'detail' => ['/lathe/resources/orders/{id}', 3],
+    'edit' => ['/lathe/resources/orders/{id}/edit', 2],
     'creation-fields' => ['/lathe/api/resources/budget-orders/creation-fields', 0],
 ]);

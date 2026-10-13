@@ -43,7 +43,7 @@ it('shows an order with its fields, layout, abilities and default breadcrumbs', 
             ->where('record.title', 'ORD-00099454')
             ->where('record.subtitle', '')
             ->where('record.avatar', null)
-            ->where('record.fields', fn ($fields) => collect($fields)->pluck('key')->all() === ['number', 'status', 'placed_at', 'created_at', 'customer', 'total_cents'])
+            ->where('record.fields', fn ($fields) => collect($fields)->pluck('key')->all() === ['number', 'status', 'placed_at', 'created_at', 'customer', 'total_cents', 'items'])
             ->where('record.fields.0.label', 'Number')
             ->where('record.fields.0.value', 'ORD-00099454')
             ->where('record.fields.0.display', 'ORD-00099454')
@@ -78,7 +78,7 @@ it('hides the canSee order field from the editor', function () {
         ->assertOk()
         ->assertInertia(fn (AssertableInertia $page) => $page
             ->component('Resources/Detail', false)
-            ->where('record.fields', fn ($fields) => collect($fields)->pluck('key')->all() === ['number', 'status', 'placed_at', 'customer', 'total_cents'])
+            ->where('record.fields', fn ($fields) => collect($fields)->pluck('key')->all() === ['number', 'status', 'placed_at', 'customer', 'total_cents', 'items'])
             ->where('record.abilities.update', false));
 });
 

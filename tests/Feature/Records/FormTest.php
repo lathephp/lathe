@@ -119,7 +119,7 @@ it('returns the update fields with their values and the traffic-cop token', func
     $json = LatheTest::resource('orders')->updateFields(12)->assertOk()->json();
 
     expect(array_keys($json))->toBe(['fields', 'layout', 'updatedAt'])
-        ->and(array_column($json['fields'], 'key'))->toBe(['number', 'status', 'placed_at', 'total_cents'])
+        ->and(array_column($json['fields'], 'key'))->toBe(['number', 'status', 'placed_at', 'total_cents', 'items'])
         ->and($json['fields'][0]['value'])->toBe('ORD-00099454')
         ->and($json['layout'][0]['fields'])->toBe(['number', 'status', 'placed_at'])
         ->and($json['layout'][1]['type'])->toBe('tab-group')
