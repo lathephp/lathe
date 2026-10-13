@@ -17,9 +17,13 @@ export function ToolbarSearch({ label, value, debounce, onSearch }: ToolbarSearc
   const timer = useRef<ReturnType<typeof setTimeout>>(undefined);
 
   // The page keeps its state across visits, so a q changed elsewhere (Clear filters) is copied in.
+  // The box's own search lands as its trimmed text and leaves the text alone.
   if (value !== seen) {
     setSeen(value);
-    setTerm(value);
+
+    if (value !== term.trim()) {
+      setTerm(value);
+    }
   }
 
   useEffect(

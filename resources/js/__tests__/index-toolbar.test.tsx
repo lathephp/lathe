@@ -142,6 +142,24 @@ describe('toolbar search', () => {
   });
 });
 
+describe('search box and the URL', () => {
+  it('keeps a trailing space the person is still typing when its search lands', async () => {
+    vi.spyOn(router, 'visit').mockImplementation((_url, options) => {
+      const data = (options as { data: Record<string, string> }).data;
+      router.replace({ url: `/lathe/resources/orders?${new URLSearchParams(data).toString()}`, preserveState: true });
+    });
+    renderOrders();
+    const box = screen.getByRole<HTMLInputElement>('searchbox', { name: 'Search orders' });
+
+    fireEvent.change(box, { target: { value: 'ORD ' } });
+
+    await vi.waitFor(() => {
+      expect(window.location.search).toBe('?q=ORD');
+    });
+    expect(box.value).toBe('ORD ');
+  });
+});
+
 describe('sort headers', () => {
   it('sorts Total ascending on the first click and descending on the second', () => {
     const visit = mockVisit();
