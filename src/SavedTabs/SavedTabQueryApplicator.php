@@ -10,6 +10,7 @@ use Illuminate\Validation\ValidationException;
 use Lathe\Filters\FilterApplicator;
 use Lathe\Http\Requests\LatheRequest;
 use Lathe\Query\Count;
+use Lathe\Query\ResourceQuery;
 use Lathe\Resources\Resource;
 use Lathe\Search\SearchApplicator;
 use Lathe\Support\ConfigStore;
@@ -49,7 +50,7 @@ class SavedTabQueryApplicator
             return null;
         }
 
-        if (! is_string($id) || ! ctype_digit($id)) {
+        if (! is_string($id) || ! ResourceQuery::holdsKey(new SavedTab, $id)) {
             throw new NotFoundHttpException;
         }
 

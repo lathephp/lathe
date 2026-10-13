@@ -75,6 +75,10 @@ it('answers 404 for another user tab and for an unknown id', function () {
     $this->getJson('/lathe/api/resources/orders?saved_tab=99999')->assertNotFound();
 });
 
+it('answers 404 for a saved_tab past PHP_INT_MAX', function () {
+    $this->getJson('/lathe/api/resources/orders?saved_tab=99999999999999999999')->assertNotFound();
+});
+
 it('lets the request sort win over the stored sort', function () {
     $tab = savedTabApplyMake($this->admin, ['sort' => '-total_cents']);
 

@@ -2,6 +2,7 @@
 
 use Illuminate\Database\Eloquent\Concerns\HasUlids;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
+use Illuminate\Database\Events\QueryExecuted;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
@@ -141,6 +142,23 @@ it('keeps tabs private to their user', function () {
 
     expect(DB::table('lathe_saved_tabs')->where('user_id', (string) $admin->getKey())->value('name'))->toBe('Mine');
 });
+
+it('answers 404 before any query for a saved tab id that is not a key', function (string $method, string $id) {
+    savedTabAdmin();
+    $queries = [];
+    DB::listen(function (QueryExecuted $event) use (&$queries) {
+        $queries[] = $event->sql;
+    });
+
+    $this->json($method, savedTabsUrl("/{$id}"), ['name' => 'Two'])->assertNotFound();
+
+    expect(array_filter($queries, fn (string $sql) => str_contains($sql, 'lathe_saved_tabs')))->toBe([]);
+})->with([
+    'update a word' => ['PUT', 'abc'],
+    'update past PHP_INT_MAX' => ['PUT', '99999999999999999999'],
+    'delete a word' => ['DELETE', 'abc'],
+    'delete past PHP_INT_MAX' => ['DELETE', '99999999999999999999'],
+]);
 
 it('answers 403 on every endpoint when saved tabs are off in config', function () {
     savedTabAdmin();

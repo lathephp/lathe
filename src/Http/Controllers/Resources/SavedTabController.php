@@ -11,6 +11,7 @@ use Illuminate\Validation\ValidationException;
 use Lathe\Auth\ResourceAuthorization;
 use Lathe\Filters\FilterApplicator;
 use Lathe\Http\Requests\LatheRequest;
+use Lathe\Query\ResourceQuery;
 use Lathe\Resources\Resource;
 use Lathe\SavedTabs\SavedTab;
 use Lathe\SavedTabs\SchemaHash;
@@ -146,7 +147,11 @@ class SavedTabController
      */
     protected function find(LatheRequest $request, string $class): SavedTab
     {
-        return $this->owned($request, $class)->whereKey($request->route('savedTab'))->firstOrFail();
+        $id = $request->route('savedTab');
+
+        abort_unless(is_string($id) && ResourceQuery::holdsKey(new SavedTab, $id), 404);
+
+        return $this->owned($request, $class)->whereKey($id)->firstOrFail();
     }
 
     protected function userId(LatheRequest $request): string
