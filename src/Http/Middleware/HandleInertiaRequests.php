@@ -50,6 +50,13 @@ class HandleInertiaRequests extends Middleware
             // A user who may not open the panel sees no Resource or plugin names.
             'navigation' => fn () => $user === null || ! Lathe::check($request) ? [] : app(Navigation::class)->build($request),
             'sidebarOpen' => Lathe::resolveSidebarDefaultOpen($request),
+            // Per visit, not once per session: the login page loads it before a user exists.
+            // An app that never defines globalSearch keeps the palette off: an undefined ability denies.
+            'globalSearch' => fn () => [
+                'enabled' => Lathe::config()->boolean('global_search.enabled')
+                    && Gate::forUser($request->user(Lathe::fortify()->guard()))->allows('globalSearch'),
+                'debounce' => self::seconds(Lathe::config()->get('global_search.debounce')),
+            ],
         ];
     }
 
@@ -74,12 +81,6 @@ class HandleInertiaRequests extends Middleware
                 ],
                 'header' => ['sticky' => Lathe::config()->boolean('layout.header.sticky')],
                 'content' => ['width' => Lathe::config()->string('layout.content.width')],
-            ],
-            // An app that never defines globalSearch keeps the palette off: an undefined ability denies.
-            'globalSearch' => fn () => [
-                'enabled' => Lathe::config()->boolean('global_search.enabled')
-                    && Gate::forUser($request->user(Lathe::fortify()->guard()))->allows('globalSearch'),
-                'debounce' => self::seconds(Lathe::config()->get('global_search.debounce')),
             ],
             'tableStyle' => fn () => [
                 'density' => Lathe::config()->string('table.density'),
