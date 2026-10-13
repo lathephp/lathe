@@ -5,6 +5,7 @@ namespace Lathe\Http;
 use Illuminate\Routing\Router;
 use Illuminate\Routing\RouteRegistrar;
 use Lathe\Auth\FortifyConfig;
+use Lathe\Http\Controllers\Assets\AssetController;
 use Lathe\Http\Controllers\Auth\AuthenticatedSessionController;
 use Lathe\Http\Controllers\Auth\LoginPageController;
 use Lathe\Http\Controllers\DashboardController;
@@ -39,6 +40,7 @@ class PanelRoutes
     {
         // Prebuilt files load without a session, so they set no cookie.
         $this->group()->group(function (Router $router) {
+            $router->get('assets/{hash}/{file}', AssetController::class)->name('lathe.assets');
             $router->get('modules/{file}', ModuleController::class)->name('lathe.modules');
             $router->get('styles/{file}', ModuleController::class)->defaults('type', 'styles')->name('lathe.styles');
         });

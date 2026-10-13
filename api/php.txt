@@ -1,6 +1,16 @@
+Lathe\Assets\AssetManifest::?array $manifest  [protected]
 Lathe\Assets\AssetManifest::?string $distPath  [protected]
+Lathe\Assets\AssetManifest::ENTRY
+Lathe\Assets\AssetManifest::SPECIFIERS
 Lathe\Assets\AssetManifest::distPath(): string
+Lathe\Assets\AssetManifest::entryUrl(string $prefix): ?string
+Lathe\Assets\AssetManifest::file(string $hash, string $name): ?string
 Lathe\Assets\AssetManifest::hash(): string
+Lathe\Assets\AssetManifest::importMap(string $prefix): array
+Lathe\Assets\AssetManifest::listedFiles(): array  [protected]
+Lathe\Assets\AssetManifest::manifest(): array  [protected]
+Lathe\Assets\AssetManifest::stylesheetUrls(string $prefix): array
+Lathe\Assets\AssetManifest::url(string $prefix, string $file): string  [protected]
 Lathe\Assets\AssetManifest::useDistPath(string $path): void
 Lathe\Assets\AssetRegistry::array $scripts  [protected]
 Lathe\Assets\AssetRegistry::array $styles  [protected]
@@ -10,6 +20,14 @@ Lathe\Assets\AssetRegistry::script(string $name, string $path): void
 Lathe\Assets\AssetRegistry::scriptUrl(string $prefix, string $name): ?string
 Lathe\Assets\AssetRegistry::scripts(): array
 Lathe\Assets\AssetRegistry::style(string $name, string $path): void
+Lathe\Assets\RootTags::Lathe\Assets\AssetManifest $assets  [protected]
+Lathe\Assets\RootTags::Lathe\Plugins\PluginRegistry $plugins  [protected]
+Lathe\Assets\RootTags::Lathe\Support\ConfigStore $config  [protected]
+Lathe\Assets\RootTags::__construct(Lathe\Assets\AssetManifest $assets, Lathe\Plugins\PluginRegistry $plugins, Lathe\Support\ConfigStore $config)
+Lathe\Assets\RootTags::nonce(): string  [protected]
+Lathe\Assets\RootTags::prefix(): string  [protected]
+Lathe\Assets\RootTags::scripts(): string
+Lathe\Assets\RootTags::styles(): string
 Lathe\Auth\FortifyConfig::Illuminate\Contracts\Config\Repository $config  [protected]
 Lathe\Auth\FortifyConfig::Lathe\Support\ConfigStore $lathe  [protected]
 Lathe\Auth\FortifyConfig::__construct(Lathe\Support\ConfigStore $lathe, Illuminate\Contracts\Config\Repository $config)
@@ -91,6 +109,7 @@ Lathe\Field\Field::resolve(Illuminate\Database\Eloquent\Model $model): string|in
 Lathe\Field\Field::string $attribute  [protected]
 Lathe\Field\Field::string $component  [protected]
 Lathe\Field\Field::string $label  [protected]
+Lathe\Http\Controllers\Assets\AssetController::__invoke(Illuminate\Http\Request $request, Lathe\Assets\AssetManifest $assets, string $hash, string $file): Symfony\Component\HttpFoundation\Response
 Lathe\Http\Controllers\Auth\AuthenticatedSessionController::Illuminate\Contracts\Container\Container $container  [protected]
 Lathe\Http\Controllers\Auth\AuthenticatedSessionController::Lathe\Auth\FortifyConfig $fortify  [protected]
 Lathe\Http\Controllers\Auth\AuthenticatedSessionController::__construct(Illuminate\Contracts\Container\Container $container, Lathe\Auth\FortifyConfig $fortify)
@@ -117,6 +136,9 @@ Lathe\Http\Middleware\AuthorizePlugin::__construct(Lathe\Plugins\PluginRegistry 
 Lathe\Http\Middleware\AuthorizePlugin::handle(Illuminate\Http\Request $request, Closure $next, string $uriKey): Symfony\Component\HttpFoundation\Response
 Lathe\Http\Middleware\EnsureJson::handle(Illuminate\Http\Request $request, Closure $next): Symfony\Component\HttpFoundation\Response
 Lathe\Http\Middleware\HandleInertiaRequests::$rootView  [protected]
+Lathe\Http\Middleware\HandleInertiaRequests::share(Illuminate\Http\Request $request): array
+Lathe\Http\Middleware\HandleInertiaRequests::shareOnce(Illuminate\Http\Request $request): array
+Lathe\Http\Middleware\HandleInertiaRequests::version(Illuminate\Http\Request $request): ?string
 Lathe\Http\Middleware\ServeLathe::Illuminate\Contracts\Container\Container $container  [protected]
 Lathe\Http\Middleware\ServeLathe::__construct(Illuminate\Contracts\Container\Container $container)
 Lathe\Http\Middleware\ServeLathe::handle(Illuminate\Http\Request $request, Closure $next): Symfony\Component\HttpFoundation\Response
@@ -367,6 +389,7 @@ Lathe\Support\ConfigValidator::unknownKeys(array $config): array
 Lathe\Support\Util::isLatheRequest(Illuminate\Http\Request $request): bool  [static]
 class Lathe\Assets\AssetManifest
 class Lathe\Assets\AssetRegistry
+class Lathe\Assets\RootTags
 class Lathe\Auth\FortifyConfig
 class Lathe\Auth\PanelGate
 class Lathe\Auth\ResourceAuthorization
@@ -383,6 +406,7 @@ class Lathe\Exceptions\PluginDependencyException
 class Lathe\Exceptions\ResourceModelCollisionException
 class Lathe\Exceptions\ResourceUriKeyCollisionException
 class Lathe\Field\Field
+class Lathe\Http\Controllers\Assets\AssetController
 class Lathe\Http\Controllers\Auth\AuthenticatedSessionController
 class Lathe\Http\Controllers\Auth\LoginPageController
 class Lathe\Http\Controllers\DashboardController

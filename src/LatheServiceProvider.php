@@ -7,10 +7,12 @@ use Illuminate\Contracts\Http\Kernel;
 use Illuminate\Foundation\Console\AboutCommand;
 use Illuminate\Foundation\PackageManifest;
 use Illuminate\Routing\Router;
+use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\ServiceProvider;
 use Laravel\Fortify\Fortify;
 use Lathe\Assets\AssetManifest;
 use Lathe\Assets\AssetRegistry;
+use Lathe\Assets\RootTags;
 use Lathe\Auth\FortifyConfig;
 use Lathe\Console\ApiCheckCommand;
 use Lathe\Console\CacheCommand;
@@ -53,6 +55,8 @@ class LatheServiceProvider extends ServiceProvider
         AboutCommand::add('Lathe', fn () => ['Version' => Lathe::version()]);
 
         $this->loadViewsFrom(__DIR__.'/../resources/views', 'lathe');
+        Blade::directive('latheStyles', fn () => '<?php echo app('.RootTags::class.'::class)->styles(); ?>');
+        Blade::directive('latheScripts', fn () => '<?php echo app('.RootTags::class.'::class)->scripts(); ?>');
         $this->loadMigrationsFrom(__DIR__.'/../database/migrations');
         $this->registerMiddleware();
 
