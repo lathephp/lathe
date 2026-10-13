@@ -9,6 +9,7 @@ import { usePolling, usePollingChoice } from '../../index/PollingToggle';
 import { ResourceTable } from '../../index/ResourceTable';
 import type { IndexProps } from '../../index/types';
 import { useIndexState } from '../../index/useIndexState';
+import { useRowSelection } from '../../index/useRowSelection';
 import type { SharedProps } from '../../types';
 
 export default function Index({ resource, table, state, count, error, lens, lenses }: IndexProps) {
@@ -17,6 +18,7 @@ export default function Index({ resource, table, state, count, error, lens, lens
   const filtered = index.state.q !== undefined || index.state.filter !== undefined;
   const { polling, showPollingToggle } = resource.definition;
   const pollingChoice = usePollingChoice(resource.uriKey);
+  const selection = useRowSelection();
   const more = useLoadMore(resource.uriKey, table, state);
   usePolling(polling, !showPollingToggle || pollingChoice.on);
 
@@ -49,6 +51,7 @@ export default function Index({ resource, table, state, count, error, lens, lens
             table={{ ...table, rows: more.rows }}
             state={state}
             loading={index.loading}
+            selection={selection}
             sort={index.state.sort}
             onSort={(sort) => {
               index.visit({ sort });

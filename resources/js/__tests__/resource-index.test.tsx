@@ -94,7 +94,9 @@ describe('orders table', () => {
   it('shows the columns and the rows as plain text', () => {
     renderOrders();
 
+    // The first column holds the row checkboxes.
     expect(screen.getAllByRole('columnheader').map((cell) => cell.textContent)).toEqual([
+      '',
       'Number',
       'Customer',
       'Status',
@@ -103,6 +105,7 @@ describe('orders table', () => {
     ]);
     expect(bodyRows()).toHaveLength(25);
     expect(within(bodyRows()[0] as HTMLElement).getAllByRole('cell').map((cell) => cell.textContent)).toEqual([
+      '',
       'ORD-00001',
       'Customer 1',
       'Paid',

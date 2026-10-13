@@ -1,19 +1,27 @@
 import { useTranslation } from '@lathephp/core';
-import { usePage } from '@inertiajs/react';
+import { router, usePage } from '@inertiajs/react';
 import { ArrowDown, ArrowUp } from 'lucide-react';
+import type { MouseEvent } from 'react';
 import { cn } from '../lib/cn';
 import { TableCell } from '../table/cells';
 import type { SharedProps } from '../types';
+import { menuActions, RowMenu } from './RowMenu';
 import { TableSummaryRow } from './TableSummaryRow';
-import type { IndexProps } from './types';
+import type { IndexProps, Row } from './types';
+import type { RowSelection } from './useRowSelection';
 
 const rowHeights = { compact: 'h-8', comfortable: 'h-10', spacious: 'h-12' };
 
-// Under 768 px the table scrolls inside its card; the first column stays as the row's anchor.
-const firstColumn = 'sticky start-0 bg-background';
+// Under 768 px the table scrolls inside its card; the checkbox and the first column stay as the row's anchor.
+const checkboxColumn = 'sticky start-0 w-10 bg-background px-3';
+const firstColumn = 'sticky start-10 bg-background';
+
+// A click on these does its own thing, never the row's click action.
+const ownClick = 'a, button, input, label, [data-row-menu]';
 
 interface ResourceTableProps extends Pick<IndexProps, 'resource' | 'table' | 'state'> {
   loading: boolean;
+  selection: RowSelection;
   /** The ?sort= of the URL, `-total_cents,placed_at`. */
   sort: string | undefined;
   onSort: (sort: string) => void;
@@ -46,12 +54,58 @@ function direction(sort: string | undefined, key: string): 'ascending' | 'descen
   return tokens.includes(key) ? 'ascending' : tokens.includes(`-${key}`) ? 'descending' : 'none';
 }
 
-export function ResourceTable({ resource, table, state, loading, sort, onSort }: ResourceTableProps) {
+export function ResourceTable({ resource, table, state, loading, selection, sort, onSort }: ResourceTableProps) {
   const { __ } = useTranslation();
-  const { density, striped } = usePage<SharedProps>().props.tableStyle;
+  const { basePath, tableStyle } = usePage<SharedProps>().props;
+  const { clickAction, showColumnBorders } = resource.definition;
   // Deferred with the count, so the footer arrives after the rows.
   const { summaries } = usePage<Pick<IndexProps, 'summaries'>>().props;
-  const rowClass = cn('border-b border-border last:border-0', rowHeights[density], striped && 'even:bg-muted/50');
+  const opens = clickAction === 'detail' || clickAction === 'edit' || clickAction === 'select';
+  const rowClass = cn(
+    'border-b border-border last:border-0',
+    // TableStyle tight forces the compact height whatever the panel density.
+    rowHeights[resource.definition.tableStyle === 'tight' ? 'compact' : tableStyle.density],
+    tableStyle.striped && 'even:bg-muted/50',
+  );
+  const border = showColumnBorders && 'border-e border-border last:border-e-0';
+  const withMenu = table.rows.some((row) => menuActions(row).length > 0);
+  const ids = table.rows.map((row) => row.id);
+  const ticked = ids.filter((id) => selection.selected.has(id)).length;
+
+  // Edit falls back to detail for a user who may not update the row.
+  function rowUrl(row: Row): string | null {
+    const detail = `${basePath}/resources/${resource.uriKey}/${String(row.id)}`;
+
+    if (clickAction === 'detail') {
+      return detail;
+    }
+
+    return clickAction === 'edit' ? (row.abilities.update === true ? `${detail}/edit` : detail) : null;
+  }
+
+  function clickRow(event: MouseEvent<HTMLTableRowElement>, row: Row) {
+    if (event.target instanceof Element && event.target.closest(ownClick) !== null) {
+      return;
+    }
+
+    if (clickAction === 'select') {
+      selection.toggle(row.id);
+
+      return;
+    }
+
+    const url = rowUrl(row);
+
+    if (url === null) {
+      return;
+    }
+
+    if (event.metaKey || event.ctrlKey) {
+      window.open(url, '_blank', 'noopener');
+    } else {
+      router.visit(url);
+    }
+  }
 
   return (
     // Focusable, so a keyboard user can scroll a wide table sideways.
@@ -59,6 +113,22 @@ export function ResourceTable({ resource, table, state, loading, sort, onSort }:
       <table className="w-full text-sm">
         <thead>
           <tr className="h-10 border-b border-border text-start text-muted-foreground">
+            <th scope="col" className={cn(checkboxColumn, border)}>
+              <input
+                type="checkbox"
+                aria-label={__('Select all')}
+                className="block size-4"
+                checked={ids.length > 0 && ticked === ids.length}
+                ref={(input) => {
+                  if (input !== null) {
+                    input.indeterminate = ticked > 0 && ticked < ids.length;
+                  }
+                }}
+                onChange={() => {
+                  selection.toggleAll(ids);
+                }}
+              />
+            </th>
             {table.columns.map((column, index) => {
               const sortable = column.sortable && table.sortKeys.includes(column.sortKey);
               const sorted = sortable ? direction(sort, column.sortKey) : 'none';
@@ -68,7 +138,7 @@ export function ResourceTable({ resource, table, state, loading, sort, onSort }:
                   key={column.key}
                   scope="col"
                   aria-sort={sortable ? sorted : undefined}
-                  className={cn('px-3 text-start font-medium whitespace-nowrap', index === 0 && firstColumn)}
+                  className={cn('px-3 text-start font-medium whitespace-nowrap', index === 0 && firstColumn, border)}
                 >
                   {sortable ? (
                     <button
@@ -88,35 +158,75 @@ export function ResourceTable({ resource, table, state, loading, sort, onSort }:
                 </th>
               );
             })}
+            {withMenu && (
+              <th scope="col" className={cn('w-12 px-3', border)}>
+                <span className="sr-only">{__('Actions')}</span>
+              </th>
+            )}
           </tr>
         </thead>
         <tbody>
           {loading
             ? Array.from({ length: state.perPage }, (_, index) => (
                 <tr key={index} data-skeleton="" aria-hidden="true" className={rowClass}>
+                  <td className={cn(checkboxColumn, border)} />
                   {table.columns.map((column) => (
-                    <td key={column.key} className="px-3">
+                    <td key={column.key} className={cn('px-3', border)}>
                       <span className="block h-3 animate-pulse rounded bg-muted motion-reduce:animate-none" />
                     </td>
                   ))}
+                  {withMenu && <td className={cn(border)} />}
                 </tr>
               ))
             : table.rows.map((row) => (
-                <tr key={row.id} className={rowClass}>
+                <tr
+                  key={row.id}
+                  className={cn(rowClass, opens && 'cursor-pointer hover:bg-muted/50')}
+                  onClick={(event) => {
+                    clickRow(event, row);
+                  }}
+                >
+                  <td className={cn(checkboxColumn, border)}>
+                    <input
+                      type="checkbox"
+                      aria-label={__('Select :title', { title: row.title })}
+                      className="block size-4"
+                      checked={selection.selected.has(row.id)}
+                      onChange={() => {
+                        selection.toggle(row.id);
+                      }}
+                    />
+                  </td>
                   {table.columns.map((column, index) => {
                     const cell = row.cells[column.key];
 
                     return (
-                      <td key={column.key} className={cn('max-w-80 truncate px-3 whitespace-nowrap', index === 0 && firstColumn)}>
+                      <td key={column.key} className={cn('max-w-80 truncate px-3 whitespace-nowrap', index === 0 && firstColumn, border)}>
                         {cell !== undefined && <TableCell component={column.component} cell={cell} />}
+                        {index === 0 && row.trashed === true && (
+                          <span className="ms-2 rounded-full bg-muted px-2 py-0.5 text-xs font-medium text-muted-foreground">
+                            {__('Soft Deleted')}
+                          </span>
+                        )}
                       </td>
                     );
                   })}
+                  {withMenu && (
+                    <td data-row-menu="" className={cn('px-3', border)}>
+                      {menuActions(row).length > 0 && <RowMenu uriKey={resource.uriKey} row={row} />}
+                    </td>
+                  )}
                 </tr>
               ))}
         </tbody>
         {!loading && summaries !== undefined && summaries !== null && (
-          <TableSummaryRow columns={table.columns} summaries={summaries} firstColumn={firstColumn} />
+          <TableSummaryRow
+            columns={table.columns}
+            summaries={summaries}
+            firstColumn={firstColumn}
+            leading={cn(checkboxColumn, border)}
+            trailing={withMenu}
+          />
         )}
       </table>
     </div>

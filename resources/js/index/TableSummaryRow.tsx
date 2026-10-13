@@ -7,10 +7,14 @@ interface TableSummaryRowProps {
   summaries: Summaries;
   /** The sticky class of the table's first column, so the row title stays with it. */
   firstColumn: string;
+  /** The class of the checkbox column before the fields, which the footer leaves empty. */
+  leading: string;
+  /** Whether a row menu column follows the fields. */
+  trailing: boolean;
 }
 
 /** The footer rows "This page" and "All records", each total under its own column. */
-export function TableSummaryRow({ columns, summaries, firstColumn }: TableSummaryRowProps) {
+export function TableSummaryRow({ columns, summaries, firstColumn, leading, trailing }: TableSummaryRowProps) {
   const { __ } = useTranslation();
   const rowClass = 'h-10 border-t border-border font-medium';
 
@@ -24,6 +28,7 @@ export function TableSummaryRow({ columns, summaries, firstColumn }: TableSummar
 
   const row = (title: string, values: Record<string, SummaryValue[] | undefined>) => (
     <tr className={rowClass}>
+      <td className={leading} />
       {columns.map((column, index) =>
         index === 0 ? (
           <th key={column.key} scope="row" className={cn('px-3 text-start whitespace-nowrap', firstColumn)}>
@@ -36,6 +41,7 @@ export function TableSummaryRow({ columns, summaries, firstColumn }: TableSummar
           </td>
         ),
       )}
+      {trailing && <td />}
     </tr>
   );
 
@@ -45,10 +51,11 @@ export function TableSummaryRow({ columns, summaries, firstColumn }: TableSummar
       {summaries.allRecords !== null && row(__('All records'), summaries.allRecords)}
       {summaries.allRecords === null && summaries.message !== null && (
         <tr className={rowClass}>
+          <td className={leading} />
           <th scope="row" className={cn('px-3 text-start whitespace-nowrap', firstColumn)}>
             {__('All records')}
           </th>
-          <td colSpan={Math.max(columns.length - 1, 1)} className="px-3 text-muted-foreground">
+          <td colSpan={Math.max(columns.length - 1, 1) + (trailing ? 1 : 0)} className="px-3 text-muted-foreground">
             {summaries.message}
           </td>
         </tr>
