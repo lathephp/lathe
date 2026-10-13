@@ -10,9 +10,14 @@ it('creates the Lathe tables when the host migrates', function () {
 });
 
 it('publishes the migrations with their fixed stamps', function () {
+    // Publish into a private folder: the skeleton's own is shared with parallel test processes.
+    $path = sys_get_temp_dir().'/lathe-publish-'.bin2hex(random_bytes(4));
+    app()->useDatabasePath($path);
+    (new Lathe\LatheServiceProvider(app()))->boot();
+
     $this->artisan('vendor:publish', ['--tag' => 'lathe-migrations', '--force' => true])->assertSuccessful();
 
-    expect(glob(database_path('migrations/2026_01_01_0000*_create_*.php')))->toHaveCount(10);
+    expect(glob("{$path}/migrations/2026_01_01_0000*_create_*.php"))->toHaveCount(10);
 
-    array_map(unlink(...), glob(database_path('migrations/2026_01_01_0000*_create_*.php')) ?: []);
+    Illuminate\Support\Facades\File::deleteDirectory($path);
 });
