@@ -18,10 +18,10 @@ class IndexPageController
     {
         $class = $this->viewableResource($request, $authorization);
 
-        // A bad page or page size shows as an error on the page, not a redirect back.
+        // A bad parameter shows as an error on the page, not a redirect back.
         // Checking it reads no rows, so the deferred count request stays cheap.
         try {
-            (new ResourceQuery($class::make(), $request))->page();
+            (new ResourceQuery($class::make(), $request))->validate();
         } catch (ValidationException $e) {
             return Inertia::render('Error', [
                 'status' => 422,

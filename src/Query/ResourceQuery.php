@@ -73,7 +73,8 @@ class ResourceQuery
                 $query->withoutGlobalScope($scope);
             }
 
-            $this->scoped = $this->applyHook($this->applyTrashed($query));
+            $query = $this->applyHook($this->applyTrashed($query));
+            $this->scoped = $this->applyFilters($this->applySearch($this->applySavedTab($this->applyTab($query))));
         }
 
         return clone $this->scoped;
@@ -90,9 +91,7 @@ class ResourceQuery
         $query = $this->scoped();
 
         // One row past the page tells whether a next page exists without waiting for the count.
-        $rows = $query
-            ->with($this->resource->with())
-            ->orderBy($query->getModel()->getQualifiedKeyName(), 'desc')
+        $rows = $this->applySort($query->with($this->resource->with()))
             ->offset(($page - 1) * $perPage)
             ->limit($perPage + 1)
             ->get();
@@ -118,6 +117,15 @@ class ResourceQuery
     public function page(): array
     {
         return $this->pagination();
+    }
+
+    /**
+     * Check every request parameter without reading a row: 422 for a bad one.
+     */
+    public function validate(): void
+    {
+        $this->pagination();
+        $this->scoped();
     }
 
     /**
@@ -247,6 +255,57 @@ class ResourceQuery
             QueryContext::Relatable => $resource::relatableQuery($this->request, $query),
             QueryContext::Replicate => $resource::replicateQuery($this->request, $query),
         };
+    }
+
+    /**
+     * The active developer tab's query change.
+     *
+     * @param  Builder<Model>  $query
+     * @return Builder<Model>
+     */
+    protected function applyTab(Builder $query): Builder
+    {
+        return $query;
+    }
+
+    /**
+     * The active saved tab's stored filters and search, applied before the user's own.
+     *
+     * @param  Builder<Model>  $query
+     * @return Builder<Model>
+     */
+    protected function applySavedTab(Builder $query): Builder
+    {
+        return $query;
+    }
+
+    /**
+     * @param  Builder<Model>  $query
+     * @return Builder<Model>
+     */
+    protected function applySearch(Builder $query): Builder
+    {
+        return $query;
+    }
+
+    /**
+     * @param  Builder<Model>  $query
+     * @return Builder<Model>
+     */
+    protected function applyFilters(Builder $query): Builder
+    {
+        return $query;
+    }
+
+    /**
+     * The group order, the requested sort, then the primary key as the tie-break.
+     *
+     * @param  Builder<Model>  $query
+     * @return Builder<Model>
+     */
+    protected function applySort(Builder $query): Builder
+    {
+        return $query->orderBy($query->getModel()->getQualifiedKeyName(), 'desc');
     }
 
     /**
