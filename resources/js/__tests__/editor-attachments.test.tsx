@@ -127,7 +127,7 @@ describe('editor attachments', () => {
 
     await waitFor(() => {
       expect(calls.find((call) => call.url === '/lathe/api/resources/posts' && call.method === 'POST')?.body).toEqual({
-        body: `<p><img src="${URL_STORED}" alt="pasted.png"></p>`,
+        body: `<img src="${URL_STORED}" alt="pasted.png"><p></p>`,
         bodyDraftId: DRAFT,
         summary: '',
       });

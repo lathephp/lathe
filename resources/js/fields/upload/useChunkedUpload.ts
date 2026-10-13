@@ -140,7 +140,13 @@ function numberOr(value: unknown, fallback: number): number {
  * Upload a chosen file in chunks to the field's start route, resuming an upload this page
  * started before a reload. Leaving the page never cancels: the pending upload stays for 24 hours.
  */
-export function useChunkedUpload(field: FormFieldData, attribute: string, onUploaded: (uploadId: string) => void) {
+export function useChunkedUpload(
+  field: FormFieldData,
+  attribute: string,
+  onUploaded: (uploadId: string) => void,
+  /** More fields for the start request's body, read when an upload starts, such as an editor's draft_id. */
+  startBody: () => Record<string, unknown> = () => ({}),
+) {
   const { __ } = useTranslation();
   const { apiPath } = useLathe();
   const page = useSyncExternalStore(__panel.sharedProps.subscribe, __panel.sharedProps.get);
@@ -169,7 +175,7 @@ export function useChunkedUpload(field: FormFieldData, attribute: string, onUplo
     const id = page.mode === 'update' ? page.id : undefined;
     const started = await request<{ upload_id: string; chunk_size: number }>(`${apiPath}/resources/${resource}/uploads/${attribute}`, {
       method: 'POST',
-      body: { name: file.name, size: blob.size, mime: blob.type || file.type, ...(id === undefined || id === null ? {} : { resource_id: id }) },
+      body: { name: file.name, size: blob.size, mime: blob.type || file.type, ...(id === undefined || id === null ? {} : { resource_id: id }), ...startBody() },
     });
 
     if (started === null) {

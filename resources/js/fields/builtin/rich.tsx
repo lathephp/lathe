@@ -1,9 +1,10 @@
-import { lazy, Suspense } from 'react';
+import { lazy, Suspense, type ComponentType } from 'react';
 import { SafeHtml } from '../../components/SafeHtml';
 import { DetailFallbackField, registerField, type DetailFieldProps, type FormFieldProps, type IndexFieldProps } from '../registry';
 import CodeDetail from '../rich/CodeDetail';
 import KeyValueForm, { KeyValueDetail } from '../key-value/KeyValueFields';
 import SlugInput from '../slug/SlugInput';
+import { useEditorUploads } from '../rich/useEditorUploads';
 import { Collapsible, lineCount } from '../text/Collapsible';
 import { isSafeHtml } from '../text/TextValue';
 
@@ -23,10 +24,24 @@ function RichDetail({ field }: DetailFieldProps) {
   );
 }
 
+type ImageEditor = ComponentType<FormFieldProps & { uploadImage?: (file: File) => Promise<string> }>;
+
+/** An editor of a field with files: it uploads images, and an upload the server refuses says why under it. */
+function EditorWithFiles({ editor: Editor, ...props }: FormFieldProps & { editor: ImageEditor }) {
+  const { uploadImage, error } = useEditorUploads(props.field);
+
+  return (
+    <>
+      <Editor {...props} uploadImage={uploadImage} />
+      {error !== null && <p className="mt-1 text-sm text-destructive">{error}</p>}
+    </>
+  );
+}
+
 function MarkdownForm(props: FormFieldProps) {
   return (
     <Suspense fallback={null}>
-      <MarkdownEditor {...props} />
+      {props.field.withFiles === true ? <EditorWithFiles {...props} editor={MarkdownEditor} /> : <MarkdownEditor {...props} />}
     </Suspense>
   );
 }
@@ -34,7 +49,7 @@ function MarkdownForm(props: FormFieldProps) {
 function TiptapForm(props: FormFieldProps) {
   return (
     <Suspense fallback={null}>
-      <TiptapEditor {...props} />
+      {props.field.withFiles === true ? <EditorWithFiles {...props} editor={TiptapEditor} /> : <TiptapEditor {...props} />}
     </Suspense>
   );
 }
