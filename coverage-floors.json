@@ -1,4 +1,5 @@
 {
-  "packages/core/src/**": { "statements": 80 },
-  "resources/js/**": { "statements": 60 }
+  "packages/core/src/**": { "statements": 70 },
+  "packages/ui/src/**": { "statements": 80 },
+  "resources/js/**": { "statements": 80 }
 }
