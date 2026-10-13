@@ -7,7 +7,7 @@ function browserFlows(): array
 
 it('lists the flows of the panel skeleton', function () {
     expect(array_keys(browserFlows()))->toBe([
-        'login', 'orders-index', 'heartbeat', 'sidebar', 'forbidden', 'not-found', 'stale-assets', 'plugin-load-failure', 'index-search-sort',
+        'login', 'orders-index', 'heartbeat', 'sidebar', 'forbidden', 'not-found', 'stale-assets', 'plugin-load-failure', 'index-search-sort', 'search-palette',
     ]);
 });
 

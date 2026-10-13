@@ -15,4 +15,5 @@ return [
     'stale-assets' => 'StaleAssetsTest.php',
     'plugin-load-failure' => 'PluginLoadFailureTest.php',
     'index-search-sort' => 'IndexSearchSortTest.php',
+    'search-palette' => 'SearchPaletteTest.php',
 ];
