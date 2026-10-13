@@ -7,6 +7,8 @@ use Illuminate\Support\Facades\Gate;
 use Inertia\Response;
 use Inertia\ResponseFactory;
 use Lathe\Http\Middleware\HandleInertiaRequests;
+use Lathe\Http\Payloads\IndexPayload;
+use Workbench\App\Lathe\Resources\Order;
 use Workbench\App\Models\User;
 
 beforeEach(function () {
@@ -52,4 +54,13 @@ it('gives no page a prop named like a shared prop', function () {
     foreach ($this->pageProps as $component => $keys) {
         expect(array_values(array_intersect($keys, $shared)))->toBe([], "{$component} shadows a shared prop");
     }
+});
+
+it('sends every part of the index payload to the index page', function () {
+    $this->actingAs(User::forceCreate(['name' => 'Ada', 'email' => 'ada@example.test', 'password' => bcrypt('secret')]));
+    $payload = app(IndexPayload::class)->build(Order::class);
+
+    $this->get('/lathe/resources/orders')->assertOk();
+
+    expect(array_values(array_diff(array_keys($payload), $this->pageProps['Resources/Index'])))->toBe([]);
 });
