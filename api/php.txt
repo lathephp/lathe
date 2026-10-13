@@ -483,6 +483,7 @@ Lathe\Http\Controllers\Resources\SavedTabController::enabledResource(Lathe\Http\
 Lathe\Http\Controllers\Resources\SavedTabController::find(Lathe\Http\Requests\LatheRequest $request, string $class): Lathe\SavedTabs\SavedTab  [protected]
 Lathe\Http\Controllers\Resources\SavedTabController::index(Lathe\Http\Requests\LatheRequest $request, Lathe\Auth\ResourceAuthorization $authorization, Lathe\Support\ConfigStore $config): Illuminate\Http\JsonResponse
 Lathe\Http\Controllers\Resources\SavedTabController::owned(Lathe\Http\Requests\LatheRequest $request, string $class): Illuminate\Database\Eloquent\Builder  [protected]
+Lathe\Http\Controllers\Resources\SavedTabController::reorder(Lathe\Http\Requests\LatheRequest $request, Lathe\Auth\ResourceAuthorization $authorization, Lathe\Support\ConfigStore $config): Illuminate\Http\Response
 Lathe\Http\Controllers\Resources\SavedTabController::store(Lathe\Http\Requests\LatheRequest $request, Lathe\Auth\ResourceAuthorization $authorization, Lathe\Support\ConfigStore $config): Illuminate\Http\JsonResponse
 Lathe\Http\Controllers\Resources\SavedTabController::update(Lathe\Http\Requests\LatheRequest $request, Lathe\Auth\ResourceAuthorization $authorization, Lathe\Support\ConfigStore $config): Illuminate\Http\JsonResponse
 Lathe\Http\Controllers\Resources\SavedTabController::userId(Lathe\Http\Requests\LatheRequest $request): string  [protected]
@@ -919,6 +920,7 @@ Lathe\Resources\ResourceRegistry::validate(string $class, Lathe\Resources\Resour
 Lathe\SavedTabs\SavedTab::$guarded  [protected]
 Lathe\SavedTabs\SavedTab::$table  [protected]
 Lathe\SavedTabs\SavedTab::casts(): array  [protected]
+Lathe\SavedTabs\SavedTab::reorder(string $userId, string $resourceClass, array $ids): void  [static]
 Lathe\SavedTabs\SavedTab::toPayload(): array
 Lathe\SavedTabs\SavedTabQueryApplicator::Lathe\Http\Requests\LatheRequest $request  [protected]
 Lathe\SavedTabs\SavedTabQueryApplicator::Lathe\Resources\Resource $resource  [protected]

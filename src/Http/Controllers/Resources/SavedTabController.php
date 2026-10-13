@@ -62,6 +62,30 @@ class SavedTabController
         return new JsonResponse($tab->toPayload());
     }
 
+    /**
+     * The drop sends the user's full id list in its new order. Anything but exactly their own tabs answers 422 and writes nothing.
+     */
+    public function reorder(LatheRequest $request, ResourceAuthorization $authorization, ConfigStore $config): Response
+    {
+        $class = $this->enabledResource($request, $authorization, $config);
+        $ids = $request->input('ids');
+
+        if (! is_array($ids) || ! array_is_list($ids) || $ids === [] || array_filter($ids, fn ($id) => ! is_int($id) && ! (is_string($id) && ctype_digit($id))) !== []) {
+            throw ValidationException::withMessages(['ids' => 'Send the saved tab ids as a list']);
+        }
+
+        $ids = array_map(fn (mixed $id): int => is_scalar($id) ? (int) $id : 0, $ids);
+        $owned = $this->owned($request, $class)->get()->map(fn (SavedTab $tab): int => $tab->id)->all();
+
+        if (count($ids) !== count($owned) || array_diff($ids, $owned) !== [] || array_diff($owned, $ids) !== []) {
+            throw ValidationException::withMessages(['ids' => 'Send every one of your saved tabs once']);
+        }
+
+        SavedTab::reorder($this->userId($request), $class, $ids);
+
+        return new Response(null, 204);
+    }
+
     public function destroy(LatheRequest $request, ResourceAuthorization $authorization, ConfigStore $config): Response
     {
         $class = $this->enabledResource($request, $authorization, $config);
