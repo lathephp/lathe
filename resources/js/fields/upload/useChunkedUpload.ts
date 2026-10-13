@@ -192,8 +192,10 @@ export function useChunkedUpload(
       const { id, chunkSize, received } = await begin(file, blob);
       const total = Math.max(1, Math.ceil(blob.size / chunkSize));
       const sizeOf = (index: number) => Math.min(chunkSize, blob.size - index * chunkSize);
+      // The bar stops at 99 until the server has assembled the file and the form holds its id.
+      const percent = (bytes: number) => Math.min(99, Math.floor((bytes / blob.size) * 100));
       let sent = received.reduce((sum, index) => sum + sizeOf(index), 0);
-      setProgress(Math.floor((sent / blob.size) * 100));
+      setProgress(percent(sent));
 
       for (let index = 0; index < total; index++) {
         if (received.includes(index)) {
@@ -202,7 +204,7 @@ export function useChunkedUpload(
 
         await putChunk(`${apiPath}/uploads/${id}/chunks/${String(index)}`, blob.slice(index * chunkSize, (index + 1) * chunkSize));
         sent += sizeOf(index);
-        setProgress(Math.floor((sent / blob.size) * 100));
+        setProgress(percent(sent));
       }
 
       await request(`${apiPath}/uploads/${id}/complete`, { method: 'POST' });
