@@ -76,7 +76,7 @@ class LatheServiceProvider extends ServiceProvider
         // After every provider has booted: hand-registered plugins first, then discovered
         // ones, then the routes, so package routes land before the plugin catch-all.
         $this->app->booted(function () {
-            (new PluginDiscovery($this->app->make(PackageManifest::class)->vendorPath))
+            (new PluginDiscovery(PluginDiscovery::vendorPath($this->app->make(PackageManifest::class)->vendorPath)))
                 ->register($this->app->make(PluginRegistry::class));
 
             if (! $this->app->routesAreCached()) {

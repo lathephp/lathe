@@ -41,7 +41,7 @@ it('runs register and boot once, and a repeat registration is a no-op', function
 
     expect(Beacon::$calls)->toBe(['register', 'boot'])
         ->and(Lathe::plugins()->find('beacon'))->toBe($first)
-        ->and(Lathe::plugins()->all())->toHaveCount(1);
+        ->and(array_filter(Lathe::plugins()->all(), fn ($plugin) => $plugin instanceof Beacon))->toHaveCount(1);
 });
 
 it('names the plugin and every missing class it requires', function () {
@@ -114,7 +114,7 @@ it('serves a registered module by its content hash, and nothing else', function 
         ->assertHeader('Content-Type', 'text/javascript; charset=utf-8')
         ->assertCookieMissing('laravel_session');
 
-    expect(Lathe::plugins()->moduleUrls())->toBe(["/lathe/modules/beacon-{$hash}.js"]);
+    expect(Lathe::plugins()->moduleUrls())->toContain("/lathe/modules/beacon-{$hash}.js");
 
     $this->get('/lathe/modules/beacon-00000000.js')->assertNotFound();
     $this->get("/lathe/modules/other-{$hash}.js")->assertNotFound();

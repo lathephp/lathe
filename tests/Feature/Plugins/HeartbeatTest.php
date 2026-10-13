@@ -33,7 +33,7 @@ function heartbeatModule(): string
 }
 
 it('registers from its composer.json with no provider code', function () {
-    $vendor = app(PackageManifest::class)->vendorPath;
+    $vendor = PluginDiscovery::vendorPath(app(PackageManifest::class)->vendorPath);
 
     expect((new PluginDiscovery($vendor))->classes())->toContain('Acme\Heartbeat\Heartbeat')
         ->and(get_class(Lathe::plugins()->find('heartbeat') ?? new stdClass))->toBe('Acme\Heartbeat\Heartbeat');

@@ -2,6 +2,8 @@
 
 namespace Lathe\Plugins;
 
+use Composer\Autoload\ClassLoader;
+
 /**
  * Registers the plugin each installed Composer package names under extra.lathe.plugin.
  */
@@ -10,6 +12,21 @@ class PluginDiscovery
     public function __construct(protected string $vendorPath)
     {
         //
+    }
+
+    /**
+     * The app's vendor folder: Laravel's package manifest path when it holds Composer's
+     * installed.json, else the folder Composer's autoloader was loaded from.
+     */
+    public static function vendorPath(string $manifestVendorPath): string
+    {
+        if (is_file($manifestVendorPath.'/composer/installed.json')) {
+            return $manifestVendorPath;
+        }
+
+        $loader = (new \ReflectionClass(ClassLoader::class))->getFileName();
+
+        return $loader === false ? $manifestVendorPath : dirname($loader, 2);
     }
 
     public function register(PluginRegistry $registry): void

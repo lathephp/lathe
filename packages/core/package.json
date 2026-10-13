@@ -1,6 +1,6 @@
 {
   "name": "@lathephp/core",
-  "version": "0.0.0",
+  "version": "1.0.0-dev",
   "description": "The browser API of the Lathe admin panel for plugins.",
   "license": "MIT",
   "type": "module",

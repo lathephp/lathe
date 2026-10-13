@@ -23,7 +23,7 @@ export default defineConfig([
   reactHooks.configs.flat.recommended,
   jsxA11y.flatConfigs.recommended,
   {
-    files: ['**/*.js'],
+    files: ['**/*.js', '**/*.mjs'],
     extends: [tseslint.configs.disableTypeChecked],
   },
 ]);

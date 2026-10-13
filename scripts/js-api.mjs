@@ -2,6 +2,7 @@
 // "<package> <name>" for values and "<package> type <name>" for types; @internal ones are left out.
 // Usage: node scripts/js-api.mjs [repo-root]
 import { readFileSync } from 'node:fs';
+import process from 'node:process';
 import { createRequire } from 'node:module';
 import { join, resolve } from 'node:path';
 

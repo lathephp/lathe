@@ -46,7 +46,7 @@ it('prints one line per check in order and a count, and exits 0 on a healthy set
         ->and(array_slice($lines, 0, -1))->each->toMatch('/^(OK|WARN|FAIL|SKIP) +\S/');
 
     $order = array_map(fn (string $needle) => collect($lines)->search(fn ($line) => str_contains($line, $needle)), [
-        'PHP ', 'config/lathe.php', 'Table lathe_bulk_runs', 'Resources', 'No plugins', 'Built assets',
+        'PHP ', 'config/lathe.php', 'Table lathe_bulk_runs', 'Resources', 'Plugin ', 'Built assets',
     ]);
     expect($order)->toBe(collect($order)->sort()->values()->all());
 });

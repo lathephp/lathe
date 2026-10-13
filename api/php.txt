@@ -421,6 +421,7 @@ Lathe\Plugins\PluginDiscovery::__construct(string $vendorPath)
 Lathe\Plugins\PluginDiscovery::classes(): array
 Lathe\Plugins\PluginDiscovery::register(Lathe\Plugins\PluginRegistry $registry): void
 Lathe\Plugins\PluginDiscovery::string $vendorPath  [protected]
+Lathe\Plugins\PluginDiscovery::vendorPath(string $manifestVendorPath): string  [static]
 Lathe\Plugins\PluginRegistry::Lathe\Assets\AssetRegistry $assets  [protected]
 Lathe\Plugins\PluginRegistry::Lathe\Support\ConfigStore $config  [protected]
 Lathe\Plugins\PluginRegistry::__construct(Lathe\Assets\AssetRegistry $assets, Lathe\Support\ConfigStore $config)

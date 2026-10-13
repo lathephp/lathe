@@ -14,6 +14,7 @@ use Illuminate\Support\Facades\Schema;
 use Lathe\Assets\AssetManifest;
 use Lathe\Exceptions\LatheException;
 use Lathe\Plugins\Plugin;
+use Lathe\Plugins\PluginDiscovery;
 use Lathe\Plugins\PluginRegistry;
 use Lathe\Resources\ResourceRegistry;
 use Lathe\Support\ConfigStore;
@@ -292,7 +293,7 @@ class Doctor
      */
     protected function pluginPackages(): array
     {
-        $file = $this->app->make(PackageManifest::class)->vendorPath.'/composer/installed.json';
+        $file = PluginDiscovery::vendorPath($this->app->make(PackageManifest::class)->vendorPath).'/composer/installed.json';
         $installed = is_file($file) ? json_decode((string) file_get_contents($file), true) : [];
         $packages = is_array($installed) ? ($installed['packages'] ?? $installed) : [];
         $found = [];
