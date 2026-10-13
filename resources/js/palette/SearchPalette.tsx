@@ -148,8 +148,11 @@ export function SearchPalette({ basePath, debounce, onClose }: Props) {
         <Avatar result={result} />
         <span className="min-w-0">
           <span className="block truncate text-sm font-medium">{result.title}</span>
+          {/* On the highlighted row's muted background the muted text falls under 4.5:1. */}
           {result.subTitle !== null && (
-            <span className="block truncate text-xs text-muted-foreground">{result.subTitle}</span>
+            <span className={cn('block truncate text-xs', index === current ? 'text-foreground/80' : 'text-muted-foreground')}>
+              {result.subTitle}
+            </span>
           )}
         </span>
       </div>
@@ -198,7 +201,8 @@ export function SearchPalette({ basePath, debounce, onClose }: Props) {
             }}
           />
         </div>
-        <div className="overflow-y-auto p-2">
+        {/* Focusable, so a keyboard user can scroll a long result list. */}
+        <div className="overflow-y-auto p-2" role="region" tabIndex={0} aria-label={__('Search results')}>
           {!searching && recents.length > 0 && (
             <div className="flex items-center justify-between px-2 pb-1 text-xs text-muted-foreground">
               <span>{__('Recent searches')}</span>
