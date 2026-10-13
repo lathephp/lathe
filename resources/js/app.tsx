@@ -50,11 +50,9 @@ void createInertiaApp({
   setup({ el, App, props }) {
     __panel.setRouter(router);
     __panel.sharedProps.set(props.initialPage.props);
-    __panel.setTranslator(__panel.translatorFor(props.initialPage.props));
     showFlash(props.initialPage.props.flash as SharedProps['flash']);
     router.on('navigate', (event) => {
       __panel.sharedProps.set(event.detail.page.props);
-      __panel.setTranslator(__panel.translatorFor(event.detail.page.props));
     });
     // A visit's response carries its flash once; history navigation replays no toast.
     router.on('success', (event) => {

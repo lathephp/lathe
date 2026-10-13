@@ -160,6 +160,10 @@ Lathe\Console\InstallCommand::handle(Illuminate\Filesystem\Filesystem $files): i
 Lathe\Console\InstallCommand::publish(string $tag): int  [protected]
 Lathe\Console\InstallCommand::tasks(Illuminate\Filesystem\Filesystem $files): array  [protected]
 Lathe\Console\InstallCommand::write(Illuminate\Filesystem\Filesystem $files, string $stub, string $path, array $replace): int  [protected]
+Lathe\Console\TranslateCommand::$description  [protected]
+Lathe\Console\TranslateCommand::$signature  [protected]
+Lathe\Console\TranslateCommand::handle(Illuminate\Filesystem\Filesystem $files): int
+Lathe\Console\TranslateCommand::stringArgument(string $name): string  [protected]
 Lathe\Dashboards\Dashboard::name(): string
 Lathe\Dashboards\Dashboard::uriKey(): string  [static]
 Lathe\Dashboards\Dashboard::widgets(Lathe\Http\Requests\LatheRequest $request): array
@@ -686,8 +690,10 @@ Lathe\LatheApplicationServiceProvider::registerDashboards(): void  [protected]
 Lathe\LatheApplicationServiceProvider::registerPlugins(): void  [protected]
 Lathe\LatheApplicationServiceProvider::registerResources(): void  [protected]
 Lathe\LatheManager::?Closure $footer  [protected]
+Lathe\LatheManager::?Closure $userLocale  [protected]
 Lathe\LatheManager::?Closure $userTimezone  [protected]
 Lathe\LatheManager::Illuminate\Contracts\Container\Container $container  [protected]
+Lathe\LatheManager::__(string $key, array $replace = array ( ), ?string $default = NULL): string
 Lathe\LatheManager::__construct(Illuminate\Contracts\Container\Container $container)
 Lathe\LatheManager::assets(): Lathe\Assets\AssetManifest
 Lathe\LatheManager::auth(Closure $callback): static
@@ -698,6 +704,7 @@ Lathe\LatheManager::discoverResources(string $directory, ?string $namespace = NU
 Lathe\LatheManager::footer(Closure $callback): static
 Lathe\LatheManager::footerFor(Illuminate\Http\Request $request): ?array
 Lathe\LatheManager::fortify(): Lathe\Auth\FortifyConfig
+Lathe\LatheManager::loadTranslations(array|string $translations): static
 Lathe\LatheManager::loginPath(): string
 Lathe\LatheManager::name(): string
 Lathe\LatheManager::path(): string
@@ -706,8 +713,10 @@ Lathe\LatheManager::registerPlugins(Lathe\Plugins\Plugin ...$plugins): void
 Lathe\LatheManager::registerResources(string ...$classes): void
 Lathe\LatheManager::registerSearchProviders(Lathe\Search\SearchProvider ...$providers): void
 Lathe\LatheManager::resolveSidebarDefaultOpen(Illuminate\Http\Request $request): bool
+Lathe\LatheManager::resolveUserLocale(Illuminate\Http\Request $request): string
 Lathe\LatheManager::resolveUserTimezone(Illuminate\Http\Request $request): ?string
 Lathe\LatheManager::resources(): Lathe\Resources\ResourceRegistry
+Lathe\LatheManager::userLocale(Closure $callback): static
 Lathe\LatheManager::userTimezone(Closure $callback): static
 Lathe\LatheManager::version(): string
 Lathe\LatheManager::versionLabel(): ?string
@@ -1222,6 +1231,22 @@ Lathe\Support\Timezone::__construct(Lathe\LatheManager $lathe)
 Lathe\Support\Timezone::dayBounds(string $day, string $timezone): array
 Lathe\Support\Timezone::forRequest(Illuminate\Http\Request $request): string
 Lathe\Support\Timezone::localDay(Carbon\CarbonInterface $moment, string $timezone): string
+Lathe\Support\TranslationManager::REQUEST_BAG
+Lathe\Support\TranslationManager::__construct(string $path)
+Lathe\Support\TranslationManager::all(?string $locale = NULL): array
+Lathe\Support\TranslationManager::array $catalogues  [protected]
+Lathe\Support\TranslationManager::array $merged  [protected]
+Lathe\Support\TranslationManager::bag(): array  [protected]
+Lathe\Support\TranslationManager::build(string $locale): array  [protected]
+Lathe\Support\TranslationManager::get(string $key, ?string $default = NULL, ?string $locale = NULL): string
+Lathe\Support\TranslationManager::has(string $key, ?string $locale = NULL): bool
+Lathe\Support\TranslationManager::load(string $path): static
+Lathe\Support\TranslationManager::merge(array $translations): static
+Lathe\Support\TranslationManager::normalize(string $locale): string  [static]
+Lathe\Support\TranslationManager::read(string $path): array  [protected static]
+Lathe\Support\TranslationManager::replace(string $text, array $replace): string
+Lathe\Support\TranslationManager::set(string $key, string $value): static
+Lathe\Support\TranslationManager::string $path  [protected]
 Lathe\Support\Util::isLatheRequest(Illuminate\Http\Request $request): bool  [static]
 Lathe\Tabs\Tab::?Closure $modify  [protected]
 Lathe\Tabs\Tab::?Closure $seeCallback  [protected]
@@ -1310,6 +1335,7 @@ class Lathe\Console\CacheCommand
 class Lathe\Console\ClearCommand
 class Lathe\Console\DoctorCommand
 class Lathe\Console\InstallCommand
+class Lathe\Console\TranslateCommand
 class Lathe\Dashboards\Dashboard
 class Lathe\Dashboards\DashboardRegistry
 class Lathe\Dashboards\Main
@@ -1403,6 +1429,7 @@ class Lathe\Support\ConfigValidator
 class Lathe\Support\HtmlSanitizer
 class Lathe\Support\SafeHtml
 class Lathe\Support\Timezone
+class Lathe\Support\TranslationManager
 class Lathe\Support\Util
 class Lathe\Tabs\Tab
 class Lathe\Testing\LatheTest

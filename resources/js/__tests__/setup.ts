@@ -7,7 +7,5 @@ afterEach(() => {
   cleanup();
   __panel.toasts.set([]);
   __panel.sharedProps.set({});
-  __panel.setTranslator((key, replace = {}) =>
-    Object.entries(replace).reduce((text, [name, value]) => text.replaceAll(`:${name}`, String(value)), key),
-  );
+  __panel.setTranslator(null);
 });

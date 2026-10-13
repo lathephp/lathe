@@ -1,4 +1,4 @@
-import type { SharedData } from './props';
+import { sharedProps, type SharedData } from './props';
 
 export type Translator = (key: string, replace?: Record<string, string | number>) => string;
 
@@ -35,13 +35,26 @@ export function createTranslator(locale: string, catalogues: Record<string, Reco
   };
 }
 
-let translator: Translator = english;
+let override: Translator | null = null;
+let derived: { data: SharedData | null; translator: Translator } = { data: null, translator: english };
 
-/** Translate a string through the current translator. */
-export const __: Translator = (key, replace) => translator(key, replace);
+/** The translator of the shared catalogue, rebuilt only when the shared data changes. */
+function current(): Translator {
+  const data = sharedProps.get();
 
-export function setTranslator(next: Translator): void {
-  translator = next;
+  if (derived.data !== data) {
+    derived = { data, translator: translatorFor(data) };
+  }
+
+  return derived.translator;
+}
+
+/** Translate a string through the shared catalogue, or the translator a test or plugin set. */
+export const __: Translator = (key, replace) => (override ?? current())(key, replace);
+
+/** Replace the catalogue translator; null goes back to the shared catalogue. */
+export function setTranslator(next: Translator | null): void {
+  override = next;
 }
 
 /** The translator for the catalogue and locale in the shared data; English until they arrive. */
