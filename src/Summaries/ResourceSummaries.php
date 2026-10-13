@@ -151,8 +151,8 @@ class ResourceSummaries
             }
         }
 
-        $row = (array) $base->select(array_values(array_filter($columns, fn ($column) => $column instanceof Expression)))
-            ->addSelect(array_filter($columns, fn ($column) => ! $column instanceof Expression))
+        $row = (array) $base->select(array_values(array_filter($columns, fn (mixed $column) => $column instanceof Expression)))
+            ->addSelect(array_filter($columns, fn (mixed $column) => ! $column instanceof Expression))
             ->first();
 
         $values = [];

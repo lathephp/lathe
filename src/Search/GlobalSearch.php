@@ -24,7 +24,7 @@ use Throwable;
 class GlobalSearch
 {
     /** Rows one request returns at most, across every group. */
-    public const MAX_ROWS = 100;
+    public const int MAX_ROWS = 100;
 
     /** @var list<SearchProvider> */
     protected array $providers = [];

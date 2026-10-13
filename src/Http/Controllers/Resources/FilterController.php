@@ -12,7 +12,7 @@ class FilterController
 {
     use AuthorizesResources;
 
-    protected const PER_PAGE = 25;
+    protected const int PER_PAGE = 25;
 
     public function index(LatheRequest $request, ResourceAuthorization $authorization): JsonResponse
     {

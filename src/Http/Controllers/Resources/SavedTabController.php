@@ -70,7 +70,7 @@ class SavedTabController
         $class = $this->enabledResource($request, $authorization, $config);
         $ids = $request->input('ids');
 
-        if (! is_array($ids) || ! array_is_list($ids) || $ids === [] || array_filter($ids, fn ($id) => ! is_int($id) && ! (is_string($id) && ctype_digit($id))) !== []) {
+        if (! is_array($ids) || ! array_is_list($ids) || $ids === [] || array_filter($ids, fn (mixed $id) => ! is_int($id) && ! (is_string($id) && ctype_digit($id))) !== []) {
             throw ValidationException::withMessages(['ids' => 'Send the saved tab ids as a list']);
         }
 
