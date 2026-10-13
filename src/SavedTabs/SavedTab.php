@@ -25,7 +25,12 @@ class SavedTab extends Model
 {
     protected $table = 'lathe_saved_tabs';
 
-    protected $guarded = [];
+    /**
+     * The controller fills these from validated input only.
+     *
+     * @var list<string>
+     */
+    protected $fillable = ['user_id', 'resource_class', 'name', 'filters', 'q', 'sort', 'trashed', 'show_count', 'badge_type', 'position', 'schema_hash'];
 
     protected function casts(): array
     {
