@@ -610,6 +610,8 @@ Lathe\Field\Field::$macros  [protected]
 Lathe\Field\Field::?Closure $computed  [protected]
 Lathe\Field\Field::?Closure $displayCallback  [protected]
 Lathe\Field\Field::?Closure $fillCallback  [protected]
+Lathe\Field\Field::?Closure $filterCallback  [protected]
+Lathe\Field\Field::?Closure $helpCallback  [protected]
 Lathe\Field\Field::?Closure $resolveCallback  [protected]
 Lathe\Field\Field::?Closure $resolver  [protected]
 Lathe\Field\Field::?Closure $seeCallback  [protected]
@@ -618,7 +620,9 @@ Lathe\Field\Field::?Lathe\Field\Condition $requiredWhen  [protected]
 Lathe\Field\Field::?Lathe\Field\Condition $visibleWhen  [protected]
 Lathe\Field\Field::?Lathe\Field\FieldContext $context  [protected]
 Lathe\Field\Field::?WeakMap $seen  [protected]
+Lathe\Field\Field::?array $filterOptions  [protected]
 Lathe\Field\Field::?array $optionsFrom  [protected]
+Lathe\Field\Field::?string $sortUriKey  [protected]
 Lathe\Field\Field::?string $validationAttribute  [protected]
 Lathe\Field\Field::Closure|array $nullValues  [protected]
 Lathe\Field\Field::Closure|bool $immutable  [protected]
@@ -664,17 +668,19 @@ Lathe\Field\Field::evaluate(Closure $callback, array $values = array ( ), array 
 Lathe\Field\Field::exceptOnForms(): static
 Lathe\Field\Field::fill(Lathe\Http\Requests\LatheRequest $request, object $model, ?string $requestAttribute = NULL): ?Closure
 Lathe\Field\Field::fillUsing(Closure $callback): static
-Lathe\Field\Field::filterable(bool $filterable = true, int $scale = 1): static
+Lathe\Field\Field::filterable(Closure|bool $filterable = true, ?array $options = NULL, int $scale = 1): static
 Lathe\Field\Field::fullWidth(bool $fullWidth = true): static
 Lathe\Field\Field::getColumnSpan(): ?int
 Lathe\Field\Field::getComponent(): string
 Lathe\Field\Field::getMessages(): array
 Lathe\Field\Field::getRules(Lathe\Field\FieldContext $context, ?Lathe\Http\Requests\LatheRequest $request = NULL, ?Illuminate\Database\Eloquent\Model $model = NULL): array
 Lathe\Field\Field::getSection(): ?string
+Lathe\Field\Field::getSortableUriKey(): string
 Lathe\Field\Field::getSummaries(): array
 Lathe\Field\Field::getValidationAttributes(): array
 Lathe\Field\Field::hasRule(array $rules, string $rule): bool  [protected static]
-Lathe\Field\Field::help(string $help): static
+Lathe\Field\Field::help(Closure|string $help): static
+Lathe\Field\Field::helpText(mixed $value): string  [protected static]
 Lathe\Field\Field::helpWidth(string|int $width): static
 Lathe\Field\Field::hideFromDetail(Closure|bool $hide = true): static
 Lathe\Field\Field::hideFromIndex(Closure|bool $hide = true): static
@@ -705,7 +711,7 @@ Lathe\Field\Field::key(): string
 Lathe\Field\Field::label(): string
 Lathe\Field\Field::lifecycle(): Lathe\Field\FieldLifecycle
 Lathe\Field\Field::make(string $label, Closure|string|null $attribute = NULL, ?Closure $resolver = NULL): static  [static]
-Lathe\Field\Field::makeFieldFilter(): Lathe\Filters\FieldFilter
+Lathe\Field\Field::makeFieldFilter(): Lathe\Filters\Filter
 Lathe\Field\Field::messages(array $messages): static
 Lathe\Field\Field::meta(): array
 Lathe\Field\Field::mixed $default  [protected]
@@ -720,6 +726,7 @@ Lathe\Field\Field::onlyOnPreview(): static
 Lathe\Field\Field::option(string $name, mixed $value): static  [protected]
 Lathe\Field\Field::optionsFrom(string $attribute, Closure|array $source): static
 Lathe\Field\Field::placeholder(string $placeholder): static
+Lathe\Field\Field::plainText(string $html): string  [protected static]
 Lathe\Field\Field::readonly(Closure|bool $readonly = true): static
 Lathe\Field\Field::readonlyWhen(Lathe\Field\Condition $condition): static
 Lathe\Field\Field::required(Closure|bool $required = true): static
@@ -739,7 +746,7 @@ Lathe\Field\Field::showOnPreview(Closure|bool $show = true): static
 Lathe\Field\Field::showOnUpdating(Closure|bool $show = true): static
 Lathe\Field\Field::showWhenPeeking(Closure|bool $show = true): static
 Lathe\Field\Field::sortable(bool $sortable = true): static
-Lathe\Field\Field::sortableUriKey(): string
+Lathe\Field\Field::sortableUriKey(string $key): static
 Lathe\Field\Field::stacked(bool $stacked = true): static
 Lathe\Field\Field::string $attribute  [protected]
 Lathe\Field\Field::string $component  [protected]
@@ -1129,7 +1136,8 @@ Lathe\Filters\BooleanFilter::normalize(Lathe\Http\Requests\LatheRequest $request
 Lathe\Filters\DateFilter::component(): string
 Lathe\Filters\DateFilter::date(mixed $side): ?string  [protected]
 Lathe\Filters\DateFilter::normalize(Lathe\Http\Requests\LatheRequest $request, mixed $value, bool $remote): array
-Lathe\Filters\FieldFilter::__construct(string $label, string $attribute, int $scale = 1)
+Lathe\Filters\FieldFilter::?Closure $callback  [protected]
+Lathe\Filters\FieldFilter::__construct(string $label, string $attribute, int $scale = 1, ?Closure $callback = NULL)
 Lathe\Filters\FieldFilter::apply(Lathe\Http\Requests\LatheRequest $request, Illuminate\Database\Eloquent\Builder $query, mixed $value): Illuminate\Database\Eloquent\Builder
 Lathe\Filters\FieldFilter::definition(Lathe\Http\Requests\LatheRequest $request, int $threshold): array
 Lathe\Filters\FieldFilter::int $scale  [protected]
@@ -1138,6 +1146,15 @@ Lathe\Filters\FieldFilter::name(): string
 Lathe\Filters\FieldFilter::normalize(Lathe\Http\Requests\LatheRequest $request, mixed $value, bool $remote): array
 Lathe\Filters\FieldFilter::string $attribute  [protected]
 Lathe\Filters\FieldFilter::string $label  [protected]
+Lathe\Filters\FieldOptionsFilter::?Closure $callback  [protected]
+Lathe\Filters\FieldOptionsFilter::__construct(string $label, string $attribute, array $choices, ?Closure $callback = NULL)
+Lathe\Filters\FieldOptionsFilter::apply(Lathe\Http\Requests\LatheRequest $request, Illuminate\Database\Eloquent\Builder $query, mixed $value): Illuminate\Database\Eloquent\Builder
+Lathe\Filters\FieldOptionsFilter::array $choices  [protected]
+Lathe\Filters\FieldOptionsFilter::key(): string
+Lathe\Filters\FieldOptionsFilter::name(): string
+Lathe\Filters\FieldOptionsFilter::options(Lathe\Http\Requests\LatheRequest $request): array
+Lathe\Filters\FieldOptionsFilter::string $attribute  [protected]
+Lathe\Filters\FieldOptionsFilter::string $label  [protected]
 Lathe\Filters\Filter::?Closure $seeCallback  [protected]
 Lathe\Filters\Filter::Closure|bool $searchable  [protected]
 Lathe\Filters\Filter::acceptsRemoteValue(string $value): bool  [protected]
@@ -2277,6 +2294,7 @@ class Lathe\Field\UiAvatarField
 class Lathe\Filters\BooleanFilter
 class Lathe\Filters\DateFilter
 class Lathe\Filters\FieldFilter
+class Lathe\Filters\FieldOptionsFilter
 class Lathe\Filters\Filter
 class Lathe\Filters\FilterApplicator
 class Lathe\Filters\RangeFilter

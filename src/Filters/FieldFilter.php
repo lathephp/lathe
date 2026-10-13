@@ -2,6 +2,7 @@
 
 namespace Lathe\Filters;
 
+use Closure;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Lathe\Http\Requests\LatheRequest;
@@ -11,7 +12,7 @@ use Lathe\Http\Requests\LatheRequest;
  */
 class FieldFilter extends RangeFilter
 {
-    public function __construct(protected string $label, protected string $attribute, protected int $scale = 1)
+    public function __construct(protected string $label, protected string $attribute, protected int $scale = 1, protected ?Closure $callback = null)
     {
         //
     }
@@ -57,6 +58,13 @@ class FieldFilter extends RangeFilter
      */
     public function apply(LatheRequest $request, Builder $query, mixed $value): Builder
     {
+        // filterable(fn ...) decides the query itself.
+        if ($this->callback !== null) {
+            ($this->callback)($request, $query, $value, $this->attribute);
+
+            return $query;
+        }
+
         $column = $query->qualifyColumn($this->attribute);
 
         return $query

@@ -12,8 +12,11 @@ use Illuminate\Support\Traits\Tappable;
 use InvalidArgumentException;
 use JsonSerializable;
 use Lathe\Filters\FieldFilter;
+use Lathe\Filters\FieldOptionsFilter;
+use Lathe\Filters\Filter;
 use Lathe\Http\Requests\LatheRequest;
 use Lathe\Summaries\Summary;
+use Lathe\Support\HtmlSanitizer;
 use LogicException;
 
 /**
@@ -48,6 +51,15 @@ class Field implements JsonSerializable
     protected bool $filterable = false;
 
     protected int $filterScale = 1;
+
+    protected ?Closure $filterCallback = null;
+
+    /** @var array<array-key, mixed>|null */
+    protected ?array $filterOptions = null;
+
+    protected ?string $sortUriKey = null;
+
+    protected ?Closure $helpCallback = null;
 
     /** @var list<Summary> */
     protected array $summaries = [];
@@ -281,15 +293,24 @@ class Field implements JsonSerializable
      * Generate a range filter for this field. A scale above 1 lets the filter's inputs take the
      * shown amount while the URL and the query keep the stored value: 100 for cents shown as amounts.
      */
-    public function filterable(bool $filterable = true, int $scale = 1): static
+    /**
+     * A Closure fn (LatheRequest $request, Builder $query, mixed $value, ?string $attribute) applies the
+     * filter itself, which a computed field needs; options make it a select of those values.
+     *
+     * @param  array<array-key, mixed>|null  $options  a list of values, or value => label
+     */
+    public function filterable(bool|Closure $filterable = true, ?array $options = null, int $scale = 1): static
     {
         $this->mutate();
+        $callback = $filterable instanceof Closure ? $filterable : null;
 
-        if ($filterable && $this->isComputed()) {
+        if ($filterable !== false && $callback === null && $this->isComputed()) {
             throw new LogicException("The computed field [{$this->label}] has no column to filter on.");
         }
 
-        $this->filterable = $filterable;
+        $this->filterable = $filterable !== false;
+        $this->filterCallback = $callback;
+        $this->filterOptions = $options;
         $this->filterScale = max(1, $scale);
 
         return $this;
@@ -319,17 +340,28 @@ class Field implements JsonSerializable
         return $this->summaries;
     }
 
-    public function makeFieldFilter(): FieldFilter
+    public function makeFieldFilter(): Filter
     {
-        return new FieldFilter($this->label, $this->attribute, $this->filterScale);
+        return $this->filterOptions !== null
+            ? new FieldOptionsFilter($this->label, $this->attribute, $this->filterOptions, $this->filterCallback)
+            : new FieldFilter($this->label, $this->attribute, $this->filterScale, $this->filterCallback);
     }
 
     /**
-     * The token this field answers to in ?sort=: its attribute (total_cents, customer.name).
+     * The token this field answers to in ?sort=: its attribute (total_cents, customer.name), or the
+     * column given here, so the field sorts on another column than it shows.
      */
-    public function sortableUriKey(): string
+    public function sortableUriKey(string $key): static
     {
-        return $this->attribute;
+        $this->mutate();
+        $this->sortUriKey = $key;
+
+        return $this;
+    }
+
+    public function getSortableUriKey(): string
+    {
+        return $this->sortUriKey ?? $this->attribute;
     }
 
     /**
@@ -583,11 +615,29 @@ class Field implements JsonSerializable
     }
 
     /**
-     * Help text under the input. Plain text: the client never renders it as HTML.
+     * Help text under the input; a Closure takes the request. It goes through the sanitizer and
+     * leaves as plain text, so the client never renders it as HTML.
      */
-    public function help(string $help): static
+    public function help(string|Closure $help): static
     {
-        return $this->option('help', $help);
+        if ($help instanceof Closure) {
+            $this->mutate();
+            $this->helpCallback = $help;
+
+            return $this;
+        }
+
+        return $this->option('help', self::plainText($help));
+    }
+
+    protected static function helpText(mixed $value): string
+    {
+        return is_scalar($value) || $value instanceof \Stringable ? (string) $value : '';
+    }
+
+    protected static function plainText(string $html): string
+    {
+        return trim(html_entity_decode(strip_tags(HtmlSanitizer::clean($html)), ENT_QUOTES | ENT_HTML5));
     }
 
     public function helpWidth(int|string $width): static
@@ -1203,7 +1253,7 @@ class Field implements JsonSerializable
             'label' => $this->label,
             'component' => $this->component,
             'sortable' => $this->isSortable(),
-            'sortKey' => $this->sortableUriKey(),
+            'sortKey' => $this->getSortableUriKey(),
             'computed' => $this->isComputed(),
             'inline' => $this->isInlineEditable(Evaluator::currentRequest()),
             'visibleWhen' => $this->visibleWhen,
@@ -1215,6 +1265,7 @@ class Field implements JsonSerializable
                 'map' => array_map(fn (mixed $options) => is_array($options) ? OptionList::normalize($options, $this->label) : [], $this->optionsFrom['map']),
             ],
             ...$this->options,
+            ...($this->helpCallback === null ? [] : ['help' => self::plainText(self::helpText($this->evaluate($this->helpCallback)))]),
             'meta' => (object) $this->meta,
         ];
     }

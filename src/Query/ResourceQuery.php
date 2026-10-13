@@ -851,7 +851,7 @@ class ResourceQuery
 
         foreach ($this->lens?->fields($this->request) ?? $this->resource->fieldsFor(FieldContext::Index, $this->request) as $field) {
             if ($field instanceof Field && $field->isSortable()) {
-                $fields[$field->sortableUriKey()] = $field;
+                $fields[$field->getSortableUriKey()] = $field;
             }
         }
 

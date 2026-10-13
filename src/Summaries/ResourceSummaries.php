@@ -83,7 +83,7 @@ class ResourceSummaries
 
         foreach ($fields as $f => $field) {
             foreach ($field->getSummaries() as $s => $summary) {
-                if ($summary->getQuery() === null && ! $this->target($model, $field->sortableUriKey())[1] instanceof HasMany) {
+                if ($summary->getQuery() === null && ! $this->target($model, $field->getSortableUriKey())[1] instanceof HasMany) {
                     $entries["{$f}_{$s}"] = [$field, $summary];
                 }
             }
@@ -109,7 +109,7 @@ class ResourceSummaries
         $columns = [];
 
         foreach ($entries as $id => [$field, $summary]) {
-            [$column, $relation] = $this->target($model, $field->sortableUriKey());
+            [$column, $relation] = $this->target($model, $field->getSortableUriKey());
 
             if ($relation instanceof BelongsTo && ! in_array($relation->getRelationName(), $joined, true)) {
                 $joined[] = $relation->getRelationName();
@@ -277,7 +277,7 @@ class ResourceSummaries
         $joined = [];
 
         foreach ($entries as $id => [$field, $summary]) {
-            [$column, $relation] = $this->target($model, $field->sortableUriKey());
+            [$column, $relation] = $this->target($model, $field->getSortableUriKey());
 
             if ($relation instanceof BelongsTo && ! in_array($relation->getRelationName(), $joined, true)) {
                 $joined[] = $relation->getRelationName();
@@ -354,7 +354,7 @@ class ResourceSummaries
         $totals = [];
 
         foreach ($fields as $field) {
-            $attribute = $field->sortableUriKey();
+            $attribute = $field->getSortableUriKey();
             $model = $rows->first();
 
             if ($model !== null && $this->target($model, $attribute)[1] instanceof HasMany) {
