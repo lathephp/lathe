@@ -321,3 +321,28 @@ describe('file fields on submit', () => {
     });
   });
 });
+
+describe('file sub-fields', () => {
+  it('starts the upload of a file inside a repeater row under its scoped key', async () => {
+    const { RepeaterPathContext } = await import('../fields/repeater/errors');
+    const { FileControl } = await import('../fields/upload/file');
+    const { render, fireEvent, waitFor } = await import('@testing-library/react');
+    const fetch = vi.spyOn(globalThis, 'fetch').mockResolvedValue(new Response(JSON.stringify({ message: 'stop' }), { status: 422 }));
+    const field = { key: 'photo', attribute: 'photo', label: 'Photo', component: 'file-field', maxSize: 10, acceptedTypes: [] } as never;
+
+    __panel.sharedProps.set({ basePath: '/lathe', resource: { uriKey: 'orders' }, mode: 'update', id: 12 });
+    const { container } = render(
+      <RepeaterPathContext value="items.0">
+        <FileControl field={field} value={null} onChange={() => undefined} id="photo" describedBy={undefined} invalid={false} disabled={false} media={() => null} />
+      </RepeaterPathContext>,
+    );
+    const input = container.querySelector('input[type="file"]');
+    if (input === null) throw new Error('no file input');
+    fireEvent.change(input, { target: { files: [new File(['x'], 'a.txt', { type: 'text/plain' })] } });
+
+    await waitFor(() => {
+      expect(fetch).toHaveBeenCalled();
+    });
+    expect(fetch.mock.calls[0]?.[0] as string).toContain('/uploads/items.0.photo');
+  });
+});

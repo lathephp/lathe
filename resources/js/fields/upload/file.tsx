@@ -1,8 +1,10 @@
 import { useTranslation } from '@lathephp/core';
 import { ImageOff } from 'lucide-react';
+import { useContext } from 'react';
 import type { FormFieldProps } from '../registry';
 import { Uploader } from './Uploader';
 import type { FieldSchema } from '../types';
+import { RepeaterPathContext } from '../repeater/errors';
 
 /** The stored file as the server resolves it. */
 export interface FileData {
@@ -76,6 +78,8 @@ export function FileControl({
   media: (file: FileData) => React.ReactNode;
 }) {
   const { __ } = useTranslation();
+  // Inside a repeater row the upload names its scoped key, such as items.0.photo.
+  const row = useContext(RepeaterPathContext);
   const file = asFile(value);
 
   return (
@@ -99,7 +103,7 @@ export function FileControl({
         </div>
       )}
       <div data-upload-slot="">
-        <Uploader field={field} attribute={field.attribute} onChange={onChange} id={id} describedBy={describedBy} invalid={invalid} disabled={disabled} />
+        <Uploader field={field} attribute={row === '' ? field.attribute : `${row}.${field.attribute}`} onChange={onChange} id={id} describedBy={describedBy} invalid={invalid} disabled={disabled} />
       </div>
     </div>
   );
