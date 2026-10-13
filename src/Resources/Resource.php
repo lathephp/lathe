@@ -9,6 +9,7 @@ use Illuminate\Support\Str;
 use Lathe\Field\Field;
 use Lathe\Filters\Filter;
 use Lathe\Http\Requests\LatheRequest;
+use Lathe\Lenses\Lens;
 use Lathe\Search\SearchableColumn;
 use Lathe\Tabs\Tab;
 
@@ -38,6 +39,16 @@ abstract class Resource
      * @return list<Filter>
      */
     public function filters(LatheRequest $request): array
+    {
+        return [];
+    }
+
+    /**
+     * The alternate indexes the toolbar lens switcher offers.
+     *
+     * @return list<Lens>
+     */
+    public function lenses(LatheRequest $request): array
     {
         return [];
     }

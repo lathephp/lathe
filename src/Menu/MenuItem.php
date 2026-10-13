@@ -2,6 +2,7 @@
 
 namespace Lathe\Menu;
 
+use Illuminate\Support\Str;
 use JsonSerializable;
 use Lathe\Enums\Icon;
 use Lathe\Plugins\Plugin;
@@ -39,6 +40,14 @@ class MenuItem implements JsonSerializable
         $path = 'plugins/'.$plugin::uriKey().($subPath !== null ? '/'.ltrim($subPath, '/') : '');
 
         return new static($label ?? $plugin::make()->name(), $path);
+    }
+
+    /**
+     * A link straight to a Resource's lens, labelled after the lens key.
+     */
+    public static function lens(string $resource, string $lens): static
+    {
+        return new static(Str::headline($lens), "resources/{$resource}/lens/{$lens}");
     }
 
     public function icon(?Icon $icon): static

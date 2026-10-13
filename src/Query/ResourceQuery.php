@@ -13,9 +13,13 @@ use Illuminate\Validation\ValidationException;
 use Lathe\Field\Field;
 use Lathe\Filters\FilterApplicator;
 use Lathe\Http\Requests\LatheRequest;
+use Lathe\Lenses\Lens;
 use Lathe\Resources\Resource;
 use Lathe\SavedTabs\SavedTab;
 use Lathe\SavedTabs\SavedTabQueryApplicator;
+use Lathe\Search\LikeSearch;
+use Lathe\Search\SearchableColumn;
+use Lathe\Search\SearchablePrimaryKey;
 use Lathe\Search\SearchApplicator;
 use Lathe\Support\ConfigStore;
 use Lathe\Tabs\Tab;
@@ -40,6 +44,13 @@ class ResourceQuery
     /** @var array{0: int, 1: int}|null */
     protected ?array $pagination = null;
 
+    protected ?Lens $lens = null;
+
+    /** Whether the lens's query() applied the filters or the sort itself, so the pipeline skips them. */
+    protected bool $lensFiltered = false;
+
+    protected bool $lensOrdered = false;
+
     public function __construct(
         protected Resource $resource,
         protected LatheRequest $request,
@@ -56,6 +67,15 @@ class ResourceQuery
     public function onlyTrashed(): static
     {
         return $this->change(fn () => $this->trashed = 'only');
+    }
+
+    /**
+     * Read the rows through a lens: the Resource's scoped index query refined by the lens,
+     * with the lens's own filters, search and sortable fields in place of the Resource's.
+     */
+    public function forLens(Lens $lens): static
+    {
+        return $this->change(fn () => $this->lens = $lens);
     }
 
     /**
@@ -83,7 +103,7 @@ class ResourceQuery
             $query = $this->applyHook($this->applyTrashed($query));
 
             // Tabs, filters and search are the index's view; a record lookup ignores them.
-            $this->scoped = match ($this->context) {
+            $this->scoped = $this->lens !== null ? $this->applyLens($query) : match ($this->context) {
                 QueryContext::Index => $this->applyFilters($this->applySearch($this->applySavedTab($this->applyTab($query)))),
                 QueryContext::Search => $this->applySearch($query),
                 default => $query,
@@ -146,7 +166,7 @@ class ResourceQuery
      */
     public function perPageOptionsInUse(): array
     {
-        $options = $this->resource->definition()->getPerPage();
+        $options = $this->lens?->perPageOptions() ?? $this->resource->definition()->getPerPage();
 
         return $options !== null && $options !== [] ? $options : $this->perPageOptions();
     }
@@ -157,23 +177,33 @@ class ResourceQuery
     public function count(): ?Count
     {
         $definition = $this->resource->definition();
+        $counted = $this->lens !== null ? $this->lens::countQuery($this->request, $this->scoped()) : null;
+
+        if (is_int($counted)) {
+            return $definition->getCountStrategy() === CountStrategy::None ? null : new Count($counted, capped: false, exact: true);
+        }
+
+        $counted ??= $this->scoped();
 
         return match ($definition->getCountStrategy()) {
             CountStrategy::None => null,
-            CountStrategy::Exact => new Count($this->scoped()->toBase()->count(), capped: false, exact: true),
-            CountStrategy::Estimated => $this->estimatedCount() ?? $this->cappedCount($definition->getCountCap()),
-            CountStrategy::Capped => $this->cappedCount($definition->getCountCap()),
+            CountStrategy::Exact => new Count($counted->toBase()->count(), capped: false, exact: true),
+            CountStrategy::Estimated => $this->estimatedCount() ?? $this->cappedCount($definition->getCountCap(), $counted),
+            CountStrategy::Capped => $this->cappedCount($definition->getCountCap(), $counted),
         };
     }
 
     /**
      * One query limited to the cap plus one, so a huge table is never counted in full.
+     *
+     * @param  Builder<Model>|null  $counted
      */
-    protected function cappedCount(int $cap): Count
+    protected function cappedCount(int $cap, ?Builder $counted = null): Count
     {
-        $query = $this->scoped()->toBase()->limit($cap + 1);
+        $counted ??= $this->scoped();
+        $query = $counted->toBase()->limit($cap + 1);
 
-        $count = DB::connection($this->scoped()->getModel()->getConnectionName())
+        $count = DB::connection($counted->getModel()->getConnectionName())
             ->query()
             ->fromSub($query, 'lathe_count')
             ->count();
@@ -512,7 +542,85 @@ class ResourceQuery
             throw ValidationException::withMessages(['filter' => 'The filter must be keyed by filter, as filter[status]=paid.']);
         }
 
-        return (new FilterApplicator($this->resource))->apply($this->request, $query, $filters);
+        return (new FilterApplicator($this->resource, $this->lens?->availableFilters($this->request)))->apply($this->request, $query, $filters);
+    }
+
+    /**
+     * The lens refines the scoped index query, then its filters, search and sort apply,
+     * except a step its query() already ran through Lens::withFilters() or withOrdering().
+     *
+     * @param  Builder<Model>  $query
+     * @return Builder<Model>
+     */
+    protected function applyLens(Builder $query): Builder
+    {
+        $lens = $this->lens ?? throw new \LogicException('No lens is set.');
+        $this->lensFiltered = $this->lensOrdered = false;
+        // Lens::withFilters() and withOrdering() are static, so they find this query on the request.
+        $this->request->attributes->set(self::class, $this);
+
+        $query = $lens::query($this->request, $query);
+
+        if (! $this->lensFiltered) {
+            $query = $this->applyFilters($query);
+        }
+
+        return $this->applyLensSearch($query);
+    }
+
+    /**
+     * The lens's searchable columns through the shared search, with the key match.
+     *
+     * @param  Builder<Model>  $query
+     * @return Builder<Model>
+     */
+    protected function applyLensSearch(Builder $query): Builder
+    {
+        $definition = $this->resource->definition();
+        $term = SearchApplicator::term($this->request->query('q'), $definition->getSearchTermChars(), $definition->getSearchTermWords());
+        $declared = $this->lens?->searchableColumns() ?? [];
+
+        if ($term === null || $declared === []) {
+            return $query;
+        }
+
+        $columns = array_map(fn (string|SearchableColumn $column) => is_string($column) ? LikeSearch::prefix($column) : $column, $declared);
+        $columns[] = new SearchablePrimaryKey($definition->getMaxPrimaryKeySize());
+
+        return (new SearchApplicator($columns))->apply($query, $term);
+    }
+
+    /**
+     * The request's filters, applied by a lens's query() through Lens::withFilters().
+     *
+     * @internal
+     *
+     * @param  Builder<Model>  $query
+     * @return Builder<Model>
+     */
+    public function applyLensFilters(Builder $query): Builder
+    {
+        $query = $this->applyFilters($query);
+        $this->lensFiltered = true;
+
+        return $query;
+    }
+
+    /**
+     * The request's sort, applied by a lens's query() through Lens::withOrdering().
+     *
+     * @internal
+     *
+     * @param  Builder<Model>  $query
+     * @param  (\Closure(Builder<Model>): Builder<Model>)|null  $default
+     * @return Builder<Model>
+     */
+    public function applyLensOrdering(Builder $query, ?\Closure $default = null): Builder
+    {
+        $query = $default !== null && $this->sortTokens() === [] ? $default($query) : $this->applySort($query);
+        $this->lensOrdered = true;
+
+        return $query;
     }
 
     /**
@@ -528,6 +636,10 @@ class ResourceQuery
         // sortPlan() and sortString() read the request, so the stored sort becomes the request's.
         if ($savedSort !== null) {
             $this->request->query->set('sort', $savedSort);
+        }
+
+        if ($this->lensOrdered) {
+            return $query;
         }
 
         $model = $query->getModel();
@@ -600,7 +712,7 @@ class ResourceQuery
     {
         $fields = [];
 
-        foreach ($this->resource->fields($this->request) as $field) {
+        foreach ($this->lens?->fields($this->request) ?? $this->resource->fields($this->request) as $field) {
             if ($field instanceof Field && $field->isSortable()) {
                 $fields[$field->sortableUriKey()] = $field;
             }

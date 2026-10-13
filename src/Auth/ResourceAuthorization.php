@@ -7,6 +7,7 @@ use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
+use Lathe\Lenses\Lens;
 use Lathe\Resources\Resource;
 use Lathe\Resources\ResourceRegistry;
 
@@ -72,6 +73,33 @@ class ResourceAuthorization
         return $resource::$policy !== null
             ? $policy->{$ability}($user, $target, ...$arguments) === true
             : $this->gate->forUser($user)->allows($ability, [$target, ...$arguments]);
+    }
+
+    /**
+     * Whether the user may open the lens: viewLens(User, lensKey) on the policy.
+     * Unlike other abilities, a policy without a viewLens method allows every lens.
+     *
+     * @param  class-string<\Lathe\Resources\Resource>  $resource
+     */
+    public function allowsLens(?Authenticatable $user, string $resource, Lens $lens): bool
+    {
+        if ($this->resources->definition($resource)->allowsAll()) {
+            return true;
+        }
+
+        $policy = $this->policyFor($resource);
+
+        if ($user === null || $policy === null) {
+            return false;
+        }
+
+        if (! method_exists($policy, 'viewLens')) {
+            return true;
+        }
+
+        return $resource::$policy !== null
+            ? $policy->viewLens($user, $lens->uriKey()) === true
+            : $this->gate->forUser($user)->allows('viewLens', [$this->resources->definition($resource)->getModel(), $lens->uriKey()]);
     }
 
     /**

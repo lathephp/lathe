@@ -78,6 +78,7 @@ class AllGizmos extends Lens
     }
 }
 
+#[Search(['name'])]
 class JoinedGizmos extends Lens
 {
     public function fields(LatheRequest $request): array
@@ -166,6 +167,11 @@ class HiddenGizmos extends AllGizmos
 
 class HidingGizmo extends Gizmo
 {
+    protected function configure(ResourceDefinition $definition): ResourceDefinition
+    {
+        return parent::configure($definition)->canonical(false);
+    }
+
     public static function uriKey(): string
     {
         return 'hiding-gizmos';
@@ -266,13 +272,22 @@ it('lists only pending orders from the lens API and counts them', function () {
     expect(count(pendingOrderIds()))->toBeGreaterThan(100);
 });
 
-it('offers only the lens filters', function () {
+it('offers the lens filters and filters like the index', function () {
     $this->getJson('/lathe/api/resources/orders/lenses/pending-orders/filters')
         ->assertOk()
-        ->assertJsonPath('available.0.key', 'customer')
-        ->assertJsonCount(1, 'available');
+        ->assertJsonPath('filters.*.key', ['status', 'customer']);
 
-    $this->getJson('/lathe/api/resources/orders/lenses/pending-orders?filter[status]=paid')->assertStatus(422);
+    $lens = $this->getJson('/lathe/api/resources/orders/lenses/pending-orders?filter[status]=pending&per_page=100')->assertOk()->json('table.rows.*.id');
+    $index = $this->getJson('/lathe/api/resources/orders?filter[status]=pending&per_page=100')->assertOk()->json('table.rows.*.id');
+
+    expect($lens)->toBe($index)->toBe(array_slice(pendingOrderIds(), 0, 100));
+    $this->getJson('/lathe/api/resources/orders/lenses/pending-orders?filter[field_total_cents][min]=1')->assertStatus(422);
+});
+
+it('searches a joined lens by its own columns', function () {
+    $this->getJson('/lathe/api/resources/gizmos/lenses/joined-gizmos?q=Gizmo 1')
+        ->assertOk()
+        ->assertJsonPath('table.rows.*.id', [10]);
 });
 
 it('never shows a row the global scope hides', function () {
@@ -285,7 +300,7 @@ it('never shows a row the global scope hides', function () {
 it('sorts a joined lens by a column both tables share', function () {
     $sql = lensSqlDuring(fn () => $this->getJson('/lathe/api/resources/gizmos/lenses/joined-gizmos?sort=status')
         ->assertOk()
-        ->assertJsonPath('table.rows.*.id', [9, 7, 5, 10, 8, 6, 4]));
+        ->assertJsonPath('table.rows.*.id', [5, 7, 9, 4, 6, 8, 10]));
 
     expect(implode("\n", $sql))->toContain('order by lens_gizmos.status asc, lens_gizmos.id asc');
 });

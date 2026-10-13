@@ -9,6 +9,7 @@ use Lathe\Field\Field;
 use Lathe\Filters\Filter;
 use Lathe\Filters\FilterApplicator;
 use Lathe\Http\Requests\LatheRequest;
+use Lathe\Lenses\Lens;
 use Lathe\Query\ResourceQuery;
 use Lathe\Resources\Resource;
 use Lathe\SavedTabs\SavedTab;
@@ -32,16 +33,19 @@ class IndexPayload
     }
 
     /**
+     * The index, or with $lens that lens of the Resource: its rows, columns and filters, no tabs.
+     *
      * @param  class-string<\Lathe\Resources\Resource>  $class
-     * @return array{resource: array<string, mixed>, table: array<string, mixed>, filters: array{available: list<array<string, mixed>>, applied: array<string, mixed>}, state: array<string, mixed>, tabs: array{items: list<array<string, mixed>>, active: string|null, saved: list<array<string, mixed>>, activeSaved: int|null}}
+     * @return array{resource: array<string, mixed>, table: array<string, mixed>, filters: array{available: list<array<string, mixed>>, applied: array<string, mixed>}, state: array<string, mixed>, tabs: array{items: list<array<string, mixed>>, active: string|null, saved: list<array<string, mixed>>, activeSaved: int|null}, lens: array{uriKey: string, name: string}|null, lenses: list<array{uriKey: string, name: string}>}
      */
-    public function build(string $class): array
+    public function build(string $class, ?Lens $lens = null): array
     {
         $resource = $class::make();
-        $query = new ResourceQuery($resource, $this->request);
+        $query = $this->query($resource, $lens);
         $rows = $query->rows();
         [$perPage, $page] = $query->page();
-        $fields = array_values(array_filter($resource->fields($this->request), fn (mixed $field) => $field instanceof Field));
+        $fields = array_values(array_filter($lens?->fields($this->request) ?? $resource->fields($this->request), fn (mixed $field) => $field instanceof Field));
+        $available = $lens?->availableFilters($this->request) ?? $resource->availableFilters($this->request);
         $softDeletes = $resource->definition()->usesSoftDeletes();
         $abilities = $this->authorization->abilitiesFor(
             $this->request->user(),
@@ -73,15 +77,17 @@ class IndexPayload
                 ])->values()->all(),
             ],
             'filters' => [
-                'available' => array_map(fn (Filter $filter) => $this->filter($filter, $threshold), $resource->availableFilters($this->request)),
-                'applied' => (new FilterApplicator($resource))->values($this->request, is_array($filters) ? $filters : []),
+                'available' => array_map(fn (Filter $filter) => $this->filter($filter, $threshold), $available),
+                'applied' => (new FilterApplicator($resource, $lens !== null ? $available : null))->values($this->request, is_array($filters) ? $filters : []),
             ],
             'tabs' => [
-                'items' => array_map(fn (Tab $tab) => $tab->toArray(), $query->tabs()),
-                'active' => $query->activeTabKey(),
-                'saved' => $this->savedTabs($resource, $query),
-                'activeSaved' => $this->activeSavedTab($resource),
+                'items' => $lens !== null ? [] : array_map(fn (Tab $tab) => $tab->toArray(), $query->tabs()),
+                'active' => $lens !== null ? null : $query->activeTabKey(),
+                'saved' => $lens !== null ? [] : $this->savedTabs($resource, $query),
+                'activeSaved' => $lens !== null ? null : $this->activeSavedTab($resource),
             ],
+            'lens' => $lens !== null ? $this->lensEntry($lens) : null,
+            'lenses' => array_map(fn (Lens $lens) => $this->lensEntry($lens), $this->visibleLenses($class)),
             'state' => [
                 'page' => $page,
                 'perPage' => $perPage,
@@ -95,9 +101,38 @@ class IndexPayload
      * @param  class-string<\Lathe\Resources\Resource>  $class
      * @return array{value: int, exact: bool, capped: bool, estimated: bool}|null
      */
-    public function count(string $class): ?array
+    public function count(string $class, ?Lens $lens = null): ?array
     {
-        return (new ResourceQuery($class::make(), $this->request))->count()?->toArray();
+        return $this->query($class::make(), $lens)->count()?->toArray();
+    }
+
+    /**
+     * The Resource's lenses this request may open: canSee and the viewLens ability.
+     *
+     * @param  class-string<\Lathe\Resources\Resource>  $class
+     * @return list<Lens>
+     */
+    public function visibleLenses(string $class): array
+    {
+        return array_values(array_filter(
+            $class::make()->lenses($this->request),
+            fn (Lens $lens) => $lens->authorizedToSee($this->request) && $this->authorization->allowsLens($this->request->user(), $class, $lens),
+        ));
+    }
+
+    protected function query(Resource $resource, ?Lens $lens): ResourceQuery
+    {
+        $query = new ResourceQuery($resource, $this->request);
+
+        return $lens !== null ? $query->forLens($lens) : $query;
+    }
+
+    /**
+     * @return array{uriKey: string, name: string}
+     */
+    protected function lensEntry(Lens $lens): array
+    {
+        return ['uriKey' => $lens->uriKey(), 'name' => $lens->name()];
     }
 
     /**

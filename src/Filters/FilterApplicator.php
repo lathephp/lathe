@@ -13,7 +13,10 @@ use Lathe\Resources\Resource;
  */
 class FilterApplicator
 {
-    public function __construct(protected Resource $resource)
+    /**
+     * @param  list<Filter>|null  $filters  the filters to read in place of the Resource's, as a lens's
+     */
+    public function __construct(protected Resource $resource, protected ?array $filters = null)
     {
         //
     }
@@ -57,7 +60,7 @@ class FilterApplicator
     {
         $available = [];
 
-        foreach ($this->resource->availableFilters($request) as $filter) {
+        foreach ($this->filters ?? $this->resource->availableFilters($request) as $filter) {
             $available[$filter->key()] = $filter;
         }
 

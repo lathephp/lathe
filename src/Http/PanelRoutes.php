@@ -18,6 +18,7 @@ use Lathe\Http\Controllers\Resources\DeleteController;
 use Lathe\Http\Controllers\Resources\FilterController;
 use Lathe\Http\Controllers\Resources\IndexController;
 use Lathe\Http\Controllers\Resources\IndexPageController;
+use Lathe\Http\Controllers\Resources\LensController;
 use Lathe\Http\Controllers\Resources\SavedTabController;
 use Lathe\Http\Middleware\Authenticate;
 use Lathe\Http\Middleware\AuthorizePlugin;
@@ -61,6 +62,7 @@ class PanelRoutes
         $this->group()->middleware('lathe.api')->group(function (Router $router) {
             $router->get('/', DashboardController::class)->name('lathe.dashboard');
             $router->get('resources/{resource}', IndexPageController::class)->name('lathe.resources.index');
+            $router->get('resources/{resource}/lens/{lens}', [LensController::class, 'page'])->name('lathe.resources.lens');
             $router->get('plugins/{plugin}/{path?}', PluginPageController::class)
                 ->where('path', '.*')
                 ->name('lathe.plugins.show');
@@ -82,6 +84,10 @@ class PanelRoutes
             $router->post('resources/{resource}/saved-tabs', [SavedTabController::class, 'store'])->name('resources.savedTabs.store');
             $router->put('resources/{resource}/saved-tabs/{savedTab}', [SavedTabController::class, 'update'])->name('resources.savedTabs.update');
             $router->delete('resources/{resource}/saved-tabs/{savedTab}', [SavedTabController::class, 'destroy'])->name('resources.savedTabs.destroy');
+            // Before the {resourceId} routes, so a lens path never reads as a record id.
+            $router->get('resources/{resource}/lenses/{lens}', [LensController::class, 'index'])->name('resources.lenses.index');
+            $router->get('resources/{resource}/lenses/{lens}/count', [LensController::class, 'count'])->name('resources.lenses.count');
+            $router->get('resources/{resource}/lenses/{lens}/filters', [LensController::class, 'filters'])->name('resources.lenses.filters');
             $router->delete('resources/{resource}/{resourceId}', [DeleteController::class, 'delete'])->name('resources.delete');
             $router->delete('resources/{resource}/{resourceId}/force', [DeleteController::class, 'forceDelete'])->name('resources.forceDelete');
             $router->put('resources/{resource}/{resourceId}/restore', [DeleteController::class, 'restore'])->name('resources.restore');

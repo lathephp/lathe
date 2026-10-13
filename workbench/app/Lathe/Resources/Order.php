@@ -11,6 +11,7 @@ use Lathe\Resources\ResourceDefinition;
 use Lathe\Tabs\Tab;
 use Workbench\App\Lathe\Filters\OrderCustomer;
 use Workbench\App\Lathe\Filters\OrderStatus;
+use Workbench\App\Lathe\Lenses\PendingOrders;
 use Workbench\App\Models\Order as OrderModel;
 
 class Order extends Resource
@@ -43,6 +44,11 @@ class Order extends Resource
     public function filters(LatheRequest $request): array
     {
         return [new OrderStatus, new OrderCustomer];
+    }
+
+    public function lenses(LatheRequest $request): array
+    {
+        return [new PendingOrders];
     }
 
     public function tabs(LatheRequest $request): array
