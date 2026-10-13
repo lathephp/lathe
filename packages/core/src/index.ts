@@ -13,7 +13,7 @@ export { booting, plugin } from './registry';
 export type { ComponentOrLazy, PluginPageProps } from './registry';
 export { config, router, url, visit } from './navigation';
 export type { PanelRouter } from './navigation';
-export { ApiError, request } from './http';
+export { ApiError, csrfHeaders, request } from './http';
 export type { RequestOptions } from './http';
 export { toast } from './toast';
 export type { ToastAction, ToastMessage, ToastOptions, ToastType } from './toast';

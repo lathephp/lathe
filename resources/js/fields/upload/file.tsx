@@ -1,6 +1,7 @@
 import { useTranslation } from '@lathephp/core';
 import { ImageOff } from 'lucide-react';
 import type { FormFieldProps } from '../registry';
+import { Uploader } from './Uploader';
 import type { FieldSchema } from '../types';
 
 /** The stored file as the server resolves it. */
@@ -59,8 +60,8 @@ export function ImagePlaceholder({ size, rounded }: { size: number; rounded: boo
 }
 
 /**
- * The form control of a file field: the current file with a remove control. The chunked
- * uploader renders into the slot below the current file; `media` draws the file itself.
+ * The form control of a file field: the current file with a remove control, and the chunked
+ * uploader below it; `media` draws the file itself.
  */
 export function FileControl({
   field,
@@ -77,7 +78,7 @@ export function FileControl({
   const file = asFile(value);
 
   return (
-    <div id={id} role="group" aria-describedby={describedBy} className="flex flex-col gap-2">
+    <div role="group" aria-describedby={describedBy} className="flex flex-col gap-2">
       {file === null ? (
         <span className="text-sm text-muted-foreground">{__('No file')}</span>
       ) : (
@@ -96,7 +97,7 @@ export function FileControl({
           )}
         </div>
       )}
-      <div data-upload-slot="" />
+      <div data-upload-slot="">{disabled ? null : <Uploader field={field} attribute={field.attribute} onChange={onChange} id={id} describedBy={describedBy} />}</div>
     </div>
   );
 }

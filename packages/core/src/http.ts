@@ -27,6 +27,13 @@ function xsrfToken(): string | null {
   return match?.[1] === undefined ? null : decodeURIComponent(match[1]);
 }
 
+/** The headers every panel request sends: the AJAX marker and the CSRF token when there is one. */
+export function csrfHeaders(): Record<string, string> {
+  const token = xsrfToken();
+
+  return token === null ? { 'X-Requested-With': 'XMLHttpRequest' } : { 'X-Requested-With': 'XMLHttpRequest', 'X-XSRF-TOKEN': token };
+}
+
 /**
  * The panel's HTTP client: sends the CSRF token, asks for JSON, answers null for a 204,
  * and turns every failure, a malformed body included, into an ApiError.

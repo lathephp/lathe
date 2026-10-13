@@ -1,8 +1,9 @@
+import { router } from '@inertiajs/react';
 import { __panel } from '@lathephp/core';
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { FormField } from '../fields/registry';
-import type { FieldSchema, FormFieldData } from '../fields/types';
+import type { FieldSchema } from '../fields/types';
 import { renderPage } from './support';
 
 const MB = 1024 * 1024;
@@ -81,7 +82,7 @@ function renderField(field: FieldSchema = schema(), onChange: (value: unknown) =
   return render(
     <>
       <label htmlFor="avatar">Avatar</label>
-      <FormField field={{ ...field, value } as FormFieldData} value={value} onChange={onChange} id="avatar" describedBy={undefined} invalid={false} disabled={false} />
+      <FormField field={{ ...field, value }} value={value} onChange={onChange} id="avatar" describedBy={undefined} invalid={false} disabled={false} />
     </>,
   );
 }
@@ -126,13 +127,13 @@ describe('chunked uploader', () => {
     expect(screen.getByRole('progressbar').getAttribute('aria-valuenow')).toBe('100');
   });
 
-  it('refuses a 12 MB file on a 5 MB field before any request', () => {
+  it('refuses a 12 MB file on a 5 MB field before any request', async () => {
     const { fetch } = server();
     renderField();
 
     choose(sized(12 * MB));
 
-    expect(screen.getByText('File exceeds the 5 MB limit')).toBeTruthy();
+    expect(await screen.findByText('File exceeds the 5 MB limit')).toBeTruthy();
     expect(fetch).not.toHaveBeenCalled();
   });
 
@@ -209,7 +210,7 @@ describe('chunked uploader', () => {
   it('resumes an upload after a reload without sending the received chunks again', async () => {
     window.sessionStorage.setItem(
       `lathe-upload:${window.location.pathname}:avatar`,
-      JSON.stringify({ upload_id: '01UPLOAD', name: 'avatar.png', size: 3 * MB, lastModified: 1_700_000_000_000, attribute: 'avatar' }),
+      JSON.stringify({ upload_id: '01UPLOAD', name: 'avatar.png', size: 3 * MB, lastModified: 1_700_000_000_000, attribute: 'avatar', chunk_size: MB }),
     );
     const { calls, chunks } = server({ status: () => new Response(JSON.stringify({ size: 3 * MB, received: [0, 1] })) });
     const onChange = vi.fn();
@@ -233,7 +234,7 @@ describe('chunked uploader', () => {
 
     await waitFor(() => {
       expect(window.sessionStorage.getItem(`lathe-upload:${window.location.pathname}:avatar`)).toBe(
-        JSON.stringify({ upload_id: '01UPLOAD', name: 'avatar.png', size: 3 * MB, lastModified: 1_700_000_000_000, attribute: 'avatar' }),
+        JSON.stringify({ upload_id: '01UPLOAD', name: 'avatar.png', size: 3 * MB, lastModified: 1_700_000_000_000, attribute: 'avatar', chunk_size: MB }),
       );
     });
     unmount();
@@ -303,6 +304,7 @@ describe('file fields on submit', () => {
 
   it('sends the removed flag when a stored file is removed', async () => {
     const { calls } = server();
+    vi.spyOn(router, 'visit').mockImplementation(() => undefined);
     renderUserForm(stored);
 
     fireEvent.click(screen.getByRole('button', { name: 'Remove' }));
