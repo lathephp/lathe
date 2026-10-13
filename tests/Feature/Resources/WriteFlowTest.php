@@ -254,7 +254,7 @@ it('refuses an invalid write with 422, message and errors, and writes nothing', 
     $response = LatheTest::resource('logged-posts')->store(['title' => '', 'status' => 'draft'])->assertUnprocessable();
 
     expect($response->json('message'))->toBeString()
-        ->and($response->json('errors.title'))->toBe(['The title field is required.'])
+        ->and($response->json('errors.title'))->toBe(['The Title field is required.'])
         ->and(Post::withTrashed()->count())->toBe($count)
         ->and(LatheTest::resource('logged-posts')->store(['title' => 'refuse', 'status' => 'draft'])->assertUnprocessable()->json('errors.title'))->toBe(['Refused.']);
 });

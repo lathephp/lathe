@@ -1104,7 +1104,8 @@ class Field implements JsonSerializable
      */
     public function getValidationAttributes(): array
     {
-        return $this->validationAttribute === null ? [] : [$this->attribute => $this->validationAttribute];
+        // Messages name the field as the form labels it, not by its column.
+        return [$this->attribute => $this->validationAttribute ?? $this->label];
     }
 
     /**

@@ -193,7 +193,7 @@ it('shows the confirmation message under password on a mismatch', function () {
     LatheTest::resource('text-samples')
         ->store(['name' => 'A', 'title' => ['en' => 'x', 'fr' => 'y'], 'password' => 'secret-123', 'password_confirmation' => 'nope'])
         ->assertStatus(422)
-        ->assertJsonPath('errors.password.0', 'The password field confirmation does not match.');
+        ->assertJsonPath('errors.password.0', 'The Password field confirmation does not match.');
 });
 
 it('resolves a password to an empty string and never its hash', function () {

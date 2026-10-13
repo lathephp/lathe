@@ -159,10 +159,8 @@ class TextField extends Field implements FilterableField
     {
         $attributes = parent::getValidationAttributes();
 
-        if ($this->validationAttribute !== null) {
-            foreach ($this->locales() as $locale) {
-                $attributes["{$this->attribute}.{$locale}"] = "{$this->validationAttribute} ({$locale})";
-            }
+        foreach ($this->locales() as $locale) {
+            $attributes["{$this->attribute}.{$locale}"] = ($this->validationAttribute ?? $this->label)." ({$locale})";
         }
 
         return $attributes;

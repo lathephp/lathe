@@ -19,3 +19,16 @@ it('prefills a replicated date-time exactly as the edit form does', function () 
     expect($replica['value'])->not->toBeNull()->toBe($edit['value'])
         ->and(array_diff_key($replica, ['value' => 1]))->toMatchArray(array_diff_key($edit, ['value' => 1, 'readonly' => 1, 'immutable' => 1]));
 });
+
+it('names each field by its label in validation messages', function () {
+    $values = array_column(LatheTest::resource('orders')->updateFields(12)->assertOk()->json('fields'), 'value', 'key');
+    $items = $values['items'];
+    $items[0]['quantity'] = 0;
+
+    $errors = LatheTest::resource('orders')->update(12, [...$values, 'total_cents' => '', 'placed_at' => 'not a date', 'items' => $items])
+        ->assertUnprocessable()->json('errors');
+
+    expect($errors['total_cents'][0])->toBe('The Total field is required.')
+        ->and($errors['placed_at'][0])->toBe('The Placed field must be a valid date.')
+        ->and($errors['items.0.quantity'][0])->toBe('The Quantity field must be at least 1.');
+});
