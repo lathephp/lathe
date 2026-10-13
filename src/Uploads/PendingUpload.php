@@ -77,8 +77,15 @@ class PendingUpload extends Model
         return static::where('created_at', '<=', now()->subHours(app(ConfigStore::class)->integer('uploads.pending_hours')));
     }
 
+    /**
+     * An editor image already stored on its field's disk goes too, since no save will attach it.
+     */
     protected function pruning(): void
     {
         Storage::disk('local')->deleteDirectory($this->folder());
+
+        if ($this->status === UploadHandler::ATTACHED) {
+            Storage::disk($this->disk)->delete($this->path);
+        }
     }
 }
