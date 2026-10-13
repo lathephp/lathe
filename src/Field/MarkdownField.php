@@ -83,7 +83,13 @@ class MarkdownField extends Field implements FilterableField, PreviewsContent
      */
     protected static function withoutScriptBodies(string $value): string
     {
-        return (string) preg_replace('#<(script|style)\b[^>]*>.*?(</\1\s*>|$)#is', '', $value);
+        // Until nothing changes, so a tag split around another one cannot rebuild itself.
+        do {
+            $before = $value;
+            $value = (string) preg_replace('#<(script|style)\b[^>]*>.*?(</\1\s*>|$)#is', '', $value);
+        } while ($value !== $before);
+
+        return $value;
     }
 
     /**

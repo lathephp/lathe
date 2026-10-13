@@ -252,14 +252,20 @@ class FileField extends Field implements Deletable, Storable
     /**
      * Whether a file with this name and MIME type is one of the accepted types; any is when none are set.
      */
+    /** Types a browser runs as a page or a script; a field takes them only when it names them. */
+    public const array ACTIVE_EXTENSIONS = ['html', 'htm', 'xhtml', 'shtml', 'svg', 'svgz', 'xml', 'js', 'mjs'];
+
+    public const array ACTIVE_MIMES = ['text/html', 'application/xhtml+xml', 'image/svg+xml', 'text/xml', 'application/xml', 'text/javascript', 'application/javascript'];
+
     public function accepts(string $name, string $mime): bool
     {
-        if ($this->acceptedTypes === []) {
-            return true;
-        }
-
         $extension = Str::lower(pathinfo($name, PATHINFO_EXTENSION));
         $mime = Str::lower($mime);
+
+        // With no types named, anything but a file a browser would run from the disk's URL.
+        if ($this->acceptedTypes === []) {
+            return ! in_array($extension, self::ACTIVE_EXTENSIONS, true) && ! in_array($mime, self::ACTIVE_MIMES, true);
+        }
 
         foreach ($this->acceptedTypes as $type) {
             $type = Str::lower($type);

@@ -808,6 +808,8 @@ Lathe\Field\FileField::?int $maxSizeMb  [protected]
 Lathe\Field\FileField::?string $disk  [protected]
 Lathe\Field\FileField::?string $originalNameColumn  [protected]
 Lathe\Field\FileField::?string $sizeColumn  [protected]
+Lathe\Field\FileField::ACTIVE_EXTENSIONS
+Lathe\Field\FileField::ACTIVE_MIMES
 Lathe\Field\FileField::acceptedTypes(string ...$mimesOrExtensions): static
 Lathe\Field\FileField::accepts(string $name, string $mime): bool
 Lathe\Field\FileField::afterCommit(object $model, Closure $callback): void  [protected]

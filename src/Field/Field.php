@@ -1233,6 +1233,11 @@ class Field implements JsonSerializable
     {
         $value = $this->resolveForDisplay($model);
 
+        // A stored {"__html": ...} is data, never markup: only the sanitizer makes a SafeHtml.
+        if (is_array($value) && array_key_exists('__html', $value)) {
+            $value = (string) json_encode($value);
+        }
+
         return ['value' => $value, 'display' => match (true) {
             $value === null => '',
             is_bool($value) => $value ? 'Yes' : 'No',
