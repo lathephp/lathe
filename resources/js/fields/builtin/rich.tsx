@@ -8,9 +8,11 @@ import { isSafeHtml } from '../text/TextValue';
 
 // A separate chunk: the editor loads only on a form that has a Markdown field.
 const MarkdownEditor = lazy(() => import('../rich/MarkdownEditor'));
+// Tiptap and ProseMirror load only on a form that has a Tiptap field.
+const TiptapEditor = lazy(() => import('../rich/TiptapEditor'));
 
-/** The server rendered and sanitized the Markdown; display is its text, which sets the collapse. */
-function MarkdownDetail({ field }: DetailFieldProps) {
+/** The server rendered and sanitized the HTML; display is its text, which sets the collapse. */
+function RichDetail({ field }: DetailFieldProps) {
   return isSafeHtml(field.value) ? (
     <Collapsible lines={lineCount(field.display)}>
       <SafeHtml html={field.value} className="prose max-w-none" />
@@ -24,6 +26,14 @@ function MarkdownForm(props: FormFieldProps) {
   return (
     <Suspense fallback={null}>
       <MarkdownEditor {...props} />
+    </Suspense>
+  );
+}
+
+function TiptapForm(props: FormFieldProps) {
+  return (
+    <Suspense fallback={null}>
+      <TiptapEditor {...props} />
     </Suspense>
   );
 }
@@ -42,4 +52,6 @@ function SlugIndex({ cell }: IndexFieldProps) {
 function registerSlugAndKeyValueFields(): void {
   registerField('slug-field', { index: SlugIndex, form: SlugInput });
   registerField('key-value-field', { detail: KeyValueDetail, form: KeyValueForm });
+  registerField('markdown-field', { detail: RichDetail, form: MarkdownForm });
+  registerField('tiptap-field', { detail: RichDetail, form: TiptapForm });
 }
