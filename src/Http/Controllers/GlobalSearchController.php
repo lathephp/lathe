@@ -15,8 +15,8 @@ class GlobalSearchController
     {
         abort_unless($config->boolean('global_search.enabled'), 404);
 
-        // An app that never defines globalSearch leaves the palette to every panel user.
-        abort_if($gate->has('globalSearch') && $gate->forUser($request->user())->denies('globalSearch'), 403);
+        // An app that never defines globalSearch keeps the palette closed: an undefined ability denies.
+        abort_unless($gate->forUser($request->user())->allows('globalSearch'), 403);
 
         return new JsonResponse($search->search($request, $authorization));
     }

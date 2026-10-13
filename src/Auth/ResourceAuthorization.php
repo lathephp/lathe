@@ -93,8 +93,9 @@ class ResourceAuthorization
             return false;
         }
 
+        // A named ability the policy never declares denies, like any missing policy method.
         if (! method_exists($policy, 'viewLens')) {
-            return true;
+            return false;
         }
 
         return $resource::$policy !== null

@@ -196,6 +196,14 @@ class NoLensPolicy
     }
 }
 
+class NoLensMethodPolicy
+{
+    public function viewAny(User $user): bool
+    {
+        return true;
+    }
+}
+
 beforeEach(function () {
     $this->artisan('migrate')->assertSuccessful();
     $this->seed(DemoSeeder::class);
@@ -356,6 +364,11 @@ it('hidden_lens_endpoints_return_403', function (string $denial) {
         Gate::policy(Order::class, NoLensPolicy::class);
     }
 
+    // A named ability the policy never declares denies.
+    if ($denial === 'no viewLens method') {
+        Gate::policy(Order::class, NoLensMethodPolicy::class);
+    }
+
     $routes = collect(app('router')->getRoutes()->getRoutes())
         ->filter(fn (Route $route) => preg_match('#/lens(es)?/\{lens\}#', $route->uri()) === 1);
 
@@ -366,7 +379,7 @@ it('hidden_lens_endpoints_return_403', function (string $denial) {
 
         $this->json($route->methods()[0], $uri)->assertForbidden();
     }
-})->with(['canSee', 'viewLens'])->group('regression');
+})->with(['canSee', 'viewLens', 'no viewLens method'])->group('regression');
 
 it('answers 404 for an unknown lens', function (string $uri) {
     $this->getJson($uri)->assertNotFound();

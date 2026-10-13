@@ -26,5 +26,8 @@ class LatheServiceProvider extends LatheApplicationServiceProvider
             'admin@lathephp.com',
             'editor@lathephp.com',
         ], true));
+
+        // Every panel user may search across Resources.
+        Gate::define('globalSearch', fn (User $user): bool => true);
     }
 }

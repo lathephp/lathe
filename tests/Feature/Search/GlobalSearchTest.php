@@ -310,6 +310,12 @@ it('answers 403 without the globalSearch ability', function () {
     $this->getJson('/lathe/api/search?q=ann')->assertForbidden();
 });
 
+it('answers 403 when the app defines no globalSearch ability', function () {
+    forgetGate('globalSearch');
+
+    $this->getJson('/lathe/api/search?q=ann')->assertForbidden();
+});
+
 it('answers 404 when global search is off', function () {
     $this->getJson('/lathe/api/search?q=ann')->assertOk();
 
