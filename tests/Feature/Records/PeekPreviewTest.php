@@ -119,7 +119,7 @@ it('resolves each field once and runs no list query', function () {
 
     expect(PeekCalls::$resolved)->toBe(1)
         ->and(PeekCalls::$displayed)->toBe(1)
-        ->and(array_values(array_filter($queries, fn (string $sql) => str_contains($sql, 'from "orders"'))))->toHaveCount(1)
+        ->and(array_values(array_filter($queries, fn (string $sql) => preg_match('/from ["`]?orders["`]?(\s|$)/i', $sql) === 1)))->toHaveCount(1)
         ->and(implode("\n", $queries))->not->toContain('count(')
         ->and(implode("\n", $queries))->not->toContain('offset');
 });

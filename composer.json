@@ -19,6 +19,7 @@
     ],
     "require": {
         "php": "^8.4",
+        "ext-intl": "*",
         "inertiajs/inertia-laravel": "^3.5.1",
         "laravel/fortify": "^1.41",
         "laravel/framework": "^13.32",

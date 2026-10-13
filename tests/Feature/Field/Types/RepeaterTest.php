@@ -157,7 +157,7 @@ it('stores a simple repeater as a flat array', function () {
 
     LatheTest::resource('repeater-things')->update($record->id, ['tags' => ['a', 'b']])->assertOk();
 
-    expect($record->refresh()->getRawOriginal('tags'))->toBe('["a","b"]')
+    expect(json_decode((string) $record->refresh()->getRawOriginal('tags'), true))->toBe(['a', 'b'])
         ->and(repeaterFields()['tags']->resolve($record))->toBe(['a', 'b']);
 
     LatheTest::resource('repeater-things')->update($record->id, ['tags' => ['a', 'toolong']])
@@ -174,7 +174,7 @@ it('stores a polymorphic row with its kebab-case block type and that block\'s fi
         ['type' => 'image', 'url' => '/a.png'],
     ]])->assertOk();
 
-    expect($record->refresh()->blocks)->toBe($rows)
+    expect($record->refresh()->blocks)->toMatchStoredJson($rows)
         ->and(repeaterFields()['blocks']->resolve($record))->toBe($rows)
         ->and(Repeatable::make('Text Block')->key())->toBe('text-block');
 });

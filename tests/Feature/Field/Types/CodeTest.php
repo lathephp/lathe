@@ -96,7 +96,7 @@ it('code_field_json_round_trips', function () {
 
     LatheTest::resource('code-samples')->update($id, ['name' => 'a', 'settings' => '{"title":"Zoë \\u00e9","n":[1,2]}'])->assertSuccessful();
 
-    expect(CodeSample::findOrFail($id)->settings)->toBe(['title' => 'Zoë é', 'n' => [1, 2]])
+    expect(CodeSample::findOrFail($id)->settings)->toMatchStoredJson(['title' => 'Zoë é', 'n' => [1, 2]])
         ->and(Field::code('Settings')->json()->resolve(CodeSample::findOrFail($id)))
         ->toBe("{\n    \"title\": \"Zoë é\",\n    \"n\": [\n        1,\n        2\n    ]\n}");
 

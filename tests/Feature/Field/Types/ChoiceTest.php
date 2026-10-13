@@ -247,7 +247,7 @@ it('keeps a boolean group as a JSON object and rejects an unknown key', function
     LatheTest::resource('choice-things')->store(['perks' => ['email' => true, 'sms' => false]])->assertCreated();
     LatheTest::resource('choice-things')->store(['perks' => ['fax' => true]])->assertUnprocessable();
 
-    expect(ChoiceRecord::query()->value('perks'))->toBe(['email' => true, 'sms' => false]);
+    expect(ChoiceRecord::query()->value('perks'))->toMatchStoredJson(['email' => true, 'sms' => false]);
 });
 
 it('shows the labels that stay visible, or the no-value text', function () {

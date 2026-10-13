@@ -9,6 +9,7 @@ use Lathe\Tests\TestCase;
 use Pest\Browser\Api\AwaitableWebpage;
 use Pest\Browser\Api\PendingAwaitablePage;
 use Pest\Browser\Api\Webpage;
+use Pest\Expectation;
 use Workbench\Database\Seeders\DemoSeeder;
 
 pest()->extend(TestCase::class)->in('Feature', 'Unit');
@@ -178,3 +179,29 @@ function holdBuildLock(): void
         fclose($handle);
     });
 }
+
+/**
+ * A JSON column's value with object keys sorted at every level: MySQL stores keys in its own
+ * order, so a stored row compares by content, list order and types, not key order.
+ */
+function keysSorted(mixed $value): mixed
+{
+    if (! is_array($value)) {
+        return $value;
+    }
+
+    $value = array_map(keysSorted(...), $value);
+
+    if (! array_is_list($value)) {
+        ksort($value);
+    }
+
+    return $value;
+}
+
+expect()->extend('toMatchStoredJson', function (mixed $expected) {
+    /** @var Expectation<mixed> $this */
+    expect(keysSorted($this->value))->toBe(keysSorted($expected));
+
+    return $this;
+});

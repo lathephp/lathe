@@ -284,7 +284,7 @@ it('stores a file sub-field into a JSON row and keeps it on the next save', func
         [...$rows[0], 'caption' => 'Front again'],
     ]])->assertOk();
 
-    expect($box->refresh()->gallery)->toBe([
+    expect($box->refresh()->gallery)->toMatchStoredJson([
         ['caption' => 'Back', 'photo' => null],
         ['caption' => 'Front again', 'photo' => $path],
     ]);
