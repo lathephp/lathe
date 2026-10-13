@@ -23,6 +23,12 @@ export default defineConfig([
   reactHooks.configs.flat.recommended,
   jsxA11y.flatConfigs.recommended,
   {
+    rules: {
+      // A wide table's scroll container is a focusable region, so keyboard users can scroll it.
+      'jsx-a11y/no-noninteractive-tabindex': ['error', { roles: ['tabpanel', 'region'], tags: [] }],
+    },
+  },
+  {
     files: ['**/*.js', '**/*.mjs'],
     extends: [tseslint.configs.disableTypeChecked],
   },

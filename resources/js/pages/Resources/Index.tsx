@@ -78,7 +78,8 @@ export default function Index({ resource, table, state, count }: IndexProps) {
         </Card>
       ) : (
         <Card className="overflow-hidden">
-          <div className="overflow-x-auto">
+          {/* Focusable, so a keyboard user can scroll a wide table sideways. */}
+          <div className="overflow-x-auto" role="region" aria-label={__(':resource table', { resource: resource.label })} tabIndex={0}>
             <table className="w-full text-sm">
               <thead>
                 <tr className="h-10 border-b border-border text-start text-muted-foreground">

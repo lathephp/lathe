@@ -55,7 +55,15 @@ class AssetRegistry
     {
         $path = $this->scripts[$name] ?? null;
 
-        return $path !== null && is_file($path) ? "{$prefix}/modules/{$name}-{$this->hash($path)}.js" : null;
+        if ($path === null) {
+            return null;
+        }
+
+        // A missing file keeps its place with a hash that never resolves, so the panel tries
+        // the module, names the plugin that failed to load and keeps working.
+        $hash = is_file($path) ? $this->hash($path) : '00000000';
+
+        return "{$prefix}/modules/{$name}-{$hash}.js";
     }
 
     public function hash(string $path): string

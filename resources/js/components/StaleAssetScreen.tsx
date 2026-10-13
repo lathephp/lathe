@@ -1,18 +1,21 @@
 import { __panel, useTranslation } from '@lathephp/core';
 import { Button } from '@lathephp/ui';
 import { useSyncExternalStore } from 'react';
-import { entryAssetHash } from '../lib/assets';
+import { entryAssetHash, isBuildStale, subscribeToStale } from '../lib/assets';
 
 /**
- * Blocks the panel when the server runs another build than the loaded entry. A reload
- * loads the new build, so the screen only comes back if the mismatch persists.
+ * Blocks the panel when the server runs another build than the loaded entry, or when a page
+ * of the loaded build fails to load. A reload loads the new build, so the screen only comes
+ * back if the mismatch persists.
  */
 export function StaleAssetScreen() {
   const { __ } = useTranslation();
   const { assetHash } = useSyncExternalStore(__panel.sharedProps.subscribe, __panel.sharedProps.get);
+  const failedToLoad = useSyncExternalStore(subscribeToStale, isBuildStale);
   const entry = entryAssetHash();
+  const mismatch = entry !== null && assetHash !== undefined && assetHash !== entry;
 
-  if (entry === null || assetHash === undefined || assetHash === entry) {
+  if (!mismatch && !failedToLoad) {
     return null;
   }
 

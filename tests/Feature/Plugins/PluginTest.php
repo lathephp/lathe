@@ -127,3 +127,22 @@ it('renders the plugin page for an authorized plugin', function () {
     $this->get('/lathe/plugins/beacon')->assertOk();
     $this->get('/lathe/plugins/nobody')->assertNotFound();
 });
+
+it('still lists a plugin script whose file is missing, so the panel reports it', function () {
+    $missing = new class extends Beacon
+    {
+        public static function uriKey(): string
+        {
+            return 'ghost';
+        }
+
+        public function assets(): array
+        {
+            return ['scripts' => ['ghost' => '/nowhere/ghost.js']];
+        }
+    };
+    Lathe::registerPlugins($missing);
+
+    expect(Lathe::plugins()->moduleUrls())->toContain('/lathe/modules/ghost-00000000.js');
+    $this->get('/lathe/modules/ghost-00000000.js')->assertNotFound();
+});

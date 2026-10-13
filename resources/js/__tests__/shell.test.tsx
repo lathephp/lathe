@@ -4,7 +4,7 @@ import { act, fireEvent, render, screen, within } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { StaleAssetScreen } from '../components/StaleAssetScreen';
 import { Toaster } from '../components/Toaster';
-import { assetHashFromUrl, setEntryHash } from '../lib/assets';
+import { assetHashFromUrl, markBuildStale, resetBuildStale, setEntryHash } from '../lib/assets';
 import { showFlash } from '../lib/visits';
 import { bracketed, renderPage, visibleStrings } from './support';
 
@@ -231,7 +231,8 @@ describe('toasts', () => {
 
 describe('stale assets', () => {
   it('reads the asset hash from the entry URL', () => {
-    expect(assetHashFromUrl('https://shop.test/lathe/assets/k3j9x2/assets/app-8f2kq0za.js')).toBe('k3j9x2');
+    expect(assetHashFromUrl('https://shop.test/lathe/assets/k3j9x2/app-8f2kq0za.js')).toBe('k3j9x2');
+    expect(assetHashFromUrl('https://shop.test/admin/assets/mryjopee/app-mryjopee.js')).toBe('mryjopee');
     expect(assetHashFromUrl('http://localhost:5173/resources/js/app.tsx')).toBeNull();
   });
 
@@ -253,6 +254,21 @@ describe('stale assets', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Reload' }));
 
     expect(reload).toHaveBeenCalledOnce();
+  });
+
+  it('shows when a page of the old build fails to load', () => {
+    setEntryHash('abc123');
+    __panel.sharedProps.set({ assetHash: 'abc123' });
+    render(<StaleAssetScreen />);
+
+    expect(screen.queryByText('Lathe was updated')).toBeNull();
+
+    act(() => {
+      markBuildStale();
+    });
+
+    expect(screen.getByRole('alertdialog').textContent).toContain('Lathe was updated');
+    resetBuildStale();
   });
 
   it('stays hidden while the hashes match', () => {

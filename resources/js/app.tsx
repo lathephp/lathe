@@ -6,7 +6,7 @@ import { createRoot } from 'react-dom/client';
 import { StaleAssetScreen } from './components/StaleAssetScreen';
 import { Toaster } from './components/Toaster';
 import { panelLayout } from './layout/panelLayout';
-import { assetHashFromUrl, setEntryHash } from './lib/assets';
+import { assetHashFromUrl, markBuildStale, setEntryHash } from './lib/assets';
 import { showFlash } from './lib/visits';
 import type { SharedProps } from './types';
 
@@ -35,7 +35,14 @@ void createInertiaApp({
       throw new Error(`Lathe has no page named "${name}".`);
     }
 
-    return (await page()).default;
+    try {
+      return (await page()).default;
+    } catch {
+      // The old build's chunk is gone after a rebuild: show "Lathe was updated" instead of an error.
+      markBuildStale();
+
+      return () => null;
+    }
   },
   layout: panelLayout,
   setup({ el, App, props }) {
