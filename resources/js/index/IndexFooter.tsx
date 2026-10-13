@@ -1,12 +1,21 @@
 import { Deferred } from '@inertiajs/react';
 import { useTranslation } from '@lathephp/core';
 import { Button } from '@lathephp/ui';
-import type { IndexProps } from './types';
+import type { Count, IndexProps } from './types';
 import type { IndexUrlState } from './useIndexState';
 
 interface IndexFooterProps extends Pick<IndexProps, 'resource' | 'state' | 'count'> {
   rowCount: number;
   visit: (changes: IndexUrlState) => void;
+}
+
+// An estimate is the database's guess for the table, so it reads as a rounded figure.
+function countText(count: Count): string {
+  if (count.estimated) {
+    return `~${new Intl.NumberFormat('en', { notation: 'compact', maximumFractionDigits: 1 }).format(count.value)}`;
+  }
+
+  return `${count.value.toLocaleString('en')}${count.capped ? '+' : ''}`;
 }
 
 export function IndexFooter({ resource, state, count, rowCount, visit }: IndexFooterProps) {
@@ -23,12 +32,9 @@ export function IndexFooter({ resource, state, count, rowCount, visit }: IndexFo
           // A failed count keeps the rows and shows an em dash for the total.
           rescue={__('Showing :from to :to of :count', { from, to, count: '—' })}
         >
-          {count !== undefined &&
-            __('Showing :from to :to of :count', {
-              from,
-              to,
-              count: `${count.count.toLocaleString('en')}${count.capped ? '+' : ''}`,
-            })}
+          {count === null || count === undefined
+            ? __('Showing :from to :to', { from, to })
+            : __('Showing :from to :to of :count', { from, to, count: countText(count) })}
         </Deferred>
       </p>
       <div className="flex items-center gap-2">

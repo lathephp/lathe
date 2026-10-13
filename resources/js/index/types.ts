@@ -17,5 +17,13 @@ export interface IndexProps {
   resource: { uriKey: string; label: string; singularLabel: string; perPageOptions: number[] };
   table: { columns: Column[]; rows: Row[]; rowKey: string };
   state: { page: number; perPage: number; hasMorePages: boolean };
-  count?: { count: number; capped: boolean };
+  /** Null when the Resource counts nothing. */
+  count?: Count | null;
+}
+
+export interface Count {
+  value: number;
+  exact: boolean;
+  capped: boolean;
+  estimated: boolean;
 }

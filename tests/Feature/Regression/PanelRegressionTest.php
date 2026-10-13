@@ -137,7 +137,7 @@ test('capped_count_never_runs_full_count', function () {
     Order::forceCreate(['customer_id' => 1, 'number' => 'ORD-99999999', 'status' => 'paid', 'total_cents' => 100, 'placed_at' => now()]);
     $admin = User::where('email', 'admin@lathephp.com')->firstOrFail();
 
-    $queries = sqlDuring(fn () => test()->actingAs($admin)->getJson('/lathe/api/resources/orders/count')->assertExactJson(['count' => 10000, 'capped' => true]));
+    $queries = sqlDuring(fn () => test()->actingAs($admin)->getJson('/lathe/api/resources/orders/count')->assertExactJson(['value' => 10000, 'exact' => false, 'capped' => true, 'estimated' => false]));
     $counts = array_values(array_filter($queries, fn (string $sql) => str_contains(strtolower($sql), 'count(')));
 
     expect($counts)->toHaveCount(1)

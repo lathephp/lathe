@@ -65,13 +65,11 @@ class IndexPayload
 
     /**
      * @param  class-string<\Lathe\Resources\Resource>  $class
-     * @return array{count: int, capped: bool}
+     * @return array{value: int, exact: bool, capped: bool, estimated: bool}|null
      */
-    public function count(string $class): array
+    public function count(string $class): ?array
     {
-        $count = (new ResourceQuery($class::make(), $this->request))->count();
-
-        return ['count' => $count->value, 'capped' => $count->capped];
+        return (new ResourceQuery($class::make(), $this->request))->count()?->toArray();
     }
 
     protected function key(Model $model): int|string

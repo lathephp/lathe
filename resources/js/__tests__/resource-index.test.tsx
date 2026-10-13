@@ -44,7 +44,7 @@ function rows(count: number, first = 1) {
 interface Options {
   rows?: ReturnType<typeof rows>;
   state?: { page: number; perPage: number; hasMorePages: boolean };
-  count?: { count: number; capped: boolean } | undefined;
+  count?: { value: number; exact: boolean; capped: boolean; estimated: boolean } | null | undefined;
   tableStyle?: SharedProps['tableStyle'];
   page?: Record<string, unknown>;
 }
@@ -57,7 +57,7 @@ function renderOrders(options: Options = {}) {
   };
 
   if (!('count' in options)) {
-    props.count = { count: 10000, capped: false };
+    props.count = { value: 10000, exact: false, capped: false, estimated: false };
   } else if (options.count !== undefined) {
     props.count = options.count;
   }
@@ -113,9 +113,21 @@ describe('orders table', () => {
   });
 
   it('adds a plus to a capped count', () => {
-    renderOrders({ count: { count: 10000, capped: true } });
+    renderOrders({ count: { value: 10000, exact: false, capped: true, estimated: false } });
 
     expect(screen.getByText('Showing 1 to 25 of 10,000+')).toBeTruthy();
+  });
+
+  it('shows an estimate as a rounded figure with a tilde', () => {
+    renderOrders({ count: { value: 9_812_345, exact: false, capped: false, estimated: true } });
+
+    expect(screen.getByText('Showing 1 to 25 of ~9.8M')).toBeTruthy();
+  });
+
+  it('shows the range alone for a Resource that counts nothing', () => {
+    renderOrders({ count: null });
+
+    expect(screen.getByText('Showing 1 to 25')).toBeTruthy();
   });
 
   it('counts from the current page', () => {
@@ -139,7 +151,7 @@ describe('orders table', () => {
   });
 
   it('shows the empty state without a create button', () => {
-    renderOrders({ rows: [], count: { count: 0, capped: false }, state: { page: 1, perPage: 25, hasMorePages: false } });
+    renderOrders({ rows: [], count: { value: 0, exact: false, capped: false, estimated: false }, state: { page: 1, perPage: 25, hasMorePages: false } });
 
     expect(screen.getByText('No orders yet')).toBeTruthy();
     expect(screen.queryByRole('table')).toBeNull();
@@ -294,7 +306,7 @@ describe('orders translation', () => {
 
   it('sends the empty state through the translator', () => {
     __panel.setTranslator(bracketed);
-    renderOrders({ rows: [], count: { count: 0, capped: false }, state: { page: 1, perPage: 25, hasMorePages: false } });
+    renderOrders({ rows: [], count: { value: 0, exact: false, capped: false, estimated: false }, state: { page: 1, perPage: 25, hasMorePages: false } });
 
     expect(screen.getByText('[No orders yet]')).toBeTruthy();
   });

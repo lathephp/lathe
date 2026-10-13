@@ -478,8 +478,15 @@ class ResourceDefinition
         return $this->debounce;
     }
 
+    /**
+     * Without a count there is no last page to link to, so a Resource that counts nothing pages simply.
+     */
     public function getPaginationType(): PaginationType
     {
+        if ($this->countStrategy === CountStrategy::None) {
+            return PaginationType::Simple;
+        }
+
         return $this->paginationType
             ?? PaginationType::tryFrom($this->config()->string('pagination.type'))
             ?? PaginationType::Links;

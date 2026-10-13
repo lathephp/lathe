@@ -354,7 +354,7 @@ Lathe\Http\Payloads\IndexPayload::Lathe\Http\Requests\LatheRequest $request  [pr
 Lathe\Http\Payloads\IndexPayload::ROW_ABILITIES
 Lathe\Http\Payloads\IndexPayload::__construct(Lathe\Http\Requests\LatheRequest $request, Lathe\Auth\ResourceAuthorization $authorization)
 Lathe\Http\Payloads\IndexPayload::build(string $class): array
-Lathe\Http\Payloads\IndexPayload::count(string $class): array
+Lathe\Http\Payloads\IndexPayload::count(string $class): ?array
 Lathe\Http\Payloads\IndexPayload::key(Illuminate\Database\Eloquent\Model $model): string|int  [protected]
 Lathe\Http\Requests\LatheRequest::config(): Lathe\Support\ConfigStore  [protected]
 Lathe\Http\Requests\LatheRequest::orderByDirection(): string
@@ -453,9 +453,12 @@ Lathe\Plugins\PluginRegistry::moduleUrls(): array
 Lathe\Plugins\PluginRegistry::register(Lathe\Plugins\Plugin ...$plugins): void
 Lathe\Plugins\PluginRegistry::registered(string $class): bool  [protected]
 Lathe\Plugins\PluginRegistry::serve(Illuminate\Http\Request $request): void
-Lathe\Query\Count::__construct(int $value, bool $capped)
+Lathe\Query\Count::__construct(int $value, bool $capped, bool $exact = false, bool $estimated = false)
 Lathe\Query\Count::bool $capped
+Lathe\Query\Count::bool $estimated
+Lathe\Query\Count::bool $exact
 Lathe\Query\Count::int $value
+Lathe\Query\Count::toArray(): array
 Lathe\Query\CountStrategy::Capped
 Lathe\Query\CountStrategy::Estimated
 Lathe\Query\CountStrategy::Exact
@@ -486,9 +489,11 @@ Lathe\Query\ResourceQuery::applyTab(Illuminate\Database\Eloquent\Builder $query)
 Lathe\Query\ResourceQuery::applyTrashed(Illuminate\Database\Eloquent\Builder $query): Illuminate\Database\Eloquent\Builder  [protected]
 Lathe\Query\ResourceQuery::array $withoutScopes  [protected]
 Lathe\Query\ResourceQuery::bool $hasMorePages  [protected]
+Lathe\Query\ResourceQuery::cappedCount(int $cap): Lathe\Query\Count  [protected]
 Lathe\Query\ResourceQuery::change(Closure $change): static  [protected]
 Lathe\Query\ResourceQuery::config(): Lathe\Support\ConfigStore  [protected]
-Lathe\Query\ResourceQuery::count(): Lathe\Query\Count
+Lathe\Query\ResourceQuery::count(): ?Lathe\Query\Count
+Lathe\Query\ResourceQuery::estimatedCount(): ?Lathe\Query\Count  [protected]
 Lathe\Query\ResourceQuery::find(string|int $id): Illuminate\Database\Eloquent\Model
 Lathe\Query\ResourceQuery::hasMorePages(): bool
 Lathe\Query\ResourceQuery::onlyTrashed(): static

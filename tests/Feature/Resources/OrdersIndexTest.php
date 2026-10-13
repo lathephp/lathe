@@ -93,10 +93,10 @@ it('says Narrow the filters for a page past the cap', function () {
 
 it('counts to the cap without a plus, then caps above it with one limited query', function () {
     signInAs('admin@lathephp.com');
-    $this->getJson('/lathe/api/resources/orders/count')->assertOk()->assertExactJson(['count' => 10000, 'capped' => false]);
+    $this->getJson('/lathe/api/resources/orders/count')->assertOk()->assertExactJson(['value' => 10000, 'exact' => false, 'capped' => false, 'estimated' => false]);
 
     Order::forceCreate(['customer_id' => 1, 'number' => 'ORD-99999999', 'status' => 'paid', 'total_cents' => 100, 'placed_at' => now()]);
-    $queries = queriesDuring(fn () => $this->getJson('/lathe/api/resources/orders/count')->assertExactJson(['count' => 10000, 'capped' => true]));
+    $queries = queriesDuring(fn () => $this->getJson('/lathe/api/resources/orders/count')->assertExactJson(['value' => 10000, 'exact' => false, 'capped' => true, 'estimated' => false]));
 
     $counts = array_values(array_filter($queries, fn (string $sql) => str_contains(strtolower($sql), 'count(')));
     expect($counts)->toHaveCount(1)->and($counts[0])->toContain('limit 10001');

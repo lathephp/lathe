@@ -139,11 +139,25 @@ class ResourceQuery
     }
 
     /**
-     * The row count, read with one query limited to the cap plus one.
+     * The row count in the Resource's count mode, or null when it counts nothing.
      */
-    public function count(): Count
+    public function count(): ?Count
     {
-        $cap = $this->config()->integer('limits.count_cap');
+        $definition = $this->resource->definition();
+
+        return match ($definition->getCountStrategy()) {
+            CountStrategy::None => null,
+            CountStrategy::Exact => new Count($this->scoped()->toBase()->count(), capped: false, exact: true),
+            CountStrategy::Estimated => $this->estimatedCount() ?? $this->cappedCount($definition->getCountCap()),
+            CountStrategy::Capped => $this->cappedCount($definition->getCountCap()),
+        };
+    }
+
+    /**
+     * One query limited to the cap plus one, so a huge table is never counted in full.
+     */
+    protected function cappedCount(int $cap): Count
+    {
         $query = $this->scoped()->toBase()->limit($cap + 1);
 
         $count = DB::connection($this->scoped()->getModel()->getConnectionName())
@@ -152,6 +166,35 @@ class ResourceQuery
             ->count();
 
         return new Count(min($count, $cap), $count > $cap);
+    }
+
+    /**
+     * The database's row estimate for the table, only while nothing narrows the query.
+     * SQLite keeps no estimate.
+     */
+    protected function estimatedCount(): ?Count
+    {
+        $query = $this->scoped()->toBase();
+
+        if ($query->wheres !== [] || $query->joins !== null || $query->groups !== null || $query->havings !== null || $query->unions !== null) {
+            return null;
+        }
+
+        $model = $this->scoped()->getModel();
+        $connection = $model->getConnection();
+        $table = $connection->getTablePrefix().$model->getTable();
+
+        $estimate = match ($connection->getDriverName()) {
+            'mysql', 'mariadb' => $connection->scalar(
+                'select table_rows from information_schema.tables where table_schema = database() and table_name = ?',
+                [$table],
+            ),
+            'pgsql' => $connection->scalar('select reltuples::bigint from pg_class where oid = to_regclass(?)', [$table]),
+            default => null,
+        };
+
+        // PostgreSQL answers -1 for a table it has not analysed yet.
+        return is_numeric($estimate) ? new Count(max(0, (int) $estimate), capped: false, estimated: true) : null;
     }
 
     /**
@@ -197,7 +240,7 @@ class ResourceQuery
         $perPage = in_array((int) $perPage, $options, true) ? (int) $perPage : $options[0];
         $page = $page === null ? 1 : (int) $page;
 
-        if (($page - 1) * $perPage >= $this->config()->integer('limits.count_cap')) {
+        if (($page - 1) * $perPage >= $this->resource->definition()->getCountCap()) {
             throw ValidationException::withMessages(['page' => 'Narrow the filters']);
         }
 
