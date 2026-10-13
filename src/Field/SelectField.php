@@ -23,4 +23,9 @@ class SelectField extends Field
 
         return $values === [] ? [] : [Rule::in($values)];
     }
+
+    protected function supportsInline(): bool
+    {
+        return true;
+    }
 }

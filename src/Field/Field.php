@@ -43,6 +43,8 @@ class Field implements JsonSerializable
 
     protected bool $sortable = false;
 
+    protected bool $inline = false;
+
     protected bool $filterable = false;
 
     protected int $filterScale = 1;
@@ -231,6 +233,36 @@ class Field implements JsonSerializable
     public function isSortable(): bool
     {
         return $this->sortable && ! $this->isComputed();
+    }
+
+    /**
+     * Edit the index cell in place. Only boolean, select, text, number and multi-select fields can;
+     * any other type throws as fields() builds. A computed or read-only field stays plain.
+     */
+    public function inline(bool $inline = true): static
+    {
+        $this->mutate();
+
+        if ($inline && ! $this->supportsInline()) {
+            throw new LogicException("The field [{$this->label}] cannot be edited inline: only boolean, select, text, number and multi-select fields can.");
+        }
+
+        $this->inline = $inline;
+
+        return $this;
+    }
+
+    /**
+     * Whether this type can edit its index cell in place.
+     */
+    protected function supportsInline(): bool
+    {
+        return false;
+    }
+
+    public function isInlineEditable(?LatheRequest $request = null): bool
+    {
+        return $this->inline && ! $this->isComputed() && ! $this->isReadonly($request) && $this->isShownOn(FieldContext::Index, $request);
     }
 
     /**
@@ -1040,6 +1072,7 @@ class Field implements JsonSerializable
             'sortable' => $this->isSortable(),
             'sortKey' => $this->sortableUriKey(),
             'computed' => $this->isComputed(),
+            'inline' => $this->isInlineEditable(Evaluator::currentRequest()),
             ...$this->options,
             'meta' => (object) $this->meta,
         ];

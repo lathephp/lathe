@@ -55,4 +55,9 @@ class TextareaField extends TextField
             'expanded' => $this->shouldShow !== null && (bool) $this->evaluate($this->shouldShow, ['record' => $model, 'request' => $request], [$model]),
         ];
     }
+
+    protected function supportsInline(): bool
+    {
+        return false;
+    }
 }

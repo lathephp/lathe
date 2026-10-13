@@ -56,4 +56,9 @@ class NumberField extends Field
 
         return is_int($bound) || is_float($bound) || is_string($bound) ? (string) $bound : '';
     }
+
+    protected function supportsInline(): bool
+    {
+        return true;
+    }
 }

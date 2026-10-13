@@ -41,4 +41,9 @@ class MultiSelectField extends Field
 
         return $values === [] ? $rules : [...$rules, "{$this->attribute}.*" => [Rule::in($values)]];
     }
+
+    protected function supportsInline(): bool
+    {
+        return true;
+    }
 }

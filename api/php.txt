@@ -404,6 +404,7 @@ Lathe\Field\BooleanField::falseValue(mixed $value): static
 Lathe\Field\BooleanField::mixed $falseValue  [protected]
 Lathe\Field\BooleanField::mixed $trueValue  [protected]
 Lathe\Field\BooleanField::string $component  [protected]
+Lathe\Field\BooleanField::supportsInline(): bool  [protected]
 Lathe\Field\BooleanField::trueValue(mixed $value): static
 Lathe\Field\BooleanGroupField::Closure|array|string $optionSource  [protected]
 Lathe\Field\BooleanGroupField::Closure|bool $searchable  [protected]
@@ -504,6 +505,7 @@ Lathe\Field\Field::authorizedToSee(Lathe\Http\Requests\LatheRequest $request): b
 Lathe\Field\Field::autocomplete(array|string|bool $tokens): static
 Lathe\Field\Field::bool $filterable  [protected]
 Lathe\Field\Field::bool $frozen  [protected]
+Lathe\Field\Field::bool $inline  [protected]
 Lathe\Field\Field::bool $sortable  [protected]
 Lathe\Field\Field::borderless(bool $borderless = true): static
 Lathe\Field\Field::canSee(Closure $callback): static
@@ -542,11 +544,13 @@ Lathe\Field\Field::id(string $label = 'ID', string $attribute = 'id'): Lathe\Fie
 Lathe\Field\Field::immutable(Closure|bool $immutable = true): static
 Lathe\Field\Field::impliedRules(): array  [protected]
 Lathe\Field\Field::indexWidth(int $pixels): static
+Lathe\Field\Field::inline(bool $inline = true): static
 Lathe\Field\Field::int $filterScale  [protected]
 Lathe\Field\Field::isComputed(): bool
 Lathe\Field\Field::isFilterable(): bool
 Lathe\Field\Field::isFrozen(): bool
 Lathe\Field\Field::isImmutable(?Lathe\Http\Requests\LatheRequest $request = NULL, mixed $model = NULL): bool
+Lathe\Field\Field::isInlineEditable(?Lathe\Http\Requests\LatheRequest $request = NULL): bool
 Lathe\Field\Field::isNullValue(mixed $value): bool  [protected]
 Lathe\Field\Field::isNullable(): bool
 Lathe\Field\Field::isReadonly(?Lathe\Http\Requests\LatheRequest $request = NULL, mixed $model = NULL): bool
@@ -595,6 +599,7 @@ Lathe\Field\Field::string $attribute  [protected]
 Lathe\Field\Field::string $component  [protected]
 Lathe\Field\Field::string $label  [protected]
 Lathe\Field\Field::summarize(Lathe\Summaries\Summary ...$summaries): static
+Lathe\Field\Field::supportsInline(): bool  [protected]
 Lathe\Field\Field::textAlign(string $align): static
 Lathe\Field\Field::updateRules(mixed ...$rules): static
 Lathe\Field\Field::useLifecycle(Lathe\Field\FieldLifecycle $lifecycle): static
@@ -676,6 +681,7 @@ Lathe\Field\MultiSelectField::bool $displayUsingLabels  [protected]
 Lathe\Field\MultiSelectField::getRules(Lathe\Field\FieldContext $context, ?Lathe\Http\Requests\LatheRequest $request = NULL, ?Illuminate\Database\Eloquent\Model $model = NULL): array
 Lathe\Field\MultiSelectField::impliedRules(): array  [protected]
 Lathe\Field\MultiSelectField::string $component  [protected]
+Lathe\Field\MultiSelectField::supportsInline(): bool  [protected]
 Lathe\Field\MultiSelectField::withSelectedTags(bool $show = true): static
 Lathe\Field\NumberField::__construct(string $label, Closure|string|null $attribute = NULL, ?Closure $resolver = NULL)
 Lathe\Field\NumberField::impliedRules(): array  [protected]
@@ -683,6 +689,7 @@ Lathe\Field\NumberField::max(float $max): static
 Lathe\Field\NumberField::min(float $min): static
 Lathe\Field\NumberField::step(float $step): static
 Lathe\Field\NumberField::string $component  [protected]
+Lathe\Field\NumberField::supportsInline(): bool  [protected]
 Lathe\Field\OptionGroup::__construct(string $label, array $options)
 Lathe\Field\OptionGroup::array $options
 Lathe\Field\OptionGroup::make(string $label, array $options): static  [static]
@@ -700,6 +707,7 @@ Lathe\Field\SelectField::Closure|bool $searchable  [protected]
 Lathe\Field\SelectField::bool $displayUsingLabels  [protected]
 Lathe\Field\SelectField::impliedRules(): array  [protected]
 Lathe\Field\SelectField::string $component  [protected]
+Lathe\Field\SelectField::supportsInline(): bool  [protected]
 Lathe\Field\TextField::Closure|array $suggestions  [protected]
 Lathe\Field\TextField::SUGGESTION_LIMIT
 Lathe\Field\TextField::__construct(string $label, Closure|string|null $attribute = NULL, ?Closure $resolver = NULL)
@@ -719,6 +727,7 @@ Lathe\Field\TextField::maxlength(int $length): static
 Lathe\Field\TextField::schema(Lathe\Field\FieldContext $context, Lathe\Http\Requests\LatheRequest $request, ?Illuminate\Database\Eloquent\Model $model = NULL): array
 Lathe\Field\TextField::string $component  [protected]
 Lathe\Field\TextField::suggestions(Closure|array $suggestions): static
+Lathe\Field\TextField::supportsInline(): bool  [protected]
 Lathe\Field\TextField::translatable(array $locales): static
 Lathe\Field\TextareaField::?Closure $shouldShow  [protected]
 Lathe\Field\TextareaField::__construct(string $label, Closure|string|null $attribute = NULL, ?Closure $resolver = NULL)
@@ -727,6 +736,7 @@ Lathe\Field\TextareaField::rows(int $rows): static
 Lathe\Field\TextareaField::schema(Lathe\Field\FieldContext $context, Lathe\Http\Requests\LatheRequest $request, ?Illuminate\Database\Eloquent\Model $model = NULL): array
 Lathe\Field\TextareaField::shouldShow(Closure $callback): static
 Lathe\Field\TextareaField::string $component  [protected]
+Lathe\Field\TextareaField::supportsInline(): bool  [protected]
 Lathe\Field\TokenField::?int $maskLength  [protected]
 Lathe\Field\TokenField::int $maskStart  [protected]
 Lathe\Field\TokenField::mask(int $start, ?int $length = NULL, string $char = '*'): static
@@ -855,6 +865,8 @@ Lathe\Http\Controllers\Resources\FormPageController::create(Lathe\Http\Requests\
 Lathe\Http\Controllers\Resources\FormPageController::edit(Lathe\Http\Requests\LatheRequest $request, Lathe\Auth\ResourceAuthorization $authorization, Lathe\Http\Payloads\IndexPayload $index, Lathe\Http\Payloads\RecordPayload $payload, string $resource, string $resourceId): Symfony\Component\HttpFoundation\Response
 Lathe\Http\Controllers\Resources\IndexController::__invoke(Lathe\Http\Requests\LatheRequest $request, Lathe\Auth\ResourceAuthorization $authorization, Lathe\Http\Payloads\IndexPayload $payload): Illuminate\Http\JsonResponse
 Lathe\Http\Controllers\Resources\IndexPageController::__invoke(Lathe\Http\Requests\LatheRequest $request, Lathe\Auth\ResourceAuthorization $authorization, Lathe\Http\Payloads\IndexPayload $payload): Symfony\Component\HttpFoundation\Response
+Lathe\Http\Controllers\Resources\InlineUpdateController::__invoke(Lathe\Http\Requests\LatheRequest $request, Lathe\Auth\ResourceAuthorization $authorization, string $resource, string $resourceId, string $field): Illuminate\Http\JsonResponse
+Lathe\Http\Controllers\Resources\InlineUpdateController::save(Lathe\Http\Requests\LatheRequest $request, string $class, Illuminate\Database\Eloquent\Model $model, Lathe\Field\Field $field): void  [protected]
 Lathe\Http\Controllers\Resources\LensController::count(Lathe\Http\Requests\LatheRequest $request, Lathe\Auth\ResourceAuthorization $authorization, Lathe\Http\Payloads\IndexPayload $payload): Illuminate\Http\JsonResponse
 Lathe\Http\Controllers\Resources\LensController::filters(Lathe\Http\Requests\LatheRequest $request, Lathe\Auth\ResourceAuthorization $authorization): Illuminate\Http\JsonResponse
 Lathe\Http\Controllers\Resources\LensController::index(Lathe\Http\Requests\LatheRequest $request, Lathe\Auth\ResourceAuthorization $authorization, Lathe\Http\Payloads\IndexPayload $payload): Illuminate\Http\JsonResponse
@@ -1844,6 +1856,7 @@ class Lathe\Http\Controllers\Resources\FormFieldsController
 class Lathe\Http\Controllers\Resources\FormPageController
 class Lathe\Http\Controllers\Resources\IndexController
 class Lathe\Http\Controllers\Resources\IndexPageController
+class Lathe\Http\Controllers\Resources\InlineUpdateController
 class Lathe\Http\Controllers\Resources\LensController
 class Lathe\Http\Controllers\Resources\PeekController
 class Lathe\Http\Controllers\Resources\RecordController

@@ -84,4 +84,9 @@ class BooleanField extends Field
             }
         };
     }
+
+    protected function supportsInline(): bool
+    {
+        return true;
+    }
 }

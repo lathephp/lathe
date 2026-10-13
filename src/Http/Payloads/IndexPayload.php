@@ -18,6 +18,7 @@ use Lathe\Http\Requests\LatheRequest;
 use Lathe\Lenses\Lens;
 use Lathe\Query\ResourceQuery;
 use Lathe\Resources\Resource;
+use Lathe\Resources\TrafficCop;
 use Lathe\SavedTabs\SavedTab;
 use Lathe\SavedTabs\SavedTabQueryApplicator;
 use Lathe\SavedTabs\SchemaHash;
@@ -66,6 +67,8 @@ class IndexPayload
         $filters = $this->request->query('filter');
         $active = $query->activeGroup();
         $group = $active['group'] ?? null;
+        // Rows of an index with inline cells carry the stale-edit token each cell edit sends back.
+        $tokens = $resource->definition()->usesTrafficCop() && array_filter($fields, fn (Field $field) => $field->isInlineEditable($this->request)) !== [];
 
         return [
             'resource' => $this->resource($class),
@@ -78,6 +81,7 @@ class IndexPayload
                     'title' => $resource->forModel($model)->title(),
                     'cells' => FieldResolver::cells($model, $fields),
                     'abilities' => $abilities[$this->key($model)] ?? [],
+                    ...($tokens ? ['updatedAt' => TrafficCop::token($model)] : []),
                     ...($softDeletes ? ['trashed' => method_exists($model, 'trashed') && $model->trashed() === true] : []),
                     ...($group !== null ? ['group' => ['key' => $group->keyFor($model), 'title' => $group->titleFor($model), 'description' => $group->descriptionFor($model)]] : []),
                 ])->values()->all(),

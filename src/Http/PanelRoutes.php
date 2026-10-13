@@ -22,6 +22,7 @@ use Lathe\Http\Controllers\Resources\FormFieldsController;
 use Lathe\Http\Controllers\Resources\FormPageController;
 use Lathe\Http\Controllers\Resources\IndexController;
 use Lathe\Http\Controllers\Resources\IndexPageController;
+use Lathe\Http\Controllers\Resources\InlineUpdateController;
 use Lathe\Http\Controllers\Resources\LensController;
 use Lathe\Http\Controllers\Resources\PeekController;
 use Lathe\Http\Controllers\Resources\RecordController;
@@ -107,6 +108,7 @@ class PanelRoutes
             $router->get('resources/{resource}/{resourceId}/peek', [PeekController::class, 'peek'])->name('resources.peek');
             $router->get('resources/{resource}/{resourceId}/preview', [PeekController::class, 'preview'])->name('resources.preview');
             $router->put('resources/{resource}/{resourceId}', [RecordController::class, 'update'])->name('resources.update');
+            $router->patch('resources/{resource}/{resourceId}/field/{field}', InlineUpdateController::class)->name('resources.inline');
             $router->delete('resources/{resource}/{resourceId}', [DeleteController::class, 'delete'])->name('resources.delete');
             $router->delete('resources/{resource}/{resourceId}/force', [DeleteController::class, 'forceDelete'])->name('resources.forceDelete');
             $router->put('resources/{resource}/{resourceId}/restore', [DeleteController::class, 'restore'])->name('resources.restore');

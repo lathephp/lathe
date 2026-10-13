@@ -206,4 +206,9 @@ class TextField extends Field
             ? array_slice(array_values(array_map(fn (mixed $suggestion) => is_scalar($suggestion) ? (string) $suggestion : '', $suggestions)), 0, self::SUGGESTION_LIMIT)
             : [];
     }
+
+    protected function supportsInline(): bool
+    {
+        return true;
+    }
 }
