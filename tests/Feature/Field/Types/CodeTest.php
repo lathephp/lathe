@@ -96,9 +96,12 @@ it('code_field_json_round_trips', function () {
 
     LatheTest::resource('code-samples')->update($id, ['name' => 'a', 'settings' => '{"title":"Zoë \\u00e9","n":[1,2]}'])->assertSuccessful();
 
+    // Pretty-printed with the text unescaped; the key order is the database's (MySQL sorts keys).
+    $shown = Field::code('Settings')->json()->resolve(CodeSample::findOrFail($id));
+
     expect(CodeSample::findOrFail($id)->settings)->toMatchStoredJson(['title' => 'Zoë é', 'n' => [1, 2]])
-        ->and(Field::code('Settings')->json()->resolve(CodeSample::findOrFail($id)))
-        ->toBe("{\n    \"title\": \"Zoë é\",\n    \"n\": [\n        1,\n        2\n    ]\n}");
+        ->and($shown)->toBeString()->toContain('    "title": "Zoë é"')->toContain("\n        1,\n        2\n    ]")
+        ->and(json_decode((string) $shown, true))->toMatchStoredJson(['title' => 'Zoë é', 'n' => [1, 2]]);
 
     LatheTest::resource('code-samples')->store(['name' => 'b', 'settings' => '{a:'])
         ->assertUnprocessable()
