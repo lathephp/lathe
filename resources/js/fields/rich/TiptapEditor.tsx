@@ -1,6 +1,7 @@
 import { useTranslation } from '@lathephp/core';
 import Image from '@tiptap/extension-image';
 import { EditorContent, useEditor } from '@tiptap/react';
+import type { EditorView } from '@tiptap/pm/view';
 import StarterKit from '@tiptap/starter-kit';
 import { Bold, Italic, List, Minus, type LucideIcon } from 'lucide-react';
 import { stringValue, type FormFieldProps } from '../registry';
@@ -14,6 +15,30 @@ export const extensions = [StarterKit.configure({ link: { openOnClick: false } }
 export interface TiptapEditorProps extends FormFieldProps {
   /** Uploads a pasted or dropped image and returns its URL. Without it, images are not uploaded. */
   uploadImage?: (file: File) => Promise<string>;
+}
+
+/** The images among pasted or dropped files. */
+function imagesOf(files: FileList | undefined): File[] {
+  return Array.from(files ?? []).filter((file) => file.type.startsWith('image/'));
+}
+
+/**
+ * Upload each image and insert it at the selection once its URL is back. A failed upload
+ * inserts nothing; the uploader has already shown why.
+ */
+async function insertImages(view: EditorView, files: File[], uploadImage: (file: File) => Promise<string>): Promise<void> {
+  for (const file of files) {
+    try {
+      const src = await uploadImage(file);
+      const node = view.state.schema.nodes.image?.create({ src, alt: file.name });
+
+      if (node !== undefined) {
+        view.dispatch(view.state.tr.replaceSelectionWith(node));
+      }
+    } catch {
+      // Nothing to insert.
+    }
+  }
 }
 
 interface ToolProps {
@@ -39,13 +64,27 @@ function Tool({ label, icon: Icon, disabled, onClick }: ToolProps) {
 }
 
 /** A rich-text editor whose value is HTML. The server sanitizes it on save and on render. */
-export default function TiptapEditor({ field, value, onChange, id, describedBy, invalid, disabled }: TiptapEditorProps) {
+export default function TiptapEditor({ field, value, onChange, id, describedBy, invalid, disabled, uploadImage }: TiptapEditorProps) {
   const { __ } = useTranslation();
+
+  /** Take over a paste or drop that carries images, when this editor can upload them. */
+  function upload(view: EditorView, images: File[]): boolean {
+    if (uploadImage === undefined || images.length === 0) {
+      return false;
+    }
+
+    void insertImages(view, images, uploadImage);
+
+    return true;
+  }
+
   const editor = useEditor({
     extensions,
     content: stringValue(value),
     editable: !disabled,
     editorProps: {
+      handlePaste: (view, event) => upload(view, imagesOf(event.clipboardData?.files)),
+      handleDrop: (view, event) => upload(view, imagesOf(event.dataTransfer?.files)),
       attributes: {
         id,
         role: 'textbox',
