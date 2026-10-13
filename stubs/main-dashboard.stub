@@ -1,0 +1,14 @@
+<?php
+
+namespace {{ namespace }}Lathe\Dashboards;
+
+use Lathe\Dashboards\Main as Dashboard;
+use Lathe\Http\Requests\LatheRequest;
+
+class Main extends Dashboard
+{
+    public function widgets(LatheRequest $request): array
+    {
+        return [];
+    }
+}

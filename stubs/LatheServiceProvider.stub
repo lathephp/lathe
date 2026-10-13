@@ -1,0 +1,19 @@
+<?php
+
+namespace {{ namespace }}Providers;
+
+use Illuminate\Support\Facades\Gate;
+use Lathe\LatheApplicationServiceProvider;
+
+class LatheServiceProvider extends LatheApplicationServiceProvider
+{
+    /**
+     * The viewLathe gate: only the listed emails may open the panel.
+     */
+    protected function gate(): void
+    {
+        Gate::define('viewLathe', fn ($user) => in_array($user->email, [
+            //
+        ]));
+    }
+}

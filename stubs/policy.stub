@@ -1,0 +1,22 @@
+<?php
+
+namespace {{ namespace }}Policies;
+
+use {{ model }};
+use Illuminate\Contracts\Auth\Authenticatable;
+
+/**
+ * Lathe denies every ability this policy has no method for. Only users who pass viewLathe reach it.
+ */
+class {{ class }}Policy
+{
+    public function viewAny(Authenticatable $user): bool
+    {
+        return true;
+    }
+
+    public function view(Authenticatable $user, {{ class }} $model): bool
+    {
+        return true;
+    }
+}

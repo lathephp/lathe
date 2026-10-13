@@ -66,6 +66,17 @@ Lathe\Console\ClearCommand::handle(Lathe\Resources\ResourceRegistry $registry): 
 Lathe\Console\DoctorCommand::$description  [protected]
 Lathe\Console\DoctorCommand::$signature  [protected]
 Lathe\Console\DoctorCommand::handle(Lathe\Doctor\Doctor $doctor): int
+Lathe\Console\InstallCommand::$description  [protected]
+Lathe\Console\InstallCommand::$signature  [protected]
+Lathe\Console\InstallCommand::handle(Illuminate\Filesystem\Filesystem $files): int
+Lathe\Console\InstallCommand::publish(string $tag): int  [protected]
+Lathe\Console\InstallCommand::tasks(Illuminate\Filesystem\Filesystem $files): array  [protected]
+Lathe\Console\InstallCommand::write(Illuminate\Filesystem\Filesystem $files, string $stub, string $path, array $replace): int  [protected]
+Lathe\Dashboards\Dashboard::name(): string
+Lathe\Dashboards\Dashboard::uriKey(): string  [static]
+Lathe\Dashboards\Dashboard::widgets(Lathe\Http\Requests\LatheRequest $request): array
+Lathe\Dashboards\Main::name(): string
+Lathe\Dashboards\Main::widgets(Lathe\Http\Requests\LatheRequest $request): array
 Lathe\Doctor\CheckResult::FAIL
 Lathe\Doctor\CheckResult::OK
 Lathe\Doctor\CheckResult::SKIP
@@ -611,7 +622,10 @@ class Lathe\Auth\ResourceAuthorization
 class Lathe\Console\CacheCommand
 class Lathe\Console\ClearCommand
 class Lathe\Console\DoctorCommand
+class Lathe\Console\InstallCommand
+class Lathe\Dashboards\Dashboard
 class Lathe\Dashboards\DashboardRegistry
+class Lathe\Dashboards\Main
 class Lathe\Doctor\CheckResult
 class Lathe\Doctor\Doctor
 class Lathe\Events\ServingLathe
