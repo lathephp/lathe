@@ -17,8 +17,8 @@ it('opens the Pending Orders lens from the toolbar switcher', function (string $
         ->assertSee('Pending Orders')
         ->assertSee('Showing 1 to 25 of '.number_format($pending));
 
-    // The lens has no Status column, so each listed number is checked against the pending orders.
-    $numbers = $page->script('[...document.querySelectorAll("table tbody > tr > td:first-child")].map((cell) => cell.textContent.trim())');
+    // The lens has no Status column, so each listed number (after the checkbox cell) is checked against the pending orders.
+    $numbers = $page->script('[...document.querySelectorAll("table tbody > tr > td:nth-child(2)")].map((cell) => cell.textContent.trim())');
 
     expect($numbers)->toHaveCount(25)
         ->and(Order::whereIn('number', $numbers)->where('status', 'pending')->count())->toBe(25);
