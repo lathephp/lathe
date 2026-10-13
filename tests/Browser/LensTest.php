@@ -13,7 +13,8 @@ it('opens the Pending Orders lens from the toolbar switcher', function (string $
         ->assertSee('Showing 1 to 25 of')
         ->select('[aria-label="View"]', 'pending-orders')
         ->assertPathIs('/lathe/resources/orders/lens/pending-orders')
-        ->assertSeeIn('h1', 'Pending Orders')
+        ->waitForText('Showing 1 to 25 of '.number_format($pending))
+        ->assertSee('Pending Orders')
         ->assertSee('Showing 1 to 25 of '.number_format($pending));
 
     // The lens has no Status column, so each listed number is checked against the pending orders.
