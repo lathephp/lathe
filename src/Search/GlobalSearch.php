@@ -114,8 +114,8 @@ class GlobalSearch
     {
         $resource = $entry['class']::make();
 
-        // A Resource with no search column would match every row.
-        if ($resource->searchableColumns() === []) {
+        // A Resource with no search column would match every row; Scout counts as one.
+        if ($resource->searchableColumns() === [] && ! $resource->usesScout()) {
             return [];
         }
 
