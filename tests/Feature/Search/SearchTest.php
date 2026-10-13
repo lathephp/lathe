@@ -132,8 +132,16 @@ it('collapses runs of whitespace and matches the phrase as one pattern', functio
 });
 
 it('applies no search for an empty q', function () {
-    expect(searchIds('customers', 'q='))->toBe(searchIds('customers', ''))
-        ->and(searchIds('customers', 'q='))->toHaveCount(100);
+    $queries = [];
+    DB::listen(function ($event) use (&$queries) {
+        $queries[] = strtolower($event->sql);
+    });
+
+    expect(searchIds('customers', 'q='))->toBe(searchIds('customers', ''))->toHaveCount(100)
+        ->and(implode("\n", $queries))->not->toContain('like ?');
+
+    searchIds('customers', 'q=a');
+    expect(implode("\n", $queries))->toContain('like ?');
 });
 
 it('qualifies the searched columns when indexQuery joins a table with the same names', function () {
