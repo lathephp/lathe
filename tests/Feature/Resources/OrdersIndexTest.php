@@ -102,7 +102,7 @@ it('counts to the cap without a plus, then caps above it with one limited query'
     expect($counts)->toHaveCount(1)->and($counts[0])->toContain('limit 10001');
 });
 
-it('keeps the first paint at three queries and the count at two, at 25 and 100 rows', function (int $perPage) {
+it('keeps the first paint at four queries and the count at two, at 25 and 100 rows', function (int $perPage) {
     Model::preventLazyLoading();
     $user = User::where('email', 'admin@lathephp.com')->firstOrFail();
     $this->withSession(['login_web_'.sha1(SessionGuard::class) => $user->getKey()]);
@@ -116,7 +116,8 @@ it('keeps the first paint at three queries and the count at two, at 25 and 100 r
         'X-Inertia-Version' => (string) app(HandleInertiaRequests::class)->version(request()),
     ])->assertOk());
 
-    expect(count($page))->toBeLessThanOrEqual(3)
+    // The user, the rows, the eager-loaded customers and the user's saved tabs.
+    expect(count($page))->toBeLessThanOrEqual(4)
         ->and(count($count))->toBeLessThanOrEqual(2);
 })->with([25, 100]);
 
