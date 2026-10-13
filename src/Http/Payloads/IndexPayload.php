@@ -5,6 +5,8 @@ namespace Lathe\Http\Payloads;
 use Illuminate\Database\Eloquent\Model;
 use Lathe\Auth\ResourceAuthorization;
 use Lathe\Field\Field;
+use Lathe\Filters\Filter;
+use Lathe\Filters\FilterApplicator;
 use Lathe\Http\Requests\LatheRequest;
 use Lathe\Query\ResourceQuery;
 use Lathe\Resources\Resource;
@@ -26,7 +28,7 @@ class IndexPayload
 
     /**
      * @param  class-string<\Lathe\Resources\Resource>  $class
-     * @return array{resource: array<string, mixed>, table: array<string, mixed>, state: array<string, mixed>}
+     * @return array{resource: array<string, mixed>, table: array<string, mixed>, filters: array{available: list<array<string, mixed>>, applied: array<string, mixed>}, state: array<string, mixed>}
      */
     public function build(string $class): array
     {
@@ -36,6 +38,8 @@ class IndexPayload
         [$perPage, $page] = $query->page();
         $fields = array_values(array_filter($resource->fields($this->request), fn (mixed $field) => $field instanceof Field));
         $abilities = $this->authorization->abilitiesFor($this->request->user(), $class, $rows, self::ROW_ABILITIES);
+        $threshold = $resource->definition()->getFilterRemoteThreshold();
+        $filters = $this->request->query('filter');
 
         return [
             'resource' => [
@@ -56,6 +60,10 @@ class IndexPayload
                     'abilities' => $abilities[$this->key($model)] ?? [],
                 ])->values()->all(),
             ],
+            'filters' => [
+                'available' => array_map(fn (Filter $filter) => $this->filter($filter, $threshold), $resource->availableFilters($this->request)),
+                'applied' => (new FilterApplicator($resource))->values($this->request, is_array($filters) ? $filters : []),
+            ],
             'state' => [
                 'page' => $page,
                 'perPage' => $perPage,
@@ -72,6 +80,32 @@ class IndexPayload
     public function count(string $class): ?array
     {
         return (new ResourceQuery($class::make(), $this->request))->count()?->toArray();
+    }
+
+    /**
+     * A remote filter sends no options, so a long list never loads on the index.
+     *
+     * @return array<string, mixed>
+     */
+    protected function filter(Filter $filter, int $threshold): array
+    {
+        $remote = $filter->isRemote($this->request, $threshold);
+        $options = $remote ? null : $filter->options($this->request);
+
+        return [
+            'key' => $filter->key(),
+            'name' => $filter->name(),
+            'component' => $filter->component(),
+            'options' => $options === null ? null : array_map(
+                fn (string|int $label, mixed $value) => ['label' => (string) $label, 'value' => $value],
+                array_keys($options),
+                array_values($options),
+            ),
+            'remote' => $remote,
+            'immediate' => $filter->isImmediate(),
+            'placement' => $filter->getPlacement(),
+            'default' => $filter->default(),
+        ];
     }
 
     protected function key(Model $model): int|string

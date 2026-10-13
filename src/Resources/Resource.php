@@ -6,6 +6,7 @@ use Closure;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
+use Lathe\Filters\Filter;
 use Lathe\Http\Requests\LatheRequest;
 
 /**
@@ -29,6 +30,24 @@ abstract class Resource
      * @return list<mixed>
      */
     abstract public function fields(LatheRequest $request): array;
+
+    /**
+     * @return list<Filter>
+     */
+    public function filters(LatheRequest $request): array
+    {
+        return [];
+    }
+
+    /**
+     * The filters this request may see and apply.
+     *
+     * @return list<Filter>
+     */
+    public function availableFilters(LatheRequest $request): array
+    {
+        return array_values(array_filter($this->filters($request), fn (Filter $filter) => $filter->authorizedToSee($request)));
+    }
 
     public static function make(?Model $model = null): static
     {

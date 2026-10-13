@@ -7,6 +7,8 @@ use Lathe\Field\Field;
 use Lathe\Http\Requests\LatheRequest;
 use Lathe\Resources\Resource;
 use Lathe\Resources\ResourceDefinition;
+use Workbench\App\Lathe\Filters\OrderCustomer;
+use Workbench\App\Lathe\Filters\OrderStatus;
 use Workbench\App\Models\Order as OrderModel;
 
 class Order extends Resource
@@ -32,5 +34,10 @@ class Order extends Resource
                 ? $order->placed_at->utc()->toIso8601ZuluString()
                 : null)->sortable(),
         ];
+    }
+
+    public function filters(LatheRequest $request): array
+    {
+        return [new OrderStatus, new OrderCustomer];
     }
 }

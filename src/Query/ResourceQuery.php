@@ -11,6 +11,7 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 use Lathe\Field\Field;
+use Lathe\Filters\FilterApplicator;
 use Lathe\Http\Requests\LatheRequest;
 use Lathe\Resources\Resource;
 use Lathe\Support\ConfigStore;
@@ -339,7 +340,17 @@ class ResourceQuery
      */
     protected function applyFilters(Builder $query): Builder
     {
-        return $query;
+        $filters = $this->request->query('filter');
+
+        if ($filters === null) {
+            return $query;
+        }
+
+        if (! is_array($filters)) {
+            throw ValidationException::withMessages(['filter' => 'The filter must be keyed by filter, as filter[status]=paid.']);
+        }
+
+        return (new FilterApplicator($this->resource))->apply($this->request, $query, $filters);
     }
 
     /**
