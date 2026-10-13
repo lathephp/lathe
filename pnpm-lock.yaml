@@ -112,6 +112,51 @@ importers:
         specifier: 8.3.4
         version: 8.3.4(@types/node@24.19.2)(jiti@2.7.0)
 
+  packages/vite-plugin:
+    devDependencies:
+      typescript:
+        specifier: 6.0.3
+        version: 6.0.3
+      vite:
+        specifier: 8.3.4
+        version: 8.3.4(@types/node@24.19.2)(jiti@2.7.0)
+
+  workbench/lathe-components/Heartbeat:
+    devDependencies:
+      '@babel/core':
+        specifier: 7.29.7
+        version: 7.29.7(supports-color@7.2.0)
+      '@lathephp/core':
+        specifier: workspace:*
+        version: link:../../../packages/core
+      '@lathephp/ui':
+        specifier: workspace:*
+        version: link:../../../packages/ui
+      '@lathephp/vite-plugin':
+        specifier: workspace:*
+        version: link:../../../packages/vite-plugin
+      '@rolldown/plugin-babel':
+        specifier: 0.2.4
+        version: 0.2.4(@babel/core@7.29.7(supports-color@7.2.0))(rolldown@1.2.13)(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0))
+      '@types/react':
+        specifier: 19.3.0
+        version: 19.3.0
+      '@vitejs/plugin-react':
+        specifier: 6.1.2
+        version: 6.1.2(@rolldown/plugin-babel@0.2.4(@babel/core@7.29.7(supports-color@7.2.0))(rolldown@1.2.13)(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)))(babel-plugin-react-compiler@1.0.0)(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0))
+      babel-plugin-react-compiler:
+        specifier: 1.0.0
+        version: 1.0.0
+      react:
+        specifier: 19.3.0
+        version: 19.3.0
+      typescript:
+        specifier: 6.0.3
+        version: 6.0.3
+      vite:
+        specifier: 8.3.4
+        version: 8.3.4(@types/node@24.19.2)(jiti@2.7.0)
+
 packages:
 
   '@asamuzakjp/css-color@7.1.5':

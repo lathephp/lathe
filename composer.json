@@ -11,6 +11,12 @@
     "homepage": "https://lathephp.com",
     "license": "MIT",
     "type": "library",
+    "repositories": [
+        {
+            "type": "path",
+            "url": "workbench/lathe-components/*"
+        }
+    ],
     "require": {
         "php": "^8.4",
         "inertiajs/inertia-laravel": "^3.5.1",
@@ -18,6 +24,7 @@
         "laravel/framework": "^13.32"
     },
     "require-dev": {
+        "acme/heartbeat": "@dev",
         "larastan/larastan": "^3.13",
         "laravel/pint": "^1.25",
         "orchestra/testbench": "^11.3",

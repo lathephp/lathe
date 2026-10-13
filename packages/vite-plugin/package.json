@@ -1,0 +1,27 @@
+{
+  "name": "@lathephp/vite-plugin",
+  "version": "0.0.0",
+  "description": "Builds Lathe plugin modules with Vite.",
+  "license": "MIT",
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "!dist/*.tsbuildinfo"
+  ],
+  "scripts": {
+    "build": "tsc -b"
+  },
+  "peerDependencies": {
+    "vite": "^8.3.4"
+  },
+  "devDependencies": {
+    "typescript": "6.0.3",
+    "vite": "8.3.4"
+  }
+}

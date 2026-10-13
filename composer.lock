@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "d8847cf4d0d9d1e6d93279cffcb570eb",
+    "content-hash": "d70ccbdb3694fb090dc3255f1db4f578",
     "packages": [
         {
             "name": "bacon/bacon-qr-code",
@@ -7395,6 +7395,37 @@
     ],
     "packages-dev": [
         {
+            "name": "acme/heartbeat",
+            "version": "dev-main",
+            "dist": {
+                "type": "path",
+                "url": "workbench/lathe-components/Heartbeat",
+                "reference": "d85f58601d858dc988a2a7bddc8765b8e0567a82"
+            },
+            "require": {
+                "lathe/lathe": "^1.0",
+                "php": "^8.4"
+            },
+            "type": "library",
+            "extra": {
+                "lathe": {
+                    "plugin": "Acme\\Heartbeat\\Heartbeat"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Acme\\Heartbeat\\": "src/"
+                }
+            },
+            "license": [
+                "MIT"
+            ],
+            "description": "A Lathe plugin page that checks the app, PHP, Laravel and the database.",
+            "transport-options": {
+                "relative": true
+            }
+        },
+        {
             "name": "brianium/paratest",
             "version": "v7.26.1",
             "source": {
@@ -11847,7 +11878,9 @@
     ],
     "aliases": [],
     "minimum-stability": "stable",
-    "stability-flags": {},
+    "stability-flags": {
+        "acme/heartbeat": 20
+    },
     "prefer-stable": true,
     "prefer-lowest": false,
     "platform": {

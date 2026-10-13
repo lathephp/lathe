@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 use Lathe\Assets\AssetManifest;
 use Lathe\Exceptions\LatheException;
+use Lathe\Plugins\Plugin;
 use Lathe\Plugins\PluginRegistry;
 use Lathe\Resources\ResourceRegistry;
 use Lathe\Support\ConfigStore;
@@ -224,20 +225,64 @@ class Doctor
 
             if ($package === null) {
                 $results[] = CheckResult::ok("Plugin {$class}");
+            } else {
+                $range = $package['range'];
 
-                continue;
+                $results[] = match (true) {
+                    $range === null => CheckResult::fail("Plugin {$class} ({$package['name']}) declares no lathe/lathe range. Add one, such as ^1.0, to its composer.json require."),
+                    ! InstalledVersions::satisfies($parser, 'lathe/lathe', $range) => CheckResult::fail("Plugin {$class} ({$package['name']}) needs lathe/lathe {$range}, but ".InstalledVersions::getPrettyVersion('lathe/lathe').' is installed.'),
+                    default => CheckResult::ok("Plugin {$class} ({$package['name']}, lathe/lathe {$range})"),
+                };
             }
 
-            $range = $package['range'];
-
-            $results[] = match (true) {
-                $range === null => CheckResult::fail("Plugin {$class} ({$package['name']}) declares no lathe/lathe range. Add one, such as ^1.0, to its composer.json require."),
-                ! InstalledVersions::satisfies($parser, 'lathe/lathe', $range) => CheckResult::fail("Plugin {$class} ({$package['name']}) needs lathe/lathe {$range}, but ".InstalledVersions::getPrettyVersion('lathe/lathe').' is installed.'),
-                default => CheckResult::ok("Plugin {$class} ({$package['name']}, lathe/lathe {$range})"),
-            };
+            array_push($results, ...$this->manifestChecks($plugin));
         }
 
         return $results === [] ? [CheckResult::ok('No plugins')] : $results;
+    }
+
+    /**
+     * One row per built plugin manifest, the lathe-plugin.json next to a registered script:
+     * its core range against the installed @lathephp/core.
+     *
+     * @return list<CheckResult>
+     */
+    protected function manifestChecks(Plugin $plugin): array
+    {
+        $results = [];
+        $key = $plugin::uriKey();
+        $core = $this->coreVersion();
+        $files = array_map(
+            fn (string $script) => (realpath(dirname($script)) ?: dirname($script)).'/lathe-plugin.json',
+            $plugin->assets()['scripts'] ?? [],
+        );
+
+        foreach (array_unique($files) as $file) {
+            $manifest = is_file($file) ? json_decode((string) file_get_contents($file), true) : null;
+            $range = is_array($manifest) ? ($manifest['core'] ?? null) : null;
+
+            if (! is_string($range)) {
+                continue;
+            }
+
+            $results[] = $core !== null && Semver::satisfies($core, $range)
+                ? CheckResult::ok("Plugin {$key}: {$file} (@lathephp/core {$range})")
+                : CheckResult::fail("Plugin {$key}: {$file} needs @lathephp/core {$range}, but ".($core ?? 'no version').' is installed. Install a Lathe version the plugin supports, or rebuild the plugin.');
+        }
+
+        return $results;
+    }
+
+    /**
+     * The @lathephp/core version this Lathe package ships.
+     */
+    protected function coreVersion(): ?string
+    {
+        $file = dirname(__DIR__, 2).'/packages/core/package.json';
+        $package = is_file($file) ? json_decode((string) file_get_contents($file), true) : null;
+        $version = is_array($package) ? ($package['version'] ?? null) : null;
+
+        return is_string($version) ? $version : null;
     }
 
     /**

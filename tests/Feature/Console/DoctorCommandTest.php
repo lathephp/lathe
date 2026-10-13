@@ -125,6 +125,37 @@ it('fails on a plugin requirement, a missing range and a range that misses the i
         ->and(implode("\n", $lines))->toContain('FAIL Plugin '.BillingPlugin::class.' requires Acme\\Missing\\Ledger');
 });
 
+it('fails on a plugin manifest whose core range misses the installed @lathephp/core', function () {
+    $dir = sys_get_temp_dir().'/lathe-plugin-'.bin2hex(random_bytes(4));
+    File::ensureDirectoryExists($dir);
+    File::put("{$dir}/beacon.js", '');
+    File::put("{$dir}/lathe-plugin.json", json_encode(['name' => 'beacon', 'core' => '^9.0']));
+    $plugin = new class extends Beacon
+    {
+        public static string $script = '';
+
+        public static function uriKey(): string
+        {
+            return 'beacon';
+        }
+
+        public function assets(): array
+        {
+            return ['scripts' => ['beacon' => self::$script]];
+        }
+    };
+    $plugin::$script = "{$dir}/beacon.js";
+    Lathe::registerPlugins($plugin);
+
+    [$code, $lines] = doctor();
+    expect($code)->toBe(1)
+        ->and(implode("\n", $lines))->toContain("FAIL Plugin beacon: {$dir}/lathe-plugin.json needs @lathephp/core ^9.0, but ");
+
+    File::put("{$dir}/lathe-plugin.json", json_encode(['name' => 'beacon', 'core' => '*']));
+    [, $lines] = doctor();
+    expect($lines)->toContain("OK   Plugin beacon: {$dir}/lathe-plugin.json (@lathephp/core *)");
+});
+
 it('writes no file and makes no network call', function () {
     Http::preventStrayRequests();
     $before = snapshotTree([base_path(), $this->dist]);
