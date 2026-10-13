@@ -99,6 +99,7 @@ it('shows a trashed post with its fields and the trash abilities', function () {
 it('shows the 404 page inside the shell for a missing order', function () {
     $this->actingAs(User::where('email', 'admin@lathephp.com')->firstOrFail());
 
+    $this->get('/lathe/resources/orders/12')->assertOk();
     $this->get('/lathe/resources/orders/99999999')
         ->assertNotFound()
         ->assertInertia(fn (AssertableInertia $page) => $page
