@@ -1,6 +1,8 @@
 /* Automatic detection is off, so a build scans these folders and no others,
    wherever the checkout sits. Tailwind would skip git-ignored folders anyway. */
 @import "tailwindcss" source(none);
+/* prose: the typography of rendered rich text and the Markdown preview. */
+@plugin "@tailwindcss/typography";
 
 @source "../js";
 @source "../../packages/core/src";
