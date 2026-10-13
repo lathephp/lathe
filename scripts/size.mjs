@@ -13,10 +13,11 @@ const args = process.argv.slice(2);
 const dist = resolve(args.find((arg) => !arg.startsWith('--')) ?? 'dist');
 const manifest = JSON.parse(readFileSync(join(dist, 'manifest.json'), 'utf8'));
 
-// The route a person opens and the page component it renders. m3 adds the create form.
+// The route a person opens and the page component it renders. The create form is the Form page.
 const routes = {
   '/lathe': 'resources/js/pages/Dashboard.tsx',
   '/lathe/resources/orders': 'resources/js/pages/Resources/Index.tsx',
+  '/lathe/resources/orders/new': 'resources/js/pages/Resources/Form.tsx',
 };
 
 function closure(keys, seen = new Set()) {

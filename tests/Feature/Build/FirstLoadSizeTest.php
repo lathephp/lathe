@@ -27,7 +27,7 @@ it('keeps each route of the built panel inside 200 KB of gzipped JavaScript', fu
     $results = json_decode($process->getOutput(), true);
 
     expect($process->getExitCode())->toBe(0, $process->getOutput())
-        ->and(array_column($results, 'route'))->toBe(['/lathe', '/lathe/resources/orders']);
+        ->and(array_column($results, 'route'))->toBe(['/lathe', '/lathe/resources/orders', '/lathe/resources/orders/new']);
 
     foreach ($results as $result) {
         expect($result['bytes'])->toBeLessThanOrEqual(200_000);
