@@ -437,6 +437,7 @@ Lathe\Field\Concerns\TextFactories::passwordConfirmation(string $label, string $
 Lathe\Field\Concerns\TextFactories::text(string $label, Closure|string|null $attribute = NULL): Lathe\Field\TextField  [static]
 Lathe\Field\Concerns\TextFactories::textarea(string $label, Closure|string|null $attribute = NULL): Lathe\Field\TextareaField  [static]
 Lathe\Field\Concerns\TextFactories::url(string $label = 'URL', ?string $attribute = NULL): Lathe\Field\TextField  [static]
+Lathe\Field\Concerns\UploadFactories::file(string $label, ?string $attribute = NULL): Lathe\Field\FileField  [static]
 Lathe\Field\Contracts\Deletable::columnsThatShouldBeDeleted(): array
 Lathe\Field\Contracts\Deletable::isDeletable(): bool
 Lathe\Field\Contracts\Deletable::isPrunable(): bool
@@ -650,16 +651,34 @@ Lathe\Field\FieldLifecycle::parse(Lathe\Http\Requests\LatheRequest $request, str
 Lathe\Field\FieldLifecycle::persist(object $model, string $attribute, mixed $value): ?Closure
 Lathe\Field\FieldLifecycle::present(mixed $raw, object $record, string $attribute): mixed
 Lathe\Field\FieldResolver::cells(Illuminate\Database\Eloquent\Model $model, iterable $fields): array  [static]
+Lathe\Field\FileField::?Closure $deleteCallback  [protected]
+Lathe\Field\FileField::?Closure $downloadCallback  [protected]
+Lathe\Field\FileField::?Closure $previewCallback  [protected]
+Lathe\Field\FileField::?Closure $storeAsCallback  [protected]
+Lathe\Field\FileField::?Closure $storeCallback  [protected]
+Lathe\Field\FileField::?Closure $thumbnailCallback  [protected]
 Lathe\Field\FileField::?int $maxSizeMb  [protected]
 Lathe\Field\FileField::?string $disk  [protected]
+Lathe\Field\FileField::?string $originalNameColumn  [protected]
+Lathe\Field\FileField::?string $sizeColumn  [protected]
 Lathe\Field\FileField::acceptedTypes(string ...$mimesOrExtensions): static
 Lathe\Field\FileField::accepts(string $name, string $mime): bool
 Lathe\Field\FileField::array $acceptedTypes  [protected]
 Lathe\Field\FileField::bool $deletable  [protected]
+Lathe\Field\FileField::bool $downloadable  [protected]
 Lathe\Field\FileField::bool $prunable  [protected]
+Lathe\Field\FileField::cell(Illuminate\Database\Eloquent\Model $model): array
 Lathe\Field\FileField::columnsThatShouldBeDeleted(): array
 Lathe\Field\FileField::deletable(bool $deletable = true): static
+Lathe\Field\FileField::delete(Closure $callback): static
+Lathe\Field\FileField::deleteFile(Lathe\Http\Requests\LatheRequest $request, Illuminate\Database\Eloquent\Model $model, ?string $path = NULL): void
+Lathe\Field\FileField::disableDownload(): static
 Lathe\Field\FileField::disk(string $disk): static
+Lathe\Field\FileField::download(Closure $callback): static
+Lathe\Field\FileField::downloadResponse(Lathe\Http\Requests\LatheRequest $request, Illuminate\Database\Eloquent\Model $model): Symfony\Component\HttpFoundation\Response
+Lathe\Field\FileField::fileUrl(?Closure $callback, string $path): ?string  [protected]
+Lathe\Field\FileField::fill(Lathe\Http\Requests\LatheRequest $request, object $model, ?string $requestAttribute = NULL): ?Closure
+Lathe\Field\FileField::fillColumn(Illuminate\Database\Eloquent\Model $model, ?string $column, mixed $value): void  [protected]
 Lathe\Field\FileField::getAcceptedTypes(): array
 Lathe\Field\FileField::getMaxSizeBytes(): int
 Lathe\Field\FileField::getStorageDir(): string
@@ -669,9 +688,20 @@ Lathe\Field\FileField::isDeletable(): bool
 Lathe\Field\FileField::isPrunable(): bool
 Lathe\Field\FileField::maxSize(int $mb): static
 Lathe\Field\FileField::path(string $directory): static
+Lathe\Field\FileField::preview(Closure $callback): static
 Lathe\Field\FileField::prunable(bool $prunable = true): static
+Lathe\Field\FileField::resolve(object $record, ?string $attribute = NULL): mixed
+Lathe\Field\FileField::storage(): Illuminate\Filesystem\FilesystemAdapter  [protected]
+Lathe\Field\FileField::store(Closure $callback): static
+Lathe\Field\FileField::storeAs(Closure $callback): static
+Lathe\Field\FileField::storeFile(Lathe\Http\Requests\LatheRequest $request, Illuminate\Database\Eloquent\Model $model, Illuminate\Http\UploadedFile $file): string  [protected]
+Lathe\Field\FileField::storeOriginalName(string $column): static
+Lathe\Field\FileField::storeSize(string $column): static
+Lathe\Field\FileField::storedPath(Illuminate\Database\Eloquent\Model $model): ?string
 Lathe\Field\FileField::string $component  [protected]
 Lathe\Field\FileField::string $directory  [protected]
+Lathe\Field\FileField::stringOf(mixed $value): string  [protected]
+Lathe\Field\FileField::thumbnail(Closure $callback): static
 Lathe\Field\HasOptions::Closure|array|string $optionSource  [protected]
 Lathe\Field\HasOptions::Closure|bool $searchable  [protected]
 Lathe\Field\HasOptions::bool $displayUsingLabels  [protected]
@@ -876,6 +906,8 @@ Lathe\Http\Controllers\Resources\DeleteController::purgeAttachments(Illuminate\D
 Lathe\Http\Controllers\Resources\DeleteController::restore(Lathe\Http\Requests\LatheRequest $request, Lathe\Auth\ResourceAuthorization $authorization, string $resource, string $resourceId): Illuminate\Http\JsonResponse
 Lathe\Http\Controllers\Resources\DeleteController::run(Lathe\Http\Requests\LatheRequest $request, string $class, Illuminate\Database\Eloquent\Model $model, string $hook, Closure $write, string $event, bool $purge = false): Illuminate\Http\JsonResponse  [protected]
 Lathe\Http\Controllers\Resources\DetailPageController::__invoke(Lathe\Http\Requests\LatheRequest $request, Lathe\Auth\ResourceAuthorization $authorization, Lathe\Http\Payloads\IndexPayload $index, Lathe\Http\Payloads\RecordPayload $payload, string $resource, string $resourceId): Symfony\Component\HttpFoundation\Response
+Lathe\Http\Controllers\Resources\FieldFileController::destroy(Lathe\Http\Requests\LatheRequest $request, Lathe\Auth\ResourceAuthorization $authorization, string $resource, string $resourceId, string $field): Illuminate\Http\Response
+Lathe\Http\Controllers\Resources\FieldFileController::download(Lathe\Http\Requests\LatheRequest $request, Lathe\Auth\ResourceAuthorization $authorization, string $resource, string $resourceId, string $field): Symfony\Component\HttpFoundation\Response
 Lathe\Http\Controllers\Resources\FilterController::PER_PAGE
 Lathe\Http\Controllers\Resources\FilterController::index(Lathe\Http\Requests\LatheRequest $request, Lathe\Auth\ResourceAuthorization $authorization): Illuminate\Http\JsonResponse
 Lathe\Http\Controllers\Resources\FilterController::options(Lathe\Http\Requests\LatheRequest $request, Lathe\Auth\ResourceAuthorization $authorization): Illuminate\Http\JsonResponse
@@ -1760,11 +1792,13 @@ Lathe\Uploads\PendingUpload::pruning(): void  [protected]
 Lathe\Uploads\UploadHandler::Lathe\Support\ConfigStore $config  [protected]
 Lathe\Uploads\UploadHandler::__construct(Lathe\Support\ConfigStore $config)
 Lathe\Uploads\UploadHandler::assemble(Lathe\Uploads\PendingUpload $upload, string $path): void  [protected]
+Lathe\Uploads\UploadHandler::attachable(?Illuminate\Contracts\Auth\Authenticatable $user, string $id, string $field): ?Lathe\Uploads\PendingUpload
 Lathe\Uploads\UploadHandler::cancel(Lathe\Uploads\PendingUpload $upload): void
 Lathe\Uploads\UploadHandler::chunkSize(): int
 Lathe\Uploads\UploadHandler::complete(Lathe\Uploads\PendingUpload $upload): void
 Lathe\Uploads\UploadHandler::disk(): Illuminate\Contracts\Filesystem\Filesystem  [protected]
 Lathe\Uploads\UploadHandler::extensionAllows(string $name, string $mime): bool  [protected]
+Lathe\Uploads\UploadHandler::file(Lathe\Uploads\PendingUpload $upload): Illuminate\Http\UploadedFile
 Lathe\Uploads\UploadHandler::owned(?Illuminate\Contracts\Auth\Authenticatable $user, string $id): Lathe\Uploads\PendingUpload
 Lathe\Uploads\UploadHandler::ownerId(?Illuminate\Contracts\Auth\Authenticatable $user): string
 Lathe\Uploads\UploadHandler::received(Lathe\Uploads\PendingUpload $upload): array
@@ -1873,6 +1907,7 @@ class Lathe\Http\Controllers\Plugins\PluginPageController
 class Lathe\Http\Controllers\Resources\CountController
 class Lathe\Http\Controllers\Resources\DeleteController
 class Lathe\Http\Controllers\Resources\DetailPageController
+class Lathe\Http\Controllers\Resources\FieldFileController
 class Lathe\Http\Controllers\Resources\FilterController
 class Lathe\Http\Controllers\Resources\FormFieldsController
 class Lathe\Http\Controllers\Resources\FormPageController

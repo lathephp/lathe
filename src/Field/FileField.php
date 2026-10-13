@@ -351,8 +351,8 @@ class FileField extends Field implements Deletable, Storable
             'path' => $path,
             'name' => is_string($name) && $name !== '' ? $name : basename($path),
             'size' => $this->sizeColumn === null ? null : data_get($record, $this->sizeColumn),
-            'preview' => $this->url($this->previewCallback, $path),
-            'thumbnail' => $this->url($this->thumbnailCallback, $path),
+            'preview' => $this->fileUrl($this->previewCallback, $path),
+            'thumbnail' => $this->fileUrl($this->thumbnailCallback, $path),
             'downloadable' => $this->downloadable,
         ];
     }
@@ -452,7 +452,7 @@ class FileField extends Field implements Deletable, Storable
         }
     }
 
-    protected function url(?Closure $callback, string $path): ?string
+    protected function fileUrl(?Closure $callback, string $path): ?string
     {
         if ($callback === null) {
             return $this->storage()->url($path);
