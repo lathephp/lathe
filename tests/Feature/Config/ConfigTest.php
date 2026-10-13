@@ -1,5 +1,6 @@
 <?php
 
+use Illuminate\Container\Container;
 use Lathe\Exceptions\InvalidConfigurationException;
 use Lathe\LatheServiceProvider;
 use Lathe\Support\ConfigStore;
@@ -47,12 +48,19 @@ it('rejects a default page size outside the limits', function () {
         ->toBe(['config/lathe.php: pagination.per_page: must be an integer from 1 to 100; got 0. Set it inside that range or raise limits.max_per_page.']);
 });
 
-it('reads the config the container holds now, as Octane swaps it per request', function () {
+it('reads the config of the app serving the request, as Octane clones it per request', function () {
     $store = app(ConfigStore::class);
-    $sandbox = clone app('config');
-    $sandbox->set('lathe.table.striped', true);
-    app()->instance('config', $sandbox);
+    $original = Container::getInstance();
+    $sandbox = clone $original;
+    $config = clone $original->make('config');
+    $config->set('lathe.table.striped', true);
+    $sandbox->instance('config', $config);
+    Container::setInstance($sandbox);
 
-    expect($store->boolean('table.striped'))->toBeTrue()
-        ->and($store->all()['table']['striped'])->toBeTrue();
+    try {
+        expect($store->boolean('table.striped'))->toBeTrue()
+            ->and($store->all()['table']['striped'])->toBeTrue();
+    } finally {
+        Container::setInstance($original);
+    }
 });

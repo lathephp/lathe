@@ -1054,8 +1054,6 @@ Lathe\Summaries\Summary::range(): static  [static]
 Lathe\Summaries\Summary::string $function  [protected]
 Lathe\Summaries\Summary::sum(): static  [static]
 Lathe\Summaries\Summary::value(mixed $result): ?string  [protected]
-Lathe\Support\ConfigStore::Illuminate\Contracts\Container\Container $container  [protected]
-Lathe\Support\ConfigStore::__construct(Illuminate\Contracts\Container\Container $container)
 Lathe\Support\ConfigStore::all(): array
 Lathe\Support\ConfigStore::boolean(string $key): bool
 Lathe\Support\ConfigStore::get(string $key, mixed $default = NULL): mixed

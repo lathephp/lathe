@@ -2,20 +2,16 @@
 
 namespace Lathe\Support;
 
+use Illuminate\Container\Container;
 use Illuminate\Contracts\Config\Repository;
-use Illuminate\Contracts\Container\Container;
 
 /**
- * Typed reads of the lathe config. Each read asks the container for the config, because
- * Octane gives every request its own copy and this store lives for the whole worker.
+ * Typed reads of the lathe config. Each read asks the current container for the config:
+ * Octane runs every request in its own copy of the app with its own config, while this
+ * store is built once per worker.
  */
 class ConfigStore
 {
-    public function __construct(protected Container $container)
-    {
-        //
-    }
-
     public function get(string $key, mixed $default = null): mixed
     {
         return $this->repository()->get("lathe.{$key}", $default);
@@ -59,6 +55,6 @@ class ConfigStore
 
     protected function repository(): Repository
     {
-        return $this->container->make('config');
+        return Container::getInstance()->make('config');
     }
 }
