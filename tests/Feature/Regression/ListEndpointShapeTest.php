@@ -1,0 +1,48 @@
+<?php
+
+use Illuminate\Support\Facades\Gate;
+use Workbench\App\Models\User;
+use Workbench\Database\Seeders\DemoSeeder;
+
+beforeEach(function () {
+    $this->artisan('migrate')->assertSuccessful();
+    $this->seed(DemoSeeder::class);
+    Gate::define('viewLathe', fn () => true);
+    $this->actingAs(User::where('email', 'admin@lathephp.com')->firstOrFail());
+});
+
+/**
+ * The top-level keys of a JSON object, sorted.
+ *
+ * @return list<string>
+ */
+function jsonShape(mixed $json): array
+{
+    $keys = is_array($json) ? array_keys($json) : [];
+    sort($keys);
+
+    return array_map('strval', $keys);
+}
+
+// m4, m5 and m6 add their list endpoints to this dataset.
+test('each_list_endpoint_has_its_documented_shape', function (string $uri, array $keys, ?string $item, array $itemKeys) {
+    $json = $this->getJson($uri)->assertOk()->json();
+    sort($keys);
+    sort($itemKeys);
+
+    expect(jsonShape($json))->toBe($keys);
+
+    if ($item !== null) {
+        expect(jsonShape(data_get($json, $item)))->toBe($itemKeys);
+    }
+})->with([
+    'resource index' => ['/lathe/api/resources/orders', ['resource', 'table', 'filters', 'tabs', 'lens', 'lenses', 'state'], 'table.rows.0', ['id', 'title', 'cells', 'abilities']],
+    'resource count' => ['/lathe/api/resources/orders/count', ['value', 'exact', 'capped', 'estimated'], null, []],
+    'filters' => ['/lathe/api/resources/orders/filters', ['filters'], 'filters.0', ['key', 'name', 'component', 'options', 'remote', 'immediate', 'placement', 'default']],
+    'filter options' => ['/lathe/api/resources/orders/filters/customer/options?q=a', ['options', 'hasMore'], 'options.0', ['label', 'value']],
+    'saved tabs' => ['/lathe/api/resources/orders/saved-tabs', ['tabs'], null, []],
+    'lens index' => ['/lathe/api/resources/orders/lenses/pending-orders', ['resource', 'table', 'filters', 'tabs', 'lens', 'lenses', 'state'], 'table.rows.0', ['id', 'title', 'cells', 'abilities']],
+    'lens count' => ['/lathe/api/resources/orders/lenses/pending-orders/count', ['value', 'exact', 'capped', 'estimated'], null, []],
+    'lens filters' => ['/lathe/api/resources/orders/lenses/pending-orders/filters', ['filters'], 'filters.0', ['key', 'name', 'component', 'options', 'remote', 'immediate', 'placement', 'default']],
+    'global search' => ['/lathe/api/search?q=ann', ['groups', 'skipped'], 'groups.0.results.0', ['resourceTitle', 'title', 'subTitle', 'resourceName', 'resourceId', 'avatar', 'rounded', 'url']],
+])->group('regression');
