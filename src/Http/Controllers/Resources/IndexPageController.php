@@ -75,6 +75,7 @@ class IndexPageController
             'state' => fn () => $part('state'),
             'filters' => fn () => $part('filters'),
             'tabs' => fn () => $part('tabs'),
+            'groups' => fn () => $part('groups'),
             'lens' => null,
             'lenses' => fn () => $part('lenses'),
             'staleFilters' => $stale,

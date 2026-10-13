@@ -36,12 +36,12 @@ test('each_list_endpoint_has_its_documented_shape', function (string $uri, array
         expect(jsonShape(data_get($json, $item)))->toBe($itemKeys);
     }
 })->with([
-    'resource index' => ['/lathe/api/resources/orders', ['resource', 'table', 'filters', 'tabs', 'lens', 'lenses', 'state'], 'table.rows.0', ['id', 'title', 'cells', 'abilities']],
+    'resource index' => ['/lathe/api/resources/orders', ['resource', 'table', 'filters', 'tabs', 'groups', 'lens', 'lenses', 'state'], 'table.rows.0', ['id', 'title', 'cells', 'abilities']],
     'resource count' => ['/lathe/api/resources/orders/count', ['value', 'exact', 'capped', 'estimated'], null, []],
     'filters' => ['/lathe/api/resources/orders/filters', ['filters'], 'filters.0', ['key', 'name', 'component', 'options', 'remote', 'immediate', 'placement', 'default']],
     'filter options' => ['/lathe/api/resources/orders/filters/customer/options?q=a', ['options', 'hasMore'], 'options.0', ['label', 'value']],
     'saved tabs' => ['/lathe/api/resources/orders/saved-tabs', ['tabs'], null, []],
-    'lens index' => ['/lathe/api/resources/orders/lenses/pending-orders', ['resource', 'table', 'filters', 'tabs', 'lens', 'lenses', 'state'], 'table.rows.0', ['id', 'title', 'cells', 'abilities']],
+    'lens index' => ['/lathe/api/resources/orders/lenses/pending-orders', ['resource', 'table', 'filters', 'tabs', 'groups', 'lens', 'lenses', 'state'], 'table.rows.0', ['id', 'title', 'cells', 'abilities']],
     'lens count' => ['/lathe/api/resources/orders/lenses/pending-orders/count', ['value', 'exact', 'capped', 'estimated'], null, []],
     'lens filters' => ['/lathe/api/resources/orders/lenses/pending-orders/filters', ['filters'], 'filters.0', ['key', 'name', 'component', 'options', 'remote', 'immediate', 'placement', 'default']],
     'global search' => ['/lathe/api/search?q=ann', ['groups', 'skipped'], 'groups.0.results.0', ['resourceTitle', 'title', 'subTitle', 'resourceName', 'resourceId', 'avatar', 'rounded', 'url']],

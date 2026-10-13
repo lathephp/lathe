@@ -62,7 +62,7 @@ function renderGrouped(options: { hasMorePages?: boolean; url?: string } = {}) {
   );
 }
 
-/** The body rows as the text of their cells. */
+/** The body rows as the text of their cells; rows and subtotals start with the checkbox column. */
 function bodyRows(): string[][] {
   const body = screen.getAllByRole('rowgroup')[1] as HTMLElement;
 
@@ -77,13 +77,13 @@ describe('group rows', () => {
 
     expect(bodyRows()).toEqual([
       ['Status: paidSettled orders'],
-      ['ORD-1', '10.00'],
-      ['ORD-2', '10.00'],
-      ['Subtotal', 'Revenue20.00'],
+      ['', 'ORD-1', '10.00'],
+      ['', 'ORD-2', '10.00'],
+      ['', 'Subtotal', 'Revenue20.00'],
       ['Status: pending'],
-      ['ORD-3', '10.00'],
-      ['ORD-4', '10.00'],
-      ['Subtotal', 'Revenue35.00'],
+      ['', 'ORD-3', '10.00'],
+      ['', 'ORD-4', '10.00'],
+      ['', 'Subtotal', 'Revenue35.00'],
     ]);
 
     const paid = screen.getByRole('button', { name: 'Status: paid' });
@@ -96,9 +96,9 @@ describe('group rows', () => {
     expect(bodyRows()).toEqual([
       ['Status: paidSettled orders'],
       ['Status: pending'],
-      ['ORD-3', '10.00'],
-      ['ORD-4', '10.00'],
-      ['Subtotal', 'Revenue35.00'],
+      ['', 'ORD-3', '10.00'],
+      ['', 'ORD-4', '10.00'],
+      ['', 'Subtotal', 'Revenue35.00'],
     ]);
   });
 
@@ -107,12 +107,12 @@ describe('group rows', () => {
 
     expect(bodyRows()).toEqual([
       ['Status: paidSettled orders'],
-      ['ORD-1', '10.00'],
-      ['ORD-2', '10.00'],
-      ['Subtotal', 'Revenue20.00'],
+      ['', 'ORD-1', '10.00'],
+      ['', 'ORD-2', '10.00'],
+      ['', 'Subtotal', 'Revenue20.00'],
       ['Status: pending'],
-      ['ORD-3', '10.00'],
-      ['ORD-4', '10.00'],
+      ['', 'ORD-3', '10.00'],
+      ['', 'ORD-4', '10.00'],
     ]);
   });
 });
