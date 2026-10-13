@@ -572,6 +572,7 @@ Lathe\Http\Payloads\IndexPayload::ROW_ABILITIES
 Lathe\Http\Payloads\IndexPayload::__construct(Lathe\Http\Requests\LatheRequest $request, Lathe\Auth\ResourceAuthorization $authorization)
 Lathe\Http\Payloads\IndexPayload::activeSavedTab(Lathe\Resources\Resource $resource): ?int  [protected]
 Lathe\Http\Payloads\IndexPayload::build(string $class, ?Lathe\Lenses\Lens $lens = NULL): array
+Lathe\Http\Payloads\IndexPayload::checkRowKeys(string $class, string $rowKey, Illuminate\Database\Eloquent\Collection $rows): void  [protected]
 Lathe\Http\Payloads\IndexPayload::count(string $class, ?Lathe\Lenses\Lens $lens = NULL): ?array
 Lathe\Http\Payloads\IndexPayload::filter(Lathe\Filters\Filter $filter, int $threshold): array  [protected]
 Lathe\Http\Payloads\IndexPayload::groups(Lathe\Resources\Resource $resource, ?array $active, ?Lathe\Lenses\Lens $lens): array  [protected]
@@ -810,6 +811,7 @@ Lathe\Resources\Resource::redirectAfterDelete(Lathe\Http\Requests\LatheRequest $
 Lathe\Resources\Resource::relatableQuery(Lathe\Http\Requests\LatheRequest $request, Illuminate\Database\Eloquent\Builder $query): Illuminate\Database\Eloquent\Builder  [static]
 Lathe\Resources\Resource::replicateQuery(Lathe\Http\Requests\LatheRequest $request, Illuminate\Database\Eloquent\Builder $query): Illuminate\Database\Eloquent\Builder  [static]
 Lathe\Resources\Resource::resolveText(Closure|string $source): string  [protected]
+Lathe\Resources\Resource::rowKey(): string  [static]
 Lathe\Resources\Resource::scoutQuery(Lathe\Http\Requests\LatheRequest $request, mixed $query): mixed  [static]
 Lathe\Resources\Resource::searchQuery(Lathe\Http\Requests\LatheRequest $request, Illuminate\Database\Eloquent\Builder $query): Illuminate\Database\Eloquent\Builder  [static]
 Lathe\Resources\Resource::searchableColumns(): array
@@ -1221,6 +1223,7 @@ class Lathe\Events\ResourceDeleted
 class Lathe\Events\ResourceForceDeleted
 class Lathe\Events\ResourceRestored
 class Lathe\Events\ServingLathe
+class Lathe\Exceptions\DuplicateRowKeyException
 class Lathe\Exceptions\InvalidConfigurationException
 class Lathe\Exceptions\InvalidSearchColumn
 class Lathe\Exceptions\LatheException

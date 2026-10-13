@@ -4,7 +4,9 @@ namespace Lathe\Http\Payloads;
 
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Log;
 use Lathe\Auth\ResourceAuthorization;
+use Lathe\Exceptions\DuplicateRowKeyException;
 use Lathe\Field\Field;
 use Lathe\Filters\Filter;
 use Lathe\Filters\FilterApplicator;
@@ -45,6 +47,8 @@ class IndexPayload
         $resource = $class::make();
         $query = $this->query($resource, $lens);
         $rows = $query->rows();
+        $rowKey = $class::rowKey();
+        $this->checkRowKeys($class, $rowKey, $rows);
         [$perPage, $page] = $query->page();
         $fields = array_values(array_filter($lens?->fields($this->request) ?? $resource->fields($this->request), fn (mixed $field) => $field instanceof Field));
         $available = $lens?->availableFilters($this->request) ?? $resource->availableFilters($this->request);
@@ -65,9 +69,9 @@ class IndexPayload
             'table' => [
                 'columns' => $fields,
                 'sortKeys' => $query->sortKeys(),
-                'rowKey' => 'id',
+                'rowKey' => $rowKey,
                 'rows' => $rows->map(fn (Model $model) => [
-                    'id' => $model->getKey(),
+                    'id' => $model->getAttribute($rowKey),
                     'title' => $resource->forModel($model)->title(),
                     'cells' => collect($fields)->mapWithKeys(fn (Field $field) => [$field->key() => $field->cell($model)])->all(),
                     'abilities' => $abilities[$this->key($model)] ?? [],
@@ -292,6 +296,30 @@ class IndexPayload
             'placement' => $filter->getPlacement(),
             'default' => $filter->default(),
         ];
+    }
+
+    /**
+     * Two rows with one key break selection and row identity on the page, so a debug app stops and
+     * a live one logs and goes on.
+     *
+     * @param  class-string<\Lathe\Resources\Resource>  $class
+     * @param  Collection<int, Model>  $rows
+     */
+    protected function checkRowKeys(string $class, string $rowKey, Collection $rows): void
+    {
+        $duplicates = $rows->map(fn (Model $model) => $model->getAttribute($rowKey))->duplicates();
+
+        if ($duplicates->isEmpty()) {
+            return;
+        }
+
+        $message = sprintf('%s has two rows with the %s key %s on one page.', $class, $rowKey, json_encode($duplicates->first()));
+
+        if (config('app.debug') === true) {
+            throw new DuplicateRowKeyException($message);
+        }
+
+        Log::error($message);
     }
 
     protected function key(Model $model): int|string

@@ -305,6 +305,14 @@ abstract class Resource
         return new static($model);
     }
 
+    /**
+     * The column that tells one index row from another on a page.
+     */
+    public static function rowKey(): string
+    {
+        return static::newModel()->getKeyName();
+    }
+
     public static function uriKey(): string
     {
         return Str::plural(Str::kebab(class_basename(static::class)));
