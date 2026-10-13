@@ -1130,9 +1130,11 @@ Lathe\Http\Controllers\Resources\FilterController::PER_PAGE
 Lathe\Http\Controllers\Resources\FilterController::index(Lathe\Http\Requests\LatheRequest $request, Lathe\Auth\ResourceAuthorization $authorization): Illuminate\Http\JsonResponse
 Lathe\Http\Controllers\Resources\FilterController::options(Lathe\Http\Requests\LatheRequest $request, Lathe\Auth\ResourceAuthorization $authorization): Illuminate\Http\JsonResponse
 Lathe\Http\Controllers\Resources\FormFieldsController::creation(Lathe\Http\Requests\LatheRequest $request, Lathe\Auth\ResourceAuthorization $authorization, Lathe\Http\Payloads\RecordPayload $payload): Illuminate\Http\JsonResponse
+Lathe\Http\Controllers\Resources\FormFieldsController::replicate(Lathe\Http\Requests\LatheRequest $request, Lathe\Auth\ResourceAuthorization $authorization, Lathe\Http\Payloads\RecordPayload $payload, string $resource, string $resourceId): Illuminate\Http\JsonResponse
 Lathe\Http\Controllers\Resources\FormFieldsController::update(Lathe\Http\Requests\LatheRequest $request, Lathe\Auth\ResourceAuthorization $authorization, Lathe\Http\Payloads\RecordPayload $payload, string $resource, string $resourceId): Illuminate\Http\JsonResponse
 Lathe\Http\Controllers\Resources\FormPageController::create(Lathe\Http\Requests\LatheRequest $request, Lathe\Auth\ResourceAuthorization $authorization, Lathe\Http\Payloads\IndexPayload $index, Lathe\Http\Payloads\RecordPayload $payload): Symfony\Component\HttpFoundation\Response
 Lathe\Http\Controllers\Resources\FormPageController::edit(Lathe\Http\Requests\LatheRequest $request, Lathe\Auth\ResourceAuthorization $authorization, Lathe\Http\Payloads\IndexPayload $index, Lathe\Http\Payloads\RecordPayload $payload, string $resource, string $resourceId): Symfony\Component\HttpFoundation\Response
+Lathe\Http\Controllers\Resources\FormPageController::replicate(Lathe\Http\Requests\LatheRequest $request, Lathe\Auth\ResourceAuthorization $authorization, Lathe\Http\Payloads\IndexPayload $index, Lathe\Http\Payloads\RecordPayload $payload, string $resource, string $resourceId): Symfony\Component\HttpFoundation\Response
 Lathe\Http\Controllers\Resources\IndexController::__invoke(Lathe\Http\Requests\LatheRequest $request, Lathe\Auth\ResourceAuthorization $authorization, Lathe\Http\Payloads\IndexPayload $payload): Illuminate\Http\JsonResponse
 Lathe\Http\Controllers\Resources\IndexPageController::__invoke(Lathe\Http\Requests\LatheRequest $request, Lathe\Auth\ResourceAuthorization $authorization, Lathe\Http\Payloads\IndexPayload $payload): Symfony\Component\HttpFoundation\Response
 Lathe\Http\Controllers\Resources\InlineUpdateController::__invoke(Lathe\Http\Requests\LatheRequest $request, Lathe\Auth\ResourceAuthorization $authorization, string $resource, string $resourceId, string $field): Illuminate\Http\JsonResponse
@@ -1234,6 +1236,7 @@ Lathe\Http\Payloads\RecordPayload::creationFields(string $class): array
 Lathe\Http\Payloads\RecordPayload::detail(string $class, Illuminate\Database\Eloquent\Model $model): array
 Lathe\Http\Payloads\RecordPayload::fields(string $class, Lathe\Field\FieldContext $context, ?Illuminate\Database\Eloquent\Model $model = NULL): array  [protected]
 Lathe\Http\Payloads\RecordPayload::href(string $path): string
+Lathe\Http\Payloads\RecordPayload::replicateFields(string $class, Illuminate\Database\Eloquent\Model $model): array
 Lathe\Http\Payloads\RecordPayload::summary(string $class, Illuminate\Database\Eloquent\Model $model, Lathe\Field\FieldContext $context): array
 Lathe\Http\Payloads\RecordPayload::updateFields(string $class, Illuminate\Database\Eloquent\Model $model): array
 Lathe\Http\Requests\LatheRequest::config(): Lathe\Support\ConfigStore  [protected]
@@ -1591,6 +1594,8 @@ Lathe\Resources\Resource::redirectAfterCreate(Lathe\Http\Requests\LatheRequest $
 Lathe\Resources\Resource::redirectAfterDelete(Lathe\Http\Requests\LatheRequest $request): string  [static]
 Lathe\Resources\Resource::redirectAfterUpdate(Lathe\Http\Requests\LatheRequest $request, Lathe\Resources\Resource $resource): string  [static]
 Lathe\Resources\Resource::relatableQuery(Lathe\Http\Requests\LatheRequest $request, Illuminate\Database\Eloquent\Builder $query): Illuminate\Database\Eloquent\Builder  [static]
+Lathe\Resources\Resource::replicate(Illuminate\Database\Eloquent\Model $model): Illuminate\Database\Eloquent\Model  [static]
+Lathe\Resources\Resource::replicateExcept(): array  [static]
 Lathe\Resources\Resource::replicateQuery(Lathe\Http\Requests\LatheRequest $request, Illuminate\Database\Eloquent\Builder $query): Illuminate\Database\Eloquent\Builder  [static]
 Lathe\Resources\Resource::resolveAvatar(): ?Lathe\Field\Avatar
 Lathe\Resources\Resource::resolveText(Closure|string $source): string  [protected]
@@ -1990,6 +1995,7 @@ Lathe\Testing\ResourceTester::forceDelete(string|int $id): Illuminate\Testing\Te
 Lathe\Testing\ResourceTester::index(array $query = array ( )): Illuminate\Testing\TestResponse
 Lathe\Testing\ResourceTester::peek(string|int $id): Illuminate\Testing\TestResponse
 Lathe\Testing\ResourceTester::preview(string|int $id): Illuminate\Testing\TestResponse
+Lathe\Testing\ResourceTester::replicateFields(string|int $id): Illuminate\Testing\TestResponse
 Lathe\Testing\ResourceTester::restore(string|int $id): Illuminate\Testing\TestResponse
 Lathe\Testing\ResourceTester::store(array $data): Illuminate\Testing\TestResponse
 Lathe\Testing\ResourceTester::string $uriKey  [protected]

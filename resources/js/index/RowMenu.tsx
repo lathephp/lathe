@@ -1,4 +1,4 @@
-import { router, usePage } from '@inertiajs/react';
+import { Link, router, usePage } from '@inertiajs/react';
 import { request, toast, useTranslation } from '@lathephp/core';
 import { Button } from '@lathephp/ui';
 import { EllipsisVertical } from 'lucide-react';
@@ -6,11 +6,12 @@ import { useId, useState } from 'react';
 import type { SharedProps } from '../types';
 import type { Row } from './types';
 
-type MenuAction = 'delete' | 'restore' | 'forceDelete';
+type MenuAction = 'replicate' | 'delete' | 'restore' | 'forceDelete';
+type WriteAction = Exclude<MenuAction, 'replicate'>;
 
-/** What the row menu offers: Delete on a live row, Restore and Force Delete on a trashed one. */
+/** What the row menu offers: Replicate and Delete on a live row, Restore and Force Delete on a trashed one. */
 export function menuActions(row: Row): MenuAction[] {
-  const actions: MenuAction[] = row.trashed === true ? ['restore', 'forceDelete'] : ['delete'];
+  const actions: MenuAction[] = row.trashed === true ? ['restore', 'forceDelete'] : ['replicate', 'delete'];
 
   return actions.filter((action) => row.abilities[action] === true);
 }
@@ -28,16 +29,17 @@ export function RowMenu({ uriKey, row }: { uriKey: string; row: Row }) {
   const url = `${basePath}/api/resources/${uriKey}/${String(row.id)}`;
 
   const labels: Record<MenuAction, string> = {
+    replicate: __('Replicate'),
     delete: __('Delete'),
     restore: __('Restore'),
     forceDelete: __('Force Delete'),
   };
 
-  async function run(action: MenuAction) {
+  async function run(action: WriteAction) {
     setConfirming(null);
 
     const title = { title: row.title };
-    const requests: Record<MenuAction, { path: string; method: string; done: string; failed: string }> = {
+    const requests: Record<WriteAction, { path: string; method: string; done: string; failed: string }> = {
       delete: { path: url, method: 'DELETE', done: __(':title was deleted.', title), failed: __(':title could not be deleted.', title) },
       restore: {
         path: `${url}/restore`,
@@ -66,7 +68,7 @@ export function RowMenu({ uriKey, row }: { uriKey: string; row: Row }) {
     toast.success(done);
   }
 
-  function choose(action: MenuAction) {
+  function choose(action: WriteAction) {
     setOpen(false);
 
     if (action === 'restore') {
@@ -103,19 +105,25 @@ export function RowMenu({ uriKey, row }: { uriKey: string; row: Row }) {
             }
           }}
         >
-          {menuActions(row).map((action) => (
-            <button
-              key={action}
-              type="button"
-              role="menuitem"
-              className={action === 'restore' ? itemClass : `${itemClass} text-destructive`}
-              onClick={() => {
-                choose(action);
-              }}
-            >
-              {labels[action]}
-            </button>
-          ))}
+          {menuActions(row).map((action) =>
+            action === 'replicate' ? (
+              <Link key={action} role="menuitem" href={`${basePath}/resources/${uriKey}/${String(row.id)}/replicate`} className={itemClass}>
+                {labels[action]}
+              </Link>
+            ) : (
+              <button
+                key={action}
+                type="button"
+                role="menuitem"
+                className={action === 'restore' ? itemClass : `${itemClass} text-destructive`}
+                onClick={() => {
+                  choose(action);
+                }}
+              >
+                {labels[action]}
+              </button>
+            ),
+          )}
         </div>
       )}
       {confirming !== null && (

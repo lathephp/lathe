@@ -32,7 +32,7 @@ use Lathe\Tabs\Tab;
 class IndexPayload
 {
     /** @var list<string> */
-    public const array ROW_ABILITIES = ['view', 'update', 'delete'];
+    public const array ROW_ABILITIES = ['view', 'update', 'delete', 'replicate'];
 
     public function __construct(
         protected LatheRequest $request,

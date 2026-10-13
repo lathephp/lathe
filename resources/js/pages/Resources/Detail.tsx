@@ -32,6 +32,14 @@ export default function Detail({ resource, record, breadcrumbs }: DetailProps) {
           <h1 className="truncate text-xl font-semibold">{title}</h1>
           {subtitle === '' ? null : <p className="text-sm text-muted-foreground">{subtitle}</p>}
         </div>
+        {abilities.replicate ? (
+          <Link
+            href={`${recordPath}/replicate`}
+            className="inline-flex h-9 items-center rounded-md border border-border px-4 text-sm font-medium"
+          >
+            {__('Replicate')}
+          </Link>
+        ) : null}
         {abilities.update ? (
           <Link
             href={`${recordPath}/edit`}
