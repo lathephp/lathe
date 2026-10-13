@@ -81,7 +81,7 @@ class IndexPayload
             ],
             'groups' => $this->groups($resource, $active, $lens),
             'filters' => [
-                'available' => array_map(fn (Filter $filter) => $this->filter($filter, $threshold), $available),
+                'available' => array_map(fn (Filter $filter) => $filter->definition($this->request, $threshold), $available),
                 'applied' => (new FilterApplicator($resource, $lens !== null ? $available : null))->values($this->request, is_array($filters) ? $filters : []),
             ],
             'tabs' => [
@@ -270,32 +270,6 @@ class IndexPayload
     protected function savedTabModels(Resource $resource): Collection
     {
         return SavedTabQueryApplicator::enabled($resource) ? SavedTabQueryApplicator::listFor($resource, $this->request) : new Collection;
-    }
-
-    /**
-     * A remote filter sends no options, so a long list never loads on the index.
-     *
-     * @return array<string, mixed>
-     */
-    protected function filter(Filter $filter, int $threshold): array
-    {
-        $remote = $filter->isRemote($this->request, $threshold);
-        $options = $remote ? null : $filter->options($this->request);
-
-        return [
-            'key' => $filter->key(),
-            'name' => $filter->name(),
-            'component' => $filter->component(),
-            'options' => $options === null ? null : array_map(
-                fn (string|int $label, mixed $value) => ['label' => (string) $label, 'value' => $value],
-                array_keys($options),
-                array_values($options),
-            ),
-            'remote' => $remote,
-            'immediate' => $filter->isImmediate(),
-            'placement' => $filter->getPlacement(),
-            'default' => $filter->default(),
-        ];
     }
 
     /**

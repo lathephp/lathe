@@ -260,6 +260,8 @@ it('lists Status with four inline options and Customer as a remote picker', func
                 'immediate' => false,
                 'placement' => 'panel',
                 'default' => null,
+                // The column holds cents and shows amounts, so the inputs take amounts.
+                'scale' => 100,
             ],
         ]);
 });

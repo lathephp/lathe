@@ -393,8 +393,9 @@ Lathe\Field\Field::bool $filterable  [protected]
 Lathe\Field\Field::bool $sortable  [protected]
 Lathe\Field\Field::cell(Illuminate\Database\Eloquent\Model $model): array
 Lathe\Field\Field::component(string $component): static
-Lathe\Field\Field::filterable(bool $filterable = true): static
+Lathe\Field\Field::filterable(bool $filterable = true, int $scale = 1): static
 Lathe\Field\Field::getSummaries(): array
+Lathe\Field\Field::int $filterScale  [protected]
 Lathe\Field\Field::isFilterable(): bool
 Lathe\Field\Field::isSortable(): bool
 Lathe\Field\Field::jsonSerialize(): array
@@ -414,8 +415,10 @@ Lathe\Filters\BooleanFilter::normalize(Lathe\Http\Requests\LatheRequest $request
 Lathe\Filters\DateFilter::component(): string
 Lathe\Filters\DateFilter::date(mixed $side): ?string  [protected]
 Lathe\Filters\DateFilter::normalize(Lathe\Http\Requests\LatheRequest $request, mixed $value, bool $remote): array
-Lathe\Filters\FieldFilter::__construct(string $label, string $attribute)
+Lathe\Filters\FieldFilter::__construct(string $label, string $attribute, int $scale = 1)
 Lathe\Filters\FieldFilter::apply(Lathe\Http\Requests\LatheRequest $request, Illuminate\Database\Eloquent\Builder $query, mixed $value): Illuminate\Database\Eloquent\Builder
+Lathe\Filters\FieldFilter::definition(Lathe\Http\Requests\LatheRequest $request, int $threshold): array
+Lathe\Filters\FieldFilter::int $scale  [protected]
 Lathe\Filters\FieldFilter::key(): string
 Lathe\Filters\FieldFilter::name(): string
 Lathe\Filters\FieldFilter::normalize(Lathe\Http\Requests\LatheRequest $request, mixed $value, bool $remote): array
@@ -578,7 +581,6 @@ Lathe\Http\Payloads\IndexPayload::activeSavedTab(Lathe\Resources\Resource $resou
 Lathe\Http\Payloads\IndexPayload::build(string $class, ?Lathe\Lenses\Lens $lens = NULL): array
 Lathe\Http\Payloads\IndexPayload::checkRowKeys(string $class, string $rowKey, Illuminate\Database\Eloquent\Collection $rows): void  [protected]
 Lathe\Http\Payloads\IndexPayload::count(string $class, ?Lathe\Lenses\Lens $lens = NULL): ?array
-Lathe\Http\Payloads\IndexPayload::filter(Lathe\Filters\Filter $filter, int $threshold): array  [protected]
 Lathe\Http\Payloads\IndexPayload::groups(Lathe\Resources\Resource $resource, ?array $active, ?Lathe\Lenses\Lens $lens): array  [protected]
 Lathe\Http\Payloads\IndexPayload::key(Illuminate\Database\Eloquent\Model $model): string|int  [protected]
 Lathe\Http\Payloads\IndexPayload::lensEntry(Lathe\Lenses\Lens $lens): array  [protected]

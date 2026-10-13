@@ -11,9 +11,17 @@ use Lathe\Http\Requests\LatheRequest;
  */
 class FieldFilter extends RangeFilter
 {
-    public function __construct(protected string $label, protected string $attribute)
+    public function __construct(protected string $label, protected string $attribute, protected int $scale = 1)
     {
         //
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    public function definition(LatheRequest $request, int $threshold): array
+    {
+        return [...parent::definition($request, $threshold), 'scale' => $this->scale];
     }
 
     public function key(): string

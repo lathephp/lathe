@@ -22,6 +22,8 @@ class Field implements JsonSerializable
 
     protected bool $filterable = false;
 
+    protected int $filterScale = 1;
+
     /** @var list<Summary> */
     protected array $summaries = [];
 
@@ -71,9 +73,14 @@ class Field implements JsonSerializable
     /**
      * Give the index a min/max range filter on this field's column. Only for a numeric column.
      */
-    public function filterable(bool $filterable = true): static
+    /**
+     * Generate a range filter for this field. A scale above 1 lets the filter's inputs take the
+     * shown amount while the URL and the query keep the stored value: 100 for cents shown as amounts.
+     */
+    public function filterable(bool $filterable = true, int $scale = 1): static
     {
         $this->filterable = $filterable;
+        $this->filterScale = max(1, $scale);
 
         return $this;
     }
@@ -103,7 +110,7 @@ class Field implements JsonSerializable
 
     public function makeFieldFilter(): FieldFilter
     {
-        return new FieldFilter($this->label, $this->attribute);
+        return new FieldFilter($this->label, $this->attribute, $this->filterScale);
     }
 
     /**

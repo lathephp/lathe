@@ -42,6 +42,8 @@ export interface AvailableFilter {
   immediate: boolean;
   placement: string;
   default: unknown;
+  /** A range filter's inputs show the stored value divided by this, such as 100 for cents. */
+  scale?: number;
 }
 
 /** What the panel hands each filter control, keyed by the server's component name. */
