@@ -117,9 +117,10 @@ function recordDialogs(AwaitableWebpage $page): void
 }
 
 /**
- * The page's resource requests whose path contains the given text.
+ * A script that counts the page's requests whose path contains the given text, for
+ * assertScript: a request shows up once its response has arrived.
  */
-function requestsTo(AwaitableWebpage $page, string $text): int
+function requestCount(string $text): string
 {
-    return (int) $page->script('performance.getEntriesByType("resource").filter((entry) => new URL(entry.name).pathname.includes('.json_encode($text).')).length');
+    return 'performance.getEntriesByType("resource").filter((entry) => new URL(entry.name).pathname.includes('.json_encode($text).')).length';
 }
