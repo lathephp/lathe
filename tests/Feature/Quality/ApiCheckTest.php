@@ -1,5 +1,6 @@
 <?php
 
+use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\File;
 use Illuminate\Testing\PendingCommand;
 
@@ -30,7 +31,9 @@ function apiCheck(string $root, bool $write = false): PendingCommand
 }
 
 it('passes on the package tree', function () {
-    $this->artisan('lathe:api-check')->assertSuccessful();
+    $code = Artisan::call('lathe:api-check');
+
+    expect($code)->toBe(0, Artisan::output());
 })->group('frontend');
 
 it('writes the snapshot and then passes', function () {

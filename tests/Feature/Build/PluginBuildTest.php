@@ -24,6 +24,8 @@ function pluginBuildOutput(): string
     return $out;
 }
 
+pest()->group('frontend');
+
 it('writes one module named heartbeat and the plugin manifest', function () {
     $files = array_values(array_diff((array) scandir(pluginBuildOutput()), ['.', '..']));
 

@@ -13,7 +13,8 @@ pest()->group('scaffold');
 function inScaffold(array $command, int $timeout = 300): Process
 {
     $env = array_fill_keys([
-        'APP_ENV', 'APP_KEY', 'DB_CONNECTION', 'DB_DATABASE', 'SESSION_DRIVER', 'QUEUE_CONNECTION', 'CACHE_STORE', 'MAIL_MAILER',
+        'APP_ENV', 'APP_KEY', 'APP_URL', 'APP_DEBUG', 'BCRYPT_ROUNDS', 'DB_CONNECTION', 'DB_HOST', 'DB_PORT', 'DB_DATABASE', 'DB_USERNAME',
+        'DB_PASSWORD', 'SESSION_DRIVER', 'QUEUE_CONNECTION', 'CACHE_STORE', 'MAIL_MAILER',
     ], false);
 
     $process = new Process($command, scaffoldApp(), $env, null, $timeout);

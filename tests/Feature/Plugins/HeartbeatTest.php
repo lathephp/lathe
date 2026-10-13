@@ -72,7 +72,7 @@ it('serves its built module by content hash, and nothing else', function () {
 
     $this->get('/lathe/modules/heartbeat-00000000.js')->assertNotFound();
     $this->get("/lathe/modules/heartbeet-{$hash}.js")->assertNotFound();
-});
+})->group('frontend');
 
 it('adds a Heartbeat section to the sidebar with the Activity icon', function () {
     $this->artisan('migrate')->assertSuccessful();

@@ -12,4 +12,4 @@ it('has 156 cases, each an icon of the bundled Lucide set', function () {
 
     expect(Icon::cases())->toHaveCount(156)
         ->and(array_map(fn (Icon $icon) => $icon->name, $missing))->toBe([]);
-});
+})->group('frontend');

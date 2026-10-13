@@ -76,7 +76,7 @@
         "format": "pint",
         "analyse": "phpstan analyse --memory-limit=1G",
         "test": [
-            "@php vendor/bin/pest --parallel --exclude-group=browser,benchmark,scaffold",
+            "@php vendor/bin/pest --parallel --exclude-group=browser --exclude-group=benchmark --exclude-group=scaffold",
             "bash scripts/pnpm.sh -r test"
         ],
         "qa": [
@@ -87,7 +87,7 @@
         ],
         "test:scaffold": "@php vendor/bin/pest --group=scaffold",
         "test:matrix": [
-            "Composer\Config::disableProcessTimeout",
+            "Composer\\Config::disableProcessTimeout",
             "bash scripts/matrix.sh"
         ],
         "types": "@php vendor/bin/pest --type-coverage --min=100",
