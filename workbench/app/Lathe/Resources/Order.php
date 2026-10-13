@@ -16,6 +16,7 @@ use Workbench\App\Lathe\Filters\OrderCustomer;
 use Workbench\App\Lathe\Filters\OrderStatus;
 use Workbench\App\Lathe\Lenses\PendingOrders;
 use Workbench\App\Models\Order as OrderModel;
+use Workbench\App\Models\User;
 
 class Order extends Resource
 {
@@ -45,6 +46,7 @@ class Order extends Resource
             Field::make('Placed', 'placed_at', fn (Model $order) => $order instanceof OrderModel
                 ? $order->placed_at->utc()->toIso8601ZuluString()
                 : null)->sortable(),
+            Field::make('Created', 'created_at')->onlyOnDetail()->canSee(fn (LatheRequest $request) => $request->user() instanceof User && $request->user()->email === 'admin@lathephp.com'),
         ];
     }
 
