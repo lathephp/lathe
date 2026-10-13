@@ -6,6 +6,7 @@ import { FormField } from '../../fields/registry';
 import type { FormFieldData, FormProps } from '../../fields/types';
 import { cn } from '../../lib/cn';
 import { Breadcrumbs } from '../../records/Breadcrumbs';
+import { ReauthModal } from '../../records/ReauthModal';
 import { RecordLayout } from '../../records/RecordLayout';
 import { useRecordForm, type SubmitIntent } from '../../records/useRecordForm';
 import type { SharedProps } from '../../types';
@@ -13,7 +14,7 @@ import type { SharedProps } from '../../types';
 /** The create and edit form of a Resource. */
 export default function Form({ resource, mode, id, title, breadcrumbs, form, submitLabel }: FormProps) {
   const { __ } = useTranslation();
-  const { basePath } = usePage<SharedProps>().props;
+  const { basePath, auth } = usePage<SharedProps>().props;
   const formRef = useRef<HTMLFormElement>(null);
   const record = useRecordForm({ resource, mode, id, form }, (redirect) => {
     router.visit(`${basePath}/resources/${redirect}`);
@@ -65,6 +66,11 @@ export default function Form({ resource, mode, id, title, breadcrumbs, form, sub
           }}
         />
         <div className="flex flex-wrap items-center justify-end gap-2">
+          {record.draft.restored ? (
+            <button type="button" className="me-auto h-9 rounded-md px-4 text-sm" onClick={record.draft.discard}>
+              {__('Discard draft')}
+            </button>
+          ) : null}
           <Link href={cancelHref} className="inline-flex h-9 items-center rounded-md px-4 text-sm">
             {__('Cancel')}
           </Link>
@@ -87,6 +93,17 @@ export default function Form({ resource, mode, id, title, breadcrumbs, form, sub
           </button>
         </div>
       </form>
+      {record.reauth === null ? null : (
+        <ReauthModal
+          email={auth.user?.email ?? ''}
+          onSignedIn={record.resume}
+          onOtherUser={() => {
+            record.cancelReauth();
+            router.reload();
+          }}
+          onClose={record.cancelReauth}
+        />
+      )}
     </div>
   );
 }

@@ -1,5 +1,6 @@
 import { ApiError, request, toast, useLathe, useTranslation } from '@lathephp/core';
-import { useCallback, useState } from 'react';
+import { useState } from 'react';
+import { persistable, readDraft, useFormDraft } from './useFormDraft';
 import type { FormFieldData, FormPayload, FormProps } from '../fields/types';
 
 export type SubmitIntent = 'default' | 'another' | 'continue';
@@ -31,15 +32,21 @@ export function useRecordForm({ resource, mode, id, form }: Pick<FormProps, 'res
   const { __ } = useTranslation();
   const { apiPath } = useLathe();
   const [payload, setPayload] = useState<FormPayload>(form);
-  const [values, setValues] = useState<Record<string, unknown>>(() => initialValues(form.fields));
+  const attributes = persistable(form.fields);
+  const [saved] = useState(() => readDraft(attributes));
+  const [values, setValues] = useState<Record<string, unknown>>(() => ({ ...initialValues(form.fields), ...saved }));
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [busy, setBusy] = useState(false);
+  /** The submit a 401 or 419 interrupted, replayed once the user signs in again. */
+  const [reauth, setReauth] = useState<SubmitIntent | null>(null);
+  const draft = useFormDraft(values, attributes, saved !== null);
   const base = `${apiPath}/resources/${resource.uriKey}`;
   const updating = mode === 'update';
 
-  const setValue = useCallback((attribute: string, value: unknown) => {
+  const setValue = (attribute: string, value: unknown) => {
+    draft.touch();
     setValues((current) => ({ ...current, [attribute]: value }));
-  }, []);
+  };
 
   async function submit(intent: SubmitIntent = 'default'): Promise<void> {
       setBusy(true);
@@ -50,6 +57,8 @@ export function useRecordForm({ resource, mode, id, form }: Pick<FormProps, 'res
           method: updating ? 'PUT' : 'POST',
           body: updating && payload.updatedAt !== undefined ? { ...values, _updated_at: payload.updatedAt } : values,
         });
+
+        draft.clear();
 
         if (intent === 'another' && !updating) {
           setValues(initialValues(form.fields));
@@ -67,7 +76,9 @@ export function useRecordForm({ resource, mode, id, form }: Pick<FormProps, 'res
           onDone(result.redirect);
         }
       } catch (error) {
-        if (error instanceof ApiError && error.status === 422) {
+        if (error instanceof ApiError && (error.status === 401 || error.status === 419)) {
+          setReauth(intent);
+        } else if (error instanceof ApiError && error.status === 422) {
           setErrors(firstErrors(error.data));
           toast.error(__('Please fix the highlighted fields.'));
         } else {
@@ -85,5 +96,32 @@ export function useRecordForm({ resource, mode, id, form }: Pick<FormProps, 'res
       }
   }
 
-  return { payload, values, setValue, errors, busy, submit };
+  return {
+    payload,
+    values,
+    setValue,
+    errors,
+    busy,
+    submit,
+    reauth,
+    draft: {
+      restored: draft.restored,
+      discard: () => {
+        draft.clear();
+        setValues(initialValues(payload.fields));
+      },
+    },
+    /** Signed in again: replay the interrupted submit once. */
+    resume: () => {
+      const intent = reauth;
+      setReauth(null);
+
+      if (intent !== null) {
+        void submit(intent);
+      }
+    },
+    cancelReauth: () => {
+      setReauth(null);
+    },
+  };
 }
