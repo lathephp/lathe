@@ -1,0 +1,4 @@
+{
+  "packages/core/src/**": { "statements": 80 },
+  "resources/js/**": { "statements": 60 }
+}
