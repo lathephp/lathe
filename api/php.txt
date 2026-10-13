@@ -1734,5 +1734,13 @@ interface Lathe\Field\Contracts\Deletable
 interface Lathe\Field\Contracts\Storable
 interface Lathe\Field\FieldLifecycle
 interface Lathe\Search\SearchableColumn
+trait Lathe\Field\Concerns\ChoiceFactories
+trait Lathe\Field\Concerns\DateFactories
+trait Lathe\Field\Concerns\DisplayFactories
+trait Lathe\Field\Concerns\NumberFactories
+trait Lathe\Field\Concerns\RepeaterFactories
+trait Lathe\Field\Concerns\RichFactories
+trait Lathe\Field\Concerns\TextFactories
+trait Lathe\Field\Concerns\UploadFactories
 trait Lathe\Http\Controllers\Resources\AuthorizesResources
 trait Lathe\Testing\InteractsWithLathe

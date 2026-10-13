@@ -24,6 +24,14 @@ use LogicException;
  */
 class Field implements JsonSerializable
 {
+    use Concerns\ChoiceFactories;
+    use Concerns\DateFactories;
+    use Concerns\DisplayFactories;
+    use Concerns\NumberFactories;
+    use Concerns\RepeaterFactories;
+    use Concerns\RichFactories;
+    use Concerns\TextFactories;
+    use Concerns\UploadFactories;
     use Conditionable, Macroable, Tappable;
 
     protected string $component = 'text';

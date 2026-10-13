@@ -4,6 +4,7 @@ import { __panel, QueryClientProvider, queryClient } from '@lathephp/core';
 import type { ComponentType } from 'react';
 import { createRoot } from 'react-dom/client';
 import { StaleAssetScreen } from './components/StaleAssetScreen';
+import { registerBuiltinFields } from './fields/builtin';
 import { Toaster } from './components/Toaster';
 import { panelLayout } from './layout/panelLayout';
 import { assetHashFromUrl, markBuildStale, setEntryHash } from './lib/assets';
@@ -20,6 +21,7 @@ setEntryHash(assetHashFromUrl(import.meta.url));
 // Plugin modules load and register before the first page renders.
 const modules = document.getElementById('lathe-modules')?.textContent ?? '[]';
 await __panel.loadModules(JSON.parse(modules) as string[]);
+registerBuiltinFields();
 __panel.boot();
 
 // The server's CSP nonce, read off our own entry tag, so Inertia's progress-bar style carries it too.
