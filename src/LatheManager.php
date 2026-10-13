@@ -7,6 +7,7 @@ use Illuminate\Contracts\Container\Container;
 use Lathe\Assets\AssetManifest;
 use Lathe\Auth\FortifyConfig;
 use Lathe\Dashboards\DashboardRegistry;
+use Lathe\Plugins\Plugin;
 use Lathe\Plugins\PluginRegistry;
 use Lathe\Resources\ResourceRegistry;
 use Lathe\Support\ConfigStore;
@@ -57,6 +58,11 @@ class LatheManager
     public function registerResources(string ...$classes): void
     {
         $this->resources()->register(...$classes);
+    }
+
+    public function registerPlugins(Plugin ...$plugins): void
+    {
+        $this->plugins()->register(...$plugins);
     }
 
     public function discoverResources(string $directory, ?string $namespace = null): void

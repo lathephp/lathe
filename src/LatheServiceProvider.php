@@ -5,9 +5,11 @@ namespace Lathe;
 use Illuminate\Auth\Middleware\RedirectIfAuthenticated;
 use Illuminate\Contracts\Http\Kernel;
 use Illuminate\Foundation\Console\AboutCommand;
+use Illuminate\Foundation\PackageManifest;
 use Illuminate\Routing\Router;
 use Illuminate\Support\ServiceProvider;
 use Lathe\Assets\AssetManifest;
+use Lathe\Assets\AssetRegistry;
 use Lathe\Auth\FortifyConfig;
 use Lathe\Console\CacheCommand;
 use Lathe\Console\ClearCommand;
@@ -16,6 +18,7 @@ use Lathe\Exceptions\InvalidConfigurationException;
 use Lathe\Http\Middleware\ServeLathe;
 use Lathe\Http\Middleware\ServePlugins;
 use Lathe\Http\PanelRoutes;
+use Lathe\Plugins\PluginDiscovery;
 use Lathe\Plugins\PluginRegistry;
 use Lathe\Resources\ResourceRegistry;
 use Lathe\Support\ConfigStore;
@@ -33,6 +36,7 @@ class LatheServiceProvider extends ServiceProvider
         $this->app->singleton(PluginRegistry::class);
         $this->app->singleton(DashboardRegistry::class);
         $this->app->singleton(AssetManifest::class);
+        $this->app->singleton(AssetRegistry::class);
         $this->app->singleton(FortifyConfig::class);
     }
 
@@ -46,9 +50,17 @@ class LatheServiceProvider extends ServiceProvider
         $this->loadMigrationsFrom(__DIR__.'/../database/migrations');
         $this->registerMiddleware();
 
-        if (! $this->app->routesAreCached()) {
-            $this->app->make(PanelRoutes::class)->register();
-        }
+        // After every provider has booted: hand-registered plugins first, then discovered
+        // ones, then the routes, so package routes land before the plugin catch-all.
+        $this->app->booted(function () {
+            (new PluginDiscovery($this->app->make(PackageManifest::class)->vendorPath))
+                ->register($this->app->make(PluginRegistry::class));
+
+            if (! $this->app->routesAreCached()) {
+                $this->app->make(PanelRoutes::class)->register();
+                $this->app->make(Router::class)->getRoutes()->refreshNameLookups();
+            }
+        });
 
         if ($this->app->runningInConsole()) {
             $this->commands([CacheCommand::class, ClearCommand::class]);

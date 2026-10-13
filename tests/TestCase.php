@@ -10,6 +10,13 @@ abstract class TestCase extends Orchestra
 {
     use WithWorkbench;
 
+    /**
+     * Discover vendor packages (Inertia, Fortify) the way a host app does.
+     *
+     * @var bool
+     */
+    protected $enablesPackageDiscoveries = true;
+
     protected function setUp(): void
     {
         parent::setUp();
