@@ -422,6 +422,9 @@ Lathe\Field\Concerns\ChoiceFactories::country(?string $name = NULL): Lathe\Field
 Lathe\Field\Concerns\ChoiceFactories::multiSelect(string $name, ?string $attribute = NULL): Lathe\Field\MultiSelectField  [static]
 Lathe\Field\Concerns\ChoiceFactories::select(string $name, Closure|string|null $attribute = NULL): Lathe\Field\SelectField  [static]
 Lathe\Field\Concerns\ChoiceFactories::timezone(?string $name = NULL): Lathe\Field\SelectField  [static]
+Lathe\Field\Concerns\NumberFactories::currency(string $label, ?string $attribute = NULL): Lathe\Field\CurrencyField  [static]
+Lathe\Field\Concerns\NumberFactories::number(string $label, Closure|string|null $attribute = NULL): Lathe\Field\NumberField  [static]
+Lathe\Field\Concerns\NumberFactories::token(string $label, ?string $attribute = NULL): Lathe\Field\TokenField  [static]
 Lathe\Field\Concerns\TextFactories::color(string $label, ?string $attribute = NULL): Lathe\Field\Field  [static]
 Lathe\Field\Concerns\TextFactories::email(string $label = 'Email', Closure|string|null $attribute = NULL): Lathe\Field\TextField  [static]
 Lathe\Field\Concerns\TextFactories::heading(string $label): Lathe\Field\HeadingField  [static]
@@ -437,6 +440,29 @@ Lathe\Field\Contracts\Deletable::isPrunable(): bool
 Lathe\Field\Contracts\Storable::getStorageDir(): string
 Lathe\Field\Contracts\Storable::getStorageDisk(): string
 Lathe\Field\Contracts\Storable::getStoragePath(): ?string
+Lathe\Field\CurrencyField::?int $digits  [protected]
+Lathe\Field\CurrencyField::?string $currency  [protected]
+Lathe\Field\CurrencyField::?string $locale  [protected]
+Lathe\Field\CurrencyField::?string $symbol  [protected]
+Lathe\Field\CurrencyField::__construct(string $label, Closure|string|null $attribute = NULL, ?Closure $resolver = NULL)
+Lathe\Field\CurrencyField::asMajorUnits(): static
+Lathe\Field\CurrencyField::asMinorUnits(bool $minor = true): static
+Lathe\Field\CurrencyField::bool $minorUnits  [protected]
+Lathe\Field\CurrencyField::cell(Illuminate\Database\Eloquent\Model $model): array
+Lathe\Field\CurrencyField::code(): string  [protected]
+Lathe\Field\CurrencyField::currencyCode(string $iso): static
+Lathe\Field\CurrencyField::fill(Lathe\Http\Requests\LatheRequest $request, object $model, ?string $requestAttribute = NULL): ?Closure
+Lathe\Field\CurrencyField::formatMoney(mixed $value): ?string
+Lathe\Field\CurrencyField::fractionDigits(): int  [protected]
+Lathe\Field\CurrencyField::fromMinor(int $minor): string  [protected]
+Lathe\Field\CurrencyField::impliedRules(): array  [protected]
+Lathe\Field\CurrencyField::jsonSerialize(): array
+Lathe\Field\CurrencyField::locale(string $locale): static
+Lathe\Field\CurrencyField::resolve(object $record, ?string $attribute = NULL): mixed
+Lathe\Field\CurrencyField::string $component  [protected]
+Lathe\Field\CurrencyField::symbol(string $symbol): static
+Lathe\Field\CurrencyField::toMinor(string $decimal): ?int  [protected]
+Lathe\Field\CurrencyField::wireMoney(mixed $value): mixed  [protected]
 Lathe\Field\DefaultLifecycle::MAX_SAFE_INTEGER
 Lathe\Field\DefaultLifecycle::extract(object $record, string $attribute): mixed
 Lathe\Field\DefaultLifecycle::parse(Lathe\Http\Requests\LatheRequest $request, string $attribute): mixed
@@ -651,6 +677,12 @@ Lathe\Field\MultiSelectField::getRules(Lathe\Field\FieldContext $context, ?Lathe
 Lathe\Field\MultiSelectField::impliedRules(): array  [protected]
 Lathe\Field\MultiSelectField::string $component  [protected]
 Lathe\Field\MultiSelectField::withSelectedTags(bool $show = true): static
+Lathe\Field\NumberField::__construct(string $label, Closure|string|null $attribute = NULL, ?Closure $resolver = NULL)
+Lathe\Field\NumberField::impliedRules(): array  [protected]
+Lathe\Field\NumberField::max(float $max): static
+Lathe\Field\NumberField::min(float $min): static
+Lathe\Field\NumberField::step(float $step): static
+Lathe\Field\NumberField::string $component  [protected]
 Lathe\Field\OptionGroup::__construct(string $label, array $options)
 Lathe\Field\OptionGroup::array $options
 Lathe\Field\OptionGroup::make(string $label, array $options): static  [static]
@@ -695,6 +727,12 @@ Lathe\Field\TextareaField::rows(int $rows): static
 Lathe\Field\TextareaField::schema(Lathe\Field\FieldContext $context, Lathe\Http\Requests\LatheRequest $request, ?Illuminate\Database\Eloquent\Model $model = NULL): array
 Lathe\Field\TextareaField::shouldShow(Closure $callback): static
 Lathe\Field\TextareaField::string $component  [protected]
+Lathe\Field\TokenField::?int $maskLength  [protected]
+Lathe\Field\TokenField::int $maskStart  [protected]
+Lathe\Field\TokenField::mask(int $start, ?int $length = NULL, string $char = '*'): static
+Lathe\Field\TokenField::resolveForDisplay(object $record, ?string $attribute = NULL): mixed
+Lathe\Field\TokenField::string $component  [protected]
+Lathe\Field\TokenField::string $maskCharacter  [protected]
 Lathe\Field\TranslatableLifecycle::__construct(array $locales)
 Lathe\Field\TranslatableLifecycle::array $locales  [protected]
 Lathe\Field\TranslatableLifecycle::parse(Lathe\Http\Requests\LatheRequest $request, string $attribute): mixed
@@ -1762,6 +1800,7 @@ class Lathe\Exceptions\ResourceModelCollisionException
 class Lathe\Exceptions\ResourceUriKeyCollisionException
 class Lathe\Field\BooleanField
 class Lathe\Field\BooleanGroupField
+class Lathe\Field\CurrencyField
 class Lathe\Field\DefaultLifecycle
 class Lathe\Field\Evaluator
 class Lathe\Field\Field
@@ -1771,6 +1810,7 @@ class Lathe\Field\FileField
 class Lathe\Field\HeadingField
 class Lathe\Field\IdField
 class Lathe\Field\MultiSelectField
+class Lathe\Field\NumberField
 class Lathe\Field\OptionGroup
 class Lathe\Field\OptionList
 class Lathe\Field\PasswordField
@@ -1778,6 +1818,7 @@ class Lathe\Field\PasswordLifecycle
 class Lathe\Field\SelectField
 class Lathe\Field\TextField
 class Lathe\Field\TextareaField
+class Lathe\Field\TokenField
 class Lathe\Field\TranslatableLifecycle
 class Lathe\Filters\BooleanFilter
 class Lathe\Filters\DateFilter
