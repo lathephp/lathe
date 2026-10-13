@@ -306,6 +306,10 @@ class ResourceRegistry
             throw new InvalidConfigurationException("{$class} has no model. Call ->model(YourModel::class) in its configure() method.");
         }
 
+        if ($definition->getUseScout() === true && ! $definition->modelIsScoutSearchable()) {
+            throw new InvalidConfigurationException("{$class}: useScout(true) needs the Laravel\\Scout\\Searchable trait on {$definition->getModel()}. Add the trait or remove useScout(true).");
+        }
+
         $max = $this->config->integer('limits.max_per_page');
 
         foreach ($definition->getPerPage() ?? [] as $option) {

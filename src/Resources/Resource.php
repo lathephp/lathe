@@ -326,6 +326,11 @@ abstract class Resource
         return $this->definition()->getSearchable();
     }
 
+    public function usesScout(): bool
+    {
+        return $this->definition()->usesScout();
+    }
+
     /**
      * @param  string|Closure(Model): string  $source
      */

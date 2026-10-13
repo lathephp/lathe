@@ -522,6 +522,19 @@ class ResourceDefinition
         return $this->useScout;
     }
 
+    /**
+     * Whether searches go through Scout: useScout() when set, else the model's Scout trait.
+     */
+    public function usesScout(): bool
+    {
+        return $this->useScout ?? $this->modelIsScoutSearchable();
+    }
+
+    public function modelIsScoutSearchable(): bool
+    {
+        return $this->model !== null && in_array('Laravel\\Scout\\Searchable', class_uses_recursive($this->model), true);
+    }
+
     public function getPolling(): ?int
     {
         return $this->polling;

@@ -669,6 +669,7 @@ Lathe\Query\ResourceQuery::perPageOptionsInUse(): array
 Lathe\Query\ResourceQuery::readPagination(): array  [protected]
 Lathe\Query\ResourceQuery::rows(): Illuminate\Database\Eloquent\Collection
 Lathe\Query\ResourceQuery::scoped(): Illuminate\Database\Eloquent\Builder
+Lathe\Query\ResourceQuery::scoutKeys(string $term): array  [protected]
 Lathe\Query\ResourceQuery::sortKeys(): array
 Lathe\Query\ResourceQuery::sortString(): string
 Lathe\Query\ResourceQuery::tabBadge(Lathe\Tabs\Tab $tab): string|int|null
@@ -713,6 +714,7 @@ Lathe\Resources\Resource::subtitle(): string
 Lathe\Resources\Resource::tabs(Lathe\Http\Requests\LatheRequest $request): array
 Lathe\Resources\Resource::title(): string
 Lathe\Resources\Resource::uriKey(): string  [static]
+Lathe\Resources\Resource::usesScout(): bool
 Lathe\Resources\Resource::widgetQuery(Lathe\Http\Requests\LatheRequest $request, Illuminate\Database\Eloquent\Builder $query): Illuminate\Database\Eloquent\Builder  [static]
 Lathe\Resources\Resource::with(): array
 Lathe\Resources\ResourceDefinition::?Closure $seeCallback  [protected]
@@ -803,6 +805,7 @@ Lathe\Resources\ResourceDefinition::isGloballySearchable(): bool
 Lathe\Resources\ResourceDefinition::limit(string $key, int $value): static  [protected]
 Lathe\Resources\ResourceDefinition::maxPrimaryKeySize(int $size): static
 Lathe\Resources\ResourceDefinition::model(string $model): static
+Lathe\Resources\ResourceDefinition::modelIsScoutSearchable(): bool
 Lathe\Resources\ResourceDefinition::navigationLabel(?string $label): static
 Lathe\Resources\ResourceDefinition::options(): array
 Lathe\Resources\ResourceDefinition::paginationType(Lathe\Enums\PaginationType $type): static
@@ -828,6 +831,7 @@ Lathe\Resources\ResourceDefinition::title(Closure|string $title): static
 Lathe\Resources\ResourceDefinition::trafficCop(bool $enabled = true): static
 Lathe\Resources\ResourceDefinition::useScout(?bool $use = true): static
 Lathe\Resources\ResourceDefinition::usesSavedTabs(): bool
+Lathe\Resources\ResourceDefinition::usesScout(): bool
 Lathe\Resources\ResourceDefinition::usesSoftDeletes(): bool
 Lathe\Resources\ResourceDefinition::usesTrafficCop(): bool
 Lathe\Resources\ResourceDefinition::with(array $relations): static

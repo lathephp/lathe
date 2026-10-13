@@ -432,7 +432,32 @@ class ResourceQuery
         $definition = $this->resource->definition();
         $term = SearchApplicator::term($this->request->query('q'), $definition->getSearchTermChars(), $definition->getSearchTermWords());
 
-        return $term === null ? $query : SearchApplicator::for($this->resource)->apply($query, $term);
+        if ($term === null) {
+            return $query;
+        }
+
+        if ($definition->usesScout()) {
+            return $query->whereIn($query->getModel()->getQualifiedKeyName(), $this->scoutKeys($term));
+        }
+
+        return SearchApplicator::for($this->resource)->apply($query, $term);
+    }
+
+    /**
+     * The keys Scout finds for the term, capped at scoutSearchResults; filters, sort and
+     * paging then run on those keys.
+     *
+     * @return list<mixed>
+     */
+    protected function scoutKeys(string $term): array
+    {
+        // Scout is the host app's optional dependency, so it is called, not imported.
+        /** @var callable(string): mixed $search */
+        $search = [$this->resource::model(), 'search'];
+        /** @var \Laravel\Scout\Builder<Model> $builder */
+        $builder = $this->resource::scoutQuery($this->request, $search($term));
+
+        return array_values($builder->take($this->resource->definition()->getScoutSearchResults())->keys()->all());
     }
 
     /**
