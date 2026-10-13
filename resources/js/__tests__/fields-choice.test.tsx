@@ -40,13 +40,13 @@ function schema(component: string, extra: Record<string, unknown> = {}): FieldSc
   };
 }
 
-function formProps(component: string, value: unknown, extra: Record<string, unknown> = {}, onChange = vi.fn()): FormFieldProps {
+function formProps(component: string, value: unknown, extra: Record<string, unknown> = {}, onChange: (value: unknown) => void = vi.fn()): FormFieldProps {
   const field: FormFieldData = { ...schema(component, extra), value };
 
   return { field, value, onChange, id: 'thing', describedBy: undefined, invalid: false, disabled: false };
 }
 
-function renderForm(component: string, value: unknown, extra: Record<string, unknown> = {}, onChange = vi.fn()) {
+function renderForm(component: string, value: unknown, extra: Record<string, unknown> = {}, onChange: (value: unknown) => void = vi.fn()) {
   const Form = registries.form.get(component);
 
   if (Form === undefined) {

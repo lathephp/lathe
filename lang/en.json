@@ -69,6 +69,7 @@
     "Name": "Name",
     "Next": "Next",
     "Next steps:": "Next steps:",
+    "No": "No",
     "No :resource yet": "No :resource yet",
     "No Data": "No Data",
     "No results for \":term\"": "No results for \":term\"",
@@ -91,6 +92,7 @@
     "Reload": "Reload",
     "Reload the page and try again.": "Reload the page and try again.",
     "Remember me": "Remember me",
+    "Remove :item": "Remove :item",
     "Remove :title": "Remove :title",
     "Rename": "Rename",
     "Rename view": "Rename view",
@@ -159,6 +161,7 @@
     "With trashed": "With trashed",
     "Without trashed": "Without trashed",
     "Wrote :path.": "Wrote :path.",
+    "Yes": "Yes",
     "You do not have permission to open this page.": "You do not have permission to open this page.",
     "Your session expired": "Your session expired",
     "Your session has expired": "Your session has expired"
