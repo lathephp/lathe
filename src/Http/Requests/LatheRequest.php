@@ -4,7 +4,10 @@ namespace Lathe\Http\Requests;
 
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Http\Request;
+use Lathe\Resources\Resource;
+use Lathe\Resources\ResourceRegistry;
 use Lathe\Support\ConfigStore;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 /**
  * The current panel request, bound for the length of one request only.
@@ -70,6 +73,38 @@ class LatheRequest extends Request
         $words = array_slice($words, 0, $this->config()->integer('limits.search_term_words'));
 
         return mb_substr(implode(' ', $words), 0, $this->config()->integer('limits.search_term_chars'));
+    }
+
+    /**
+     * The {resource} key of the current route.
+     */
+    public function resourceKey(): ?string
+    {
+        $key = $this->route('resource');
+
+        return is_string($key) ? $key : null;
+    }
+
+    /**
+     * The Resource class the route names, or null when none is registered under it.
+     *
+     * @return class-string<resource>|null
+     */
+    public function resource(): ?string
+    {
+        $key = $this->resourceKey();
+
+        return $key === null ? null : app(ResourceRegistry::class)->forKey($key);
+    }
+
+    /**
+     * The Resource class the route names; 404 when there is none.
+     *
+     * @return class-string<resource>
+     */
+    public function resourceOrFail(): string
+    {
+        return $this->resource() ?? throw new NotFoundHttpException;
     }
 
     protected function config(): ConfigStore

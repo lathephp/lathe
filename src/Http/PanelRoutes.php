@@ -8,6 +8,9 @@ use Lathe\Http\Controllers\DashboardController;
 use Lathe\Http\Controllers\Plugins\ModuleController;
 use Lathe\Http\Controllers\Plugins\PluginApiController;
 use Lathe\Http\Controllers\Plugins\PluginPageController;
+use Lathe\Http\Controllers\Resources\CountController;
+use Lathe\Http\Controllers\Resources\IndexController;
+use Lathe\Http\Controllers\Resources\IndexPageController;
 use Lathe\Http\Middleware\AuthorizePlugin;
 use Lathe\Http\Middleware\EnsureJson;
 use Lathe\Http\Middleware\HandleInertiaRequests;
@@ -37,6 +40,7 @@ class PanelRoutes
 
         $this->group()->middleware('lathe.api')->group(function (Router $router) {
             $router->get('/', DashboardController::class)->name('lathe.dashboard');
+            $router->get('resources/{resource}', IndexPageController::class)->name('lathe.resources.index');
             $router->get('plugins/{plugin}/{path?}', PluginPageController::class)
                 ->where('path', '.*')
                 ->name('lathe.plugins.show');
@@ -50,6 +54,9 @@ class PanelRoutes
         }
 
         $this->api()->prefix($this->apiPrefix())->name('lathe.api.')->group(function (Router $router) {
+            $router->get('resources/{resource}', IndexController::class)->name('resources.index');
+            $router->get('resources/{resource}/count', CountController::class)->name('resources.count');
+
             // Registered after every plugin's own routes, so those win.
             $router->any('plugins/{plugin}/{path?}', PluginApiController::class)
                 ->where('path', '.*')

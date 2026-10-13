@@ -178,6 +178,16 @@ class ResourceRegistry
     }
 
     /**
+     * Forget everything, registered classes and directories included. For tests.
+     */
+    public function reset(): void
+    {
+        $this->classes = [];
+        $this->directories = [];
+        $this->flush();
+    }
+
+    /**
      * Forget the manifest and definitions; registered classes and directories stay.
      */
     public function flush(): void

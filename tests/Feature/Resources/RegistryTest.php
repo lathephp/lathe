@@ -52,6 +52,10 @@ function resourceDirectory(array $bodies): array
     return [$directory, $namespace];
 }
 
+beforeEach(function () {
+    app(ResourceRegistry::class)->reset();
+});
+
 afterEach(function () {
     app(ResourceRegistry::class)->clearCache();
 });

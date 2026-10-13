@@ -28,6 +28,11 @@ class ResourceQuery
     /** @var Builder<Model>|null */
     protected ?Builder $scoped = null;
 
+    protected bool $hasMorePages = false;
+
+    /** @var array{0: int, 1: int}|null */
+    protected ?array $pagination = null;
+
     public function __construct(
         protected Resource $resource,
         protected LatheRequest $request,
@@ -84,11 +89,45 @@ class ResourceQuery
         [$perPage, $page] = $this->pagination();
         $query = $this->scoped();
 
-        return $query
+        // One row past the page tells whether a next page exists without waiting for the count.
+        $rows = $query
             ->with($this->resource->with())
             ->orderBy($query->getModel()->getQualifiedKeyName(), 'desc')
-            ->forPage($page, $perPage)
+            ->offset(($page - 1) * $perPage)
+            ->limit($perPage + 1)
             ->get();
+
+        $this->hasMorePages = $rows->count() > $perPage;
+
+        return $rows->take($perPage);
+    }
+
+    /**
+     * Whether the last rows() call found a row past its page.
+     */
+    public function hasMorePages(): bool
+    {
+        return $this->hasMorePages;
+    }
+
+    /**
+     * The page size and page number this query reads.
+     *
+     * @return array{0: int, 1: int}
+     */
+    public function page(): array
+    {
+        return $this->pagination();
+    }
+
+    /**
+     * @return non-empty-list<int>
+     */
+    public function perPageOptionsInUse(): array
+    {
+        $options = $this->resource->definition()->getPerPage();
+
+        return $options !== null && $options !== [] ? $options : $this->perPageOptions();
     }
 
     /**
@@ -126,9 +165,17 @@ class ResourceQuery
      */
     protected function pagination(): array
     {
+        return $this->pagination ??= $this->readPagination();
+    }
+
+    /**
+     * @return array{0: int, 1: int}
+     */
+    protected function readPagination(): array
+    {
         $perPage = $this->request->query('per_page');
         $page = $this->request->query('page');
-        $options = $this->resource->definition()->getPerPage() ?? $this->perPageOptions();
+        $options = $this->perPageOptionsInUse();
 
         if ($perPage !== null && (! is_string($perPage) || ! ctype_digit($perPage))) {
             throw ValidationException::withMessages(['per_page' => 'The page size must be a whole number.']);

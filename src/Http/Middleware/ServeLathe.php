@@ -30,7 +30,11 @@ class ServeLathe
             return $next($request);
         }
 
-        $this->container->instance(LatheRequest::class, LatheRequest::createFrom($request));
+        $latheRequest = LatheRequest::createFrom($request);
+        // Routing happens after this middleware, so read the route from the live request.
+        $latheRequest->setRouteResolver(fn () => $request->route());
+        $latheRequest->setUserResolver(fn (?string $guard = null) => $request->user($guard));
+        $this->container->instance(LatheRequest::class, $latheRequest);
 
         try {
             event(new ServingLathe($request));
