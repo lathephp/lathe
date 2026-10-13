@@ -4,13 +4,16 @@ namespace Lathe\Resources;
 
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Filesystem\Filesystem;
+use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Lathe\Exceptions\InvalidConfigurationException;
 use Lathe\Exceptions\InvalidSearchColumn;
 use Lathe\Exceptions\ResourceModelCollisionException;
 use Lathe\Exceptions\ResourceUriKeyCollisionException;
+use Lathe\Http\Requests\LatheRequest;
 use Lathe\Search\LikeSearch;
 use Lathe\Search\SearchableColumn;
 use Lathe\Search\SearchableExact;
@@ -361,6 +364,15 @@ class ResourceRegistry
 
             if (($column instanceof SearchableRelation || $column instanceof SearchableMorphToRelation) && ! $model->isRelation($column->relation)) {
                 throw new InvalidSearchColumn("{$class}: searchable: column \"{$column->column}\" uses the relation \"{$column->relation}\", which ".$model::class." does not define. Add a {$column->relation}() relation to the model or remove the column from searchable().");
+            }
+        }
+
+        // A to-many relation repeats each row once per related row, so only a belongsTo can group.
+        foreach ((new $class)->groups(LatheRequest::createFrom(Request::create('/'))) as $group) {
+            $relation = $group->relation();
+
+            if ($relation !== null && ! ($model->isRelation($relation) && $model->{$relation}() instanceof BelongsTo)) {
+                throw new InvalidConfigurationException("{$class}: groups: \"{$group->column()}\" reads \"{$relation}\", which is not a belongsTo relation of ".$model::class.'. Group by a column of the model or of a belongsTo relation.');
             }
         }
     }

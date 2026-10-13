@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
 use Lathe\Field\Field;
 use Lathe\Filters\Filter;
+use Lathe\Groups\Group;
 use Lathe\Http\Requests\LatheRequest;
 use Lathe\Lenses\Lens;
 use Lathe\Search\SearchableColumn;
@@ -59,6 +60,16 @@ abstract class Resource
      * @return list<Tab>
      */
     public function tabs(LatheRequest $request): array
+    {
+        return [];
+    }
+
+    /**
+     * The row groupings the index offers, picked with ?group=.
+     *
+     * @return list<Group>
+     */
+    public function groups(LatheRequest $request): array
     {
         return [];
     }

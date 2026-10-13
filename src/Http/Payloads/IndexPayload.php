@@ -8,6 +8,7 @@ use Lathe\Auth\ResourceAuthorization;
 use Lathe\Field\Field;
 use Lathe\Filters\Filter;
 use Lathe\Filters\FilterApplicator;
+use Lathe\Groups\Group;
 use Lathe\Http\Requests\LatheRequest;
 use Lathe\Lenses\Lens;
 use Lathe\Query\ResourceQuery;
@@ -37,7 +38,7 @@ class IndexPayload
      * The index, or with $lens that lens of the Resource: its rows, columns and filters, no tabs.
      *
      * @param  class-string<\Lathe\Resources\Resource>  $class
-     * @return array{resource: array<string, mixed>, table: array<string, mixed>, filters: array{available: list<array<string, mixed>>, applied: array<string, mixed>}, state: array<string, mixed>, tabs: array{items: list<array<string, mixed>>, active: string|null, saved: list<array<string, mixed>>, activeSaved: int|null}, lens: array{uriKey: string, name: string}|null, lenses: list<array{uriKey: string, name: string}>}
+     * @return array{resource: array<string, mixed>, table: array<string, mixed>, filters: array{available: list<array<string, mixed>>, applied: array<string, mixed>}, state: array<string, mixed>, tabs: array{items: list<array<string, mixed>>, active: string|null, saved: list<array<string, mixed>>, activeSaved: int|null}, groups: array{available: list<array{id: string, label: string}>, active: array{id: string, direction: 'asc'|'desc', collapsible: bool}|null}, lens: array{uriKey: string, name: string}|null, lenses: list<array{uriKey: string, name: string}>}
      */
     public function build(string $class, ?Lens $lens = null): array
     {
@@ -56,6 +57,8 @@ class IndexPayload
         );
         $threshold = $resource->definition()->getFilterRemoteThreshold();
         $filters = $this->request->query('filter');
+        $active = $query->activeGroup();
+        $group = $active['group'] ?? null;
 
         return [
             'resource' => $this->resource($class),
@@ -69,8 +72,10 @@ class IndexPayload
                     'cells' => collect($fields)->mapWithKeys(fn (Field $field) => [$field->key() => $field->cell($model)])->all(),
                     'abilities' => $abilities[$this->key($model)] ?? [],
                     ...($softDeletes ? ['trashed' => method_exists($model, 'trashed') && $model->trashed() === true] : []),
+                    ...($group !== null ? ['group' => ['key' => $group->keyFor($model), 'title' => $group->titleFor($model), 'description' => $group->descriptionFor($model)]] : []),
                 ])->values()->all(),
             ],
+            'groups' => $this->groups($resource, $active, $lens),
             'filters' => [
                 'available' => array_map(fn (Filter $filter) => $this->filter($filter, $threshold), $available),
                 'applied' => (new FilterApplicator($resource, $lens !== null ? $available : null))->values($this->request, is_array($filters) ? $filters : []),
@@ -139,6 +144,20 @@ class IndexPayload
         ));
     }
 
+    /**
+     * The groups the menu offers and the one the rows are grouped by. A lens does not group.
+     *
+     * @param  array{group: Group, direction: 'asc'|'desc'}|null  $active
+     * @return array{available: list<array{id: string, label: string}>, active: array{id: string, direction: 'asc'|'desc', collapsible: bool}|null}
+     */
+    protected function groups(Resource $resource, ?array $active, ?Lens $lens): array
+    {
+        return [
+            'available' => $lens !== null ? [] : array_map(fn (Group $group) => $group->toArray(), $resource->groups($this->request)),
+            'active' => $active === null ? null : ['id' => $active['group']->id(), 'direction' => $active['direction'], 'collapsible' => $active['group']->isCollapsible()],
+        ];
+    }
+
     protected function query(Resource $resource, ?Lens $lens): ResourceQuery
     {
         $query = new ResourceQuery($resource, $this->request);
@@ -155,10 +174,11 @@ class IndexPayload
     }
 
     /**
-     * The footer totals. The page's totals need the page's rows, so this reads them once more.
+     * The footer totals, and under a group the subtotal of each group on the page keyed by
+     * group key. The page's totals need the page's rows, so this reads them once more.
      *
      * @param  class-string<\Lathe\Resources\Resource>  $class
-     * @return array{allRecords: array<string, list<array{label: string|null, value: string|null}>>|null, page: array<string, list<array{label: string|null, value: string|null}>>|null, message: string|null}|null
+     * @return array{allRecords: array<string, list<array{label: string|null, value: string|null}>>|null, page: array<string, list<array{label: string|null, value: string|null}>>|null, message: string|null, groups?: array<string, array<string, list<array{label: string|null, value: string|null}>>>}|null
      */
     public function summaries(string $class): ?array
     {
@@ -166,9 +186,11 @@ class IndexPayload
         $query = new ResourceQuery($resource, $this->request);
         $rows = $query->rows();
         [, $page] = $query->page();
+        $summaries = new ResourceSummaries($query, $resource->fields($this->request), $resource->definition()->getCountCap());
+        $totals = $summaries->compute($rows, $page > 1 || $query->hasMorePages());
+        $active = $query->activeGroup();
 
-        return (new ResourceSummaries($query, $resource->fields($this->request), $resource->definition()->getCountCap()))
-            ->compute($rows, $page > 1 || $query->hasMorePages());
+        return $totals === null || $active === null ? $totals : [...$totals, 'groups' => $summaries->computeGrouped($rows, $active['group'])];
     }
 
     /**

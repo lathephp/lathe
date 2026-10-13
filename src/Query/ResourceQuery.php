@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 use Lathe\Field\Field;
 use Lathe\Filters\FilterApplicator;
+use Lathe\Groups\Group;
 use Lathe\Http\Requests\LatheRequest;
 use Lathe\Lenses\Lens;
 use Lathe\Resources\Resource;
@@ -22,6 +23,7 @@ use Lathe\Search\SearchableColumn;
 use Lathe\Search\SearchablePrimaryKey;
 use Lathe\Search\SearchApplicator;
 use Lathe\Support\ConfigStore;
+use Lathe\Support\Timezone;
 use Lathe\Tabs\Tab;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
@@ -31,6 +33,9 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
  */
 class ResourceQuery
 {
+    /** The ?group= value that turns the Resource's default group off. */
+    public const string UNGROUPED = '_none';
+
     protected ?string $trashed = null;
 
     /** @var list<string> */
@@ -179,6 +184,7 @@ class ResourceQuery
     public function validate(): void
     {
         $this->pagination();
+        $this->activeGroup();
         $this->applySort($this->scoped());
     }
 
@@ -665,8 +671,7 @@ class ResourceQuery
 
         $model = $query->getModel();
         $plan = $this->sortPlan($model);
-        $joined = [];
-        $columns = [];
+        [$joined, $columns] = $this->applyGroupOrder($query);
 
         foreach ($plan as $step) {
             if ($step['relation'] !== null && ! in_array($step['relation']->getRelationName(), $joined, true)) {
@@ -698,6 +703,70 @@ class ResourceQuery
         }
 
         return $query;
+    }
+
+    /**
+     * The group ?group= picks, else the Resource's default group, with its direction.
+     * Lenses do not group. An unknown id or direction is 422.
+     *
+     * @return array{group: Group, direction: 'asc'|'desc'}|null
+     */
+    public function activeGroup(): ?array
+    {
+        $value = $this->request->query('group');
+        $value = $value === null || $value === '' ? $this->resource->definition()->getDefaultGroup() : $value;
+
+        if ($this->lens !== null || $this->context !== QueryContext::Index || $value === null || $value === self::UNGROUPED) {
+            return null;
+        }
+
+        $parts = is_string($value) ? explode(':', $value) : [];
+        $direction = $parts[1] ?? null;
+        $valid = count($parts) <= 2 && in_array($direction, [null, 'asc', 'desc'], true);
+
+        foreach ($valid ? $this->resource->groups($this->request) : [] as $group) {
+            if ($group->id() === $parts[0]) {
+                $group->inTimezone(app(Timezone::class)->forRequest($this->request));
+
+                return ['group' => $group, 'direction' => match ($direction) {
+                    'asc', 'desc' => $direction,
+                    default => $group->getOrderDirection(),
+                }];
+            }
+        }
+
+        throw ValidationException::withMessages(['group' => 'group is invalid']);
+    }
+
+    /**
+     * The group's column ordered first; a to-one relation group joins like a relation sort.
+     *
+     * @param  Builder<Model>  $query
+     * @return array{0: list<string>, 1: array<string, 'asc'|'desc'>}
+     */
+    private function applyGroupOrder(Builder $query): array
+    {
+        $active = $this->activeGroup();
+
+        if ($active === null) {
+            return [[], []];
+        }
+
+        $group = $active['group'];
+        $model = $query->getModel();
+        $name = $group->relation();
+
+        if ($name === null) {
+            return [[], [$model->qualifyColumn($group->column()) => $active['direction']]];
+        }
+
+        /** @var BelongsTo<Model, Model> $relation */
+        $relation = $model->{$name}();
+        // The header reads the related value from each row, so the relation loads with the page.
+        $query->leftJoin($relation->getRelated()->getTable(), $relation->getQualifiedForeignKeyName(), '=', $relation->getQualifiedOwnerKeyName())
+            ->with($name);
+
+        return [[$name], [$relation->getRelated()->qualifyColumn($group->attribute()) => $active['direction']]];
     }
 
     /**

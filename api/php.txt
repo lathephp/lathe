@@ -453,6 +453,42 @@ Lathe\Filters\FilterApplicator::values(Lathe\Http\Requests\LatheRequest $request
 Lathe\Filters\RangeFilter::component(): string
 Lathe\Filters\RangeFilter::normalize(Lathe\Http\Requests\LatheRequest $request, mixed $value, bool $remote): array
 Lathe\Filters\RangeFilter::number(mixed $side): int|float|null  [protected]
+Lathe\Groups\Group::?Closure $description  [protected]
+Lathe\Groups\Group::?Closure $title  [protected]
+Lathe\Groups\Group::?string $id  [protected]
+Lathe\Groups\Group::?string $label  [protected]
+Lathe\Groups\Group::NULL_KEY
+Lathe\Groups\Group::__construct(string $column, ?string $id = NULL)
+Lathe\Groups\Group::attribute(): string
+Lathe\Groups\Group::bool $collapsible  [protected]
+Lathe\Groups\Group::bool $date  [protected]
+Lathe\Groups\Group::bool $prefixed  [protected]
+Lathe\Groups\Group::bucketsLocalDay(Illuminate\Database\Eloquent\Model $model): bool
+Lathe\Groups\Group::collapsible(bool $collapsible = true): static
+Lathe\Groups\Group::column(): string
+Lathe\Groups\Group::date(bool $date = true): static
+Lathe\Groups\Group::description(Closure $description): static
+Lathe\Groups\Group::descriptionFor(Illuminate\Database\Eloquent\Model $model): ?string
+Lathe\Groups\Group::getLabel(): string
+Lathe\Groups\Group::getOrderDirection(): string
+Lathe\Groups\Group::id(): string
+Lathe\Groups\Group::isCollapsible(): bool
+Lathe\Groups\Group::isDate(): bool
+Lathe\Groups\Group::keyFor(Illuminate\Database\Eloquent\Model $model): string
+Lathe\Groups\Group::label(string $label): static
+Lathe\Groups\Group::make(string $column, ?string $id = NULL): static  [static]
+Lathe\Groups\Group::normalizeKey(mixed $value): string
+Lathe\Groups\Group::orderDirection(string $direction): static
+Lathe\Groups\Group::owner(Illuminate\Database\Eloquent\Model $model): Illuminate\Database\Eloquent\Model  [protected]
+Lathe\Groups\Group::relation(): ?string
+Lathe\Groups\Group::string $column  [protected]
+Lathe\Groups\Group::string $direction  [protected]
+Lathe\Groups\Group::string $timezone  [protected]
+Lathe\Groups\Group::timezone(): string
+Lathe\Groups\Group::titleFor(Illuminate\Database\Eloquent\Model $model): string
+Lathe\Groups\Group::titlePrefixedWithLabel(bool $prefixed = true): static
+Lathe\Groups\Group::titleUsing(Closure $title): static
+Lathe\Groups\Group::toArray(): array
 Lathe\Http\Controllers\Assets\AssetController::__invoke(Illuminate\Http\Request $request, Lathe\Assets\AssetManifest $assets, string $hash, string $file): Symfony\Component\HttpFoundation\Response
 Lathe\Http\Controllers\Auth\AuthenticatedSessionController::Illuminate\Contracts\Container\Container $container  [protected]
 Lathe\Http\Controllers\Auth\AuthenticatedSessionController::Lathe\Auth\FortifyConfig $fortify  [protected]
@@ -538,6 +574,7 @@ Lathe\Http\Payloads\IndexPayload::activeSavedTab(Lathe\Resources\Resource $resou
 Lathe\Http\Payloads\IndexPayload::build(string $class, ?Lathe\Lenses\Lens $lens = NULL): array
 Lathe\Http\Payloads\IndexPayload::count(string $class, ?Lathe\Lenses\Lens $lens = NULL): ?array
 Lathe\Http\Payloads\IndexPayload::filter(Lathe\Filters\Filter $filter, int $threshold): array  [protected]
+Lathe\Http\Payloads\IndexPayload::groups(Lathe\Resources\Resource $resource, ?array $active, ?Lathe\Lenses\Lens $lens): array  [protected]
 Lathe\Http\Payloads\IndexPayload::key(Illuminate\Database\Eloquent\Model $model): string|int  [protected]
 Lathe\Http\Payloads\IndexPayload::lensEntry(Lathe\Lenses\Lens $lens): array  [protected]
 Lathe\Http\Payloads\IndexPayload::query(Lathe\Resources\Resource $resource, ?Lathe\Lenses\Lens $lens): Lathe\Query\ResourceQuery  [protected]
@@ -697,7 +734,9 @@ Lathe\Query\ResourceQuery::?string $trashed  [protected]
 Lathe\Query\ResourceQuery::Lathe\Http\Requests\LatheRequest $request  [protected]
 Lathe\Query\ResourceQuery::Lathe\Query\QueryContext $context  [protected]
 Lathe\Query\ResourceQuery::Lathe\Resources\Resource $resource  [protected]
+Lathe\Query\ResourceQuery::UNGROUPED
 Lathe\Query\ResourceQuery::__construct(Lathe\Resources\Resource $resource, Lathe\Http\Requests\LatheRequest $request, Lathe\Query\QueryContext $context = Lathe\Query\QueryContext::Index)
+Lathe\Query\ResourceQuery::activeGroup(): ?array
 Lathe\Query\ResourceQuery::activeTabKey(): ?string
 Lathe\Query\ResourceQuery::applyFilters(Illuminate\Database\Eloquent\Builder $query): Illuminate\Database\Eloquent\Builder  [protected]
 Lathe\Query\ResourceQuery::applyHook(Illuminate\Database\Eloquent\Builder $query): Illuminate\Database\Eloquent\Builder  [protected]
@@ -758,6 +797,7 @@ Lathe\Resources\Resource::filterableFields(Lathe\Http\Requests\LatheRequest $req
 Lathe\Resources\Resource::filters(Lathe\Http\Requests\LatheRequest $request): array
 Lathe\Resources\Resource::forModel(?Illuminate\Database\Eloquent\Model $model): static
 Lathe\Resources\Resource::getModel(): ?Illuminate\Database\Eloquent\Model
+Lathe\Resources\Resource::groups(Lathe\Http\Requests\LatheRequest $request): array
 Lathe\Resources\Resource::indexQuery(Lathe\Http\Requests\LatheRequest $request, Illuminate\Database\Eloquent\Builder $query): Illuminate\Database\Eloquent\Builder  [static]
 Lathe\Resources\Resource::label(): string  [static]
 Lathe\Resources\Resource::lenses(Lathe\Http\Requests\LatheRequest $request): array
@@ -1022,15 +1062,19 @@ Lathe\Search\SearchableText::array $options
 Lathe\Search\SearchableText::string $column
 Lathe\Summaries\ResourceSummaries::CAPPED_MESSAGE
 Lathe\Summaries\ResourceSummaries::Lathe\Query\ResourceQuery $query  [protected]
+Lathe\Summaries\ResourceSummaries::MAX_GROUPS
 Lathe\Summaries\ResourceSummaries::__construct(Lathe\Query\ResourceQuery $query, array $fields, int $cap)
 Lathe\Summaries\ResourceSummaries::aggregate(Illuminate\Database\Eloquent\Builder $query, array $entries): array  [protected]
 Lathe\Summaries\ResourceSummaries::allRecords(array $fields): array  [protected]
 Lathe\Summaries\ResourceSummaries::array $fields  [protected]
 Lathe\Summaries\ResourceSummaries::cappedCount(): int  [protected]
 Lathe\Summaries\ResourceSummaries::compute(Illuminate\Database\Eloquent\Collection $rows, bool $paged): ?array
+Lathe\Summaries\ResourceSummaries::computeGrouped(Illuminate\Database\Eloquent\Collection $rows, Lathe\Groups\Group $group): array
 Lathe\Summaries\ResourceSummaries::expression(string $function, string $column, ?string $alias = NULL): Illuminate\Contracts\Database\Query\Expression  [protected]
+Lathe\Summaries\ResourceSummaries::groupKeyColumn(Illuminate\Database\Query\Builder $base, Lathe\Groups\Group $group, Illuminate\Database\Eloquent\Model $owner, array $keys): array  [protected]
 Lathe\Summaries\ResourceSummaries::int $cap  [protected]
 Lathe\Summaries\ResourceSummaries::page(array $fields, Illuminate\Database\Eloquent\Collection $rows): array  [protected]
+Lathe\Summaries\ResourceSummaries::sql(string $sql): Illuminate\Contracts\Database\Query\Expression  [protected]
 Lathe\Summaries\ResourceSummaries::target(Illuminate\Database\Eloquent\Model $model, string $attribute): array  [protected]
 Lathe\Summaries\Summary::?Closure $format  [protected]
 Lathe\Summaries\Summary::?Closure $query  [protected]
@@ -1187,6 +1231,7 @@ class Lathe\Filters\FieldFilter
 class Lathe\Filters\Filter
 class Lathe\Filters\FilterApplicator
 class Lathe\Filters\RangeFilter
+class Lathe\Groups\Group
 class Lathe\Http\Controllers\Assets\AssetController
 class Lathe\Http\Controllers\Auth\AuthenticatedSessionController
 class Lathe\Http\Controllers\Auth\LoginPageController

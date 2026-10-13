@@ -9,8 +9,12 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Grammar;
+use Illuminate\Database\Query\Builder as QueryBuilder;
 use Lathe\Field\Field;
+use Lathe\Groups\Group;
+use Lathe\Query\DateBucket;
 use Lathe\Query\ResourceQuery;
+use Lathe\Support\Timezone;
 use LogicException;
 
 /**
@@ -20,6 +24,9 @@ use LogicException;
 class ResourceSummaries
 {
     public const string CAPPED_MESSAGE = 'Narrow the filters to total all rows';
+
+    /** Group keys one subtotal query reads at most, besides null. */
+    public const int MAX_GROUPS = 100;
 
     /**
      * @param  array<mixed>  $fields
@@ -56,6 +63,148 @@ class ResourceSummaries
             'page' => $paged || $capped ? $this->page($fields, $rows) : null,
             'message' => $capped ? self::CAPPED_MESSAGE : null,
         ];
+    }
+
+    /**
+     * The subtotal of each group on the page, keyed by group key, from one GROUP BY query
+     * limited to those keys. A narrowed or to-many summary has no subtotal.
+     *
+     * @param  Collection<int, Model>  $rows
+     * @return array<string, array<string, list<array{label: string|null, value: string|null}>>>
+     */
+    public function computeGrouped(Collection $rows, Group $group): array
+    {
+        $scoped = $this->query->scoped();
+        $model = $scoped->getModel();
+        $keys = array_slice(array_values(array_unique(array_map(fn (Model $row) => $group->keyFor($row), $rows->all()))), 0, self::MAX_GROUPS);
+        $entries = [];
+        /** @var list<Field> $fields */
+        $fields = array_values(array_filter($this->fields, fn (mixed $field) => $field instanceof Field));
+
+        foreach ($fields as $f => $field) {
+            foreach ($field->getSummaries() as $s => $summary) {
+                if ($summary->getQuery() === null && ! $this->target($model, $field->sortableUriKey())[1] instanceof HasMany) {
+                    $entries["{$f}_{$s}"] = [$field, $summary];
+                }
+            }
+        }
+
+        if ($keys === [] || $entries === []) {
+            return [];
+        }
+
+        $base = $scoped->toBase()->reorder();
+        $joined = [];
+        $owner = $model;
+
+        if (($name = $group->relation()) !== null) {
+            /** @var BelongsTo<Model, Model> $relation */
+            $relation = $model->{$name}();
+            $joined[] = $name;
+            $owner = $relation->getRelated();
+            $base->leftJoin($owner->getTable(), $relation->getQualifiedForeignKeyName(), '=', $relation->getQualifiedOwnerKeyName());
+        }
+
+        [$expression, $bindings] = $this->groupKeyColumn($base, $group, $owner, $keys);
+        $columns = [];
+
+        foreach ($entries as $id => [$field, $summary]) {
+            [$column, $relation] = $this->target($model, $field->sortableUriKey());
+
+            if ($relation instanceof BelongsTo && ! in_array($relation->getRelationName(), $joined, true)) {
+                $joined[] = $relation->getRelationName();
+                $base->leftJoin($relation->getRelated()->getTable(), $relation->getQualifiedForeignKeyName(), '=', $relation->getQualifiedOwnerKeyName());
+            }
+
+            foreach ($summary->functions() as $n => $function) {
+                $columns[] = $this->expression($function, $column, "lathe_{$id}_{$n}");
+            }
+        }
+
+        $results = [];
+
+        // Grouped by the alias, so a key expression with bindings matches itself on PostgreSQL.
+        foreach ($base->select([$this->sql($expression.' as lathe_group'), ...$columns])->addBinding($bindings, 'select')->groupBy('lathe_group')->get() as $row) {
+            $row = (array) $row;
+            $results[$group->normalizeKey($row['lathe_group'])] = $row;
+        }
+
+        $subtotals = [];
+
+        foreach ($keys as $key) {
+            foreach (isset($results[$key]) ? $entries : [] as $id => [$field, $summary]) {
+                $subtotals[$key][$field->key()][] = [
+                    'label' => $summary->getLabel(),
+                    'value' => $summary->present(array_map(fn (int $n) => $results[$key]["lathe_{$id}_{$n}"] ?? null, array_keys($summary->functions()))),
+                ];
+            }
+        }
+
+        return $subtotals;
+    }
+
+    /**
+     * The SQL of a row's group key, with its bindings, and the WHERE that keeps the page's keys.
+     * A datetime day group buckets by the user's local day through UTC range conditions.
+     *
+     * @param  list<string>  $keys
+     * @return array{0: string, 1: list<mixed>}
+     */
+    protected function groupKeyColumn(QueryBuilder $base, Group $group, Model $owner, array $keys): array
+    {
+        $column = $owner->qualifyColumn($group->attribute());
+        $wrapped = $base->getGrammar()->wrap($column);
+        $values = array_values(array_filter($keys, fn (string $key) => $key !== Group::NULL_KEY));
+        $withNull = count($values) < count($keys);
+
+        if (! $group->bucketsLocalDay($owner)) {
+            $expression = $group->isDate() ? DateBucket::day($owner->getConnection(), $column) : $wrapped;
+            $base->where(fn (QueryBuilder $query) => $query->whereIn($this->sql($expression), $values)
+                ->when($withNull, fn (QueryBuilder $query) => $query->orWhereNull($column)));
+
+            return [$expression, []];
+        }
+
+        $cases = [];
+        $bindings = [];
+        $ranges = [];
+
+        foreach ($values as $day) {
+            [$start, $end] = app(Timezone::class)->dayBounds($day, $group->timezone());
+            $range = [$start->format('Y-m-d H:i:s'), $end->format('Y-m-d H:i:s')];
+            $ranges[] = $range;
+            $cases[] = "when {$wrapped} >= ? and {$wrapped} < ? then ?";
+            array_push($bindings, $range[0], $range[1], $day);
+        }
+
+        $base->where(function (QueryBuilder $query) use ($column, $ranges, $withNull) {
+            foreach ($ranges as [$start, $end]) {
+                $query->orWhere(fn (QueryBuilder $range) => $range->where($column, '>=', $start)->where($column, '<', $end));
+            }
+
+            $query->when($withNull, fn (QueryBuilder $query) => $query->orWhereNull($column));
+        });
+
+        return [$cases === [] ? 'null' : 'case '.implode(' ', $cases).' end', $bindings];
+    }
+
+    /**
+     * SQL this class wrote from quoted identifiers, for a select or a WHERE column.
+     */
+    protected function sql(string $sql): Expression
+    {
+        return new class($sql) implements Expression
+        {
+            public function __construct(protected string $sql)
+            {
+                //
+            }
+
+            public function getValue(Grammar $grammar): string
+            {
+                return $this->sql;
+            }
+        };
     }
 
     /**

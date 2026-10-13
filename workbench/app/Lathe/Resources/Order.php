@@ -5,6 +5,7 @@ namespace Workbench\App\Lathe\Resources;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Lathe\Field\Field;
+use Lathe\Groups\Group;
 use Lathe\Http\Requests\LatheRequest;
 use Lathe\Resources\Resource;
 use Lathe\Resources\ResourceDefinition;
@@ -55,6 +56,14 @@ class Order extends Resource
     public function lenses(LatheRequest $request): array
     {
         return [new PendingOrders];
+    }
+
+    public function groups(LatheRequest $request): array
+    {
+        return [
+            Group::make('status')->titlePrefixedWithLabel()->collapsible(),
+            Group::make('placed_at', 'placed')->date(),
+        ];
     }
 
     public function tabs(LatheRequest $request): array
