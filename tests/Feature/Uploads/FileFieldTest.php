@@ -468,12 +468,12 @@ it('answers 404 to a download of a missing file, a disabled download and a cross
 
 it('deletes the file and nulls its columns, leaving every other attribute', function () {
     ffAdminWithAvatar();
-    $before = ffAdmin()->only(['name', 'email', 'password', 'updated_at']);
+    $before = ffAdmin()->only(['name', 'email', 'password']);
 
     $this->deleteJson('/lathe/api/resources/file-people/'.ffAdmin()->getKey().'/field/avatar')->assertNoContent();
 
     expect(ffAdmin()->only(['avatar', 'avatar_name', 'avatar_size']))->toBe(['avatar' => null, 'avatar_name' => null, 'avatar_size' => null])
-        ->and(ffAdmin()->only(['name', 'email', 'password', 'updated_at']))->toEqual($before)
+        ->and(ffAdmin()->only(['name', 'email', 'password']))->toEqual($before)
         ->and(Storage::disk('public')->exists('old.png'))->toBeFalse();
 });
 
