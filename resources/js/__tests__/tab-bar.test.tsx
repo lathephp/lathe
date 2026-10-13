@@ -113,16 +113,23 @@ describe('tab strip', () => {
     expect(tabTexts()).toEqual(['All', 'Pending10,000+', 'Paid', 'Paid1,234', 'Cancelled']);
   });
 
-  it('clears tab when the first tab is chosen and sets it for another', () => {
+  it('clears tab when the first tab is chosen and keeps the filters', () => {
     const visit = vi.spyOn(router, 'visit').mockImplementation(() => undefined);
     renderOrders({ url: '/lathe/resources/orders?tab=pending&filter[status]=paid' });
     const strip = screen.getByRole('navigation', { name: 'Tabs' });
 
     fireEvent.click(within(strip).getByRole('button', { name: 'All' }));
-    fireEvent.click(savedTab('Cancelled'));
 
     expect((visit.mock.calls[0]?.[1] as { data: Record<string, unknown> }).data).toEqual({ filter: { status: 'paid' } });
-    expect((visit.mock.calls[1]?.[1] as { data: Record<string, unknown> }).data).toEqual({ saved_tab: '8', filter: { status: 'paid' } });
+  });
+
+  it('opens a saved tab as saved, without the filters, search and sort on screen', () => {
+    const visit = vi.spyOn(router, 'visit').mockImplementation(() => undefined);
+    renderOrders({ url: '/lathe/resources/orders?tab=pending&filter[status]=cancelled&sort=-total_cents&q=x&trashed=with&group=status' });
+
+    fireEvent.click(savedTab('Paid'));
+
+    expect((visit.mock.calls[0]?.[1] as { data: Record<string, unknown> }).data).toEqual({ saved_tab: '7' });
   });
 });
 

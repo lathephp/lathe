@@ -159,7 +159,8 @@ export function TabBar({ resource, state, visit }: TabBarProps) {
                 aria-keyshortcuts="Alt+ArrowLeft Alt+ArrowRight"
                 className={tabClass(tab.id === activeSaved)}
                 onClick={() => {
-                  visit({ saved_tab: String(tab.id), tab: undefined });
+                  // A saved tab opens exactly as saved, so the filters, search and sort on screen go.
+                  visit({ saved_tab: String(tab.id), tab: undefined, filter: undefined, q: undefined, sort: undefined, trashed: undefined, group: undefined });
                 }}
                 onKeyDown={(event) => {
                   onTabKeyDown(event, tab, index);
