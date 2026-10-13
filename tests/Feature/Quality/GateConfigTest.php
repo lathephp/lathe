@@ -30,6 +30,14 @@ it('names every gate script', function () {
     expect($scripts)->toHaveKeys(['lint', 'analyse', 'types', 'mutate', 'test', 'qa']);
 });
 
+it('keeps the timing budgets out of the fast suite and the matrix', function () {
+    $scripts = json_decode(File::get(repoFile('composer.json')), true)['scripts'];
+
+    expect($scripts['test'][0])->toContain('--exclude-group=budget')
+        ->and($scripts['test:budget'])->toBe('@php vendor/bin/pest --group=budget')
+        ->and(File::get(repoFile('scripts/matrix.sh')))->toContain('--exclude-group=budget');
+});
+
 it('fails lint on a file that declares strict types', function () {
     $repo = sys_get_temp_dir().'/strict-types-'.bin2hex(random_bytes(6));
     File::ensureDirectoryExists("{$repo}/src");
