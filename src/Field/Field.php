@@ -80,10 +80,33 @@ class Field implements JsonSerializable
         'helpWidth' => null,
         'wrapping' => false,
         'section' => null,
+        'autocomplete' => null,
     ];
 
     /** @var array<string, mixed> */
     protected array $meta = [];
+
+    protected FieldLifecycle $lifecycle;
+
+    protected ?Closure $resolveCallback = null;
+
+    protected ?Closure $displayCallback = null;
+
+    protected ?Closure $fillCallback = null;
+
+    protected bool|Closure $readonly = false;
+
+    protected bool|Closure $required = false;
+
+    protected bool|Closure $immutable = false;
+
+    protected mixed $default = null;
+
+    /** @var array<int, mixed>|Closure */
+    protected array|Closure $nullValues = [''];
+
+    /** The context closures read while this copy resolves; see withContext(). */
+    protected ?FieldContext $context = null;
 
     /**
      * @param  string|(Closure(Model): mixed)|null  $attribute  a Closure makes a computed field
@@ -100,6 +123,7 @@ class Field implements JsonSerializable
         }
 
         $this->attribute = is_string($attribute) ? $attribute : Str::snake($label);
+        $this->lifecycle = new DefaultLifecycle;
     }
 
     /**
@@ -109,6 +133,14 @@ class Field implements JsonSerializable
     public static function make(string $label, string|Closure|null $attribute = null, ?Closure $resolver = null): static
     {
         return new static($label, $attribute, $resolver);
+    }
+
+    /**
+     * The record key: sortable and off the forms.
+     */
+    public static function id(string $label = 'ID', string $attribute = 'id'): IdField
+    {
+        return new IdField($label, $attribute);
     }
 
     /**
@@ -547,42 +579,289 @@ class Field implements JsonSerializable
         return $this;
     }
 
+    // Lifecycle and state
+
+    public function useLifecycle(FieldLifecycle $lifecycle): static
+    {
+        $this->mutate();
+        $this->lifecycle = $lifecycle;
+
+        return $this;
+    }
+
+    public function lifecycle(): FieldLifecycle
+    {
+        return $this->lifecycle;
+    }
+
+    /**
+     * Replace extract and present: fn ($record, $attribute) returns the wire value.
+     */
+    public function resolveUsing(Closure $callback): static
+    {
+        $this->mutate();
+        $this->resolveCallback = $callback;
+
+        return $this;
+    }
+
+    /**
+     * Change what index, detail, preview and peeking show: fn ($value, $attribute). Forms keep the raw value.
+     */
+    public function displayUsing(Closure $callback): static
+    {
+        $this->mutate();
+        $this->displayCallback = $callback;
+
+        return $this;
+    }
+
+    /**
+     * Replace parse and persist: fn ($request, $model, $attribute, $requestAttribute) may return a
+     * Closure that runs after save.
+     */
+    public function fillUsing(Closure $callback): static
+    {
+        $this->mutate();
+        $this->fillCallback = $callback;
+
+        return $this;
+    }
+
+    public function readonly(bool|Closure $readonly = true): static
+    {
+        $this->mutate();
+        $this->readonly = $readonly;
+
+        return $this;
+    }
+
+    public function required(bool|Closure $required = true): static
+    {
+        $this->mutate();
+        $this->required = $required;
+
+        return $this;
+    }
+
+    /**
+     * Editable on create; on update it shows read-only and fill leaves the stored value.
+     */
+    public function immutable(bool|Closure $immutable = true): static
+    {
+        $this->mutate();
+        $this->immutable = $immutable;
+
+        return $this;
+    }
+
+    /**
+     * The create form's starting value; a Closure takes the request.
+     */
+    public function default(mixed $value): static
+    {
+        $this->mutate();
+        $this->default = $value;
+
+        return $this;
+    }
+
+    /**
+     * Inputs that save as null on a nullable field, compared with ===; a Closure takes the value.
+     *
+     * @param  array<int, mixed>|Closure  $values
+     */
+    public function nullValues(array|Closure $values): static
+    {
+        $this->mutate();
+        $this->nullValues = $values;
+
+        return $this;
+    }
+
+    /**
+     * @param  list<string>|string|bool  $tokens
+     */
+    public function autocomplete(array|string|bool $tokens): static
+    {
+        return $this->option('autocomplete', match (true) {
+            $tokens === true => 'on',
+            $tokens === false => 'off',
+            is_array($tokens) => implode(' ', $tokens),
+            default => $tokens,
+        });
+    }
+
+    public function withoutAutoCompletion(): static
+    {
+        return $this->autocomplete(false);
+    }
+
+    /**
+     * A copy whose closures read this context while it resolves. The frozen original is untouched.
+     */
+    public function withContext(FieldContext $context): static
+    {
+        $copy = clone $this;
+        $copy->context = $context;
+
+        return $copy;
+    }
+
+    public function isReadonly(?LatheRequest $request = null, mixed $model = null): bool
+    {
+        return $this->decide($this->readonly, $request, $model);
+    }
+
+    public function isRequired(?LatheRequest $request = null, mixed $model = null): bool
+    {
+        return $this->decide($this->required, $request, $model);
+    }
+
+    public function isImmutable(?LatheRequest $request = null, mixed $model = null): bool
+    {
+        return $this->decide($this->immutable, $request, $model);
+    }
+
+    public function resolveDefaultValue(?LatheRequest $request = null): mixed
+    {
+        return $this->default instanceof Closure
+            ? $this->evaluate($this->default, ['request' => $request], [$request])
+            : $this->default;
+    }
+
+    protected function decide(bool|Closure $value, ?LatheRequest $request, mixed $model): bool
+    {
+        return is_bool($value) ? $value : (bool) $this->evaluate($value, ['request' => $request, 'record' => $model], [$request, $model]);
+    }
+
+    /**
+     * Call a closure of this field with injection: name, type, container, then position.
+     *
+     * @param  array{record?: mixed, value?: mixed, attribute?: string|null, request?: LatheRequest|null}  $values
+     * @param  list<mixed>  $positional
+     */
+    protected function evaluate(Closure $callback, array $values = [], array $positional = []): mixed
+    {
+        $request = $values['request'] ?? Evaluator::currentRequest();
+
+        return Evaluator::for($request)->call($callback, [
+            'attribute' => $this->attribute,
+            ...$values,
+            'request' => $request,
+            'field' => $this,
+            'context' => $this->context,
+        ], $positional);
+    }
+
     // Values
 
     /**
-     * The value of this field on a record, read through dotted relations.
+     * The wire value of this field on a record: extract, then present.
      */
-    public function resolve(Model $model): string|int|float|bool|null
+    public function resolve(object $record, ?string $attribute = null): mixed
     {
+        $attribute ??= $this->attribute;
+
+        if ($this->resolveCallback !== null) {
+            return $this->evaluate($this->resolveCallback, ['record' => $record, 'attribute' => $attribute], [$record, $attribute]);
+        }
+
         if ($this->computed !== null) {
-            $value = Evaluator::for()->call($this->computed, ['record' => $model, 'field' => $this], [$model]);
-
-            return is_scalar($value) || $value === null ? $value : (string) json_encode($value);
+            return DefaultLifecycle::wire($this->evaluate($this->computed, ['record' => $record], [$record]));
         }
 
-        if ($this->resolver !== null) {
-            return ($this->resolver)($model);
+        if ($this->resolver !== null && $record instanceof Model) {
+            return ($this->resolver)($record);
         }
 
-        $value = data_get($model, $this->attribute);
+        return $this->lifecycle->present($this->lifecycle->extract($record, $attribute), $record, $attribute);
+    }
 
-        return is_scalar($value) || $value === null ? $value : (string) json_encode($value);
+    /**
+     * The value index, detail, preview and peeking show: resolve(), then displayUsing.
+     */
+    public function resolveForDisplay(object $record, ?string $attribute = null): mixed
+    {
+        $attribute ??= $this->attribute;
+        $value = $this->resolve($record, $attribute);
+
+        return $this->displayCallback === null ? $value : $this->evaluate(
+            $this->displayCallback,
+            ['record' => $record, 'value' => $value, 'attribute' => $attribute],
+            [$value, $attribute],
+        );
+    }
+
+    /**
+     * Write the request value onto the model. The returned Closure runs after save.
+     */
+    public function fill(LatheRequest $request, object $model, ?string $requestAttribute = null): ?Closure
+    {
+        $requestAttribute ??= $this->attribute;
+
+        if ($model instanceof Model && $model->exists && $this->isImmutable($request, $model)) {
+            return null;
+        }
+
+        if ($this->fillCallback !== null) {
+            $after = $this->evaluate(
+                $this->fillCallback,
+                ['request' => $request, 'record' => $model],
+                [$request, $model, $this->attribute, $requestAttribute],
+            );
+
+            return $after instanceof Closure ? $after : null;
+        }
+
+        $value = $this->lifecycle->parse($request, $requestAttribute);
+
+        if ($this->isNullable() && $this->isNullValue($value)) {
+            $value = null;
+        }
+
+        return $this->lifecycle->persist($model, $this->attribute, $value);
+    }
+
+    protected function isNullValue(mixed $value): bool
+    {
+        return $this->nullValues instanceof Closure
+            ? (bool) $this->evaluate($this->nullValues, ['value' => $value], [$value])
+            : in_array($value, $this->nullValues, true);
     }
 
     /**
      * The cell of one record: its value and the text shown when no component draws it.
      *
-     * @return array{value: string|int|float|bool|null, display: string}
+     * @return array{value: mixed, display: string}
      */
     public function cell(Model $model): array
     {
-        $value = $this->resolve($model);
+        $value = $this->resolveForDisplay($model);
 
         return ['value' => $value, 'display' => match (true) {
             $value === null => '',
             is_bool($value) => $value ? 'Yes' : 'No',
-            default => (string) $value,
+            is_scalar($value) => (string) $value,
+            default => (string) json_encode($value),
         }];
+    }
+
+    /**
+     * The schema a form or detail page needs, with the per-request state decided.
+     *
+     * @return array<string, mixed>
+     */
+    public function schema(FieldContext $context, LatheRequest $request, ?Model $model = null): array
+    {
+        $immutable = $context === FieldContext::Update && $this->isImmutable($request, $model);
+
+        return [
+            ...$this->jsonSerialize(),
+            'readonly' => $immutable || $this->isReadonly($request, $model),
+            'required' => $this->isRequired($request, $model),
+            'immutable' => $immutable,
+        ];
     }
 
     /**

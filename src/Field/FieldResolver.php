@@ -13,7 +13,7 @@ class FieldResolver
      * The index cells of one record, keyed by field key.
      *
      * @param  iterable<Field>  $fields
-     * @return array<string, array{value: string|int|float|bool|null, display: string}>
+     * @return array<string, array{value: mixed, display: string}>
      */
     public static function cells(Model $model, iterable $fields): array
     {

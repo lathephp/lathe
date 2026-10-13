@@ -390,6 +390,12 @@ Lathe\Events\ResourceRestored::__construct(Illuminate\Database\Eloquent\Model $m
 Lathe\Events\ResourceRestored::string $resource
 Lathe\Events\ServingLathe::Illuminate\Http\Request $request
 Lathe\Events\ServingLathe::__construct(Illuminate\Http\Request $request)
+Lathe\Field\DefaultLifecycle::MAX_SAFE_INTEGER
+Lathe\Field\DefaultLifecycle::extract(object $record, string $attribute): mixed
+Lathe\Field\DefaultLifecycle::parse(Lathe\Http\Requests\LatheRequest $request, string $attribute): mixed
+Lathe\Field\DefaultLifecycle::persist(object $model, string $attribute, mixed $value): ?Closure
+Lathe\Field\DefaultLifecycle::present(mixed $raw, object $record, string $attribute): mixed
+Lathe\Field\DefaultLifecycle::wire(mixed $value): mixed  [static]
 Lathe\Field\Evaluator::__construct()
 Lathe\Field\Evaluator::call(Closure $callback, array $values = array ( ), array $positional = array ( )): mixed
 Lathe\Field\Evaluator::currentRequest(): ?Lathe\Http\Requests\LatheRequest  [static]
@@ -397,9 +403,18 @@ Lathe\Field\Evaluator::for(?Lathe\Http\Requests\LatheRequest $request = NULL): L
 Lathe\Field\Evaluator::int $reflections
 Lathe\Field\Field::$macros  [protected]
 Lathe\Field\Field::?Closure $computed  [protected]
+Lathe\Field\Field::?Closure $displayCallback  [protected]
+Lathe\Field\Field::?Closure $fillCallback  [protected]
+Lathe\Field\Field::?Closure $resolveCallback  [protected]
 Lathe\Field\Field::?Closure $resolver  [protected]
 Lathe\Field\Field::?Closure $seeCallback  [protected]
+Lathe\Field\Field::?Lathe\Field\FieldContext $context  [protected]
 Lathe\Field\Field::?WeakMap $seen  [protected]
+Lathe\Field\Field::Closure|array $nullValues  [protected]
+Lathe\Field\Field::Closure|bool $immutable  [protected]
+Lathe\Field\Field::Closure|bool $readonly  [protected]
+Lathe\Field\Field::Closure|bool $required  [protected]
+Lathe\Field\Field::Lathe\Field\FieldLifecycle $lifecycle  [protected]
 Lathe\Field\Field::__construct(string $label, Closure|string|null $attribute = NULL, ?Closure $resolver = NULL)
 Lathe\Field\Field::array $hides  [protected]
 Lathe\Field\Field::array $meta  [protected]
@@ -408,6 +423,7 @@ Lathe\Field\Field::array $summaries  [protected]
 Lathe\Field\Field::array $visibility  [protected]
 Lathe\Field\Field::attribute(): string
 Lathe\Field\Field::authorizedToSee(Lathe\Http\Requests\LatheRequest $request): bool
+Lathe\Field\Field::autocomplete(array|string|bool $tokens): static
 Lathe\Field\Field::bool $filterable  [protected]
 Lathe\Field\Field::bool $frozen  [protected]
 Lathe\Field\Field::bool $sortable  [protected]
@@ -418,7 +434,13 @@ Lathe\Field\Field::cell(Illuminate\Database\Eloquent\Model $model): array
 Lathe\Field\Field::columnSpan(?int $span): static
 Lathe\Field\Field::compact(bool $compact = true): static
 Lathe\Field\Field::component(string $component): static
+Lathe\Field\Field::decide(Closure|bool $value, ?Lathe\Http\Requests\LatheRequest $request, mixed $model): bool  [protected]
+Lathe\Field\Field::default(mixed $value): static
+Lathe\Field\Field::displayUsing(Closure $callback): static
+Lathe\Field\Field::evaluate(Closure $callback, array $values = array ( ), array $positional = array ( )): mixed  [protected]
 Lathe\Field\Field::exceptOnForms(): static
+Lathe\Field\Field::fill(Lathe\Http\Requests\LatheRequest $request, object $model, ?string $requestAttribute = NULL): ?Closure
+Lathe\Field\Field::fillUsing(Closure $callback): static
 Lathe\Field\Field::filterable(bool $filterable = true, int $scale = 1): static
 Lathe\Field\Field::fullWidth(bool $fullWidth = true): static
 Lathe\Field\Field::getColumnSpan(): ?int
@@ -433,21 +455,30 @@ Lathe\Field\Field::hideFromPreview(Closure|bool $hide = true): static
 Lathe\Field\Field::hideWhenCreating(Closure|bool $hide = true): static
 Lathe\Field\Field::hideWhenPeeking(Closure|bool $hide = true): static
 Lathe\Field\Field::hideWhenUpdating(Closure|bool $hide = true): static
+Lathe\Field\Field::id(string $label = 'ID', string $attribute = 'id'): Lathe\Field\IdField  [static]
+Lathe\Field\Field::immutable(Closure|bool $immutable = true): static
 Lathe\Field\Field::indexWidth(int $pixels): static
 Lathe\Field\Field::int $filterScale  [protected]
 Lathe\Field\Field::isComputed(): bool
 Lathe\Field\Field::isFilterable(): bool
 Lathe\Field\Field::isFrozen(): bool
+Lathe\Field\Field::isImmutable(?Lathe\Http\Requests\LatheRequest $request = NULL, mixed $model = NULL): bool
+Lathe\Field\Field::isNullValue(mixed $value): bool  [protected]
 Lathe\Field\Field::isNullable(): bool
+Lathe\Field\Field::isReadonly(?Lathe\Http\Requests\LatheRequest $request = NULL, mixed $model = NULL): bool
+Lathe\Field\Field::isRequired(?Lathe\Http\Requests\LatheRequest $request = NULL, mixed $model = NULL): bool
 Lathe\Field\Field::isShownOn(Lathe\Field\FieldContext $context, ?Lathe\Http\Requests\LatheRequest $request = NULL, mixed $model = NULL): bool
 Lathe\Field\Field::isSortable(): bool
 Lathe\Field\Field::jsonSerialize(): array
 Lathe\Field\Field::key(): string
 Lathe\Field\Field::label(): string
+Lathe\Field\Field::lifecycle(): Lathe\Field\FieldLifecycle
 Lathe\Field\Field::make(string $label, Closure|string|null $attribute = NULL, ?Closure $resolver = NULL): static  [static]
 Lathe\Field\Field::makeFieldFilter(): Lathe\Filters\FieldFilter
 Lathe\Field\Field::meta(): array
+Lathe\Field\Field::mixed $default  [protected]
 Lathe\Field\Field::mutate(): void  [protected]
+Lathe\Field\Field::nullValues(Closure|array $values): static
 Lathe\Field\Field::nullable(bool $nullable = true): static
 Lathe\Field\Field::onlyOn(Lathe\Field\FieldContext ...$contexts): static  [protected]
 Lathe\Field\Field::onlyOnDetail(): static
@@ -456,7 +487,13 @@ Lathe\Field\Field::onlyOnIndex(): static
 Lathe\Field\Field::onlyOnPreview(): static
 Lathe\Field\Field::option(string $name, mixed $value): static  [protected]
 Lathe\Field\Field::placeholder(string $placeholder): static
-Lathe\Field\Field::resolve(Illuminate\Database\Eloquent\Model $model): string|int|float|bool|null
+Lathe\Field\Field::readonly(Closure|bool $readonly = true): static
+Lathe\Field\Field::required(Closure|bool $required = true): static
+Lathe\Field\Field::resolve(object $record, ?string $attribute = NULL): mixed
+Lathe\Field\Field::resolveDefaultValue(?Lathe\Http\Requests\LatheRequest $request = NULL): mixed
+Lathe\Field\Field::resolveForDisplay(object $record, ?string $attribute = NULL): mixed
+Lathe\Field\Field::resolveUsing(Closure $callback): static
+Lathe\Field\Field::schema(Lathe\Field\FieldContext $context, Lathe\Http\Requests\LatheRequest $request, ?Illuminate\Database\Eloquent\Model $model = NULL): array
 Lathe\Field\Field::setVisibility(Lathe\Field\FieldContext $context, Closure|bool $value, bool $hide = false): static  [protected]
 Lathe\Field\Field::showOnCreating(Closure|bool $show = true): static
 Lathe\Field\Field::showOnDetail(Closure|bool $show = true): static
@@ -472,8 +509,11 @@ Lathe\Field\Field::string $component  [protected]
 Lathe\Field\Field::string $label  [protected]
 Lathe\Field\Field::summarize(Lathe\Summaries\Summary ...$summaries): static
 Lathe\Field\Field::textAlign(string $align): static
+Lathe\Field\Field::useLifecycle(Lathe\Field\FieldLifecycle $lifecycle): static
+Lathe\Field\Field::withContext(Lathe\Field\FieldContext $context): static
 Lathe\Field\Field::withMeta(array $meta): static
 Lathe\Field\Field::withSection(string $section): static
+Lathe\Field\Field::withoutAutoCompletion(): static
 Lathe\Field\Field::wrapping(bool $wrapping = true): static
 Lathe\Field\FieldCollection::authorized(Lathe\Http\Requests\LatheRequest $request): static
 Lathe\Field\FieldCollection::findByAttribute(string $attribute): ?Lathe\Field\Field
@@ -481,6 +521,7 @@ Lathe\Field\FieldCollection::forContext(Lathe\Field\FieldContext $context, ?Lath
 Lathe\Field\FieldCollection::onlyKeys(?array $keys): static
 Lathe\Field\FieldCollection::sortable(): static
 Lathe\Field\FieldCollection::withoutComputed(): static
+Lathe\Field\FieldCollection::withoutReadonly(?Lathe\Http\Requests\LatheRequest $request = NULL, mixed $model = NULL): static
 Lathe\Field\FieldContext::Create
 Lathe\Field\FieldContext::Detail
 Lathe\Field\FieldContext::Index
@@ -490,7 +531,18 @@ Lathe\Field\FieldContext::Update
 Lathe\Field\FieldContext::isForm(): bool
 Lathe\Field\FieldContext::string $name
 Lathe\Field\FieldContext::string $value
+Lathe\Field\FieldLifecycle::extract(object $record, string $attribute): mixed
+Lathe\Field\FieldLifecycle::parse(Lathe\Http\Requests\LatheRequest $request, string $attribute): mixed
+Lathe\Field\FieldLifecycle::persist(object $model, string $attribute, mixed $value): ?Closure
+Lathe\Field\FieldLifecycle::present(mixed $raw, object $record, string $attribute): mixed
 Lathe\Field\FieldResolver::cells(Illuminate\Database\Eloquent\Model $model, iterable $fields): array  [static]
+Lathe\Field\IdField::__construct(string $label = 'ID', Closure|string|null $attribute = 'id', ?Closure $resolver = NULL)
+Lathe\Field\IdField::asBigInt(): static
+Lathe\Field\IdField::bool $bigInt  [protected]
+Lathe\Field\IdField::forModel(Illuminate\Database\Eloquent\Model $model, string $label = 'ID'): static  [static]
+Lathe\Field\IdField::hidden(string $label = 'ID', string $attribute = 'id'): static  [static]
+Lathe\Field\IdField::resolve(object $record, ?string $attribute = NULL): mixed
+Lathe\Field\IdField::string $component  [protected]
 Lathe\Filters\BooleanFilter::component(): string
 Lathe\Filters\BooleanFilter::normalize(Lathe\Http\Requests\LatheRequest $request, mixed $value, bool $remote): array
 Lathe\Filters\DateFilter::component(): string
@@ -1352,10 +1404,12 @@ class Lathe\Exceptions\LatheException
 class Lathe\Exceptions\PluginDependencyException
 class Lathe\Exceptions\ResourceModelCollisionException
 class Lathe\Exceptions\ResourceUriKeyCollisionException
+class Lathe\Field\DefaultLifecycle
 class Lathe\Field\Evaluator
 class Lathe\Field\Field
 class Lathe\Field\FieldCollection
 class Lathe\Field\FieldResolver
+class Lathe\Field\IdField
 class Lathe\Filters\BooleanFilter
 class Lathe\Filters\DateFilter
 class Lathe\Filters\FieldFilter
@@ -1443,6 +1497,7 @@ enum Lathe\Field\FieldContext
 enum Lathe\Query\CountStrategy
 enum Lathe\Query\QueryContext
 interface Lathe\Attributes\Resource\ResourceAttribute
+interface Lathe\Field\FieldLifecycle
 interface Lathe\Search\SearchableColumn
 trait Lathe\Http\Controllers\Resources\AuthorizesResources
 trait Lathe\Testing\InteractsWithLathe

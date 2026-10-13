@@ -2,6 +2,7 @@
 
 namespace Lathe\Field;
 
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
 use Lathe\Http\Requests\LatheRequest;
 
@@ -26,6 +27,15 @@ class FieldCollection extends Collection
     public function authorized(LatheRequest $request): static
     {
         return $this->filter(fn (Field $field) => $field->authorizedToSee($request))->values();
+    }
+
+    /**
+     * Drop the read-only fields, readonly() and immutable() ones on an update: what fill and validation skip.
+     */
+    public function withoutReadonly(?LatheRequest $request = null, mixed $model = null): static
+    {
+        return $this->reject(fn (Field $field) => $field->isReadonly($request, $model)
+            || ($model instanceof Model && $model->exists && $field->isImmutable($request, $model)))->values();
     }
 
     public function withoutComputed(): static
