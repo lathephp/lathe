@@ -5,6 +5,8 @@ use Symfony\Component\Process\Process;
 // These tests run pnpm build, so they need Node.
 pest()->group('frontend');
 
+beforeEach(fn () => holdBuildLock());
+
 // The import map maps these specifiers to the files the manifest lists under "lathe-vendor:{specifier}".
 const BUILD_OUTPUT_EXTERNALS = [
     'react',
@@ -156,10 +158,10 @@ it('changes the entry hash when one source character changes', function () {
     $page = buildOutputRepo().'/resources/js/pages/Welcome.tsx';
     $source = (string) file_get_contents($page);
 
-    expect($source)->toContain("<h1>{__('Lathe')}</h1>");
+    expect($source)->toContain('<main>');
 
     try {
-        file_put_contents($page, str_replace("<h1>{__('Lathe')}</h1>", "<h1>{__('Lathf')}</h1>", $source));
+        file_put_contents($page, str_replace('<main>', '<main id="hash-probe">', $source));
         buildOutputRun();
         $after = json_decode(buildOutputFile('manifest.json'), true)['resources/js/app.tsx']['file'];
     } finally {

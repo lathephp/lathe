@@ -159,3 +159,22 @@ function signInThroughForm(AwaitableWebpage|Webpage $page, string $email, string
         ->fill('password', $password)
         ->press('Sign in');
 }
+
+/**
+ * Hold the build lock until the test ends. Test files run in parallel processes, and the ones
+ * that run pnpm build or read dist would otherwise write the same dist folders under each other.
+ */
+function holdBuildLock(): void
+{
+    $handle = fopen(sys_get_temp_dir().'/lathe-tests-build.lock', 'c');
+
+    if ($handle === false) {
+        throw new RuntimeException('Cannot open the build lock.');
+    }
+
+    flock($handle, LOCK_EX);
+    test()->beforeApplicationDestroyed(function () use ($handle) {
+        flock($handle, LOCK_UN);
+        fclose($handle);
+    });
+}

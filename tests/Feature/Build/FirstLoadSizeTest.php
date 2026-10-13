@@ -6,6 +6,8 @@ use Symfony\Component\Process\Process;
 // pnpm size reads the built manifest, so these tests need Node.
 pest()->group('frontend');
 
+beforeEach(fn () => holdBuildLock());
+
 function sizeRun(string $dist): Process
 {
     $process = new Process(['node', 'scripts/size.mjs', $dist, '--json'], dirname(__DIR__, 3), timeout: 120);

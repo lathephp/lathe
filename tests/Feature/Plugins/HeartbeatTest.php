@@ -8,6 +8,7 @@ use Symfony\Component\Process\Process;
 use Workbench\App\Models\User;
 
 beforeEach(function () {
+    holdBuildLock();
     Gate::define('viewLathe', fn () => true);
     $this->actingAs((new User)->forceFill(['id' => 1, 'name' => 'Ada', 'email' => 'ada@example.test']));
 });
