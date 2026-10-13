@@ -4,6 +4,7 @@ namespace Lathe\Console;
 
 use Illuminate\Console\Command;
 use Illuminate\Filesystem\Filesystem;
+use Illuminate\Support\Facades\Process;
 use Lathe\Support\ApiSnapshot;
 use Symfony\Component\Console\Attribute\AsCommand;
 
@@ -18,7 +19,8 @@ class ApiCheckCommand extends Command
     protected $signature = 'lathe:api-check
         {--write : Rewrite the snapshot from the current source}
         {--src= : The PHP source folder (default: the package src)}
-        {--api= : The snapshot folder (default: the package api)}';
+        {--api= : The snapshot folder (default: the package api)}
+        {--js-root= : The folder holding packages/core and packages/ui (default: the package root)}';
 
     protected $description = 'Check the public API against its snapshot';
 
@@ -27,24 +29,42 @@ class ApiCheckCommand extends Command
         $root = dirname(__DIR__, 2);
         $src = $this->stringOption('src') ?? "{$root}/src";
         $api = $this->stringOption('api') ?? "{$root}/api";
-        $current = $snapshot->php($src);
+        $snapshots = ['php.txt' => $snapshot->php($src)];
+        $jsRoot = $this->stringOption('js-root') ?? ($this->stringOption('src') === null ? $root : null);
+
+        if ($jsRoot !== null) {
+            $js = $this->jsExports($root, $jsRoot);
+
+            if ($js === null) {
+                return self::FAILURE;
+            }
+
+            $snapshots['js.txt'] = $js;
+        }
 
         if ($this->option('write')) {
             $files->ensureDirectoryExists($api);
-            $files->put("{$api}/php.txt", implode(PHP_EOL, $current).PHP_EOL);
-            $this->components->info('Wrote '.count($current).' symbols to api/php.txt.');
+
+            foreach ($snapshots as $file => $lines) {
+                $files->put("{$api}/{$file}", implode(PHP_EOL, $lines).PHP_EOL);
+                $this->components->info('Wrote '.count($lines)." symbols to api/{$file}.");
+            }
 
             return self::SUCCESS;
         }
 
-        $listed = $files->exists("{$api}/php.txt")
-            ? array_values(array_filter(array_map('trim', explode("\n", $files->get("{$api}/php.txt")))))
-            : [];
+        $problems = [];
 
-        $problems = $this->compare($listed, $current);
+        foreach ($snapshots as $file => $lines) {
+            $listed = $files->exists("{$api}/{$file}")
+                ? array_values(array_filter(array_map('trim', explode("\n", $files->get("{$api}/{$file}")))))
+                : [];
+
+            $problems = [...$problems, ...array_map(fn (string $problem) => "{$file}: {$problem}", $this->compare($listed, $lines))];
+        }
 
         if ($problems === []) {
-            $this->components->info('The public API matches api/php.txt ('.count($current).' symbols).');
+            $this->components->info('The public API matches its snapshots ('.implode(', ', array_map(fn (string $file, array $lines) => count($lines)." in {$file}", array_keys($snapshots), $snapshots)).').');
 
             return self::SUCCESS;
         }
@@ -85,6 +105,24 @@ class ApiCheckCommand extends Command
         }
 
         return $problems;
+    }
+
+    /**
+     * The exports of @lathephp/core and @lathephp/ui, listed by scripts/js-api.mjs.
+     *
+     * @return list<string>|null
+     */
+    protected function jsExports(string $root, string $jsRoot): ?array
+    {
+        $result = Process::path($root)->run(['bash', 'scripts/pnpm.sh', 'exec', 'node', 'scripts/js-api.mjs', $jsRoot]);
+
+        if (! $result->successful()) {
+            $this->components->error('Could not list the JavaScript exports: '.trim($result->errorOutput()));
+
+            return null;
+        }
+
+        return array_values(array_filter(array_map('trim', explode("\n", $result->output()))));
     }
 
     protected function name(string $line): string

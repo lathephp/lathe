@@ -69,3 +69,22 @@ it('fails on a changed signature', function () {
 
     apiCheck($root)->assertFailed()->expectsOutputToContain('changed');
 });
+
+it('fails on a JavaScript export missing from the snapshot', function () {
+    [$root, , $class] = apiFixture('    public function ping(): bool { return true; }');
+    File::put("{$root}/api/php.txt", "class {$class}\n{$class}::ping(): bool\n");
+    foreach (['core', 'ui'] as $package) {
+        File::ensureDirectoryExists("{$root}/packages/{$package}/src");
+        File::put("{$root}/packages/{$package}/package.json", json_encode(['name' => "@lathephp/{$package}"]));
+        File::put("{$root}/packages/{$package}/src/index.ts", "export const known = 1;\n");
+    }
+    File::put("{$root}/api/js.txt", "@lathephp/core known\n@lathephp/ui known\n");
+
+    $this->artisan('lathe:api-check', ['--src' => "{$root}/src", '--api' => "{$root}/api", '--js-root' => $root])->assertSuccessful();
+
+    File::append("{$root}/packages/core/src/index.ts", "export function extra(): void {}\n");
+
+    $this->artisan('lathe:api-check', ['--src' => "{$root}/src", '--api' => "{$root}/api", '--js-root' => $root])
+        ->assertFailed()
+        ->expectsOutputToContain('js.txt: not in the snapshot: @lathephp/core extra');
+});
