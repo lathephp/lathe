@@ -17,4 +17,5 @@ return [
     'index-search-sort' => 'IndexSearchSortTest.php',
     'search-palette' => 'SearchPaletteTest.php',
     'index-filters' => 'IndexFiltersTest.php',
+    'lens' => 'LensTest.php',
 ];
