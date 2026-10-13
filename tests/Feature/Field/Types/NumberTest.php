@@ -37,6 +37,11 @@ class NumberThingResource extends Resource
         return $definition->model(NumberThing::class)->title('name')->canonical(false)->allowAll();
     }
 
+    public static function uriKey(): string
+    {
+        return 'number-things';
+    }
+
     public function fields(LatheRequest $request): array
     {
         return [
@@ -100,6 +105,7 @@ beforeEach(function () {
         $table->integer('yen')->nullable();
         $table->string('api_token')->nullable();
         $table->boolean('active')->default(true);
+        $table->timestamps();
     });
     Gate::define('viewLathe', fn (User $user) => true);
     Lathe::registerResources(NumberThingResource::class, LockedThingResource::class);
