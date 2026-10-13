@@ -462,6 +462,15 @@ Lathe\Http\Controllers\Resources\FilterController::index(Lathe\Http\Requests\Lat
 Lathe\Http\Controllers\Resources\FilterController::options(Lathe\Http\Requests\LatheRequest $request, Lathe\Auth\ResourceAuthorization $authorization): Illuminate\Http\JsonResponse
 Lathe\Http\Controllers\Resources\IndexController::__invoke(Lathe\Http\Requests\LatheRequest $request, Lathe\Auth\ResourceAuthorization $authorization, Lathe\Http\Payloads\IndexPayload $payload): Illuminate\Http\JsonResponse
 Lathe\Http\Controllers\Resources\IndexPageController::__invoke(Lathe\Http\Requests\LatheRequest $request, Lathe\Auth\ResourceAuthorization $authorization, Lathe\Http\Payloads\IndexPayload $payload): Symfony\Component\HttpFoundation\Response
+Lathe\Http\Controllers\Resources\SavedTabController::attributes(Lathe\Http\Requests\LatheRequest $request, Lathe\Resources\Resource $resource, bool $creating): array  [protected]
+Lathe\Http\Controllers\Resources\SavedTabController::destroy(Lathe\Http\Requests\LatheRequest $request, Lathe\Auth\ResourceAuthorization $authorization, Lathe\Support\ConfigStore $config): Illuminate\Http\Response
+Lathe\Http\Controllers\Resources\SavedTabController::enabledResource(Lathe\Http\Requests\LatheRequest $request, Lathe\Auth\ResourceAuthorization $authorization, Lathe\Support\ConfigStore $config): string  [protected]
+Lathe\Http\Controllers\Resources\SavedTabController::find(Lathe\Http\Requests\LatheRequest $request, string $class): Lathe\SavedTabs\SavedTab  [protected]
+Lathe\Http\Controllers\Resources\SavedTabController::index(Lathe\Http\Requests\LatheRequest $request, Lathe\Auth\ResourceAuthorization $authorization, Lathe\Support\ConfigStore $config): Illuminate\Http\JsonResponse
+Lathe\Http\Controllers\Resources\SavedTabController::owned(Lathe\Http\Requests\LatheRequest $request, string $class): Illuminate\Database\Eloquent\Builder  [protected]
+Lathe\Http\Controllers\Resources\SavedTabController::store(Lathe\Http\Requests\LatheRequest $request, Lathe\Auth\ResourceAuthorization $authorization, Lathe\Support\ConfigStore $config): Illuminate\Http\JsonResponse
+Lathe\Http\Controllers\Resources\SavedTabController::update(Lathe\Http\Requests\LatheRequest $request, Lathe\Auth\ResourceAuthorization $authorization, Lathe\Support\ConfigStore $config): Illuminate\Http\JsonResponse
+Lathe\Http\Controllers\Resources\SavedTabController::userId(Lathe\Http\Requests\LatheRequest $request): string  [protected]
 Lathe\Http\ErrorPages::Lathe\Auth\FortifyConfig $fortify  [protected]
 Lathe\Http\ErrorPages::STATUSES
 Lathe\Http\ErrorPages::__construct(Lathe\Auth\FortifyConfig $fortify)
@@ -854,6 +863,11 @@ Lathe\Resources\ResourceRegistry::scan(string $directory, string $namespace): ar
 Lathe\Resources\ResourceRegistry::scanned(): bool
 Lathe\Resources\ResourceRegistry::useCachePath(string $path): void
 Lathe\Resources\ResourceRegistry::validate(string $class, Lathe\Resources\ResourceDefinition $definition): void  [protected]
+Lathe\SavedTabs\SavedTab::$guarded  [protected]
+Lathe\SavedTabs\SavedTab::$table  [protected]
+Lathe\SavedTabs\SavedTab::casts(): array  [protected]
+Lathe\SavedTabs\SavedTab::toPayload(): array
+Lathe\SavedTabs\SchemaHash::for(Lathe\Resources\Resource $resource, Lathe\Http\Requests\LatheRequest $request): string  [static]
 Lathe\Search\LikeSearch::__construct(string $column, bool $contains = false)
 Lathe\Search\LikeSearch::apply(Illuminate\Database\Eloquent\Builder $query, string $term, string $boolean): void
 Lathe\Search\LikeSearch::bool $contains
@@ -1013,6 +1027,7 @@ class Lathe\Http\Controllers\Resources\DeleteController
 class Lathe\Http\Controllers\Resources\FilterController
 class Lathe\Http\Controllers\Resources\IndexController
 class Lathe\Http\Controllers\Resources\IndexPageController
+class Lathe\Http\Controllers\Resources\SavedTabController
 class Lathe\Http\ErrorPages
 class Lathe\Http\Middleware\Authenticate
 class Lathe\Http\Middleware\Authorize
@@ -1041,6 +1056,8 @@ class Lathe\Query\ResourceQuery
 class Lathe\Resources\Resource
 class Lathe\Resources\ResourceDefinition
 class Lathe\Resources\ResourceRegistry
+class Lathe\SavedTabs\SavedTab
+class Lathe\SavedTabs\SchemaHash
 class Lathe\Search\LikeSearch
 class Lathe\Search\SearchApplicator
 class Lathe\Search\SearchablePrimaryKey

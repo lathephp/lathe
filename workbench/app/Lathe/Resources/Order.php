@@ -21,7 +21,8 @@ class Order extends Resource
             ->title('number')
             ->searchable(['number'])
             ->with(['customer'])
-            ->icon('ShoppingCart');
+            ->icon('ShoppingCart')
+            ->savedTabs();
     }
 
     public function fields(LatheRequest $request): array
