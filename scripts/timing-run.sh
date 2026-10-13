@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 # One timing run: restore the snapshot scripts/snapshot.sh made into the timing database,
 # check its row counts and orders total against <snapshot>.counts, warm the buffer pool
-# with one scan, then run the Pest budget group on the mysql lane. The whole run stops at
-# 30 minutes. It prints restore=<seconds> and ends with rc=<code>; rc=124 is the timeout.
+# with one scan, then run the Pest budget group on the mysql lane and the browser budgets
+# against the workbench served on that database. The whole run stops at 30 minutes. It prints restore=<seconds> and ends with rc=<code>; rc=124 is the timeout.
 #   bash scripts/timing-run.sh <snapshot.sql.zst>
 # LATHE_BENCH_DB_NAME names another database (default lathe_test_bench). That database
 # must exist and be migrated: the snapshot holds the demo tables only.
@@ -52,6 +52,13 @@ run() {
     eval "$(bash "$repo/scripts/lanes.sh" env mysql)" || return 1
     cd "$repo" || return 1
     LATHE_BENCH_DATABASE=$database php vendor/bin/pest --group=budget
+    local pest=$?
+
+    # The script serves the workbench itself; DB_DATABASE points it at the restored snapshot.
+    DB_DATABASE=$database node scripts/bench-browser.mjs
+    local browser=$?
+
+    return $((pest != 0 ? pest : browser))
 }
 
 if [[ ${2:-} == --inner ]]; then
