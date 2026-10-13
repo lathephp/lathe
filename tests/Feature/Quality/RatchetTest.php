@@ -4,6 +4,9 @@ use Illuminate\Contracts\Process\ProcessResult;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Process;
 
+// The ratchet check is a Node script, so these tests need Node.
+pest()->group('frontend');
+
 /**
  * A repo whose main branch has the given floors, then a branch that changes them.
  *
