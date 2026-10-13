@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\ServiceProvider;
 use Lathe\Lathe;
 use Workbench\App\Console\Commands\DemoSeedCommand;
+use Workbench\App\Http\Middleware\ArabicContext;
 use Workbench\App\Http\Middleware\ServerTiming;
 use Workbench\App\Http\Middleware\StrictContentSecurityPolicy;
 use Workbench\App\Http\Middleware\StripedTables;
@@ -34,7 +35,8 @@ class WorkbenchServiceProvider extends ServiceProvider
         $kernel = $this->app->make(Kernel::class)
             ->pushMiddleware(StrictContentSecurityPolicy::class)
             ->pushMiddleware(ServerTiming::class)
-            ->pushMiddleware(StripedTables::class);
+            ->pushMiddleware(StripedTables::class)
+            ->pushMiddleware(ArabicContext::class);
 
         if (getenv('LATHE_OCTANE_LANE') === '1') {
             $kernel->pushMiddleware(WorkerMemory::class);

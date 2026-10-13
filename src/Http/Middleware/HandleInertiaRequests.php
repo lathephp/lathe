@@ -46,6 +46,8 @@ class HandleInertiaRequests extends Middleware
                 'success' => $request->hasSession() ? $request->session()->get('success') : null,
                 'error' => $request->hasSession() ? $request->session()->get('error') : null,
             ],
+            // Read by the page root for `dir`. Nothing public sets it yet: a request attribute is the hook.
+            'rtl' => $request->attributes->getBoolean('lathe.rtl'),
             'latheVersion' => Lathe::version(),
             'assetHash' => Lathe::assets()->hash(),
             // A user who may not open the panel sees no Resource or plugin names.

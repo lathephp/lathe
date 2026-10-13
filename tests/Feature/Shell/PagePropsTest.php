@@ -81,3 +81,14 @@ it('gives the record pages no prop named like a shared prop', function () {
         expect(array_values(array_intersect($this->pageProps[$component], $shared)))->toBe([], "{$component} shadows a shared prop");
     }
 });
+
+it('renders lang and dir from the shared rtl prop for the workbench ar context', function () {
+    $ltr = $this->get('/lathe/login')->assertOk()->getContent();
+    $rtl = $this->get('/lathe/login', ['X-Bench-Locale' => 'ar'])->assertOk()->getContent();
+    $next = $this->get('/lathe/login')->assertOk()->getContent();
+
+    expect($ltr)->toContain('<html lang="en" dir="ltr">')->toContain('"rtl":false')
+        ->and($rtl)->toContain('<html lang="ar" dir="rtl">')->toContain('"rtl":true')->toContain('"locale":"ar"')
+        ->and($next)->toContain('<html lang="en" dir="ltr">')
+        ->and(app()->getLocale())->toBe('en');
+});
