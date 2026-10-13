@@ -176,6 +176,13 @@ class Summary
             return null;
         }
 
-        return (string) ($this->format === null ? $result : ($this->format)($result));
+        // Drivers return "7.50", "7.5" or 7.5 for one value, so every number is read the same way first.
+        $number = is_string($result) ? $result + 0 : $result;
+
+        if ($this->format !== null) {
+            return (string) ($this->format)($number);
+        }
+
+        return is_float($number) ? rtrim(rtrim(number_format($number, 6, '.', ''), '0'), '.') : (string) $number;
     }
 }
