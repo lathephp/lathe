@@ -266,6 +266,11 @@ it('runs beforeFill once on load and beforeSave once before persist', function (
 
     expect(repeaterFields()['logged']->resolve($record))->toBe([['name' => 'A'], ['name' => 'added on load']])
         ->and(RepeaterThing::$log->calls)->toBe(['save', 'fill']);
+
+    $form = LatheTest::resource('repeater-things')->updateFields($record->id)->assertOk();
+
+    expect(collect($form->json('fields'))->firstWhere('attribute', 'logged')['value'])->toBe([['name' => 'A'], ['name' => 'added on load']])
+        ->and(RepeaterThing::$log->calls)->toBe(['save', 'fill', 'fill']);
 });
 
 it('sends its mode, sub-fields and options in the payload', function () {
