@@ -26,7 +26,9 @@
     "require-dev": {
         "acme/heartbeat": "@dev",
         "larastan/larastan": "^3.13",
+        "laravel/octane": "^2.20",
         "laravel/pint": "^1.25",
+        "laravel/scout": "^11.8",
         "orchestra/testbench": "^11.3",
         "pestphp/pest": "^5.3",
         "pestphp/pest-plugin-browser": "^5.1",
