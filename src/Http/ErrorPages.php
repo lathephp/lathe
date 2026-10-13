@@ -57,10 +57,28 @@ class ErrorPages
 
         Inertia::setRootView('lathe::app');
 
+        // The shell needs the panel's shared props, which exist only once HandleInertiaRequests
+        // ran; a failure before it, such as a CSRF mismatch in the web group, draws full screen.
+        $shell = Inertia::getShared('auth') !== null
+            && $request->hasSession()
+            && $request->user($this->fortify->guard()) !== null;
+
+        try {
+            return $this->page($request, $status, $message, $shell);
+        } catch (Throwable) {
+            // Building the shell itself failed (its navigation threw): show the page without it.
+            Inertia::flushShared();
+
+            return $this->page($request, $status, $message, false);
+        }
+    }
+
+    protected function page(Request $request, int $status, ?string $message, bool $shell): Response
+    {
         return Inertia::render('Error', [
             'status' => $status,
             'message' => $message,
-            'shell' => $request->hasSession() && $request->user($this->fortify->guard()) !== null,
+            'shell' => $shell,
         ])->toResponse($request)->setStatusCode($status);
     }
 }

@@ -301,6 +301,7 @@ Lathe\Http\Controllers\Resources\IndexPageController::__invoke(Lathe\Http\Reques
 Lathe\Http\ErrorPages::Lathe\Auth\FortifyConfig $fortify  [protected]
 Lathe\Http\ErrorPages::STATUSES
 Lathe\Http\ErrorPages::__construct(Lathe\Auth\FortifyConfig $fortify)
+Lathe\Http\ErrorPages::page(Illuminate\Http\Request $request, int $status, ?string $message, bool $shell): Symfony\Component\HttpFoundation\Response  [protected]
 Lathe\Http\ErrorPages::render(Throwable $e, Illuminate\Http\Request $request): ?Symfony\Component\HttpFoundation\Response
 Lathe\Http\Middleware\Authenticate::Illuminate\Contracts\Auth\Factory $auth  [protected]
 Lathe\Http\Middleware\Authenticate::Lathe\Auth\FortifyConfig $fortify  [protected]
@@ -316,6 +317,7 @@ Lathe\Http\Middleware\HandleInertiaRequests::$rootView  [protected]
 Lathe\Http\Middleware\HandleInertiaRequests::share(Illuminate\Http\Request $request): array
 Lathe\Http\Middleware\HandleInertiaRequests::shareOnce(Illuminate\Http\Request $request): array
 Lathe\Http\Middleware\HandleInertiaRequests::version(Illuminate\Http\Request $request): ?string
+Lathe\Http\Middleware\RedirectIfAuthenticated::redirectTo(Illuminate\Http\Request $request): ?string  [protected]
 Lathe\Http\Middleware\ServeLathe::Illuminate\Contracts\Container\Container $container  [protected]
 Lathe\Http\Middleware\ServeLathe::__construct(Illuminate\Contracts\Container\Container $container)
 Lathe\Http\Middleware\ServeLathe::handle(Illuminate\Http\Request $request, Closure $next): Symfony\Component\HttpFoundation\Response
@@ -658,6 +660,7 @@ class Lathe\Http\Middleware\Authorize
 class Lathe\Http\Middleware\AuthorizePlugin
 class Lathe\Http\Middleware\EnsureJson
 class Lathe\Http\Middleware\HandleInertiaRequests
+class Lathe\Http\Middleware\RedirectIfAuthenticated
 class Lathe\Http\Middleware\ServeLathe
 class Lathe\Http\Middleware\ServePlugins
 class Lathe\Http\PanelRoutes

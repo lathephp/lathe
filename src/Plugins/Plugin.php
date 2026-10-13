@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Routing\Router;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Str;
+use Lathe\Auth\FortifyConfig;
 use Lathe\Menu\MenuSection;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
@@ -50,7 +51,7 @@ abstract class Plugin
 
     public function canSeeWhen(string $ability, mixed $arguments = []): static
     {
-        return $this->canSee(fn (Request $request) => Gate::forUser($request->user())->check($ability, $arguments));
+        return $this->canSee(fn (Request $request) => Gate::forUser($request->user(app(FortifyConfig::class)->guard()))->check($ability, $arguments));
     }
 
     public function authorize(Request $request): bool

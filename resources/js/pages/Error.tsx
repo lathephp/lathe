@@ -12,7 +12,11 @@ interface ErrorProps {
 /** The panel layout wraps this page when `shell` is true; otherwise it fills the screen. */
 export default function ErrorPage({ status, message, shell }: ErrorProps) {
   const { __ } = useTranslation();
-  const { basePath, auth } = usePage<SharedProps>().props;
+  // A failure before the panel's shared props (a CSRF mismatch, a shell that cannot be built)
+  // arrives without them, so neither may be assumed here.
+  const shared = usePage<Partial<SharedProps>>().props;
+  const basePath = shared.basePath ?? '/lathe';
+  const signedIn = shared.auth?.user != null;
 
   const copy = {
     403: [__('Forbidden'), __('You do not have permission to open this page.')],
@@ -39,7 +43,7 @@ export default function ErrorPage({ status, message, shell }: ErrorProps) {
             {__('Reload')}
           </Button>
         )}
-        {status === 403 && auth.user !== null && (
+        {status === 403 && signedIn && (
           <Button
             variant="outline"
             onClick={() => {

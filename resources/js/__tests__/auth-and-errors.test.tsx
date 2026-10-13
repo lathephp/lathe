@@ -167,3 +167,16 @@ describe('error page for a bad address', () => {
     expect(within(screen.getByRole('main')).getByRole('heading', { name: 'This page cannot be shown' })).toBeTruthy();
   });
 });
+
+describe('error page without the panel props', () => {
+  it('draws full screen when the failure came before the shared props, as a CSRF mismatch does', () => {
+    renderPage(
+      'Error',
+      { status: 419, message: null, shell: false },
+      { shared: { auth: undefined, basePath: undefined, navigation: undefined, layout: undefined } },
+    );
+
+    expect(screen.getByRole('heading', { name: 'Your session expired' })).toBeTruthy();
+    expect(screen.getByRole('link', { name: 'Back to dashboard' }).getAttribute('href')).toBe('/lathe');
+  });
+});

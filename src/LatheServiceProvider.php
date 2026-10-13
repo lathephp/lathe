@@ -2,7 +2,6 @@
 
 namespace Lathe;
 
-use Illuminate\Auth\Middleware\RedirectIfAuthenticated;
 use Illuminate\Contracts\Debug\ExceptionHandler;
 use Illuminate\Contracts\Http\Kernel;
 use Illuminate\Cookie\Middleware\EncryptCookies;
@@ -25,6 +24,7 @@ use Lathe\Console\InstallCommand;
 use Lathe\Dashboards\DashboardRegistry;
 use Lathe\Exceptions\InvalidConfigurationException;
 use Lathe\Http\ErrorPages;
+use Lathe\Http\Middleware\RedirectIfAuthenticated;
 use Lathe\Http\Middleware\ServeLathe;
 use Lathe\Http\Middleware\ServePlugins;
 use Lathe\Http\PanelRoutes;
@@ -50,8 +50,11 @@ class LatheServiceProvider extends ServiceProvider
         $this->app->singleton(AssetRegistry::class);
         $this->app->singleton(FortifyConfig::class);
 
-        // Lathe registers login and logout under its own path; Fortify's routes at the host root stay off.
-        Fortify::ignoreRoutes();
+        // Lathe registers login and logout under its own path. Fortify's routes at the host root
+        // stay off, unless the host published config/fortify.php and so uses Fortify itself.
+        if (! file_exists($this->app->configPath('fortify.php'))) {
+            Fortify::ignoreRoutes();
+        }
     }
 
     public function boot(): void
@@ -110,7 +113,8 @@ class LatheServiceProvider extends ServiceProvider
         /** @var list<string> $apiMiddleware */
         $apiMiddleware = $config->get('api_middleware', []);
 
-        $router->middlewareGroup('lathe', [ServePlugins::class, ...$middleware]);
+        // ServePlugins runs last, once the session has resolved the user.
+        $router->middlewareGroup('lathe', [...$middleware, ServePlugins::class]);
         $router->middlewareGroup('lathe.api', $apiMiddleware);
         $router->aliasMiddleware('lathe.guest', RedirectIfAuthenticated::class);
 

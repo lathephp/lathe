@@ -146,3 +146,14 @@ it('still lists a plugin script whose file is missing, so the panel reports it',
     expect(Lathe::plugins()->moduleUrls())->toContain('/lathe/modules/ghost-00000000.js');
     $this->get('/lathe/modules/ghost-00000000.js')->assertNotFound();
 });
+
+it('checks canSeeWhen against the user of the panel guard', function () {
+    config(['auth.guards.panel' => ['driver' => 'session', 'provider' => 'users'], 'lathe.guard' => 'panel']);
+    Gate::define('seeBeacon', fn ($user) => $user->getAttribute('email') === 'ada@example.test');
+    registerBeacon(Beacon::make()->canSeeWhen('seeBeacon'));
+
+    // Only the panel guard knows the user; the default guard stays signed out.
+    auth('panel')->setUser((new User)->forceFill(['id' => 1, 'name' => 'Ada', 'email' => 'ada@example.test']));
+
+    $this->getJson('/lathe/api/plugins/beacon/status')->assertOk();
+});
