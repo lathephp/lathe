@@ -16,4 +16,5 @@ return [
     'plugin-load-failure' => 'PluginLoadFailureTest.php',
     'index-search-sort' => 'IndexSearchSortTest.php',
     'search-palette' => 'SearchPaletteTest.php',
+    'index-filters' => 'IndexFiltersTest.php',
 ];
