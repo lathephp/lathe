@@ -178,6 +178,18 @@ it('finds a word in the body with SearchableText and falls back to contains on S
         ->and(strategyIds('strategy-text-posts', 'uokk'))->toBe($sqlite ? [$quokka->id] : []);
 });
 
+it('reads boolean operators in a text search as plain words, never as SQL errors', function (string $term) {
+    $quokka = Post::forceCreate(['title' => 'One', 'status' => 'draft', 'body' => 'A quiet quokka sleeps under the tree']);
+    Lathe::registerResources(StrategyTextPost::class);
+
+    expect(strategyIds('strategy-text-posts', $term))->toBeArray();
+
+    // SQLite matches the whole phrase with contains, so only full text finds the word beside the operator.
+    if (DB::connection()->getDriverName() !== 'sqlite') {
+        expect(strategyIds('strategy-text-posts', "{$term} quokka"))->toContain($quokka->id);
+    }
+})->with(['"', '(', ')', '-', '+', '*', '~', '<', '>', '@', '"quokka']);
+
 it('matches a JSON path by prefix with SearchableJson', function () {
     Schema::create('gizmos', function (Blueprint $table) {
         $table->id();

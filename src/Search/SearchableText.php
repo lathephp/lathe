@@ -31,7 +31,17 @@ class SearchableText implements SearchableColumn
             return;
         }
 
+        // In boolean mode MySQL reads + - < > ( ) ~ * " @ as operators, and a stray one is a
+        // syntax error, so the person's term is searched as plain words.
+        $words = trim((string) preg_replace('/[+\-<>()~*"@]+/', ' ', $term));
+
+        if ($words === '') {
+            $query->whereRaw('1 = 0', [], $boolean);
+
+            return;
+        }
+
         // PostgreSQL ignores the boolean mode and builds plainto_tsquery.
-        $query->whereFullText($column, $term, $this->options + ['mode' => 'boolean'], $boolean);
+        $query->whereFullText($column, $words, $this->options + ['mode' => 'boolean'], $boolean);
     }
 }
