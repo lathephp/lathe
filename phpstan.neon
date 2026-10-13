@@ -6,4 +6,7 @@ parameters:
     paths:
         - src
         - workbench/app
+        - config
     reportUnmatchedIgnoredErrors: true
+    configDirectories:
+        - config
