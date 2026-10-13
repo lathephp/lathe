@@ -292,7 +292,8 @@ test('global_search_has_no_ambiguous_id_on_joined_query', function () {
 it('returns no group for a Resource that fails canSee', function () {
     Lathe::registerResources(GlobalSearchHiddenCustomer::class);
 
-    expect(array_keys(globalSearchGroups('ann')))->toBe(['customers']);
+    // Orders match "ann" through their customer's name.
+    expect(array_keys(globalSearchGroups('ann')))->toBe(['customers', 'orders']);
 });
 
 it('skips a Resource whose query throws, lists its label and returns the others', function () {
@@ -301,7 +302,7 @@ it('skips a Resource whose query throws, lists its label and returns the others'
     $response = $this->getJson('/lathe/api/search?q=ann')->assertOk();
 
     expect($response->json('skipped'))->toBe(['Global Search Broken Customers'])
-        ->and(array_column($response->json('groups'), 'resourceName'))->toBe(['customers']);
+        ->and(array_column($response->json('groups'), 'resourceName'))->toBe(['customers', 'orders']);
 });
 
 it('answers 403 without the globalSearch ability', function () {
@@ -332,7 +333,8 @@ it('selects only the key, title and subtitle columns for plain attribute titles'
 
     $this->getJson('/lathe/api/search?q=ann')->assertOk();
 
-    $customers = array_values(array_filter($queries, fn (string $sql) => str_contains($sql, quotedSql('from "customers"'))));
+    // The Orders search reads customers too, but only inside its own exists subquery.
+    $customers = array_values(array_filter($queries, fn (string $sql) => str_starts_with($sql, quotedSql('select "customers".'))));
     expect($customers)->toHaveCount(1)
         ->and($customers[0])->toStartWith(quotedSql('select "customers"."id", "customers"."name", "customers"."email" from "customers"'));
 });
