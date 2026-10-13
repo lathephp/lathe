@@ -279,4 +279,4 @@ it('fills the slug from the title until the slug is typed in', function () {
 
     // The editors' strict CSP check lives in A11yAndCspTest.
     expect(Post::where('title', 'Hello World Again')->sole()->slug)->toBe('hello-world');
-})->skip(TIPTAP_CHUNK_THROWS);
+});

@@ -43,4 +43,4 @@ it('loads the Posts create form with the Tiptap and Markdown editors under the s
         ->click('#field-markdown_body-preview')
         ->assertSourceHas('<strong>Bold</strong>');
     assertCleanPage($page);
-})->skip(TIPTAP_CHUNK_THROWS.' Once it renders, Tiptap injects its base <style data-tiptap-style> without the nonce (injectCSS), and the strict policy blocks it twice.');
+});

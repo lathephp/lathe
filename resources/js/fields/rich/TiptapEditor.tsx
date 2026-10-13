@@ -64,6 +64,14 @@ function Tool({ label, icon: Icon, disabled, onClick }: ToolProps) {
 }
 
 /** A rich-text editor whose value is HTML. The server sanitizes it on save and on render. */
+
+/** The server's CSP nonce, read off the panel's own entry tag as app.tsx does. */
+function cspNonce(): string | undefined {
+  const nonce = document.querySelector<HTMLScriptElement>('script[type="module"][nonce]')?.nonce;
+
+  return nonce === '' ? undefined : nonce;
+}
+
 export default function TiptapEditor({ field, value, onChange, id, describedBy, invalid, disabled, uploadImage }: TiptapEditorProps) {
   const { __ } = useTranslation();
 
@@ -79,6 +87,8 @@ export default function TiptapEditor({ field, value, onChange, id, describedBy, 
   }
 
   const editor = useEditor({
+    // Tiptap injects its base <style>; the strict policy lets it in only with the panel's nonce.
+    injectNonce: cspNonce(),
     extensions,
     content: stringValue(value),
     editable: !disabled,

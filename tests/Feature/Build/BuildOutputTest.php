@@ -144,6 +144,20 @@ it('leaves react and the lathe packages as bare imports in the panel code', func
         ->and($panel.$pages)->not->toContain('react.dev/errors');
 });
 
+it('leaves no CommonJS require of an import map specifier in any chunk', function () {
+    buildOutputRun();
+    $calls = [];
+
+    foreach (array_keys(buildOutputTree()) as $path) {
+        // A require() of an external throws "Calling `require` for react" in the browser.
+        if (str_ends_with($path, '.js') && preg_match('/\(\s*[`"\'](react|react-dom|react\/jsx-runtime|react-dom\/client)[`"\']\s*\)/', buildOutputFile($path), $match) === 1) {
+            $calls[] = "{$path}: {$match[0]}";
+        }
+    }
+
+    expect($calls)->toBe([]);
+});
+
 it('ignores dist in git', function () {
     // The pattern /dist/ matches a folder, so dist must exist first.
     buildOutputTwice();

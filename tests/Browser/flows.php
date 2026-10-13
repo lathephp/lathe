@@ -21,4 +21,12 @@ return [
     'index-rows' => 'IndexRowsTest.php',
     'index-tabs' => 'IndexTabsTest.php',
     'narrow-screen' => 'NarrowScreenTest.php',
+    'record-show-path' => 'RecordShowPathTest.php',
+    'record-forms' => 'RecordFormsTest.php',
+    'record-layout' => 'RecordLayoutTest.php',
+    'inline-edit' => 'InlineEditTest.php',
+    'record-actions' => 'RecordActionsTest.php',
+    'uploads' => 'UploadsTest.php',
+    'stale-edit' => 'ConflictTest.php',
+    'record-a11y-csp' => 'A11yAndCspTest.php',
 ];

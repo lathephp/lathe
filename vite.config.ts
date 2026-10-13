@@ -46,6 +46,13 @@ function importMapEntries(): Plugin {
         return null;
       }
 
+      // A dependency may be CommonJS (use-sync-external-store under Tiptap), and its
+      // require() of an external throws in the browser. It imports the vendor entry
+      // instead, which is the same module the import map serves.
+      if (importer !== undefined && /[\\/]node_modules[\\/]/.test(importer)) {
+        return `\0${prefix}${id}`;
+      }
+
       return { id, external: true };
     },
     load(id) {
