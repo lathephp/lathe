@@ -467,6 +467,7 @@ Lathe\Field\Concerns\DisplayFactories::status(string $name, Closure|string|null 
 Lathe\Field\Concerns\NumberFactories::currency(string $label, ?string $attribute = NULL): Lathe\Field\CurrencyField  [static]
 Lathe\Field\Concerns\NumberFactories::number(string $label, Closure|string|null $attribute = NULL): Lathe\Field\NumberField  [static]
 Lathe\Field\Concerns\NumberFactories::token(string $label, ?string $attribute = NULL): Lathe\Field\TokenField  [static]
+Lathe\Field\Concerns\RepeaterFactories::repeater(string $name, ?string $attribute = NULL): Lathe\Field\RepeaterField  [static]
 Lathe\Field\Concerns\RichFactories::markdown(string $label, ?string $attribute = NULL): Lathe\Field\MarkdownField  [static]
 Lathe\Field\Concerns\TextFactories::color(string $label, ?string $attribute = NULL): Lathe\Field\Field  [static]
 Lathe\Field\Concerns\TextFactories::email(string $label = 'Email', Closure|string|null $attribute = NULL): Lathe\Field\TextField  [static]
@@ -922,6 +923,66 @@ Lathe\Field\PasswordField::__construct(string $label = 'Password', Closure|strin
 Lathe\Field\PasswordField::string $component  [protected]
 Lathe\Field\PasswordLifecycle::persist(object $model, string $attribute, mixed $value): ?Closure
 Lathe\Field\PasswordLifecycle::present(mixed $raw, object $record, string $attribute): mixed
+Lathe\Field\RepeaterField::?Closure $beforeFill  [protected]
+Lathe\Field\RepeaterField::?Closure $beforeSave  [protected]
+Lathe\Field\RepeaterField::?Closure $labelCallback  [protected]
+Lathe\Field\RepeaterField::?string $distinct  [protected]
+Lathe\Field\RepeaterField::__construct(string $label, Closure|string|null $attribute = NULL, ?Closure $resolver = NULL)
+Lathe\Field\RepeaterField::addButtonText(string $text): static
+Lathe\Field\RepeaterField::addable(bool $addable = true): static
+Lathe\Field\RepeaterField::array $blocks  [protected]
+Lathe\Field\RepeaterField::array $subFields  [protected]
+Lathe\Field\RepeaterField::asJson(): static
+Lathe\Field\RepeaterField::beforeFill(Closure $callback): static
+Lathe\Field\RepeaterField::beforeSave(Closure $callback): static
+Lathe\Field\RepeaterField::block(mixed $type): ?Lathe\Field\Repeater\Repeatable  [protected]
+Lathe\Field\RepeaterField::cloneable(bool $cloneable = true): static
+Lathe\Field\RepeaterField::collapsed(bool $collapsed = true): static
+Lathe\Field\RepeaterField::collapsible(bool $collapsible = true): static
+Lathe\Field\RepeaterField::confirmRemoval(bool $confirm = true): static
+Lathe\Field\RepeaterField::defaultRows(int $rows): static
+Lathe\Field\RepeaterField::deletable(bool $deletable = true): static
+Lathe\Field\RepeaterField::distinct(string $subFieldAttribute): static
+Lathe\Field\RepeaterField::emptyRow(array $fields, ?Lathe\Http\Requests\LatheRequest $request): array  [protected]
+Lathe\Field\RepeaterField::fieldRules(array $fields, string $rowPath, Lathe\Field\FieldContext $context, ?Lathe\Http\Requests\LatheRequest $request): array  [protected]
+Lathe\Field\RepeaterField::fields(array $fields): static
+Lathe\Field\RepeaterField::getMessages(): array
+Lathe\Field\RepeaterField::getRules(Lathe\Field\FieldContext $context, ?Lathe\Http\Requests\LatheRequest $request = NULL, ?Illuminate\Database\Eloquent\Model $model = NULL): array
+Lathe\Field\RepeaterField::getValidationAttributes(): array
+Lathe\Field\RepeaterField::grid(int $columns): static
+Lathe\Field\RepeaterField::impliedRules(): array  [protected]
+Lathe\Field\RepeaterField::int $defaultRows  [protected]
+Lathe\Field\RepeaterField::itemNumbers(bool $show = true): static
+Lathe\Field\RepeaterField::jsonSerialize(): array
+Lathe\Field\RepeaterField::max(int $rows): static
+Lathe\Field\RepeaterField::maxRows(): int  [protected]
+Lathe\Field\RepeaterField::min(int $rows): static
+Lathe\Field\RepeaterField::mode(string $mode, array $fields): static  [protected]
+Lathe\Field\RepeaterField::repeatables(array $blocks): static
+Lathe\Field\RepeaterField::resolveDefaultValue(?Lathe\Http\Requests\LatheRequest $request = NULL): mixed
+Lathe\Field\RepeaterField::rowFields(array $row): ?array  [protected]
+Lathe\Field\RepeaterField::rowLabel(Closure|string $label, ?string $fallback = NULL): static
+Lathe\Field\RepeaterField::schema(Lathe\Field\FieldContext $context, Lathe\Http\Requests\LatheRequest $request, ?Illuminate\Database\Eloquent\Model $model = NULL): array
+Lathe\Field\RepeaterField::scoped(Closure $read, array $scoped): array  [protected]
+Lathe\Field\RepeaterField::shape(?Closure $callback, array $rows): array  [protected]
+Lathe\Field\RepeaterField::simple(Lathe\Field\Field $field): static
+Lathe\Field\RepeaterField::sortable(bool $sortable = true): static
+Lathe\Field\RepeaterField::string $component  [protected]
+Lathe\Field\RepeaterField::string $mode  [protected]
+Lathe\Field\Repeater\Repeatable::?array $resolved  [protected]
+Lathe\Field\Repeater\Repeatable::?string $icon  [protected]
+Lathe\Field\Repeater\Repeatable::Closure|array $fields  [protected]
+Lathe\Field\Repeater\Repeatable::__construct(string $label, Closure|array $fields = array ( ))
+Lathe\Field\Repeater\Repeatable::bool $confirmRemoval  [protected]
+Lathe\Field\Repeater\Repeatable::confirmBeforeRemoval(bool $confirm = true): static
+Lathe\Field\Repeater\Repeatable::fields(Closure|array $fields): static
+Lathe\Field\Repeater\Repeatable::getFields(): array
+Lathe\Field\Repeater\Repeatable::icon(string $icon): static
+Lathe\Field\Repeater\Repeatable::key(): string
+Lathe\Field\Repeater\Repeatable::label(): string
+Lathe\Field\Repeater\Repeatable::make(string $label, Closure|array $fields = array ( )): static  [static]
+Lathe\Field\Repeater\Repeatable::string $label  [protected]
+Lathe\Field\Repeater\Repeatable::toPayload(Closure $field): array
 Lathe\Field\SelectField::Closure|array|string $optionSource  [protected]
 Lathe\Field\SelectField::Closure|bool $searchable  [protected]
 Lathe\Field\SelectField::bool $displayUsingLabels  [protected]
@@ -2123,6 +2184,8 @@ class Lathe\Field\OptionGroup
 class Lathe\Field\OptionList
 class Lathe\Field\PasswordField
 class Lathe\Field\PasswordLifecycle
+class Lathe\Field\RepeaterField
+class Lathe\Field\Repeater\Repeatable
 class Lathe\Field\SelectField
 class Lathe\Field\SparklineField
 class Lathe\Field\StackField

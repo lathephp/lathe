@@ -4,6 +4,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { FieldError } from '../../components/FieldError';
 import { passes } from '../../fields/conditions';
 import { FormField, stringValue } from '../../fields/registry';
+import { RepeaterErrorsContext } from '../../fields/repeater/errors';
 import type { FormFieldData, FormProps } from '../../fields/types';
 import { cn } from '../../lib/cn';
 import { Breadcrumbs } from '../../records/Breadcrumbs';
@@ -64,41 +65,43 @@ export default function Form({ resource, mode, id, title, breadcrumbs, form, sub
           submit('default');
         }}
       >
-        <RecordLayout
-          blocks={record.payload.layout}
-          borderless={record.payload.borderless === true}
-          errorKeys={errorKeys}
-          renderField={(key) => {
-            const field = byKey.get(key);
+        <RepeaterErrorsContext value={record.errors}>
+          <RecordLayout
+            blocks={record.payload.layout}
+            borderless={record.payload.borderless === true}
+            errorKeys={errorKeys}
+            renderField={(key) => {
+              const field = byKey.get(key);
 
-            const patch = patches[key] ?? {};
+              const patch = patches[key] ?? {};
 
-            if (field === undefined || patch.visible === false || (patch.visible !== true && field.visibleWhen != null && !passes(field.visibleWhen, record.values))) {
-              return null;
-            }
+              if (field === undefined || patch.visible === false || (patch.visible !== true && field.visibleWhen != null && !passes(field.visibleWhen, record.values))) {
+                return null;
+              }
 
-            const from = field.optionsFrom as { field: string; map: Record<string, unknown> } | null | undefined;
-            const decided = {
-              ...field,
-              ...(from == null ? {} : { options: from.map[stringValue(record.values[from.field])] ?? [] }),
-              ...(patch.options === undefined ? {} : { options: patch.options }),
-              required: patch.required ?? (field.required === true || (field.requiredWhen != null && passes(field.requiredWhen, record.values))),
-              readonly: patch.readonly ?? (field.readonly === true || (field.readonlyWhen != null && passes(field.readonlyWhen, record.values))),
-            };
+              const from = field.optionsFrom as { field: string; map: Record<string, unknown> } | null | undefined;
+              const decided = {
+                ...field,
+                ...(from == null ? {} : { options: from.map[stringValue(record.values[from.field])] ?? [] }),
+                ...(patch.options === undefined ? {} : { options: patch.options }),
+                required: patch.required ?? (field.required === true || (field.requiredWhen != null && passes(field.requiredWhen, record.values))),
+                readonly: patch.readonly ?? (field.readonly === true || (field.readonlyWhen != null && passes(field.readonlyWhen, record.values))),
+              };
 
-            return (
-              <FormRow
-                field={decided}
-                value={record.values[field.attribute]}
-                error={record.errors[field.attribute]}
-                onChange={(value) => {
-                  setDirty((current) => new Set(current).add(field.attribute));
-                  record.setValue(field.attribute, value);
-                }}
-              />
-            );
-          }}
-        />
+              return (
+                <FormRow
+                  field={decided}
+                  value={record.values[field.attribute]}
+                  error={record.errors[field.attribute]}
+                  onChange={(value) => {
+                    setDirty((current) => new Set(current).add(field.attribute));
+                    record.setValue(field.attribute, value);
+                  }}
+                />
+              );
+            }}
+          />
+        </RepeaterErrorsContext>
         <div className="flex flex-wrap items-center justify-end gap-2">
           {record.draft.restored ? (
             <button type="button" className="me-auto h-9 rounded-md px-4 text-sm" onClick={record.draft.discard}>
