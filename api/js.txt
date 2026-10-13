@@ -4,6 +4,7 @@
 @lathephp/core apiVersion
 @lathephp/core booting
 @lathephp/core config
+@lathephp/core csrfHeaders
 @lathephp/core disableShortcut
 @lathephp/core emit
 @lathephp/core enableShortcut
