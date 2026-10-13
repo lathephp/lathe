@@ -7468,7 +7468,7 @@
     "packages-dev": [
         {
             "name": "acme/heartbeat",
-            "version": "dev-worktree-agent-afa7500ce34bbc760",
+            "version": "dev-main",
             "dist": {
                 "type": "path",
                 "url": "workbench/lathe-components/Heartbeat",
