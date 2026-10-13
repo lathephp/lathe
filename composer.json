@@ -75,7 +75,8 @@
         ],
         "lint": [
             "pint --test",
-            "bash scripts/check-patterns.sh"
+            "bash scripts/check-patterns.sh",
+            "bash scripts/pnpm.sh translations"
         ],
         "format": "pint",
         "analyse": "phpstan analyse --memory-limit=1G",

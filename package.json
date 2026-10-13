@@ -12,6 +12,7 @@
     "types": "tsc -b",
     "lint": "eslint . --max-warnings=0",
     "test": "vitest run --coverage",
+    "translations": "node scripts/check-translations.mjs",
     "size": "node scripts/size.mjs",
     "bench:browser": "node scripts/bench-browser.mjs"
   },

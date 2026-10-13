@@ -3,6 +3,7 @@ import { defineConfig, globalIgnores } from 'eslint/config';
 import jsxA11y from 'eslint-plugin-jsx-a11y';
 import reactHooks from 'eslint-plugin-react-hooks';
 import tseslint from 'typescript-eslint';
+import noUntranslatedLiteral from './eslint-rules/no-untranslated-literal.js';
 
 export default defineConfig([
   // A worktree under .claude carries its own copy of this config; vendor is the PHP side.
@@ -27,6 +28,13 @@ export default defineConfig([
       // A wide table's scroll container is a focusable region, so keyboard users can scroll it.
       'jsx-a11y/no-noninteractive-tabindex': ['error', { roles: ['tabpanel', 'region'], tags: [] }],
     },
+  },
+  {
+    // Client source only: tests assert on literal text, and the tooling has no UI.
+    files: ['resources/js/**/*.tsx', 'packages/*/src/**/*.tsx'],
+    ignores: ['**/__tests__/**'],
+    plugins: { lathe: { rules: { 'no-untranslated-literal': noUntranslatedLiteral } } },
+    rules: { 'lathe/no-untranslated-literal': 'error' },
   },
   {
     files: ['**/*.js', '**/*.mjs'],
