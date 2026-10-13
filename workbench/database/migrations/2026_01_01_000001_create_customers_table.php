@@ -12,6 +12,8 @@ return new class extends Migration
             $table->id();
             $table->string('name');
             $table->string('email')->unique();
+            $table->char('country', 2)->nullable();
+            $table->decimal('credit', 10, 2)->nullable();
             $table->timestamps();
         });
     }

@@ -4,10 +4,12 @@ use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Schema;
+use Workbench\App\Console\Commands\DemoSeedCommand;
 use Workbench\App\Models\Customer;
 use Workbench\App\Models\Order;
 use Workbench\App\Models\User;
 use Workbench\Database\Seeders\DatabaseSeeder;
+use Workbench\Database\Seeders\DemoSeeder;
 
 beforeEach(function () {
     $this->artisan('migrate')->assertExitCode(0);
@@ -77,7 +79,7 @@ it('seeds the same orders on every fresh database', function () {
 
     // MySQL and MariaDB refuse to truncate customers while orders points at it.
     Schema::withoutForeignKeyConstraints(function () {
-        foreach (['orders', 'customers', 'users'] as $table) {
+        foreach (DemoSeedCommand::TABLES as $table) {
             DB::table($table)->truncate();
         }
     });
@@ -105,4 +107,49 @@ it('reseeds the default store with lathe:demo-seed', function () {
     expect(User::count())->toBe(10)
         ->and(Customer::count())->toBe(1000)
         ->and(Order::count())->toBe(10000);
+});
+
+it('seeds the catalog, the posts and items for the first 10,000 orders', function () {
+    seedDemo();
+
+    $perOrder = DB::table('order_items')->selectRaw('order_id, count(*) as item_count')->groupBy('order_id')->pluck('item_count');
+
+    expect(DB::table('products')->count())->toBe(500)
+        ->and(DB::table('categories')->count())->toBe(20)
+        ->and(DB::table('tags')->count())->toBe(50)
+        ->and(DB::table('posts')->count())->toBe(200)
+        ->and(DB::table('posts')->whereNotNull('deleted_at')->count())->toBe(10)
+        ->and(DB::table('comments')->count())->toBe(1000)
+        ->and($perOrder->count())->toBe(10000)
+        ->and((int) DB::table('order_items')->max('order_id'))->toBe(10000)
+        ->and((int) $perOrder->min())->toBeGreaterThanOrEqual(1)
+        ->and((int) $perOrder->max())->toBeLessThanOrEqual(5);
+});
+
+it('seeds the orders it is asked for, with one customer per 100 orders and at least 1,000', function () {
+    $this->artisan('lathe:demo-seed', ['--orders' => 1500])->expectsOutputToContain('Seeded 1,500 orders in')->assertExitCode(0);
+
+    expect(Order::count())->toBe(1500)
+        ->and(Customer::count())->toBe(1000)
+        ->and((new DemoSeeder)->forOrders(250000)->customerCount())->toBe(2500);
+});
+
+it('refuses an order count that is not a whole number', function (string $orders) {
+    $this->artisan('lathe:demo-seed', ['--orders' => $orders])->assertExitCode(1);
+})->with(['0', 'abc', '-5']);
+
+it('gives two seeds of 1,000 orders equal checksums', function () {
+    $checksum = fn () => md5(DB::table('orders')->orderBy('id')->get()->toJson());
+
+    $this->artisan('lathe:demo-seed', ['--orders' => 1000])->assertExitCode(0);
+    $first = $checksum();
+    $this->artisan('lathe:demo-seed', ['--orders' => 1000])->assertExitCode(0);
+
+    expect($checksum())->toBe($first);
+});
+
+it('indexes the orders columns the list filters, sorts and searches on', function () {
+    $indexes = collect(Schema::getIndexes('orders'))->map(fn (array $index) => [implode(',', $index['columns']), $index['unique']]);
+
+    expect($indexes)->toContain(['number', true], ['customer_id', false], ['status', false], ['total_cents', false], ['status,total_cents', false], ['placed_at', false]);
 });

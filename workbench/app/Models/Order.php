@@ -5,6 +5,7 @@ namespace Workbench\App\Models;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Carbon;
 
 /**
@@ -36,5 +37,13 @@ class Order extends Model
     public function customer(): BelongsTo
     {
         return $this->belongsTo(Customer::class);
+    }
+
+    /**
+     * @return HasMany<OrderItem, $this>
+     */
+    public function items(): HasMany
+    {
+        return $this->hasMany(OrderItem::class);
     }
 }

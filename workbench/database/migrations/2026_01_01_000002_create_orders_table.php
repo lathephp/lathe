@@ -10,15 +10,15 @@ return new class extends Migration
     {
         Schema::create('orders', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('customer_id')->constrained();
-            $table->string('number', 12)->unique();
-            $table->string('status');
-            $table->unsignedBigInteger('total_cents');
-            $table->timestamp('placed_at');
+            $table->foreignId('customer_id')->index()->constrained();
+            $table->char('number', 12)->unique();
+            $table->string('status', 16)->index();
+            $table->integer('total_cents')->index();
+            $table->dateTime('placed_at')->index();
             $table->timestamps();
 
+            // Filter by status and sort by total on 10 million rows stay on an index.
             $table->index(['status', 'total_cents']);
-            $table->index('total_cents');
         });
     }
 

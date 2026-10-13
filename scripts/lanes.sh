@@ -37,10 +37,11 @@ start() {
                 "$image" >/dev/null
             ;;
         *)
-            podman run -d --name "$name" -p "127.0.0.1:$port:$inner" \
+            # The timing runs measure MySQL inside this limit, a 3 GB cap with a 2 GB buffer pool.
+            podman run -d --name "$name" -p "127.0.0.1:$port:$inner" --memory=3g \
                 -e MYSQL_DATABASE=$database -e MYSQL_USER=$user -e MYSQL_PASSWORD=$password \
                 -e MYSQL_ROOT_PASSWORD=$password \
-                "$image" >/dev/null
+                "$image" --innodb-buffer-pool-size=2G >/dev/null
             ;;
     esac
 }

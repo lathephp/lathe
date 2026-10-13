@@ -11,16 +11,32 @@ use Workbench\Database\Seeders\DemoSeeder;
 #[AsCommand(name: 'lathe:demo-seed', description: 'Wipe the demo tables and seed the default store again')]
 class DemoSeedCommand extends Command
 {
-    public function handle(): int
+    protected $signature = 'lathe:demo-seed {--orders=10000 : How many orders to seed}';
+
+    public const TABLES = ['comments', 'posts', 'order_items', 'orders', 'products', 'tags', 'categories', 'customers', 'users'];
+
+    public function handle(DemoSeeder $seeder): int
     {
+        $orders = filter_var($this->option('orders'), FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]);
+
+        if ($orders === false) {
+            $this->error('--orders must be a whole number of 1 or more.');
+
+            return self::FAILURE;
+        }
+
+        $started = microtime(true);
+
         // Orders point at customers, so the server databases refuse a truncate while keys are checked.
         Schema::withoutForeignKeyConstraints(function () {
-            foreach (['orders', 'customers', 'users'] as $table) {
+            foreach (self::TABLES as $table) {
                 DB::table($table)->truncate();
             }
         });
 
-        $this->call('db:seed', ['--class' => DemoSeeder::class, '--force' => true]);
+        $seeder->forOrders($orders)->setContainer($this->laravel)->setCommand($this)->__invoke();
+
+        $this->info(sprintf('Seeded %s orders in %.1f s.', number_format($seeder->orders), microtime(true) - $started));
 
         return self::SUCCESS;
     }
