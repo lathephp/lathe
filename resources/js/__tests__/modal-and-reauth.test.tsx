@@ -245,3 +245,63 @@ describe('form draft', () => {
     });
   });
 });
+
+describe('conflict dialog', () => {
+  function renderEdit() {
+    return renderPage('Resources/Form', {
+      resource: { uriKey: 'orders', label: 'Orders', singularLabel: 'Order', abilities: { create: true } },
+      mode: 'update',
+      id: 12,
+      title: 'ORD-00012',
+      breadcrumbs: [],
+      form: {
+        fields: [field('name', 'pending')],
+        layout: [{ type: 'panel', attribute: 'details', name: 'Details', fields: ['name'], toolbar: true, collapsible: false, collapsed: false, hideHeading: false, headingInCard: false, help: null, limit: null, columns: null, columnSpan: null, borderless: false }],
+        updatedAt: '2026-10-14T09:00:00.000Z',
+      },
+      submitLabel: 'Update Order',
+    });
+  }
+
+  it('opens on 409; Override resubmits with the returned token', async () => {
+    const bodies: Record<string, unknown>[] = [];
+    vi.spyOn(globalThis, 'fetch').mockImplementation((_input, init) => {
+      bodies.push(JSON.parse(typeof init?.body === 'string' ? init.body : '{}') as Record<string, unknown>);
+
+      return Promise.resolve(bodies.length === 1 ? json(409, { error: 'conflict', message: 'Changed.', updatedAt: '2026-10-14T09:00:02.000Z' }) : json(200, { id: 12, redirect: 'orders/12' }));
+    });
+    const visit = vi.spyOn(router, 'visit').mockImplementation(() => undefined);
+    renderEdit();
+
+    fireEvent.change(screen.getByLabelText(/Name/), { target: { value: 'shipped' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Update Order' }));
+    fireEvent.click(await screen.findByRole('button', { name: 'Override' }));
+
+    await waitFor(() => {
+      expect(visit).toHaveBeenCalledWith('/lathe/resources/orders/12');
+    });
+    expect(bodies.map((body) => body._updated_at)).toEqual(['2026-10-14T09:00:00.000Z', '2026-10-14T09:00:02.000Z']);
+    expect(bodies[1]?.name).toBe('shipped');
+  });
+
+  it('Refresh reloads the stored values and drops the draft', async () => {
+    window.sessionStorage.setItem(`lathe-draft:${window.location.pathname}`, JSON.stringify({ name: 'typed' }));
+    vi.spyOn(globalThis, 'fetch').mockImplementation((input) =>
+      Promise.resolve(
+        typeof input === 'string' && input.endsWith('/update-fields')
+          ? json(200, { fields: [field('name', 'paid')], layout: [{ type: 'panel', attribute: 'details', name: 'Details', fields: ['name'], toolbar: true, collapsible: false, collapsed: false, hideHeading: false, headingInCard: false, help: null, limit: null, columns: null, columnSpan: null, borderless: false }], updatedAt: '2026-10-14T09:00:02.000Z' })
+          : json(409, { error: 'conflict', message: 'Changed.', updatedAt: '2026-10-14T09:00:02.000Z' }),
+      ),
+    );
+    renderEdit();
+
+    fireEvent.click(screen.getByRole('button', { name: 'Update Order' }));
+    fireEvent.click(await screen.findByRole('button', { name: 'Refresh' }));
+
+    await waitFor(() => {
+      expect(screen.getByLabelText<HTMLInputElement>(/Name/).value).toBe('paid');
+    });
+    expect(window.sessionStorage.getItem(`lathe-draft:${window.location.pathname}`)).toBeNull();
+    expect(screen.queryByRole('dialog')).toBeNull();
+  });
+});

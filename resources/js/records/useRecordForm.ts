@@ -39,6 +39,8 @@ export function useRecordForm({ resource, mode, id, form }: Pick<FormProps, 'res
   const [busy, setBusy] = useState(false);
   /** The submit a 401 or 419 interrupted, replayed once the user signs in again. */
   const [reauth, setReauth] = useState<SubmitIntent | null>(null);
+  /** A 409: someone saved the record since this form loaded. */
+  const [conflict, setConflict] = useState<{ intent: SubmitIntent; updatedAt: string | null } | null>(null);
   const draft = useFormDraft(values, attributes, saved !== null);
   const base = `${apiPath}/resources/${resource.uriKey}`;
   const updating = mode === 'update';
@@ -48,14 +50,14 @@ export function useRecordForm({ resource, mode, id, form }: Pick<FormProps, 'res
     setValues((current) => ({ ...current, [attribute]: value }));
   };
 
-  async function submit(intent: SubmitIntent = 'default'): Promise<void> {
+  async function submit(intent: SubmitIntent = 'default', token: string | null | undefined = payload.updatedAt): Promise<void> {
       setBusy(true);
       setErrors({});
 
       try {
         const result = await request<WriteResult>(updating ? `${base}/${String(id)}` : base, {
           method: updating ? 'PUT' : 'POST',
-          body: updating && payload.updatedAt !== undefined ? { ...values, _updated_at: payload.updatedAt } : values,
+          body: updating && token !== undefined ? { ...values, _updated_at: token } : values,
         });
 
         draft.clear();
@@ -76,7 +78,9 @@ export function useRecordForm({ resource, mode, id, form }: Pick<FormProps, 'res
           onDone(result.redirect);
         }
       } catch (error) {
-        if (error instanceof ApiError && (error.status === 401 || error.status === 419)) {
+        if (error instanceof ApiError && error.status === 409) {
+          setConflict({ intent, updatedAt: (error.data as { updatedAt?: string | null } | null)?.updatedAt ?? null });
+        } else if (error instanceof ApiError && (error.status === 401 || error.status === 419)) {
           setReauth(intent);
         } else if (error instanceof ApiError && error.status === 422) {
           setErrors(firstErrors(error.data));
@@ -122,6 +126,31 @@ export function useRecordForm({ resource, mode, id, form }: Pick<FormProps, 'res
     },
     cancelReauth: () => {
       setReauth(null);
+    },
+    conflict: conflict !== null,
+    /** Load the stored values again; the typed ones and the draft are dropped. */
+    refresh: async () => {
+      setConflict(null);
+      draft.clear();
+      const fresh = await request<FormPayload>(`${base}/${String(id)}/update-fields`);
+
+      if (fresh !== null) {
+        setPayload(fresh);
+        setValues(initialValues(fresh.fields));
+      }
+    },
+    /** Save the typed values over the other change, with the token the conflict returned. */
+    override: () => {
+      if (conflict === null) {
+        return;
+      }
+
+      setConflict(null);
+      setPayload((current) => ({ ...current, updatedAt: conflict.updatedAt }));
+      void submit(conflict.intent, conflict.updatedAt);
+    },
+    cancelConflict: () => {
+      setConflict(null);
     },
   };
 }

@@ -6,6 +6,7 @@ import { FormField } from '../../fields/registry';
 import type { FormFieldData, FormProps } from '../../fields/types';
 import { cn } from '../../lib/cn';
 import { Breadcrumbs } from '../../records/Breadcrumbs';
+import { ConflictDialog } from '../../records/ConflictDialog';
 import { ReauthModal } from '../../records/ReauthModal';
 import { RecordLayout } from '../../records/RecordLayout';
 import { useRecordForm, type SubmitIntent } from '../../records/useRecordForm';
@@ -93,6 +94,15 @@ export default function Form({ resource, mode, id, title, breadcrumbs, form, sub
           </button>
         </div>
       </form>
+      {record.conflict ? (
+        <ConflictDialog
+          onRefresh={() => {
+            void record.refresh();
+          }}
+          onOverride={record.override}
+          onClose={record.cancelConflict}
+        />
+      ) : null}
       {record.reauth === null ? null : (
         <ReauthModal
           email={auth.user?.email ?? ''}
