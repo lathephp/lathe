@@ -229,7 +229,7 @@ export function ResourceTable({ resource, table, state, loading, selection, sort
 
                           return (
                             <td key={column.key} className={cn('max-w-80 truncate px-3 whitespace-nowrap', index === 0 && firstColumn, border)}>
-                              {cell !== undefined && <TableCell component={column.component} cell={cell} />}
+                              {cell !== undefined && <TableCell column={column} cell={cell} />}
                               {index === 0 && row.trashed === true && (
                                 <span className="ms-2 rounded-full bg-muted px-2 py-0.5 text-xs font-medium text-muted-foreground">
                                   {__('Soft Deleted')}
