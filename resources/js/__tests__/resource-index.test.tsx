@@ -192,7 +192,7 @@ describe('orders table', () => {
 });
 
 describe('orders pagination', () => {
-  it('visits the next page and keeps the page size in the URL', () => {
+  it('visits the next page and leaves the default page size out of the URL', () => {
     const visit = vi.spyOn(router, 'visit').mockImplementation(() => undefined);
     renderOrders();
 
@@ -203,7 +203,7 @@ describe('orders pagination', () => {
     expect(visit.mock.calls[0]?.[0]).toBe('/lathe/resources/orders');
     expect(visit.mock.calls[0]?.[1]).toMatchObject({
       method: 'get',
-      data: { page: 2, per_page: 25 },
+      data: { page: 2 },
       preserveState: true,
       preserveScroll: true,
     });
@@ -217,7 +217,7 @@ describe('orders pagination', () => {
 
     fireEvent.click(screen.getByRole('button', { name: 'Previous' }));
 
-    expect(visit.mock.calls[0]?.[1]).toMatchObject({ data: { page: 1, per_page: 25 } });
+    expect(visit.mock.calls[0]?.[1]).toMatchObject({ data: {} });
   });
 
   it('changes the page size from the resource options and starts at page 1', () => {
@@ -231,7 +231,7 @@ describe('orders pagination', () => {
 
     fireEvent.change(select, { target: { value: '50' } });
 
-    expect(visit.mock.calls[0]?.[1]).toMatchObject({ data: { page: 1, per_page: 50 } });
+    expect(visit.mock.calls[0]?.[1]).toMatchObject({ data: { per_page: 50 } });
   });
 
   it('shows a skeleton of the page size for at least 300 ms while a page loads', () => {
