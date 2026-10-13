@@ -51,7 +51,7 @@ class IndexPageController
             // The index draws the message as a banner with Reset, so the toolbar stays usable.
             return Inertia::render('Resources/Index', [
                 'resource' => $resource,
-                'table' => ['columns' => [], 'sortKeys' => [], 'rows' => [], 'rowKey' => 'id'],
+                'table' => ['columns' => [], 'sortKeys' => [], 'rows' => [], 'rowKey' => $class::rowKey()],
                 'filters' => ['available' => [], 'applied' => []],
                 'tabs' => ['items' => [], 'active' => null],
                 'lens' => null,
