@@ -3,6 +3,7 @@
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Schema;
 use Workbench\App\Models\Customer;
 use Workbench\App\Models\Order;
 use Workbench\App\Models\User;
@@ -56,7 +57,7 @@ it('creates orders with unique 12 character numbers, all four statuses and integ
         ->and(Order::whereRaw('length(number) != 12')->count())->toBe(0)
         ->and(Order::distinct()->orderBy('status')->pluck('status')->all())
         ->toBe(['cancelled', 'paid', 'pending', 'shipped'])
-        ->and(Order::whereRaw("typeof(total_cents) != 'integer'")->count())->toBe(0);
+        ->and(DB::table('orders')->pluck('total_cents')->reject(fn ($cents) => is_int($cents))->count())->toBe(0);
 });
 
 it('spreads placed_at over the last 365 days and rises toward today', function () {
@@ -74,9 +75,12 @@ it('seeds the same orders on every fresh database', function () {
     seedDemo();
     $first = [Order::orderBy('id')->value('number'), Order::orderByDesc('id')->value('number')];
 
-    foreach (['orders', 'customers', 'users'] as $table) {
-        DB::table($table)->truncate();
-    }
+    // MySQL and MariaDB refuse to truncate customers while orders points at it.
+    Schema::withoutForeignKeyConstraints(function () {
+        foreach (['orders', 'customers', 'users'] as $table) {
+            DB::table($table)->truncate();
+        }
+    });
     seedDemo();
 
     expect([Order::orderBy('id')->value('number'), Order::orderByDesc('id')->value('number')])->toBe($first);

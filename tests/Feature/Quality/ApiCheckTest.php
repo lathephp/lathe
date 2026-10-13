@@ -31,7 +31,7 @@ function apiCheck(string $root, bool $write = false): PendingCommand
 
 it('passes on the package tree', function () {
     $this->artisan('lathe:api-check')->assertSuccessful();
-});
+})->group('frontend');
 
 it('writes the snapshot and then passes', function () {
     [$root, , $class] = apiFixture('    public function ping(string $to, int $times = 1): bool { return true; }');
@@ -87,4 +87,4 @@ it('fails on a JavaScript export missing from the snapshot', function () {
     $this->artisan('lathe:api-check', ['--src' => "{$root}/src", '--api' => "{$root}/api", '--js-root' => $root])
         ->assertFailed()
         ->expectsOutputToContain('js.txt: not in the snapshot: @lathephp/core extra');
-});
+})->group('frontend');

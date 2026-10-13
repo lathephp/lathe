@@ -2,6 +2,9 @@
 
 use Symfony\Component\Process\Process;
 
+// These tests run pnpm build, so they need Node.
+pest()->group('frontend');
+
 // The import map maps these specifiers to the files the manifest lists under "lathe-vendor:{specifier}".
 const BUILD_OUTPUT_EXTERNALS = [
     'react',

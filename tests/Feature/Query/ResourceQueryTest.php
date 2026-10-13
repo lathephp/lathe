@@ -149,7 +149,7 @@ it('keeps an indexQuery select in rows and count', function () {
 
     expect(array_keys($query->rows()->first()?->getAttributes() ?? []))->toBe(['id', 'name'])
         ->and($query->count()->value)->toBe(1)
-        ->and($queries[1])->toContain('select "id", "name" from "gadgets"');
+        ->and($queries[1])->toContain(quotedSql('select "id", "name" from "gadgets"'));
 });
 
 it('returns live rows, then trashed and live, then only trashed', function () {

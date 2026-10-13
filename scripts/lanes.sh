@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 # Starts Lathe's own database containers for the multi-driver test lanes.
-#   lanes.sh up | down | env <mysql|mariadb|pgsql>
+#   lanes.sh up [mysql|mariadb|pgsql] | down [mysql|mariadb|pgsql] | env <mysql|mariadb|pgsql>
+# With no lane name, up and down act on all three.
 # These containers are Lathe's. Never reuse another project's database container.
 set -uo pipefail
 
@@ -8,11 +9,11 @@ database=lathe_test
 user=lathe
 password=lathe_secret
 
-# name image port inside-port
+# lane name image port inside-port
 lanes=(
-    "lathe-mysql84 docker.io/library/mysql:8.4 33384 3306"
-    "lathe-mariadb1011 docker.io/library/mariadb:10.11 33311 3306"
-    "lathe-pg15 docker.io/library/postgres:15 54315 5432"
+    "mysql lathe-mysql84 docker.io/library/mysql:8.4 33384 3306"
+    "mariadb lathe-mariadb1011 docker.io/library/mariadb:10.11 33311 3306"
+    "pgsql lathe-pg15 docker.io/library/postgres:15 54315 5432"
 )
 
 start() {
@@ -66,23 +67,46 @@ ready() {
     return 1
 }
 
+# Parallel tests give each process its own database, lathe_test_<n>, so the lathe
+# user may create and drop those. The PostgreSQL user owns the server already.
+grant() {
+    local name=$1 sql="grant all on \`${database}\\_%\`.* to '$user'@'%'"
+
+    case $name in
+        lathe-mariadb1011) podman exec "$name" mariadb -uroot -p$password -e "$sql" ;;
+        lathe-mysql84) podman exec "$name" mysql -uroot -p$password -e "$sql" 2>/dev/null ;;
+    esac
+}
+
+# Prints the lanes the second argument picks, or all of them.
+selected() {
+    local lane
+
+    for lane in "${lanes[@]}"; do
+        [[ -z ${1:-} || $lane == "$1 "* ]] && echo "$lane"
+    done
+}
+
+if [[ ${1:-} == up || ${1:-} == down ]] && [[ -n ${2:-} ]] && [[ -z $(selected "$2") ]]; then
+    echo "unknown lane: $2" >&2
+    exit 2
+fi
+
 case ${1:-} in
     up)
-        for lane in "${lanes[@]}"; do
-            read -r name image port inner <<<"$lane"
+        while read -r _ name image port inner; do
             start "$name" "$image" "$port" "$inner" || exit 1
-        done
-        for lane in "${lanes[@]}"; do
-            read -r name _ <<<"$lane"
+        done < <(selected "${2:-}")
+        while read -r _ name _; do
             ready "$name" || exit 1
+            grant "$name" || exit 1
             echo "$name ready"
-        done
+        done < <(selected "${2:-}")
         ;;
     down)
-        for lane in "${lanes[@]}"; do
-            read -r name _ <<<"$lane"
+        while read -r _ name _; do
             podman container exists "$name" && podman stop "$name" >/dev/null
-        done
+        done < <(selected "${2:-}")
         exit 0
         ;;
     env)
@@ -95,7 +119,7 @@ case ${1:-} in
         echo "export DB_CONNECTION=$driver DB_HOST=127.0.0.1 DB_PORT=$port DB_DATABASE=$database DB_USERNAME=$user DB_PASSWORD=$password"
         ;;
     *)
-        echo "usage: lanes.sh up | down | env <mysql|mariadb|pgsql>" >&2
+        echo "usage: lanes.sh up [mysql|mariadb|pgsql] | down [mysql|mariadb|pgsql] | env <mysql|mariadb|pgsql>" >&2
         exit 2
         ;;
 esac

@@ -21,7 +21,7 @@ test('css_includes_classes_used_only_inside_the_package', function () {
     $css = implode('', array_map('file_get_contents', glob(regressionBuild().'/assets/*.css') ?: []));
 
     expect(substr_count($css, '.lathe-probe-class'))->toBe(1);
-})->group('regression');
+})->group('regression', 'frontend');
 
 test('build_manifest_matches_sources', function () {
     $out = regressionBuild();
@@ -42,4 +42,4 @@ test('build_manifest_matches_sources', function () {
 
     expect($missing)->toBe([])
         ->and($manifest)->toHaveKey('resources/js/app.tsx');
-})->group('regression');
+})->group('regression', 'frontend');

@@ -2,6 +2,7 @@
 
 use Illuminate\Contracts\Auth\Access\Gate;
 use Illuminate\Routing\RouteCollection;
+use Illuminate\Support\Facades\DB;
 use Lathe\Http\PanelRoutes;
 use Lathe\Tests\TestCase;
 
@@ -16,6 +17,17 @@ function reloadLatheRoutes(): void
     $router->setRoutes(new RouteCollection);
     app(PanelRoutes::class)->register();
     $router->getRoutes()->refreshNameLookups();
+}
+
+/**
+ * SQL text written with "double quoted" identifiers, quoted the way the test database
+ * quotes them: MySQL and MariaDB use backticks.
+ */
+function quotedSql(string $sql): string
+{
+    return in_array(DB::connection()->getDriverName(), ['mysql', 'mariadb'], true)
+        ? str_replace('"', '`', $sql)
+        : $sql;
 }
 
 /**

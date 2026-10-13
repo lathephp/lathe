@@ -86,6 +86,10 @@
             "@test"
         ],
         "test:scaffold": "@php vendor/bin/pest --group=scaffold",
+        "test:matrix": [
+            "Composer\Config::disableProcessTimeout",
+            "bash scripts/matrix.sh"
+        ],
         "types": "@php vendor/bin/pest --type-coverage --min=100",
         "mutate": [
             "@php -d pcov.enabled=1 vendor/bin/pest --mutate --parallel --passthru-php='-d pcov.enabled=1' --covered-only --class=Lathe\\\\Query --min=80",

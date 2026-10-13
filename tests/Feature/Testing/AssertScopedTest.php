@@ -30,7 +30,7 @@ it('fails for a query that skips the scope', function () {
     } catch (AssertionFailedError $e) {
         expect($e->getMessage())
             ->toContain('team_id')
-            ->toContain('from "gadgets"');
+            ->toContain(quotedSql('from "gadgets"'));
 
         return;
     }
