@@ -84,7 +84,7 @@ class CurrencyField extends NumberField
         $formatter = new NumberFormatter($this->locale ?? app()->getLocale(), NumberFormatter::CURRENCY);
 
         // formatCurrency() ignores a symbol override, so the code is set on the formatter and format() used.
-        $formatter->setTextAttribute(NumberFormatter::CURRENCY_CODE, $this->code());
+        $formatter->setTextAttribute(NumberFormatter::CURRENCY_CODE, $this->activeCurrency());
 
         if ($this->symbol !== null) {
             $formatter->setSymbol(NumberFormatter::CURRENCY_SYMBOL, $this->symbol);
@@ -143,7 +143,7 @@ class CurrencyField extends NumberField
         return [
             ...$payload,
             'step' => $this->fractionDigits() === 0 ? '1' : '0.'.str_repeat('0', $this->fractionDigits() - 1).'1',
-            'currency' => $this->code(),
+            'currency' => $this->activeCurrency(),
             'symbol' => $this->symbol,
         ];
     }
@@ -156,7 +156,7 @@ class CurrencyField extends NumberField
         return [...parent::impliedRules(), 'regex:/^-?\d+(\.\d+)?\z/'];
     }
 
-    protected function code(): string
+    protected function activeCurrency(): string
     {
         return $this->currency ?? Lathe::config()->string('currency');
     }
@@ -166,7 +166,7 @@ class CurrencyField extends NumberField
      */
     protected function fractionDigits(): int
     {
-        return $this->digits ??= (int) (new NumberFormatter("en@currency={$this->code()}", NumberFormatter::CURRENCY))
+        return $this->digits ??= (int) (new NumberFormatter("en@currency={$this->activeCurrency()}", NumberFormatter::CURRENCY))
             ->getAttribute(NumberFormatter::FRACTION_DIGITS);
     }
 
