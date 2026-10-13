@@ -1,6 +1,6 @@
 import { Head, Link, router, usePage } from '@inertiajs/react';
 import { useTranslation } from '@lathephp/core';
-import { useEffect, useRef } from 'react';
+import { useEffect, useMemo, useRef } from 'react';
 import { FieldError } from '../../components/FieldError';
 import { FormField } from '../../fields/registry';
 import type { FormFieldData, FormProps } from '../../fields/types';
@@ -21,6 +21,8 @@ export default function Form({ resource, mode, id, title, breadcrumbs, form, sub
     router.visit(`${basePath}/resources/${redirect}`);
   });
   const byKey = new Map(record.payload.fields.map((field) => [field.key, field]));
+  // One Set per failed submit, so the layout opens the marked tab once.
+  const errorKeys = useMemo(() => new Set(Object.keys(record.errors).map((key) => key.split('.')[0] ?? key)), [record.errors]);
   const updating = mode === 'update';
   const cancelHref = updating ? `${basePath}/resources/${resource.uriKey}/${String(id)}` : `${basePath}/resources/${resource.uriKey}`;
 
@@ -51,6 +53,8 @@ export default function Form({ resource, mode, id, title, breadcrumbs, form, sub
       >
         <RecordLayout
           blocks={record.payload.layout}
+          borderless={record.payload.borderless === true}
+          errorKeys={errorKeys}
           renderField={(key) => {
             const field = byKey.get(key);
 

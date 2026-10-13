@@ -46,6 +46,7 @@ export default function Detail({ resource, record, breadcrumbs }: DetailProps) {
         ) : null}
       </header>
       <RecordLayout
+        detail
         blocks={layout}
         renderField={(key) => {
           const field = byKey.get(key);
