@@ -10,6 +10,11 @@ export interface Column {
   sortKey: string;
 }
 
+export interface LensEntry {
+  uriKey: string;
+  name: string;
+}
+
 export interface Row {
   id: number | string;
   title: string;
@@ -59,6 +64,10 @@ export interface IndexProps {
     definition: { debounce: number };
   };
   table: { columns: Column[]; sortKeys: string[]; rows: Row[]; rowKey: string };
+  /** The open lens; null on the plain index. */
+  lens?: LensEntry | null;
+  /** The lenses the user may see. */
+  lenses?: LensEntry[];
   state: { page: number; perPage: number; hasMorePages: boolean; sort: string };
   filters?: { available: AvailableFilter[]; applied: Record<string, unknown> };
   /** Filter keys in the URL that the Resource no longer declares; the server dropped them. */

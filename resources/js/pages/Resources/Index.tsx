@@ -9,15 +9,15 @@ import type { IndexProps } from '../../index/types';
 import { useIndexState } from '../../index/useIndexState';
 import type { SharedProps } from '../../types';
 
-export default function Index({ resource, table, state, count, error }: IndexProps) {
+export default function Index({ resource, table, state, count, error, lens, lenses }: IndexProps) {
   const { basePath } = usePage<SharedProps>().props;
   const index = useIndexState({ perPage: resource.perPageOptions[0] ?? state.perPage });
   const filtered = index.state.q !== undefined || index.state.filter !== undefined;
 
   return (
     <div className="space-y-6">
-      <Head title={resource.label} />
-      <IndexToolbar resource={resource} q={index.state.q} visit={index.visit} />
+      <Head title={lens?.name ?? resource.label} />
+      <IndexToolbar resource={resource} lens={lens} lenses={lenses} q={index.state.q} visit={index.visit} />
       {error !== undefined ? (
         <IndexBanner message={error.message} onReset={index.reset} />
       ) : table.rows.length === 0 ? (
