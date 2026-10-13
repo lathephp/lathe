@@ -1,6 +1,7 @@
 import { lazy, Suspense } from 'react';
 import { SafeHtml } from '../../components/SafeHtml';
 import { DetailFallbackField, registerField, type DetailFieldProps, type FormFieldProps, type IndexFieldProps } from '../registry';
+import CodeDetail from '../rich/CodeDetail';
 import KeyValueForm, { KeyValueDetail } from '../key-value/KeyValueFields';
 import SlugInput from '../slug/SlugInput';
 import { Collapsible, lineCount } from '../text/Collapsible';
@@ -38,8 +39,20 @@ function TiptapForm(props: FormFieldProps) {
   );
 }
 
+// The code editor loads only on a form that has a Code field.
+const CodeEditor = lazy(() => import('../rich/CodeEditor'));
+
+function CodeForm(props: FormFieldProps) {
+  return (
+    <Suspense fallback={null}>
+      <CodeEditor {...props} />
+    </Suspense>
+  );
+}
+
 /** Register the renderers of the code, markdown, tiptap, slug and keyValue fields. */
 export function registerRichFields(): void {
+  registerField('code-field', { detail: CodeDetail, form: CodeForm });
   registerField('markdown-field', { detail: RichDetail, form: MarkdownForm });
   registerField('tiptap-field', { detail: RichDetail, form: TiptapForm });
   registerSlugAndKeyValueFields();

@@ -119,11 +119,11 @@ describe('code-field', () => {
 
   it('applies height, fullHeight and lineWrapping', async () => {
     const fixed = await renderForm('x', { height: 300 });
-    expect(fixed.style.height).toBe('300px');
+    expect(fixed.parentElement?.style.height).toBe('300px');
     document.body.innerHTML = '';
 
     const full = await renderForm('x', { fullHeight: true });
-    expect(full.style.height).toBe('100%');
+    expect(full.parentElement?.style.height).toBe('100%');
     document.body.innerHTML = '';
 
     const wrapped = await renderForm('x', { editorOptions: { lineWrapping: true } });

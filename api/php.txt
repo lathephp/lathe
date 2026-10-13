@@ -453,6 +453,16 @@ Lathe\Field\BooleanGroupField::hideTrueValues(bool $hide = true): static
 Lathe\Field\BooleanGroupField::impliedRules(): array  [protected]
 Lathe\Field\BooleanGroupField::noValueText(string $text): static
 Lathe\Field\BooleanGroupField::string $component  [protected]
+Lathe\Field\CodeField::__construct(string $label, Closure|string|null $attribute = NULL, ?Closure $resolver = NULL)
+Lathe\Field\CodeField::autoHeight(): static
+Lathe\Field\CodeField::bool $json  [protected]
+Lathe\Field\CodeField::editorOptions(array $options): static
+Lathe\Field\CodeField::fullHeight(): static
+Lathe\Field\CodeField::height(string|int $height): static
+Lathe\Field\CodeField::impliedRules(): array  [protected]
+Lathe\Field\CodeField::json(?int $flags = NULL): static
+Lathe\Field\CodeField::language(string $language): static
+Lathe\Field\CodeField::string $component  [protected]
 Lathe\Field\Concerns\ChoiceFactories::boolean(string $name, Closure|string|null $attribute = NULL): Lathe\Field\BooleanField  [static]
 Lathe\Field\Concerns\ChoiceFactories::booleanGroup(string $name, ?string $attribute = NULL): Lathe\Field\BooleanGroupField  [static]
 Lathe\Field\Concerns\ChoiceFactories::country(?string $name = NULL): Lathe\Field\SelectField  [static]
@@ -471,6 +481,7 @@ Lathe\Field\Concerns\NumberFactories::currency(string $label, ?string $attribute
 Lathe\Field\Concerns\NumberFactories::number(string $label, Closure|string|null $attribute = NULL): Lathe\Field\NumberField  [static]
 Lathe\Field\Concerns\NumberFactories::token(string $label, ?string $attribute = NULL): Lathe\Field\TokenField  [static]
 Lathe\Field\Concerns\RepeaterFactories::repeater(string $name, ?string $attribute = NULL): Lathe\Field\RepeaterField  [static]
+Lathe\Field\Concerns\RichFactories::code(string $label, ?string $attribute = NULL): Lathe\Field\CodeField  [static]
 Lathe\Field\Concerns\RichFactories::keyValue(string $label, ?string $attribute = NULL): Lathe\Field\KeyValueField  [static]
 Lathe\Field\Concerns\RichFactories::markdown(string $label, ?string $attribute = NULL): Lathe\Field\MarkdownField  [static]
 Lathe\Field\Concerns\RichFactories::slug(string $label, ?string $attribute = NULL): Lathe\Field\SlugField  [static]
@@ -535,11 +546,11 @@ Lathe\Field\CurrencyField::?string $currency  [protected]
 Lathe\Field\CurrencyField::?string $locale  [protected]
 Lathe\Field\CurrencyField::?string $symbol  [protected]
 Lathe\Field\CurrencyField::__construct(string $label, Closure|string|null $attribute = NULL, ?Closure $resolver = NULL)
+Lathe\Field\CurrencyField::activeCurrency(): string  [protected]
 Lathe\Field\CurrencyField::asMajorUnits(): static
 Lathe\Field\CurrencyField::asMinorUnits(bool $minor = true): static
 Lathe\Field\CurrencyField::bool $minorUnits  [protected]
 Lathe\Field\CurrencyField::cell(Illuminate\Database\Eloquent\Model $model): array
-Lathe\Field\CurrencyField::code(): string  [protected]
 Lathe\Field\CurrencyField::currencyCode(string $iso): static
 Lathe\Field\CurrencyField::fill(Lathe\Http\Requests\LatheRequest $request, object $model, ?string $requestAttribute = NULL): ?Closure
 Lathe\Field\CurrencyField::formatMoney(mixed $value): ?string
@@ -2191,6 +2202,7 @@ class Lathe\Field\Avatar
 class Lathe\Field\BadgeField
 class Lathe\Field\BooleanField
 class Lathe\Field\BooleanGroupField
+class Lathe\Field\CodeField
 class Lathe\Field\Condition
 class Lathe\Field\ConditionBuilder
 class Lathe\Field\CurrencyField
