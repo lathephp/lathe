@@ -6,6 +6,7 @@ use Closure;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Http\Request;
+use Lathe\Attributes\Resource\ResourceAttribute;
 use Lathe\Enums\ClickAction;
 use Lathe\Enums\PaginationType;
 use Lathe\Enums\TableStyle;
@@ -13,9 +14,13 @@ use Lathe\Query\CountStrategy;
 use Lathe\Search\SearchableColumn;
 use Lathe\Support\ConfigStore;
 use LogicException;
+use ReflectionAttribute;
+use ReflectionClass;
 
 /**
- * How a Resource is set up. Built once per class by configure(), then frozen.
+ * How a Resource is set up. Built once per class from its attributes and configure(), then frozen.
+ *
+ * @phpstan-consistent-constructor
  */
 class ResourceDefinition
 {
@@ -359,6 +364,38 @@ class ResourceDefinition
     public function seenBy(Request $request): bool
     {
         return $this->seeCallback === null || ($this->seeCallback)($request);
+    }
+
+    /**
+     * A definition built from the class attributes alone.
+     *
+     * @param  class-string  $class
+     */
+    public static function fromAttributes(string $class): static
+    {
+        return (new static)->applyClassAttributes($class);
+    }
+
+    /**
+     * Apply the Resource attributes of the class and its parents, the nearest last so it wins.
+     *
+     * @param  class-string  $class
+     */
+    public function applyClassAttributes(string $class): static
+    {
+        $classes = [];
+
+        for ($reflection = new ReflectionClass($class); $reflection !== false; $reflection = $reflection->getParentClass()) {
+            array_unshift($classes, $reflection);
+        }
+
+        foreach ($classes as $reflection) {
+            foreach ($reflection->getAttributes(ResourceAttribute::class, ReflectionAttribute::IS_INSTANCEOF) as $attribute) {
+                $attribute->newInstance()->apply($this);
+            }
+        }
+
+        return $this;
     }
 
     public function freeze(): static

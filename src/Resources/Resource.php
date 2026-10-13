@@ -99,7 +99,8 @@ abstract class Resource
      */
     public function buildDefinition(): ResourceDefinition
     {
-        return $this->configure(new ResourceDefinition)->freeze();
+        // Attributes first, so a fluent call in configure() wins.
+        return $this->configure((new ResourceDefinition)->applyClassAttributes(static::class))->freeze();
     }
 
     /**

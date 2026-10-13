@@ -28,6 +28,85 @@ Lathe\Assets\RootTags::nonce(): string  [protected]
 Lathe\Assets\RootTags::prefix(): string  [protected]
 Lathe\Assets\RootTags::scripts(): string
 Lathe\Assets\RootTags::styles(): string
+Lathe\Attributes\Resource\Borderless::__construct(bool $borderless = true)
+Lathe\Attributes\Resource\Borderless::apply(Lathe\Resources\ResourceDefinition $definition): void
+Lathe\Attributes\Resource\Borderless::bool $borderless
+Lathe\Attributes\Resource\ClickAction::Lathe\Enums\ClickAction $action
+Lathe\Attributes\Resource\ClickAction::__construct(Lathe\Enums\ClickAction $action)
+Lathe\Attributes\Resource\ClickAction::apply(Lathe\Resources\ResourceDefinition $definition): void
+Lathe\Attributes\Resource\Debounce::__construct(float $seconds)
+Lathe\Attributes\Resource\Debounce::apply(Lathe\Resources\ResourceDefinition $definition): void
+Lathe\Attributes\Resource\Debounce::float $seconds
+Lathe\Attributes\Resource\DisplayInNavigation::__construct(bool $display = true)
+Lathe\Attributes\Resource\DisplayInNavigation::apply(Lathe\Resources\ResourceDefinition $definition): void
+Lathe\Attributes\Resource\DisplayInNavigation::bool $display
+Lathe\Attributes\Resource\EagerLoad::__construct(array $relations)
+Lathe\Attributes\Resource\EagerLoad::apply(Lathe\Resources\ResourceDefinition $definition): void
+Lathe\Attributes\Resource\EagerLoad::array $relations
+Lathe\Attributes\Resource\GlobalSearchResults::__construct(int $results)
+Lathe\Attributes\Resource\GlobalSearchResults::apply(Lathe\Resources\ResourceDefinition $definition): void
+Lathe\Attributes\Resource\GlobalSearchResults::int $results
+Lathe\Attributes\Resource\GloballySearchable::__construct(bool $searchable = true)
+Lathe\Attributes\Resource\GloballySearchable::apply(Lathe\Resources\ResourceDefinition $definition): void
+Lathe\Attributes\Resource\GloballySearchable::bool $searchable
+Lathe\Attributes\Resource\Group::__construct(string $group)
+Lathe\Attributes\Resource\Group::apply(Lathe\Resources\ResourceDefinition $definition): void
+Lathe\Attributes\Resource\Group::string $group
+Lathe\Attributes\Resource\Icon::__construct(string $icon)
+Lathe\Attributes\Resource\Icon::apply(Lathe\Resources\ResourceDefinition $definition): void
+Lathe\Attributes\Resource\Icon::string $icon
+Lathe\Attributes\Resource\MaxPrimaryKeySize::__construct(int $size)
+Lathe\Attributes\Resource\MaxPrimaryKeySize::apply(Lathe\Resources\ResourceDefinition $definition): void
+Lathe\Attributes\Resource\MaxPrimaryKeySize::int $size
+Lathe\Attributes\Resource\Model::__construct(string $class)
+Lathe\Attributes\Resource\Model::apply(Lathe\Resources\ResourceDefinition $definition): void
+Lathe\Attributes\Resource\Model::string $class
+Lathe\Attributes\Resource\NavigationLabel::__construct(string $label)
+Lathe\Attributes\Resource\NavigationLabel::apply(Lathe\Resources\ResourceDefinition $definition): void
+Lathe\Attributes\Resource\NavigationLabel::string $label
+Lathe\Attributes\Resource\PaginationType::Lathe\Enums\PaginationType $type
+Lathe\Attributes\Resource\PaginationType::__construct(Lathe\Enums\PaginationType $type)
+Lathe\Attributes\Resource\PaginationType::apply(Lathe\Resources\ResourceDefinition $definition): void
+Lathe\Attributes\Resource\PerPage::__construct(array $options)
+Lathe\Attributes\Resource\PerPage::apply(Lathe\Resources\ResourceDefinition $definition): void
+Lathe\Attributes\Resource\PerPage::array $options
+Lathe\Attributes\Resource\Polling::__construct(int $seconds)
+Lathe\Attributes\Resource\Polling::apply(Lathe\Resources\ResourceDefinition $definition): void
+Lathe\Attributes\Resource\Polling::int $seconds
+Lathe\Attributes\Resource\ResourceAttribute::apply(Lathe\Resources\ResourceDefinition $definition): void
+Lathe\Attributes\Resource\SavedTabs::__construct(bool $enabled = true)
+Lathe\Attributes\Resource\SavedTabs::apply(Lathe\Resources\ResourceDefinition $definition): void
+Lathe\Attributes\Resource\SavedTabs::bool $enabled
+Lathe\Attributes\Resource\ScoutSearchResults::__construct(int $results)
+Lathe\Attributes\Resource\ScoutSearchResults::apply(Lathe\Resources\ResourceDefinition $definition): void
+Lathe\Attributes\Resource\ScoutSearchResults::int $results
+Lathe\Attributes\Resource\Search::__construct(array $columns)
+Lathe\Attributes\Resource\Search::apply(Lathe\Resources\ResourceDefinition $definition): void
+Lathe\Attributes\Resource\Search::array $columns
+Lathe\Attributes\Resource\ShowColumnBorders::__construct(bool $show = true)
+Lathe\Attributes\Resource\ShowColumnBorders::apply(Lathe\Resources\ResourceDefinition $definition): void
+Lathe\Attributes\Resource\ShowColumnBorders::bool $show
+Lathe\Attributes\Resource\ShowPollingToggle::__construct(bool $show = true)
+Lathe\Attributes\Resource\ShowPollingToggle::apply(Lathe\Resources\ResourceDefinition $definition): void
+Lathe\Attributes\Resource\ShowPollingToggle::bool $show
+Lathe\Attributes\Resource\SoftDeletes::?bool $softDeletes
+Lathe\Attributes\Resource\SoftDeletes::__construct(?bool $softDeletes = true)
+Lathe\Attributes\Resource\SoftDeletes::apply(Lathe\Resources\ResourceDefinition $definition): void
+Lathe\Attributes\Resource\Subtitle::__construct(string $attribute)
+Lathe\Attributes\Resource\Subtitle::apply(Lathe\Resources\ResourceDefinition $definition): void
+Lathe\Attributes\Resource\Subtitle::string $attribute
+Lathe\Attributes\Resource\TableStyle::Lathe\Enums\TableStyle $style
+Lathe\Attributes\Resource\TableStyle::__construct(Lathe\Enums\TableStyle $style)
+Lathe\Attributes\Resource\TableStyle::apply(Lathe\Resources\ResourceDefinition $definition): void
+Lathe\Attributes\Resource\Title::__construct(string $attribute)
+Lathe\Attributes\Resource\Title::apply(Lathe\Resources\ResourceDefinition $definition): void
+Lathe\Attributes\Resource\Title::string $attribute
+Lathe\Attributes\Resource\TrafficCop::__construct(bool $enabled = true)
+Lathe\Attributes\Resource\TrafficCop::apply(Lathe\Resources\ResourceDefinition $definition): void
+Lathe\Attributes\Resource\TrafficCop::bool $enabled
+Lathe\Attributes\Resource\UseScout::?bool $use
+Lathe\Attributes\Resource\UseScout::__construct(?bool $use = true)
+Lathe\Attributes\Resource\UseScout::apply(Lathe\Resources\ResourceDefinition $definition): void
 Lathe\Auth\FortifyConfig::Illuminate\Contracts\Config\Repository $config  [protected]
 Lathe\Auth\FortifyConfig::Lathe\Support\ConfigStore $lathe  [protected]
 Lathe\Auth\FortifyConfig::__construct(Lathe\Support\ConfigStore $lathe, Illuminate\Contracts\Config\Repository $config)
@@ -645,6 +724,7 @@ Lathe\Resources\ResourceDefinition::Lathe\Enums\TableStyle $tableStyle  [protect
 Lathe\Resources\ResourceDefinition::Lathe\Query\CountStrategy $countStrategy  [protected]
 Lathe\Resources\ResourceDefinition::allowAll(bool $allow = true): static
 Lathe\Resources\ResourceDefinition::allowsAll(): bool
+Lathe\Resources\ResourceDefinition::applyClassAttributes(string $class): static
 Lathe\Resources\ResourceDefinition::array $limits  [protected]
 Lathe\Resources\ResourceDefinition::array $searchable  [protected]
 Lathe\Resources\ResourceDefinition::array $with  [protected]
@@ -671,6 +751,7 @@ Lathe\Resources\ResourceDefinition::displayInNavigation(bool $display = true): s
 Lathe\Resources\ResourceDefinition::filterRemoteThreshold(int $threshold): static
 Lathe\Resources\ResourceDefinition::float $debounce  [protected]
 Lathe\Resources\ResourceDefinition::freeze(): static
+Lathe\Resources\ResourceDefinition::fromAttributes(string $class): static  [static]
 Lathe\Resources\ResourceDefinition::getBulkInlineMax(): int
 Lathe\Resources\ResourceDefinition::getClickAction(): Lathe\Enums\ClickAction
 Lathe\Resources\ResourceDefinition::getCountCap(): int
@@ -865,6 +946,32 @@ Lathe\Testing\TestCase::tearDown(): void  [protected]
 class Lathe\Assets\AssetManifest
 class Lathe\Assets\AssetRegistry
 class Lathe\Assets\RootTags
+class Lathe\Attributes\Resource\Borderless
+class Lathe\Attributes\Resource\ClickAction
+class Lathe\Attributes\Resource\Debounce
+class Lathe\Attributes\Resource\DisplayInNavigation
+class Lathe\Attributes\Resource\EagerLoad
+class Lathe\Attributes\Resource\GlobalSearchResults
+class Lathe\Attributes\Resource\GloballySearchable
+class Lathe\Attributes\Resource\Group
+class Lathe\Attributes\Resource\Icon
+class Lathe\Attributes\Resource\MaxPrimaryKeySize
+class Lathe\Attributes\Resource\Model
+class Lathe\Attributes\Resource\NavigationLabel
+class Lathe\Attributes\Resource\PaginationType
+class Lathe\Attributes\Resource\PerPage
+class Lathe\Attributes\Resource\Polling
+class Lathe\Attributes\Resource\SavedTabs
+class Lathe\Attributes\Resource\ScoutSearchResults
+class Lathe\Attributes\Resource\Search
+class Lathe\Attributes\Resource\ShowColumnBorders
+class Lathe\Attributes\Resource\ShowPollingToggle
+class Lathe\Attributes\Resource\SoftDeletes
+class Lathe\Attributes\Resource\Subtitle
+class Lathe\Attributes\Resource\TableStyle
+class Lathe\Attributes\Resource\Title
+class Lathe\Attributes\Resource\TrafficCop
+class Lathe\Attributes\Resource\UseScout
 class Lathe\Auth\FortifyConfig
 class Lathe\Auth\PanelGate
 class Lathe\Auth\ResourceAuthorization
@@ -951,6 +1058,7 @@ enum Lathe\Enums\PaginationType
 enum Lathe\Enums\TableStyle
 enum Lathe\Query\CountStrategy
 enum Lathe\Query\QueryContext
+interface Lathe\Attributes\Resource\ResourceAttribute
 interface Lathe\Search\SearchableColumn
 trait Lathe\Http\Controllers\Resources\AuthorizesResources
 trait Lathe\Testing\InteractsWithLathe
