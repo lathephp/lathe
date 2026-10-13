@@ -22,7 +22,8 @@
         "laravel/pint": "^1.25",
         "orchestra/testbench": "^11.3",
         "pestphp/pest": "^5.3",
-        "pestphp/pest-plugin-laravel": "^5.0"
+        "pestphp/pest-plugin-laravel": "^5.0",
+        "pestphp/pest-plugin-type-coverage": "^5.0"
     },
     "autoload": {
         "psr-4": {
@@ -58,7 +59,10 @@
             "@build",
             "trap 'kill $(jobs -p) 2>/dev/null' EXIT; php vendor/bin/testbench queue:work --tries=1 --ansi & php vendor/bin/testbench serve --ansi"
         ],
-        "lint": "pint --test",
+        "lint": [
+            "pint --test",
+            "bash scripts/check-patterns.sh"
+        ],
         "format": "pint",
         "analyse": "phpstan analyse --memory-limit=1G",
         "test": [
@@ -67,7 +71,13 @@
         "qa": [
             "@lint",
             "@analyse",
+            "@types",
             "@test"
+        ],
+        "types": "@php vendor/bin/pest --type-coverage --min=100",
+        "mutate": [
+            "@php vendor/bin/pest --mutate --parallel --covered-only --class=Lathe\\\\Query --min=80",
+            "@php vendor/bin/pest --mutate --parallel --covered-only --class=Lathe\\\\Auth --min=80"
         ]
     },
     "config": {
