@@ -28,6 +28,93 @@ Lathe\Assets\RootTags::nonce(): string  [protected]
 Lathe\Assets\RootTags::prefix(): string  [protected]
 Lathe\Assets\RootTags::scripts(): string
 Lathe\Assets\RootTags::styles(): string
+Lathe\Attributes\Lens\PerPage::__construct(array $options)
+Lathe\Attributes\Lens\PerPage::array $options
+Lathe\Attributes\Lens\Polling::__construct(int $seconds = 15)
+Lathe\Attributes\Lens\Polling::int $seconds
+Lathe\Attributes\Lens\Search::__construct(array $columns)
+Lathe\Attributes\Lens\Search::array $columns
+Lathe\Attributes\Lens\ShowPollingToggle::__construct(bool $show = true)
+Lathe\Attributes\Lens\ShowPollingToggle::bool $show
+Lathe\Attributes\Resource\Borderless::__construct(bool $borderless = true)
+Lathe\Attributes\Resource\Borderless::apply(Lathe\Resources\ResourceDefinition $definition): void
+Lathe\Attributes\Resource\Borderless::bool $borderless
+Lathe\Attributes\Resource\ClickAction::Lathe\Enums\ClickAction $action
+Lathe\Attributes\Resource\ClickAction::__construct(Lathe\Enums\ClickAction $action)
+Lathe\Attributes\Resource\ClickAction::apply(Lathe\Resources\ResourceDefinition $definition): void
+Lathe\Attributes\Resource\Debounce::__construct(float $seconds)
+Lathe\Attributes\Resource\Debounce::apply(Lathe\Resources\ResourceDefinition $definition): void
+Lathe\Attributes\Resource\Debounce::float $seconds
+Lathe\Attributes\Resource\DisplayInNavigation::__construct(bool $display = true)
+Lathe\Attributes\Resource\DisplayInNavigation::apply(Lathe\Resources\ResourceDefinition $definition): void
+Lathe\Attributes\Resource\DisplayInNavigation::bool $display
+Lathe\Attributes\Resource\EagerLoad::__construct(array $relations)
+Lathe\Attributes\Resource\EagerLoad::apply(Lathe\Resources\ResourceDefinition $definition): void
+Lathe\Attributes\Resource\EagerLoad::array $relations
+Lathe\Attributes\Resource\GlobalSearchResults::__construct(int $results)
+Lathe\Attributes\Resource\GlobalSearchResults::apply(Lathe\Resources\ResourceDefinition $definition): void
+Lathe\Attributes\Resource\GlobalSearchResults::int $results
+Lathe\Attributes\Resource\GloballySearchable::__construct(bool $searchable = true)
+Lathe\Attributes\Resource\GloballySearchable::apply(Lathe\Resources\ResourceDefinition $definition): void
+Lathe\Attributes\Resource\GloballySearchable::bool $searchable
+Lathe\Attributes\Resource\Group::__construct(string $group)
+Lathe\Attributes\Resource\Group::apply(Lathe\Resources\ResourceDefinition $definition): void
+Lathe\Attributes\Resource\Group::string $group
+Lathe\Attributes\Resource\Icon::__construct(string $icon)
+Lathe\Attributes\Resource\Icon::apply(Lathe\Resources\ResourceDefinition $definition): void
+Lathe\Attributes\Resource\Icon::string $icon
+Lathe\Attributes\Resource\MaxPrimaryKeySize::__construct(int $size)
+Lathe\Attributes\Resource\MaxPrimaryKeySize::apply(Lathe\Resources\ResourceDefinition $definition): void
+Lathe\Attributes\Resource\MaxPrimaryKeySize::int $size
+Lathe\Attributes\Resource\Model::__construct(string $class)
+Lathe\Attributes\Resource\Model::apply(Lathe\Resources\ResourceDefinition $definition): void
+Lathe\Attributes\Resource\Model::string $class
+Lathe\Attributes\Resource\NavigationLabel::__construct(string $label)
+Lathe\Attributes\Resource\NavigationLabel::apply(Lathe\Resources\ResourceDefinition $definition): void
+Lathe\Attributes\Resource\NavigationLabel::string $label
+Lathe\Attributes\Resource\PaginationType::Lathe\Enums\PaginationType $type
+Lathe\Attributes\Resource\PaginationType::__construct(Lathe\Enums\PaginationType $type)
+Lathe\Attributes\Resource\PaginationType::apply(Lathe\Resources\ResourceDefinition $definition): void
+Lathe\Attributes\Resource\PerPage::__construct(array $options)
+Lathe\Attributes\Resource\PerPage::apply(Lathe\Resources\ResourceDefinition $definition): void
+Lathe\Attributes\Resource\PerPage::array $options
+Lathe\Attributes\Resource\Polling::__construct(int $seconds)
+Lathe\Attributes\Resource\Polling::apply(Lathe\Resources\ResourceDefinition $definition): void
+Lathe\Attributes\Resource\Polling::int $seconds
+Lathe\Attributes\Resource\ResourceAttribute::apply(Lathe\Resources\ResourceDefinition $definition): void
+Lathe\Attributes\Resource\SavedTabs::__construct(bool $enabled = true)
+Lathe\Attributes\Resource\SavedTabs::apply(Lathe\Resources\ResourceDefinition $definition): void
+Lathe\Attributes\Resource\SavedTabs::bool $enabled
+Lathe\Attributes\Resource\ScoutSearchResults::__construct(int $results)
+Lathe\Attributes\Resource\ScoutSearchResults::apply(Lathe\Resources\ResourceDefinition $definition): void
+Lathe\Attributes\Resource\ScoutSearchResults::int $results
+Lathe\Attributes\Resource\Search::__construct(array $columns)
+Lathe\Attributes\Resource\Search::apply(Lathe\Resources\ResourceDefinition $definition): void
+Lathe\Attributes\Resource\Search::array $columns
+Lathe\Attributes\Resource\ShowColumnBorders::__construct(bool $show = true)
+Lathe\Attributes\Resource\ShowColumnBorders::apply(Lathe\Resources\ResourceDefinition $definition): void
+Lathe\Attributes\Resource\ShowColumnBorders::bool $show
+Lathe\Attributes\Resource\ShowPollingToggle::__construct(bool $show = true)
+Lathe\Attributes\Resource\ShowPollingToggle::apply(Lathe\Resources\ResourceDefinition $definition): void
+Lathe\Attributes\Resource\ShowPollingToggle::bool $show
+Lathe\Attributes\Resource\SoftDeletes::?bool $softDeletes
+Lathe\Attributes\Resource\SoftDeletes::__construct(?bool $softDeletes = true)
+Lathe\Attributes\Resource\SoftDeletes::apply(Lathe\Resources\ResourceDefinition $definition): void
+Lathe\Attributes\Resource\Subtitle::__construct(string $attribute)
+Lathe\Attributes\Resource\Subtitle::apply(Lathe\Resources\ResourceDefinition $definition): void
+Lathe\Attributes\Resource\Subtitle::string $attribute
+Lathe\Attributes\Resource\TableStyle::Lathe\Enums\TableStyle $style
+Lathe\Attributes\Resource\TableStyle::__construct(Lathe\Enums\TableStyle $style)
+Lathe\Attributes\Resource\TableStyle::apply(Lathe\Resources\ResourceDefinition $definition): void
+Lathe\Attributes\Resource\Title::__construct(string $attribute)
+Lathe\Attributes\Resource\Title::apply(Lathe\Resources\ResourceDefinition $definition): void
+Lathe\Attributes\Resource\Title::string $attribute
+Lathe\Attributes\Resource\TrafficCop::__construct(bool $enabled = true)
+Lathe\Attributes\Resource\TrafficCop::apply(Lathe\Resources\ResourceDefinition $definition): void
+Lathe\Attributes\Resource\TrafficCop::bool $enabled
+Lathe\Attributes\Resource\UseScout::?bool $use
+Lathe\Attributes\Resource\UseScout::__construct(?bool $use = true)
+Lathe\Attributes\Resource\UseScout::apply(Lathe\Resources\ResourceDefinition $definition): void
 Lathe\Auth\FortifyConfig::Illuminate\Contracts\Config\Repository $config  [protected]
 Lathe\Auth\FortifyConfig::Lathe\Support\ConfigStore $lathe  [protected]
 Lathe\Auth\FortifyConfig::__construct(Lathe\Support\ConfigStore $lathe, Illuminate\Contracts\Config\Repository $config)
@@ -52,6 +139,7 @@ Lathe\Auth\ResourceAuthorization::Lathe\Resources\ResourceRegistry $resources  [
 Lathe\Auth\ResourceAuthorization::__construct(Illuminate\Contracts\Auth\Access\Gate $gate, Lathe\Resources\ResourceRegistry $resources)
 Lathe\Auth\ResourceAuthorization::abilitiesFor(?Illuminate\Contracts\Auth\Authenticatable $user, string $resource, Illuminate\Support\Collection $models, array $abilities): array
 Lathe\Auth\ResourceAuthorization::allows(?Illuminate\Contracts\Auth\Authenticatable $user, string $resource, string $ability, ?Illuminate\Database\Eloquent\Model $model = NULL, array $arguments = array ( )): bool
+Lathe\Auth\ResourceAuthorization::allowsLens(?Illuminate\Contracts\Auth\Authenticatable $user, string $resource, Lathe\Lenses\Lens $lens): bool
 Lathe\Auth\ResourceAuthorization::allowsViewAnyFromManifest(Illuminate\Http\Request $request, array $entry): bool
 Lathe\Auth\ResourceAuthorization::array $policies  [protected]
 Lathe\Auth\ResourceAuthorization::canSee(Illuminate\Http\Request $request, string $resource): bool
@@ -349,8 +437,9 @@ Lathe\Filters\Filter::placement(string $slot): static
 Lathe\Filters\Filter::searchOptions(Lathe\Http\Requests\LatheRequest $request, string $term, int $page, int $perPage): array
 Lathe\Filters\Filter::searchable(Closure|bool $searchable = true): static
 Lathe\Filters\Filter::string $placement  [protected]
+Lathe\Filters\FilterApplicator::?array $filters  [protected]
 Lathe\Filters\FilterApplicator::Lathe\Resources\Resource $resource  [protected]
-Lathe\Filters\FilterApplicator::__construct(Lathe\Resources\Resource $resource)
+Lathe\Filters\FilterApplicator::__construct(Lathe\Resources\Resource $resource, ?array $filters = NULL)
 Lathe\Filters\FilterApplicator::apply(Lathe\Http\Requests\LatheRequest $request, Illuminate\Database\Eloquent\Builder $query, array $filters): Illuminate\Database\Eloquent\Builder
 Lathe\Filters\FilterApplicator::resolve(Lathe\Http\Requests\LatheRequest $request, array $filters): array  [protected]
 Lathe\Filters\FilterApplicator::values(Lathe\Http\Requests\LatheRequest $request, array $filters): array
@@ -366,6 +455,7 @@ Lathe\Http\Controllers\Auth\AuthenticatedSessionController::destroy(Illuminate\H
 Lathe\Http\Controllers\Auth\AuthenticatedSessionController::store(Illuminate\Http\Request $request): Symfony\Component\HttpFoundation\Response
 Lathe\Http\Controllers\Auth\LoginPageController::__invoke(Lathe\Auth\FortifyConfig $fortify): Inertia\Response
 Lathe\Http\Controllers\DashboardController::__invoke(): Inertia\Response
+Lathe\Http\Controllers\GlobalSearchController::__invoke(Lathe\Http\Requests\LatheRequest $request, Lathe\Support\ConfigStore $config, Illuminate\Contracts\Auth\Access\Gate $gate, Lathe\Search\GlobalSearch $search, Lathe\Auth\ResourceAuthorization $authorization): Illuminate\Http\JsonResponse
 Lathe\Http\Controllers\PageFallbackController::__invoke(Illuminate\Http\Request $request, Illuminate\Routing\Router $router): never
 Lathe\Http\Controllers\Plugins\ModuleController::__invoke(Lathe\Assets\AssetRegistry $assets, string $file, string $type = 'scripts'): Symfony\Component\HttpFoundation\BinaryFileResponse
 Lathe\Http\Controllers\Plugins\PluginApiController::__invoke(Illuminate\Http\Request $request, Lathe\Plugins\PluginRegistry $plugins, string $plugin, string $path = ''): Symfony\Component\HttpFoundation\Response
@@ -383,6 +473,21 @@ Lathe\Http\Controllers\Resources\FilterController::index(Lathe\Http\Requests\Lat
 Lathe\Http\Controllers\Resources\FilterController::options(Lathe\Http\Requests\LatheRequest $request, Lathe\Auth\ResourceAuthorization $authorization): Illuminate\Http\JsonResponse
 Lathe\Http\Controllers\Resources\IndexController::__invoke(Lathe\Http\Requests\LatheRequest $request, Lathe\Auth\ResourceAuthorization $authorization, Lathe\Http\Payloads\IndexPayload $payload): Illuminate\Http\JsonResponse
 Lathe\Http\Controllers\Resources\IndexPageController::__invoke(Lathe\Http\Requests\LatheRequest $request, Lathe\Auth\ResourceAuthorization $authorization, Lathe\Http\Payloads\IndexPayload $payload): Symfony\Component\HttpFoundation\Response
+Lathe\Http\Controllers\Resources\LensController::count(Lathe\Http\Requests\LatheRequest $request, Lathe\Auth\ResourceAuthorization $authorization, Lathe\Http\Payloads\IndexPayload $payload): Illuminate\Http\JsonResponse
+Lathe\Http\Controllers\Resources\LensController::filters(Lathe\Http\Requests\LatheRequest $request, Lathe\Auth\ResourceAuthorization $authorization): Illuminate\Http\JsonResponse
+Lathe\Http\Controllers\Resources\LensController::index(Lathe\Http\Requests\LatheRequest $request, Lathe\Auth\ResourceAuthorization $authorization, Lathe\Http\Payloads\IndexPayload $payload): Illuminate\Http\JsonResponse
+Lathe\Http\Controllers\Resources\LensController::page(Lathe\Http\Requests\LatheRequest $request, Lathe\Auth\ResourceAuthorization $authorization, Lathe\Http\Payloads\IndexPayload $payload): Symfony\Component\HttpFoundation\Response
+Lathe\Http\Controllers\Resources\LensController::viewableLens(Lathe\Http\Requests\LatheRequest $request, Lathe\Auth\ResourceAuthorization $authorization): array  [protected]
+Lathe\Http\Controllers\Resources\SavedTabController::attributes(Lathe\Http\Requests\LatheRequest $request, Lathe\Resources\Resource $resource, bool $creating): array  [protected]
+Lathe\Http\Controllers\Resources\SavedTabController::destroy(Lathe\Http\Requests\LatheRequest $request, Lathe\Auth\ResourceAuthorization $authorization, Lathe\Support\ConfigStore $config): Illuminate\Http\Response
+Lathe\Http\Controllers\Resources\SavedTabController::enabledResource(Lathe\Http\Requests\LatheRequest $request, Lathe\Auth\ResourceAuthorization $authorization, Lathe\Support\ConfigStore $config): string  [protected]
+Lathe\Http\Controllers\Resources\SavedTabController::find(Lathe\Http\Requests\LatheRequest $request, string $class): Lathe\SavedTabs\SavedTab  [protected]
+Lathe\Http\Controllers\Resources\SavedTabController::index(Lathe\Http\Requests\LatheRequest $request, Lathe\Auth\ResourceAuthorization $authorization, Lathe\Support\ConfigStore $config): Illuminate\Http\JsonResponse
+Lathe\Http\Controllers\Resources\SavedTabController::owned(Lathe\Http\Requests\LatheRequest $request, string $class): Illuminate\Database\Eloquent\Builder  [protected]
+Lathe\Http\Controllers\Resources\SavedTabController::reorder(Lathe\Http\Requests\LatheRequest $request, Lathe\Auth\ResourceAuthorization $authorization, Lathe\Support\ConfigStore $config): Illuminate\Http\Response
+Lathe\Http\Controllers\Resources\SavedTabController::store(Lathe\Http\Requests\LatheRequest $request, Lathe\Auth\ResourceAuthorization $authorization, Lathe\Support\ConfigStore $config): Illuminate\Http\JsonResponse
+Lathe\Http\Controllers\Resources\SavedTabController::update(Lathe\Http\Requests\LatheRequest $request, Lathe\Auth\ResourceAuthorization $authorization, Lathe\Support\ConfigStore $config): Illuminate\Http\JsonResponse
+Lathe\Http\Controllers\Resources\SavedTabController::userId(Lathe\Http\Requests\LatheRequest $request): string  [protected]
 Lathe\Http\ErrorPages::Lathe\Auth\FortifyConfig $fortify  [protected]
 Lathe\Http\ErrorPages::STATUSES
 Lathe\Http\ErrorPages::__construct(Lathe\Auth\FortifyConfig $fortify)
@@ -422,12 +527,18 @@ Lathe\Http\Payloads\IndexPayload::Lathe\Auth\ResourceAuthorization $authorizatio
 Lathe\Http\Payloads\IndexPayload::Lathe\Http\Requests\LatheRequest $request  [protected]
 Lathe\Http\Payloads\IndexPayload::ROW_ABILITIES
 Lathe\Http\Payloads\IndexPayload::__construct(Lathe\Http\Requests\LatheRequest $request, Lathe\Auth\ResourceAuthorization $authorization)
-Lathe\Http\Payloads\IndexPayload::build(string $class): array
-Lathe\Http\Payloads\IndexPayload::count(string $class): ?array
+Lathe\Http\Payloads\IndexPayload::activeSavedTab(Lathe\Resources\Resource $resource): ?int  [protected]
+Lathe\Http\Payloads\IndexPayload::build(string $class, ?Lathe\Lenses\Lens $lens = NULL): array
+Lathe\Http\Payloads\IndexPayload::count(string $class, ?Lathe\Lenses\Lens $lens = NULL): ?array
 Lathe\Http\Payloads\IndexPayload::filter(Lathe\Filters\Filter $filter, int $threshold): array  [protected]
 Lathe\Http\Payloads\IndexPayload::key(Illuminate\Database\Eloquent\Model $model): string|int  [protected]
+Lathe\Http\Payloads\IndexPayload::lensEntry(Lathe\Lenses\Lens $lens): array  [protected]
+Lathe\Http\Payloads\IndexPayload::query(Lathe\Resources\Resource $resource, ?Lathe\Lenses\Lens $lens): Lathe\Query\ResourceQuery  [protected]
 Lathe\Http\Payloads\IndexPayload::resource(string $class): array
+Lathe\Http\Payloads\IndexPayload::savedTabModels(Lathe\Resources\Resource $resource): Illuminate\Database\Eloquent\Collection  [protected]
+Lathe\Http\Payloads\IndexPayload::savedTabs(Lathe\Resources\Resource $resource, Lathe\Query\ResourceQuery $query): array  [protected]
 Lathe\Http\Payloads\IndexPayload::tabCounts(string $class): array
+Lathe\Http\Payloads\IndexPayload::visibleLenses(string $class): array
 Lathe\Http\Requests\LatheRequest::config(): Lathe\Support\ConfigStore  [protected]
 Lathe\Http\Requests\LatheRequest::orderByDirection(): string
 Lathe\Http\Requests\LatheRequest::perPage(): int
@@ -463,6 +574,7 @@ Lathe\LatheManager::path(): string
 Lathe\LatheManager::plugins(): Lathe\Plugins\PluginRegistry
 Lathe\LatheManager::registerPlugins(Lathe\Plugins\Plugin ...$plugins): void
 Lathe\LatheManager::registerResources(string ...$classes): void
+Lathe\LatheManager::registerSearchProviders(Lathe\Search\SearchProvider ...$providers): void
 Lathe\LatheManager::resolveSidebarDefaultOpen(Illuminate\Http\Request $request): bool
 Lathe\LatheManager::resolveUserTimezone(Illuminate\Http\Request $request): ?string
 Lathe\LatheManager::resources(): Lathe\Resources\ResourceRegistry
@@ -473,10 +585,30 @@ Lathe\LatheServiceProvider::boot(): void
 Lathe\LatheServiceProvider::register(): void
 Lathe\LatheServiceProvider::registerMiddleware(): void  [protected]
 Lathe\LatheServiceProvider::validateConfig(): void  [protected]
+Lathe\Lenses\Lens::?Closure $seeCallback  [protected]
+Lathe\Lenses\Lens::attribute(string $attribute): ?object  [protected static]
+Lathe\Lenses\Lens::authorizedToSee(Illuminate\Http\Request $request): bool
+Lathe\Lenses\Lens::availableFilters(Lathe\Http\Requests\LatheRequest $request): array
+Lathe\Lenses\Lens::canSee(Closure $callback): static
+Lathe\Lenses\Lens::countQuery(Lathe\Http\Requests\LatheRequest $request, Illuminate\Database\Eloquent\Builder $query): Illuminate\Database\Eloquent\Builder|int|null  [static]
+Lathe\Lenses\Lens::fields(Lathe\Http\Requests\LatheRequest $request): array
+Lathe\Lenses\Lens::filters(Lathe\Http\Requests\LatheRequest $request): array
+Lathe\Lenses\Lens::name(): string
+Lathe\Lenses\Lens::perPageOptions(): ?array  [static]
+Lathe\Lenses\Lens::polling(): bool
+Lathe\Lenses\Lens::pollingInterval(): int
+Lathe\Lenses\Lens::query(Lathe\Http\Requests\LatheRequest $request, Illuminate\Database\Eloquent\Builder $query): Illuminate\Database\Eloquent\Builder  [static]
+Lathe\Lenses\Lens::searchable(): bool  [static]
+Lathe\Lenses\Lens::searchableColumns(): array
+Lathe\Lenses\Lens::showPollingToggle(): bool
+Lathe\Lenses\Lens::uriKey(): string
+Lathe\Lenses\Lens::withFilters(Lathe\Http\Requests\LatheRequest $request, Illuminate\Database\Eloquent\Builder $query): Illuminate\Database\Eloquent\Builder  [static]
+Lathe\Lenses\Lens::withOrdering(Lathe\Http\Requests\LatheRequest $request, Illuminate\Database\Eloquent\Builder $query, ?Closure $default = NULL): Illuminate\Database\Eloquent\Builder  [static]
 Lathe\Menu\MenuItem::?Lathe\Enums\Icon $icon  [protected]
 Lathe\Menu\MenuItem::__construct(string $label, string $path)
 Lathe\Menu\MenuItem::icon(?Lathe\Enums\Icon $icon): static
 Lathe\Menu\MenuItem::jsonSerialize(): array
+Lathe\Menu\MenuItem::lens(string $resource, string $lens): static  [static]
 Lathe\Menu\MenuItem::link(string $label, string $path): static  [static]
 Lathe\Menu\MenuItem::plugin(string $plugin, ?string $label = NULL, ?string $subPath = NULL): static  [static]
 Lathe\Menu\MenuItem::string $label  [protected]
@@ -551,6 +683,7 @@ Lathe\Query\QueryContext::Search
 Lathe\Query\QueryContext::Widget
 Lathe\Query\QueryContext::string $name
 Lathe\Query\ResourceQuery::?Illuminate\Database\Eloquent\Builder $scoped  [protected]
+Lathe\Query\ResourceQuery::?Lathe\Lenses\Lens $lens  [protected]
 Lathe\Query\ResourceQuery::?array $pagination  [protected]
 Lathe\Query\ResourceQuery::?string $trashed  [protected]
 Lathe\Query\ResourceQuery::Lathe\Http\Requests\LatheRequest $request  [protected]
@@ -560,6 +693,8 @@ Lathe\Query\ResourceQuery::__construct(Lathe\Resources\Resource $resource, Lathe
 Lathe\Query\ResourceQuery::activeTabKey(): ?string
 Lathe\Query\ResourceQuery::applyFilters(Illuminate\Database\Eloquent\Builder $query): Illuminate\Database\Eloquent\Builder  [protected]
 Lathe\Query\ResourceQuery::applyHook(Illuminate\Database\Eloquent\Builder $query): Illuminate\Database\Eloquent\Builder  [protected]
+Lathe\Query\ResourceQuery::applyLens(Illuminate\Database\Eloquent\Builder $query): Illuminate\Database\Eloquent\Builder  [protected]
+Lathe\Query\ResourceQuery::applyLensSearch(Illuminate\Database\Eloquent\Builder $query): Illuminate\Database\Eloquent\Builder  [protected]
 Lathe\Query\ResourceQuery::applySavedTab(Illuminate\Database\Eloquent\Builder $query): Illuminate\Database\Eloquent\Builder  [protected]
 Lathe\Query\ResourceQuery::applySearch(Illuminate\Database\Eloquent\Builder $query): Illuminate\Database\Eloquent\Builder  [protected]
 Lathe\Query\ResourceQuery::applySort(Illuminate\Database\Eloquent\Builder $query): Illuminate\Database\Eloquent\Builder  [protected]
@@ -567,12 +702,15 @@ Lathe\Query\ResourceQuery::applyTab(Illuminate\Database\Eloquent\Builder $query)
 Lathe\Query\ResourceQuery::applyTrashed(Illuminate\Database\Eloquent\Builder $query): Illuminate\Database\Eloquent\Builder  [protected]
 Lathe\Query\ResourceQuery::array $withoutScopes  [protected]
 Lathe\Query\ResourceQuery::bool $hasMorePages  [protected]
-Lathe\Query\ResourceQuery::cappedCount(int $cap): Lathe\Query\Count  [protected]
+Lathe\Query\ResourceQuery::bool $lensFiltered  [protected]
+Lathe\Query\ResourceQuery::bool $lensOrdered  [protected]
+Lathe\Query\ResourceQuery::cappedCount(int $cap, ?Illuminate\Database\Eloquent\Builder $counted = NULL): Lathe\Query\Count  [protected]
 Lathe\Query\ResourceQuery::change(Closure $change): static  [protected]
 Lathe\Query\ResourceQuery::config(): Lathe\Support\ConfigStore  [protected]
 Lathe\Query\ResourceQuery::count(): ?Lathe\Query\Count
 Lathe\Query\ResourceQuery::estimatedCount(): ?Lathe\Query\Count  [protected]
 Lathe\Query\ResourceQuery::find(string|int $id): Illuminate\Database\Eloquent\Model
+Lathe\Query\ResourceQuery::forLens(Lathe\Lenses\Lens $lens): static
 Lathe\Query\ResourceQuery::hasMorePages(): bool
 Lathe\Query\ResourceQuery::onlyTrashed(): static
 Lathe\Query\ResourceQuery::page(): array
@@ -581,7 +719,10 @@ Lathe\Query\ResourceQuery::perPageOptions(): array  [protected]
 Lathe\Query\ResourceQuery::perPageOptionsInUse(): array
 Lathe\Query\ResourceQuery::readPagination(): array  [protected]
 Lathe\Query\ResourceQuery::rows(): Illuminate\Database\Eloquent\Collection
+Lathe\Query\ResourceQuery::savedTabCount(Lathe\SavedTabs\SavedTab $tab): Lathe\Query\Count
 Lathe\Query\ResourceQuery::scoped(): Illuminate\Database\Eloquent\Builder
+Lathe\Query\ResourceQuery::scoutKeys(string $term): array  [protected]
+Lathe\Query\ResourceQuery::searchResults(int $limit): Illuminate\Database\Eloquent\Collection
 Lathe\Query\ResourceQuery::sortKeys(): array
 Lathe\Query\ResourceQuery::sortString(): string
 Lathe\Query\ResourceQuery::tabBadge(Lathe\Tabs\Tab $tab): string|int|null
@@ -611,6 +752,7 @@ Lathe\Resources\Resource::forModel(?Illuminate\Database\Eloquent\Model $model): 
 Lathe\Resources\Resource::getModel(): ?Illuminate\Database\Eloquent\Model
 Lathe\Resources\Resource::indexQuery(Lathe\Http\Requests\LatheRequest $request, Illuminate\Database\Eloquent\Builder $query): Illuminate\Database\Eloquent\Builder  [static]
 Lathe\Resources\Resource::label(): string  [static]
+Lathe\Resources\Resource::lenses(Lathe\Http\Requests\LatheRequest $request): array
 Lathe\Resources\Resource::make(?Illuminate\Database\Eloquent\Model $model = NULL): static  [static]
 Lathe\Resources\Resource::model(): string  [static]
 Lathe\Resources\Resource::newModel(): Illuminate\Database\Eloquent\Model  [static]
@@ -626,6 +768,7 @@ Lathe\Resources\Resource::subtitle(): string
 Lathe\Resources\Resource::tabs(Lathe\Http\Requests\LatheRequest $request): array
 Lathe\Resources\Resource::title(): string
 Lathe\Resources\Resource::uriKey(): string  [static]
+Lathe\Resources\Resource::usesScout(): bool
 Lathe\Resources\Resource::widgetQuery(Lathe\Http\Requests\LatheRequest $request, Illuminate\Database\Eloquent\Builder $query): Illuminate\Database\Eloquent\Builder  [static]
 Lathe\Resources\Resource::with(): array
 Lathe\Resources\ResourceDefinition::?Closure $seeCallback  [protected]
@@ -646,6 +789,7 @@ Lathe\Resources\ResourceDefinition::Lathe\Enums\TableStyle $tableStyle  [protect
 Lathe\Resources\ResourceDefinition::Lathe\Query\CountStrategy $countStrategy  [protected]
 Lathe\Resources\ResourceDefinition::allowAll(bool $allow = true): static
 Lathe\Resources\ResourceDefinition::allowsAll(): bool
+Lathe\Resources\ResourceDefinition::applyClassAttributes(string $class): static
 Lathe\Resources\ResourceDefinition::array $limits  [protected]
 Lathe\Resources\ResourceDefinition::array $searchable  [protected]
 Lathe\Resources\ResourceDefinition::array $with  [protected]
@@ -672,6 +816,7 @@ Lathe\Resources\ResourceDefinition::displayInNavigation(bool $display = true): s
 Lathe\Resources\ResourceDefinition::filterRemoteThreshold(int $threshold): static
 Lathe\Resources\ResourceDefinition::float $debounce  [protected]
 Lathe\Resources\ResourceDefinition::freeze(): static
+Lathe\Resources\ResourceDefinition::fromAttributes(string $class): static  [static]
 Lathe\Resources\ResourceDefinition::getBulkInlineMax(): int
 Lathe\Resources\ResourceDefinition::getClickAction(): Lathe\Enums\ClickAction
 Lathe\Resources\ResourceDefinition::getCountCap(): int
@@ -714,6 +859,7 @@ Lathe\Resources\ResourceDefinition::isGloballySearchable(): bool
 Lathe\Resources\ResourceDefinition::limit(string $key, int $value): static  [protected]
 Lathe\Resources\ResourceDefinition::maxPrimaryKeySize(int $size): static
 Lathe\Resources\ResourceDefinition::model(string $model): static
+Lathe\Resources\ResourceDefinition::modelIsScoutSearchable(): bool
 Lathe\Resources\ResourceDefinition::navigationLabel(?string $label): static
 Lathe\Resources\ResourceDefinition::options(): array
 Lathe\Resources\ResourceDefinition::paginationType(Lathe\Enums\PaginationType $type): static
@@ -739,6 +885,7 @@ Lathe\Resources\ResourceDefinition::title(Closure|string $title): static
 Lathe\Resources\ResourceDefinition::trafficCop(bool $enabled = true): static
 Lathe\Resources\ResourceDefinition::useScout(?bool $use = true): static
 Lathe\Resources\ResourceDefinition::usesSavedTabs(): bool
+Lathe\Resources\ResourceDefinition::usesScout(): bool
 Lathe\Resources\ResourceDefinition::usesSoftDeletes(): bool
 Lathe\Resources\ResourceDefinition::usesTrafficCop(): bool
 Lathe\Resources\ResourceDefinition::with(array $relations): static
@@ -774,6 +921,51 @@ Lathe\Resources\ResourceRegistry::scan(string $directory, string $namespace): ar
 Lathe\Resources\ResourceRegistry::scanned(): bool
 Lathe\Resources\ResourceRegistry::useCachePath(string $path): void
 Lathe\Resources\ResourceRegistry::validate(string $class, Lathe\Resources\ResourceDefinition $definition): void  [protected]
+Lathe\SavedTabs\SavedTab::$guarded  [protected]
+Lathe\SavedTabs\SavedTab::$table  [protected]
+Lathe\SavedTabs\SavedTab::casts(): array  [protected]
+Lathe\SavedTabs\SavedTab::reorder(string $userId, string $resourceClass, array $ids): void  [static]
+Lathe\SavedTabs\SavedTab::toPayload(): array
+Lathe\SavedTabs\SavedTabQueryApplicator::Lathe\Http\Requests\LatheRequest $request  [protected]
+Lathe\SavedTabs\SavedTabQueryApplicator::Lathe\Resources\Resource $resource  [protected]
+Lathe\SavedTabs\SavedTabQueryApplicator::Lathe\SavedTabs\SavedTab $tab  [protected]
+Lathe\SavedTabs\SavedTabQueryApplicator::__construct(Lathe\Resources\Resource $resource, Lathe\Http\Requests\LatheRequest $request, Lathe\SavedTabs\SavedTab $tab)
+Lathe\SavedTabs\SavedTabQueryApplicator::active(Lathe\Resources\Resource $resource, Lathe\Http\Requests\LatheRequest $request): ?Lathe\SavedTabs\SavedTab  [static]
+Lathe\SavedTabs\SavedTabQueryApplicator::applyBase(Illuminate\Database\Eloquent\Builder $query): Illuminate\Database\Eloquent\Builder
+Lathe\SavedTabs\SavedTabQueryApplicator::applySort(array $sortKeys): ?string
+Lathe\SavedTabs\SavedTabQueryApplicator::countForSavedTab(Illuminate\Database\Eloquent\Builder $base): Lathe\Query\Count
+Lathe\SavedTabs\SavedTabQueryApplicator::enabled(Lathe\Resources\Resource $resource): bool  [static]
+Lathe\SavedTabs\SavedTabQueryApplicator::filters(): array
+Lathe\SavedTabs\SavedTabQueryApplicator::isStale(array $sortKeys, string $schemaHash): bool
+Lathe\SavedTabs\SavedTabQueryApplicator::keptSortTokens(array $sortKeys): array  [protected]
+Lathe\SavedTabs\SavedTabQueryApplicator::listFor(Lathe\Resources\Resource $resource, Lathe\Http\Requests\LatheRequest $request): Illuminate\Database\Eloquent\Collection  [static]
+Lathe\SavedTabs\SavedTabQueryApplicator::owned(Lathe\Resources\Resource $resource, Lathe\Http\Requests\LatheRequest $request): Illuminate\Database\Eloquent\Builder  [protected static]
+Lathe\SavedTabs\SavedTabQueryApplicator::sortTokens(): array  [protected]
+Lathe\SavedTabs\SavedTabQueryApplicator::term(): ?string  [protected]
+Lathe\SavedTabs\SchemaHash::for(Lathe\Resources\Resource $resource, Lathe\Http\Requests\LatheRequest $request): string  [static]
+Lathe\Search\GlobalSearch::Lathe\Resources\ResourceRegistry $resources  [protected]
+Lathe\Search\GlobalSearch::Lathe\Support\ConfigStore $config  [protected]
+Lathe\Search\GlobalSearch::MAX_ROWS
+Lathe\Search\GlobalSearch::__construct(Lathe\Resources\ResourceRegistry $resources, Lathe\Support\ConfigStore $config)
+Lathe\Search\GlobalSearch::array $providers  [protected]
+Lathe\Search\GlobalSearch::candidates(): array  [protected]
+Lathe\Search\GlobalSearch::register(Lathe\Search\SearchProvider ...$providers): void
+Lathe\Search\GlobalSearch::resourceRows(Lathe\Http\Requests\LatheRequest $request, array $entry, int $remaining): array  [protected]
+Lathe\Search\GlobalSearch::search(Lathe\Http\Requests\LatheRequest $request, Lathe\Auth\ResourceAuthorization $authorization): array
+Lathe\Search\GlobalSearchResult::?string $avatar  [protected]
+Lathe\Search\GlobalSearchResult::?string $id  [protected]
+Lathe\Search\GlobalSearchResult::?string $subtitle  [protected]
+Lathe\Search\GlobalSearchResult::?string $url  [protected]
+Lathe\Search\GlobalSearchResult::__construct(string $title)
+Lathe\Search\GlobalSearchResult::avatar(string $avatar): static
+Lathe\Search\GlobalSearchResult::bool $rounded  [protected]
+Lathe\Search\GlobalSearchResult::id(string $id): static
+Lathe\Search\GlobalSearchResult::make(string $title): static  [static]
+Lathe\Search\GlobalSearchResult::rounded(bool $rounded = true): static
+Lathe\Search\GlobalSearchResult::string $title  [protected]
+Lathe\Search\GlobalSearchResult::subtitle(string $subtitle): static
+Lathe\Search\GlobalSearchResult::toRow(Lathe\Search\SearchProvider $provider): array
+Lathe\Search\GlobalSearchResult::url(string $url): static
 Lathe\Search\LikeSearch::__construct(string $column, bool $contains = false)
 Lathe\Search\LikeSearch::apply(Illuminate\Database\Eloquent\Builder $query, string $term, string $boolean): void
 Lathe\Search\LikeSearch::bool $contains
@@ -786,6 +978,10 @@ Lathe\Search\SearchApplicator::apply(Illuminate\Database\Eloquent\Builder $query
 Lathe\Search\SearchApplicator::array $columns  [protected]
 Lathe\Search\SearchApplicator::for(Lathe\Resources\Resource $resource): Lathe\Search\SearchApplicator  [static]
 Lathe\Search\SearchApplicator::term(mixed $q, int $maxChars, int $maxWords): ?string  [static]
+Lathe\Search\SearchProvider::authorize(Lathe\Http\Requests\LatheRequest $request): bool
+Lathe\Search\SearchProvider::search(Lathe\Http\Requests\LatheRequest $request): array
+Lathe\Search\SearchProvider::title(): string
+Lathe\Search\SearchProvider::uriKey(): string
 Lathe\Search\SearchableColumn::apply(Illuminate\Database\Eloquent\Builder $query, string $term, string $boolean): void
 Lathe\Search\SearchablePrimaryKey::__construct(int $maxSize = PHP_INT_MAX)
 Lathe\Search\SearchablePrimaryKey::apply(Illuminate\Database\Eloquent\Builder $query, string $term, string $boolean): void
@@ -866,6 +1062,36 @@ Lathe\Testing\TestCase::tearDown(): void  [protected]
 class Lathe\Assets\AssetManifest
 class Lathe\Assets\AssetRegistry
 class Lathe\Assets\RootTags
+class Lathe\Attributes\Lens\PerPage
+class Lathe\Attributes\Lens\Polling
+class Lathe\Attributes\Lens\Search
+class Lathe\Attributes\Lens\ShowPollingToggle
+class Lathe\Attributes\Resource\Borderless
+class Lathe\Attributes\Resource\ClickAction
+class Lathe\Attributes\Resource\Debounce
+class Lathe\Attributes\Resource\DisplayInNavigation
+class Lathe\Attributes\Resource\EagerLoad
+class Lathe\Attributes\Resource\GlobalSearchResults
+class Lathe\Attributes\Resource\GloballySearchable
+class Lathe\Attributes\Resource\Group
+class Lathe\Attributes\Resource\Icon
+class Lathe\Attributes\Resource\MaxPrimaryKeySize
+class Lathe\Attributes\Resource\Model
+class Lathe\Attributes\Resource\NavigationLabel
+class Lathe\Attributes\Resource\PaginationType
+class Lathe\Attributes\Resource\PerPage
+class Lathe\Attributes\Resource\Polling
+class Lathe\Attributes\Resource\SavedTabs
+class Lathe\Attributes\Resource\ScoutSearchResults
+class Lathe\Attributes\Resource\Search
+class Lathe\Attributes\Resource\ShowColumnBorders
+class Lathe\Attributes\Resource\ShowPollingToggle
+class Lathe\Attributes\Resource\SoftDeletes
+class Lathe\Attributes\Resource\Subtitle
+class Lathe\Attributes\Resource\TableStyle
+class Lathe\Attributes\Resource\Title
+class Lathe\Attributes\Resource\TrafficCop
+class Lathe\Attributes\Resource\UseScout
 class Lathe\Auth\FortifyConfig
 class Lathe\Auth\PanelGate
 class Lathe\Auth\ResourceAuthorization
@@ -898,6 +1124,7 @@ class Lathe\Http\Controllers\Assets\AssetController
 class Lathe\Http\Controllers\Auth\AuthenticatedSessionController
 class Lathe\Http\Controllers\Auth\LoginPageController
 class Lathe\Http\Controllers\DashboardController
+class Lathe\Http\Controllers\GlobalSearchController
 class Lathe\Http\Controllers\PageFallbackController
 class Lathe\Http\Controllers\Plugins\ModuleController
 class Lathe\Http\Controllers\Plugins\PluginApiController
@@ -907,6 +1134,8 @@ class Lathe\Http\Controllers\Resources\DeleteController
 class Lathe\Http\Controllers\Resources\FilterController
 class Lathe\Http\Controllers\Resources\IndexController
 class Lathe\Http\Controllers\Resources\IndexPageController
+class Lathe\Http\Controllers\Resources\LensController
+class Lathe\Http\Controllers\Resources\SavedTabController
 class Lathe\Http\ErrorPages
 class Lathe\Http\Middleware\Authenticate
 class Lathe\Http\Middleware\Authorize
@@ -923,6 +1152,7 @@ class Lathe\Lathe
 class Lathe\LatheApplicationServiceProvider
 class Lathe\LatheManager
 class Lathe\LatheServiceProvider
+class Lathe\Lenses\Lens
 class Lathe\Menu\MenuItem
 class Lathe\Menu\MenuSection
 class Lathe\Menu\Navigation
@@ -935,8 +1165,14 @@ class Lathe\Query\ResourceQuery
 class Lathe\Resources\Resource
 class Lathe\Resources\ResourceDefinition
 class Lathe\Resources\ResourceRegistry
+class Lathe\SavedTabs\SavedTab
+class Lathe\SavedTabs\SavedTabQueryApplicator
+class Lathe\SavedTabs\SchemaHash
+class Lathe\Search\GlobalSearch
+class Lathe\Search\GlobalSearchResult
 class Lathe\Search\LikeSearch
 class Lathe\Search\SearchApplicator
+class Lathe\Search\SearchProvider
 class Lathe\Search\SearchablePrimaryKey
 class Lathe\Support\ConfigStore
 class Lathe\Support\ConfigValidator
@@ -952,6 +1188,7 @@ enum Lathe\Enums\PaginationType
 enum Lathe\Enums\TableStyle
 enum Lathe\Query\CountStrategy
 enum Lathe\Query\QueryContext
+interface Lathe\Attributes\Resource\ResourceAttribute
 interface Lathe\Search\SearchableColumn
 trait Lathe\Http\Controllers\Resources\AuthorizesResources
 trait Lathe\Testing\InteractsWithLathe
