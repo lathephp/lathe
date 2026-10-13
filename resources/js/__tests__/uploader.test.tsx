@@ -78,11 +78,11 @@ function server(options: { chunk?: (index: number) => Response | Promise<Respons
   return { fetch, calls, chunks: () => calls.filter((call) => /\/chunks\/\d+$/.test(call.url)) };
 }
 
-function renderField(field: FieldSchema = schema(), onChange: (value: unknown) => void = () => undefined, value: unknown = null) {
+function renderField(field: FieldSchema = schema(), onChange: (value: unknown) => void = () => undefined, value: unknown = null, disabled = false) {
   return render(
     <>
       <label htmlFor="avatar">Avatar</label>
-      <FormField field={{ ...field, value }} value={value} onChange={onChange} id="avatar" describedBy={undefined} invalid={false} disabled={false} />
+      <FormField field={{ ...field, value }} value={value} onChange={onChange} id="avatar" describedBy={undefined} invalid={false} disabled={disabled} />
     </>,
   );
 }
@@ -249,6 +249,12 @@ describe('chunked uploader', () => {
     choose(sized(MB));
 
     expect(await screen.findByText('File exceeds the 5 MB limit')).toBeTruthy();
+  });
+
+  it('disables the file input of a readonly field', () => {
+    renderField(schema(), () => undefined, null, true);
+
+    expect(screen.getByLabelText<HTMLInputElement>('Avatar').disabled).toBe(true);
   });
 
   it('starts a repeater row upload with its scoped attribute', async () => {

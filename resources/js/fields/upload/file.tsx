@@ -69,9 +69,10 @@ export function FileControl({
   onChange,
   id,
   describedBy,
+  invalid,
   disabled,
   media,
-}: Pick<FormFieldProps, 'field' | 'value' | 'onChange' | 'id' | 'describedBy' | 'disabled'> & {
+}: Pick<FormFieldProps, 'field' | 'value' | 'onChange' | 'id' | 'describedBy' | 'invalid' | 'disabled'> & {
   media: (file: FileData) => React.ReactNode;
 }) {
   const { __ } = useTranslation();
@@ -97,7 +98,9 @@ export function FileControl({
           )}
         </div>
       )}
-      <div data-upload-slot="">{disabled ? null : <Uploader field={field} attribute={field.attribute} onChange={onChange} id={id} describedBy={describedBy} />}</div>
+      <div data-upload-slot="">
+        <Uploader field={field} attribute={field.attribute} onChange={onChange} id={id} describedBy={describedBy} invalid={invalid} disabled={disabled} />
+      </div>
     </div>
   );
 }

@@ -23,12 +23,16 @@ export function Uploader({
   onChange,
   id,
   describedBy,
+  invalid,
+  disabled,
 }: {
   field: FormFieldData;
   attribute: string;
   onChange: (value: unknown) => void;
   id: string;
   describedBy: string | undefined;
+  invalid: boolean;
+  disabled: boolean;
 }) {
   const { __ } = useTranslation();
   const upload = useChunkedUpload(field, attribute, onChange);
@@ -41,7 +45,8 @@ export function Uploader({
         type="file"
         accept={acceptAttribute(field.acceptedTypes)}
         aria-describedby={[describedBy, upload.error === null ? undefined : errorId].filter(Boolean).join(' ') || undefined}
-        aria-invalid={upload.error !== null || undefined}
+        aria-invalid={invalid || upload.error !== null || undefined}
+        disabled={disabled}
         onChange={(event) => {
           const file = event.target.files?.[0];
 
