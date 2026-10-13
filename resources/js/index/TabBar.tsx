@@ -1,5 +1,5 @@
 import { usePage } from '@inertiajs/react';
-import { useTranslation } from '@lathephp/core';
+import { formatNumber, useTranslation } from '@lathephp/core';
 import { Button } from '@lathephp/ui';
 import { Ellipsis, GripVertical, Plus } from 'lucide-react';
 import { useId, useState, type KeyboardEvent } from 'react';
@@ -28,7 +28,7 @@ const badgeColours: Record<BadgeType, string> = {
 /** A capped count reads "10,000+". */
 function badgeText(counts: TabCount | undefined, fallback: string | number | null = null): string | null {
   if (counts?.count !== undefined) {
-    return `${counts.count.value.toLocaleString('en')}${counts.count.capped ? '+' : ''}`;
+    return `${formatNumber(counts.count.value)}${counts.count.capped ? '+' : ''}`;
   }
 
   const badge = counts?.badge ?? fallback;

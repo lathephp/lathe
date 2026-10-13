@@ -1,5 +1,5 @@
 import { Deferred } from '@inertiajs/react';
-import { useTranslation } from '@lathephp/core';
+import { formatNumber, useTranslation } from '@lathephp/core';
 import { Pagination } from './Pagination';
 import type { Count, IndexProps } from './types';
 import type { IndexUrlState } from './useIndexState';
@@ -16,10 +16,10 @@ interface IndexFooterProps extends Pick<IndexProps, 'resource' | 'state' | 'coun
 // An estimate is the database's guess for the table, so it reads as a rounded figure.
 function countText(count: Count): string {
   if (count.estimated) {
-    return `~${new Intl.NumberFormat('en', { notation: 'compact', maximumFractionDigits: 1 }).format(count.value)}`;
+    return `~${formatNumber(count.value, { notation: 'compact', maximumFractionDigits: 1 })}`;
   }
 
-  return `${count.value.toLocaleString('en')}${count.capped ? '+' : ''}`;
+  return `${formatNumber(count.value)}${count.capped ? '+' : ''}`;
 }
 
 export function IndexFooter({ resource, state, count, rowCount, hasMorePages, loadingMore, visit, onLoadMore }: IndexFooterProps) {

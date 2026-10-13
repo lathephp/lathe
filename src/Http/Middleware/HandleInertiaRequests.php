@@ -74,6 +74,7 @@ class HandleInertiaRequests extends Middleware
             'basePath' => fn () => '/'.trim(Lathe::path(), '/'),
             'versionLabel' => fn () => Lathe::versionLabel(),
             'locale' => fn () => Lathe::resolveUserLocale($request),
+            'timezone' => fn () => Lathe::resolveUserTimezone($request),
             'translations' => fn () => app(TranslationManager::class)->all(Lathe::resolveUserLocale($request)),
             'footer' => fn () => Lathe::footerFor($request),
             'layout' => fn () => [
