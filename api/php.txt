@@ -398,6 +398,30 @@ Lathe\Events\ResourceUpdated::array $original
 Lathe\Events\ResourceUpdated::string $resource
 Lathe\Events\ServingLathe::Illuminate\Http\Request $request
 Lathe\Events\ServingLathe::__construct(Illuminate\Http\Request $request)
+Lathe\Field\BooleanField::__construct(string $label, Closure|string|null $attribute = NULL, ?Closure $resolver = NULL)
+Lathe\Field\BooleanField::asCheckbox(bool $checkbox = true): static
+Lathe\Field\BooleanField::falseValue(mixed $value): static
+Lathe\Field\BooleanField::mixed $falseValue  [protected]
+Lathe\Field\BooleanField::mixed $trueValue  [protected]
+Lathe\Field\BooleanField::string $component  [protected]
+Lathe\Field\BooleanField::trueValue(mixed $value): static
+Lathe\Field\BooleanGroupField::Closure|array|string $optionSource  [protected]
+Lathe\Field\BooleanGroupField::Closure|bool $searchable  [protected]
+Lathe\Field\BooleanGroupField::__construct(string $label, Closure|string|null $attribute = NULL, ?Closure $resolver = NULL)
+Lathe\Field\BooleanGroupField::bool $displayUsingLabels  [protected]
+Lathe\Field\BooleanGroupField::cell(Illuminate\Database\Eloquent\Model $model): array
+Lathe\Field\BooleanGroupField::getRules(Lathe\Field\FieldContext $context, ?Lathe\Http\Requests\LatheRequest $request = NULL, ?Illuminate\Database\Eloquent\Model $model = NULL): array
+Lathe\Field\BooleanGroupField::hideFalseValues(bool $hide = true): static
+Lathe\Field\BooleanGroupField::hideTrueValues(bool $hide = true): static
+Lathe\Field\BooleanGroupField::impliedRules(): array  [protected]
+Lathe\Field\BooleanGroupField::noValueText(string $text): static
+Lathe\Field\BooleanGroupField::string $component  [protected]
+Lathe\Field\Concerns\ChoiceFactories::boolean(string $name, Closure|string|null $attribute = NULL): Lathe\Field\BooleanField  [static]
+Lathe\Field\Concerns\ChoiceFactories::booleanGroup(string $name, ?string $attribute = NULL): Lathe\Field\BooleanGroupField  [static]
+Lathe\Field\Concerns\ChoiceFactories::country(?string $name = NULL): Lathe\Field\SelectField  [static]
+Lathe\Field\Concerns\ChoiceFactories::multiSelect(string $name, ?string $attribute = NULL): Lathe\Field\MultiSelectField  [static]
+Lathe\Field\Concerns\ChoiceFactories::select(string $name, Closure|string|null $attribute = NULL): Lathe\Field\SelectField  [static]
+Lathe\Field\Concerns\ChoiceFactories::timezone(?string $name = NULL): Lathe\Field\SelectField  [static]
 Lathe\Field\Concerns\TextFactories::color(string $label, ?string $attribute = NULL): Lathe\Field\Field  [static]
 Lathe\Field\Concerns\TextFactories::email(string $label = 'Email', Closure|string|null $attribute = NULL): Lathe\Field\TextField  [static]
 Lathe\Field\Concerns\TextFactories::heading(string $label): Lathe\Field\HeadingField  [static]
@@ -597,6 +621,17 @@ Lathe\Field\FileField::path(string $directory): static
 Lathe\Field\FileField::prunable(bool $prunable = true): static
 Lathe\Field\FileField::string $component  [protected]
 Lathe\Field\FileField::string $directory  [protected]
+Lathe\Field\HasOptions::Closure|array|string $optionSource  [protected]
+Lathe\Field\HasOptions::Closure|bool $searchable  [protected]
+Lathe\Field\HasOptions::bool $displayUsingLabels  [protected]
+Lathe\Field\HasOptions::cell(Illuminate\Database\Eloquent\Model $model): array
+Lathe\Field\HasOptions::displayUsingLabels(bool $show = true): static
+Lathe\Field\HasOptions::jsonSerialize(): array
+Lathe\Field\HasOptions::optionValues(): array  [protected]
+Lathe\Field\HasOptions::options(Closure|array|string $options): static
+Lathe\Field\HasOptions::resolveForDisplay(object $record, ?string $attribute = NULL): mixed
+Lathe\Field\HasOptions::resolvedOptions(): array
+Lathe\Field\HasOptions::searchable(Closure|bool $searchable = true): static
 Lathe\Field\HeadingField::__construct(string $label, Closure|string|null $attribute = NULL, ?Closure $resolver = NULL)
 Lathe\Field\HeadingField::fill(Lathe\Http\Requests\LatheRequest $request, object $model, ?string $requestAttribute = NULL): ?Closure
 Lathe\Field\HeadingField::jsonSerialize(): array
@@ -608,10 +643,31 @@ Lathe\Field\IdField::forModel(Illuminate\Database\Eloquent\Model $model, string 
 Lathe\Field\IdField::hidden(string $label = 'ID', string $attribute = 'id'): static  [static]
 Lathe\Field\IdField::resolve(object $record, ?string $attribute = NULL): mixed
 Lathe\Field\IdField::string $component  [protected]
+Lathe\Field\MultiSelectField::Closure|array|string $optionSource  [protected]
+Lathe\Field\MultiSelectField::Closure|bool $searchable  [protected]
+Lathe\Field\MultiSelectField::__construct(string $label, Closure|string|null $attribute = NULL, ?Closure $resolver = NULL)
+Lathe\Field\MultiSelectField::bool $displayUsingLabels  [protected]
+Lathe\Field\MultiSelectField::getRules(Lathe\Field\FieldContext $context, ?Lathe\Http\Requests\LatheRequest $request = NULL, ?Illuminate\Database\Eloquent\Model $model = NULL): array
+Lathe\Field\MultiSelectField::impliedRules(): array  [protected]
+Lathe\Field\MultiSelectField::string $component  [protected]
+Lathe\Field\MultiSelectField::withSelectedTags(bool $show = true): static
+Lathe\Field\OptionGroup::__construct(string $label, array $options)
+Lathe\Field\OptionGroup::array $options
+Lathe\Field\OptionGroup::make(string $label, array $options): static  [static]
+Lathe\Field\OptionGroup::string $label
+Lathe\Field\OptionList::LIMIT
+Lathe\Field\OptionList::countries(): array  [static]
+Lathe\Field\OptionList::normalize(mixed $source, string $field): array  [static]
+Lathe\Field\OptionList::timezones(): array  [static]
 Lathe\Field\PasswordField::__construct(string $label = 'Password', Closure|string|null $attribute = 'password', ?Closure $resolver = NULL)
 Lathe\Field\PasswordField::string $component  [protected]
 Lathe\Field\PasswordLifecycle::persist(object $model, string $attribute, mixed $value): ?Closure
 Lathe\Field\PasswordLifecycle::present(mixed $raw, object $record, string $attribute): mixed
+Lathe\Field\SelectField::Closure|array|string $optionSource  [protected]
+Lathe\Field\SelectField::Closure|bool $searchable  [protected]
+Lathe\Field\SelectField::bool $displayUsingLabels  [protected]
+Lathe\Field\SelectField::impliedRules(): array  [protected]
+Lathe\Field\SelectField::string $component  [protected]
 Lathe\Field\TextField::Closure|array $suggestions  [protected]
 Lathe\Field\TextField::SUGGESTION_LIMIT
 Lathe\Field\TextField::__construct(string $label, Closure|string|null $attribute = NULL, ?Closure $resolver = NULL)
@@ -1704,6 +1760,8 @@ class Lathe\Exceptions\LatheException
 class Lathe\Exceptions\PluginDependencyException
 class Lathe\Exceptions\ResourceModelCollisionException
 class Lathe\Exceptions\ResourceUriKeyCollisionException
+class Lathe\Field\BooleanField
+class Lathe\Field\BooleanGroupField
 class Lathe\Field\DefaultLifecycle
 class Lathe\Field\Evaluator
 class Lathe\Field\Field
@@ -1712,8 +1770,12 @@ class Lathe\Field\FieldResolver
 class Lathe\Field\FileField
 class Lathe\Field\HeadingField
 class Lathe\Field\IdField
+class Lathe\Field\MultiSelectField
+class Lathe\Field\OptionGroup
+class Lathe\Field\OptionList
 class Lathe\Field\PasswordField
 class Lathe\Field\PasswordLifecycle
+class Lathe\Field\SelectField
 class Lathe\Field\TextField
 class Lathe\Field\TextareaField
 class Lathe\Field\TranslatableLifecycle
@@ -1833,5 +1895,6 @@ trait Lathe\Field\Concerns\RepeaterFactories
 trait Lathe\Field\Concerns\RichFactories
 trait Lathe\Field\Concerns\TextFactories
 trait Lathe\Field\Concerns\UploadFactories
+trait Lathe\Field\HasOptions
 trait Lathe\Http\Controllers\Resources\AuthorizesResources
 trait Lathe\Testing\InteractsWithLathe
