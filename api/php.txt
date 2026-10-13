@@ -1,4 +1,7 @@
+Lathe\Assets\AssetManifest::?string $distPath  [protected]
+Lathe\Assets\AssetManifest::distPath(): string
 Lathe\Assets\AssetManifest::hash(): string
+Lathe\Assets\AssetManifest::useDistPath(string $path): void
 Lathe\Assets\AssetRegistry::array $scripts  [protected]
 Lathe\Assets\AssetRegistry::array $styles  [protected]
 Lathe\Assets\AssetRegistry::hash(string $path): string
@@ -13,6 +16,39 @@ Lathe\Console\CacheCommand::handle(Lathe\Resources\ResourceRegistry $registry): 
 Lathe\Console\ClearCommand::$description  [protected]
 Lathe\Console\ClearCommand::$signature  [protected]
 Lathe\Console\ClearCommand::handle(Lathe\Resources\ResourceRegistry $registry): int
+Lathe\Console\DoctorCommand::$description  [protected]
+Lathe\Console\DoctorCommand::$signature  [protected]
+Lathe\Console\DoctorCommand::handle(Lathe\Doctor\Doctor $doctor): int
+Lathe\Doctor\CheckResult::FAIL
+Lathe\Doctor\CheckResult::OK
+Lathe\Doctor\CheckResult::SKIP
+Lathe\Doctor\CheckResult::WARN
+Lathe\Doctor\CheckResult::__construct(string $status, string $message)
+Lathe\Doctor\CheckResult::fail(string $message): Lathe\Doctor\CheckResult  [static]
+Lathe\Doctor\CheckResult::ok(string $message): Lathe\Doctor\CheckResult  [static]
+Lathe\Doctor\CheckResult::skip(string $message): Lathe\Doctor\CheckResult  [static]
+Lathe\Doctor\CheckResult::string $message
+Lathe\Doctor\CheckResult::string $status
+Lathe\Doctor\CheckResult::warn(string $message): Lathe\Doctor\CheckResult  [static]
+Lathe\Doctor\Doctor::Illuminate\Contracts\Auth\Access\Gate $gate  [protected]
+Lathe\Doctor\Doctor::Illuminate\Contracts\Foundation\Application $app  [protected]
+Lathe\Doctor\Doctor::Lathe\Plugins\PluginRegistry $plugins  [protected]
+Lathe\Doctor\Doctor::Lathe\Resources\ResourceRegistry $resources  [protected]
+Lathe\Doctor\Doctor::Lathe\Support\ConfigStore $config  [protected]
+Lathe\Doctor\Doctor::Lathe\Support\ConfigValidator $validator  [protected]
+Lathe\Doctor\Doctor::TABLES
+Lathe\Doctor\Doctor::__construct(Illuminate\Contracts\Foundation\Application $app, Lathe\Support\ConfigStore $config, Lathe\Support\ConfigValidator $validator, Lathe\Resources\ResourceRegistry $resources, Lathe\Plugins\PluginRegistry $plugins, Illuminate\Contracts\Auth\Access\Gate $gate)
+Lathe\Doctor\Doctor::assets(): array  [protected]
+Lathe\Doctor\Doctor::config(string $key): mixed  [protected]
+Lathe\Doctor\Doctor::configuration(): array  [protected]
+Lathe\Doctor\Doctor::database(): array  [protected]
+Lathe\Doctor\Doctor::driverCheck(string $driver, string $version): Lathe\Doctor\CheckResult  [protected]
+Lathe\Doctor\Doctor::environment(): array  [protected]
+Lathe\Doctor\Doctor::pluginChecks(): array  [protected]
+Lathe\Doctor\Doctor::pluginPackages(): array  [protected]
+Lathe\Doctor\Doctor::resourceChecks(): array  [protected]
+Lathe\Doctor\Doctor::run(): array
+Lathe\Doctor\Doctor::stringConfig(string $key): string  [protected]
 Lathe\Events\ServingLathe::Illuminate\Http\Request $request
 Lathe\Events\ServingLathe::__construct(Illuminate\Http\Request $request)
 Lathe\Http\Controllers\DashboardController::__invoke(): Inertia\Response
@@ -252,7 +288,10 @@ class Lathe\Assets\AssetRegistry
 class Lathe\Auth\FortifyConfig
 class Lathe\Console\CacheCommand
 class Lathe\Console\ClearCommand
+class Lathe\Console\DoctorCommand
 class Lathe\Dashboards\DashboardRegistry
+class Lathe\Doctor\CheckResult
+class Lathe\Doctor\Doctor
 class Lathe\Events\ServingLathe
 class Lathe\Exceptions\InvalidConfigurationException
 class Lathe\Exceptions\LatheException
