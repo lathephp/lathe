@@ -13,7 +13,9 @@ use Lathe\Resources\ResourceDefinition;
 use Lathe\Search\GlobalSearchResult;
 use Lathe\Search\SearchProvider;
 use Lathe\Tests\Fixtures\Models\Gadget;
+use Lathe\Tests\Fixtures\Policies\EmptyPolicy;
 use Lathe\Tests\Fixtures\Resources\JoinedCustomer;
+use Lathe\Tests\Fixtures\Resources\SingleResultCustomer;
 use Workbench\App\Lathe\Resources\Customer as CustomerResource;
 use Workbench\App\Models\Customer;
 use Workbench\App\Models\Order;
@@ -220,6 +222,15 @@ it('caps each group at 5 rows, or at global_search.results', function () {
     expect(globalSearchGroups('ann')['customers']['results'])->toHaveCount(2);
 });
 
+it('caps a Resource\'s group at its globalSearchResults()', function () {
+    Lathe::registerResources(SingleResultCustomer::class);
+
+    $groups = globalSearchGroups('ann');
+
+    expect($groups['single-result-customers']['results'])->toHaveCount(1)
+        ->and($groups['customers']['results'])->toHaveCount(5);
+});
+
 it('stops at 100 rows and skips the later Resources', function () {
     foreach (range(1, 6) as $i) {
         Customer::forceCreate(['name' => "Bulkrow {$i}", 'email' => "bulkrow{$i}@example.com"]);
@@ -294,6 +305,12 @@ it('returns no group for a Resource that fails canSee', function () {
 
     // Orders match "ann" through their customer's name.
     expect(array_keys(globalSearchGroups('ann')))->toBe(['customers', 'orders']);
+});
+
+it('returns no group for a Resource the user may not viewAny', function () {
+    Gate::policy(Order::class, EmptyPolicy::class);
+
+    expect(array_keys(globalSearchGroups('ann')))->toBe(['customers']);
 });
 
 it('skips a Resource whose query throws, lists its label and returns the others', function () {
