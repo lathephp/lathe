@@ -2,10 +2,13 @@
 
 namespace Lathe;
 
+use Closure;
 use Composer\InstalledVersions;
 use Illuminate\Contracts\Container\Container;
+use Illuminate\Http\Request;
 use Lathe\Assets\AssetManifest;
 use Lathe\Auth\FortifyConfig;
+use Lathe\Auth\PanelGate;
 use Lathe\Dashboards\DashboardRegistry;
 use Lathe\Plugins\Plugin;
 use Lathe\Plugins\PluginRegistry;
@@ -68,6 +71,26 @@ class LatheManager
     public function discoverResources(string $directory, ?string $namespace = null): void
     {
         $this->resources()->discover($directory, $namespace);
+    }
+
+    /**
+     * Decide panel access with a callback instead of the viewLathe gate.
+     *
+     * @param  Closure(Request): mixed  $callback
+     */
+    public function auth(Closure $callback): static
+    {
+        $this->container->make(PanelGate::class)->using($callback);
+
+        return $this;
+    }
+
+    /**
+     * Whether the request's user on the panel guard may open the panel.
+     */
+    public function check(Request $request): bool
+    {
+        return $this->container->make(PanelGate::class)->check($request);
     }
 
     public function name(): string

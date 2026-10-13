@@ -4,6 +4,9 @@ namespace Lathe\Http;
 
 use Illuminate\Routing\Router;
 use Illuminate\Routing\RouteRegistrar;
+use Lathe\Auth\FortifyConfig;
+use Lathe\Http\Controllers\Auth\AuthenticatedSessionController;
+use Lathe\Http\Controllers\Auth\LoginPageController;
 use Lathe\Http\Controllers\DashboardController;
 use Lathe\Http\Controllers\Plugins\ModuleController;
 use Lathe\Http\Controllers\Plugins\PluginApiController;
@@ -11,6 +14,7 @@ use Lathe\Http\Controllers\Plugins\PluginPageController;
 use Lathe\Http\Controllers\Resources\CountController;
 use Lathe\Http\Controllers\Resources\IndexController;
 use Lathe\Http\Controllers\Resources\IndexPageController;
+use Lathe\Http\Middleware\Authenticate;
 use Lathe\Http\Middleware\AuthorizePlugin;
 use Lathe\Http\Middleware\EnsureJson;
 use Lathe\Http\Middleware\HandleInertiaRequests;
@@ -26,6 +30,7 @@ class PanelRoutes
         protected Router $router,
         protected ConfigStore $config,
         protected PluginRegistry $plugins,
+        protected FortifyConfig $fortify,
     ) {
         //
     }
@@ -36,6 +41,15 @@ class PanelRoutes
         $this->group()->group(function (Router $router) {
             $router->get('modules/{file}', ModuleController::class)->name('lathe.modules');
             $router->get('styles/{file}', ModuleController::class)->defaults('type', 'styles')->name('lathe.styles');
+        });
+
+        $this->group()->middleware('lathe')->name('lathe.')->group(function (Router $router) {
+            $guest = 'lathe.guest:'.$this->fortify->guard();
+
+            $router->get('login', LoginPageController::class)->middleware($guest)->name('login');
+            $router->post('login', [AuthenticatedSessionController::class, 'store'])->middleware($guest)->name('login.store');
+            // POST only: a GET would let any image tag sign the user out.
+            $router->post('logout', [AuthenticatedSessionController::class, 'destroy'])->middleware(Authenticate::class)->name('logout');
         });
 
         $this->group()->middleware('lathe.api')->group(function (Router $router) {
@@ -61,6 +75,9 @@ class PanelRoutes
             $router->any('plugins/{plugin}/{path?}', PluginApiController::class)
                 ->where('path', '.*')
                 ->name('plugins');
+
+            // Matches last: an unknown API URL still runs Authenticate, so signed out it answers 401, not 404.
+            $router->any('{any}', fn () => abort(404))->where('any', '.*')->fallback()->name('fallback');
         });
     }
 

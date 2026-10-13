@@ -5,8 +5,20 @@ use Illuminate\Support\Facades\Route;
 use Lathe\Events\ServingLathe;
 use Lathe\Http\Requests\LatheRequest;
 use Lathe\Lathe;
+use Workbench\App\Models\User;
+
+/**
+ * Sign in a user the panel admits, so an unknown API URL reaches routing instead of the 401.
+ */
+function signInToPanel(): void
+{
+    Lathe::auth(fn () => true);
+    test()->actingAs(new User(['email' => 'admin@lathephp.com']));
+}
 
 it('stamps every panel response with the version and asset hash', function () {
+    signInToPanel();
+
     $this->getJson('/lathe/api/nothing')
         ->assertNotFound()
         ->assertHeader('X-Lathe-Version', Lathe::version())
@@ -52,6 +64,9 @@ it('binds a LatheRequest only while a panel request runs', function () {
 });
 
 it('answers an unknown panel URL with 404, never 500', function () {
+    $this->getJson('/lathe/nothing')->assertNotFound();
+
+    signInToPanel();
     $this->getJson('/lathe/api/resources/nothing/at/all')->assertNotFound();
     $this->getJson('/lathe/nothing')->assertNotFound();
 });

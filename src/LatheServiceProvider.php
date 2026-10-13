@@ -8,6 +8,7 @@ use Illuminate\Foundation\Console\AboutCommand;
 use Illuminate\Foundation\PackageManifest;
 use Illuminate\Routing\Router;
 use Illuminate\Support\ServiceProvider;
+use Laravel\Fortify\Fortify;
 use Lathe\Assets\AssetManifest;
 use Lathe\Assets\AssetRegistry;
 use Lathe\Auth\FortifyConfig;
@@ -40,6 +41,9 @@ class LatheServiceProvider extends ServiceProvider
         $this->app->singleton(AssetManifest::class);
         $this->app->singleton(AssetRegistry::class);
         $this->app->singleton(FortifyConfig::class);
+
+        // Lathe registers login and logout under its own path; Fortify's routes at the host root stay off.
+        Fortify::ignoreRoutes();
     }
 
     public function boot(): void
