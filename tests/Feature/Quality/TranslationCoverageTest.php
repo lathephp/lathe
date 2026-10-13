@@ -4,6 +4,9 @@ use Illuminate\Contracts\Process\ProcessResult;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Process;
 
+// These tests run node scripts/check-translations.mjs, so they need Node.
+pest()->group('frontend');
+
 function repoRoot(): string
 {
     return dirname(__DIR__, 3);
