@@ -4,6 +4,7 @@ use Lathe\Field\AudioField;
 use Lathe\Field\BadgeField;
 use Lathe\Field\BooleanField;
 use Lathe\Field\BooleanGroupField;
+use Lathe\Field\CodeField;
 use Lathe\Field\CurrencyField;
 use Lathe\Field\DateField;
 use Lathe\Field\DateTimeField;
@@ -75,6 +76,7 @@ it('builds each non-relation factory with its class, component key and contexts'
     'sparkline' => [fn () => Field::sparkline('A'), SparklineField::class, 'sparkline-field', LATHE_DISPLAY],
     'stack' => [fn () => Field::stack('A'), StackField::class, 'stack-field', LATHE_DISPLAY],
     'line' => [fn () => Field::line('A'), LineField::class, 'line-field', LATHE_DISPLAY],
+    'code' => [fn () => Field::code('A'), CodeField::class, 'code-field', LATHE_NOT_INDEX],
     'markdown' => [fn () => Field::markdown('A'), MarkdownField::class, 'markdown-field', LATHE_NOT_INDEX],
     'tiptap' => [fn () => Field::tiptap('A'), TiptapField::class, 'tiptap-field', LATHE_NOT_INDEX],
     'slug' => [fn () => Field::slug('A'), SlugField::class, 'slug-field', LATHE_ALL],
