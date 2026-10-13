@@ -32,9 +32,10 @@ class Post extends Resource
     {
         return [
             Field::text('Title')->required()->rules('max:255'),
+            Field::slug('Slug')->from('title')->showCustomizeButton()->hideFromIndex(),
             Field::select('Status')->options(['draft', 'published', 'archived'])->default('draft')->required()->inline(),
             Field::image('Cover', 'cover')->hideFromIndex(),
-            Field::textarea('Body')->required(),
+            Field::tiptap('Body')->required(),
             Field::markdown('Markdown body', 'markdown_body')->nullable(),
         ];
     }
