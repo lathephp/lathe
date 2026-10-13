@@ -5,6 +5,7 @@ namespace Lathe\Field;
 use Closure;
 use Illuminate\Database\Eloquent\Model;
 use InvalidArgumentException;
+use Lathe\Field\Concerns\HasAttachments;
 use Lathe\Field\Contracts\PreviewsContent;
 use Lathe\Support\SafeHtml;
 use League\CommonMark\Environment\Environment;
@@ -37,6 +38,8 @@ use League\CommonMark\Renderer\Inline\TextRenderer;
  */
 class MarkdownField extends Field implements PreviewsContent
 {
+    use HasAttachments;
+
     /** @var list<string> */
     protected const array PRESETS = ['default', 'commonmark', 'zero'];
 

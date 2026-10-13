@@ -4,6 +4,7 @@ namespace Lathe\Field;
 
 use Closure;
 use Illuminate\Database\Eloquent\Model;
+use Lathe\Field\Concerns\HasAttachments;
 use Lathe\Field\Contracts\PreviewsContent;
 use Lathe\Http\Requests\LatheRequest;
 use Lathe\Support\HtmlSanitizer;
@@ -15,6 +16,8 @@ use Lathe\Support\SafeHtml;
  */
 class TiptapField extends Field implements PreviewsContent
 {
+    use HasAttachments;
+
     protected string $component = 'tiptap-field';
 
     public function __construct(string $label, string|Closure|null $attribute = null, ?Closure $resolver = null)

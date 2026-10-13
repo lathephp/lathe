@@ -14,6 +14,7 @@ use Lathe\Field\FileField;
 use Lathe\Http\Requests\LatheRequest;
 use Lathe\Query\QueryContext;
 use Lathe\Query\ResourceQuery;
+use Lathe\Uploads\FieldAttachment;
 
 /**
  * Delete, force delete and restore one record. Each runs its before hook, the write and
@@ -95,7 +96,7 @@ class DeleteController
     }
 
     /**
-     * Removes the files of the record's prunable file fields, after the delete commits.
+     * Removes the files of the record's prunable file fields and its editor attachments, after the delete commits.
      */
     protected function purgeAttachments(Model $model): void
     {
@@ -110,6 +111,10 @@ class DeleteController
             if ($field instanceof FileField && $field->isPrunable()) {
                 $field->deleteFile($request, $model);
             }
+        }
+
+        foreach (FieldAttachment::of($model)->get() as $attachment) {
+            $attachment->purge();
         }
     }
 }

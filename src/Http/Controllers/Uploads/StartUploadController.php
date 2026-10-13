@@ -10,8 +10,11 @@ use Lathe\Auth\ResourceAuthorization;
 use Lathe\Field\FieldContext;
 use Lathe\Field\FileField;
 use Lathe\Field\RepeaterField;
+use Lathe\Field\MarkdownField;
+use Lathe\Field\TiptapField;
 use Lathe\Http\Controllers\Resources\AuthorizesResources;
 use Lathe\Http\Requests\LatheRequest;
+use Lathe\Lathe;
 use Lathe\Query\QueryContext;
 use Lathe\Query\ResourceQuery;
 use Lathe\Support\ConfigStore;
@@ -56,9 +59,30 @@ class StartUploadController
             $target = $target instanceof RepeaterField ? $target->findSubField(Str::after($field, '.')) : null;
         }
 
+        if (($target instanceof MarkdownField || $target instanceof TiptapField) && $target->hasFiles()) {
+            return $this->startAttachment($request, $target);
+        }
+
         abort_unless($target instanceof FileField, 404);
 
         return $this->start($request, $target->attribute(), $target->getStorageDisk(), $target->getStorageDir(), $target->getMaxSizeBytes(), $target);
+    }
+
+    /**
+     * An image for an editor with files: it needs the draft id the server issued, and only
+     * raster images up to the image limit are taken.
+     */
+    protected function startAttachment(LatheRequest $request, MarkdownField|TiptapField $target): JsonResponse
+    {
+        $request->validate(['draft_id' => ['required', 'uuid'], 'mime' => ['required', 'string']]);
+
+        if (! $target->acceptsAttachment($request->string('mime')->toString())) {
+            throw ValidationException::withMessages(['mime' => Lathe::__('Only PNG, JPEG, GIF and WebP images can be uploaded.')]);
+        }
+
+        $maxBytes = $this->config->integer('uploads.max_image_size_mb') * 1024 * 1024;
+
+        return $this->start($request, $target->attribute(), $target->getAttachmentDisk(), '', $maxBytes);
     }
 
     /**

@@ -5,11 +5,14 @@ namespace Lathe\Uploads;
 use finfo;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Contracts\Filesystem\Filesystem;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 use Lathe\Support\ConfigStore;
+use LogicException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Mime\MimeTypes;
 
@@ -19,6 +22,9 @@ use Symfony\Component\Mime\MimeTypes;
  */
 class UploadHandler
 {
+    /** The status of an editor upload stored on its field's disk, waiting for its draft's save. */
+    public const string ATTACHED = 'attached';
+
     public function __construct(protected ConfigStore $config)
     {
         //
@@ -161,6 +167,65 @@ class UploadHandler
     {
         $this->disk()->deleteDirectory($upload->folder());
         $upload->delete();
+    }
+
+    /**
+     * Store a complete editor upload on its field's disk and answer the file's URL. The row
+     * stays, now holding the stored path, until the draft is saved or discarded.
+     */
+    public function attachToDraft(PendingUpload $upload, string $disk): string
+    {
+        $path = $this->file($upload)->store($upload->path, ['disk' => $disk]);
+
+        if (! is_string($path)) {
+            throw new LogicException("The editor upload [{$upload->id}] was not stored.");
+        }
+
+        $this->disk()->deleteDirectory($upload->folder());
+        $upload->update(['disk' => $disk, 'path' => $path, 'status' => self::ATTACHED]);
+
+        return Storage::disk($disk)->url($path);
+    }
+
+    /**
+     * Move the user's stored uploads of this draft and field onto the record. Another user's
+     * uploads never match, so a draft id that leaked promotes nothing.
+     */
+    public function persistDraft(?Authenticatable $user, string $draftId, string $field, Model $model): void
+    {
+        foreach ($this->draft($user, $draftId, $field)->where('status', self::ATTACHED)->get() as $upload) {
+            FieldAttachment::create([
+                'attachable_type' => $model->getMorphClass(),
+                'attachable_id' => FieldAttachment::keyOf($model),
+                'attachment' => $upload->path,
+                'disk' => $upload->disk,
+                'url' => Storage::disk($upload->disk)->url($upload->path),
+            ]);
+
+            $upload->delete();
+        }
+    }
+
+    /**
+     * Remove the user's uploads of this draft and field, with any file already stored.
+     */
+    public function discardDraft(?Authenticatable $user, string $draftId, string $field): void
+    {
+        foreach ($this->draft($user, $draftId, $field)->get() as $upload) {
+            if ($upload->status === self::ATTACHED) {
+                Storage::disk($upload->disk)->delete($upload->path);
+            }
+
+            $this->cancel($upload);
+        }
+    }
+
+    /**
+     * @return Builder<PendingUpload>
+     */
+    protected function draft(?Authenticatable $user, string $draftId, string $field): Builder
+    {
+        return PendingUpload::where('user_id', $this->ownerId($user))->where('draft_id', $draftId)->where('field', $field);
     }
 
     protected function assemble(PendingUpload $upload, string $path): void

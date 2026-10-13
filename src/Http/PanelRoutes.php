@@ -18,6 +18,7 @@ use Lathe\Http\Controllers\Resources\CountController;
 use Lathe\Http\Controllers\Resources\DeleteController;
 use Lathe\Http\Controllers\Resources\DependencyController;
 use Lathe\Http\Controllers\Resources\DetailPageController;
+use Lathe\Http\Controllers\Resources\FieldAttachmentController;
 use Lathe\Http\Controllers\Resources\FieldFileController;
 use Lathe\Http\Controllers\Resources\FieldPreviewController;
 use Lathe\Http\Controllers\Resources\FilterController;
@@ -108,6 +109,10 @@ class PanelRoutes
             $router->get('resources/{resource}/lenses/{lens}/filters', [LensController::class, 'filters'])->name('resources.lenses.filters');
             $router->get('resources/{resource}/creation-fields', [FormFieldsController::class, 'creation'])->name('resources.creationFields');
             $router->post('resources/{resource}/field/{field}/preview', [FieldPreviewController::class, 'create'])->name('resources.field.preview');
+            $router->get('resources/{resource}/field-attachment/{field}/draft-id', [FieldAttachmentController::class, 'draftId'])->name('resources.fieldAttachment.draftId');
+            $router->post('resources/{resource}/field-attachment/{field}', [FieldAttachmentController::class, 'store'])->name('resources.fieldAttachment.store');
+            $router->delete('resources/{resource}/field-attachment/{field}', [FieldAttachmentController::class, 'destroy'])->name('resources.fieldAttachment.destroy');
+            $router->delete('resources/{resource}/field-attachment/{field}/{draftId}', [FieldAttachmentController::class, 'destroyDraft'])->name('resources.fieldAttachment.destroyDraft');
             $router->post('resources/{resource}', [RecordController::class, 'store'])->name('resources.store');
             $router->post('resources/{resource}/field-dependencies', DependencyController::class)->name('resources.dependencies');
             $router->get('resources/{resource}/{resourceId}/update-fields', [FormFieldsController::class, 'update'])->name('resources.updateFields');
