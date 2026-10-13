@@ -9,6 +9,8 @@ use Illuminate\Routing\Router;
 use Illuminate\Support\ServiceProvider;
 use Lathe\Assets\AssetManifest;
 use Lathe\Auth\FortifyConfig;
+use Lathe\Console\CacheCommand;
+use Lathe\Console\ClearCommand;
 use Lathe\Dashboards\DashboardRegistry;
 use Lathe\Exceptions\InvalidConfigurationException;
 use Lathe\Http\Middleware\ServeLathe;
@@ -49,6 +51,9 @@ class LatheServiceProvider extends ServiceProvider
         }
 
         if ($this->app->runningInConsole()) {
+            $this->commands([CacheCommand::class, ClearCommand::class]);
+            $this->optimizes(optimize: 'lathe:cache', clear: 'lathe:clear', key: 'lathe');
+
             $this->publishes([
                 __DIR__.'/../config/lathe.php' => config_path('lathe.php'),
             ], 'lathe-config');

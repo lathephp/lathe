@@ -11,6 +11,8 @@ use Illuminate\Support\Facades\Facade;
  * @method static \Lathe\Dashboards\DashboardRegistry dashboards()
  * @method static \Lathe\Assets\AssetManifest assets()
  * @method static \Lathe\Auth\FortifyConfig fortify()
+ * @method static void registerResources(class-string<\Lathe\Resources\Resource> ...$classes)
+ * @method static void discoverResources(string $directory, ?string $namespace = null)
  * @method static string name()
  * @method static string version()
  * @method static string path()

@@ -2,10 +2,307 @@
 
 namespace Lathe\Resources;
 
+use Illuminate\Contracts\Foundation\Application;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Filesystem\Filesystem;
+use Lathe\Exceptions\InvalidConfigurationException;
+use Lathe\Exceptions\ResourceModelCollisionException;
+use Lathe\Exceptions\ResourceUriKeyCollisionException;
+use Lathe\Support\ConfigStore;
+use Symfony\Component\Finder\Finder;
+
 /**
- * The Resources the panel knows, loaded lazily from a manifest.
+ * Maps URI keys and models to Resource classes from a manifest, without loading
+ * the Resources a request does not use. Nothing is scanned until the manifest is needed.
+ *
+ * @phpstan-type ManifestEntry array{class: class-string<\Lathe\Resources\Resource>, uriKey: string, model: class-string<\Illuminate\Database\Eloquent\Model>, canonical: bool, label: string, group: string|null, icon: string|null, displayInNavigation: bool, globallySearchable: bool, softDeletes: bool, hasBadge: bool}
  */
 class ResourceRegistry
 {
-    //
+    /** @var list<class-string<\Lathe\Resources\Resource>> */
+    protected array $classes = [];
+
+    /** @var list<array{0: string, 1: string}> */
+    protected array $directories = [];
+
+    /** @var array<string, ManifestEntry>|null */
+    protected ?array $manifest = null;
+
+    /** @var array<class-string<\Lathe\Resources\Resource>, ResourceDefinition> */
+    protected array $definitions = [];
+
+    protected int $definitionsBuilt = 0;
+
+    protected bool $scanned = false;
+
+    protected ?string $cachePath = null;
+
+    public function __construct(
+        protected Application $app,
+        protected Filesystem $files,
+        protected ConfigStore $config,
+    ) {
+        //
+    }
+
+    /**
+     * @param  class-string<\Lathe\Resources\Resource>  ...$classes
+     */
+    public function register(string ...$classes): void
+    {
+        $this->classes = array_values(array_unique([...$this->classes, ...$classes]));
+        $this->manifest = null;
+    }
+
+    /**
+     * Remember a directory of Resources; it is read when the manifest is first needed.
+     */
+    public function discover(string $directory, ?string $namespace = null): void
+    {
+        $this->directories[] = [$directory, $namespace ?? $this->namespaceFor($directory)];
+        $this->manifest = null;
+    }
+
+    /**
+     * @return class-string<\Lathe\Resources\Resource>|null
+     */
+    public function forKey(string $uriKey): ?string
+    {
+        return $this->manifest()[$uriKey]['class'] ?? null;
+    }
+
+    /**
+     * The canonical Resource of a model.
+     *
+     * @return class-string<\Lathe\Resources\Resource>|null
+     */
+    public function forModel(string $model): ?string
+    {
+        foreach ($this->manifest() as $entry) {
+            if ($entry['model'] === $model && $entry['canonical']) {
+                return $entry['class'];
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * @return list<class-string<\Lathe\Resources\Resource>>
+     */
+    public function all(): array
+    {
+        return array_column($this->manifest(), 'class');
+    }
+
+    public function count(): int
+    {
+        return count($this->manifest());
+    }
+
+    /**
+     * @return array<string, ManifestEntry>
+     */
+    public function manifest(): array
+    {
+        if ($this->manifest !== null) {
+            return $this->manifest;
+        }
+
+        if ($this->files->exists($this->cachePath())) {
+            /** @var array<string, ManifestEntry> $cached */
+            $cached = require $this->cachePath();
+
+            return $this->manifest = $cached;
+        }
+
+        return $this->manifest = $this->build();
+    }
+
+    /**
+     * The frozen definition of one Resource class, built at most once.
+     *
+     * @param  class-string<\Lathe\Resources\Resource>  $class
+     */
+    public function definition(string $class): ResourceDefinition
+    {
+        if (isset($this->definitions[$class])) {
+            return $this->definitions[$class];
+        }
+
+        $this->definitionsBuilt++;
+        $definition = (new $class)->buildDefinition();
+        $this->validate($class, $definition);
+
+        return $this->definitions[$class] = $definition;
+    }
+
+    public function definitionsBuilt(): int
+    {
+        return $this->definitionsBuilt;
+    }
+
+    public function scanned(): bool
+    {
+        return $this->scanned;
+    }
+
+    /**
+     * Write the manifest to the cache file.
+     */
+    public function cache(): void
+    {
+        $manifest = $this->build();
+
+        $this->files->ensureDirectoryExists(dirname($this->cachePath()));
+        $this->files->put($this->cachePath(), '<?php return '.var_export($manifest, true).';'.PHP_EOL);
+    }
+
+    public function clearCache(): void
+    {
+        $this->files->delete($this->cachePath());
+    }
+
+    public function cachePath(): string
+    {
+        return $this->cachePath ?? $this->app->bootstrapPath('cache/lathe-resources.php');
+    }
+
+    public function useCachePath(string $path): void
+    {
+        $this->cachePath = $path;
+    }
+
+    /**
+     * Forget the manifest and definitions; registered classes and directories stay.
+     */
+    public function flush(): void
+    {
+        $this->manifest = null;
+        $this->definitions = [];
+        $this->definitionsBuilt = 0;
+        $this->scanned = false;
+    }
+
+    /**
+     * Build the manifest by instantiating each Resource once, in a stable order.
+     *
+     * @return array<string, ManifestEntry>
+     */
+    protected function build(): array
+    {
+        $manifest = [];
+        $canonical = [];
+
+        foreach ($this->classes() as $class) {
+            $definition = $this->definition($class);
+            /** @var class-string<Model> $model */
+            $model = $definition->getModel();
+            $uriKey = $class::uriKey();
+
+            if (isset($manifest[$uriKey])) {
+                throw new ResourceUriKeyCollisionException(
+                    "Resources {$manifest[$uriKey]['class']} and {$class} share the uriKey \"{$uriKey}\". Give one of them a distinct uriKey().",
+                );
+            }
+
+            if ($definition->isCanonical()) {
+                if (isset($canonical[$model])) {
+                    throw new ResourceModelCollisionException(
+                        "Resources {$canonical[$model]} and {$class} are both canonical for {$model}. Call canonical(false) on the extra Resource.",
+                    );
+                }
+
+                $canonical[$model] = $class;
+            }
+
+            $manifest[$uriKey] = [
+                'class' => $class,
+                'uriKey' => $uriKey,
+                'model' => $model,
+                'canonical' => $definition->isCanonical(),
+                'label' => $definition->getNavigationLabel() ?? $class::label(),
+                'group' => $definition->getGroup(),
+                'icon' => $definition->getIcon(),
+                'displayInNavigation' => $definition->shouldDisplayInNavigation(),
+                'globallySearchable' => $definition->isGloballySearchable(),
+                'softDeletes' => $definition->usesSoftDeletes(),
+                'hasBadge' => false,
+            ];
+        }
+
+        return $manifest;
+    }
+
+    /**
+     * Registered and discovered classes, sorted so every run visits them in one order.
+     *
+     * @return list<class-string<\Lathe\Resources\Resource>>
+     */
+    protected function classes(): array
+    {
+        $classes = $this->classes;
+
+        foreach ($this->directories as [$directory, $namespace]) {
+            $classes = [...$classes, ...$this->scan($directory, $namespace)];
+        }
+
+        $classes = array_values(array_unique($classes));
+        sort($classes);
+
+        return $classes;
+    }
+
+    /**
+     * @return list<class-string<\Lathe\Resources\Resource>>
+     */
+    protected function scan(string $directory, string $namespace): array
+    {
+        $this->scanned = true;
+
+        if (! $this->files->isDirectory($directory)) {
+            return [];
+        }
+
+        $classes = [];
+
+        foreach (Finder::create()->files()->in($directory)->name('*.php')->sortByName() as $file) {
+            $class = $namespace.'\\'.str_replace(['/', '.php'], ['\\', ''], $file->getRelativePathname());
+
+            if (! class_exists($class)) {
+                require_once $file->getRealPath();
+            }
+
+            if (is_subclass_of($class, Resource::class) && ! (new \ReflectionClass($class))->isAbstract()) {
+                $classes[] = $class;
+            }
+        }
+
+        return $classes;
+    }
+
+    /**
+     * @param  class-string<\Lathe\Resources\Resource>  $class
+     */
+    protected function validate(string $class, ResourceDefinition $definition): void
+    {
+        if ($definition->getModel() === null) {
+            throw new InvalidConfigurationException("{$class} has no model. Call ->model(YourModel::class) in its configure() method.");
+        }
+
+        $max = $this->config->integer('limits.max_per_page');
+
+        foreach ($definition->getPerPage() ?? [] as $option) {
+            if ($option < 1 || $option > $max) {
+                throw new InvalidConfigurationException("{$class}: perPage: every value must be an integer from 1 to {$max}; got {$option}. Set limits.max_per_page higher or remove {$option}.");
+            }
+        }
+    }
+
+    protected function namespaceFor(string $directory): string
+    {
+        $relative = trim(str_replace($this->app->path(), '', $directory), DIRECTORY_SEPARATOR);
+
+        return rtrim($this->app->getNamespace(), '\\').($relative === '' ? '' : '\\'.str_replace('/', '\\', $relative));
+    }
 }

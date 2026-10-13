@@ -51,6 +51,19 @@ class LatheManager
         return $this->container->make(FortifyConfig::class);
     }
 
+    /**
+     * @param  class-string<Resources\Resource>  ...$classes
+     */
+    public function registerResources(string ...$classes): void
+    {
+        $this->resources()->register(...$classes);
+    }
+
+    public function discoverResources(string $directory, ?string $namespace = null): void
+    {
+        $this->resources()->discover($directory, $namespace);
+    }
+
     public function name(): string
     {
         return $this->config()->string('name');
