@@ -1,9 +1,10 @@
 import { usePage } from '@inertiajs/react';
-import { useTranslation } from '@lathephp/core';
+import { addShortcut, QueryClientProvider, queryClient, useTranslation } from '@lathephp/core';
 import { Button } from '@lathephp/ui';
-import { Menu, PanelLeft } from 'lucide-react';
-import { useState, type CSSProperties, type ReactNode } from 'react';
+import { Menu, PanelLeft, Search } from 'lucide-react';
+import { useEffect, useState, type CSSProperties, type ReactNode } from 'react';
 import { cn } from '../lib/cn';
+import { SearchPalette } from '../palette/SearchPalette';
 import type { SharedProps } from '../types';
 import { Sidebar } from './Sidebar';
 
@@ -20,6 +21,19 @@ export function AppLayout({ children }: { children: ReactNode }) {
   const [sheetUrl, setSheetUrl] = useState<string | null>(null);
   const mobileOpen = sheetUrl === url;
   const expanded = collapsible === 'none' || open;
+  const search = props.globalSearch;
+  const searchOn = search?.enabled === true;
+  const [searching, setSearching] = useState(false);
+
+  useEffect(() => {
+    if (!searchOn) {
+      return undefined;
+    }
+
+    return addShortcut('mod+k', () => {
+      setSearching((was) => !was);
+    });
+  }, [searchOn]);
 
   function toggle() {
     const next = !open;
@@ -85,6 +99,23 @@ export function AppLayout({ children }: { children: ReactNode }) {
               <PanelLeft aria-hidden="true" className="size-4" />
             </Button>
           )}
+          {searchOn && (
+            <Button
+              variant="outline"
+              size="sm"
+              className="ms-auto"
+              aria-label={__('Search')}
+              aria-keyshortcuts="Control+K Meta+K"
+              onClick={() => {
+                setSearching(true);
+              }}
+            >
+              <Search aria-hidden="true" className="size-4" />
+              <kbd aria-hidden="true" className="text-xs text-muted-foreground max-md:hidden">
+                {/mac/i.test(navigator.platform) ? '⌘K' : 'Ctrl K'}
+              </kbd>
+            </Button>
+          )}
         </header>
         <main id="content" tabIndex={-1} className="flex-1 p-6 outline-none">
           <div className={cn(layout.content.width === 'contained' && 'mx-auto max-w-384')}>{children}</div>
@@ -101,6 +132,18 @@ export function AppLayout({ children }: { children: ReactNode }) {
           </footer>
         )}
       </div>
+      {searchOn && searching && (
+        // The palette reads through the shared client even where no provider wraps the layout.
+        <QueryClientProvider client={queryClient}>
+          <SearchPalette
+            basePath={props.basePath}
+            debounce={search.debounce}
+            onClose={() => {
+              setSearching(false);
+            }}
+          />
+        </QueryClientProvider>
+      )}
     </div>
   );
 }

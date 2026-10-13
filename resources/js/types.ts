@@ -15,6 +15,8 @@ export interface SharedProps {
     header: { sticky: boolean };
     content: { width: 'full' | 'contained' };
   };
+  /** Absent means off. The server sends it once the config and the user's ability allow the palette. */
+  globalSearch?: { enabled: boolean; debounce: number };
   tableStyle: { density: 'compact' | 'comfortable' | 'spacious'; striped: boolean };
   [key: string]: unknown;
 }
