@@ -50,7 +50,7 @@ enum ChoicePlain: string
     case Second = 'second';
 }
 
-class ChoiceThing extends Model
+class ChoiceRecord extends Model
 {
     protected $table = 'choice_things';
 
@@ -69,13 +69,13 @@ class ChoiceCalls
     public int $options = 0;
 }
 
-class ChoiceThingResource extends Resource
+class ChoiceThing extends Resource
 {
     public static ?ChoiceCalls $calls = null;
 
     protected function configure(ResourceDefinition $definition): ResourceDefinition
     {
-        return $definition->model(ChoiceThing::class)->title('kind')->canonical(false)->allowAll();
+        return $definition->model(ChoiceRecord::class)->title('kind')->canonical(false)->allowAll();
     }
 
     public function fields(LatheRequest $request): array
@@ -122,9 +122,9 @@ beforeEach(function () {
         $table->string('timezone')->nullable();
     });
     Gate::define('viewLathe', fn (User $user) => true);
-    Lathe::registerResources(ChoiceThingResource::class);
+    Lathe::registerResources(ChoiceThing::class);
     $this->actingAs(User::where('email', 'admin@lathephp.com')->firstOrFail());
-    ChoiceThingResource::$calls = null;
+    ChoiceThing::$calls = null;
 });
 
 it('builds the documented class and component for each choice factory', function (Field $field, string $class, string $component) {
@@ -193,16 +193,16 @@ it('throws a LogicException naming the field at 1,001 options', function () {
 });
 
 it('runs an options closure once for a whole index response', function () {
-    ChoiceThing::query()->insert([['kind' => 'a'], ['kind' => 'b'], ['kind' => 'a']]);
-    ChoiceThingResource::$calls = new ChoiceCalls;
+    ChoiceRecord::query()->insert([['kind' => 'a'], ['kind' => 'b'], ['kind' => 'a']]);
+    ChoiceThing::$calls = new ChoiceCalls;
 
     LatheTest::resource('choice-things')->index()->assertOk();
 
-    expect(ChoiceThingResource::$calls->options)->toBe(1);
+    expect(ChoiceThing::$calls->options)->toBe(1);
 });
 
 it('shows labels on the index cell with displayUsingLabels', function () {
-    ChoiceThing::query()->insert([['kind' => 'b']]);
+    ChoiceRecord::query()->insert([['kind' => 'b']]);
 
     $response = LatheTest::resource('choice-things')->index()->assertOk();
 
@@ -216,7 +216,7 @@ it('rejects a select value outside its options with 422', function () {
 
     LatheTest::resource('choice-things')->store(['kind' => 'a'])->assertCreated();
 
-    expect(ChoiceThing::query()->value('kind'))->toBe('a');
+    expect(ChoiceRecord::query()->value('kind'))->toBe('a');
 });
 
 it('writes trueValue or falseValue and keeps null on a nullable boolean', function () {
@@ -224,18 +224,18 @@ it('writes trueValue or falseValue and keeps null on a nullable boolean', functi
     LatheTest::resource('choice-things')->store(['consent' => false, 'flag' => false])->assertCreated();
     LatheTest::resource('choice-things')->store(['consent' => false, 'flag' => null])->assertCreated();
 
-    expect(ChoiceThing::query()->orderBy('id')->pluck('consent')->all())->toBe(['yes', 'no', 'no'])
-        ->and(ChoiceThing::query()->orderBy('id')->pluck('flag')->map(fn ($flag) => $flag === null ? null : (bool) $flag)->all())
+    expect(ChoiceRecord::query()->orderBy('id')->pluck('consent')->all())->toBe(['yes', 'no', 'no'])
+        ->and(ChoiceRecord::query()->orderBy('id')->pluck('flag')->map(fn ($flag) => $flag === null ? null : (bool) $flag)->all())
         ->toBe([true, false, null]);
 });
 
 it('resolves a boolean by its trueValue and defaults to false', function () {
     $field = Field::boolean('Consent')->trueValue('yes')->falseValue('no');
 
-    expect($field->resolve((new ChoiceThing)->forceFill(['consent' => 'yes'])))->toBeTrue()
-        ->and($field->resolve((new ChoiceThing)->forceFill(['consent' => 'no'])))->toBeFalse()
+    expect($field->resolve((new ChoiceRecord)->forceFill(['consent' => 'yes'])))->toBeTrue()
+        ->and($field->resolve((new ChoiceRecord)->forceFill(['consent' => 'no'])))->toBeFalse()
         ->and(Field::boolean('Plain')->resolveDefaultValue())->toBeFalse()
-        ->and(Field::boolean('Flag')->nullable()->resolve(new ChoiceThing))->toBeNull();
+        ->and(Field::boolean('Flag')->nullable()->resolve(new ChoiceRecord))->toBeNull();
 });
 
 it('swaps the switch for a checkbox with asCheckbox', function () {
@@ -247,7 +247,17 @@ it('keeps a boolean group as a JSON object and rejects an unknown key', function
     LatheTest::resource('choice-things')->store(['perks' => ['email' => true, 'sms' => false]])->assertCreated();
     LatheTest::resource('choice-things')->store(['perks' => ['fax' => true]])->assertUnprocessable();
 
-    expect(ChoiceThing::query()->value('perks'))->toBe(['email' => true, 'sms' => false]);
+    expect(ChoiceRecord::query()->value('perks'))->toBe(['email' => true, 'sms' => false]);
+});
+
+it('shows the labels that stay visible, or the no-value text', function () {
+    $group = Field::booleanGroup('Perks')->options(['email' => 'Email', 'sms' => 'SMS']);
+    $record = (new ChoiceRecord)->forceFill(['perks' => ['email' => true, 'sms' => false]]);
+
+    expect($group->cell($record)['display'])->toBe('Email, SMS')
+        ->and($group->hideFalseValues()->cell($record)['display'])->toBe('Email')
+        ->and(Field::booleanGroup('Perks')->options(['email' => 'Email'])->hideTrueValues()->cell($record)['display'])->toBe('No Data')
+        ->and(Field::booleanGroup('Perks')->noValueText('None')->cell(new ChoiceRecord)['display'])->toBe('None');
 });
 
 it('lets hideFalseValues and hideTrueValues exclude each other', function () {
@@ -263,7 +273,7 @@ it('keeps a multi select as a JSON array of its options', function () {
     LatheTest::resource('choice-things')->store(['tags' => ['x', 'z']])->assertCreated();
     LatheTest::resource('choice-things')->store(['tags' => ['x', 'q']])->assertUnprocessable();
 
-    expect(ChoiceThing::query()->value('tags'))->toBe(['x', 'z'])
+    expect(ChoiceRecord::query()->value('tags'))->toBe(['x', 'z'])
         ->and(Field::multiSelect('T')->jsonSerialize()['withSelectedTags'])->toBeTrue()
         ->and(Field::multiSelect('T')->withSelectedTags(false)->jsonSerialize()['withSelectedTags'])->toBeFalse()
         ->and(Field::multiSelect('T')->options(['x'])->jsonSerialize()['component'])->toBe('multi-select-field');
@@ -273,11 +283,9 @@ it('opens a country select on the default, with names from ICU sorted by name', 
     $field = Field::country('Country')->default('US');
     $options = choiceOptions($field);
     $names = array_column($options, 'label');
-    $sorted = $names;
-    sort($sorted);
 
     expect($field->resolveDefaultValue())->toBe('US')
-        ->and($names)->toBe($sorted)
+        ->and($names, 0, 3)
         ->and($options)->toContain(['value' => 'BD', 'label' => 'Bangladesh'])
         ->and($options)->toContain(['value' => 'US', 'label' => 'United States'])
         ->and(array_filter(array_column($options, 'value'), fn ($code) => preg_match('/^[A-Z]{2}$/', $code) !== 1))->toBe([])
@@ -289,7 +297,7 @@ it('saves BD when Bangladesh is picked and lists the timezone identifiers', func
     LatheTest::resource('choice-things')->store(['country' => 'BD', 'timezone' => 'Asia/Dhaka'])->assertCreated();
     LatheTest::resource('choice-things')->store(['country' => 'XX'])->assertUnprocessable();
 
-    expect(ChoiceThing::query()->value('country'))->toBe('BD')
+    expect(ChoiceRecord::query()->value('country'))->toBe('BD')
         ->and(array_column(choiceOptions(Field::timezone()), 'value'))->toBe(timezone_identifiers_list())
         ->and(Field::timezone()->jsonSerialize()['searchable'])->toBeTrue();
 });

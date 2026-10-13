@@ -1,0 +1,26 @@
+<?php
+
+namespace Lathe\Field;
+
+use Illuminate\Validation\Rule;
+
+/**
+ * One value out of a list of options.
+ */
+class SelectField extends Field
+{
+    use HasOptions;
+
+    protected string $component = 'select-field';
+
+    /**
+     * The submitted value must be one of the options. A select with no options of its own
+     * (its list arrives from a dependency) states no list to check against.
+     */
+    protected function impliedRules(): array
+    {
+        $values = $this->optionValues();
+
+        return $values === [] ? [] : [Rule::in($values)];
+    }
+}
