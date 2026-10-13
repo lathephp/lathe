@@ -2,12 +2,14 @@ import { useTranslation } from '@lathephp/core';
 import { router, usePage } from '@inertiajs/react';
 import { ArrowDown, ArrowUp, Eye } from 'lucide-react';
 import { Fragment, useState, type MouseEvent } from 'react';
+import type { FieldSchema } from '../fields/types';
 import { cn } from '../lib/cn';
 import { PreviewModal } from '../records/PreviewModal';
 import { TableCell } from '../table/cells';
 import type { SharedProps } from '../types';
 import { GroupHeaderRow } from './GroupHeaderRow';
 import { GroupSummaryRow } from './GroupSummaryRow';
+import { InlineCell } from './InlineCell';
 import { menuActions, RowMenu } from './RowMenu';
 import { TableSummaryRow } from './TableSummaryRow';
 import type { IndexProps, Row } from './types';
@@ -20,7 +22,7 @@ const checkboxColumn = 'sticky start-0 w-10 bg-background px-3';
 const firstColumn = 'sticky start-10 bg-background';
 
 // A click on these does its own thing, never the row's click action.
-const ownClick = 'a, button, input, label, [data-row-menu]';
+const ownClick = 'a, button, input, label, select, [data-row-menu], [data-inline-cell]';
 
 interface ResourceTableProps extends Pick<IndexProps, 'resource' | 'table' | 'state'> {
   loading: boolean;
@@ -77,6 +79,8 @@ export function ResourceTable({ resource, table, state, loading, selection, sort
   const withMenu = previews || table.rows.some((row) => menuActions(row).length > 0);
   // The row whose preview modal is open.
   const [previewing, setPreviewing] = useState<Row['id'] | null>(null);
+  // Cells and tokens an inline save sent back, by row, over the rows the page loaded.
+  const [saved, setSaved] = useState<Record<string, { cells: Row['cells']; updatedAt: string | null | undefined }>>({});
   const ids = table.rows.map((row) => row.id);
   const ticked = ids.filter((id) => selection.selected.has(id)).length;
 
@@ -235,11 +239,27 @@ export function ResourceTable({ resource, table, state, loading, selection, sort
                           />
                         </td>
                         {table.columns.map((column, index) => {
-                          const cell = row.cells[column.key];
+                          const fresh = saved[String(row.id)];
+                          const cell = (fresh?.cells ?? row.cells)[column.key];
+                          const inline = column.inline === true && row.abilities.update === true;
 
                           return (
-                            <td key={column.key} className={cn('max-w-80 truncate px-3 whitespace-nowrap', index === 0 && firstColumn, border)}>
-                              {cell !== undefined && <TableCell column={column} cell={cell} />}
+                            <td key={column.key} className={cn('max-w-80 px-3 whitespace-nowrap', !inline && 'truncate', index === 0 && firstColumn, border)}>
+                              {cell !== undefined &&
+                                (inline ? (
+                                  <InlineCell
+                                    uriKey={resource.uriKey}
+                                    rowId={row.id}
+                                    column={column as unknown as FieldSchema}
+                                    cell={cell}
+                                    token={fresh === undefined ? row.updatedAt : fresh.updatedAt}
+                                    onRow={(cells, updatedAt) => {
+                                      setSaved((current) => ({ ...current, [String(row.id)]: { cells: { ...row.cells, ...cells }, updatedAt } }));
+                                    }}
+                                  />
+                                ) : (
+                                  <TableCell column={column} cell={cell} />
+                                ))}
                               {index === 0 && row.trashed === true && (
                                 <span className="ms-2 rounded-full bg-muted px-2 py-0.5 text-xs font-medium text-muted-foreground">
                                   {__('Soft Deleted')}

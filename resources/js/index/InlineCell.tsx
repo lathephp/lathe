@@ -1,0 +1,216 @@
+import { ApiError, request, toast, useLathe, useTranslation } from '@lathephp/core';
+import { useId, useState, type KeyboardEvent } from 'react';
+import type { Cell, FieldSchema } from '../fields/types';
+import { stringValue } from '../fields/registry';
+import { cn } from '../lib/cn';
+import { TableCell } from '../table/cells';
+
+interface InlineReply {
+  fields: Record<string, Cell>;
+  updatedAt?: string | null;
+}
+
+interface InlineCellProps {
+  uriKey: string;
+  rowId: string | number;
+  column: FieldSchema;
+  cell: Cell;
+  token: string | null | undefined;
+  /** The fresh cells of the whole row and its new token, after a save or a conflict. */
+  onRow: (fields: Record<string, Cell>, updatedAt: string | null | undefined) => void;
+}
+
+interface Option {
+  value: string;
+  label: string;
+}
+
+/**
+ * An index cell that saves in place: a boolean toggles at once, a select saves on choice,
+ * a text or number input saves on Enter or blur and Escape reverts. One request at a time;
+ * a refused value shows its message on the cell and the old value comes back.
+ */
+export function InlineCell({ uriKey, rowId, column, cell, token, onRow }: InlineCellProps) {
+  const { __ } = useTranslation();
+  const { apiPath } = useLathe();
+  const errorId = useId();
+  const [pending, setPending] = useState<Cell | null>(null);
+  const [editing, setEditing] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const shown = pending ?? cell;
+  const busy = pending !== null;
+  const options = (column.options as Option[] | undefined) ?? [];
+
+  async function commit(value: unknown) {
+    if (busy) {
+      return;
+    }
+
+    setError(null);
+    setPending({ value, display: displayOf(value) });
+
+    try {
+      const reply = await request<InlineReply>(`${apiPath}/resources/${uriKey}/${String(rowId)}/field/${column.key}`, {
+        method: 'PATCH',
+        body: { value, _updated_at: token ?? undefined },
+      });
+
+      if (reply !== null) {
+        onRow(reply.fields, reply.updatedAt);
+      }
+    } catch (failure) {
+      if (failure instanceof ApiError && failure.status === 422) {
+        const errors = (failure.data as { errors?: Record<string, string[]> } | null)?.errors ?? {};
+        setError(Object.values(errors)[0]?.[0] ?? __('Please fix the highlighted fields.'));
+      } else if (failure instanceof ApiError && failure.status === 409) {
+        const reply = failure.data as InlineReply | null;
+
+        if (reply?.fields !== undefined) {
+          onRow(reply.fields, reply.updatedAt);
+        }
+
+        toast.error(__('This record was changed by someone else since you opened it.'));
+      } else {
+        const message = failure instanceof ApiError ? (failure.data as { message?: string } | null)?.message : undefined;
+        toast.error(failure instanceof ApiError && failure.status === 403 && message !== undefined ? message : __('Something went wrong. Please try again.'));
+      }
+    } finally {
+      setPending(null);
+    }
+  }
+
+  function displayOf(value: unknown): string {
+    const labels = new Map(options.map((option) => [option.value, option.label]));
+
+    return Array.isArray(value) ? value.map((item) => labels.get(stringValue(item)) ?? stringValue(item)).join(', ') : (labels.get(stringValue(value)) ?? stringValue(value));
+  }
+
+  const describedBy = error === null ? undefined : errorId;
+  let control;
+
+  if (column.component === 'boolean-field') {
+    const on = shown.value === true || shown.value === column.trueValue;
+    const common = {
+      'aria-label': column.label,
+      'aria-describedby': describedBy,
+      disabled: busy,
+    };
+
+    control =
+      column.asCheckbox === true ? (
+        <input
+          type="checkbox"
+          checked={on}
+          onChange={() => {
+            void commit(!on);
+          }}
+          className="size-4"
+          {...common}
+        />
+      ) : (
+        <button
+          type="button"
+          role="switch"
+          aria-checked={on}
+          onClick={() => {
+            void commit(!on);
+          }}
+          className={cn('relative h-5 w-9 rounded-full transition-colors', on ? 'bg-primary' : 'bg-muted')}
+          {...common}
+        >
+          <span className={cn('absolute top-0.5 size-4 rounded-full bg-background transition-all', on ? 'start-4.5' : 'start-0.5')} />
+        </button>
+      );
+  } else if (column.component === 'select-field' || column.component === 'multi-select-field') {
+    const multiple = column.component === 'multi-select-field';
+    const current = Array.isArray(shown.value) ? shown.value.map(stringValue) : stringValue(shown.value);
+
+    control = (
+      <select
+        aria-label={column.label}
+        aria-describedby={describedBy}
+        aria-invalid={error !== null || undefined}
+        multiple={multiple}
+        disabled={busy}
+        value={current}
+        onChange={(event) => {
+          void commit(multiple ? [...event.target.selectedOptions].map((option) => option.value) : event.target.value);
+        }}
+        className="h-8 max-w-full rounded-md border border-input bg-background px-2 text-sm"
+      >
+        {multiple ? null : <option value="">{'—'}</option>}
+        {options.map((option) => (
+          <option key={option.value} value={option.value}>
+            {option.label}
+          </option>
+        ))}
+      </select>
+    );
+  } else if (editing !== null) {
+    const numeric = column.component === 'number-field' || column.component === 'currency-field';
+
+    control = (
+      <input
+        // A cell the person clicked to edit takes the focus at once.
+        // eslint-disable-next-line jsx-a11y/no-autofocus
+        autoFocus
+        aria-label={column.label}
+        aria-describedby={describedBy}
+        aria-invalid={error !== null || undefined}
+        type={numeric ? 'number' : 'text'}
+        value={editing}
+        disabled={busy}
+        onChange={(event) => {
+          setEditing(event.target.value);
+        }}
+        onKeyDown={(event: KeyboardEvent<HTMLInputElement>) => {
+          if (event.key === 'Enter') {
+            event.preventDefault();
+            const value = editing;
+            setEditing(null);
+            void commit(value);
+          } else if (event.key === 'Escape') {
+            event.preventDefault();
+            setEditing(null);
+            setError(null);
+          }
+        }}
+        onBlur={() => {
+          if (editing !== stringValue(cell.value)) {
+            const value = editing;
+            setEditing(null);
+            void commit(value);
+          } else {
+            setEditing(null);
+          }
+        }}
+        className="h-8 w-full rounded-md border border-input bg-background px-2 text-sm"
+      />
+    );
+  } else {
+    control = (
+      <button
+        type="button"
+        aria-label={__('Edit :field', { field: column.label })}
+        aria-describedby={describedBy}
+        className="w-full cursor-text text-start"
+        onClick={() => {
+          setEditing(stringValue(cell.value));
+        }}
+      >
+        <TableCell column={column} cell={shown} />
+      </button>
+    );
+  }
+
+  return (
+    <div data-inline-cell="" className="relative">
+      {control}
+      {error === null ? null : (
+        <div id={errorId} role="tooltip" className="absolute start-0 top-full z-10 mt-1 rounded-md bg-destructive px-2 py-1 text-xs whitespace-nowrap text-white shadow">
+          {error}
+        </div>
+      )}
+    </div>
+  );
+}

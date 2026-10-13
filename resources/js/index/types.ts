@@ -8,6 +8,10 @@ export interface Column {
   sortable: boolean;
   /** The token this column answers to in ?sort=, `customer.name` for the `customer` cell. */
   sortKey: string;
+  /** The cell saves in place (inline()). */
+  inline?: boolean;
+  textAlign?: 'left' | 'center' | 'right';
+  wrapping?: boolean;
 }
 
 export interface LensEntry {
@@ -22,6 +26,8 @@ export interface Row {
   abilities: Record<string, boolean>;
   /** Sent only by a soft-deleting Resource. */
   trashed?: boolean;
+  /** The stale-edit token an inline save sends back; sent when a column is inline. */
+  updatedAt?: string | null;
   /** Present while the rows are grouped. */
   group?: RowGroup;
 }
