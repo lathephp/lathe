@@ -4,8 +4,10 @@ namespace Workbench\App\Lathe\Filters;
 
 use Closure;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
 use Lathe\Filters\Filter;
 use Lathe\Http\Requests\LatheRequest;
+use Lathe\Search\LikeSearch;
 use Workbench\App\Models\Customer;
 
 class OrderCustomer extends Filter
@@ -32,7 +34,11 @@ class OrderCustomer extends Filter
 
     public function searchOptions(LatheRequest $request, string $term, int $page, int $perPage): array
     {
-        $customers = Customer::where('name', 'like', addcslashes($term, '%_\\').'%')
+        // The panel's own prefix match: escaped, and case-insensitive on PostgreSQL too.
+        $customers = Customer::where(function (Builder $query) use ($term) {
+            /** @var Builder<Model> $query */
+            LikeSearch::prefix('name')->apply($query, $term, 'and');
+        })
             ->orderBy('id')
             ->offset(($page - 1) * $perPage)
             ->limit($perPage + 1)
