@@ -35,7 +35,7 @@ class GlobalScoutGadgets extends Resource
      */
     public static function scoutQuery(LatheRequest $request, mixed $query): mixed
     {
-        $query->callback = fn ($eloquent, $builder, string $term) => $eloquent->withoutGlobalScopes()->where('name', 'like', "%{$term}%");
+        $query->callback = fn ($eloquent, $builder, string $term) => $eloquent->withoutGlobalScopes()->whereRaw('lower(name) like ?', ['%'.strtolower($term).'%']);
 
         return $query;
     }

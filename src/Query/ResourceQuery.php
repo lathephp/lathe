@@ -157,7 +157,8 @@ class ResourceQuery
             $query->select(array_map(fn (string $column) => $query->qualifyColumn($column), array_values($columns)));
         }
 
-        return $query->limit($limit)->get();
+        // A stable order, so the same term lists the same rows on every database.
+        return $query->orderBy($query->getModel()->getQualifiedKeyName())->limit($limit)->get();
     }
 
     /**
