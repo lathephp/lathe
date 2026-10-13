@@ -239,3 +239,9 @@ it('does not cap a count at the cap', function () {
 
     expect($count->value)->toBe(3)->and($count->capped)->toBeFalse();
 });
+
+it('reads the index view state only in the index context', function (QueryContext $context) {
+    $gadget = gadget();
+
+    expect(gadgetQuery('filter[nope]=1&tab=nope&sort=nope', $context)->find($gadget->id)->is($gadget))->toBeTrue();
+})->with([QueryContext::Detail, QueryContext::Edit, QueryContext::Replicate]);

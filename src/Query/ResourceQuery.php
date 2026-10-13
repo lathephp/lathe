@@ -77,7 +77,13 @@ class ResourceQuery
             }
 
             $query = $this->applyHook($this->applyTrashed($query));
-            $this->scoped = $this->applyFilters($this->applySearch($this->applySavedTab($this->applyTab($query))));
+
+            // Tabs, filters and search are the index's view; a record lookup ignores them.
+            $this->scoped = match ($this->context) {
+                QueryContext::Index => $this->applyFilters($this->applySearch($this->applySavedTab($this->applyTab($query)))),
+                QueryContext::Search => $this->applySearch($query),
+                default => $query,
+            };
         }
 
         return clone $this->scoped;
