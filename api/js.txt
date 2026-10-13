@@ -21,6 +21,7 @@
 @lathephp/core type PanelRouter
 @lathephp/core type PluginPageProps
 @lathephp/core type RequestOptions
+@lathephp/core type SafeHtml
 @lathephp/core type SharedData
 @lathephp/core type ToastMessage
 @lathephp/core type ToastType

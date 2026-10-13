@@ -1213,6 +1213,10 @@ Lathe\Support\ConfigValidator::string(): Closure  [protected]
 Lathe\Support\ConfigValidator::stringList(): Closure  [protected]
 Lathe\Support\ConfigValidator::unknownIn(array $given, array $known, string $prefix): array  [protected]
 Lathe\Support\ConfigValidator::unknownKeys(array $config): array
+Lathe\Support\HtmlSanitizer::clean(?string $html): string  [static]
+Lathe\Support\SafeHtml::from(?string $html): Lathe\Support\SafeHtml  [static]
+Lathe\Support\SafeHtml::jsonSerialize(): array
+Lathe\Support\SafeHtml::toHtml(): string
 Lathe\Support\Timezone::Lathe\LatheManager $lathe  [protected]
 Lathe\Support\Timezone::__construct(Lathe\LatheManager $lathe)
 Lathe\Support\Timezone::dayBounds(string $day, string $timezone): array
@@ -1396,6 +1400,8 @@ class Lathe\Summaries\ResourceSummaries
 class Lathe\Summaries\Summary
 class Lathe\Support\ConfigStore
 class Lathe\Support\ConfigValidator
+class Lathe\Support\HtmlSanitizer
+class Lathe\Support\SafeHtml
 class Lathe\Support\Timezone
 class Lathe\Support\Util
 class Lathe\Tabs\Tab

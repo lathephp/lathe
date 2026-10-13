@@ -14,6 +14,8 @@ const LATHE_STATIC_ALLOWED = [
     'Lathe\Resources\Resource::$policy',
     // Macroable: macros are registered at boot, by class.
     'Lathe\Field\Field::$macros',
+    // Built once from constant config; holds no request data.
+    'Lathe\Support\HtmlSanitizer::$sanitizer',
 ];
 
 expect()->extend('toKeepNoStaticState', function () {
