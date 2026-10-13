@@ -5,6 +5,7 @@
  * browser, build the upload fixtures and record native dialogs.
  */
 
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\File;
 use Pest\Browser\Api\AwaitableWebpage;
 
@@ -13,11 +14,23 @@ use Pest\Browser\Api\AwaitableWebpage;
  */
 function signedInAt(string $url, string $project = 'desktop-chrome', string $email = 'admin@lathephp.com'): AwaitableWebpage
 {
+    forgetServerSession();
     $page = latheVisit('/lathe/login', $project);
     signInThroughForm($page, $email);
     $page->assertPathIs('/lathe');
 
     return $page->navigate($url);
+}
+
+/**
+ * Forget the signed-in user the in-process server holds. The server keeps one session store
+ * and one guard between requests: a request without a session cookie would read the last
+ * request's attributes and user, so a second browser context would start signed in.
+ */
+function forgetServerSession(): void
+{
+    app('session')->driver()->flush();
+    Auth::forgetGuards();
 }
 
 /**
