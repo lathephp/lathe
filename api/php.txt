@@ -398,6 +398,20 @@ Lathe\Events\ResourceUpdated::array $original
 Lathe\Events\ResourceUpdated::string $resource
 Lathe\Events\ServingLathe::Illuminate\Http\Request $request
 Lathe\Events\ServingLathe::__construct(Illuminate\Http\Request $request)
+Lathe\Field\AudioField::Closure|string $preload  [protected]
+Lathe\Field\AudioField::__construct(string $label, Closure|string|null $attribute = NULL, ?Closure $resolver = NULL)
+Lathe\Field\AudioField::array $acceptedTypes  [protected]
+Lathe\Field\AudioField::jsonSerialize(): array
+Lathe\Field\AudioField::preload(Closure|string $strategy = 'auto'): static
+Lathe\Field\AudioField::schema(Lathe\Field\FieldContext $context, Lathe\Http\Requests\LatheRequest $request, ?Illuminate\Database\Eloquent\Model $model = NULL): array
+Lathe\Field\AudioField::string $component  [protected]
+Lathe\Field\Avatar::?string $initials
+Lathe\Field\Avatar::?string $url
+Lathe\Field\Avatar::__construct(?string $url, ?string $initials, array $style, bool $rounded)
+Lathe\Field\Avatar::array $style
+Lathe\Field\Avatar::bool $rounded
+Lathe\Field\Avatar::initialsOf(string $text): ?string  [static]
+Lathe\Field\Avatar::jsonSerialize(): array
 Lathe\Field\BadgeField::?Closure $labelCallback  [protected]
 Lathe\Field\BadgeField::?array $icons  [protected]
 Lathe\Field\BadgeField::?string $nullLabel  [protected]
@@ -463,7 +477,12 @@ Lathe\Field\Concerns\TextFactories::passwordConfirmation(string $label, string $
 Lathe\Field\Concerns\TextFactories::text(string $label, Closure|string|null $attribute = NULL): Lathe\Field\TextField  [static]
 Lathe\Field\Concerns\TextFactories::textarea(string $label, Closure|string|null $attribute = NULL): Lathe\Field\TextareaField  [static]
 Lathe\Field\Concerns\TextFactories::url(string $label = 'URL', ?string $attribute = NULL): Lathe\Field\TextField  [static]
+Lathe\Field\Concerns\UploadFactories::audio(string $label, ?string $attribute = NULL): Lathe\Field\AudioField  [static]
+Lathe\Field\Concerns\UploadFactories::avatar(string $name = 'Avatar', ?string $attribute = NULL): Lathe\Field\ImageField  [static]
 Lathe\Field\Concerns\UploadFactories::file(string $label, ?string $attribute = NULL): Lathe\Field\FileField  [static]
+Lathe\Field\Concerns\UploadFactories::gravatar(string $name = 'Avatar', string $attribute = 'email'): Lathe\Field\GravatarField  [static]
+Lathe\Field\Concerns\UploadFactories::image(string $label, ?string $attribute = NULL): Lathe\Field\ImageField  [static]
+Lathe\Field\Concerns\UploadFactories::uiAvatar(string $name = 'Avatar', ?string $source = 'name'): Lathe\Field\UiAvatarField  [static]
 Lathe\Field\Condition::?string $field  [protected]
 Lathe\Field\Condition::__construct(string $operator, ?string $field = NULL, mixed $value = NULL, array $conditions = array ( ))  [protected]
 Lathe\Field\Condition::allOf(Lathe\Field\Condition ...$conditions): static  [static]
@@ -492,6 +511,10 @@ Lathe\Field\ConditionBuilder::lte(int|float $value): Lathe\Field\Condition
 Lathe\Field\ConditionBuilder::neq(mixed $value): Lathe\Field\Condition
 Lathe\Field\ConditionBuilder::notIn(array $values): Lathe\Field\Condition
 Lathe\Field\ConditionBuilder::string $attribute  [protected]
+Lathe\Field\Contracts\Cover::isRounded(): bool
+Lathe\Field\Contracts\Cover::isSquared(): bool
+Lathe\Field\Contracts\Cover::resolveAvatar(object $record): Lathe\Field\Avatar
+Lathe\Field\Contracts\Cover::resolveThumbnailUrl(object $record): ?string
 Lathe\Field\Contracts\Deletable::columnsThatShouldBeDeleted(): array
 Lathe\Field\Contracts\Deletable::isDeletable(): bool
 Lathe\Field\Contracts\Deletable::isPrunable(): bool
@@ -733,6 +756,7 @@ Lathe\Field\FileField::bool $downloadable  [protected]
 Lathe\Field\FileField::bool $prunable  [protected]
 Lathe\Field\FileField::cell(Illuminate\Database\Eloquent\Model $model): array
 Lathe\Field\FileField::columnsThatShouldBeDeleted(): array
+Lathe\Field\FileField::defaultMaxSizeMb(): int  [protected]
 Lathe\Field\FileField::deletable(bool $deletable = true): static
 Lathe\Field\FileField::delete(Closure $callback): static
 Lathe\Field\FileField::deleteFile(Lathe\Http\Requests\LatheRequest $request, Illuminate\Database\Eloquent\Model $model, ?string $path = NULL): void
@@ -740,6 +764,7 @@ Lathe\Field\FileField::disableDownload(): static
 Lathe\Field\FileField::disk(string $disk): static
 Lathe\Field\FileField::download(Closure $callback): static
 Lathe\Field\FileField::downloadResponse(Lathe\Http\Requests\LatheRequest $request, Illuminate\Database\Eloquent\Model $model): Symfony\Component\HttpFoundation\Response
+Lathe\Field\FileField::downloadUrl(Illuminate\Database\Eloquent\Model $model): ?string  [protected]
 Lathe\Field\FileField::fileUrl(?Closure $callback, string $path): ?string  [protected]
 Lathe\Field\FileField::fill(Lathe\Http\Requests\LatheRequest $request, object $model, ?string $requestAttribute = NULL): ?Closure
 Lathe\Field\FileField::fillColumn(Illuminate\Database\Eloquent\Model $model, ?string $column, mixed $value): void  [protected]
@@ -750,6 +775,7 @@ Lathe\Field\FileField::getStorageDisk(): string
 Lathe\Field\FileField::getStoragePath(): ?string
 Lathe\Field\FileField::isDeletable(): bool
 Lathe\Field\FileField::isPrunable(): bool
+Lathe\Field\FileField::jsonSerialize(): array
 Lathe\Field\FileField::maxSize(int $mb): static
 Lathe\Field\FileField::path(string $directory): static
 Lathe\Field\FileField::preview(Closure $callback): static
@@ -766,6 +792,10 @@ Lathe\Field\FileField::string $component  [protected]
 Lathe\Field\FileField::string $directory  [protected]
 Lathe\Field\FileField::stringOf(mixed $value): string  [protected]
 Lathe\Field\FileField::thumbnail(Closure $callback): static
+Lathe\Field\GravatarField::?string $source  [protected]
+Lathe\Field\GravatarField::emailOf(object $record): string  [protected]
+Lathe\Field\GravatarField::imageUrl(object $record): ?string  [protected]
+Lathe\Field\GravatarField::initials(object $record): ?string  [protected]
 Lathe\Field\HasOptions::Closure|array|string $optionSource  [protected]
 Lathe\Field\HasOptions::Closure|bool $searchable  [protected]
 Lathe\Field\HasOptions::bool $displayUsingLabels  [protected]
@@ -797,6 +827,19 @@ Lathe\Field\IdField::forModel(Illuminate\Database\Eloquent\Model $model, string 
 Lathe\Field\IdField::hidden(string $label = 'ID', string $attribute = 'id'): static  [static]
 Lathe\Field\IdField::resolve(object $record, ?string $attribute = NULL): mixed
 Lathe\Field\IdField::string $component  [protected]
+Lathe\Field\ImageField::__construct(string $label, Closure|string|null $attribute = NULL, ?Closure $resolver = NULL)
+Lathe\Field\ImageField::array $acceptedTypes  [protected]
+Lathe\Field\ImageField::aspect(string $ratio): static
+Lathe\Field\ImageField::defaultMaxSizeMb(): int  [protected]
+Lathe\Field\ImageField::detailWidth(int $pixels): static
+Lathe\Field\ImageField::isRounded(): bool
+Lathe\Field\ImageField::isSquared(): bool
+Lathe\Field\ImageField::maxWidth(int $pixels): static
+Lathe\Field\ImageField::resolveAvatar(object $record): Lathe\Field\Avatar
+Lathe\Field\ImageField::resolveThumbnailUrl(object $record): ?string
+Lathe\Field\ImageField::rounded(): static
+Lathe\Field\ImageField::squared(): static
+Lathe\Field\ImageField::string $component  [protected]
 Lathe\Field\LineField::__construct(string $label, Closure|string|null $attribute = NULL, ?Closure $resolver = NULL)
 Lathe\Field\LineField::asBase(): static
 Lathe\Field\LineField::asHeading(): static
@@ -908,6 +951,26 @@ Lathe\Field\TranslatableLifecycle::__construct(array $locales)
 Lathe\Field\TranslatableLifecycle::array $locales  [protected]
 Lathe\Field\TranslatableLifecycle::parse(Lathe\Http\Requests\LatheRequest $request, string $attribute): mixed
 Lathe\Field\TranslatableLifecycle::present(mixed $raw, object $record, string $attribute): mixed
+Lathe\Field\UiAvatarField::?string $source  [protected]
+Lathe\Field\UiAvatarField::__construct(string $label, Closure|string|null $attribute = NULL, ?Closure $resolver = NULL)
+Lathe\Field\UiAvatarField::avatarColor(string $hex): static
+Lathe\Field\UiAvatarField::backgroundColor(string $hex): static
+Lathe\Field\UiAvatarField::bold(bool $bold = true): static
+Lathe\Field\UiAvatarField::bool $bold  [protected]
+Lathe\Field\UiAvatarField::float $fontSize  [protected]
+Lathe\Field\UiAvatarField::fontSize(float $size): static
+Lathe\Field\UiAvatarField::hex(string $hex): string  [protected]
+Lathe\Field\UiAvatarField::imageUrl(object $record): ?string  [protected]
+Lathe\Field\UiAvatarField::initials(object $record): ?string  [protected]
+Lathe\Field\UiAvatarField::isRounded(): bool
+Lathe\Field\UiAvatarField::isSquared(): bool
+Lathe\Field\UiAvatarField::resolve(object $record, ?string $attribute = NULL): array
+Lathe\Field\UiAvatarField::resolveAvatar(object $record): Lathe\Field\Avatar
+Lathe\Field\UiAvatarField::resolveThumbnailUrl(object $record): ?string
+Lathe\Field\UiAvatarField::source(?string $attribute): static
+Lathe\Field\UiAvatarField::string $avatarColor  [protected]
+Lathe\Field\UiAvatarField::string $backgroundColor  [protected]
+Lathe\Field\UiAvatarField::string $component  [protected]
 Lathe\Filters\BooleanFilter::component(): string
 Lathe\Filters\BooleanFilter::normalize(Lathe\Http\Requests\LatheRequest $request, mixed $value, bool $remote): array
 Lathe\Filters\DateFilter::component(): string
@@ -1159,6 +1222,7 @@ Lathe\LatheManager::assets(): Lathe\Assets\AssetManifest
 Lathe\LatheManager::auth(Closure $callback): static
 Lathe\LatheManager::check(Illuminate\Http\Request $request): bool
 Lathe\LatheManager::config(): Lathe\Support\ConfigStore
+Lathe\LatheManager::cspImageSources(): array
 Lathe\LatheManager::dashboards(): Lathe\Dashboards\DashboardRegistry
 Lathe\LatheManager::discoverResources(string $directory, ?string $namespace = NULL): void
 Lathe\LatheManager::footer(Closure $callback): static
@@ -1488,6 +1552,7 @@ Lathe\Resources\Resource::redirectAfterDelete(Lathe\Http\Requests\LatheRequest $
 Lathe\Resources\Resource::redirectAfterUpdate(Lathe\Http\Requests\LatheRequest $request, Lathe\Resources\Resource $resource): string  [static]
 Lathe\Resources\Resource::relatableQuery(Lathe\Http\Requests\LatheRequest $request, Illuminate\Database\Eloquent\Builder $query): Illuminate\Database\Eloquent\Builder  [static]
 Lathe\Resources\Resource::replicateQuery(Lathe\Http\Requests\LatheRequest $request, Illuminate\Database\Eloquent\Builder $query): Illuminate\Database\Eloquent\Builder  [static]
+Lathe\Resources\Resource::resolveAvatar(): ?Lathe\Field\Avatar
 Lathe\Resources\Resource::resolveText(Closure|string $source): string  [protected]
 Lathe\Resources\Resource::rowKey(): string  [static]
 Lathe\Resources\Resource::scoutQuery(Lathe\Http\Requests\LatheRequest $request, mixed $query): mixed  [static]
@@ -1979,6 +2044,8 @@ class Lathe\Exceptions\LatheException
 class Lathe\Exceptions\PluginDependencyException
 class Lathe\Exceptions\ResourceModelCollisionException
 class Lathe\Exceptions\ResourceUriKeyCollisionException
+class Lathe\Field\AudioField
+class Lathe\Field\Avatar
 class Lathe\Field\BadgeField
 class Lathe\Field\BooleanField
 class Lathe\Field\BooleanGroupField
@@ -1993,9 +2060,11 @@ class Lathe\Field\Field
 class Lathe\Field\FieldCollection
 class Lathe\Field\FieldResolver
 class Lathe\Field\FileField
+class Lathe\Field\GravatarField
 class Lathe\Field\HeadingField
 class Lathe\Field\IconField
 class Lathe\Field\IdField
+class Lathe\Field\ImageField
 class Lathe\Field\LineField
 class Lathe\Field\MarkdownField
 class Lathe\Field\MultiSelectField
@@ -2012,6 +2081,7 @@ class Lathe\Field\TextField
 class Lathe\Field\TextareaField
 class Lathe\Field\TokenField
 class Lathe\Field\TranslatableLifecycle
+class Lathe\Field\UiAvatarField
 class Lathe\Filters\BooleanFilter
 class Lathe\Filters\DateFilter
 class Lathe\Filters\FieldFilter
@@ -2119,6 +2189,7 @@ enum Lathe\Field\FieldContext
 enum Lathe\Query\CountStrategy
 enum Lathe\Query\QueryContext
 interface Lathe\Attributes\Resource\ResourceAttribute
+interface Lathe\Field\Contracts\Cover
 interface Lathe\Field\Contracts\Deletable
 interface Lathe\Field\Contracts\PreviewsContent
 interface Lathe\Field\Contracts\PrimesForPage
