@@ -1,5 +1,6 @@
 <?php
 
+use Illuminate\Support\Facades\Gate;
 use Inertia\Testing\AssertableInertia;
 use Lathe\Lathe;
 use Workbench\App\Models\User;
@@ -61,6 +62,22 @@ it('shares the layout and table settings', function () {
         'header' => ['sticky' => false],
         'content' => ['width' => 'contained'],
     ])->and($props['tableStyle'])->toBe(['density' => 'compact', 'striped' => true]);
+});
+
+it('shares whether the palette is on and how long typing waits', function () {
+    expect(shellProps()['globalSearch'])->toBe(['enabled' => true, 'debounce' => 0.5]);
+
+    config(['lathe.global_search.debounce' => 0.2]);
+    expect(shellProps()['globalSearch'])->toBe(['enabled' => true, 'debounce' => 0.2]);
+
+    config(['lathe.global_search.enabled' => false]);
+    expect(shellProps()['globalSearch']['enabled'])->toBeFalse();
+});
+
+it('turns the palette off for a user without the globalSearch ability', function () {
+    Gate::define('globalSearch', fn () => false);
+
+    expect(shellProps()['globalSearch']['enabled'])->toBeFalse();
 });
 
 it('renders the Main dashboard', function () {

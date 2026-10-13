@@ -3,6 +3,7 @@
 namespace Lathe\Http\Middleware;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Gate;
 use Inertia\Middleware;
 use Lathe\Lathe;
 use Lathe\Menu\Navigation;
@@ -74,10 +75,22 @@ class HandleInertiaRequests extends Middleware
                 'header' => ['sticky' => Lathe::config()->boolean('layout.header.sticky')],
                 'content' => ['width' => Lathe::config()->string('layout.content.width')],
             ],
+            // An app that never defines globalSearch keeps the palette off: an undefined ability denies.
+            'globalSearch' => fn () => [
+                'enabled' => Lathe::config()->boolean('global_search.enabled')
+                    && Gate::forUser($request->user(Lathe::fortify()->guard()))->allows('globalSearch'),
+                'debounce' => self::seconds(Lathe::config()->get('global_search.debounce')),
+            ],
             'tableStyle' => fn () => [
                 'density' => Lathe::config()->string('table.density'),
                 'striped' => Lathe::config()->boolean('table.striped'),
             ],
         ];
+    }
+
+    // The validator accepts an int or a float, and the client wants a float either way.
+    private static function seconds(mixed $value): float
+    {
+        return is_int($value) || is_float($value) ? (float) $value : 0.5;
     }
 }
