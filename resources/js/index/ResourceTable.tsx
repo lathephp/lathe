@@ -1,8 +1,9 @@
 import { useTranslation } from '@lathephp/core';
 import { router, usePage } from '@inertiajs/react';
-import { ArrowDown, ArrowUp } from 'lucide-react';
+import { ArrowDown, ArrowUp, Eye } from 'lucide-react';
 import { Fragment, useState, type MouseEvent } from 'react';
 import { cn } from '../lib/cn';
+import { PreviewModal } from '../records/PreviewModal';
 import { TableCell } from '../table/cells';
 import type { SharedProps } from '../types';
 import { GroupHeaderRow } from './GroupHeaderRow';
@@ -64,7 +65,7 @@ export function ResourceTable({ resource, table, state, loading, selection, sort
   const { summaries, groups } = usePage<Pick<IndexProps, 'summaries' | 'groups'>>().props;
   // The keys of the groups folded shut.
   const [collapsed, setCollapsed] = useState<string[]>([]);
-  const opens = clickAction === 'detail' || clickAction === 'edit' || clickAction === 'select';
+  const opens = clickAction === 'detail' || clickAction === 'edit' || clickAction === 'select' || clickAction === 'preview';
   const rowClass = cn(
     'border-b border-border last:border-0',
     // TableStyle tight forces the compact height whatever the panel density.
@@ -72,7 +73,10 @@ export function ResourceTable({ resource, table, state, loading, selection, sort
     tableStyle.striped && 'even:bg-muted/50',
   );
   const border = showColumnBorders && 'border-e border-border last:border-e-0';
-  const withMenu = table.rows.some((row) => menuActions(row).length > 0);
+  const previews = resource.preview === true;
+  const withMenu = previews || table.rows.some((row) => menuActions(row).length > 0);
+  // The row whose preview modal is open.
+  const [previewing, setPreviewing] = useState<Row['id'] | null>(null);
   const ids = table.rows.map((row) => row.id);
   const ticked = ids.filter((id) => selection.selected.has(id)).length;
 
@@ -94,6 +98,12 @@ export function ResourceTable({ resource, table, state, loading, selection, sort
 
     if (clickAction === 'select') {
       selection.toggle(row.id);
+
+      return;
+    }
+
+    if (clickAction === 'preview') {
+      setPreviewing(row.id);
 
       return;
     }
@@ -240,7 +250,21 @@ export function ResourceTable({ resource, table, state, loading, selection, sort
                         })}
                         {withMenu && (
                           <td data-row-menu="" className={cn('px-3', border)}>
-                            {menuActions(row).length > 0 && <RowMenu uriKey={resource.uriKey} row={row} />}
+                            <div className="flex items-center justify-end gap-1">
+                              {previews && row.abilities.view === true && (
+                                <button
+                                  type="button"
+                                  aria-label={__('Preview :title', { title: row.title })}
+                                  className="rounded-sm p-1 text-muted-foreground outline-none hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring"
+                                  onClick={() => {
+                                    setPreviewing(row.id);
+                                  }}
+                                >
+                                  <Eye aria-hidden="true" className="size-4" />
+                                </button>
+                              )}
+                              {menuActions(row).length > 0 && <RowMenu uriKey={resource.uriKey} row={row} />}
+                            </div>
                           </td>
                         )}
                       </tr>
@@ -268,6 +292,15 @@ export function ResourceTable({ resource, table, state, loading, selection, sort
           />
         )}
       </table>
+      {previewing === null ? null : (
+        <PreviewModal
+          uriKey={resource.uriKey}
+          id={previewing}
+          onClose={() => {
+            setPreviewing(null);
+          }}
+        />
+      )}
     </div>
   );
 }

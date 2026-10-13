@@ -90,6 +90,8 @@ export interface IndexProps {
     searchable: boolean;
     softDeletes: boolean;
     abilities: { create: boolean };
+    /** Rows get a preview button: some field shows in the Preview context. */
+    preview?: boolean;
     definition: ResourceDefinition;
   };
   table: { columns: Column[]; sortKeys: string[]; rows: Row[]; rowKey: string };
