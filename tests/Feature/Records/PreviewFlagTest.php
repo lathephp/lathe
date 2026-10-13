@@ -36,5 +36,6 @@ it('offers a row preview only when some field shows in the Preview context', fun
     Lathe::registerResources(PreviewedOrder::class);
 
     expect($this->getJson('/lathe/api/resources/previewed-orders')->assertOk()->json('resource.preview'))->toBeTrue()
-        ->and($this->getJson('/lathe/api/resources/orders')->assertOk()->json('resource.preview'))->toBeFalse();
+        ->and($this->getJson('/lathe/api/resources/customers')->assertOk()->json('resource.preview'))->toBeFalse()
+        ->and($this->getJson('/lathe/api/resources/orders')->assertOk()->json('resource.preview'))->toBeTrue();
 });
