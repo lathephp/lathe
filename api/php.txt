@@ -398,6 +398,15 @@ Lathe\Events\ResourceUpdated::array $original
 Lathe\Events\ResourceUpdated::string $resource
 Lathe\Events\ServingLathe::Illuminate\Http\Request $request
 Lathe\Events\ServingLathe::__construct(Illuminate\Http\Request $request)
+Lathe\Field\Concerns\TextFactories::color(string $label, ?string $attribute = NULL): Lathe\Field\Field  [static]
+Lathe\Field\Concerns\TextFactories::email(string $label = 'Email', Closure|string|null $attribute = NULL): Lathe\Field\TextField  [static]
+Lathe\Field\Concerns\TextFactories::heading(string $label): Lathe\Field\HeadingField  [static]
+Lathe\Field\Concerns\TextFactories::hidden(string $label, string $attribute): Lathe\Field\Field  [static]
+Lathe\Field\Concerns\TextFactories::password(string $label = 'Password', string $attribute = 'password'): Lathe\Field\PasswordField  [static]
+Lathe\Field\Concerns\TextFactories::passwordConfirmation(string $label, string $attribute = 'password_confirmation'): Lathe\Field\PasswordField  [static]
+Lathe\Field\Concerns\TextFactories::text(string $label, Closure|string|null $attribute = NULL): Lathe\Field\TextField  [static]
+Lathe\Field\Concerns\TextFactories::textarea(string $label, Closure|string|null $attribute = NULL): Lathe\Field\TextareaField  [static]
+Lathe\Field\Concerns\TextFactories::url(string $label = 'URL', ?string $attribute = NULL): Lathe\Field\TextField  [static]
 Lathe\Field\Contracts\Deletable::columnsThatShouldBeDeleted(): array
 Lathe\Field\Contracts\Deletable::isDeletable(): bool
 Lathe\Field\Contracts\Deletable::isPrunable(): bool
@@ -588,6 +597,10 @@ Lathe\Field\FileField::path(string $directory): static
 Lathe\Field\FileField::prunable(bool $prunable = true): static
 Lathe\Field\FileField::string $component  [protected]
 Lathe\Field\FileField::string $directory  [protected]
+Lathe\Field\HeadingField::__construct(string $label, Closure|string|null $attribute = NULL, ?Closure $resolver = NULL)
+Lathe\Field\HeadingField::fill(Lathe\Http\Requests\LatheRequest $request, object $model, ?string $requestAttribute = NULL): ?Closure
+Lathe\Field\HeadingField::jsonSerialize(): array
+Lathe\Field\HeadingField::string $component  [protected]
 Lathe\Field\IdField::__construct(string $label = 'ID', Closure|string|null $attribute = 'id', ?Closure $resolver = NULL)
 Lathe\Field\IdField::asBigInt(): static
 Lathe\Field\IdField::bool $bigInt  [protected]
@@ -595,6 +608,41 @@ Lathe\Field\IdField::forModel(Illuminate\Database\Eloquent\Model $model, string 
 Lathe\Field\IdField::hidden(string $label = 'ID', string $attribute = 'id'): static  [static]
 Lathe\Field\IdField::resolve(object $record, ?string $attribute = NULL): mixed
 Lathe\Field\IdField::string $component  [protected]
+Lathe\Field\PasswordField::__construct(string $label = 'Password', Closure|string|null $attribute = 'password', ?Closure $resolver = NULL)
+Lathe\Field\PasswordField::string $component  [protected]
+Lathe\Field\PasswordLifecycle::persist(object $model, string $attribute, mixed $value): ?Closure
+Lathe\Field\PasswordLifecycle::present(mixed $raw, object $record, string $attribute): mixed
+Lathe\Field\TextField::Closure|array $suggestions  [protected]
+Lathe\Field\TextField::SUGGESTION_LIMIT
+Lathe\Field\TextField::__construct(string $label, Closure|string|null $attribute = NULL, ?Closure $resolver = NULL)
+Lathe\Field\TextField::asEncodedHtml(bool $encoded = true): static
+Lathe\Field\TextField::asHtml(bool $html = true): static
+Lathe\Field\TextField::cell(Illuminate\Database\Eloquent\Model $model): array
+Lathe\Field\TextField::copyable(bool $copyable = true): static
+Lathe\Field\TextField::enforceMaxlength(bool $enforce = true): static
+Lathe\Field\TextField::getMessages(): array
+Lathe\Field\TextField::getRules(Lathe\Field\FieldContext $context, ?Lathe\Http\Requests\LatheRequest $request = NULL, ?Illuminate\Database\Eloquent\Model $model = NULL): array
+Lathe\Field\TextField::getValidationAttributes(): array
+Lathe\Field\TextField::impliedRules(): array  [protected]
+Lathe\Field\TextField::jsonSerialize(): array
+Lathe\Field\TextField::limited(mixed $suggestions): array  [protected static]
+Lathe\Field\TextField::locales(): array  [protected]
+Lathe\Field\TextField::maxlength(int $length): static
+Lathe\Field\TextField::schema(Lathe\Field\FieldContext $context, Lathe\Http\Requests\LatheRequest $request, ?Illuminate\Database\Eloquent\Model $model = NULL): array
+Lathe\Field\TextField::string $component  [protected]
+Lathe\Field\TextField::suggestions(Closure|array $suggestions): static
+Lathe\Field\TextField::translatable(array $locales): static
+Lathe\Field\TextareaField::?Closure $shouldShow  [protected]
+Lathe\Field\TextareaField::__construct(string $label, Closure|string|null $attribute = NULL, ?Closure $resolver = NULL)
+Lathe\Field\TextareaField::alwaysShow(bool $always = true): static
+Lathe\Field\TextareaField::rows(int $rows): static
+Lathe\Field\TextareaField::schema(Lathe\Field\FieldContext $context, Lathe\Http\Requests\LatheRequest $request, ?Illuminate\Database\Eloquent\Model $model = NULL): array
+Lathe\Field\TextareaField::shouldShow(Closure $callback): static
+Lathe\Field\TextareaField::string $component  [protected]
+Lathe\Field\TranslatableLifecycle::__construct(array $locales)
+Lathe\Field\TranslatableLifecycle::array $locales  [protected]
+Lathe\Field\TranslatableLifecycle::parse(Lathe\Http\Requests\LatheRequest $request, string $attribute): mixed
+Lathe\Field\TranslatableLifecycle::present(mixed $raw, object $record, string $attribute): mixed
 Lathe\Filters\BooleanFilter::component(): string
 Lathe\Filters\BooleanFilter::normalize(Lathe\Http\Requests\LatheRequest $request, mixed $value, bool $remote): array
 Lathe\Filters\DateFilter::component(): string
@@ -1662,7 +1710,13 @@ class Lathe\Field\Field
 class Lathe\Field\FieldCollection
 class Lathe\Field\FieldResolver
 class Lathe\Field\FileField
+class Lathe\Field\HeadingField
 class Lathe\Field\IdField
+class Lathe\Field\PasswordField
+class Lathe\Field\PasswordLifecycle
+class Lathe\Field\TextField
+class Lathe\Field\TextareaField
+class Lathe\Field\TranslatableLifecycle
 class Lathe\Filters\BooleanFilter
 class Lathe\Filters\DateFilter
 class Lathe\Filters\FieldFilter

@@ -33,7 +33,7 @@ class TextSample extends Model
     protected $casts = ['title' => 'array'];
 }
 
-class TextSampleResource extends Resource
+class TextSamples extends Resource
 {
     protected function configure(ResourceDefinition $definition): ResourceDefinition
     {
@@ -48,7 +48,7 @@ class TextSampleResource extends Resource
             Field::text('Short')->maxlength(10)->enforceMaxlength(),
             Field::text('Title')->translatable(['en', 'fr'])->required(),
             Field::hidden('Locale', 'locale'),
-            Field::password('Password'),
+            Field::password('Password')->rules('confirmed'),
             Field::passwordConfirmation('Password confirmation'),
         ];
     }
@@ -73,7 +73,7 @@ beforeEach(function () {
     });
     Gate::define('viewLathe', fn (User $user) => true);
     $this->actingAs(User::where('email', 'admin@lathephp.com')->firstOrFail());
-    Lathe::registerResources(TextSampleResource::class);
+    Lathe::registerResources(TextSamples::class);
 });
 
 /** @return list<string> */
