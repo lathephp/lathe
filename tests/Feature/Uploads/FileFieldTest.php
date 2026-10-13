@@ -402,6 +402,12 @@ it('deletes nothing when validation fails', function () {
         ->and(PendingUpload::find($upload->id))->not->toBeNull();
 });
 
+it('sends the size limit in megabytes and the accepted types to the browser', function () {
+    expect(Field::file('File', 'file')->jsonSerialize())->toMatchArray(['maxSize' => 10, 'acceptedTypes' => []])
+        ->and(Field::image('Photo', 'photo')->jsonSerialize())->toMatchArray(['maxSize' => 5, 'acceptedTypes' => ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'image/avif', 'image/bmp']])
+        ->and(Field::file('File', 'file')->maxSize(2)->acceptedTypes('pdf')->jsonSerialize())->toMatchArray(['maxSize' => 2, 'acceptedTypes' => ['pdf']]);
+});
+
 // Record deletion
 
 it('deletes the prunable files of a record without soft deletes', function () {

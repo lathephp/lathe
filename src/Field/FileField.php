@@ -384,11 +384,19 @@ class FileField extends Field implements Deletable, Storable
     }
 
     /**
+     * The limit in megabytes and the accepted types travel too, so the browser refuses a file
+     * before it sends a byte.
+     *
      * @return array<string, mixed>
      */
     public function jsonSerialize(): array
     {
-        return [...parent::jsonSerialize(), 'deletable' => $this->deletable];
+        return [
+            ...parent::jsonSerialize(),
+            'deletable' => $this->deletable,
+            'maxSize' => $this->maxSizeMb ?? $this->defaultMaxSizeMb(),
+            'acceptedTypes' => $this->acceptedTypes,
+        ];
     }
 
     /**
