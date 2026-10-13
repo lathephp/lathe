@@ -122,6 +122,8 @@ jobs:
           cache: pnpm
       - run: composer install --no-interaction --prefer-dist
       - run: pnpm install --frozen-lockfile
+      - run: pnpm build
+      - run: pnpm -C workbench/lathe-components/Heartbeat build
       - uses: actions/cache@v4
         with:
           path: ~/.cache/ms-playwright

@@ -1,0 +1,27 @@
+<?php
+
+function browserFlows(): array
+{
+    return require dirname(__DIR__, 2).'/Browser/flows.php';
+}
+
+it('lists the flows of the panel skeleton', function () {
+    expect(array_keys(browserFlows()))->toBe([
+        'login', 'orders-index', 'heartbeat', 'sidebar', 'forbidden', 'not-found', 'stale-assets', 'plugin-load-failure',
+    ]);
+});
+
+it('has a browser test for every listed flow', function () {
+    $missing = [];
+
+    foreach (browserFlows() as $flow => $file) {
+        $path = dirname(__DIR__, 2).'/Browser/'.$file;
+        $source = is_file($path) ? (string) file_get_contents($path) : '';
+
+        if (preg_match('/^(it|test)\(/m', $source) !== 1) {
+            $missing[] = $flow;
+        }
+    }
+
+    expect($missing)->toBe([]);
+});
