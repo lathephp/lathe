@@ -5,6 +5,7 @@ namespace Lathe\Tests\Feature\Field\Types;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Schema;
@@ -73,7 +74,7 @@ class DisplayThing extends Resource
             Field::make('Name'),
             Field::badge('State')->map(['paid' => 'success', 'pending' => 'warning']),
             Field::badge('Stage')->nullLabel('No stage'),
-            Field::stack('Who', 'name', [
+            Field::stack('Who', 'who', [
                 Field::line('Name')->asHeading(),
                 Field::line('Stage')->asSmall()->extraClasses('text-red-500'),
                 fn (Model $record) => 'row '.$record->getKey(),
@@ -135,11 +136,11 @@ it('builds a computed field from a closure attribute', function (Field $field) {
 ]);
 
 it('maps a value to a badge type', function () {
-    $badge = Field::badge('State')->map(['paid' => 'success', 'pending' => 'warning']);
+    $badge = Field::badge('Stage')->map(['paid' => 'success', 'pending' => 'warning']);
 
-    expect($badge->cell(displayRecord(['state' => 'paid'])))->toMatchArray(['display' => 'PAID', 'type' => 'success'])
-        ->and($badge->cell(displayRecord(['state' => 'pending']))['type'])->toBe('warning')
-        ->and($badge->cell(displayRecord(['state' => 'other']))['type'])->toBe('info');
+    expect($badge->cell(displayRecord(['stage' => 'paid'])))->toMatchArray(['display' => 'Paid', 'type' => 'success'])
+        ->and($badge->cell(displayRecord(['stage' => 'pending']))['type'])->toBe('warning')
+        ->and($badge->cell(displayRecord(['stage' => 'other']))['type'])->toBe('info');
 });
 
 it('labels a badge by closure, then nullLabel, then labels, then the enum label, then the humanized value', function () {
@@ -248,6 +249,7 @@ it('gives a sparkline the default size and one shared series from an iterable or
 });
 
 it('runs a sparkline closure once for a whole page', function () {
+    app()->instance(LatheRequest::class, LatheRequest::createFrom(Request::create('/lathe')));
     $calls = 0;
     $field = Field::sparkline('Trend')->data(function (Collection $records) use (&$calls) {
         $calls++;
@@ -272,7 +274,7 @@ it('resolves a stack of lines from the same record with no extra queries', funct
 
     DisplayRecord::query()->insert(array_map(fn (int $i) => ['name' => "Row {$i}", 'stage' => 'pending'], range(1, 99)));
     DB::flushQueryLog();
-    $response = LatheTest::resource('display-things')->index()->assertOk();
+    $response = LatheTest::resource('display-things')->index(['per_page' => 100])->assertOk();
 
     expect(count(DB::getQueryLog()))->toBe($single)
         ->and($response->json('table.rows'))->toHaveCount(100);
