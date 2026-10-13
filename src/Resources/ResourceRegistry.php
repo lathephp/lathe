@@ -313,6 +313,14 @@ class ResourceRegistry
                 throw new InvalidConfigurationException("{$class}: perPage: every value must be an integer from 1 to {$max}; got {$option}. Set limits.max_per_page higher or remove {$option}.");
             }
         }
+
+        if (($cap = $definition->getCountCap()) < 1) {
+            throw new InvalidConfigurationException("{$class}: countStrategy: the cap must be at least 1; got {$cap}. Pass a cap of 1 or more, or leave it out to use limits.count_cap.");
+        }
+
+        if (($polling = $definition->getPolling()) !== null && $polling < 1) {
+            throw new InvalidConfigurationException("{$class}: polling: the interval must be at least 1 second; got {$polling}. Pass 1 or more, or remove polling().");
+        }
     }
 
     protected function namespaceFor(string $directory): string

@@ -43,6 +43,7 @@ class IndexPayload
                 'label' => $class::label(),
                 'singularLabel' => $class::singularLabel(),
                 'perPageOptions' => $query->perPageOptionsInUse(),
+                'definition' => $resource->definition()->options(),
             ],
             'table' => [
                 'columns' => $fields,

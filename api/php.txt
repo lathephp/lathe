@@ -109,6 +109,13 @@ Lathe\Doctor\Doctor::pluginPackages(): array  [protected]
 Lathe\Doctor\Doctor::resourceChecks(): array  [protected]
 Lathe\Doctor\Doctor::run(): array
 Lathe\Doctor\Doctor::stringConfig(string $key): string  [protected]
+Lathe\Enums\ClickAction::Detail
+Lathe\Enums\ClickAction::Edit
+Lathe\Enums\ClickAction::Ignore
+Lathe\Enums\ClickAction::Preview
+Lathe\Enums\ClickAction::Select
+Lathe\Enums\ClickAction::string $name
+Lathe\Enums\ClickAction::string $value
 Lathe\Enums\Icon::Activity
 Lathe\Enums\Icon::AlertCircle
 Lathe\Enums\Icon::AlertTriangle
@@ -267,6 +274,15 @@ Lathe\Enums\Icon::Wrench
 Lathe\Enums\Icon::Zap
 Lathe\Enums\Icon::string $name
 Lathe\Enums\Icon::string $value
+Lathe\Enums\PaginationType::Links
+Lathe\Enums\PaginationType::LoadMore
+Lathe\Enums\PaginationType::Simple
+Lathe\Enums\PaginationType::string $name
+Lathe\Enums\PaginationType::string $value
+Lathe\Enums\TableStyle::Default
+Lathe\Enums\TableStyle::Tight
+Lathe\Enums\TableStyle::string $name
+Lathe\Enums\TableStyle::string $value
 Lathe\Events\ServingLathe::Illuminate\Http\Request $request
 Lathe\Events\ServingLathe::__construct(Illuminate\Http\Request $request)
 Lathe\Field\Field::?Closure $resolver  [protected]
@@ -440,6 +456,12 @@ Lathe\Plugins\PluginRegistry::serve(Illuminate\Http\Request $request): void
 Lathe\Query\Count::__construct(int $value, bool $capped)
 Lathe\Query\Count::bool $capped
 Lathe\Query\Count::int $value
+Lathe\Query\CountStrategy::Capped
+Lathe\Query\CountStrategy::Estimated
+Lathe\Query\CountStrategy::Exact
+Lathe\Query\CountStrategy::None
+Lathe\Query\CountStrategy::string $name
+Lathe\Query\CountStrategy::string $value
 Lathe\Query\QueryContext::Detail
 Lathe\Query\QueryContext::Edit
 Lathe\Query\QueryContext::Index
@@ -501,50 +523,115 @@ Lathe\Resources\Resource::uriKey(): string  [static]
 Lathe\Resources\Resource::widgetQuery(Lathe\Http\Requests\LatheRequest $request, Illuminate\Database\Eloquent\Builder $query): Illuminate\Database\Eloquent\Builder  [static]
 Lathe\Resources\Resource::with(): array
 Lathe\Resources\ResourceDefinition::?Closure $seeCallback  [protected]
+Lathe\Resources\ResourceDefinition::?Lathe\Enums\PaginationType $paginationType  [protected]
 Lathe\Resources\ResourceDefinition::?array $perPage  [protected]
 Lathe\Resources\ResourceDefinition::?bool $softDeletes  [protected]
+Lathe\Resources\ResourceDefinition::?bool $useScout  [protected]
+Lathe\Resources\ResourceDefinition::?int $polling  [protected]
+Lathe\Resources\ResourceDefinition::?string $defaultGroup  [protected]
 Lathe\Resources\ResourceDefinition::?string $group  [protected]
 Lathe\Resources\ResourceDefinition::?string $icon  [protected]
 Lathe\Resources\ResourceDefinition::?string $model  [protected]
 Lathe\Resources\ResourceDefinition::?string $navigationLabel  [protected]
 Lathe\Resources\ResourceDefinition::Closure|string $subtitle  [protected]
 Lathe\Resources\ResourceDefinition::Closure|string $title  [protected]
+Lathe\Resources\ResourceDefinition::Lathe\Enums\ClickAction $clickAction  [protected]
+Lathe\Resources\ResourceDefinition::Lathe\Enums\TableStyle $tableStyle  [protected]
+Lathe\Resources\ResourceDefinition::Lathe\Query\CountStrategy $countStrategy  [protected]
 Lathe\Resources\ResourceDefinition::allowAll(bool $allow = true): static
 Lathe\Resources\ResourceDefinition::allowsAll(): bool
+Lathe\Resources\ResourceDefinition::array $limits  [protected]
 Lathe\Resources\ResourceDefinition::array $with  [protected]
 Lathe\Resources\ResourceDefinition::bool $allowAll  [protected]
+Lathe\Resources\ResourceDefinition::bool $borderless  [protected]
 Lathe\Resources\ResourceDefinition::bool $canonical  [protected]
 Lathe\Resources\ResourceDefinition::bool $displayInNavigation  [protected]
 Lathe\Resources\ResourceDefinition::bool $frozen  [protected]
 Lathe\Resources\ResourceDefinition::bool $globallySearchable  [protected]
+Lathe\Resources\ResourceDefinition::bool $savedTabs  [protected]
+Lathe\Resources\ResourceDefinition::bool $showColumnBorders  [protected]
+Lathe\Resources\ResourceDefinition::bool $showPollingToggle  [protected]
+Lathe\Resources\ResourceDefinition::bool $trafficCop  [protected]
+Lathe\Resources\ResourceDefinition::borderless(bool $borderless = true): static
+Lathe\Resources\ResourceDefinition::bulkInlineMax(int $max): static
 Lathe\Resources\ResourceDefinition::canSee(Closure $callback): static
 Lathe\Resources\ResourceDefinition::canonical(bool $canonical = true): static
+Lathe\Resources\ResourceDefinition::clickAction(Lathe\Enums\ClickAction $action): static
+Lathe\Resources\ResourceDefinition::config(): Lathe\Support\ConfigStore  [protected]
+Lathe\Resources\ResourceDefinition::countStrategy(Lathe\Query\CountStrategy $strategy, ?int $cap = NULL): static
+Lathe\Resources\ResourceDefinition::debounce(float $seconds): static
+Lathe\Resources\ResourceDefinition::defaultGroup(string $group): static
 Lathe\Resources\ResourceDefinition::displayInNavigation(bool $display = true): static
+Lathe\Resources\ResourceDefinition::filterRemoteThreshold(int $threshold): static
+Lathe\Resources\ResourceDefinition::float $debounce  [protected]
 Lathe\Resources\ResourceDefinition::freeze(): static
+Lathe\Resources\ResourceDefinition::getBulkInlineMax(): int
+Lathe\Resources\ResourceDefinition::getClickAction(): Lathe\Enums\ClickAction
+Lathe\Resources\ResourceDefinition::getCountCap(): int
+Lathe\Resources\ResourceDefinition::getCountStrategy(): Lathe\Query\CountStrategy
+Lathe\Resources\ResourceDefinition::getDebounce(): float
+Lathe\Resources\ResourceDefinition::getDefaultGroup(): ?string
+Lathe\Resources\ResourceDefinition::getFilterRemoteThreshold(): int
+Lathe\Resources\ResourceDefinition::getGlobalSearchResults(): int
 Lathe\Resources\ResourceDefinition::getGroup(): ?string
 Lathe\Resources\ResourceDefinition::getIcon(): ?string
+Lathe\Resources\ResourceDefinition::getIdListMax(): int
+Lathe\Resources\ResourceDefinition::getLimit(string $key): int  [protected]
+Lathe\Resources\ResourceDefinition::getMaxPrimaryKeySize(): int
 Lathe\Resources\ResourceDefinition::getModel(): ?string
 Lathe\Resources\ResourceDefinition::getNavigationLabel(): ?string
+Lathe\Resources\ResourceDefinition::getPaginationType(): Lathe\Enums\PaginationType
 Lathe\Resources\ResourceDefinition::getPerPage(): ?array
+Lathe\Resources\ResourceDefinition::getPickerResults(): int
+Lathe\Resources\ResourceDefinition::getPolling(): ?int
+Lathe\Resources\ResourceDefinition::getScoutSearchResults(): int
+Lathe\Resources\ResourceDefinition::getSearchTermChars(): int
+Lathe\Resources\ResourceDefinition::getSearchTermWords(): int
 Lathe\Resources\ResourceDefinition::getSubtitle(): Closure|string
+Lathe\Resources\ResourceDefinition::getTableStyle(): Lathe\Enums\TableStyle
 Lathe\Resources\ResourceDefinition::getTitle(): Closure|string
+Lathe\Resources\ResourceDefinition::getUseScout(): ?bool
 Lathe\Resources\ResourceDefinition::getWith(): array
+Lathe\Resources\ResourceDefinition::globalSearchResults(int $results): static
 Lathe\Resources\ResourceDefinition::globallySearchable(bool $searchable = true): static
 Lathe\Resources\ResourceDefinition::group(?string $group): static
 Lathe\Resources\ResourceDefinition::hasSeeCallback(): bool
 Lathe\Resources\ResourceDefinition::icon(?string $icon): static
+Lathe\Resources\ResourceDefinition::idListMax(int $max): static
+Lathe\Resources\ResourceDefinition::int $maxPrimaryKeySize  [protected]
+Lathe\Resources\ResourceDefinition::int $scoutSearchResults  [protected]
+Lathe\Resources\ResourceDefinition::isBorderless(): bool
 Lathe\Resources\ResourceDefinition::isCanonical(): bool
 Lathe\Resources\ResourceDefinition::isGloballySearchable(): bool
+Lathe\Resources\ResourceDefinition::limit(string $key, int $value): static  [protected]
+Lathe\Resources\ResourceDefinition::maxPrimaryKeySize(int $size): static
 Lathe\Resources\ResourceDefinition::model(string $model): static
 Lathe\Resources\ResourceDefinition::navigationLabel(?string $label): static
+Lathe\Resources\ResourceDefinition::options(): array
+Lathe\Resources\ResourceDefinition::paginationType(Lathe\Enums\PaginationType $type): static
 Lathe\Resources\ResourceDefinition::perPage(array $options): static
+Lathe\Resources\ResourceDefinition::pickerResults(int $results): static
+Lathe\Resources\ResourceDefinition::polling(int $seconds): static
+Lathe\Resources\ResourceDefinition::savedTabs(bool $enabled = true): static
+Lathe\Resources\ResourceDefinition::scoutSearchResults(int $results): static
+Lathe\Resources\ResourceDefinition::searchTermChars(int $chars): static
+Lathe\Resources\ResourceDefinition::searchTermWords(int $words): static
 Lathe\Resources\ResourceDefinition::seenBy(Illuminate\Http\Request $request): bool
 Lathe\Resources\ResourceDefinition::set(Closure $change): static  [protected]
 Lathe\Resources\ResourceDefinition::shouldDisplayInNavigation(): bool
+Lathe\Resources\ResourceDefinition::shouldShowColumnBorders(): bool
+Lathe\Resources\ResourceDefinition::shouldShowPollingToggle(): bool
+Lathe\Resources\ResourceDefinition::showColumnBorders(bool $show = true): static
+Lathe\Resources\ResourceDefinition::showPollingToggle(bool $show = true): static
 Lathe\Resources\ResourceDefinition::softDeletes(?bool $softDeletes = true): static
 Lathe\Resources\ResourceDefinition::subtitle(Closure|string $subtitle): static
+Lathe\Resources\ResourceDefinition::tableStyle(Lathe\Enums\TableStyle $style): static
 Lathe\Resources\ResourceDefinition::title(Closure|string $title): static
+Lathe\Resources\ResourceDefinition::trafficCop(bool $enabled = true): static
+Lathe\Resources\ResourceDefinition::useScout(?bool $use = true): static
+Lathe\Resources\ResourceDefinition::usesSavedTabs(): bool
 Lathe\Resources\ResourceDefinition::usesSoftDeletes(): bool
+Lathe\Resources\ResourceDefinition::usesTrafficCop(): bool
 Lathe\Resources\ResourceDefinition::with(array $relations): static
 Lathe\Resources\ResourceRegistry::?array $manifest  [protected]
 Lathe\Resources\ResourceRegistry::?string $cachePath  [protected]
@@ -687,7 +774,11 @@ class Lathe\Support\Util
 class Lathe\Testing\LatheTest
 class Lathe\Testing\ResourceTester
 class Lathe\Testing\TestCase
+enum Lathe\Enums\ClickAction
 enum Lathe\Enums\Icon
+enum Lathe\Enums\PaginationType
+enum Lathe\Enums\TableStyle
+enum Lathe\Query\CountStrategy
 enum Lathe\Query\QueryContext
 trait Lathe\Http\Controllers\Resources\AuthorizesResources
 trait Lathe\Testing\InteractsWithLathe
