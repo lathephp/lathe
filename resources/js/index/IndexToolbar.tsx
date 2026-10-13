@@ -1,5 +1,6 @@
 import { Link, usePage } from '@inertiajs/react';
 import { Filters } from './FilterPanel';
+import { GroupMenu } from './GroupMenu';
 import { LensSelector } from './LensSelector';
 import { PollingToggle } from './PollingToggle';
 import type { IndexProps } from './types';
@@ -44,6 +45,7 @@ export function IndexToolbar({ resource, lens, lenses, q, visit, polling }: Inde
           />
         )}
         <Filters visit={visit} />
+        <GroupMenu visit={visit} />
         {polling !== null && <PollingToggle on={polling.on} onToggle={polling.onToggle} />}
       </div>
     </div>

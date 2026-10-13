@@ -22,6 +22,8 @@ export interface Row {
   abilities: Record<string, boolean>;
   /** Sent only by a soft-deleting Resource. */
   trashed?: boolean;
+  /** Present while the rows are grouped. */
+  group?: RowGroup;
 }
 
 export interface FilterOption {
@@ -65,6 +67,18 @@ export interface ResourceDefinition {
   savedTabs: boolean;
 }
 
+export interface RowGroup {
+  /** One stable string per group value; `__lathe_null__` for null. */
+  key: string;
+  title: string;
+  description: string | null;
+}
+
+export interface Groups {
+  available: { id: string; label: string }[];
+  active: { id: string; direction: 'asc' | 'desc'; collapsible: boolean } | null;
+}
+
 export interface IndexProps {
   resource: {
     uriKey: string;
@@ -95,6 +109,8 @@ export interface IndexProps {
   tabs?: Tabs;
   /** Deferred: the badges keyed by tab key, and by `saved:{id}` for a saved tab. */
   tabCounts?: Record<string, TabCount | undefined>;
+  /** Missing on the error page, which reads no rows. */
+  groups?: Groups;
 }
 
 export type BadgeType = 'info' | 'success' | 'warning' | 'danger';
@@ -141,6 +157,8 @@ export interface Summaries {
   allRecords: Record<string, SummaryValue[] | undefined> | null;
   page: Record<string, SummaryValue[] | undefined> | null;
   message: string | null;
+  /** The subtotals of the groups on the page, by group key, while the rows are grouped. */
+  groups?: Record<string, Record<string, SummaryValue[] | undefined> | undefined>;
 }
 
 export interface Count {

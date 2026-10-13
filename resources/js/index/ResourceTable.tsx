@@ -1,10 +1,12 @@
 import { useTranslation } from '@lathephp/core';
 import { router, usePage } from '@inertiajs/react';
 import { ArrowDown, ArrowUp } from 'lucide-react';
-import type { MouseEvent } from 'react';
+import { Fragment, useState, type MouseEvent } from 'react';
 import { cn } from '../lib/cn';
 import { TableCell } from '../table/cells';
 import type { SharedProps } from '../types';
+import { GroupHeaderRow } from './GroupHeaderRow';
+import { GroupSummaryRow } from './GroupSummaryRow';
 import { menuActions, RowMenu } from './RowMenu';
 import { TableSummaryRow } from './TableSummaryRow';
 import type { IndexProps, Row } from './types';
@@ -59,7 +61,9 @@ export function ResourceTable({ resource, table, state, loading, selection, sort
   const { basePath, tableStyle } = usePage<SharedProps>().props;
   const { clickAction, showColumnBorders } = resource.definition;
   // Deferred with the count, so the footer arrives after the rows.
-  const { summaries } = usePage<Pick<IndexProps, 'summaries'>>().props;
+  const { summaries, groups } = usePage<Pick<IndexProps, 'summaries' | 'groups'>>().props;
+  // The keys of the groups folded shut.
+  const [collapsed, setCollapsed] = useState<string[]>([]);
   const opens = clickAction === 'detail' || clickAction === 'edit' || clickAction === 'select';
   const rowClass = cn(
     'border-b border-border last:border-0',
@@ -178,46 +182,80 @@ export function ResourceTable({ resource, table, state, loading, selection, sort
                   {withMenu && <td className={cn(border)} />}
                 </tr>
               ))
-            : table.rows.map((row) => (
-                <tr
-                  key={row.id}
-                  className={cn(rowClass, opens && 'cursor-pointer hover:bg-muted/50')}
-                  onClick={(event) => {
-                    clickRow(event, row);
-                  }}
-                >
-                  <td className={cn(checkboxColumn, border)}>
-                    <input
-                      type="checkbox"
-                      aria-label={__('Select :title', { title: row.title })}
-                      className="block size-4"
-                      checked={selection.selected.has(row.id)}
-                      onChange={() => {
-                        selection.toggle(row.id);
-                      }}
-                    />
-                  </td>
-                  {table.columns.map((column, index) => {
-                    const cell = row.cells[column.key];
+            : table.rows.map((row, position) => {
+                const group = row.group;
+                const next = table.rows[position + 1];
+                const folded = group !== undefined && collapsed.includes(group.key);
+                // The last group may go on past the page bottom, so its subtotal would not match the rows shown.
+                const subtotal =
+                  group !== undefined && !folded && next?.group?.key !== group.key && (next !== undefined || !state.hasMorePages)
+                    ? summaries?.groups?.[group.key]
+                    : undefined;
 
-                    return (
-                      <td key={column.key} className={cn('max-w-80 truncate px-3 whitespace-nowrap', index === 0 && firstColumn, border)}>
-                        {cell !== undefined && <TableCell component={column.component} cell={cell} />}
-                        {index === 0 && row.trashed === true && (
-                          <span className="ms-2 rounded-full bg-muted px-2 py-0.5 text-xs font-medium text-muted-foreground">
-                            {__('Soft Deleted')}
-                          </span>
+                return (
+                  <Fragment key={row.id}>
+                    {group !== undefined && table.rows[position - 1]?.group?.key !== group.key && (
+                      <GroupHeaderRow
+                        group={group}
+                        colSpan={table.columns.length + 1 + (withMenu ? 1 : 0)}
+                        collapsible={groups?.active?.collapsible ?? false}
+                        expanded={!folded}
+                        onToggle={() => {
+                          setCollapsed(folded ? collapsed.filter((key) => key !== group.key) : [...collapsed, group.key]);
+                        }}
+                      />
+                    )}
+                    {!folded && (
+                      <tr
+                        className={cn(rowClass, opens && 'cursor-pointer hover:bg-muted/50')}
+                        onClick={(event) => {
+                          clickRow(event, row);
+                        }}
+                      >
+                        <td className={cn(checkboxColumn, border)}>
+                          <input
+                            type="checkbox"
+                            aria-label={__('Select :title', { title: row.title })}
+                            className="block size-4"
+                            checked={selection.selected.has(row.id)}
+                            onChange={() => {
+                              selection.toggle(row.id);
+                            }}
+                          />
+                        </td>
+                        {table.columns.map((column, index) => {
+                          const cell = row.cells[column.key];
+
+                          return (
+                            <td key={column.key} className={cn('max-w-80 truncate px-3 whitespace-nowrap', index === 0 && firstColumn, border)}>
+                              {cell !== undefined && <TableCell component={column.component} cell={cell} />}
+                              {index === 0 && row.trashed === true && (
+                                <span className="ms-2 rounded-full bg-muted px-2 py-0.5 text-xs font-medium text-muted-foreground">
+                                  {__('Soft Deleted')}
+                                </span>
+                              )}
+                            </td>
+                          );
+                        })}
+                        {withMenu && (
+                          <td data-row-menu="" className={cn('px-3', border)}>
+                            {menuActions(row).length > 0 && <RowMenu uriKey={resource.uriKey} row={row} />}
+                          </td>
                         )}
-                      </td>
-                    );
-                  })}
-                  {withMenu && (
-                    <td data-row-menu="" className={cn('px-3', border)}>
-                      {menuActions(row).length > 0 && <RowMenu uriKey={resource.uriKey} row={row} />}
-                    </td>
-                  )}
-                </tr>
-              ))}
+                      </tr>
+                    )}
+                    {subtotal !== undefined && (
+                      <GroupSummaryRow
+                        columns={table.columns}
+                        values={subtotal}
+                        firstColumn={firstColumn}
+                        leading={cn(checkboxColumn, border)}
+                        trailing={withMenu}
+                      />
+                    )}
+                  </Fragment>
+                );
+              })}
         </tbody>
         {!loading && summaries !== undefined && summaries !== null && (
           <TableSummaryRow
