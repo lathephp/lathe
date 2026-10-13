@@ -5,6 +5,10 @@
 @lathephp/core booting
 @lathephp/core config
 @lathephp/core emit
+@lathephp/core formatCurrency
+@lathephp/core formatDate
+@lathephp/core formatDateTime
+@lathephp/core formatNumber
 @lathephp/core off
 @lathephp/core on
 @lathephp/core once
