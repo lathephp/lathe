@@ -3,12 +3,13 @@
 namespace Lathe\Field;
 
 use Illuminate\Support\Str;
+use Lathe\Field\Contracts\FilterableField;
 
 /**
  * A secret string. Every read-only context shows it masked, so the raw value
  * leaves the server only in the form payload, which resolve() feeds.
  */
-class TokenField extends Field
+class TokenField extends Field implements FilterableField
 {
     protected string $component = 'token-field';
 

@@ -13,7 +13,7 @@ use NumberFormatter;
  * a float. With asMinorUnits() the stored integer is the amount in minor units and save parses
  * the string with integer arithmetic, rounding half up.
  */
-class CurrencyField extends NumberField
+class CurrencyField extends NumericField
 {
     protected string $component = 'currency-field';
 

@@ -5,6 +5,7 @@ use Lathe\Field\BadgeField;
 use Lathe\Field\BooleanField;
 use Lathe\Field\BooleanGroupField;
 use Lathe\Field\CodeField;
+use Lathe\Field\Contracts\FilterableField;
 use Lathe\Field\CurrencyField;
 use Lathe\Field\DateField;
 use Lathe\Field\DateTimeField;
@@ -112,3 +113,22 @@ it('builds a computed, form-hidden field from a Closure attribute', function (Cl
     'status' => [fn () => Field::status('A', fn () => 'x')],
     'line' => [fn () => Field::line('A', fn () => 'x')],
 ]);
+
+it('marks exactly the filterable non-relation types with FilterableField', function () {
+    $factories = [
+        'id' => Field::id(), 'text' => Field::text('A'), 'textarea' => Field::textarea('A'), 'token' => Field::token('A'), 'number' => Field::number('A'),
+        'email' => Field::email(), 'url' => Field::url(), 'color' => Field::color('A'), 'password' => Field::password(), 'boolean' => Field::boolean('A'),
+        'select' => Field::select('A'), 'booleanGroup' => Field::booleanGroup('A'), 'multiSelect' => Field::multiSelect('A'), 'date' => Field::date('A'),
+        'dateTime' => Field::dateTime('A'), 'currency' => Field::currency('A'), 'badge' => Field::badge('A'), 'icon' => Field::icon('A'), 'status' => Field::status('A'),
+        'sparkline' => Field::sparkline('A'), 'stack' => Field::stack('A'), 'line' => Field::line('A'), 'code' => Field::code('A'), 'markdown' => Field::markdown('A'),
+        'tiptap' => Field::tiptap('A'), 'slug' => Field::slug('A'), 'keyValue' => Field::keyValue('A'), 'repeater' => Field::repeater('A'), 'file' => Field::file('A'),
+        'image' => Field::image('A'), 'audio' => Field::audio('A'), 'hidden' => Field::hidden('A', 'a'), 'heading' => Field::heading('A'),
+    ];
+    $classes = array_values(array_unique(array_map(
+        fn (Field $field) => class_basename($field),
+        array_filter($factories, fn (Field $field) => $field instanceof FilterableField),
+    )));
+    sort($classes);
+
+    expect($classes)->toBe(['BadgeField', 'BooleanField', 'BooleanGroupField', 'DateField', 'DateTimeField', 'MarkdownField', 'MultiSelectField', 'NumberField', 'SelectField', 'SlugField', 'StatusField', 'TextField', 'TextareaField', 'TiptapField', 'TokenField']);
+});

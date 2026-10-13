@@ -4,13 +4,14 @@ namespace Lathe\Field;
 
 use Closure;
 use Illuminate\Database\Eloquent\Model;
+use Lathe\Field\Contracts\FilterableField;
 use Lathe\Http\Requests\LatheRequest;
 
 /**
  * Several lines of text, hidden from the index. A value over 10 lines collapses unless
  * alwaysShow() or shouldShow() says to open it.
  */
-class TextareaField extends TextField
+class TextareaField extends TextField implements FilterableField
 {
     protected string $component = 'textarea-field';
 

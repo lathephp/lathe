@@ -4,6 +4,7 @@ namespace Lathe\Field;
 
 use Closure;
 use Illuminate\Database\Eloquent\Model;
+use Lathe\Field\Contracts\FilterableField;
 use Lathe\Http\Requests\LatheRequest;
 use Lathe\Support\SafeHtml;
 
@@ -11,7 +12,7 @@ use Lathe\Support\SafeHtml;
  * A single line of text, and the base of textarea: type-ahead suggestions, a copy
  * button, a length limit and per-locale values.
  */
-class TextField extends Field
+class TextField extends Field implements FilterableField
 {
     /** The most suggestions a field sends. */
     protected const int SUGGESTION_LIMIT = 50;

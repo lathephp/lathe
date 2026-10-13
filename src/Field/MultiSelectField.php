@@ -4,12 +4,13 @@ namespace Lathe\Field;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Validation\Rule;
+use Lathe\Field\Contracts\FilterableField;
 use Lathe\Http\Requests\LatheRequest;
 
 /**
  * Several values out of a list of options, kept as a JSON array.
  */
-class MultiSelectField extends Field
+class MultiSelectField extends Field implements FilterableField
 {
     use HasOptions;
 

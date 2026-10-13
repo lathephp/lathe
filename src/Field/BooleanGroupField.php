@@ -4,13 +4,14 @@ namespace Lathe\Field;
 
 use Closure;
 use Illuminate\Database\Eloquent\Model;
+use Lathe\Field\Contracts\FilterableField;
 use Lathe\Http\Requests\LatheRequest;
 use Lathe\Lathe;
 
 /**
  * A set of named switches, kept as a JSON object such as {"email": true, "sms": false}.
  */
-class BooleanGroupField extends Field
+class BooleanGroupField extends Field implements FilterableField
 {
     use HasOptions;
 

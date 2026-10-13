@@ -2,12 +2,14 @@
 
 namespace Lathe\Field;
 
+use Lathe\Field\Contracts\FilterableField;
+
 /**
  * A badge whose type follows the value: loading, failed, or success for anything else.
  * Enum values unwrap before the strict comparison, so 0.4 does not match 0 and true
  * does not match 1.
  */
-class StatusField extends BadgeField
+class StatusField extends BadgeField implements FilterableField
 {
     protected string $component = 'status-field';
 

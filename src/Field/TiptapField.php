@@ -5,6 +5,7 @@ namespace Lathe\Field;
 use Closure;
 use Illuminate\Database\Eloquent\Model;
 use Lathe\Field\Concerns\HasAttachments;
+use Lathe\Field\Contracts\FilterableField;
 use Lathe\Field\Contracts\PreviewsContent;
 use Lathe\Http\Requests\LatheRequest;
 use Lathe\Support\HtmlSanitizer;
@@ -14,7 +15,7 @@ use Lathe\Support\SafeHtml;
  * Rich text from the Tiptap editor, stored as HTML and hidden from the index. The value
  * is cleaned when it is saved, so the column holds clean HTML, and again when it is shown.
  */
-class TiptapField extends Field implements PreviewsContent
+class TiptapField extends Field implements FilterableField, PreviewsContent
 {
     use HasAttachments;
 

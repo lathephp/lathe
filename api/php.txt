@@ -953,13 +953,13 @@ Lathe\Field\MultiSelectField::impliedRules(): array  [protected]
 Lathe\Field\MultiSelectField::string $component  [protected]
 Lathe\Field\MultiSelectField::supportsInline(): bool  [protected]
 Lathe\Field\MultiSelectField::withSelectedTags(bool $show = true): static
-Lathe\Field\NumberField::__construct(string $label, Closure|string|null $attribute = NULL, ?Closure $resolver = NULL)
-Lathe\Field\NumberField::impliedRules(): array  [protected]
-Lathe\Field\NumberField::max(float $max): static
-Lathe\Field\NumberField::min(float $min): static
-Lathe\Field\NumberField::step(float $step): static
-Lathe\Field\NumberField::string $component  [protected]
-Lathe\Field\NumberField::supportsInline(): bool  [protected]
+Lathe\Field\NumericField::__construct(string $label, Closure|string|null $attribute = NULL, ?Closure $resolver = NULL)
+Lathe\Field\NumericField::impliedRules(): array  [protected]
+Lathe\Field\NumericField::max(float $max): static
+Lathe\Field\NumericField::min(float $min): static
+Lathe\Field\NumericField::step(float $step): static
+Lathe\Field\NumericField::string $component  [protected]
+Lathe\Field\NumericField::supportsInline(): bool  [protected]
 Lathe\Field\OptionGroup::__construct(string $label, array $options)
 Lathe\Field\OptionGroup::array $options
 Lathe\Field\OptionGroup::make(string $label, array $options): static  [static]
@@ -2274,6 +2274,7 @@ class Lathe\Field\LineField
 class Lathe\Field\MarkdownField
 class Lathe\Field\MultiSelectField
 class Lathe\Field\NumberField
+class Lathe\Field\NumericField
 class Lathe\Field\OptionGroup
 class Lathe\Field\OptionList
 class Lathe\Field\PasswordField
@@ -2404,6 +2405,7 @@ enum Lathe\Query\QueryContext
 interface Lathe\Attributes\Resource\ResourceAttribute
 interface Lathe\Field\Contracts\Cover
 interface Lathe\Field\Contracts\Deletable
+interface Lathe\Field\Contracts\FilterableField
 interface Lathe\Field\Contracts\PreviewsContent
 interface Lathe\Field\Contracts\PrimesForPage
 interface Lathe\Field\Contracts\Storable

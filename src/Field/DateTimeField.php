@@ -6,6 +6,7 @@ use Closure;
 use DateTimeInterface;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Carbon;
+use Lathe\Field\Contracts\FilterableField;
 use Lathe\Http\Requests\LatheRequest;
 use Lathe\Support\Timezone;
 
@@ -18,7 +19,7 @@ use Lathe\Support\Timezone;
  * offset). A string with no offset is read in the user's timezone, so 09:00 in Pacific/Kiritimati
  * stores 2026-10-13T19:00:00Z. min and max are compared as given, so write them as wall time.
  */
-class DateTimeField extends DateField
+class DateTimeField extends DateField implements FilterableField
 {
     protected string $component = 'date-time-field';
 

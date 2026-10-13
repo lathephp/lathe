@@ -3,11 +3,12 @@
 namespace Lathe\Field;
 
 use Illuminate\Validation\Rule;
+use Lathe\Field\Contracts\FilterableField;
 
 /**
  * One value out of a list of options.
  */
-class SelectField extends Field
+class SelectField extends Field implements FilterableField
 {
     use HasOptions;
 

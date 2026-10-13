@@ -6,6 +6,7 @@ use Closure;
 use Illuminate\Database\Eloquent\Model;
 use InvalidArgumentException;
 use Lathe\Field\Concerns\HasAttachments;
+use Lathe\Field\Contracts\FilterableField;
 use Lathe\Field\Contracts\PreviewsContent;
 use Lathe\Support\SafeHtml;
 use League\CommonMark\Environment\Environment;
@@ -36,7 +37,7 @@ use League\CommonMark\Renderer\Inline\TextRenderer;
  * preview show it rendered: raw HTML and unsafe links are dropped, then the result
  * passes through the one sanitizer.
  */
-class MarkdownField extends Field implements PreviewsContent
+class MarkdownField extends Field implements FilterableField, PreviewsContent
 {
     use HasAttachments;
 

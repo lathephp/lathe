@@ -5,13 +5,14 @@ namespace Lathe\Field;
 use Closure;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
+use Lathe\Field\Contracts\FilterableField;
 use Lathe\Http\Requests\LatheRequest;
 
 /**
  * A URL slug. On a create form it follows another field until the user types in it;
  * the server saves the framework slug of whatever arrives, with the field's separator.
  */
-class SlugField extends Field
+class SlugField extends Field implements FilterableField
 {
     protected string $component = 'slug-field';
 

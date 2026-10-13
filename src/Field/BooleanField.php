@@ -3,12 +3,13 @@
 namespace Lathe\Field;
 
 use Closure;
+use Lathe\Field\Contracts\FilterableField;
 use Lathe\Http\Requests\LatheRequest;
 
 /**
  * A yes or no, stored as trueValue and falseValue. A nullable boolean also keeps null.
  */
-class BooleanField extends Field
+class BooleanField extends Field implements FilterableField
 {
     protected string $component = 'boolean-field';
 

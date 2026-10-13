@@ -5,6 +5,7 @@ namespace Lathe\Field;
 use Closure;
 use DateTimeInterface;
 use Illuminate\Database\Eloquent\Model;
+use Lathe\Field\Contracts\FilterableField;
 use Lathe\Http\Requests\LatheRequest;
 use LogicException;
 
@@ -13,7 +14,7 @@ use LogicException;
  * the column to date; a field on a model without that cast throws a LogicException when it
  * resolves or fills. min and max become the after_or_equal and before_or_equal rules.
  */
-class DateField extends Field
+class DateField extends Field implements FilterableField
 {
     protected string $component = 'date-field';
 

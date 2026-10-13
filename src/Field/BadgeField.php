@@ -5,6 +5,7 @@ namespace Lathe\Field;
 use Closure;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
+use Lathe\Field\Contracts\FilterableField;
 use UnitEnum;
 
 /**
@@ -12,7 +13,7 @@ use UnitEnum;
  * warning, danger, or a type named in types(), which the host styles through the
  * data-lathe-badge-type attribute. A value no map entry names has the type info.
  */
-class BadgeField extends Field
+class BadgeField extends Field implements FilterableField
 {
     /** The icon withIcons() gives each built-in type. */
     public const array ICONS = ['success' => 'circle-check', 'info' => 'info', 'danger' => 'circle-alert', 'warning' => 'triangle-alert'];
