@@ -1,13 +1,23 @@
+import { fileURLToPath } from 'node:url';
 import { defineConfig } from 'vitest/config';
 
 export default defineConfig({
   test: {
     projects: [
       {
+        // The packages export their dist, which a fresh checkout lacks and which the ui
+        // build makes throw on load, so the panel tests read the sources.
+        resolve: {
+          alias: {
+            '@lathephp/core': fileURLToPath(new URL('packages/core/src/index.ts', import.meta.url)),
+            '@lathephp/ui': fileURLToPath(new URL('packages/ui/src/index.ts', import.meta.url)),
+          },
+        },
         test: {
           name: 'app',
           environment: 'jsdom',
           include: ['resources/js/**/*.test.{ts,tsx}'],
+          setupFiles: ['resources/js/__tests__/setup.ts'],
         },
       },
       {

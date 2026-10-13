@@ -6,6 +6,53 @@
 @source "../../packages/core/src";
 @source "../../packages/ui/src";
 
+/* The panel's colour tokens. Components use bg-background, text-muted-foreground
+   and the like, so dark mode only swaps the values. */
+@theme {
+  --color-background: var(--lathe-background);
+  --color-foreground: var(--lathe-foreground);
+  --color-muted: var(--lathe-muted);
+  --color-muted-foreground: var(--lathe-muted-foreground);
+  --color-border: var(--lathe-border);
+  --color-ring: var(--lathe-ring);
+  --color-primary: var(--lathe-primary);
+  --color-primary-foreground: var(--lathe-primary-foreground);
+  --color-destructive: var(--lathe-destructive);
+}
+
+:root {
+  --lathe-background: var(--color-white);
+  --lathe-foreground: var(--color-zinc-950);
+  --lathe-muted: var(--color-zinc-100);
+  --lathe-muted-foreground: var(--color-zinc-500);
+  --lathe-border: var(--color-zinc-200);
+  --lathe-ring: var(--color-zinc-400);
+  --lathe-primary: var(--color-zinc-900);
+  --lathe-primary-foreground: var(--color-zinc-50);
+  --lathe-destructive: var(--color-red-600);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --lathe-background: var(--color-zinc-950);
+    --lathe-foreground: var(--color-zinc-50);
+    --lathe-muted: var(--color-zinc-900);
+    --lathe-muted-foreground: var(--color-zinc-400);
+    --lathe-border: var(--color-zinc-800);
+    --lathe-ring: var(--color-zinc-600);
+    --lathe-primary: var(--color-zinc-50);
+    --lathe-primary-foreground: var(--color-zinc-900);
+    --lathe-destructive: var(--color-red-400);
+  }
+}
+
+@layer base {
+  body {
+    background-color: var(--color-background);
+    color: var(--color-foreground);
+  }
+}
+
 /* Only @lathephp/ui uses this class. The build test counts it in the built
    stylesheet to prove the package sources are scanned. */
 @utility lathe-probe-class {
