@@ -16,6 +16,8 @@ class Field implements JsonSerializable
 {
     protected string $component = 'text';
 
+    protected bool $sortable = false;
+
     /**
      * @param  (Closure(Model): (string|int|float|bool|null))|null  $resolver
      */
@@ -40,6 +42,31 @@ class Field implements JsonSerializable
         $this->component = $component;
 
         return $this;
+    }
+
+    /**
+     * Let the index sort on this field. A field is computed when it is not marked: its
+     * resolver may build the value from anything, so only a field whose attribute is a
+     * real column (or a column of a belongsTo relation) should be marked.
+     */
+    public function sortable(bool $sortable = true): static
+    {
+        $this->sortable = $sortable;
+
+        return $this;
+    }
+
+    public function isSortable(): bool
+    {
+        return $this->sortable;
+    }
+
+    /**
+     * The token this field answers to in ?sort=: its attribute (total_cents, customer.name).
+     */
+    public function sortableUriKey(): string
+    {
+        return $this->attribute;
     }
 
     /**
@@ -86,10 +113,10 @@ class Field implements JsonSerializable
     }
 
     /**
-     * @return array{key: string, label: string, component: string}
+     * @return array{key: string, label: string, component: string, sortable: bool}
      */
     public function jsonSerialize(): array
     {
-        return ['key' => $this->key(), 'label' => $this->label, 'component' => $this->component];
+        return ['key' => $this->key(), 'label' => $this->label, 'component' => $this->component, 'sortable' => $this->sortable];
     }
 }

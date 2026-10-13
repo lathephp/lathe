@@ -6,9 +6,11 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
+use Lathe\Field\Field;
 use Lathe\Http\Requests\LatheRequest;
 use Lathe\Resources\Resource;
 use Lathe\Support\ConfigStore;
@@ -125,7 +127,7 @@ class ResourceQuery
     public function validate(): void
     {
         $this->pagination();
-        $this->scoped();
+        $this->applySort($this->scoped());
     }
 
     /**
@@ -348,7 +350,179 @@ class ResourceQuery
      */
     protected function applySort(Builder $query): Builder
     {
-        return $query->orderBy($query->getModel()->getQualifiedKeyName(), 'desc');
+        $model = $query->getModel();
+        $plan = $this->sortPlan($model);
+        $joined = [];
+        $columns = [];
+
+        foreach ($plan as $step) {
+            if ($step['relation'] !== null && ! in_array($step['relation']->getRelationName(), $joined, true)) {
+                $relation = $step['relation'];
+                $joined[] = $relation->getRelationName();
+                $query->leftJoin(
+                    $relation->getRelated()->getTable(),
+                    $relation->getQualifiedForeignKeyName(),
+                    '=',
+                    $relation->getQualifiedOwnerKeyName(),
+                );
+            }
+
+            if (! isset($columns[$step['column']])) {
+                $columns[$step['column']] = $step['direction'];
+            }
+        }
+
+        // The joined rows would bring the related columns along, so keep the model's own.
+        if ($joined !== [] && $query->getQuery()->columns === null) {
+            $query->select($model->getTable().'.*');
+        }
+
+        $last = $plan === [] ? 'desc' : $plan[array_key_last($plan)]['direction'];
+        $columns += [$model->getQualifiedKeyName() => $last];
+
+        foreach ($columns as $column => $direction) {
+            $query->orderBy($column, $direction);
+        }
+
+        return $query;
+    }
+
+    /**
+     * The keys of the sortable fields that can sort on this model.
+     *
+     * @return list<string>
+     */
+    public function sortKeys(): array
+    {
+        $model = $this->scoped()->getModel();
+
+        return array_values(array_filter(
+            array_keys($this->sortableFields()),
+            fn (string $key) => $this->sortTarget($model, $key) !== null,
+        ));
+    }
+
+    /**
+     * The requested sort as the ?sort= string, `-total_cents,placed_at`.
+     */
+    public function sortString(): string
+    {
+        return implode(',', array_map(
+            fn (array $token) => ($token['direction'] === 'desc' ? '-' : '').$token['key'],
+            $this->sortTokens(),
+        ));
+    }
+
+    /**
+     * @return array<string, Field>
+     */
+    private function sortableFields(): array
+    {
+        $fields = [];
+
+        foreach ($this->resource->fields($this->request) as $field) {
+            if ($field instanceof Field && $field->isSortable()) {
+                $fields[$field->sortableUriKey()] = $field;
+            }
+        }
+
+        return $fields;
+    }
+
+    /**
+     * The tokens of ?sort=, each a field key and a direction. Anything else is 422.
+     *
+     * @return list<array{key: string, direction: 'asc'|'desc'}>
+     */
+    private function sortTokens(): array
+    {
+        $sort = $this->request->query('sort');
+
+        if ($sort === null || $sort === '') {
+            return [];
+        }
+
+        $invalid = ValidationException::withMessages(['sort' => 'sort is invalid']);
+        $tokens = is_string($sort) ? explode(',', $sort) : [];
+
+        if ($tokens === [] || count($tokens) > 3) {
+            throw $invalid;
+        }
+
+        $parsed = [];
+
+        foreach ($tokens as $token) {
+            $parts = explode(':', $token);
+            $key = $parts[0];
+            $direction = $parts[1] ?? null;
+
+            if (count($parts) > 2 || ($direction !== null && ! in_array($direction, ['asc', 'desc'], true))) {
+                throw $invalid;
+            }
+
+            if (str_starts_with($key, '-')) {
+                // A leading dash and a suffix both name a direction, so a token may not carry both.
+                if ($direction !== null) {
+                    throw $invalid;
+                }
+
+                $key = substr($key, 1);
+                $direction = 'desc';
+            }
+
+            $parsed[] = ['key' => $key, 'direction' => $direction === 'desc' ? 'desc' : 'asc'];
+        }
+
+        return $parsed;
+    }
+
+    /**
+     * Each token's qualified column and, for a belongsTo field, the relation to join.
+     *
+     * @return list<array{column: string, direction: 'asc'|'desc', relation: BelongsTo<Model, Model>|null}>
+     */
+    private function sortPlan(Model $model): array
+    {
+        $plan = [];
+
+        foreach ($this->sortTokens() as $token) {
+            $target = $this->sortTarget($model, $token['key']);
+
+            if ($target === null) {
+                throw ValidationException::withMessages(['sort' => 'sort is invalid']);
+            }
+
+            $plan[] = [...$target, 'direction' => $token['direction']];
+        }
+
+        return $plan;
+    }
+
+    /**
+     * @return array{column: string, relation: BelongsTo<Model, Model>|null}|null
+     */
+    private function sortTarget(Model $model, string $key): ?array
+    {
+        if (! isset($this->sortableFields()[$key])) {
+            return null;
+        }
+
+        if (! str_contains($key, '.')) {
+            return ['column' => $model->qualifyColumn($key), 'relation' => null];
+        }
+
+        [$name, $column] = explode('.', $key, 2);
+
+        // Only a belongsTo has one row per record, so only it can join without repeating rows.
+        if (str_contains($column, '.') || ! method_exists($model, $name)) {
+            return null;
+        }
+
+        $relation = $model->{$name}();
+
+        return $relation instanceof BelongsTo
+            ? ['column' => $relation->getRelated()->qualifyColumn($column), 'relation' => $relation]
+            : null;
     }
 
     /**

@@ -287,13 +287,17 @@ Lathe\Events\ServingLathe::Illuminate\Http\Request $request
 Lathe\Events\ServingLathe::__construct(Illuminate\Http\Request $request)
 Lathe\Field\Field::?Closure $resolver  [protected]
 Lathe\Field\Field::__construct(string $label, string $attribute, ?Closure $resolver = NULL)
+Lathe\Field\Field::bool $sortable  [protected]
 Lathe\Field\Field::cell(Illuminate\Database\Eloquent\Model $model): array
 Lathe\Field\Field::component(string $component): static
+Lathe\Field\Field::isSortable(): bool
 Lathe\Field\Field::jsonSerialize(): array
 Lathe\Field\Field::key(): string
 Lathe\Field\Field::label(): string
 Lathe\Field\Field::make(string $label, ?string $attribute = NULL, ?Closure $resolver = NULL): static  [static]
 Lathe\Field\Field::resolve(Illuminate\Database\Eloquent\Model $model): string|int|float|bool|null
+Lathe\Field\Field::sortable(bool $sortable = true): static
+Lathe\Field\Field::sortableUriKey(): string
 Lathe\Field\Field::string $attribute  [protected]
 Lathe\Field\Field::string $component  [protected]
 Lathe\Field\Field::string $label  [protected]
@@ -509,6 +513,8 @@ Lathe\Query\ResourceQuery::perPageOptionsInUse(): array
 Lathe\Query\ResourceQuery::readPagination(): array  [protected]
 Lathe\Query\ResourceQuery::rows(): Illuminate\Database\Eloquent\Collection
 Lathe\Query\ResourceQuery::scoped(): Illuminate\Database\Eloquent\Builder
+Lathe\Query\ResourceQuery::sortKeys(): array
+Lathe\Query\ResourceQuery::sortString(): string
 Lathe\Query\ResourceQuery::validate(): void
 Lathe\Query\ResourceQuery::withTrashed(): static
 Lathe\Query\ResourceQuery::withoutScope(string $globalScope): static

@@ -55,7 +55,7 @@ it('lists 25 orders newest first from the API', function () {
     expect($rows)->toHaveCount(25)
         ->and($rows[0]['id'])->toBe(10000)
         ->and(array_column($response->json('table.columns'), 'label'))->toBe(['Number', 'Customer', 'Status', 'Total', 'Placed'])
-        ->and($rows[0]['cells']['total']['value'])->toMatch('/^\d+\.\d{2}$/')
+        ->and($rows[0]['cells']['total_cents']['value'])->toMatch('/^\d+\.\d{2}$/')
         ->and($rows[0]['cells']['placed_at']['value'])->toMatch('/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$/')
         ->and($rows[0]['cells']['customer']['display'])->toBe(Order::find(10000)?->customer?->name);
 });

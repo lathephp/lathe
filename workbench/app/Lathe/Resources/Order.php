@@ -22,15 +22,15 @@ class Order extends Resource
     public function fields(LatheRequest $request): array
     {
         return [
-            Field::make('Number'),
-            Field::make('Customer', 'customer.name'),
+            Field::make('Number')->sortable(),
+            Field::make('Customer', 'customer.name')->sortable(),
             Field::make('Status'),
-            Field::make('Total', 'total', fn (Model $order) => $order instanceof OrderModel
+            Field::make('Total', 'total_cents', fn (Model $order) => $order instanceof OrderModel
                 ? number_format($order->total_cents / 100, 2, '.', '')
-                : null),
+                : null)->sortable(),
             Field::make('Placed', 'placed_at', fn (Model $order) => $order instanceof OrderModel
                 ? $order->placed_at->utc()->toIso8601ZuluString()
-                : null),
+                : null)->sortable(),
         ];
     }
 }

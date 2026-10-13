@@ -47,6 +47,7 @@ class IndexPayload
             ],
             'table' => [
                 'columns' => $fields,
+                'sortKeys' => $query->sortKeys(),
                 'rowKey' => 'id',
                 'rows' => $rows->map(fn (Model $model) => [
                     'id' => $model->getKey(),
@@ -59,6 +60,7 @@ class IndexPayload
                 'page' => $page,
                 'perPage' => $perPage,
                 'hasMorePages' => $query->hasMorePages(),
+                'sort' => $query->sortString(),
             ],
         ];
     }
