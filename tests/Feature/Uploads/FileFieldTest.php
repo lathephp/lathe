@@ -78,6 +78,11 @@ class HardFileDoc extends Model
 /** Users with a prunable avatar that keeps its name and size; only the admin is in scope. */
 class FilePeople extends Resource
 {
+    public static function uriKey(): string
+    {
+        return 'file-people';
+    }
+
     protected function configure(ResourceDefinition $definition): ResourceDefinition
     {
         return $definition->model(User::class)->title('name')->canonical(false)->allowAll();
@@ -86,7 +91,7 @@ class FilePeople extends Resource
     public function fields(LatheRequest $request): array
     {
         return [
-            Field::make('Name')->rules('required'),
+            Field::make('Name')->rules('filled'),
             Field::make('Email'),
             Field::file('Avatar', 'avatar')->prunable()->storeOriginalName('avatar_name')->storeSize('avatar_size'),
         ];

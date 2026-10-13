@@ -5,6 +5,7 @@ namespace Lathe\Uploads;
 use finfo;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Contracts\Filesystem\Filesystem;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
@@ -134,6 +135,28 @@ class UploadHandler
         $upload->update(['status' => PendingUpload::COMPLETE]);
     }
 
+    /**
+     * The user's complete upload for this field, which a save may attach; null for any other.
+     */
+    public function attachable(?Authenticatable $user, string $id, string $field): ?PendingUpload
+    {
+        $upload = PendingUpload::findOwned($this->ownerId($user), $id);
+
+        return $upload?->status === PendingUpload::COMPLETE && $upload->field === $field ? $upload : null;
+    }
+
+    /**
+     * The assembled file of a complete upload, as a field stores it. It stays on the local
+     * disk until cancel(), so a failed save can be retried.
+     */
+    public function file(PendingUpload $upload): UploadedFile
+    {
+        return new UploadedFile($this->disk()->path($upload->folder().'/assembled'), $upload->original_name, null, null, true);
+    }
+
+    /**
+     * Remove the upload's folder and row: when the user cancels, or once a save attached it.
+     */
     public function cancel(PendingUpload $upload): void
     {
         $this->disk()->deleteDirectory($upload->folder());
