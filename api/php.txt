@@ -921,7 +921,7 @@ Lathe\Resources\ResourceRegistry::scan(string $directory, string $namespace): ar
 Lathe\Resources\ResourceRegistry::scanned(): bool
 Lathe\Resources\ResourceRegistry::useCachePath(string $path): void
 Lathe\Resources\ResourceRegistry::validate(string $class, Lathe\Resources\ResourceDefinition $definition): void  [protected]
-Lathe\SavedTabs\SavedTab::$guarded  [protected]
+Lathe\SavedTabs\SavedTab::$fillable  [protected]
 Lathe\SavedTabs\SavedTab::$table  [protected]
 Lathe\SavedTabs\SavedTab::casts(): array  [protected]
 Lathe\SavedTabs\SavedTab::reorder(string $userId, string $resourceClass, array $ids): void  [static]
