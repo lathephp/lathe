@@ -137,6 +137,16 @@ describe('chunked uploader', () => {
     expect(fetch).not.toHaveBeenCalled();
   });
 
+  it('answers the size first for the plan file-12mb.bin, a type the image field does not take', async () => {
+    const { fetch } = server();
+    renderField();
+
+    choose(sized(12 * MB, 'file-12mb.bin', 'application/octet-stream'));
+
+    expect(await screen.findByText('File exceeds the 5 MB limit')).toBeTruthy();
+    expect(fetch).not.toHaveBeenCalled();
+  });
+
   it('refuses a type the field does not accept before any request', () => {
     const { fetch } = server();
     renderField();

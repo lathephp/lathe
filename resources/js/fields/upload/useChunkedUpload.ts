@@ -236,6 +236,13 @@ export function useChunkedUpload(
     setName(file.name);
     const types = Array.isArray(field.acceptedTypes) ? field.acceptedTypes.filter((type): type is string => typeof type === 'string') : [];
 
+    // Too big and nothing can shrink it: the size is the answer, whatever the type.
+    if (file.size > limit * MB && (typeof field.maxWidth !== 'number' || !RESIZABLE.has(file.type))) {
+      setError(tooLarge);
+
+      return;
+    }
+
     if (!accepts(types, file.name, file.type)) {
       setError(__('The file type is not one of: :types.', { types: types.join(', ') }));
 
