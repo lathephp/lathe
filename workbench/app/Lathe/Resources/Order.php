@@ -26,7 +26,9 @@ class Order extends Resource
             ->globallySearchable()
             ->with(['customer'])
             ->icon('ShoppingCart')
-            ->savedTabs();
+            ->savedTabs()
+            ->polling(10)
+            ->showPollingToggle();
     }
 
     public function fields(LatheRequest $request): array
