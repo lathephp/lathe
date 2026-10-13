@@ -1,0 +1,10 @@
+{
+  "extends": "./tsconfig.base.json",
+  "compilerOptions": {
+    "noEmit": true,
+    "tsBuildInfoFile": "./node_modules/.cache/tsc/app.tsbuildinfo",
+    "types": ["vite/client"]
+  },
+  "include": ["resources/js"],
+  "references": [{ "path": "./packages/core" }, { "path": "./packages/ui" }]
+}

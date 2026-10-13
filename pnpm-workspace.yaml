@@ -1,0 +1,5 @@
+packages:
+  - packages/*
+
+# The root holds the panel app and its Vitest projects, so `pnpm -r test` runs it too.
+includeWorkspaceRoot: true

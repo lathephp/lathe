@@ -1,0 +1,13 @@
+/* Automatic detection is off, so a build scans these folders and no others,
+   wherever the checkout sits. Tailwind would skip git-ignored folders anyway. */
+@import "tailwindcss" source(none);
+
+@source "../js";
+@source "../../packages/core/src";
+@source "../../packages/ui/src";
+
+/* Only @lathephp/ui uses this class. The build test counts it in the built
+   stylesheet to prove the package sources are scanned. */
+@utility lathe-probe-class {
+  display: inline-flex;
+}
