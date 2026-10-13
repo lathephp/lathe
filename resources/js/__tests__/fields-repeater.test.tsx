@@ -1,7 +1,7 @@
 import { fireEvent, render, screen, within } from '@testing-library/react';
 import { useState } from 'react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { registries, type FormFieldProps } from '../fields/registry';
+import { FormField, registries, type FormFieldProps } from '../fields/registry';
 import { RepeaterErrorsContext } from '../fields/repeater/errors';
 import type { DetailFieldData, FieldSchema } from '../fields/types';
 
@@ -58,18 +58,7 @@ function repeater(extra: Record<string, unknown> = {}): FieldSchema {
   });
 }
 
-function formComponent() {
-  const Form = registries.form.get('repeater-field');
-
-  if (Form === undefined) {
-    throw new Error('No form renderer for repeater-field.');
-  }
-
-  return Form;
-}
-
 function Harness({ field, initial, onChange }: { field: FieldSchema; initial: unknown; onChange: (value: unknown) => void }) {
-  const Form = formComponent();
   const [value, setValue] = useState(initial);
   const props: FormFieldProps = {
     field: { ...field, value: initial },
@@ -84,7 +73,7 @@ function Harness({ field, initial, onChange }: { field: FieldSchema; initial: un
     disabled: false,
   };
 
-  return <Form {...props} />;
+  return <FormField {...props} />;
 }
 
 function renderRepeater(field: FieldSchema, initial: unknown, errors: Record<string, string> = {}) {
@@ -112,6 +101,7 @@ describe('repeater-field', () => {
     const Detail = registries.detail.get('repeater-field');
 
     expect(registries.index.get('repeater-field')).toBeUndefined();
+    expect(registries.form.get('repeater-field')).toBeDefined();
 
     for (const value of [5, 'x', true, null]) {
       const field: DetailFieldData = { ...repeater(), value, display: '' };
@@ -149,7 +139,7 @@ describe('repeater-field', () => {
 
     const [first, second] = [...view.rows()] as HTMLElement[];
     const handle = within(second as HTMLElement).getByRole('button', { name: 'Drag to reorder' });
-    fireEvent.dragStart(handle);
+    fireEvent.dragStart(handle, { dataTransfer: { setData: vi.fn(), effectAllowed: 'none' } });
     fireEvent.dragOver(first as HTMLElement);
     fireEvent.drop(first as HTMLElement);
 
