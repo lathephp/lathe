@@ -68,6 +68,26 @@ class ResourceTester
     }
 
     /**
+     * The peek of a record: title, subtitle, avatar and the peek fields.
+     *
+     * @return TestResponse<Response>
+     */
+    public function peek(string|int $id): TestResponse
+    {
+        return $this->getJson($this->uri().'/'.$id.'/peek');
+    }
+
+    /**
+     * The preview of a record: title, subtitle, avatar and the preview fields.
+     *
+     * @return TestResponse<Response>
+     */
+    public function preview(string|int $id): TestResponse
+    {
+        return $this->getJson($this->uri().'/'.$id.'/preview');
+    }
+
+    /**
      * Update a record.
      *
      * @param  array<string, mixed>  $data

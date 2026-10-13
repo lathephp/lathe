@@ -718,6 +718,9 @@ Lathe\Http\Controllers\Resources\LensController::filters(Lathe\Http\Requests\Lat
 Lathe\Http\Controllers\Resources\LensController::index(Lathe\Http\Requests\LatheRequest $request, Lathe\Auth\ResourceAuthorization $authorization, Lathe\Http\Payloads\IndexPayload $payload): Illuminate\Http\JsonResponse
 Lathe\Http\Controllers\Resources\LensController::page(Lathe\Http\Requests\LatheRequest $request, Lathe\Auth\ResourceAuthorization $authorization, Lathe\Http\Payloads\IndexPayload $payload): Symfony\Component\HttpFoundation\Response
 Lathe\Http\Controllers\Resources\LensController::viewableLens(Lathe\Http\Requests\LatheRequest $request, Lathe\Auth\ResourceAuthorization $authorization): array  [protected]
+Lathe\Http\Controllers\Resources\PeekController::peek(Lathe\Http\Requests\LatheRequest $request, Lathe\Auth\ResourceAuthorization $authorization, Lathe\Http\Payloads\RecordPayload $payload, string $resource, string $resourceId): Illuminate\Http\JsonResponse
+Lathe\Http\Controllers\Resources\PeekController::preview(Lathe\Http\Requests\LatheRequest $request, Lathe\Auth\ResourceAuthorization $authorization, Lathe\Http\Payloads\RecordPayload $payload, string $resource, string $resourceId): Illuminate\Http\JsonResponse
+Lathe\Http\Controllers\Resources\PeekController::respond(Lathe\Http\Requests\LatheRequest $request, Lathe\Auth\ResourceAuthorization $authorization, Lathe\Http\Payloads\RecordPayload $payload, string $resourceId, Lathe\Field\FieldContext $context): Illuminate\Http\JsonResponse  [protected]
 Lathe\Http\Controllers\Resources\RecordController::fillAndSave(Lathe\Http\Requests\LatheRequest $request, Illuminate\Database\Eloquent\Model $model, array $fields): void  [protected]
 Lathe\Http\Controllers\Resources\RecordController::store(Lathe\Http\Requests\LatheRequest $request, Lathe\Auth\ResourceAuthorization $authorization, string $resource): Illuminate\Http\JsonResponse
 Lathe\Http\Controllers\Resources\RecordController::update(Lathe\Http\Requests\LatheRequest $request, Lathe\Auth\ResourceAuthorization $authorization, string $resource, string $resourceId): Illuminate\Http\JsonResponse
@@ -807,6 +810,7 @@ Lathe\Http\Payloads\RecordPayload::creationFields(string $class): array
 Lathe\Http\Payloads\RecordPayload::detail(string $class, Illuminate\Database\Eloquent\Model $model): array
 Lathe\Http\Payloads\RecordPayload::fields(string $class, Lathe\Field\FieldContext $context, ?Illuminate\Database\Eloquent\Model $model = NULL): array  [protected]
 Lathe\Http\Payloads\RecordPayload::href(string $path): string
+Lathe\Http\Payloads\RecordPayload::summary(string $class, Illuminate\Database\Eloquent\Model $model, Lathe\Field\FieldContext $context): array
 Lathe\Http\Payloads\RecordPayload::updateFields(string $class, Illuminate\Database\Eloquent\Model $model): array
 Lathe\Http\Requests\LatheRequest::config(): Lathe\Support\ConfigStore  [protected]
 Lathe\Http\Requests\LatheRequest::orderByDirection(): string
@@ -1558,6 +1562,8 @@ Lathe\Testing\ResourceTester::creationFields(array $query = array ( )): Illumina
 Lathe\Testing\ResourceTester::delete(string|int $id): Illuminate\Testing\TestResponse
 Lathe\Testing\ResourceTester::forceDelete(string|int $id): Illuminate\Testing\TestResponse
 Lathe\Testing\ResourceTester::index(array $query = array ( )): Illuminate\Testing\TestResponse
+Lathe\Testing\ResourceTester::peek(string|int $id): Illuminate\Testing\TestResponse
+Lathe\Testing\ResourceTester::preview(string|int $id): Illuminate\Testing\TestResponse
 Lathe\Testing\ResourceTester::restore(string|int $id): Illuminate\Testing\TestResponse
 Lathe\Testing\ResourceTester::store(array $data): Illuminate\Testing\TestResponse
 Lathe\Testing\ResourceTester::string $uriKey  [protected]
@@ -1682,6 +1688,7 @@ class Lathe\Http\Controllers\Resources\FormPageController
 class Lathe\Http\Controllers\Resources\IndexController
 class Lathe\Http\Controllers\Resources\IndexPageController
 class Lathe\Http\Controllers\Resources\LensController
+class Lathe\Http\Controllers\Resources\PeekController
 class Lathe\Http\Controllers\Resources\RecordController
 class Lathe\Http\Controllers\Resources\SavedTabController
 class Lathe\Http\Controllers\Uploads\StartUploadController
