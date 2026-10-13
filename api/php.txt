@@ -1181,6 +1181,7 @@ Lathe\Resources\ResourceDefinition::?Closure $seeCallback  [protected]
 Lathe\Resources\ResourceDefinition::?Lathe\Enums\PaginationType $paginationType  [protected]
 Lathe\Resources\ResourceDefinition::?array $perPage  [protected]
 Lathe\Resources\ResourceDefinition::?bool $softDeletes  [protected]
+Lathe\Resources\ResourceDefinition::?bool $trafficCop  [protected]
 Lathe\Resources\ResourceDefinition::?bool $useScout  [protected]
 Lathe\Resources\ResourceDefinition::?int $polling  [protected]
 Lathe\Resources\ResourceDefinition::?string $defaultGroup  [protected]
@@ -1208,7 +1209,6 @@ Lathe\Resources\ResourceDefinition::bool $globallySearchable  [protected]
 Lathe\Resources\ResourceDefinition::bool $savedTabs  [protected]
 Lathe\Resources\ResourceDefinition::bool $showColumnBorders  [protected]
 Lathe\Resources\ResourceDefinition::bool $showPollingToggle  [protected]
-Lathe\Resources\ResourceDefinition::bool $trafficCop  [protected]
 Lathe\Resources\ResourceDefinition::borderless(bool $borderless = true): static
 Lathe\Resources\ResourceDefinition::bulkInlineMax(int $max): static
 Lathe\Resources\ResourceDefinition::canSee(Closure $callback): static
@@ -1249,6 +1249,7 @@ Lathe\Resources\ResourceDefinition::getSearchable(): array
 Lathe\Resources\ResourceDefinition::getSubtitle(): Closure|string
 Lathe\Resources\ResourceDefinition::getTableStyle(): Lathe\Enums\TableStyle
 Lathe\Resources\ResourceDefinition::getTitle(): Closure|string
+Lathe\Resources\ResourceDefinition::getTrafficCop(): ?bool
 Lathe\Resources\ResourceDefinition::getUseScout(): ?bool
 Lathe\Resources\ResourceDefinition::getWith(): array
 Lathe\Resources\ResourceDefinition::globalSearchResults(int $results): static
@@ -1266,6 +1267,7 @@ Lathe\Resources\ResourceDefinition::limit(string $key, int $value): static  [pro
 Lathe\Resources\ResourceDefinition::maxPrimaryKeySize(int $size): static
 Lathe\Resources\ResourceDefinition::model(string $model): static
 Lathe\Resources\ResourceDefinition::modelIsScoutSearchable(): bool
+Lathe\Resources\ResourceDefinition::modelKeepsUpdatedAt(): bool
 Lathe\Resources\ResourceDefinition::navigationLabel(?string $label): static
 Lathe\Resources\ResourceDefinition::options(): array
 Lathe\Resources\ResourceDefinition::paginationType(Lathe\Enums\PaginationType $type): static
@@ -1330,6 +1332,7 @@ Lathe\Resources\ResourceRegistry::searchTargets(Illuminate\Database\Eloquent\Mod
 Lathe\Resources\ResourceRegistry::useCachePath(string $path): void
 Lathe\Resources\ResourceRegistry::validate(string $class, Lathe\Resources\ResourceDefinition $definition): void  [protected]
 Lathe\Resources\ResourceRegistry::validateSearchColumns(string $class, Lathe\Resources\ResourceDefinition $definition, array $tables): void  [protected]
+Lathe\Resources\TrafficCop::isStale(Illuminate\Database\Eloquent\Model $model, mixed $sent): bool  [static]
 Lathe\Resources\TrafficCop::token(Illuminate\Database\Eloquent\Model $model): ?string  [static]
 Lathe\Resources\ValidationPipeline::?Illuminate\Database\Eloquent\Model $model  [protected]
 Lathe\Resources\ValidationPipeline::Lathe\Field\FieldCollection $fields  [protected]

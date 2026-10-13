@@ -27,4 +27,13 @@ class TrafficCop
             ? Carbon::instance($value)->utc()->format('Y-m-d\TH:i:s.v\Z')
             : null;
     }
+
+    /**
+     * Whether a token the form sent no longer matches the stored record. A write that sends no
+     * token is not checked.
+     */
+    public static function isStale(Model $model, mixed $sent): bool
+    {
+        return $sent !== null && $sent !== '' && $sent !== static::token($model);
+    }
 }

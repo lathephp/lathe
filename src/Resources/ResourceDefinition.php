@@ -65,7 +65,8 @@ class ResourceDefinition
 
     protected bool $savedTabs = false;
 
-    protected bool $trafficCop = true;
+    /** Null means on when the model has an updated_at column. */
+    protected ?bool $trafficCop = null;
 
     protected int $scoutSearchResults = 200;
 
@@ -507,9 +508,27 @@ class ResourceDefinition
         return $this->savedTabs;
     }
 
+    /**
+     * Whether an update checks the stale-edit token: on by default when the model keeps updated_at.
+     */
     public function usesTrafficCop(): bool
     {
+        return ($this->trafficCop ?? true) && $this->modelKeepsUpdatedAt();
+    }
+
+    /**
+     * The stated choice, or null when trafficCop() was never called.
+     */
+    public function getTrafficCop(): ?bool
+    {
         return $this->trafficCop;
+    }
+
+    public function modelKeepsUpdatedAt(): bool
+    {
+        $model = $this->model === null ? null : new $this->model;
+
+        return $model !== null && $model->usesTimestamps() && $model->getUpdatedAtColumn() !== null;
     }
 
     public function getScoutSearchResults(): int
@@ -647,7 +666,7 @@ class ResourceDefinition
             'canonical' => $this->canonical,
             'softDeletes' => $this->usesSoftDeletes(),
             'savedTabs' => $this->savedTabs,
-            'trafficCop' => $this->trafficCop,
+            'trafficCop' => $this->trafficCop ?? true,
             'globallySearchable' => $this->globallySearchable,
             'scoutSearchResults' => $this->scoutSearchResults,
             'useScout' => $this->useScout,

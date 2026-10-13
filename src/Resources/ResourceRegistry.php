@@ -325,6 +325,10 @@ class ResourceRegistry
             throw new InvalidConfigurationException("{$class} has no model. Call ->model(YourModel::class) in its configure() method.");
         }
 
+        if ($definition->getTrafficCop() === true && ! $definition->modelKeepsUpdatedAt()) {
+            throw new InvalidConfigurationException("{$class}: trafficCop() needs an updated_at column on {$definition->getModel()}. Keep timestamps on the model or call trafficCop(false).");
+        }
+
         if ($definition->getUseScout() === true && ! $definition->modelIsScoutSearchable()) {
             throw new InvalidConfigurationException("{$class}: useScout(true) needs the Laravel\\Scout\\Searchable trait on {$definition->getModel()}. Add the trait or remove useScout(true).");
         }

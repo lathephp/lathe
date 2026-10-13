@@ -11,8 +11,10 @@ use Lathe\Events\ResourceUpdated;
 use Lathe\Field\Field;
 use Lathe\Field\FieldContext;
 use Lathe\Http\Requests\LatheRequest;
+use Lathe\Lathe;
 use Lathe\Query\QueryContext;
 use Lathe\Query\ResourceQuery;
+use Lathe\Resources\TrafficCop;
 use Lathe\Resources\ValidationPipeline;
 
 /**
@@ -57,6 +59,14 @@ class RecordController
 
         abort_unless($authorization->allows($request->user(), $class, 'update', $model), 403, $authorization->denialMessage($class));
 
+        if ($class::make()->definition()->usesTrafficCop() && TrafficCop::isStale($model, $request->input('_updated_at'))) {
+            return new JsonResponse([
+                'error' => 'conflict',
+                'message' => Lathe::__('This record was changed by someone else since you opened it.'),
+                'updatedAt' => TrafficCop::token($model),
+            ], 409);
+        }
+
         $fields = ValidationPipeline::writable($class::make($model)->fieldsFor(FieldContext::Update, $request), FieldContext::Update, $request, $model);
         (new ValidationPipeline($fields, $request, FieldContext::Update, $class, $model))->validate();
 
@@ -73,6 +83,7 @@ class RecordController
         return new JsonResponse([
             'id' => $model->getKey(),
             'redirect' => $class::redirectAfterUpdate($request, $class::make($model)),
+            'updatedAt' => TrafficCop::token($model),
         ]);
     }
 
