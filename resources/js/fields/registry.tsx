@@ -20,6 +20,8 @@ export interface FormFieldProps {
   describedBy: string | undefined;
   invalid: boolean;
   disabled: boolean;
+  /** The other values of the form, for a field that follows another. */
+  values?: Record<string, unknown>;
 }
 
 export interface FieldRenderers {

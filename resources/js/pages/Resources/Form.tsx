@@ -92,6 +92,7 @@ export default function Form({ resource, mode, id, title, breadcrumbs, form, sub
                 <FormRow
                   field={decided}
                   value={record.values[field.attribute]}
+                  values={record.values}
                   error={record.errors[field.attribute]}
                   onChange={(value) => {
                     setDirty((current) => new Set(current).add(field.attribute));
@@ -154,7 +155,7 @@ export default function Form({ resource, mode, id, title, breadcrumbs, form, sub
   );
 }
 
-function FormRow({ field, value, error, onChange }: { field: FormFieldData; value: unknown; error: string | undefined; onChange: (value: unknown) => void }) {
+function FormRow({ field, value, values, error, onChange }: { field: FormFieldData; value: unknown; values: Record<string, unknown>; error: string | undefined; onChange: (value: unknown) => void }) {
   const id = `field-${field.attribute}`;
   const helpId = field.help === null ? undefined : `${id}-help`;
   const errorId = error === undefined ? undefined : `${id}-error`;
@@ -176,6 +177,7 @@ function FormRow({ field, value, error, onChange }: { field: FormFieldData; valu
         <FormField
           field={field}
           value={value}
+          values={values}
           onChange={onChange}
           id={id}
           describedBy={describedBy}
