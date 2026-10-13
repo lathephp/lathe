@@ -21,6 +21,7 @@ use Lathe\Console\CacheCommand;
 use Lathe\Console\ClearCommand;
 use Lathe\Console\DoctorCommand;
 use Lathe\Console\InstallCommand;
+use Lathe\Console\TranslateCommand;
 use Lathe\Dashboards\DashboardRegistry;
 use Lathe\Exceptions\InvalidConfigurationException;
 use Lathe\Http\ErrorPages;
@@ -33,6 +34,7 @@ use Lathe\Plugins\PluginRegistry;
 use Lathe\Resources\ResourceRegistry;
 use Lathe\Support\ConfigStore;
 use Lathe\Support\ConfigValidator;
+use Lathe\Support\TranslationManager;
 use Throwable;
 
 class LatheServiceProvider extends ServiceProvider
@@ -43,6 +45,7 @@ class LatheServiceProvider extends ServiceProvider
 
         $this->app->singleton(LatheManager::class);
         $this->app->singleton(ConfigStore::class);
+        $this->app->singleton(TranslationManager::class, fn () => new TranslationManager(__DIR__.'/../lang'));
         $this->app->singleton(ResourceRegistry::class);
         $this->app->singleton(PluginRegistry::class);
         $this->app->singleton(DashboardRegistry::class);
@@ -89,7 +92,7 @@ class LatheServiceProvider extends ServiceProvider
         });
 
         if ($this->app->runningInConsole()) {
-            $this->commands([ApiCheckCommand::class, CacheCommand::class, ClearCommand::class, DoctorCommand::class, InstallCommand::class]);
+            $this->commands([ApiCheckCommand::class, CacheCommand::class, ClearCommand::class, DoctorCommand::class, InstallCommand::class, TranslateCommand::class]);
             $this->optimizes(optimize: 'lathe:cache', clear: 'lathe:clear', key: 'lathe');
 
             $this->publishes([

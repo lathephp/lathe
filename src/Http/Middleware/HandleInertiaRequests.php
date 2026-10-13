@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Gate;
 use Inertia\Middleware;
 use Lathe\Lathe;
 use Lathe\Menu\Navigation;
+use Lathe\Support\TranslationManager;
 
 class HandleInertiaRequests extends Middleware
 {
@@ -72,6 +73,8 @@ class HandleInertiaRequests extends Middleware
             'appName' => fn () => Lathe::name(),
             'basePath' => fn () => '/'.trim(Lathe::path(), '/'),
             'versionLabel' => fn () => Lathe::versionLabel(),
+            'locale' => fn () => Lathe::resolveUserLocale($request),
+            'translations' => fn () => app(TranslationManager::class)->all(Lathe::resolveUserLocale($request)),
             'footer' => fn () => Lathe::footerFor($request),
             'layout' => fn () => [
                 'sidebar' => [

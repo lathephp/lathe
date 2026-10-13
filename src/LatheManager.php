@@ -16,6 +16,7 @@ use Lathe\Resources\ResourceRegistry;
 use Lathe\Search\GlobalSearch;
 use Lathe\Search\SearchProvider;
 use Lathe\Support\ConfigStore;
+use Lathe\Support\TranslationManager;
 
 /**
  * What the Lathe facade answers. Holds no state of its own: each accessor resolves a binding.
@@ -27,6 +28,9 @@ class LatheManager
 
     /** @var (Closure(Request): ?string)|null */
     protected ?Closure $userTimezone = null;
+
+    /** @var (Closure(Request): ?string)|null */
+    protected ?Closure $userLocale = null;
 
     public function __construct(protected Container $container)
     {
@@ -126,6 +130,54 @@ class LatheManager
         $timezone = $this->userTimezone === null ? null : ($this->userTimezone)($request);
 
         return is_string($timezone) && in_array($timezone, \DateTimeZone::listIdentifiers(), true) ? $timezone : null;
+    }
+
+    /**
+     * Name the user's locale, such as a column on the user; fr_CA reads as fr-CA.
+     *
+     * @param  Closure(Request): ?string  $callback
+     */
+    public function userLocale(Closure $callback): static
+    {
+        $this->userLocale = $callback;
+
+        return $this;
+    }
+
+    /**
+     * The callback's locale, else the app's, with - between its parts.
+     */
+    public function resolveUserLocale(Request $request): string
+    {
+        $locale = $this->userLocale === null ? null : ($this->userLocale)($request);
+
+        return TranslationManager::normalize(is_string($locale) && $locale !== '' ? $locale : app()->getLocale());
+    }
+
+    /**
+     * Translate a string of the Lathe catalogue for the request's locale.
+     *
+     * @param  array<string, scalar|\Stringable|null>  $replace
+     */
+    public function __(string $key, array $replace = [], ?string $default = null): string
+    {
+        $translations = $this->container->make(TranslationManager::class);
+
+        return $translations->replace($translations->get($key, $default), $replace);
+    }
+
+    /**
+     * Merge a JSON file or an array of translations over the catalogue.
+     *
+     * @param  string|array<string, string>  $translations
+     */
+    public function loadTranslations(string|array $translations): static
+    {
+        $manager = $this->container->make(TranslationManager::class);
+
+        is_string($translations) ? $manager->load($translations) : $manager->merge($translations);
+
+        return $this;
     }
 
     /**

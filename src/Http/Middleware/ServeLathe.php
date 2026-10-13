@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use Lathe\Events\ServingLathe;
 use Lathe\Http\Requests\LatheRequest;
 use Lathe\Lathe;
+use Lathe\Support\TranslationManager;
 use Lathe\Support\Util;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -42,6 +43,7 @@ class ServeLathe
             $response = $next($request);
         } finally {
             $this->container->forgetInstance(LatheRequest::class);
+            $this->container->forgetInstance(TranslationManager::REQUEST_BAG);
         }
 
         $response->headers->set('X-Lathe-Version', Lathe::version());
