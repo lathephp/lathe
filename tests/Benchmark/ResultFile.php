@@ -60,7 +60,9 @@ class ResultFile
         $meminfo = (string) @file_get_contents('/proc/meminfo');
         $load = explode(' ', (string) @file_get_contents('/proc/loadavg'));
         $memory = static::command(['podman', 'inspect', 'lathe-mysql84', '--format', '{{.HostConfig.Memory}}']);
-        $pool = DB::scalar('select @@innodb_buffer_pool_size');
+        $driver = DB::connection()->getDriverName();
+        $mysql = in_array($driver, ['mysql', 'mariadb'], true);
+        $pool = $mysql ? DB::scalar('select @@innodb_buffer_pool_size') : null;
 
         return [
             'date' => date(DATE_ATOM),
@@ -73,7 +75,8 @@ class ResultFile
             'innodb_buffer_pool_size' => is_numeric($pool) ? (int) $pool : null,
             'versions' => [
                 'php' => PHP_VERSION,
-                'mysql' => DB::scalar('select version()'),
+                'database' => $driver,
+                'mysql' => $mysql ? DB::scalar('select version()') : null,
                 'node' => static::command(['node', '--version']),
                 'chromium' => static::chromium(),
                 'lathe' => static::command(['git', '-C', dirname(__DIR__, 2), 'rev-parse', '--short', 'HEAD']),

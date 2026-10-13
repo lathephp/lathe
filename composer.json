@@ -90,6 +90,10 @@
         ],
         "test:scaffold": "@php vendor/bin/pest --group=scaffold",
         "test:budget": "@php vendor/bin/pest --group=budget",
+        "test:bench": [
+            "Composer\\Config::disableProcessTimeout",
+            "bash scripts/bench-lanes.sh"
+        ],
         "test:matrix": [
             "Composer\\Config::disableProcessTimeout",
             "bash scripts/matrix.sh"
