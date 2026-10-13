@@ -24,4 +24,8 @@
 @lathephp/core useTranslation
 @lathephp/core visit
 @lathephp/ui Badge
+@lathephp/ui Button
+@lathephp/ui Card
 @lathephp/ui type BadgeProps
+@lathephp/ui type ButtonProps
+@lathephp/ui type CardProps
