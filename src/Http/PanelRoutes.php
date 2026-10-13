@@ -79,6 +79,7 @@ class PanelRoutes
             $router->get('resources/{resource}/new', [FormPageController::class, 'create'])->name('lathe.resources.create');
             $router->get('resources/{resource}/{resourceId}', DetailPageController::class)->name('lathe.resources.show');
             $router->get('resources/{resource}/{resourceId}/edit', [FormPageController::class, 'edit'])->name('lathe.resources.edit');
+            $router->get('resources/{resource}/{resourceId}/replicate', [FormPageController::class, 'replicate'])->name('lathe.resources.replicate');
             $router->get('plugins/{plugin}/{path?}', PluginPageController::class)
                 ->where('path', '.*')
                 ->name('lathe.plugins.show');
@@ -111,6 +112,7 @@ class PanelRoutes
             $router->post('resources/{resource}/field-dependencies', DependencyController::class)->name('resources.dependencies');
             $router->get('resources/{resource}/{resourceId}/update-fields', [FormFieldsController::class, 'update'])->name('resources.updateFields');
             $router->post('resources/{resource}/{resourceId}/field/{field}/preview', [FieldPreviewController::class, 'update'])->name('resources.record.field.preview');
+            $router->get('resources/{resource}/{resourceId}/replicate-fields', [FormFieldsController::class, 'replicate'])->name('resources.replicateFields');
             $router->get('resources/{resource}/{resourceId}/peek', [PeekController::class, 'peek'])->name('resources.peek');
             $router->get('resources/{resource}/{resourceId}/preview', [PeekController::class, 'preview'])->name('resources.preview');
             $router->put('resources/{resource}/{resourceId}', [RecordController::class, 'update'])->name('resources.update');

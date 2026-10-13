@@ -113,6 +113,28 @@ class RecordPayload
     }
 
     /**
+     * The replicate form: the create form with each value read from a copy of the record.
+     *
+     * @param  class-string<\Lathe\Resources\Resource>  $class
+     * @return array{fields: list<array<string, mixed>>, defaults: array<string, mixed>, layout: list<array<string, mixed>>, borderless: bool}
+     */
+    public function replicateFields(string $class, Model $model): array
+    {
+        $replica = $class::replicate($model);
+        $resource = $class::make();
+
+        return [
+            'fields' => array_map(
+                fn (Field $field) => [...$field->schema(FieldContext::Create, $this->request), 'value' => $field->resolve($replica)],
+                $this->fields($class, FieldContext::Create),
+            ),
+            'defaults' => $class::defaultAttributes($this->request),
+            'layout' => $resource->layoutFor(FieldContext::Create, $this->request),
+            'borderless' => $resource->definition()->isBorderless(),
+        ];
+    }
+
+    /**
      * The edit form: the fields with their stored values, the layout and the traffic-cop token.
      *
      * @param  class-string<\Lathe\Resources\Resource>  $class

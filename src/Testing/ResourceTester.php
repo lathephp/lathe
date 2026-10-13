@@ -68,6 +68,16 @@ class ResourceTester
     }
 
     /**
+     * The replicate form's create fields, filled from a copy of the record.
+     *
+     * @return TestResponse<Response>
+     */
+    public function replicateFields(string|int $id): TestResponse
+    {
+        return $this->getJson($this->uri().'/'.$id.'/replicate-fields');
+    }
+
+    /**
      * The peek of a record: title, subtitle, avatar and the peek fields.
      *
      * @return TestResponse<Response>

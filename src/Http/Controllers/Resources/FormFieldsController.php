@@ -34,4 +34,14 @@ class FormFieldsController
 
         return new JsonResponse($payload->updateFields($class, $model));
     }
+
+    public function replicate(LatheRequest $request, ResourceAuthorization $authorization, RecordPayload $payload, string $resource, string $resourceId): JsonResponse
+    {
+        $class = $this->viewableResource($request, $authorization);
+        $model = (new ResourceQuery($class::make(), $request, QueryContext::Replicate))->find($resourceId);
+
+        abort_unless($authorization->allows($request->user(), $class, 'replicate', $model), 403, $authorization->denialMessage($class));
+
+        return new JsonResponse($payload->replicateFields($class, $model));
+    }
 }

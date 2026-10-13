@@ -57,4 +57,25 @@ class FormPageController
             'submitLabel' => $class::updateButtonLabel(),
         ])->toResponse($request);
     }
+
+    public function replicate(LatheRequest $request, ResourceAuthorization $authorization, IndexPayload $index, RecordPayload $payload, string $resource, string $resourceId): Response
+    {
+        $class = $this->viewableResource($request, $authorization);
+        $model = (new ResourceQuery($class::make(), $request, QueryContext::Replicate))->find($resourceId);
+
+        abort_unless($authorization->allows($request->user(), $class, 'replicate', $model), 403, $authorization->denialMessage($class));
+
+        return Inertia::render('Resources/Form', [
+            'resource' => $index->resource($class),
+            'mode' => 'replicate',
+            'id' => $model->getKey(),
+            'title' => $class::createButtonLabel(),
+            'breadcrumbs' => $payload->breadcrumbs($class, [
+                ['label' => '#'.$resourceId, 'href' => $payload->href('resources/'.$class::uriKey().'/'.$resourceId)],
+                ['label' => Lathe::__('Replicate'), 'href' => null],
+            ]),
+            'form' => $payload->replicateFields($class, $model),
+            'submitLabel' => $class::createButtonLabel(),
+        ])->toResponse($request);
+    }
 }

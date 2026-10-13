@@ -9,6 +9,9 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
 use Lathe\Field\Avatar;
 use Lathe\Field\Contracts\Cover;
+use InvalidArgumentException;
+use Lathe\Field\Contracts\Deletable;
+use Lathe\Field\Contracts\Storable;
 use Lathe\Field\Field;
 use Lathe\Field\FieldCollection;
 use Lathe\Field\FieldContext;
@@ -428,6 +431,39 @@ abstract class Resource
     public static function defaultAttributes(LatheRequest $request): array
     {
         return [];
+    }
+
+    /**
+     * The attributes a replica leaves empty. The columns of every file field are left empty
+     * as well, so a replica never points at the source's file.
+     *
+     * @return list<string>
+     */
+    public static function replicateExcept(): array
+    {
+        return [];
+    }
+
+    /**
+     * An unsaved copy of a stored model, without replicateExcept() and the file columns.
+     *
+     * @throws InvalidArgumentException when the model is not stored
+     */
+    public static function replicate(Model $model): Model
+    {
+        if (! $model->exists) {
+            throw new InvalidArgumentException('Only a stored model can be replicated.');
+        }
+
+        $except = static::replicateExcept();
+
+        foreach (static::make()->fieldsFor(FieldContext::Create, app(LatheRequest::class)) as $field) {
+            if ($field instanceof Storable && $field instanceof Deletable) {
+                $except = [...$except, ...$field->columnsThatShouldBeDeleted()];
+            }
+        }
+
+        return $model->replicate($except);
     }
 
     /**
