@@ -94,6 +94,10 @@
             "Composer\\Config::disableProcessTimeout",
             "bash scripts/bench-lanes.sh"
         ],
+        "test:octane": [
+            "Composer\\Config::disableProcessTimeout",
+            "bash scripts/octane-lane.sh"
+        ],
         "test:matrix": [
             "Composer\\Config::disableProcessTimeout",
             "bash scripts/matrix.sh"
