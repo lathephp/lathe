@@ -96,7 +96,7 @@ class IndexPayload
      * The Resource's own part of the payload, which reads no rows, so a refused URL can still draw the page.
      *
      * @param  class-string<\Lathe\Resources\Resource>  $class
-     * @return array{uriKey: string, label: string, singularLabel: string, perPageOptions: non-empty-list<int>, searchable: bool, abilities: array{create: bool}, definition: array<string, mixed>}
+     * @return array{uriKey: string, label: string, singularLabel: string, perPageOptions: non-empty-list<int>, searchable: bool, softDeletes: bool, abilities: array{create: bool}, definition: array<string, mixed>}
      */
     public function resource(string $class): array
     {
@@ -109,6 +109,8 @@ class IndexPayload
             'singularLabel' => $class::singularLabel(),
             'perPageOptions' => (new ResourceQuery($resource, $this->request))->perPageOptionsInUse(),
             'searchable' => $resource->searchableColumns() !== [] || $definition->getUseScout() === true,
+            // The filter panel offers Without, With and Only trashed when true.
+            'softDeletes' => $definition->usesSoftDeletes(),
             'abilities' => ['create' => $this->authorization->allows($this->request->user(), $class, 'create')],
             'definition' => $definition->options(),
         ];
