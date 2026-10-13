@@ -27,12 +27,13 @@ abstract class BooleanFilter extends Filter
         $flags = array_is_list($value) ? array_fill_keys(array_map(fn (mixed $item) => is_string($item) ? $item : '', $value), '1') : $value;
         $result = [];
 
+        // The bools are the normalized flags a saved tab stores and reads back.
         foreach ($flags as $option => $flag) {
-            if (! in_array((string) $option, $options, true) || ! in_array($flag, ['1', '0', 'true', 'false'], true)) {
+            if (! in_array((string) $option, $options, true) || ! in_array($flag, ['1', '0', 'true', 'false', true, false], true)) {
                 $this->invalid();
             }
 
-            $result[(string) $option] = $flag === '1' || $flag === 'true';
+            $result[(string) $option] = $flag === true || $flag === '1' || $flag === 'true';
         }
 
         return $result;

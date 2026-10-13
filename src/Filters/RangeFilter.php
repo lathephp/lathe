@@ -32,6 +32,11 @@ abstract class RangeFilter extends Filter
             return null;
         }
 
+        // A saved tab stores the normalized value, and reading the tab normalizes it again.
+        if (is_int($side) || is_float($side)) {
+            return $side;
+        }
+
         if (! is_string($side) || ! is_numeric($side)) {
             $this->invalid();
         }
