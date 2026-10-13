@@ -15,6 +15,11 @@ return new class extends Migration
             $table->text('body');
             $table->timestamps();
             $table->softDeletes();
+
+            // Text search reads this index; SQLite has none and searches with contains.
+            if (Schema::getConnection()->getDriverName() !== 'sqlite') {
+                $table->fullText('body');
+            }
         });
 
         Schema::create('comments', function (Blueprint $table) {
