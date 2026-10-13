@@ -13,7 +13,7 @@ class User extends Resource
 {
     protected function configure(ResourceDefinition $definition): ResourceDefinition
     {
-        return $definition->model(UserModel::class)->allowAll();
+        return $definition->model(UserModel::class)->title('name');
     }
 
     public function fields(LatheRequest $request): array

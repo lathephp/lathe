@@ -172,7 +172,6 @@ it('answers 403 on the page, the API and the count when viewAny is denied', func
 
 it('holds no password or remember token in a User index', function () {
     signInAs('admin@lathephp.com');
-    Lathe\Lathe::registerResources(Lathe\Tests\Fixtures\Resources\User::class);
 
     $json = $this->getJson('/lathe/api/resources/users')->assertOk()->getContent();
 
