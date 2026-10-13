@@ -15,6 +15,7 @@ use Lathe\Resources\Resource;
 use Lathe\SavedTabs\SavedTab;
 use Lathe\SavedTabs\SavedTabQueryApplicator;
 use Lathe\SavedTabs\SchemaHash;
+use Lathe\Summaries\ResourceSummaries;
 use Lathe\Tabs\Tab;
 
 /**
@@ -149,6 +150,23 @@ class IndexPayload
     protected function lensEntry(Lens $lens): array
     {
         return ['uriKey' => $lens->uriKey(), 'name' => $lens->name()];
+    }
+
+    /**
+     * The footer totals. The page's totals need the page's rows, so this reads them once more.
+     *
+     * @param  class-string<\Lathe\Resources\Resource>  $class
+     * @return array{allRecords: array<string, list<array{label: string|null, value: string|null}>>|null, page: array<string, list<array{label: string|null, value: string|null}>>|null, message: string|null}|null
+     */
+    public function summaries(string $class): ?array
+    {
+        $resource = $class::make();
+        $query = new ResourceQuery($resource, $this->request);
+        $rows = $query->rows();
+        [, $page] = $query->page();
+
+        return (new ResourceSummaries($query, $resource->fields($this->request), $resource->definition()->getCountCap()))
+            ->compute($rows, $page > 1 || $query->hasMorePages());
     }
 
     /**

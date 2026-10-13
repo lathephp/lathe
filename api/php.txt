@@ -384,11 +384,13 @@ Lathe\Events\ServingLathe::Illuminate\Http\Request $request
 Lathe\Events\ServingLathe::__construct(Illuminate\Http\Request $request)
 Lathe\Field\Field::?Closure $resolver  [protected]
 Lathe\Field\Field::__construct(string $label, string $attribute, ?Closure $resolver = NULL)
+Lathe\Field\Field::array $summaries  [protected]
 Lathe\Field\Field::bool $filterable  [protected]
 Lathe\Field\Field::bool $sortable  [protected]
 Lathe\Field\Field::cell(Illuminate\Database\Eloquent\Model $model): array
 Lathe\Field\Field::component(string $component): static
 Lathe\Field\Field::filterable(bool $filterable = true): static
+Lathe\Field\Field::getSummaries(): array
 Lathe\Field\Field::isFilterable(): bool
 Lathe\Field\Field::isSortable(): bool
 Lathe\Field\Field::jsonSerialize(): array
@@ -402,6 +404,7 @@ Lathe\Field\Field::sortableUriKey(): string
 Lathe\Field\Field::string $attribute  [protected]
 Lathe\Field\Field::string $component  [protected]
 Lathe\Field\Field::string $label  [protected]
+Lathe\Field\Field::summarize(Lathe\Summaries\Summary ...$summaries): static
 Lathe\Filters\BooleanFilter::component(): string
 Lathe\Filters\BooleanFilter::normalize(Lathe\Http\Requests\LatheRequest $request, mixed $value, bool $remote): array
 Lathe\Filters\DateFilter::component(): string
@@ -537,6 +540,7 @@ Lathe\Http\Payloads\IndexPayload::query(Lathe\Resources\Resource $resource, ?Lat
 Lathe\Http\Payloads\IndexPayload::resource(string $class): array
 Lathe\Http\Payloads\IndexPayload::savedTabModels(Lathe\Resources\Resource $resource): Illuminate\Database\Eloquent\Collection  [protected]
 Lathe\Http\Payloads\IndexPayload::savedTabs(Lathe\Resources\Resource $resource, Lathe\Query\ResourceQuery $query): array  [protected]
+Lathe\Http\Payloads\IndexPayload::summaries(string $class): ?array
 Lathe\Http\Payloads\IndexPayload::tabCounts(string $class): array
 Lathe\Http\Payloads\IndexPayload::visibleLenses(string $class): array
 Lathe\Http\Requests\LatheRequest::config(): Lathe\Support\ConfigStore  [protected]
@@ -987,6 +991,40 @@ Lathe\Search\SearchablePrimaryKey::__construct(int $maxSize = PHP_INT_MAX)
 Lathe\Search\SearchablePrimaryKey::apply(Illuminate\Database\Eloquent\Builder $query, string $term, string $boolean): void
 Lathe\Search\SearchablePrimaryKey::fits(string $term): bool  [protected]
 Lathe\Search\SearchablePrimaryKey::int $maxSize
+Lathe\Summaries\ResourceSummaries::CAPPED_MESSAGE
+Lathe\Summaries\ResourceSummaries::Lathe\Query\ResourceQuery $query  [protected]
+Lathe\Summaries\ResourceSummaries::__construct(Lathe\Query\ResourceQuery $query, array $fields, int $cap)
+Lathe\Summaries\ResourceSummaries::aggregate(Illuminate\Database\Eloquent\Builder $query, array $entries): array  [protected]
+Lathe\Summaries\ResourceSummaries::allRecords(array $fields): array  [protected]
+Lathe\Summaries\ResourceSummaries::array $fields  [protected]
+Lathe\Summaries\ResourceSummaries::cappedCount(): int  [protected]
+Lathe\Summaries\ResourceSummaries::compute(Illuminate\Database\Eloquent\Collection $rows, bool $paged): ?array
+Lathe\Summaries\ResourceSummaries::expression(string $function, string $column, ?string $alias = NULL): Illuminate\Contracts\Database\Query\Expression  [protected]
+Lathe\Summaries\ResourceSummaries::int $cap  [protected]
+Lathe\Summaries\ResourceSummaries::page(array $fields, Illuminate\Database\Eloquent\Collection $rows): array  [protected]
+Lathe\Summaries\ResourceSummaries::target(Illuminate\Database\Eloquent\Model $model, string $attribute): array  [protected]
+Lathe\Summaries\Summary::?Closure $format  [protected]
+Lathe\Summaries\Summary::?Closure $query  [protected]
+Lathe\Summaries\Summary::?string $label  [protected]
+Lathe\Summaries\Summary::__construct(string $function)  [protected]
+Lathe\Summaries\Summary::average(): static  [static]
+Lathe\Summaries\Summary::bool $hideLabel  [protected]
+Lathe\Summaries\Summary::count(): static  [static]
+Lathe\Summaries\Summary::format(Closure $format): static
+Lathe\Summaries\Summary::functions(): array
+Lathe\Summaries\Summary::getLabel(): ?string
+Lathe\Summaries\Summary::getQuery(): ?Closure
+Lathe\Summaries\Summary::hideLabel(bool $hide = true): static
+Lathe\Summaries\Summary::label(string $label): static
+Lathe\Summaries\Summary::max(): static  [static]
+Lathe\Summaries\Summary::min(): static  [static]
+Lathe\Summaries\Summary::present(array $results): ?string
+Lathe\Summaries\Summary::presentValues(array $values): ?string
+Lathe\Summaries\Summary::query(Closure $query): static
+Lathe\Summaries\Summary::range(): static  [static]
+Lathe\Summaries\Summary::string $function  [protected]
+Lathe\Summaries\Summary::sum(): static  [static]
+Lathe\Summaries\Summary::value(mixed $result): ?string  [protected]
 Lathe\Support\ConfigStore::Illuminate\Contracts\Config\Repository $config  [protected]
 Lathe\Support\ConfigStore::__construct(Illuminate\Contracts\Config\Repository $config)
 Lathe\Support\ConfigStore::all(): array
@@ -1174,6 +1212,8 @@ class Lathe\Search\LikeSearch
 class Lathe\Search\SearchApplicator
 class Lathe\Search\SearchProvider
 class Lathe\Search\SearchablePrimaryKey
+class Lathe\Summaries\ResourceSummaries
+class Lathe\Summaries\Summary
 class Lathe\Support\ConfigStore
 class Lathe\Support\ConfigValidator
 class Lathe\Support\Timezone

@@ -8,6 +8,7 @@ use Lathe\Field\Field;
 use Lathe\Http\Requests\LatheRequest;
 use Lathe\Resources\Resource;
 use Lathe\Resources\ResourceDefinition;
+use Lathe\Summaries\Summary;
 use Lathe\Tabs\Tab;
 use Workbench\App\Lathe\Filters\OrderCustomer;
 use Workbench\App\Lathe\Filters\OrderStatus;
@@ -35,7 +36,8 @@ class Order extends Resource
             Field::make('Status'),
             Field::make('Total', 'total_cents', fn (Model $order) => $order instanceof OrderModel
                 ? number_format($order->total_cents / 100, 2, '.', '')
-                : null)->sortable()->filterable(),
+                : null)->sortable()->filterable()
+                ->summarize(Summary::sum()->label('Revenue')->format(fn (int|float|string $cents) => number_format((float) $cents / 100, 2, '.', ''))),
             Field::make('Placed', 'placed_at', fn (Model $order) => $order instanceof OrderModel
                 ? $order->placed_at->utc()->toIso8601ZuluString()
                 : null)->sortable(),

@@ -50,9 +50,10 @@ class IndexPageController
             'state' => fn () => $part('state'),
             'filters' => fn () => $part('filters'),
             'tabs' => fn () => $part('tabs'),
-            // One group, so a single follow-up visit loads both.
+            // One group, so a single follow-up visit loads them all.
             'count' => Inertia::defer(fn () => $payload->count($class), 'counts'),
             'tabCounts' => Inertia::defer(fn () => $payload->tabCounts($class), 'counts'),
+            'summaries' => Inertia::defer(fn () => $payload->summaries($class), 'counts'),
         ])->toResponse($request);
     }
 }

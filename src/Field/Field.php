@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
 use JsonSerializable;
 use Lathe\Filters\FieldFilter;
+use Lathe\Summaries\Summary;
 
 /**
  * A column of a Resource: where its value comes from and which cell component draws it.
@@ -20,6 +21,9 @@ class Field implements JsonSerializable
     protected bool $sortable = false;
 
     protected bool $filterable = false;
+
+    /** @var list<Summary> */
+    protected array $summaries = [];
 
     /**
      * @param  (Closure(Model): (string|int|float|bool|null))|null  $resolver
@@ -77,6 +81,24 @@ class Field implements JsonSerializable
     public function isFilterable(): bool
     {
         return $this->filterable;
+    }
+
+    /**
+     * Total this field's column in the index footer, over all records and over the page.
+     */
+    public function summarize(Summary ...$summaries): static
+    {
+        $this->summaries = array_values($summaries);
+
+        return $this;
+    }
+
+    /**
+     * @return list<Summary>
+     */
+    public function getSummaries(): array
+    {
+        return $this->summaries;
     }
 
     public function makeFieldFilter(): FieldFilter
