@@ -118,5 +118,6 @@ it('saves the typed source and shows no script on detail', function () {
 
     LatheTest::resource('markdown-posts')->updateFields($id)
         ->assertOk()
-        ->assertJsonPath('fields.3.value', '<script>alert(1)</script>');
+        ->assertJsonPath('fields.2.key', 'body')
+        ->assertJsonPath('fields.2.value', '<script>alert(1)</script>');
 });

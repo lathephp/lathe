@@ -145,6 +145,7 @@
     "The page you are looking for does not exist.": "The page you are looking for does not exist.",
     "The panel is down for maintenance. Try again soon.": "The panel is down for maintenance. Try again soon.",
     "The upload is missing or not finished.": "The upload is missing or not finished.",
+    "The value may not be greater than :max bytes.": "The value may not be greater than :max bytes.",
     "The view could not be saved": "The view could not be saved",
     "These credentials do not match our records.": "These credentials do not match our records.",
     "This action is unauthorized.": "This action is unauthorized.",

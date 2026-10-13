@@ -18,6 +18,7 @@ use Lathe\Http\Controllers\Resources\CountController;
 use Lathe\Http\Controllers\Resources\DeleteController;
 use Lathe\Http\Controllers\Resources\DetailPageController;
 use Lathe\Http\Controllers\Resources\FieldFileController;
+use Lathe\Http\Controllers\Resources\FieldPreviewController;
 use Lathe\Http\Controllers\Resources\FilterController;
 use Lathe\Http\Controllers\Resources\FormFieldsController;
 use Lathe\Http\Controllers\Resources\FormPageController;
@@ -104,8 +105,10 @@ class PanelRoutes
             $router->get('resources/{resource}/lenses/{lens}/count', [LensController::class, 'count'])->name('resources.lenses.count');
             $router->get('resources/{resource}/lenses/{lens}/filters', [LensController::class, 'filters'])->name('resources.lenses.filters');
             $router->get('resources/{resource}/creation-fields', [FormFieldsController::class, 'creation'])->name('resources.creationFields');
+            $router->post('resources/{resource}/field/{field}/preview', [FieldPreviewController::class, 'create'])->name('resources.field.preview');
             $router->post('resources/{resource}', [RecordController::class, 'store'])->name('resources.store');
             $router->get('resources/{resource}/{resourceId}/update-fields', [FormFieldsController::class, 'update'])->name('resources.updateFields');
+            $router->post('resources/{resource}/{resourceId}/field/{field}/preview', [FieldPreviewController::class, 'update'])->name('resources.record.field.preview');
             $router->get('resources/{resource}/{resourceId}/peek', [PeekController::class, 'peek'])->name('resources.peek');
             $router->get('resources/{resource}/{resourceId}/preview', [PeekController::class, 'preview'])->name('resources.preview');
             $router->put('resources/{resource}/{resourceId}', [RecordController::class, 'update'])->name('resources.update');
