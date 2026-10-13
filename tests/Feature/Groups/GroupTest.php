@@ -232,8 +232,8 @@ it('answers 422 for an unknown group id or direction', function (string $group) 
     app(DemoSeeder::class)->forOrders(40)->run();
     actAsGroupAdmin();
 
-    $this->getJson('/lathe/api/resources/orders?group='.$group)->assertUnprocessable()->assertJsonValidationErrors(['group']);
-})->with(['nope', 'status:up', 'status:desc:asc']);
+    $this->getJson('/lathe/api/resources/orders?'.$group)->assertUnprocessable()->assertJsonValidationErrors(['group']);
+})->with(['group=nope', 'group=status:up', 'group=status:desc:asc', 'group[]=status']);
 
 it('puts a null key under __lathe_null__ on the rows and the subtotals', function () {
     groupThings();

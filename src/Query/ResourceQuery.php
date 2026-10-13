@@ -720,7 +720,8 @@ class ResourceQuery
             return null;
         }
 
-        $parts = is_string($value) ? explode(':', $value) : [];
+        // An array ?group[]= names no group id, so it fails like an unknown one.
+        $parts = is_string($value) ? explode(':', $value) : [''];
         $direction = $parts[1] ?? null;
         $valid = count($parts) <= 2 && in_array($direction, [null, 'asc', 'desc'], true);
 
