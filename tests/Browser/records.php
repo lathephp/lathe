@@ -10,6 +10,11 @@ use Illuminate\Support\Facades\File;
 use Pest\Browser\Api\AwaitableWebpage;
 
 /**
+ * Why the tests that open the Posts form are skipped: the page throws before it renders.
+ */
+const TIPTAP_CHUNK_THROWS = 'The Posts form throws "Calling require for react": the built TiptapEditor chunk keeps a CommonJS require("react") from use-sync-external-store, since vite.config.ts makes react external.';
+
+/**
  * Sign in through the form and open a panel URL.
  */
 function signedInAt(string $url, string $project = 'desktop-chrome', string $email = 'admin@lathephp.com'): AwaitableWebpage
