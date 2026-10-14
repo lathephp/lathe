@@ -1,5 +1,5 @@
 import { usePage } from '@inertiajs/react';
-import { useTranslation } from '@lathephp/core';
+import { __panel, useTranslation } from '@lathephp/core';
 import { ListFilter } from 'lucide-react';
 import { type ComponentType, useId, useState } from 'react';
 import { Button } from '../components/ui/Button';
@@ -49,7 +49,8 @@ export function FilterPanel({ resource, endpoint, available, softDeletes, state,
     <div className="grid gap-4">
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {available.map((filter) => {
-          const Control = filter.remote ? RemotePicker : controls[filter.component];
+          // A key no built-in control draws is one a plugin registered with core's filter().
+          const Control = filter.remote ? RemotePicker : (controls[filter.component] ?? (__panel.filterComponent(filter.component) as ComponentType<FilterControlProps> | undefined));
 
           return (
             Control !== undefined && (

@@ -1,5 +1,5 @@
 import type { ComponentType, LazyExoticComponent } from 'react';
-import type { DetailFieldProps, FormFieldProps, IndexFieldProps } from './types';
+import type { DetailFieldProps, FilterData, FormFieldProps, IndexFieldProps } from './types';
 
 /** The props a plugin page receives. */
 export interface PluginPageProps {
@@ -42,7 +42,7 @@ export interface FieldRenderers {
 
 /** The props a custom filter receives. */
 export interface FilterProps {
-  filter: { name: string };
+  filter: FilterData;
   value: unknown;
   onChange: (value: unknown) => void;
 }
