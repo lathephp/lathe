@@ -92,10 +92,12 @@ function demoResetArtisan(string ...$arguments): Process
 }
 
 it('restores the 1,000-order snapshot and answers 503 while it runs', function () {
-    $server = demoResetServer();
+    // The MySQL clients run inside the lane's container, so a server on the port alone is not enough.
+    $lane = new Process(['podman', 'container', 'inspect', '-f', '{{.State.Running}}', 'lathe-mysql84']);
+    $server = rescue(fn () => $lane->run() === 0 && trim($lane->getOutput()) === 'true', false, report: false) ? demoResetServer() : null;
 
     if ($server === null) {
-        $this->markTestSkipped('The MySQL lane is not running on 127.0.0.1:33384; start it with: bash scripts/lanes.sh up mysql');
+        $this->markTestSkipped('The MySQL lane (podman container lathe-mysql84 on 127.0.0.1:33384) is not running; start it with: bash scripts/lanes.sh up mysql');
     }
 
     if ((new Process(['zstd', '--version']))->run() !== 0) {
