@@ -61,7 +61,7 @@ The gate is checked in every environment, local included. For a rule that is not
 
 ## Open the panel
 
-Serve the app and open `/lathe`. Sign in with the user you created. The panel lists the Users Resource in the sidebar and shows the Main dashboard.
+Serve the app and open `/lathe`. Sign in with the user you created. The sidebar lists Dashboard and Users; the dashboard is empty until you add widgets with `php artisan lathe:widget`. The panel's title is your `APP_NAME` (a new Laravel app calls itself "Laravel"); set `LATHE_APP_NAME` to name the panel on its own.
 
 ## Check the setup
 
@@ -69,7 +69,7 @@ Serve the app and open `/lathe`. Sign in with the user you created. The panel li
 php artisan lathe:doctor
 ```
 
-It prints one line per check and exits 1 when a check fails. Run it after an upgrade and in your deploy script.
+It prints one line per check and exits 1 when a check fails. Run it after an upgrade and in your deploy script. On a new app it shows one WARN until `php artisan optimize` (or `lathe:cache`) caches the Resource list; that is expected in development.
 
 ## Update Lathe
 
@@ -91,4 +91,4 @@ composer remove lathe/lathe
 
 ## What you see
 
-After `lathe:install`, `lathe:user` and adding the email to the gate, `/lathe` shows the sign-in screen. After signing in you see the sidebar with Users and the Main dashboard.
+After `lathe:install`, `lathe:user` and adding the email to the gate, `/lathe` shows the sign-in screen. After signing in you see the sidebar with Dashboard and Users.
