@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Collection;
 use Lathe\Auth\ResourceAuthorization;
+use Lathe\Field\Contracts\FilterableField;
 use Lathe\Field\Contracts\PrimesForPage;
 use Lathe\Field\Evaluator;
 use Lathe\Field\FieldContext;
@@ -18,7 +19,7 @@ use Lathe\Support\ConfigStore;
  * The parent record of a belongsTo relation: a picker in forms, a linked name on index and
  * detail. Required unless nullable().
  */
-class BelongsToField extends RelationField implements PrimesForPage
+class BelongsToField extends RelationField implements FilterableField, PrimesForPage
 {
     protected string $component = 'belongs-to-field';
 

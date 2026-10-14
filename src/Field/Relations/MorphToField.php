@@ -3,13 +3,14 @@
 namespace Lathe\Field\Relations;
 
 use Closure;
+use Lathe\Field\Contracts\FilterableField;
 use Lathe\Resources\Resource;
 
 /**
  * The parent of a morphTo relation: a type select, then a record picker. The client sends a
  * Resource uriKey as the type, never a class name.
  */
-class MorphToField extends RelationField
+class MorphToField extends RelationField implements FilterableField
 {
     protected string $component = 'morph-to-field';
 

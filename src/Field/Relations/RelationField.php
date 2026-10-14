@@ -10,6 +10,8 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use InvalidArgumentException;
 use Lathe\Field\Field;
+use Lathe\Filters\Filter;
+use Lathe\Filters\RelationFilter;
 use Lathe\Http\Requests\LatheRequest;
 use Lathe\Resources\Resource;
 
@@ -194,6 +196,14 @@ abstract class RelationField extends Field
     public function fill(LatheRequest $request, object $model, ?string $requestAttribute = null): ?Closure
     {
         return null;
+    }
+
+    /**
+     * filterable() on a relation picks one related record, or one morph type.
+     */
+    public function makeFieldFilter(): Filter
+    {
+        return new RelationFilter($this, $this->filterCallback);
     }
 
     // The related Resource

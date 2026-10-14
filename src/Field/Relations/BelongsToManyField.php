@@ -3,12 +3,13 @@
 namespace Lathe\Field\Relations;
 
 use Closure;
+use Lathe\Field\Contracts\FilterableField;
 
 /**
  * A many-to-many relation listed in a panel on detail, where records are attached and
  * detached with their pivot values.
  */
-class BelongsToManyField extends RelationField
+class BelongsToManyField extends RelationField implements FilterableField
 {
     use Concerns\HasPivotFields;
 
