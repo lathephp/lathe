@@ -2831,6 +2831,8 @@ Lathe\Query\CountStrategy::string $name
 Lathe\Query\CountStrategy::string $value
 Lathe\Query\DateBucket::day(Illuminate\Database\Connection $connection, string $column): string  [static]
 Lathe\Query\DateBucket::month(Illuminate\Database\Connection $connection, string $column): string  [static]
+Lathe\Query\DateBucket::offset(Illuminate\Database\Connection $connection, string $column, string $timezone, Carbon\CarbonInterface $from, Carbon\CarbonInterface $to): string  [static]
+Lathe\Query\DateBucket::zoned(Illuminate\Database\Connection $connection, string $column, Lathe\Widgets\TrendUnit $unit, string $timezone, Carbon\CarbonInterface $from, Carbon\CarbonInterface $to): string  [static]
 Lathe\Query\PivotVia::Illuminate\Database\Eloquent\Model $parent
 Lathe\Query\PivotVia::Illuminate\Database\Eloquent\Relations\BelongsToMany $relation
 Lathe\Query\PivotVia::Lathe\Field\Relations\BelongsToManyField $field
@@ -3532,6 +3534,83 @@ Lathe\Uploads\UploadHandler::persistDraft(?Illuminate\Contracts\Auth\Authenticat
 Lathe\Uploads\UploadHandler::received(Lathe\Uploads\PendingUpload $upload): array
 Lathe\Uploads\UploadHandler::start(?Illuminate\Contracts\Auth\Authenticatable $user, string $field, string $disk, string $directory, array $file): Lathe\Uploads\PendingUpload
 Lathe\Uploads\UploadHandler::storeChunk(Lathe\Uploads\PendingUpload $upload, int $index, string $bytes): void
+Lathe\Widgets\AggregateQuery::?Closure $callback  [protected]
+Lathe\Widgets\AggregateQuery::?string $dateColumn  [protected]
+Lathe\Widgets\AggregateQuery::?string $timezone  [protected]
+Lathe\Widgets\AggregateQuery::Illuminate\Contracts\Database\Query\Expression|string $column  [protected]
+Lathe\Widgets\AggregateQuery::Illuminate\Contracts\Database\Query\Expression|string|null $groupColumn  [protected]
+Lathe\Widgets\AggregateQuery::Illuminate\Database\Eloquent\Builder $builder  [protected]
+Lathe\Widgets\AggregateQuery::Lathe\Widgets\TrendUnit $unit  [protected]
+Lathe\Widgets\AggregateQuery::MAX_GROUPS
+Lathe\Widgets\AggregateQuery::MAX_POINTS
+Lathe\Widgets\AggregateQuery::__construct(Illuminate\Database\Eloquent\Builder $builder)  [protected]
+Lathe\Widgets\AggregateQuery::aggregate(Illuminate\Database\Query\Builder $query): int|float|null  [protected]
+Lathe\Widgets\AggregateQuery::aggregateOf(string $function, Illuminate\Contracts\Database\Query\Expression|string $column): static  [protected]
+Lathe\Widgets\AggregateQuery::aggregateSql(): string  [protected]
+Lathe\Widgets\AggregateQuery::array $colors  [protected]
+Lathe\Widgets\AggregateQuery::average(Illuminate\Contracts\Database\Query\Expression|string $column): static
+Lathe\Widgets\AggregateQuery::bar(): Lathe\Widgets\Results\BarResult
+Lathe\Widgets\AggregateQuery::by(Lathe\Widgets\TrendUnit $unit, int $count): static
+Lathe\Widgets\AggregateQuery::byDays(int $count): static
+Lathe\Widgets\AggregateQuery::byHours(int $count): static
+Lathe\Widgets\AggregateQuery::byMinutes(int $count): static
+Lathe\Widgets\AggregateQuery::byMonths(int $count): static
+Lathe\Widgets\AggregateQuery::byWeeks(int $count): static
+Lathe\Widgets\AggregateQuery::byYears(int $count): static
+Lathe\Widgets\AggregateQuery::colors(array $colors): static
+Lathe\Widgets\AggregateQuery::count(Illuminate\Contracts\Database\Query\Expression|string|null $column = NULL): static
+Lathe\Widgets\AggregateQuery::dateColumn(string $column): static
+Lathe\Widgets\AggregateQuery::for(Illuminate\Database\Eloquent\Builder|Illuminate\Database\Eloquent\Model|string $model): static  [static]
+Lathe\Widgets\AggregateQuery::groupBy(Illuminate\Contracts\Database\Query\Expression|string $column): static
+Lathe\Widgets\AggregateQuery::groups(string $terminal): array  [protected]
+Lathe\Widgets\AggregateQuery::int $range  [protected]
+Lathe\Widgets\AggregateQuery::max(Illuminate\Contracts\Database\Query\Expression|string $column): static
+Lathe\Widgets\AggregateQuery::min(Illuminate\Contracts\Database\Query\Expression|string $column): static
+Lathe\Widgets\AggregateQuery::number(mixed $value): int|float|null  [protected]
+Lathe\Widgets\AggregateQuery::partition(): Lathe\Widgets\Results\PartitionResult
+Lathe\Widgets\AggregateQuery::qualified(string $column): string  [protected]
+Lathe\Widgets\AggregateQuery::qualifiedDateColumn(): string  [protected]
+Lathe\Widgets\AggregateQuery::query(callable $callback): static
+Lathe\Widgets\AggregateQuery::scoped(): Illuminate\Database\Query\Builder  [protected]
+Lathe\Widgets\AggregateQuery::sql(string $sql): Illuminate\Contracts\Database\Query\Expression  [protected]
+Lathe\Widgets\AggregateQuery::string $function  [protected]
+Lathe\Widgets\AggregateQuery::sum(Illuminate\Contracts\Database\Query\Expression|string $column): static
+Lathe\Widgets\AggregateQuery::tables(): array
+Lathe\Widgets\AggregateQuery::timezone(string $timezone): static
+Lathe\Widgets\AggregateQuery::trend(): Lathe\Widgets\Results\TrendResult
+Lathe\Widgets\AggregateQuery::utc(DateTimeInterface $moment): string  [protected]
+Lathe\Widgets\AggregateQuery::value(): Lathe\Widgets\Results\ValueResult
+Lathe\Widgets\AggregateQuery::valueBetween(DateTimeInterface $start, DateTimeInterface $end, ?DateTimeInterface $previousStart = NULL, ?DateTimeInterface $previousEnd = NULL): Lathe\Widgets\Results\ValueResult
+Lathe\Widgets\AggregateQuery::wrapped(Illuminate\Contracts\Database\Query\Expression|string $column): string  [protected]
+Lathe\Widgets\AggregateQuery::zone(): string  [protected]
+Lathe\Widgets\Results\BarResult::__construct(array $data, array $colors = array ( ))
+Lathe\Widgets\Results\BarResult::array $colors
+Lathe\Widgets\Results\BarResult::array $data
+Lathe\Widgets\Results\BarResult::jsonSerialize(): array
+Lathe\Widgets\Results\PartitionResult::__construct(array $data, array $colors = array ( ))
+Lathe\Widgets\Results\PartitionResult::array $colors
+Lathe\Widgets\Results\PartitionResult::array $data
+Lathe\Widgets\Results\PartitionResult::jsonSerialize(): array
+Lathe\Widgets\Results\TrendResult::__construct(array $data)
+Lathe\Widgets\Results\TrendResult::array $data
+Lathe\Widgets\Results\TrendResult::jsonSerialize(): array
+Lathe\Widgets\Results\ValueResult::__construct(int|float|null $value, int|float|null $previous = NULL)
+Lathe\Widgets\Results\ValueResult::change(): ?float
+Lathe\Widgets\Results\ValueResult::int|float|null $previous
+Lathe\Widgets\Results\ValueResult::int|float|null $value
+Lathe\Widgets\Results\ValueResult::jsonSerialize(): array
+Lathe\Widgets\TrendUnit::Day
+Lathe\Widgets\TrendUnit::Hour
+Lathe\Widgets\TrendUnit::Minute
+Lathe\Widgets\TrendUnit::Month
+Lathe\Widgets\TrendUnit::Quarter
+Lathe\Widgets\TrendUnit::Week
+Lathe\Widgets\TrendUnit::Year
+Lathe\Widgets\TrendUnit::key(Carbon\CarbonImmutable $start): string
+Lathe\Widgets\TrendUnit::shift(Carbon\CarbonImmutable $start, int $count): Carbon\CarbonImmutable
+Lathe\Widgets\TrendUnit::startOf(Carbon\CarbonImmutable $moment): Carbon\CarbonImmutable
+Lathe\Widgets\TrendUnit::string $name
+Lathe\Widgets\TrendUnit::string $value
 class Lathe\ActionEvents\ActionEvent
 class Lathe\ActionEvents\ActionEventListener
 class Lathe\ActionEvents\ActionEventPolicy
@@ -3859,6 +3938,11 @@ class Lathe\Testing\TestCase
 class Lathe\Uploads\FieldAttachment
 class Lathe\Uploads\PendingUpload
 class Lathe\Uploads\UploadHandler
+class Lathe\Widgets\AggregateQuery
+class Lathe\Widgets\Results\BarResult
+class Lathe\Widgets\Results\PartitionResult
+class Lathe\Widgets\Results\TrendResult
+class Lathe\Widgets\Results\ValueResult
 enum Lathe\Enums\ActionEventStatus
 enum Lathe\Enums\ActionEventType
 enum Lathe\Enums\ClickAction
@@ -3868,6 +3952,7 @@ enum Lathe\Enums\TableStyle
 enum Lathe\Field\FieldContext
 enum Lathe\Query\CountStrategy
 enum Lathe\Query\QueryContext
+enum Lathe\Widgets\TrendUnit
 interface Lathe\Actions\BatchableAction
 interface Lathe\Attributes\Action\ActionAttribute
 interface Lathe\Attributes\Resource\ResourceAttribute

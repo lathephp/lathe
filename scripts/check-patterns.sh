@@ -30,10 +30,11 @@ check 'final class' '^\s*final\s+(abstract\s+)?class\b'
 check 'product name' "Laravel[ ]Lathe"
 check 'strict types declaration' 'declare\s*\(\s*strict_types'
 
-# Model queries open only inside ResourceQuery; Resource::query() itself is defined in Resource.
+# Model queries open only inside ResourceQuery; Resource::query() itself is defined in Resource,
+# and AggregateQuery opens the one query of a widget number.
 while IFS= read -r file; do
     case $file in
-        src/Query/*|src/Resources/Resource.php) ;;
+        src/Query/*|src/Resources/Resource.php|src/Widgets/AggregateQuery.php) ;;
         *) hits+=("model query outside ResourceQuery: $file") ;;
     esac
 done < <(files | xargs -0 -r grep -lP '\b[A-Z]\w*::query\s*\(|->newQuery\s*\(' -- 2>/dev/null)
