@@ -17,6 +17,7 @@ use Lathe\Http\Controllers\Plugins\ModuleController;
 use Lathe\Http\Controllers\Plugins\PluginApiController;
 use Lathe\Http\Controllers\Plugins\PluginPageController;
 use Lathe\Http\Controllers\Resources\ActionController;
+use Lathe\Http\Controllers\Resources\ActionRunController;
 use Lathe\Http\Controllers\Resources\AssociatableController;
 use Lathe\Http\Controllers\Resources\BatchDeleteController;
 use Lathe\Http\Controllers\Resources\CountController;
@@ -184,6 +185,7 @@ class PanelRoutes
     {
         $router->get('resources/{resource}/actions', [ActionController::class, 'index'])->name('resources.actions.index');
         $router->get('resources/{resource}/actions/{action}/form', [ActionController::class, 'form'])->name('resources.actions.form');
+        $router->post('resources/{resource}/action', ActionRunController::class)->name('resources.action.run');
     }
 
     /**

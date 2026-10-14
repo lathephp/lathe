@@ -40,7 +40,7 @@ class RunAuditOrders extends Resource
     public function actions(LatheRequest $request): array
     {
         return [
-            Action::make()->withName('Mark Shipped')->handleUsing(function (ActionFields $fields, Collection $models) {
+            Action::make()->withName('Mark Shipped')->withUriKey('mark-shipped')->handleUsing(function (ActionFields $fields, Collection $models) {
                 foreach ($models as $order) {
                     if ($order->getKey() === 13) {
                         throw new RuntimeException('Order 13 is on hold.');
@@ -49,7 +49,7 @@ class RunAuditOrders extends Resource
                     $order->update(['status' => 'shipped']);
                 }
             }),
-            Action::make()->withName('Rebuild Index')->standalone()->handleUsing(function (ActionFields $fields, Collection $models) {
+            Action::make()->withName('Rebuild Index')->withUriKey('rebuild-index')->standalone()->handleUsing(function (ActionFields $fields, Collection $models) {
                 static::$models[] = $models->count();
             }),
         ];

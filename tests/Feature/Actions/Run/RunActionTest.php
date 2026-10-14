@@ -163,7 +163,7 @@ class RunHandlesOrders extends RunHandlesOrder
  */
 function runShipping(array $throwOn = []): Action
 {
-    return Action::make()->withName('Mark Shipped')->handleUsing(function (ActionFields $fields, Collection $models) use ($throwOn) {
+    return Action::make()->withName('Mark Shipped')->withUriKey('mark-shipped')->handleUsing(function (ActionFields $fields, Collection $models) use ($throwOn) {
         foreach ($models as $order) {
             RunDeclared::$calls[] = 'handle:'.implode(',', $models->map(fn (Model $model) => $model->getKey())->all());
             $order->update(['status' => 'shipped']);
@@ -262,7 +262,7 @@ it('keeps at most 50 errors for 60 failing rows', function () {
 
 it('runs only the rows canRunWhen allows and counts the rest as skipped', function () {
     Order::whereKey([6, 7, 8])->update(['status' => 'shipped']);
-    RunDeclared::$actions = [Action::make()->withName('Deliver')
+    RunDeclared::$actions = [Action::make()->withName('Deliver')->withUriKey('deliver')
         ->canRunWhen(fn (Order $order) => $order->status === 'pending')
         ->handleUsing(fn (ActionFields $fields, Collection $models) => $models->each(fn (Order $order) => $order->update(['status' => 'delivered'])))];
 
@@ -285,7 +285,7 @@ it('runs on UUID, ULID and string keys', function (string $resource, string $tab
     $model::forceCreate(['id' => $keys[0], 'name' => 'pending']);
     $model::forceCreate(['id' => $keys[1], 'name' => 'pending']);
     $model::forceCreate(['id' => $keys[2], 'name' => 'shipped']);
-    RunDeclared::$actions = [Action::make()->withName('Deliver')
+    RunDeclared::$actions = [Action::make()->withName('Deliver')->withUriKey('deliver')
         ->canRunWhen(fn (Model $thing) => $thing->getAttribute('name') === 'pending')
         ->handleUsing(fn (ActionFields $fields, Collection $models) => $models->each(fn (Model $thing) => $thing->update(['name' => 'delivered'])))];
 
@@ -305,8 +305,8 @@ it('runs on UUID, ULID and string keys', function (string $resource, string $tab
 it('refuses an empty selection, a sole action on 2 rows, an unknown and a hidden action', function () {
     RunDeclared::$actions = [
         runShipping(),
-        Action::make()->withName('Print Label')->sole(),
-        Action::make()->withName('Secret')->canSee(fn () => false),
+        Action::make()->withName('Print Label')->withUriKey('print-label')->sole(),
+        Action::make()->withName('Secret')->withUriKey('secret')->canSee(fn () => false),
     ];
 
     $this->postJson('/lathe/api/resources/run-orders/action', runBody('mark-shipped', []))
@@ -320,7 +320,7 @@ it('refuses an empty selection, a sole action on 2 rows, an unknown and a hidden
 });
 
 it('refuses a user the policy denies runAction or runDestructiveAction', function () {
-    $cancel = Action::make()->withName('Cancel Order')->handleUsing(fn () => RunDeclared::$calls[] = 'cancel');
+    $cancel = Action::make()->withName('Cancel Order')->withUriKey('cancel-order')->handleUsing(fn () => RunDeclared::$calls[] = 'cancel');
     $cancel->destructive = true;
     RunDeclared::$actions = [runShipping(), $cancel];
 
