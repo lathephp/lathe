@@ -278,6 +278,9 @@ it('keeps one entry per user unless the card caches across users', function () {
 
 it('caches for the time to live on a store without tags', function () {
     config(['cache.default' => 'file', 'cache.stores.file.path' => sys_get_temp_dir().'/lathe-widget-cache-'.Str::random(8)]);
+    // Seeded orders sit at fixed times after midnight, so at some times of day one leaves the
+    // 30-day window during the 61 seconds below; at noon none does.
+    $this->travelTo(today()->setTime(12, 0));
     $this->actingAs(cacheUser());
     $before = cardValue('value-orders');
 
