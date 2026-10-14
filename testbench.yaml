@@ -16,6 +16,9 @@ env:
   - SESSION_DRIVER=file
   - QUEUE_CONNECTION=database
   - MAIL_MAILER=log
+  # workbench:build migrates the SQLite file while the database cache store resolves another connection;
+  # Spatie's migration and seeder read the cache, so the workbench caches in files.
+  - CACHE_STORE=file
   # Starting an impersonation lands in the panel, so the banner shows at once.
   - LATHE_IMPERSONATION_STARTED=/lathe
   - LATHE_FORTIFY_FEATURES=update-passwords,two-factor-authentication,email-verification
