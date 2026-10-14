@@ -129,8 +129,9 @@ it('signs in again over the form when the session expired and saves the typed va
         ->and(Customer::where('email', 'after.expiry@example.com')->sole()->name)->toBe('After Expiry');
 });
 
+// The editor may create customers but not orders (OrderPolicy::create is the admin's).
 it('opens the create form with c on Customers, and c does nothing on Orders without create', function () {
-    $page = signedInAt('/lathe/resources/customers');
+    $page = signedInAt('/lathe/resources/customers', email: 'editor@lathephp.com');
 
     $page->assertAttribute('a[href$="/resources/customers/new"]', 'aria-keyshortcuts', 'c')
         ->keys('#app', 'c')
@@ -164,7 +165,7 @@ it('keeps the editor on order 12 when e is pressed', function () {
 });
 
 it('shows the Create button on Customers and none on Orders without create', function (string $project) {
-    $page = signedInAt('/lathe/resources/customers', $project);
+    $page = signedInAt('/lathe/resources/customers', $project, 'editor@lathephp.com');
 
     $page->assertSeeIn('a[href="/lathe/resources/customers/new"]', 'Create Customer')
         ->navigate('/lathe/resources/orders')
@@ -178,7 +179,7 @@ it('shows the empty state with the Create button on Customers and without it on 
     DB::table('orders')->delete();
     DB::table('customers')->delete();
 
-    $page = signedInAt('/lathe/resources/customers');
+    $page = signedInAt('/lathe/resources/customers', email: 'editor@lathephp.com');
 
     $page->assertSee('No customers yet')
         ->assertCount('a[href="/lathe/resources/customers/new"]', 2)
