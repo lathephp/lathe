@@ -16,6 +16,7 @@ use Lathe\Field\Evaluator;
 use Lathe\Field\Field;
 use Lathe\Field\FieldCollection;
 use Lathe\Field\FieldContext;
+use Lathe\Field\Relations\RelationField;
 use Lathe\Filters\Filter;
 use Lathe\Groups\Group;
 use Lathe\Http\Requests\LatheRequest;
@@ -121,7 +122,7 @@ abstract class Resource
         }
 
         $fields = new FieldCollection(SectionPresenter::flattenFields($this->layoutItemsFor($context, $request), 'Details'));
-        $fields->each(fn (Field $field) => $field->freeze());
+        $fields->each(fn (Field $field) => ($field instanceof RelationField ? $field->ownedBy(static::class) : $field)->freeze());
 
         $request->attributes->set($key, $fields);
 

@@ -31,6 +31,7 @@ class Field implements JsonSerializable
     use Concerns\DateFactories;
     use Concerns\DisplayFactories;
     use Concerns\NumberFactories;
+    use Concerns\RelationFactories;
     use Concerns\RepeaterFactories;
     use Concerns\RichFactories;
     use Concerns\TextFactories;
