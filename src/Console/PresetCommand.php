@@ -23,7 +23,7 @@ class PresetCommand extends Command
     protected $description = 'Apply a shadcn preset to the theme keys of config/lathe.php';
 
     /** Radius names as shadcn spells them, and the CSS length each one writes. */
-    private const RADII = [
+    private const array RADII = [
         'default' => '0.625rem',
         'none' => '0',
         'small' => '0.45rem',
@@ -32,13 +32,13 @@ class PresetCommand extends Command
     ];
 
     /** Styles that force the radius to "none" whatever the preset says. */
-    private const RADIUS_LOCKED_STYLES = ['lyra'];
+    private const array RADIUS_LOCKED_STYLES = ['lyra'];
 
-    private const STYLES = ['nova', 'vega', 'lyra', 'maia', 'mira', 'luma', 'sera', 'rhea'];
+    private const array STYLES = ['nova', 'vega', 'lyra', 'maia', 'mira', 'luma', 'sera', 'rhea'];
 
-    private const FONT_FALLBACK = 'ui-sans-serif, system-ui, sans-serif';
+    private const string FONT_FALLBACK = 'ui-sans-serif, system-ui, sans-serif';
 
-    private const BASE_COLORS = ['neutral', 'stone', 'zinc', 'mauve', 'olive', 'mist', 'taupe'];
+    private const array BASE_COLORS = ['neutral', 'stone', 'zinc', 'mauve', 'olive', 'mist', 'taupe'];
 
     public function handle(): int
     {

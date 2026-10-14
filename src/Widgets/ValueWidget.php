@@ -16,19 +16,19 @@ use Lathe\Widgets\Results\ValueResult;
  */
 abstract class ValueWidget extends Widget
 {
-    public const TODAY = 'TODAY';
+    public const string TODAY = 'TODAY';
 
-    public const YESTERDAY = 'YESTERDAY';
+    public const string YESTERDAY = 'YESTERDAY';
 
-    public const THIS_WEEK = 'THIS_WEEK';
+    public const string THIS_WEEK = 'THIS_WEEK';
 
-    public const MTD = 'MTD';
+    public const string MTD = 'MTD';
 
-    public const QTD = 'QTD';
+    public const string QTD = 'QTD';
 
-    public const YTD = 'YTD';
+    public const string YTD = 'YTD';
 
-    public const ALL = 'ALL';
+    public const string ALL = 'ALL';
 
     protected ?string $component = 'value-widget';
 

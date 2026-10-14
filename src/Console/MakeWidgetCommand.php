@@ -10,7 +10,7 @@ use Symfony\Component\Console\Attribute\AsCommand;
 class MakeWidgetCommand extends GeneratorCommand
 {
     /** @var list<string> */
-    protected const TYPES = ['value', 'trend', 'partition', 'progress', 'table', 'custom', 'bar', 'pie', 'radar', 'radial', 'help'];
+    protected const array TYPES = ['value', 'trend', 'partition', 'progress', 'table', 'custom', 'bar', 'pie', 'radar', 'radial', 'help'];
 
     protected $signature = 'lathe:widget {name? : The class name} {--type=value : value, trend, partition, progress, table, custom, bar, pie, radar, radial or help} {--force : Overwrite an existing class}';
 

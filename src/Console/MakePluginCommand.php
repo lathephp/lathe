@@ -267,6 +267,6 @@ class MakePluginCommand extends GeneratorCommand
     {
         $process = new Process(['composer', 'update', $package], $this->hostPath());
         $process->setTimeout(null);
-        $process->run(fn ($type, $line) => $this->output->write($line));
+        $process->run(fn (string $type, string $line) => $this->output->write($line));
     }
 }

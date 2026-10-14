@@ -23,7 +23,7 @@ use Symfony\Component\Console\Attribute\AsCommand;
 class MakeFieldCommand extends GeneratorCommand
 {
     /** @var array<string, class-string> */
-    protected const BASES = [
+    protected const array BASES = [
         'field' => Field::class,
         'text' => TextField::class,
         'textarea' => TextareaField::class,

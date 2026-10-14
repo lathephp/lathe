@@ -14,7 +14,7 @@ use Illuminate\Support\Facades\Cache;
  */
 class WidgetCache
 {
-    public const TAG = 'lathe:widgets';
+    public const string TAG = 'lathe:widgets';
 
     /**
      * The cached value at the key, or the computed one, stored under its tags.

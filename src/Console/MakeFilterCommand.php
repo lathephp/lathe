@@ -10,7 +10,7 @@ use Symfony\Component\Console\Attribute\AsCommand;
 class MakeFilterCommand extends GeneratorCommand
 {
     /** @var list<string> */
-    protected const TYPES = ['select', 'boolean', 'date', 'range'];
+    protected const array TYPES = ['select', 'boolean', 'date', 'range'];
 
     protected $signature = 'lathe:filter {name? : The class name} {--type=select : select, boolean, date or range} {--custom : Write a filter class with a React component} {--force : Overwrite an existing class}';
 

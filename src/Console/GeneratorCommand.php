@@ -17,7 +17,7 @@ abstract class GeneratorCommand extends Command
      *
      * @var list<string>
      */
-    protected const RESERVED = ['Action', 'Dashboard', 'Field', 'Filter', 'Lens', 'Plugin', 'Resource', 'Widget'];
+    protected const array RESERVED = ['Action', 'Dashboard', 'Field', 'Filter', 'Lens', 'Plugin', 'Resource', 'Widget'];
 
     /**
      * The stub's name under stubs/, without the extension.

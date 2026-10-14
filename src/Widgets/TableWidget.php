@@ -11,7 +11,7 @@ use Stringable;
  */
 abstract class TableWidget extends Widget
 {
-    public const MAX_ROWS = 100;
+    public const int MAX_ROWS = 100;
 
     protected ?string $component = 'table-widget';
 

@@ -28,9 +28,9 @@ class AggregateQuery
     /**
      * The most points a trend holds, and the most groups a bar or partition names.
      */
-    public const MAX_POINTS = 366;
+    public const int MAX_POINTS = 366;
 
-    public const MAX_GROUPS = 20;
+    public const int MAX_GROUPS = 20;
 
     protected string $function = 'count';
 

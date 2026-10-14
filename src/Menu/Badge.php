@@ -13,13 +13,13 @@ use Stringable;
  */
 class Badge implements JsonSerializable
 {
-    public const INFO = 'info';
+    public const string INFO = 'info';
 
-    public const SUCCESS = 'success';
+    public const string SUCCESS = 'success';
 
-    public const WARNING = 'warning';
+    public const string WARNING = 'warning';
 
-    public const DESTRUCTIVE = 'destructive';
+    public const string DESTRUCTIVE = 'destructive';
 
     protected ?string $tooltip = null;
 

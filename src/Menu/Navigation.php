@@ -95,9 +95,9 @@ class Navigation
             ($this->menus->main)($request, $menu);
         }
 
-        $loose = array_values(array_filter($menu->entries(), fn ($entry) => ! $entry instanceof MenuSection));
+        $loose = array_values(array_filter($menu->entries(), fn (MenuItem|MenuGroup|MenuSection $entry) => ! $entry instanceof MenuSection));
         $sections = [
-            ...array_values(array_filter($menu->entries(), fn ($entry) => $entry instanceof MenuSection)),
+            ...array_values(array_filter($menu->entries(), fn (MenuItem|MenuGroup|MenuSection $entry) => $entry instanceof MenuSection)),
             ...$this->plugins->menus($request),
         ];
 

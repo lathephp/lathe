@@ -37,7 +37,7 @@ class PluginsCommand extends Command
 
             if ($this->output->isVerbose()) {
                 $rows[] = ['', 'resources: '.($this->joined($plugin->resources()) ?: '-'), '', ''];
-                $rows[] = ['', 'widgets: '.($this->joined(array_map(fn ($widget) => $widget::class, $plugin->widgets())) ?: '-'), '', ''];
+                $rows[] = ['', 'widgets: '.($this->joined(array_map(fn (object $widget) => $widget::class, $plugin->widgets())) ?: '-'), '', ''];
                 $rows[] = ['', 'menu: '.($this->menuLabels($plugins, $plugin) ?: '-'), '', ''];
             }
         }
