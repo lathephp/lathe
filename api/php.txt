@@ -763,12 +763,46 @@ Lathe\Console\ClearCommand::handle(Lathe\Resources\ResourceRegistry $registry): 
 Lathe\Console\DoctorCommand::$description  [protected]
 Lathe\Console\DoctorCommand::$signature  [protected]
 Lathe\Console\DoctorCommand::handle(Lathe\Doctor\Doctor $doctor): int
+Lathe\Console\GeneratorCommand::RESERVED
+Lathe\Console\GeneratorCommand::folder(): string  [protected]
+Lathe\Console\GeneratorCommand::handle(Illuminate\Filesystem\Filesystem $files): int
+Lathe\Console\GeneratorCommand::pluginRoot(string $slug): ?array  [protected]
+Lathe\Console\GeneratorCommand::replacements(string $class): array  [protected]
+Lathe\Console\GeneratorCommand::stub(): string  [protected]
+Lathe\Console\GeneratorCommand::stubPath(string $stub): string  [protected]
+Lathe\Console\GeneratorCommand::target(): ?array  [protected]
+Lathe\Console\GeneratorCommand::writeClass(Illuminate\Filesystem\Filesystem $files, string $stub, string $path, array $replace): int  [protected]
 Lathe\Console\InstallCommand::$description  [protected]
 Lathe\Console\InstallCommand::$signature  [protected]
 Lathe\Console\InstallCommand::handle(Illuminate\Filesystem\Filesystem $files): int
 Lathe\Console\InstallCommand::publish(string $tag): int  [protected]
 Lathe\Console\InstallCommand::tasks(Illuminate\Filesystem\Filesystem $files): array  [protected]
 Lathe\Console\InstallCommand::write(Illuminate\Filesystem\Filesystem $files, string $stub, string $path, array $replace): int  [protected]
+Lathe\Console\MakeActionCommand::$description  [protected]
+Lathe\Console\MakeActionCommand::$signature  [protected]
+Lathe\Console\MakeActionCommand::folder(): string  [protected]
+Lathe\Console\MakeActionCommand::stub(): string  [protected]
+Lathe\Console\MakeDashboardCommand::$description  [protected]
+Lathe\Console\MakeDashboardCommand::$signature  [protected]
+Lathe\Console\MakeDashboardCommand::folder(): string  [protected]
+Lathe\Console\MakeDashboardCommand::stub(): string  [protected]
+Lathe\Console\MakeFilterCommand::$description  [protected]
+Lathe\Console\MakeFilterCommand::$signature  [protected]
+Lathe\Console\MakeFilterCommand::TYPES
+Lathe\Console\MakeFilterCommand::folder(): string  [protected]
+Lathe\Console\MakeFilterCommand::handle(Illuminate\Filesystem\Filesystem $files): int
+Lathe\Console\MakeFilterCommand::stub(): string  [protected]
+Lathe\Console\MakeLensCommand::$description  [protected]
+Lathe\Console\MakeLensCommand::$signature  [protected]
+Lathe\Console\MakeLensCommand::folder(): string  [protected]
+Lathe\Console\MakeLensCommand::stub(): string  [protected]
+Lathe\Console\MakeResourceCommand::$description  [protected]
+Lathe\Console\MakeResourceCommand::$signature  [protected]
+Lathe\Console\MakeResourceCommand::folder(): string  [protected]
+Lathe\Console\MakeResourceCommand::handle(Illuminate\Filesystem\Filesystem $files): int
+Lathe\Console\MakeResourceCommand::model(): string  [protected]
+Lathe\Console\MakeResourceCommand::replacements(string $class): array  [protected]
+Lathe\Console\MakeResourceCommand::stub(): string  [protected]
 Lathe\Console\PruneActionEventsCommand::$description  [protected]
 Lathe\Console\PruneActionEventsCommand::$signature  [protected]
 Lathe\Console\PruneActionEventsCommand::CHUNK
@@ -3587,7 +3621,13 @@ class Lathe\Auth\ResourceAuthorization
 class Lathe\Console\CacheCommand
 class Lathe\Console\ClearCommand
 class Lathe\Console\DoctorCommand
+class Lathe\Console\GeneratorCommand
 class Lathe\Console\InstallCommand
+class Lathe\Console\MakeActionCommand
+class Lathe\Console\MakeDashboardCommand
+class Lathe\Console\MakeFilterCommand
+class Lathe\Console\MakeLensCommand
+class Lathe\Console\MakeResourceCommand
 class Lathe\Console\PruneActionEventsCommand
 class Lathe\Console\TranslateCommand
 class Lathe\Dashboards\Dashboard

@@ -1,0 +1,35 @@
+<?php
+
+namespace {{ namespace }};
+
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
+use Lathe\Filters\BooleanFilter;
+use Lathe\Http\Requests\LatheRequest;
+
+class {{ class }} extends BooleanFilter
+{
+    /**
+     * @param  Builder<Model>  $query
+     * @param  array<string, bool>  $value  option => checked
+     * @return Builder<Model>
+     */
+    public function apply(LatheRequest $request, Builder $query, mixed $value): Builder
+    {
+        foreach ($value as $column => $checked) {
+            if ($checked) {
+                $query->where($column, true);
+            }
+        }
+
+        return $query;
+    }
+
+    /**
+     * @return array<string, string> label => column
+     */
+    public function options(LatheRequest $request): array
+    {
+        return [];
+    }
+}

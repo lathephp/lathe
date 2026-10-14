@@ -1,0 +1,29 @@
+<?php
+
+namespace {{ namespace }};
+
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
+use Lathe\Filters\RangeFilter;
+use Lathe\Http\Requests\LatheRequest;
+
+class {{ class }} extends RangeFilter
+{
+    /**
+     * @param  Builder<Model>  $query
+     * @param  array{min: int|float|null, max: int|float|null}  $value
+     * @return Builder<Model>
+     */
+    public function apply(LatheRequest $request, Builder $query, mixed $value): Builder
+    {
+        if ($value['min'] !== null) {
+            $query->where('column', '>=', $value['min']);
+        }
+
+        if ($value['max'] !== null) {
+            $query->where('column', '<=', $value['max']);
+        }
+
+        return $query;
+    }
+}

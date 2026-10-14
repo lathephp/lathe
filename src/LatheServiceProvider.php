@@ -27,6 +27,11 @@ use Lathe\Console\CacheCommand;
 use Lathe\Console\ClearCommand;
 use Lathe\Console\DoctorCommand;
 use Lathe\Console\InstallCommand;
+use Lathe\Console\MakeActionCommand;
+use Lathe\Console\MakeDashboardCommand;
+use Lathe\Console\MakeFilterCommand;
+use Lathe\Console\MakeLensCommand;
+use Lathe\Console\MakeResourceCommand;
 use Lathe\Console\PruneActionEventsCommand;
 use Lathe\Console\TranslateCommand;
 use Lathe\Dashboards\DashboardRegistry;
@@ -111,7 +116,7 @@ class LatheServiceProvider extends ServiceProvider
         });
 
         if ($this->app->runningInConsole()) {
-            $this->commands([ApiCheckCommand::class, CacheCommand::class, ClearCommand::class, DoctorCommand::class, InstallCommand::class, PruneActionEventsCommand::class, TranslateCommand::class]);
+            $this->commands([ApiCheckCommand::class, CacheCommand::class, ClearCommand::class, DoctorCommand::class, InstallCommand::class, MakeActionCommand::class, MakeDashboardCommand::class, MakeFilterCommand::class, MakeLensCommand::class, MakeResourceCommand::class, PruneActionEventsCommand::class, TranslateCommand::class]);
             $this->optimizes(optimize: 'lathe:cache', clear: 'lathe:clear', key: 'lathe');
 
             $this->publishes([

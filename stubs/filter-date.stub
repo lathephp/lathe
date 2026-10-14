@@ -1,0 +1,29 @@
+<?php
+
+namespace {{ namespace }};
+
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
+use Lathe\Filters\DateFilter;
+use Lathe\Http\Requests\LatheRequest;
+
+class {{ class }} extends DateFilter
+{
+    /**
+     * @param  Builder<Model>  $query
+     * @param  array{from: string|null, to: string|null}  $value
+     * @return Builder<Model>
+     */
+    public function apply(LatheRequest $request, Builder $query, mixed $value): Builder
+    {
+        if ($value['from'] !== null) {
+            $query->whereDate('created_at', '>=', $value['from']);
+        }
+
+        if ($value['to'] !== null) {
+            $query->whereDate('created_at', '<=', $value['to']);
+        }
+
+        return $query;
+    }
+}

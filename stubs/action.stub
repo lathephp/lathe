@@ -1,0 +1,24 @@
+<?php
+
+namespace {{ namespace }};
+
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Collection;
+use Lathe\Actions\Action;
+use Lathe\Actions\ActionFields;
+use Lathe\Actions\ActionResult;
+
+class {{ class }} extends Action
+{
+    /**
+     * @param  Collection<int, Model>  $models
+     */
+    public function handle(ActionFields $fields, Collection $models): ActionResult
+    {
+        foreach ($models as $model) {
+            //
+        }
+
+        return ActionResult::message('Done.');
+    }
+}
