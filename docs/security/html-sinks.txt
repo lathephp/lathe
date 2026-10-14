@@ -1,3 +1,4 @@
 # Files that may use dangerouslySetInnerHTML. scripts/check-patterns.sh reads this file:
 # each line is a path from the repo root, then whitespace, then the reason.
 resources/js/components/SafeHtml.tsx  renders server-sanitized SafeHtml; the only sink
+resources/js/pages/Security.tsx  the two-factor QR code: an SVG Fortify draws on the server from the user's own secret, fetched from the panel's own route; no user input

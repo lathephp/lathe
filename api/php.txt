@@ -794,6 +794,7 @@ Lathe\Auth\FortifyConfig::guard(): string
 Lathe\Auth\FortifyConfig::passwordBroker(): string
 Lathe\Auth\FortifyConfig::scoped(Closure $callback): mixed
 Lathe\Auth\FortifyConfig::string(string $key): string  [protected]
+Lathe\Auth\FortifyConfig::twoFactorOption(string $option): bool
 Lathe\Auth\FortifyConfig::userModel(): ?string
 Lathe\Auth\FortifyConfig::username(): string
 Lathe\Auth\Impersonatable::canBeImpersonated(): bool
@@ -2392,7 +2393,17 @@ Lathe\Http\Controllers\Auth\NewPasswordController::store(Illuminate\Http\Request
 Lathe\Http\Controllers\Auth\PasswordResetLinkController::create(Illuminate\Http\Request $request): Symfony\Component\HttpFoundation\Response
 Lathe\Http\Controllers\Auth\PasswordResetLinkController::store(Illuminate\Http\Request $request): Symfony\Component\HttpFoundation\Response
 Lathe\Http\Controllers\Auth\SecurityController::show(Illuminate\Http\Request $request): Symfony\Component\HttpFoundation\Response
+Lathe\Http\Controllers\Auth\SecurityController::twoFactorState(Illuminate\Http\Request $request): string  [protected]
 Lathe\Http\Controllers\Auth\SecurityController::updatePassword(Illuminate\Http\Request $request): Symfony\Component\HttpFoundation\Response
+Lathe\Http\Controllers\Auth\TwoFactorAuthenticationController::confirm(Illuminate\Http\Request $request): Symfony\Component\HttpFoundation\Response
+Lathe\Http\Controllers\Auth\TwoFactorAuthenticationController::destroy(Illuminate\Http\Request $request): Symfony\Component\HttpFoundation\Response
+Lathe\Http\Controllers\Auth\TwoFactorAuthenticationController::qrCode(Illuminate\Http\Request $request): Symfony\Component\HttpFoundation\Response
+Lathe\Http\Controllers\Auth\TwoFactorAuthenticationController::recoveryCodes(Illuminate\Http\Request $request): Symfony\Component\HttpFoundation\Response
+Lathe\Http\Controllers\Auth\TwoFactorAuthenticationController::regenerateRecoveryCodes(Illuminate\Http\Request $request): Symfony\Component\HttpFoundation\Response
+Lathe\Http\Controllers\Auth\TwoFactorAuthenticationController::secretKey(Illuminate\Http\Request $request): Symfony\Component\HttpFoundation\Response
+Lathe\Http\Controllers\Auth\TwoFactorAuthenticationController::store(Illuminate\Http\Request $request): Symfony\Component\HttpFoundation\Response
+Lathe\Http\Controllers\Auth\TwoFactorChallengeController::create(Illuminate\Http\Request $request): Symfony\Component\HttpFoundation\Response
+Lathe\Http\Controllers\Auth\TwoFactorChallengeController::store(Illuminate\Http\Request $request): Symfony\Component\HttpFoundation\Response
 Lathe\Http\Controllers\BulkRunController::destroy(Lathe\Http\Requests\LatheRequest $request, string $id): Illuminate\Http\JsonResponse
 Lathe\Http\Controllers\BulkRunController::owned(Lathe\Http\Requests\LatheRequest $request, string $id): Lathe\Actions\BulkRun  [protected]
 Lathe\Http\Controllers\BulkRunController::show(Lathe\Http\Requests\LatheRequest $request, string $id): Illuminate\Http\JsonResponse
@@ -4715,6 +4726,8 @@ class Lathe\Http\Controllers\Auth\LoginPageController
 class Lathe\Http\Controllers\Auth\NewPasswordController
 class Lathe\Http\Controllers\Auth\PasswordResetLinkController
 class Lathe\Http\Controllers\Auth\SecurityController
+class Lathe\Http\Controllers\Auth\TwoFactorAuthenticationController
+class Lathe\Http\Controllers\Auth\TwoFactorChallengeController
 class Lathe\Http\Controllers\BulkRunController
 class Lathe\Http\Controllers\DashboardController
 class Lathe\Http\Controllers\ExportController
