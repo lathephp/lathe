@@ -1,8 +1,19 @@
 import { act, fireEvent, render, screen } from '@testing-library/react';
-import { afterEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { RUN_POLL_MS, RunToasts } from '../actions/RunToasts';
+import { listenForRuns, runStore } from '../actions/runStore';
+
+let stop: () => void = () => undefined;
+
+beforeEach(() => {
+  stop = listenForRuns();
+});
 
 afterEach(() => {
+  stop();
+  for (const run of runStore.get()) {
+    runStore.dismiss(run.kind, run.id);
+  }
   vi.useRealTimers();
   vi.restoreAllMocks();
 });

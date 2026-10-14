@@ -36,7 +36,7 @@ describe('the detail action menu', () => {
       },
     });
 
-    fireEvent.click(screen.getByRole('button', { name: 'Actions' }));
+    fireEvent.click(await screen.findByRole('button', { name: 'Actions' }));
     const menu = screen.getByRole('menu', { name: 'Actions' });
     expect(within(menu).getByRole<HTMLButtonElement>('menuitem', { name: 'Cancel Order' }).disabled).toBe(true);
 

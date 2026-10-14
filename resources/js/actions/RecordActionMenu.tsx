@@ -3,15 +3,10 @@ import { useLathe, useTranslation } from '@lathephp/core';
 import { Button } from '@lathephp/ui';
 import { ChevronDown } from 'lucide-react';
 import { useId, useState } from 'react';
-import type { SelectionDescriptor } from '../index/useRowSelection';
 import { cn } from '../lib/cn';
+import { recordSelection } from './selection';
 import type { ActionMeta } from './types';
 import { useActionRunner } from './useActionRunner';
-
-/** The selection of one record, trashed or not. */
-export function recordSelection(id: string | number): SelectionDescriptor {
-  return { mode: 'ids', ids: [id], exclusions: [], q: '', filters: {}, tab: null, saved_tab: null, trashed: 'with', lens: null, via: null };
-}
 
 const itemClass =
   'flex w-full items-start rounded-md px-2 py-1.5 text-start text-sm outline-none hover:bg-muted focus-visible:ring-2 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50';

@@ -42,7 +42,7 @@ it('lists the name, the core range and every registered component in the manifes
         'core' => '^1.0',
         'scripts' => ['heartbeat.js'],
         'styles' => [],
-        'components' => ['plugin' => ['heartbeat']],
+        'components' => ['plugin' => ['heartbeat'], 'actionModal' => ['hold-order']],
     ]);
 });
 

@@ -2,14 +2,16 @@ import { usePage } from '@inertiajs/react';
 import { addShortcut, QueryClientProvider, queryClient, shortcutsEnabled, useTranslation } from '@lathephp/core';
 import { Button } from '@lathephp/ui';
 import { Menu, PanelLeft, Search } from 'lucide-react';
-import { useEffect, useState, type CSSProperties, type ReactNode } from 'react';
+import { lazy, Suspense, useEffect, useState, type CSSProperties, type ReactNode } from 'react';
 import { cn } from '../lib/cn';
-import { NotificationCenter } from '../notifications/NotificationCenter';
 import { SearchPalette } from '../palette/SearchPalette';
 import type { SharedProps } from '../types';
 import { Sidebar } from './Sidebar';
 
 const oneYear = 60 * 60 * 24 * 365;
+
+// The bell loads beside the page, so no route's first load carries it.
+const NotificationCenter = lazy(() => import('../notifications/NotificationCenter').then((module) => ({ default: module.NotificationCenter })));
 
 /** The panel shell: sidebar, header, content and footer around a page. */
 export function AppLayout({ children }: { children: ReactNode }) {
@@ -121,11 +123,13 @@ export function AppLayout({ children }: { children: ReactNode }) {
               </Button>
             )}
             {notifications?.enabled === true && (
-              <NotificationCenter
-                basePath={props.basePath}
-                pollingInterval={notifications.pollingInterval}
-                showUnreadCount={notifications.showUnreadCount}
-              />
+              <Suspense fallback={null}>
+                <NotificationCenter
+                  basePath={props.basePath}
+                  pollingInterval={notifications.pollingInterval}
+                  showUnreadCount={notifications.showUnreadCount}
+                />
+              </Suspense>
             )}
           </div>
         </header>

@@ -1,8 +1,7 @@
 import { Head, usePage } from '@inertiajs/react';
+import { lazy, Suspense } from 'react';
 import { useShortcut } from '@lathephp/core';
 import { Card } from '@lathephp/ui';
-import { ActionBar } from '../../actions/ActionBar';
-import { batchOperations, DeleteMenu } from '../../actions/DeleteMenu';
 import { EmptyState } from '../../index/EmptyState';
 import { IndexBanner } from '../../index/IndexBanner';
 import { IndexFooter } from '../../index/IndexFooter';
@@ -16,6 +15,10 @@ import type { IndexProps } from '../../index/types';
 import { useIndexState } from '../../index/useIndexState';
 import { useRowSelection } from '../../index/useRowSelection';
 import type { SharedProps } from '../../types';
+
+// The menus load after the rows, so the action code stays out of the index's first load.
+const ActionBar = lazy(() => import('../../actions/ActionBar').then((module) => ({ default: module.ActionBar })));
+const DeleteMenu = lazy(() => import('../../actions/DeleteMenu').then((module) => ({ default: module.DeleteMenu })));
 
 export default function Index({ resource, table, state, count, error, lens, lenses, actions }: IndexProps) {
   const { basePath } = usePage<SharedProps>().props;
@@ -59,8 +62,10 @@ export default function Index({ resource, table, state, count, error, lens, lens
         />
       ) : (
         <Card className="overflow-hidden">
-          {((actions !== undefined && actions.actions.length > 0) || batchOperations(resource.softDeletes, selection, more.rows).length > 0) && (
-            <div className="flex justify-end gap-2 border-b border-border px-3 py-2">
+          {((actions !== undefined && actions.actions.length > 0) || selection.all || selection.selected.size > 0) && (
+            // Empty while the menus load or when the ticked rows allow nothing, and then hidden.
+            <div className="flex justify-end gap-2 border-b border-border px-3 py-2 empty:hidden">
+              <Suspense fallback={null}>
               <DeleteMenu
                 uriKey={resource.uriKey}
                 lens={lens?.uriKey ?? null}
@@ -81,6 +86,7 @@ export default function Index({ resource, table, state, count, error, lens, lens
                   state={index.state}
                 />
               )}
+              </Suspense>
             </div>
           )}
           <SelectionBanner selection={selection} ids={ids} count={count} hasMorePages={more.hasMorePages} />

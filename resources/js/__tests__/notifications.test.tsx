@@ -1,6 +1,6 @@
 import { __panel } from '@lathephp/core';
 import { act, fireEvent, render, screen, within } from '@testing-library/react';
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 import { Toaster } from '../components/Toaster';
 import { NotificationCenter } from '../notifications/NotificationCenter';
 import { renderPage } from './support';
@@ -95,6 +95,12 @@ async function openPanel() {
   fireEvent.keyDown(document.body, { key: 'n' });
   await settle();
 }
+
+// The bell and its panel load lazily; loading them once here keeps the fake timers from racing the import.
+beforeAll(async () => {
+  await import('../notifications/NotificationPanel');
+  await import('../notifications/NotificationCenter');
+});
 
 describe('bell', () => {
   it('shows a red dot when unread exist', async () => {
@@ -321,6 +327,7 @@ describe('notifications.enabled', () => {
   it('mounts the bell in the header when on', async () => {
     count = 1;
     renderPage('Dashboard', dashboard, { shared: { notifications: { enabled: true, pollingInterval: 7, showUnreadCount: true } } });
+    await settle();
     await settle();
 
     expect(within(screen.getByRole('banner')).getByRole('button', { name: /Notifications/ }).textContent).toBe('1');

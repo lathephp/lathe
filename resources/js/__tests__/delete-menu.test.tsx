@@ -57,8 +57,8 @@ function tick(...ids: number[]) {
   }
 }
 
-function items(): string[] {
-  fireEvent.click(screen.getByRole('button', { name: 'Delete' }));
+async function items(): Promise<string[]> {
+  fireEvent.click(await screen.findByRole('button', { name: 'Delete' }));
 
   return within(screen.getByRole('menu', { name: 'Delete' }))
     .getAllByRole('menuitem')
@@ -74,14 +74,14 @@ describe('the delete menu', () => {
     expect(screen.queryByRole('button', { name: 'Delete' })).toBeNull();
   });
 
-  it('offers delete and force delete for live rows, restore once a trashed row is ticked', () => {
+  it('offers delete and force delete for live rows, restore once a trashed row is ticked', async () => {
     renderPosts([{ id: 1 }, { id: 2, trashed: true }]);
     tick(1);
-    expect(items()).toEqual(['Delete Selected', 'Force Delete Selected']);
+    expect(await items()).toEqual(['Delete Selected', 'Force Delete Selected']);
 
     fireEvent.click(screen.getByRole('button', { name: 'Delete' }));
     tick(2);
-    expect(items()).toEqual(['Delete Selected', 'Force Delete Selected', 'Restore Selected']);
+    expect(await items()).toEqual(['Delete Selected', 'Force Delete Selected', 'Restore Selected']);
   });
 
   it('leaves out Delete Selected when the policy denies delete', () => {
@@ -96,7 +96,7 @@ describe('the delete menu', () => {
     const fetch = vi.spyOn(globalThis, 'fetch').mockResolvedValueOnce(json({ deleted: 2, skipped: 0 }));
     renderPosts([{ id: 1 }, { id: 2 }, { id: 3 }]);
     tick(1, 3);
-    fireEvent.click(screen.getByRole('button', { name: 'Delete' }));
+    fireEvent.click(await screen.findByRole('button', { name: 'Delete' }));
     fireEvent.click(screen.getByRole('menuitem', { name: 'Delete Selected' }));
 
     const dialog = screen.getByRole('alertdialog', { name: 'Delete 2 resource(s)?' });
@@ -116,7 +116,7 @@ describe('the delete menu', () => {
     vi.spyOn(globalThis, 'fetch').mockResolvedValueOnce(json({ message: 'Server Error' }, 500));
     renderPosts([{ id: 1, trashed: true }]);
     tick(1);
-    fireEvent.click(screen.getByRole('button', { name: 'Delete' }));
+    fireEvent.click(await screen.findByRole('button', { name: 'Delete' }));
     fireEvent.click(screen.getByRole('menuitem', { name: 'Restore Selected' }));
     fireEvent.click(within(screen.getByRole('alertdialog')).getByRole('button', { name: 'Restore Selected' }));
 

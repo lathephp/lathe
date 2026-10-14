@@ -82,8 +82,8 @@ function tick(...ids: number[]) {
   }
 }
 
-function openMenu() {
-  fireEvent.click(screen.getByRole('button', { name: 'Actions' }));
+async function openMenu() {
+  fireEvent.click(await screen.findByRole('button', { name: 'Actions' }));
 
   return screen.getByRole('menu', { name: 'Actions' });
 }
@@ -91,10 +91,10 @@ function openMenu() {
 const json = (body: unknown, status = 200) => new Response(JSON.stringify(body), { status });
 
 describe('the actions menu', () => {
-  it('lists standalone first, Export ungrouped, Mark Shipped under Fulfilment and the destructive one last below a separator', () => {
+  it('lists standalone first, Export ungrouped, Mark Shipped under Fulfilment and the destructive one last below a separator', async () => {
     renderOrders();
     tick(1, 2, 3);
-    const menu = openMenu();
+    const menu = await openMenu();
 
     expect(within(menu).getAllByRole('menuitem').map((item) => item.textContent)).toEqual([
       'Send Report',
@@ -107,28 +107,28 @@ describe('the actions menu', () => {
     expect(within(menu).getAllByRole('separator')).toHaveLength(1);
   });
 
-  it('enables a standalone action with nothing ticked, a resource action once a row is, and a sole one at exactly one', () => {
+  it('enables a standalone action with nothing ticked, a resource action once a row is, and a sole one at exactly one', async () => {
     renderOrders();
-    let menu = openMenu();
+    let menu = await openMenu();
     const disabled = () => within(menu).getAllByRole<HTMLButtonElement>('menuitem').filter((item) => item.disabled).map((item) => item.textContent);
 
     expect(disabled()).toEqual(['ExportDownload the rows', 'Mark Shipped', 'Hold order', 'Cancel Order']);
 
     fireEvent.click(screen.getByRole('button', { name: 'Actions' }));
     tick(1);
-    menu = openMenu();
+    menu = await openMenu();
     expect(disabled()).toEqual([]);
 
     fireEvent.click(screen.getByRole('button', { name: 'Actions' }));
     tick(2);
-    menu = openMenu();
+    menu = await openMenu();
     expect(disabled()).toEqual(['Hold order']);
   });
 
-  it('disables an action a ticked row may not run', () => {
+  it('disables an action a ticked row may not run', async () => {
     renderOrders(actions, [...rows(1), ...rows(1, ['export']).map((row) => ({ ...row, id: 2 }))]);
     tick(1, 2);
-    const menu = openMenu();
+    const menu = await openMenu();
 
     expect(within(menu).getByRole<HTMLButtonElement>('menuitem', { name: 'Cancel Order' }).disabled).toBe(true);
   });
@@ -139,12 +139,13 @@ describe('the actions menu', () => {
     expect(screen.queryByRole('button', { name: 'Actions' })).toBeNull();
   });
 
-  it('shows a pinned action as a button once a row is ticked', () => {
+  it('shows a pinned action as a button once a row is ticked', async () => {
     renderOrders([...actions, meta('flag', 'Flag', { pinned: true })]);
 
+    await screen.findByRole('button', { name: 'Actions' });
     expect(screen.queryByRole('button', { name: 'Flag' })).toBeNull();
     tick(1);
-    expect(screen.getByRole('button', { name: 'Flag' })).toBeTruthy();
+    expect(await screen.findByRole('button', { name: 'Flag' })).toBeTruthy();
   });
 });
 
@@ -157,7 +158,7 @@ describe('the action modal', () => {
       .mockResolvedValueOnce(json({ result: { message: 'Action was executed successfully.', level: 'success', effect: null }, permitted: 3, skipped: 0, failed: 0, errors: [] }));
     renderOrders();
     tick(1, 2, 3);
-    fireEvent.click(within(openMenu()).getByRole('menuitem', { name: 'Mark Shipped' }));
+    fireEvent.click(within(await openMenu()).getByRole('menuitem', { name: 'Mark Shipped' }));
 
     const dialog = await screen.findByRole('dialog');
     expect(await within(dialog).findByText('Mark 3 orders as shipped?')).toBeTruthy();
@@ -186,7 +187,7 @@ describe('the action modal', () => {
       .mockResolvedValueOnce(json({ message: 'Invalid', errors: { note: ['The note field is required.'] } }, 422));
     renderOrders();
     tick(1);
-    fireEvent.click(within(openMenu()).getByRole('menuitem', { name: 'Mark Shipped' }));
+    fireEvent.click(within(await openMenu()).getByRole('menuitem', { name: 'Mark Shipped' }));
     const dialog = await screen.findByRole('dialog');
     await within(dialog).findByText('Note');
 
@@ -199,7 +200,7 @@ describe('the action modal', () => {
   it('runs an action without confirmation at once and toasts Retry on a server error', async () => {
     vi.spyOn(globalThis, 'fetch').mockResolvedValueOnce(json({ message: 'Server Error' }, 500));
     renderOrders();
-    fireEvent.click(within(openMenu()).getByRole('menuitem', { name: 'Send Report' }));
+    fireEvent.click(within(await openMenu()).getByRole('menuitem', { name: 'Send Report' }));
 
     await waitFor(() => {
       expect(__panel.toasts.get()[0]?.action?.label).toBe('Retry');

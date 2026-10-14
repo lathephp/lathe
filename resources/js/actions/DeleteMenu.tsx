@@ -6,8 +6,8 @@ import { useId, useState } from 'react';
 import type { Row } from '../index/types';
 import type { IndexUrlState } from '../index/useIndexState';
 import type { RowSelection } from '../index/useRowSelection';
+import { batchOperations, type BatchOperation } from './batchOperations';
 
-type BatchOperation = 'delete' | 'forceDelete' | 'restore';
 
 interface DeleteMenuProps {
   uriKey: string;
@@ -28,31 +28,6 @@ interface BatchResult {
 
 const itemClass =
   'flex w-full items-center rounded-md px-2 py-1.5 text-start text-sm outline-none hover:bg-muted focus-visible:ring-2 focus-visible:ring-ring';
-
-/** What the Delete menu offers for the ticked rows. */
-export function batchOperations(softDeletes: boolean, selection: RowSelection, rows: Row[]): BatchOperation[] {
-  const ticked = selection.all ? rows : rows.filter((row) => selection.isSelected(row.id));
-
-  if (!selection.all && selection.selected.size === 0) {
-    return [];
-  }
-
-  const operations: BatchOperation[] = [];
-
-  if (ticked.some((row) => row.trashed !== true && row.abilities.delete === true)) {
-    operations.push('delete');
-  }
-
-  if (softDeletes && ticked.some((row) => row.abilities.forceDelete === true)) {
-    operations.push('forceDelete');
-  }
-
-  if (softDeletes && ticked.some((row) => row.trashed === true && row.abilities.restore === true)) {
-    operations.push('restore');
-  }
-
-  return operations;
-}
 
 /** Delete, force delete and restore over the selection, each after a confirm naming the count. */
 export function DeleteMenu({ uriKey, lens, softDeletes, selection, rows, total, state }: DeleteMenuProps) {

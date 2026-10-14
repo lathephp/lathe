@@ -1,11 +1,11 @@
 import { formatNumber, request, useLathe, useTranslation } from '@lathephp/core';
 import { X } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useSyncExternalStore } from 'react';
+import { runStore, type RunVerb, type StartedRun } from './runStore';
 
 /** How often a running run asks the server for its progress, in milliseconds. */
 export const RUN_POLL_MS = 2_000;
 
-type Verb = 'action' | 'delete' | 'forceDelete' | 'restore';
 
 interface BulkStatus {
   status: 'waiting' | 'running' | 'finished' | 'failed' | 'cancelled';
@@ -34,8 +34,10 @@ export interface ImportStatus {
   errors_url?: string | null;
 }
 
+type Status = BulkStatus | ExportStatus | ImportStatus;
+
 type Run =
-  | { kind: 'bulk'; id: string; verb: Verb; status: BulkStatus | null }
+  | { kind: 'bulk'; id: string; verb: RunVerb; status: BulkStatus | null }
   | { kind: 'export'; id: string; status: ExportStatus | null }
   | { kind: 'import'; id: string; status: ImportStatus | null };
 
@@ -45,10 +47,6 @@ function done(run: Run): boolean {
   return status === 'finished' || status === 'failed' || status === 'cancelled' || status === 'completed';
 }
 
-function detail(event: Event): Record<string, unknown> {
-  return event instanceof CustomEvent && typeof event.detail === 'object' && event.detail !== null ? (event.detail as Record<string, unknown>) : {};
-}
-
 /**
  * The progress toasts of queued runs on the page that started them: a bulk action or delete,
  * an export or an import. Each polls its run every 2 seconds until it ends, then shows the result.
@@ -56,36 +54,9 @@ function detail(event: Event): Record<string, unknown> {
 export function RunToasts() {
   const { __ } = useTranslation();
   const { apiPath, basePath } = useLathe();
-  const [runs, setRuns] = useState<Run[]>([]);
-
-  useEffect(() => {
-    function add(run: Run) {
-      setRuns((current) => [...current.filter((other) => other.kind !== run.kind || other.id !== run.id), run]);
-    }
-
-    const listeners: [string, (event: Event) => void][] = [
-      ['lathe:bulk-run-started', (event) => {
-        const { id, verb } = detail(event);
-        add({ kind: 'bulk', id: String(id), verb: typeof verb === 'string' ? (verb as Verb) : 'action', status: null });
-      }],
-      ['lathe:export-started', (event) => {
-        add({ kind: 'export', id: String(detail(event).id), status: null });
-      }],
-      ['lathe:import-started', (event) => {
-        add({ kind: 'import', id: String(detail(event).id), status: null });
-      }],
-    ];
-
-    for (const [name, listener] of listeners) {
-      window.addEventListener(name, listener);
-    }
-
-    return () => {
-      for (const [name, listener] of listeners) {
-        window.removeEventListener(name, listener);
-      }
-    };
-  }, []);
+  const started = useSyncExternalStore(runStore.subscribe, runStore.get);
+  const [statuses, setStatuses] = useState<Record<string, Status | null>>({});
+  const runs = started.map((run: StartedRun) => ({ ...run, status: statuses[`${run.kind}:${run.id}`] ?? null }) as Run);
 
   const active = runs.filter((run) => !done(run)).map((run) => `${run.kind}:${run.id}`).join(',');
 
@@ -99,9 +70,9 @@ export function RunToasts() {
       for (const key of active.split(',')) {
         const [kind, id] = key.split(':') as [Run['kind'], string];
 
-        request<Run['status']>(`${apiPath}/${paths[kind]}/${id}`)
+        request<Status>(`${apiPath}/${paths[kind]}/${id}`)
           .then((status) => {
-            setRuns((current) => current.map((run) => (run.kind === kind && run.id === id ? ({ ...run, status } as Run) : run)));
+            setStatuses((current) => ({ ...current, [key]: status }));
           })
           .catch(() => undefined);
       }
@@ -117,7 +88,7 @@ export function RunToasts() {
   }
 
   function dismiss(run: Run) {
-    setRuns((current) => current.filter((other) => other !== run));
+    runStore.dismiss(run.kind, run.id);
   }
 
   function cancel(run: Run) {
@@ -131,7 +102,7 @@ export function RunToasts() {
       const processed = formatNumber(status?.processed ?? 0);
 
       if (status === null || status.status === 'waiting' || status.status === 'running') {
-        const progress: Record<Verb, string> = {
+        const progress: Record<RunVerb, string> = {
           action: __(':n of :total', { n: processed, total }),
           delete: __('Deleting :n of :total', { n: processed, total }),
           forceDelete: __('Deleting :n of :total', { n: processed, total }),
@@ -155,7 +126,7 @@ export function RunToasts() {
         return { message: __('Action failed for all selected resources.') };
       }
 
-      const finished: Record<Verb, string> = {
+      const finished: Record<RunVerb, string> = {
         action: __('Action was executed successfully.'),
         delete: __(':count resources deleted.', { count: processed }),
         forceDelete: __(':count resources permanently deleted.', { count: processed }),

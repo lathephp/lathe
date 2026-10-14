@@ -1,9 +1,11 @@
 import { useShortcut, useTranslation } from '@lathephp/core';
 import { Button } from '@lathephp/ui';
 import { Bell } from 'lucide-react';
-import { useState } from 'react';
-import { NotificationPanel } from './NotificationPanel';
+import { lazy, Suspense, useState } from 'react';
 import { useNotifications } from './useNotifications';
+
+// The panel loads on first open, so every page's first load carries only the bell.
+const NotificationPanel = lazy(() => import('./NotificationPanel').then((module) => ({ default: module.NotificationPanel })));
 
 interface Props {
   basePath: string;
@@ -45,12 +47,14 @@ export function NotificationCenter({ basePath, pollingInterval, showUnreadCount 
           ))}
       </Button>
       {open && (
-        <NotificationPanel
-          state={state}
-          onClose={() => {
-            setOpen(false);
-          }}
-        />
+        <Suspense fallback={null}>
+          <NotificationPanel
+            state={state}
+            onClose={() => {
+              setOpen(false);
+            }}
+          />
+        </Suspense>
       )}
     </>
   );

@@ -1,14 +1,16 @@
 import { router, usePage } from '@inertiajs/react';
 import { ApiError, toast, useTranslation, visit } from '@lathephp/core';
-import { useCallback, useState, type ReactNode } from 'react';
+import { lazy, Suspense, useCallback, useState, type ReactNode } from 'react';
 import type { SelectionDescriptor } from '../index/useRowSelection';
 import { ReauthModal } from '../records/ReauthModal';
 import type { SharedProps } from '../types';
-import { ActionModal } from './ActionModal';
-import { ResponseModal } from './ResponseModal';
 import { applyActionResult } from './result';
 import { runAction } from './runAction';
 import type { ActionMeta } from './types';
+
+// The modals load on first use, so the field components stay out of the index's first load.
+const ActionModal = lazy(() => import('./ActionModal').then((module) => ({ default: module.ActionModal })));
+const ResponseModal = lazy(() => import('./ResponseModal').then((module) => ({ default: module.ResponseModal })));
 
 interface Running {
   action: ActionMeta;
@@ -97,7 +99,7 @@ export function useActionRunner({ base, onDone }: ActionRunnerOptions): { start:
   }
 
   const element = (
-    <>
+    <Suspense fallback={null}>
       {running !== null && (
         <ActionModal
           base={base}
@@ -125,7 +127,7 @@ export function useActionRunner({ base, onDone }: ActionRunnerOptions): { start:
           }}
         />
       )}
-    </>
+    </Suspense>
   );
 
   return { start, element };

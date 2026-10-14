@@ -1,16 +1,16 @@
 import { Link, router, usePage } from '@inertiajs/react';
-import { request, toast, useLathe, useTranslation } from '@lathephp/core';
+import { request, toast, useTranslation } from '@lathephp/core';
 import { Button } from '@lathephp/ui';
 import { EllipsisVertical } from 'lucide-react';
-import { useId, useState } from 'react';
-import { recordSelection } from '../actions/RecordActionMenu';
-import type { ActionList, ActionMeta } from '../actions/types';
-import { useActionRunner } from '../actions/useActionRunner';
+import { lazy, Suspense, useId, useState } from 'react';
 import type { SharedProps } from '../types';
 import type { Row } from './types';
 
 type MenuAction = 'replicate' | 'delete' | 'restore' | 'forceDelete';
 type WriteAction = Exclude<MenuAction, 'replicate'>;
+
+// The row's actions load on the first open of its menu, so the index's first load leaves them out.
+const InlineRowActions = lazy(() => import('../actions/InlineRowActions').then((module) => ({ default: module.InlineRowActions })));
 
 /** What the row menu offers: Replicate and Delete on a live row, Restore and Force Delete on a trashed one. */
 export function menuActions(row: Row): MenuAction[] {
@@ -32,15 +32,10 @@ export function RowMenu({ uriKey, row }: { uriKey: string; row: Row }) {
   const { basePath } = usePage<SharedProps>().props;
   const [open, setOpen] = useState(false);
   const [confirming, setConfirming] = useState<'delete' | 'forceDelete' | null>(null);
-  // The actions shown on rows, loaded the first time a menu opens.
-  const [inline, setInline] = useState<ActionMeta[] | null>(null);
-  const { apiPath } = useLathe();
-  const runner = useActionRunner({
-    base: `${apiPath}/resources/${uriKey}`,
-    onDone: () => {
-      router.reload({ only: ['table', 'count'] });
-    },
-  });
+  // Set on the first open of a row with actions; the actions then stay mounted.
+  const [opened, setOpened] = useState(false);
+  const [menu, setMenu] = useState<HTMLElement | null>(null);
+  const inline = (row.actions?.length ?? 0) > 0;
   const menuId = useId();
   const titleId = useId();
   const url = `${basePath}/api/resources/${uriKey}/${String(row.id)}`;
@@ -106,16 +101,7 @@ export function RowMenu({ uriKey, row }: { uriKey: string; row: Row }) {
         className="grid size-7 place-items-center rounded-md outline-none hover:bg-muted focus-visible:ring-2 focus-visible:ring-ring"
         onClick={() => {
           setOpen(!open);
-
-          if (inline === null && (row.actions?.length ?? 0) > 0) {
-            request<ActionList>(`${apiPath}/resources/${uriKey}/actions?display=table-row`)
-              .then((list) => {
-                setInline(list?.actions ?? []);
-              })
-              .catch(() => {
-                setInline([]);
-              });
-          }
+          setOpened(true);
         }}
       >
         <EllipsisVertical aria-hidden="true" className="size-4" />
@@ -123,6 +109,7 @@ export function RowMenu({ uriKey, row }: { uriKey: string; row: Row }) {
       {open && (
         <div
           id={menuId}
+          ref={setMenu}
           role="menu"
           tabIndex={-1}
           className="absolute end-0 top-full z-10 mt-1 w-40 rounded-lg border border-border bg-background p-1 shadow-lg"
@@ -132,22 +119,6 @@ export function RowMenu({ uriKey, row }: { uriKey: string; row: Row }) {
             }
           }}
         >
-          {(inline ?? [])
-            .filter((action) => row.actions?.includes(action.uriKey) === true)
-            .map((action) => (
-              <button
-                key={action.uriKey}
-                type="button"
-                role="menuitem"
-                className={action.destructive ? `${itemClass} text-destructive` : itemClass}
-                onClick={() => {
-                  setOpen(false);
-                  runner.start(action, recordSelection(row.id), 1);
-                }}
-              >
-                {action.name}
-              </button>
-            ))}
           {menuActions(row).map((action) =>
             action === 'replicate' ? (
               <Link key={action} role="menuitem" href={`${basePath}/resources/${uriKey}/${String(row.id)}/replicate`} className={itemClass}>
@@ -205,7 +176,19 @@ export function RowMenu({ uriKey, row }: { uriKey: string; row: Row }) {
           </div>
         </div>
       )}
-      {runner.element}
+      {inline && opened && (
+        <Suspense fallback={null}>
+          <InlineRowActions
+            uriKey={uriKey}
+            row={row}
+            menu={open ? menu : null}
+            itemClass={itemClass}
+            onChoose={() => {
+              setOpen(false);
+            }}
+          />
+        </Suspense>
+      )}
     </div>
   );
 }
