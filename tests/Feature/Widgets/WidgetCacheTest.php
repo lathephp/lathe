@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Lathe\Actions\Import\Import;
 use Lathe\Actions\Import\ProcessImport;
+use Lathe\Http\Requests\LatheRequest;
 use Lathe\Lathe;
 use Lathe\Support\JobContext;
 use Lathe\Tests\Fixtures\Dashboards\Cards;
@@ -19,11 +20,25 @@ use Lathe\Tests\Fixtures\Widgets\ValueCustomers;
 use Lathe\Tests\Fixtures\Widgets\ValueOrders;
 use Lathe\Tests\Fixtures\Widgets\ValuePosts;
 use Lathe\Tests\Fixtures\Widgets\ValueProducts;
+use Lathe\Widgets\Widget;
 use Lathe\Widgets\WidgetCache;
 use Workbench\App\Lathe\Actions\ImportProducts;
 use Workbench\App\Models\Product;
 use Workbench\App\Models\User;
 use Workbench\Database\Seeders\DemoSeeder;
+
+/**
+ * Sums the tag pivot positions, so a pivot update changes its value.
+ */
+class TagPositionSum extends Widget
+{
+    public function calculate(LatheRequest $request): mixed
+    {
+        $this->cacheTags(['taggables']);
+
+        return (int) DB::table('taggables')->sum('position');
+    }
+}
 
 beforeEach(function () {
     $this->artisan('migrate')->assertSuccessful();
@@ -179,6 +194,26 @@ it('flushes a card tagged with the pivot table when a tag is attached or detache
 
     $this->deleteJson("/lathe/api/resources/products/1/tags/{$free}")->assertOk();
     expect(cardValue('tagged-count'))->toBe($before);
+});
+
+it('shows an inline edit on the next request', function () {
+    $this->actingAs(cacheUser());
+    $before = cardValue('cancelled-orders');
+
+    $this->patchJson('/lathe/api/resources/orders/'.liveOrder()['id'].'/field/status', ['value' => 'cancelled'])->assertOk();
+
+    expect($before)->toBeInt()->and(cardValue('cancelled-orders'))->toBe($before + 1);
+});
+
+it('flushes a card tagged with the pivot table when a pivot row is updated', function () {
+    Cards::$widgets = [new TagPositionSum];
+    $this->actingAs(cacheUser());
+    $before = cardValue('tag-position-sum');
+    $row = DB::table('taggables')->where('taggable_type', Product::class)->where('taggable_id', 2)->orderBy('tag_id')->first(['tag_id', 'position']);
+
+    $this->putJson("/lathe/api/resources/products/2/tags/{$row->tag_id}/pivot", ['pivot' => ['position' => (int) $row->position + 5]])->assertOk();
+
+    expect($before)->toBeInt()->and(cardValue('tag-position-sum'))->toBe($before + 5);
 });
 
 it('flushes a card by a tag its calculate() names', function () {

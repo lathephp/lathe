@@ -91,6 +91,7 @@ class RelationAttachController
             $relation->updateExistingPivot($key, $changes);
             event(new ResourceAttachmentUpdated($parent, $class, $relationship, [$key], $original, $changes));
         });
+        app(WidgetCache::class)->flushTables([$relation->getTable()]);
 
         return new JsonResponse(['updated' => true]);
     }

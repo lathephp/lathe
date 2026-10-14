@@ -18,6 +18,7 @@ use Lathe\Query\QueryContext;
 use Lathe\Query\ResourceQuery;
 use Lathe\Resources\TrafficCop;
 use Lathe\Resources\ValidationPipeline;
+use Lathe\Widgets\WidgetCache;
 
 /**
  * Save one index cell in place: the full update flow for one field, validated by that
@@ -91,6 +92,7 @@ class InlineUpdateController
             event(new ResourceUpdated($model, $class, array_intersect_key($original, $changes), $changes));
         });
 
+        app(WidgetCache::class)->flushTables([$model->getTable()]);
         $class::afterUpdate($request, $model);
     }
 }
