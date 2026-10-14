@@ -53,6 +53,13 @@ it('writes a detach row for the tag', function () {
         ->and((string) $row->target_id)->toBe((string) $this->tag->id);
 });
 
+it('keeps the pivot values of a detached row as original', function () {
+    $this->postJson('/lathe/api/resources/products/1/tags', ['related_id' => $this->tag->id, 'pivot' => ['position' => 1]])->assertCreated();
+    $this->deleteJson("/lathe/api/resources/products/1/tags/{$this->tag->id}")->assertOk();
+
+    expect(ActionEvent::query()->where('type', 'detach')->sole()->original)->toBe(['position' => 1]);
+});
+
 it('leaves no row when the attach rolls back', function () {
     Event::listen(ResourceAttached::class, fn () => throw new RuntimeException('late listener'));
 
