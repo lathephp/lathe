@@ -6,6 +6,7 @@ use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Foundation\Testing\Concerns\MakesHttpRequests;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Testing\TestResponse;
+use Lathe\Http\Middleware\HandleInertiaRequests;
 use Lathe\Lathe;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -28,14 +29,105 @@ class ResourceTester
     }
 
     /**
-     * The index endpoint.
+     * The index endpoint, or its lens's after forLens().
      *
      * @param  array<string, mixed>  $query
      * @return TestResponse<Response>
      */
     public function index(array $query = []): TestResponse
     {
-        return $this->getJson($this->uri().($query === [] ? '' : '?'.http_build_query($query)));
+        return $this->getJson($this->base().($query === [] ? '' : '?'.http_build_query($query)));
+    }
+
+    /**
+     * The total rows of the index, or of its lens after forLens().
+     *
+     * @param  array<string, mixed>  $params
+     * @return TestResponse<Response>
+     */
+    public function count(array $params = []): TestResponse
+    {
+        return $this->getJson($this->base().'/count'.($params === [] ? '' : '?'.http_build_query($params)));
+    }
+
+    /**
+     * The filters of the index, or of its lens after forLens().
+     *
+     * @return TestResponse<Response>
+     */
+    public function filters(): TestResponse
+    {
+        return $this->getJson($this->base().'/filters');
+    }
+
+    /**
+     * A record's detail page as Inertia JSON; the record is under props.record.
+     *
+     * @return TestResponse<Response>
+     */
+    public function show(string|int $id): TestResponse
+    {
+        return $this->get($this->page().'/'.$id, $this->inertiaHeaders());
+    }
+
+    /**
+     * The lenses the user may open, read off the index page as the panel does; they are under props.lenses.
+     *
+     * @return TestResponse<Response>
+     */
+    public function lenses(): TestResponse
+    {
+        return $this->get($this->page(), $this->inertiaHeaders() + [
+            'X-Inertia-Partial-Component' => 'Resources/Index',
+            'X-Inertia-Partial-Data' => 'lenses',
+        ]);
+    }
+
+    /**
+     * The signed-in user's saved tabs of this Resource.
+     *
+     * @return TestResponse<Response>
+     */
+    public function savedTabs(): TestResponse
+    {
+        return $this->getJson($this->uri().'/saved-tabs');
+    }
+
+    /**
+     * @param  array<string, mixed>  $data
+     * @return TestResponse<Response>
+     */
+    public function createSavedTab(array $data): TestResponse
+    {
+        return $this->postJson($this->uri().'/saved-tabs', $data);
+    }
+
+    /**
+     * @param  array<string, mixed>  $data
+     * @return TestResponse<Response>
+     */
+    public function updateSavedTab(string|int $id, array $data): TestResponse
+    {
+        return $this->putJson($this->uri().'/saved-tabs/'.$id, $data);
+    }
+
+    /**
+     * @return TestResponse<Response>
+     */
+    public function deleteSavedTab(string|int $id): TestResponse
+    {
+        return $this->deleteJson($this->uri().'/saved-tabs/'.$id);
+    }
+
+    /**
+     * Put the user's saved tabs in this order; the list must hold every one of them once.
+     *
+     * @param  list<string|int>  $order
+     * @return TestResponse<Response>
+     */
+    public function reorderSavedTabs(array $order): TestResponse
+    {
+        return $this->putJson($this->uri().'/saved-tabs/reorder', ['ids' => $order]);
     }
 
     /**
@@ -303,6 +395,27 @@ class ResourceTester
     protected function uri(): string
     {
         return rtrim(Lathe::path(), '/').'/api/resources/'.$this->uriKey;
+    }
+
+    /**
+     * The Resource's index page, outside the API.
+     */
+    protected function page(): string
+    {
+        return rtrim(Lathe::path(), '/').'/resources/'.$this->uriKey;
+    }
+
+    /**
+     * Inertia answers a visit without the current asset version with a 409.
+     *
+     * @return array<string, string>
+     */
+    protected function inertiaHeaders(): array
+    {
+        return [
+            'X-Inertia' => 'true',
+            'X-Inertia-Version' => (string) $this->app->make(HandleInertiaRequests::class)->version(request()),
+        ];
     }
 
     /**

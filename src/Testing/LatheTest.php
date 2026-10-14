@@ -44,6 +44,16 @@ class LatheTest
     }
 
     /**
+     * The global search, as the command palette sends it.
+     *
+     * @return TestResponse<Response>
+     */
+    public static function search(string $term): TestResponse
+    {
+        return (new DashboardTester(''))->getJson(rtrim(Lathe::path(), '/').'/api/search?'.http_build_query(['q' => $term]));
+    }
+
+    /**
      * A dashboard by its URI key.
      */
     public static function dashboard(string $uriKey): DashboardTester
