@@ -25,7 +25,8 @@ afterEach(fn () => File::deleteDirectory($this->dist));
 it('links the nova style by default and puts its class on the body', function () {
     $html = (string) $this->actingAs($this->admin)->get('/lathe')->getContent();
 
-    preg_match_all('/<link rel="stylesheet" href="([^"]+)"/', $html, $links);
+    // The panel's own built stylesheets; the workbench links its extension stylesheet beside them.
+    preg_match_all('#<link rel="stylesheet" href="(/lathe/assets/[^"]+)"#', $html, $links);
     expect($links[1])->toBe(['/lathe/assets/abcd1234/app-ffff0000.css', '/lathe/assets/abcd1234/theme-nova-0000aaaa.css'])
         ->and($html)->toContain('<body class="style-nova">');
 });
