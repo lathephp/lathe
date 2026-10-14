@@ -841,6 +841,13 @@ Lathe\Console\MakeWidgetCommand::handle(Illuminate\Filesystem\Filesystem $files)
 Lathe\Console\MakeWidgetCommand::replacements(string $class): array  [protected]
 Lathe\Console\MakeWidgetCommand::scaffoldReact(Illuminate\Filesystem\Filesystem $files, string $class): void  [protected]
 Lathe\Console\MakeWidgetCommand::stub(): string  [protected]
+Lathe\Console\PluginsCommand::$description  [protected]
+Lathe\Console\PluginsCommand::$signature  [protected]
+Lathe\Console\PluginsCommand::diagnose(Lathe\Doctor\Doctor $doctor): int  [protected]
+Lathe\Console\PluginsCommand::failingClasses(Lathe\Doctor\Doctor $doctor): array  [protected]
+Lathe\Console\PluginsCommand::handle(Lathe\Plugins\PluginRegistry $plugins, Lathe\Doctor\Doctor $doctor): int
+Lathe\Console\PluginsCommand::joined(array $names): string  [protected]
+Lathe\Console\PluginsCommand::menuLabels(Lathe\Plugins\PluginRegistry $plugins, Lathe\Plugins\Plugin $plugin): string  [protected]
 Lathe\Console\PruneActionEventsCommand::$description  [protected]
 Lathe\Console\PruneActionEventsCommand::$signature  [protected]
 Lathe\Console\PruneActionEventsCommand::CHUNK
@@ -907,8 +914,8 @@ Lathe\Doctor\Doctor::database(): array  [protected]
 Lathe\Doctor\Doctor::driverCheck(string $driver, string $version): Lathe\Doctor\CheckResult  [protected]
 Lathe\Doctor\Doctor::environment(): array  [protected]
 Lathe\Doctor\Doctor::manifestChecks(Lathe\Plugins\Plugin $plugin): array  [protected]
-Lathe\Doctor\Doctor::pluginChecks(): array  [protected]
-Lathe\Doctor\Doctor::pluginPackages(): array  [protected]
+Lathe\Doctor\Doctor::pluginChecks(): array
+Lathe\Doctor\Doctor::pluginPackages(): array
 Lathe\Doctor\Doctor::resourceChecks(): array  [protected]
 Lathe\Doctor\Doctor::rowCount(Illuminate\Database\Eloquent\Model $model): int  [protected]
 Lathe\Doctor\Doctor::run(): array
@@ -2854,13 +2861,17 @@ Lathe\Plugins\Plugin::canSeeWhen(string $ability, mixed $arguments = array ( )):
 Lathe\Plugins\Plugin::handleRequest(Illuminate\Http\Request $request, string $path): Symfony\Component\HttpFoundation\Response
 Lathe\Plugins\Plugin::make(): static  [static]
 Lathe\Plugins\Plugin::menu(Illuminate\Http\Request $request): ?array
+Lathe\Plugins\Plugin::middleware(): array
 Lathe\Plugins\Plugin::name(): string
 Lathe\Plugins\Plugin::policies(): array
 Lathe\Plugins\Plugin::register(): void
 Lathe\Plugins\Plugin::requires(): array
+Lathe\Plugins\Plugin::resources(): array
 Lathe\Plugins\Plugin::routes(Illuminate\Routing\Router $router): void
 Lathe\Plugins\Plugin::serving(Illuminate\Http\Request $request): void
+Lathe\Plugins\Plugin::settings(): ?array
 Lathe\Plugins\Plugin::uriKey(): string  [static]
+Lathe\Plugins\Plugin::widgets(): array
 Lathe\Plugins\PluginDiscovery::__construct(string $vendorPath)
 Lathe\Plugins\PluginDiscovery::classes(): array
 Lathe\Plugins\PluginDiscovery::register(Lathe\Plugins\PluginRegistry $registry): void
@@ -3835,6 +3846,7 @@ class Lathe\Console\MakePageCommand
 class Lathe\Console\MakeResourceCommand
 class Lathe\Console\MakeResourcePluginCommand
 class Lathe\Console\MakeWidgetCommand
+class Lathe\Console\PluginsCommand
 class Lathe\Console\PruneActionEventsCommand
 class Lathe\Console\TranslateCommand
 class Lathe\Dashboards\Dashboard

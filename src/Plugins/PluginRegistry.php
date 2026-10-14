@@ -3,9 +3,11 @@
 namespace Lathe\Plugins;
 
 use Illuminate\Http\Request;
+use Illuminate\Routing\Router;
 use Lathe\Assets\AssetRegistry;
 use Lathe\Exceptions\LatheException;
 use Lathe\Exceptions\PluginDependencyException;
+use Lathe\Menu\MenuItem;
 use Lathe\Menu\MenuSection;
 use Lathe\Support\ConfigStore;
 
@@ -47,6 +49,10 @@ class PluginRegistry
 
             foreach ($plugin->assets()['styles'] ?? [] as $name => $path) {
                 $this->assets->style($name, $path);
+            }
+
+            foreach ($plugin->middleware() as $middleware) {
+                app(Router::class)->pushMiddlewareToGroup('lathe', $middleware);
             }
 
             $plugin->register();
@@ -95,7 +101,13 @@ class PluginRegistry
         $sections = [];
 
         foreach ($this->authorized($request) as $plugin) {
-            foreach ($plugin->menu($request) ?? [] as $section) {
+            $menu = $plugin->menu($request);
+
+            if ($menu === null && $plugin->settings() !== null) {
+                $menu = [MenuSection::section($plugin->name(), [MenuItem::link('Settings', 'plugins/'.$plugin::uriKey().'/settings')])];
+            }
+
+            foreach ($menu ?? [] as $section) {
                 $sections[] = $section;
             }
         }
@@ -140,7 +152,7 @@ class PluginRegistry
         ));
 
         if ($missing !== []) {
-            throw new PluginDependencyException(sprintf('%s requires %s, which cannot be found. Install the packages that provide them.', $plugin::class, implode(', ', $missing)));
+            throw new PluginDependencyException(sprintf('%s (%s) requires %s, which cannot be found. Install the packages that provide them.', $plugin->name(), $plugin::class, implode(', ', $missing)));
         }
     }
 }

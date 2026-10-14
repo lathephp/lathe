@@ -46,7 +46,7 @@ it('runs register and boot once, and a repeat registration is a no-op', function
 
 it('names the plugin and every missing class it requires', function () {
     Lathe::registerPlugins(BillingPlugin::make());
-})->throws(PluginDependencyException::class, BillingPlugin::class.' requires Acme\\Missing\\Ledger, Acme\\Missing\\Tax');
+})->throws(PluginDependencyException::class, 'Billing ('.BillingPlugin::class.') requires Acme\\Missing\\Ledger, Acme\\Missing\\Tax');
 
 it('fails when two plugins share a key', function () {
     $other = new class extends Beacon

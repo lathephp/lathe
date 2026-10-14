@@ -300,9 +300,11 @@ class Doctor
     }
 
     /**
+     * The plugin rows: requires(), the lathe/lathe range and each built manifest's core range.
+     *
      * @return list<CheckResult>
      */
-    protected function pluginChecks(): array
+    public function pluginChecks(): array
     {
         $results = [];
         $parser = new VersionParser;
@@ -387,7 +389,7 @@ class Doctor
      *
      * @return array<string, array{name: string, range: string|null}>
      */
-    protected function pluginPackages(): array
+    public function pluginPackages(): array
     {
         $file = PluginDiscovery::vendorPath($this->app->make(PackageManifest::class)->vendorPath).'/composer/installed.json';
         $installed = is_file($file) ? json_decode((string) file_get_contents($file), true) : [];

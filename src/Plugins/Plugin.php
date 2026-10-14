@@ -9,6 +9,9 @@ use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Str;
 use Lathe\Auth\FortifyConfig;
 use Lathe\Menu\MenuSection;
+use Lathe\Resources\Resource;
+use Lathe\Resources\ResourceRegistry;
+use Lathe\Widgets\Widget;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
@@ -80,6 +83,47 @@ abstract class Plugin
     }
 
     /**
+     * Resources boot() registers.
+     *
+     * @return list<class-string<\Lathe\Resources\Resource>>
+     */
+    public function resources(): array
+    {
+        return [];
+    }
+
+    /**
+     * Widgets a host may spread into its own widgets(); a plugin mounts none itself.
+     *
+     * @return list<Widget>
+     */
+    public function widgets(): array
+    {
+        return [];
+    }
+
+    /**
+     * Middleware appended to the lathe group, so it runs on every panel request.
+     *
+     * @return list<string>
+     */
+    public function middleware(): array
+    {
+        return [];
+    }
+
+    /**
+     * The settings form, in a Resource's fields() schema; null means no settings page,
+     * route or storage.
+     *
+     * @return list<mixed>|null
+     */
+    public function settings(): ?array
+    {
+        return null;
+    }
+
+    /**
      * Scripts and styles, as ['scripts' => [name => path], 'styles' => [name => path]].
      *
      * @return array{scripts?: array<string, string>, styles?: array<string, string>}
@@ -104,7 +148,9 @@ abstract class Plugin
      */
     public function boot(): void
     {
-        //
+        if ($this->resources() !== []) {
+            app(ResourceRegistry::class)->register(...$this->resources());
+        }
     }
 
     /**
@@ -116,7 +162,8 @@ abstract class Plugin
     }
 
     /**
-     * Sidebar sections for this plugin; null adds none.
+     * Sidebar sections for this plugin: null adds a Settings link when settings() is set,
+     * [] adds none, and a list is used as it is.
      *
      * @return list<MenuSection>|null
      */
