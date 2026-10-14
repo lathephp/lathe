@@ -3,6 +3,8 @@ includes:
 
 parameters:
     level: 10
+    # Inside the checkout, so a worktree's cache goes with it instead of filling /tmp.
+    tmpDir: .phpstan-cache
     paths:
         - src
         - workbench/app

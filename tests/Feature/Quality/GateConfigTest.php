@@ -17,6 +17,11 @@ it('runs PHPStan at level 10 with no baseline', function () {
         ->and(glob(repoFile('*baseline*')))->toBe([]);
 });
 
+it('keeps the PHPStan cache inside the checkout, out of the shared /tmp', function () {
+    expect(File::get(repoFile('phpstan.neon')))->toMatch('/^\s*tmpDir:\s*\.phpstan-cache\s*$/m')
+        ->and(File::get(repoFile('.gitignore')))->toContain('/.phpstan-cache/');
+});
+
 it('formats with the laravel preset', function () {
     $pint = json_decode(File::get(repoFile('pint.json')), true);
 
