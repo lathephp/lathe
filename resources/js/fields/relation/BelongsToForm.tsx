@@ -1,12 +1,14 @@
 import { useTranslation } from '@lathephp/core';
 import { Button } from '@lathephp/ui';
 import { Plus } from 'lucide-react';
-import { useEffect, useRef, useState } from 'react';
+import { lazy, Suspense, useEffect, useRef, useState } from 'react';
 import { inputClass } from '../choice/options';
 import type { FormFieldProps } from '../registry';
 import { isBelongsToValue } from './BelongsToField';
-import { CreateRelationModal } from './CreateRelationModal';
 import { useAssociatable, type AssociatableItem, type LookupRecord } from './useAssociatable';
+
+// The related create form loads only when a "+" is pressed, so no list page carries it.
+const CreateRelationModal = lazy(() => import('./CreateRelationModal').then((module) => ({ default: module.CreateRelationModal })));
 
 /** What a lookup needs beyond the field: a morphTo's chosen type, or the record of an index row. */
 interface LookupProps {
@@ -270,14 +272,16 @@ export function BelongsToForm(props: FormFieldProps & LookupProps) {
         <Plus aria-hidden="true" className="size-4" />
       </Button>
       {creating && (
-        <CreateRelationModal
-          field={field}
-          record={props.record}
-          onCreated={onChange}
-          onClose={() => {
-            setCreating(false);
-          }}
-        />
+        <Suspense fallback={null}>
+          <CreateRelationModal
+            field={field}
+            record={props.record}
+            onCreated={onChange}
+            onClose={() => {
+              setCreating(false);
+            }}
+          />
+        </Suspense>
       )}
     </div>
   );

@@ -1,12 +1,14 @@
 import { useTranslation } from '@lathephp/core';
 import { Card } from '@lathephp/ui';
 import { ChevronDown } from 'lucide-react';
-import { useState, type ReactNode } from 'react';
+import { lazy, Suspense, useState, type ReactNode } from 'react';
 import { SafeHtml } from '../components/SafeHtml';
 import type { DetailFieldData, LayoutBlock, PanelBlock, RelationFieldSchema, TabData, TabGroupBlock } from '../fields/types';
 import { cn } from '../lib/cn';
-import { RelationPanel } from '../relations/RelationPanel';
 import { SingularRelationPanel } from './SingularRelationPanel';
+
+// Panels draw only on detail pages, so a form never loads the table code they share with the index.
+const RelationPanel = lazy(() => import('../relations/RelationPanel').then((module) => ({ default: module.RelationPanel })));
 
 const columnClass: Record<number, string> = {
   1: 'md:grid-cols-1',
@@ -101,7 +103,11 @@ function Block({ block, ...props }: RecordLayoutProps & { block: LayoutBlock }) 
   const field = block.field as RelationFieldSchema;
 
   if (block.type === 'relation-field') {
-    return props.parent !== undefined && panelKinds.includes(field.kind) ? <RelationPanel parent={props.parent} field={field} /> : null;
+    return props.parent !== undefined && panelKinds.includes(field.kind) ? (
+      <Suspense fallback={null}>
+        <RelationPanel parent={props.parent} field={field} />
+      </Suspense>
+    ) : null;
   }
 
   const detailField = props.detailFields?.get(block.key);
