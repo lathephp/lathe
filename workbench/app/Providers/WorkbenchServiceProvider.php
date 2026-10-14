@@ -48,14 +48,13 @@ class WorkbenchServiceProvider extends ServiceProvider
         // The Octane lane's Kiritimati context names its timezone in a header.
         Lathe::userTimezone(fn (Request $request): ?string => $request->header('X-Bench-Timezone'));
 
-        if (! $this->app->runningUnitTests()) {
-            $this->registerExtensions();
-        }
+        $this->registerExtensions();
     }
 
     /**
      * Testbench's public path sits inside vendor, so the workbench commits its lathe:build output
-     * under workbench/public and serves the entry through the panel's module route.
+     * under workbench/public and serves the entry through the panel's module route. lathe:doctor
+     * reads the manifest.json next to it for the keys the build registers.
      */
     protected function registerExtensions(): void
     {

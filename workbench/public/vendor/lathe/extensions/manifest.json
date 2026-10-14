@@ -1,8 +1,12 @@
 {
-  "entry": "boot-CO_jWk2z.js",
+  "entry": "boot-D8xDSqI3.js",
   "components": {
     "widget": [
       "workbench-clock"
+    ],
+    "page": [
+      "ui-gallery",
+      "system-status"
     ]
   }
 }
