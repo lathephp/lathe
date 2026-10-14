@@ -8,15 +8,24 @@ export interface ToastAction {
   onClick: () => void;
 }
 
+/** A link on a toast, such as Download. */
+export interface ToastLink {
+  label: string;
+  href: string;
+  newTab: boolean;
+}
+
 export interface ToastMessage {
   id: number;
   type: ToastType;
   message: string;
   action?: ToastAction;
+  links?: ToastLink[];
 }
 
 export interface ToastOptions {
   action?: ToastAction;
+  links?: ToastLink[];
   /** How long it stays, in milliseconds; 4,000 when not given. */
   duration?: number;
 }
@@ -34,7 +43,13 @@ const visible = 3;
 
 function show(type: ToastType, message: string, options: ToastOptions = {}): void {
   const id = nextId++;
-  const next = { id, type, message, ...(options.action === undefined ? {} : { action: options.action }) };
+  const next: ToastMessage = {
+    id,
+    type,
+    message,
+    ...(options.action === undefined ? {} : { action: options.action }),
+    ...(options.links === undefined ? {} : { links: options.links }),
+  };
   toasts.set([...toasts.get(), next].slice(-visible));
   setTimeout(() => {
     dismissToast(id);

@@ -24,6 +24,16 @@ export function Toaster() {
           )}
         >
           <p className="flex-1">{toast.message}</p>
+          {toast.links?.map((link) => (
+            <a
+              key={link.href}
+              href={link.href}
+              {...(link.newTab ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
+              className="rounded-sm font-medium underline outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            >
+              {link.label}
+            </a>
+          ))}
           {toast.action !== undefined ? (
             <button
               type="button"
