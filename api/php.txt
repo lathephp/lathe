@@ -2589,23 +2589,115 @@ Lathe\Lenses\Lens::singularLabel(): string  [static]
 Lathe\Lenses\Lens::uriKey(): string
 Lathe\Lenses\Lens::withFilters(Lathe\Http\Requests\LatheRequest $request, Illuminate\Database\Eloquent\Builder $query): Illuminate\Database\Eloquent\Builder  [static]
 Lathe\Lenses\Lens::withOrdering(Lathe\Http\Requests\LatheRequest $request, Illuminate\Database\Eloquent\Builder $query, ?Closure $default = NULL): Illuminate\Database\Eloquent\Builder  [static]
+Lathe\Menu\Badge::?string $tooltip  [protected]
+Lathe\Menu\Badge::Closure|Stringable|string $value  [protected]
+Lathe\Menu\Badge::DESTRUCTIVE
+Lathe\Menu\Badge::INFO
+Lathe\Menu\Badge::SUCCESS
+Lathe\Menu\Badge::WARNING
+Lathe\Menu\Badge::__construct(Closure|Stringable|string $value, string $type = self::INFO)
+Lathe\Menu\Badge::destructive(Closure|Stringable|string $value): static  [static]
+Lathe\Menu\Badge::info(Closure|Stringable|string $value): static  [static]
+Lathe\Menu\Badge::jsonSerialize(): array
+Lathe\Menu\Badge::resolveValue(): string
+Lathe\Menu\Badge::string $type  [protected]
+Lathe\Menu\Badge::success(Closure|Stringable|string $value): static  [static]
+Lathe\Menu\Badge::tooltip(string $tooltip): static
+Lathe\Menu\Badge::type(string $type): static
+Lathe\Menu\Badge::warning(Closure|Stringable|string $value): static  [static]
+Lathe\Menu\HasNavigationBadge::?Lathe\Menu\Badge $badge  [protected]
+Lathe\Menu\HasNavigationBadge::?array $lazyBadge  [protected]
+Lathe\Menu\HasNavigationBadge::badge(Lathe\Menu\Badge|Closure|Stringable|string $badge, string $type = Lathe\Menu\Badge::INFO): static
+Lathe\Menu\HasNavigationBadge::badgePayload(): array  [protected]
+Lathe\Menu\HasNavigationBadge::lazyBadge(): ?array
+Lathe\Menu\HasNavigationBadge::withBadge(Closure $value, int $ttlSeconds = 60, string $type = Lathe\Menu\Badge::INFO): static
+Lathe\Menu\Menu::Illuminate\Http\Request $request  [protected]
+Lathe\Menu\Menu::__construct(Illuminate\Http\Request $request)
+Lathe\Menu\Menu::add(Lathe\Menu\MenuItem|Lathe\Menu\MenuGroup|Lathe\Menu\MenuSection ...$items): static
+Lathe\Menu\Menu::append(Lathe\Menu\MenuItem|Lathe\Menu\MenuGroup|Lathe\Menu\MenuSection ...$items): static
+Lathe\Menu\Menu::arrange(array $entries, Illuminate\Http\Request $request): array  [static]
+Lathe\Menu\Menu::array $items  [protected]
+Lathe\Menu\Menu::build(Illuminate\Http\Request $request): static  [static]
+Lathe\Menu\Menu::buildUserMenu(Illuminate\Http\Request $request): static  [static]
+Lathe\Menu\Menu::jsonSerialize(): array
+Lathe\Menu\Menu::mainMenu(Closure $callback): void  [static]
+Lathe\Menu\Menu::prepend(Lathe\Menu\MenuItem|Lathe\Menu\MenuGroup|Lathe\Menu\MenuSection ...$items): static
+Lathe\Menu\Menu::userMenu(Closure $callback): void  [static]
+Lathe\Menu\Menu::using(Closure $callback): void  [static]
+Lathe\Menu\MenuEntry::?Closure $seeCallback  [protected]
+Lathe\Menu\MenuEntry::authorized(Illuminate\Http\Request $request): bool
+Lathe\Menu\MenuEntry::canSee(Closure $callback): static
+Lathe\Menu\MenuEntry::canSeeWhen(string $ability, mixed $arguments = array ( )): static
+Lathe\Menu\MenuEntry::int $sort  [protected]
+Lathe\Menu\MenuEntry::sort(int $order): static
+Lathe\Menu\MenuEntry::sortOrder(): int
+Lathe\Menu\MenuGroup::?Closure $seeCallback  [protected]
+Lathe\Menu\MenuGroup::?Lathe\Enums\Icon $icon  [protected]
+Lathe\Menu\MenuGroup::?Lathe\Menu\Badge $badge  [protected]
+Lathe\Menu\MenuGroup::?array $lazyBadge  [protected]
+Lathe\Menu\MenuGroup::__construct(string $label, array $items = array ( ))
+Lathe\Menu\MenuGroup::array $items  [protected]
+Lathe\Menu\MenuGroup::bool $collapsedByDefault  [protected]
+Lathe\Menu\MenuGroup::bool $collapsible  [protected]
+Lathe\Menu\MenuGroup::collapsedByDefault(bool $collapsed = true): static
+Lathe\Menu\MenuGroup::collapsible(bool $collapsible = true): static
+Lathe\Menu\MenuGroup::group(string $name, array $items = array ( )): static  [static]
+Lathe\Menu\MenuGroup::icon(?Lathe\Enums\Icon $icon): static
+Lathe\Menu\MenuGroup::int $sort  [protected]
+Lathe\Menu\MenuGroup::item(Lathe\Menu\MenuItem $item): static
+Lathe\Menu\MenuGroup::jsonSerialize(): array
+Lathe\Menu\MenuGroup::string $label  [protected]
+Lathe\Menu\MenuGroup::toArray(Illuminate\Http\Request $request): array
+Lathe\Menu\MenuItem::?Closure $activeCallback  [protected]
+Lathe\Menu\MenuItem::?Closure $seeCallback  [protected]
 Lathe\Menu\MenuItem::?Lathe\Enums\Icon $icon  [protected]
+Lathe\Menu\MenuItem::?Lathe\Menu\Badge $badge  [protected]
+Lathe\Menu\MenuItem::?array $lazyBadge  [protected]
+Lathe\Menu\MenuItem::?bool $active  [protected]
+Lathe\Menu\MenuItem::?string $target  [protected]
 Lathe\Menu\MenuItem::__construct(string $label, string $path)
+Lathe\Menu\MenuItem::active(bool $active = true): static
+Lathe\Menu\MenuItem::activeUnless(Closure $callback): static
+Lathe\Menu\MenuItem::activeWhen(Closure $callback): static
+Lathe\Menu\MenuItem::bool $external  [protected]
+Lathe\Menu\MenuItem::dashboard(string $dashboard): static  [static]
+Lathe\Menu\MenuItem::externalLink(string $label, string $url): static  [static]
+Lathe\Menu\MenuItem::href(): string  [protected]
 Lathe\Menu\MenuItem::icon(?Lathe\Enums\Icon $icon): static
+Lathe\Menu\MenuItem::int $sort  [protected]
 Lathe\Menu\MenuItem::jsonSerialize(): array
-Lathe\Menu\MenuItem::lens(string $resource, string $lens): static  [static]
+Lathe\Menu\MenuItem::lens(string $resource, string $lens, ?string $name = NULL): static  [static]
 Lathe\Menu\MenuItem::link(string $label, string $path): static  [static]
+Lathe\Menu\MenuItem::openInNewTab(): static
 Lathe\Menu\MenuItem::plugin(string $plugin, ?string $label = NULL, ?string $subPath = NULL): static  [static]
+Lathe\Menu\MenuItem::resource(string $resource): static  [static]
 Lathe\Menu\MenuItem::string $label  [protected]
 Lathe\Menu\MenuItem::string $path  [protected]
+Lathe\Menu\MenuItem::target(string $target): static
+Lathe\Menu\MenuItem::toArray(Illuminate\Http\Request $request): array
+Lathe\Menu\MenuRegistry::?Closure $main
+Lathe\Menu\MenuRegistry::?Closure $user
+Lathe\Menu\MenuSection::?Closure $seeCallback  [protected]
 Lathe\Menu\MenuSection::?Lathe\Enums\Icon $icon  [protected]
+Lathe\Menu\MenuSection::?Lathe\Menu\Badge $badge  [protected]
+Lathe\Menu\MenuSection::?array $lazyBadge  [protected]
 Lathe\Menu\MenuSection::?string $label  [protected]
+Lathe\Menu\MenuSection::?string $path  [protected]
 Lathe\Menu\MenuSection::__construct(?string $label, array $items = array ( ))
 Lathe\Menu\MenuSection::array $items  [protected]
+Lathe\Menu\MenuSection::bool $collapsedByDefault  [protected]
+Lathe\Menu\MenuSection::bool $collapsible  [protected]
+Lathe\Menu\MenuSection::collapsedByDefault(bool $collapsed = true): static
+Lathe\Menu\MenuSection::collapsible(bool $collapsible = true): static
 Lathe\Menu\MenuSection::icon(?Lathe\Enums\Icon $icon): static
-Lathe\Menu\MenuSection::item(Lathe\Menu\MenuItem $item): static
+Lathe\Menu\MenuSection::int $sort  [protected]
+Lathe\Menu\MenuSection::item(Lathe\Menu\MenuItem|Lathe\Menu\MenuGroup $item): static
 Lathe\Menu\MenuSection::jsonSerialize(): array
+Lathe\Menu\MenuSection::page(string $page): static  [static]
+Lathe\Menu\MenuSection::path(string $path): static
+Lathe\Menu\MenuSection::resource(string $resource): static  [static]
 Lathe\Menu\MenuSection::section(?string $label, array $items = array ( )): static  [static]
+Lathe\Menu\MenuSection::toArray(Illuminate\Http\Request $request): array
 Lathe\Menu\Navigation::Lathe\Auth\ResourceAuthorization $authorization  [protected]
 Lathe\Menu\Navigation::Lathe\Dashboards\DashboardRegistry $dashboards  [protected]
 Lathe\Menu\Navigation::Lathe\Plugins\PluginRegistry $plugins  [protected]
@@ -3663,7 +3755,11 @@ class Lathe\Layout\SectionPresenter
 class Lathe\Layout\Tab
 class Lathe\Layout\TabGroup
 class Lathe\Lenses\Lens
+class Lathe\Menu\Badge
+class Lathe\Menu\Menu
+class Lathe\Menu\MenuGroup
 class Lathe\Menu\MenuItem
+class Lathe\Menu\MenuRegistry
 class Lathe\Menu\MenuSection
 class Lathe\Menu\Navigation
 class Lathe\Notifications\LatheNotification
@@ -3756,4 +3852,6 @@ trait Lathe\Field\Concerns\TextFactories
 trait Lathe\Field\Concerns\UploadFactories
 trait Lathe\Field\HasOptions
 trait Lathe\Http\Controllers\Resources\AuthorizesResources
+trait Lathe\Menu\HasNavigationBadge
+trait Lathe\Menu\MenuEntry
 trait Lathe\Testing\InteractsWithLathe

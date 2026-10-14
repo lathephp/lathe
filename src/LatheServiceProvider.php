@@ -36,6 +36,7 @@ use Lathe\Http\Middleware\RedirectIfAuthenticated;
 use Lathe\Http\Middleware\ServeLathe;
 use Lathe\Http\Middleware\ServePlugins;
 use Lathe\Http\PanelRoutes;
+use Lathe\Menu\MenuRegistry;
 use Lathe\Notifications\NotificationChannelRegistry;
 use Lathe\Plugins\PluginDiscovery;
 use Lathe\Plugins\PluginRegistry;
@@ -56,6 +57,7 @@ class LatheServiceProvider extends ServiceProvider
         $this->app->singleton(TranslationManager::class, fn () => new TranslationManager(__DIR__.'/../lang'));
         $this->app->singleton(ResourceRegistry::class);
         $this->app->singleton(PluginRegistry::class);
+        $this->app->singleton(MenuRegistry::class);
         $this->app->singleton(DashboardRegistry::class);
         $this->app->singleton(AssetManifest::class);
         $this->app->singleton(AssetRegistry::class);
