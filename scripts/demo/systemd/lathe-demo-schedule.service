@@ -1,0 +1,14 @@
+[Unit]
+Description=The Lathe demo's scheduler, which prunes exports and imports
+After=lathe-demo-mysql.service
+Requires=lathe-demo-mysql.service
+
+[Service]
+User=www-data
+Group=www-data
+WorkingDirectory=/srv/lathe-demo
+ExecStart=/usr/bin/php artisan schedule:work
+Restart=always
+
+[Install]
+WantedBy=multi-user.target

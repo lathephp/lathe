@@ -1,0 +1,15 @@
+[Unit]
+Description=MySQL 8.4 for the Lathe demo
+After=network.target
+
+[Service]
+User=mysql
+Group=mysql
+RuntimeDirectory=mysqld
+ExecStart=/opt/mysql/bin/mysqld --defaults-file=/etc/mysql/my.cnf
+LimitNOFILE=10000
+Restart=on-failure
+TimeoutStopSec=600
+
+[Install]
+WantedBy=multi-user.target

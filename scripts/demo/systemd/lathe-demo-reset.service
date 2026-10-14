@@ -1,0 +1,11 @@
+[Unit]
+Description=Reset the Lathe demo from its snapshot
+After=lathe-demo-mysql.service
+Requires=lathe-demo-mysql.service
+
+[Service]
+Type=oneshot
+User=www-data
+Group=www-data
+ExecStart=/usr/local/bin/lathe-demo-reset
+TimeoutStartSec=3600

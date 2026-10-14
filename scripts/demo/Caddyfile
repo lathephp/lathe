@@ -1,0 +1,28 @@
+# The live demo's web server. deploy.sh writes this to /etc/caddy/Caddyfile with @SITE@ replaced
+# by the site address: demo.lathephp.com on the server (Caddy gets its certificate), :80 in the rehearsal.
+# rate_limit comes from github.com/mholt/caddy-ratelimit; stock Caddy has no rate limiter.
+{
+	order rate_limit before basic_auth
+}
+
+@SITE@ {
+	root * /srv/lathe-demo/public
+
+	# 60 requests a minute from one address; the 61st gets 429.
+	rate_limit {
+		zone per_address {
+			key {remote_host}
+			events 60
+			window 1m
+		}
+	}
+
+	# Uploads are capped at 1 MB. A chunk is the raw request body, so a larger one gets 413 here.
+	request_body {
+		max_size 1MiB
+	}
+
+	encode zstd gzip
+	php_fastcgi unix//run/php/php8.4-fpm.sock
+	file_server
+}
