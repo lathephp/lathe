@@ -1,0 +1,147 @@
+<?php
+
+namespace Lathe\Theme;
+
+/**
+ * The WCAG 2.x contrast ratio of two CSS colours written as hex, rgb(), hsl() or oklch().
+ * scripts/lib/colour.mjs does the same maths for the build check. Alpha is ignored,
+ * because a translucent colour has no fixed backdrop.
+ */
+class Contrast
+{
+    /**
+     * The ratio from 1 to 21, or null when either colour is not in a notation above.
+     */
+    public static function ratio(string $first, string $second): ?float
+    {
+        $a = self::luminance($first);
+        $b = self::luminance($second);
+
+        if ($a === null || $b === null) {
+            return null;
+        }
+
+        return (max($a, $b) + 0.05) / (min($a, $b) + 0.05);
+    }
+
+    /**
+     * One sentence for each pair of theme.colors whose two tokens are both overridden and
+     * too faint in a mode: a foreground on its surface (4.5:1), ring and chart-1 to 5 on
+     * background and card (3:1). A token left at null keeps the shipped value, which the
+     * build check already covers, so a pair with a null side is not measured.
+     *
+     * @param  array<array-key, mixed>  $colors  token => colour, ['light' => ..., 'dark' => ...] or null
+     * @return list<string>
+     */
+    public static function weakPairs(array $colors): array
+    {
+        $pairs = [];
+
+        foreach (Color::cases() as $color) {
+            $name = $color->value;
+
+            if (str_ends_with($name, '-foreground')) {
+                $pairs[] = [$name, substr($name, 0, -11), 4.5];
+            }
+        }
+
+        foreach (['ring', 'chart-1', 'chart-2', 'chart-3', 'chart-4', 'chart-5'] as $name) {
+            $pairs[] = [$name, 'background', 3.0];
+            $pairs[] = [$name, 'card', 3.0];
+        }
+
+        $weak = [];
+
+        foreach ($pairs as [$front, $back, $min]) {
+            foreach (['light', 'dark'] as $mode) {
+                $a = self::override($colors[$front] ?? null, $mode);
+                $b = self::override($colors[$back] ?? null, $mode);
+                $ratio = $a !== null && $b !== null ? self::ratio($a, $b) : null;
+
+                if ($ratio !== null && $ratio < $min) {
+                    $weak[] = sprintf('theme.colors.%s on %s is %.2f:1 in %s mode, under %s:1. Pick colours that differ more.', $front, $back, $ratio, $mode, rtrim(rtrim(number_format($min, 1), '0'), '.'));
+                }
+            }
+        }
+
+        return $weak;
+    }
+
+    private static function override(mixed $value, string $mode): ?string
+    {
+        $colour = is_array($value) ? ($value[$mode] ?? null) : $value;
+
+        return is_string($colour) ? $colour : null;
+    }
+
+    private static function luminance(string $color): ?float
+    {
+        $rgb = self::linear(strtolower(trim($color)));
+
+        return $rgb === null ? null : 0.2126 * $rgb[0] + 0.7152 * $rgb[1] + 0.0722 * $rgb[2];
+    }
+
+    /**
+     * @return array{float, float, float}|null linear sRGB, each channel from 0 to 1
+     */
+    private static function linear(string $v): ?array
+    {
+        if (preg_match('/^oklch\(\s*([\d.]+)(%?)\s+([\d.]+)\s+([\d.]+)(?:deg)?(?:\s*\/.*)?\)$/', $v, $m)) {
+            $lightness = $m[2] === '%' ? (float) $m[1] / 100 : (float) $m[1];
+            $a = (float) $m[3] * cos(deg2rad((float) $m[4]));
+            $b = (float) $m[3] * sin(deg2rad((float) $m[4]));
+            $l = ($lightness + 0.3963377774 * $a + 0.2158037573 * $b) ** 3;
+            $mid = ($lightness - 0.1055613458 * $a - 0.0638541728 * $b) ** 3;
+            $s = ($lightness - 0.0894841775 * $a - 1.291485548 * $b) ** 3;
+
+            return [
+                self::clamp(4.0767416621 * $l - 3.3077115913 * $mid + 0.2309699292 * $s),
+                self::clamp(-1.2684380046 * $l + 2.6097574011 * $mid - 0.3413193965 * $s),
+                self::clamp(-0.0041960863 * $l - 0.7034186147 * $mid + 1.707614701 * $s),
+            ];
+        }
+
+        if (preg_match('/^#([0-9a-f]{3,8})$/', $v, $m)) {
+            $hex = strlen($m[1]) < 6 ? implode('', array_map(fn (string $c) => $c.$c, str_split($m[1]))) : $m[1];
+
+            return [
+                self::gamma(hexdec(substr($hex, 0, 2)) / 255),
+                self::gamma(hexdec(substr($hex, 2, 2)) / 255),
+                self::gamma(hexdec(substr($hex, 4, 2)) / 255),
+            ];
+        }
+
+        if (preg_match('/^rgba?\(\s*([\d.]+)[\s,]+([\d.]+)[\s,]+([\d.]+)/', $v, $m)) {
+            return [
+                self::gamma(self::clamp((float) $m[1] / 255)),
+                self::gamma(self::clamp((float) $m[2] / 255)),
+                self::gamma(self::clamp((float) $m[3] / 255)),
+            ];
+        }
+
+        if (preg_match('/^hsla?\(\s*([\d.]+)(?:deg)?[\s,]+([\d.]+)%[\s,]+([\d.]+)%/', $v, $m)) {
+            $hue = (float) $m[1];
+            $sat = (float) $m[2] / 100;
+            $light = (float) $m[3] / 100;
+            $channel = function (int $n) use ($hue, $sat, $light): float {
+                $k = fmod($n + $hue / 30, 12);
+
+                return self::gamma($light - $sat * min($light, 1 - $light) * max(-1, min($k - 3, 9 - $k, 1)));
+            };
+
+            return [$channel(0), $channel(8), $channel(4)];
+        }
+
+        return null;
+    }
+
+    private static function gamma(float $c): float
+    {
+        return $c <= 0.04045 ? $c / 12.92 : (($c + 0.055) / 1.055) ** 2.4;
+    }
+
+    private static function clamp(float $n): float
+    {
+        return min(1.0, max(0.0, $n));
+    }
+}

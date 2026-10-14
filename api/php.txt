@@ -3774,6 +3774,8 @@ Lathe\Theme\Color::string $name
 Lathe\Theme\Color::string $value
 Lathe\Theme\Color::utility(): string
 Lathe\Theme\Color::variable(): string
+Lathe\Theme\Contrast::ratio(string $first, string $second): ?float  [static]
+Lathe\Theme\Contrast::weakPairs(array $colors): array  [static]
 Lathe\Theme\ThemeStyleGenerator::generate(string $radius, array $colors): string
 Lathe\Uploads\FieldAttachment::$fillable  [protected]
 Lathe\Uploads\FieldAttachment::$table  [protected]
@@ -4681,6 +4683,7 @@ class Lathe\Testing\LatheTest
 class Lathe\Testing\RelationTester
 class Lathe\Testing\ResourceTester
 class Lathe\Testing\TestCase
+class Lathe\Theme\Contrast
 class Lathe\Theme\ThemeStyleGenerator
 class Lathe\Uploads\FieldAttachment
 class Lathe\Uploads\PendingUpload

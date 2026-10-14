@@ -29,6 +29,7 @@ use Lathe\Search\SearchableText;
 use Lathe\Support\ConfigStore;
 use Lathe\Support\ConfigValidator;
 use Lathe\Theme\Color;
+use Lathe\Theme\Contrast;
 use Throwable;
 
 /**
@@ -134,6 +135,10 @@ class Doctor
 
         if ($family !== '' && empty($font['files']) && ! in_array(strtolower($family), self::SYSTEM_FONTS, true)) {
             $results[] = CheckResult::warn("config/lathe.php: theme.font.family \"{$family}\" is not a system font and has no files. Add woff2 files to theme.font.files or use a system stack such as system-ui.");
+        }
+
+        foreach (is_array($colors) ? Contrast::weakPairs($colors) : [] as $message) {
+            $results[] = CheckResult::warn("config/lathe.php: {$message}");
         }
 
         foreach ($this->validator->unknownKeys($this->config->all()) as $key) {
