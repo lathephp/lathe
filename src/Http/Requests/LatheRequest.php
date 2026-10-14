@@ -171,6 +171,24 @@ class LatheRequest extends Request
         return $this->resource() ?? throw new NotFoundHttpException;
     }
 
+    /**
+     * An instance of the Resource the route names, or null when none is registered under it.
+     */
+    public function resourceInstance(): ?Resource
+    {
+        $class = $this->resource();
+
+        return $class === null ? null : $class::make();
+    }
+
+    /**
+     * A new instance of the Resource the route names; 404 when there is none.
+     */
+    public function newResource(): Resource
+    {
+        return $this->resourceOrFail()::make();
+    }
+
     protected function config(): ConfigStore
     {
         return app(ConfigStore::class);
