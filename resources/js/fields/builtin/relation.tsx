@@ -1,21 +1,10 @@
-import { Suspense, type ComponentType } from 'react';
 import { BelongsToDetail, BelongsToIndex } from '../relation/BelongsToField';
 import { BelongsToForm, HasOneForm, MorphToForm, TagForm } from '../relation/lazy';
 import { MorphToDetail, MorphToIndex } from '../relation/MorphToField';
 import { TagDetail, TagIndex } from '../relation/TagField';
-import { registerField, type FormFieldProps } from '../registry';
+import { registerField } from '../registry';
+import { deferred } from './deferred';
 
-
-/** A lazy form input, holding an input's height while its chunk loads. */
-function deferred(Form: ComponentType<FormFieldProps>): ComponentType<FormFieldProps> {
-  return function DeferredForm(props: FormFieldProps) {
-    return (
-      <Suspense fallback={<div className="h-9" aria-hidden="true" />}>
-        <Form {...props} />
-      </Suspense>
-    );
-  };
-}
 
 /** Register the renderers of the relation fields. */
 export function registerRelationFields(): void {

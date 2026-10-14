@@ -3,7 +3,7 @@ import { act, fireEvent, render, screen } from '@testing-library/react';
 import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 import { FormField } from '../../registry';
 import type { FieldSchema } from '../../types';
-import { RemoteChoice } from '../SelectFields';
+import { RemoteChoice } from '../SelectForms';
 
 function schema(component: string, attribute: string): FieldSchema {
   return {

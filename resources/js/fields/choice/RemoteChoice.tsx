@@ -2,7 +2,7 @@ import { useState, type ComponentType } from 'react';
 import type { FormFieldProps } from '../registry';
 import { useAssociatable } from '../relation/useAssociatable';
 import { stringsOf } from './options';
-import type { RemoteSource } from './SelectFields';
+import type { RemoteSource } from './SelectForms';
 
 /**
  * A select whose options the server searches: the first focus asks for them, a typed term
