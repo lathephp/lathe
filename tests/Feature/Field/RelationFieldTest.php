@@ -137,7 +137,7 @@ it('stores and sends the shared relation options', function () {
         'kind' => 'belongsTo',
         'relationship' => 'customer',
         'withSubtitles' => true,
-        'creatable' => true,
+        // creatable is true on the wire only for a user who may create and add; see BelongsToSaveTest.
         'modalSize' => 'lg',
         'searchable' => true,
         'debounce' => 250,
