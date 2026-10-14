@@ -2,6 +2,7 @@
 
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\DB;
+use Lathe\Enums\Icon;
 use Lathe\Http\Requests\LatheRequest;
 use Lathe\Tests\Fixtures\Widgets\ValueOrders;
 use Lathe\Tests\Fixtures\Widgets\ValueProbe;
@@ -222,4 +223,22 @@ it('runs exactly 2 queries to count a range', function () {
     DB::disableQueryLog();
 
     expect($queries)->toHaveCount(2);
+});
+
+it('puts the icon in the descriptor', function () {
+    expect((new ValueOrders)->descriptor()['icon'])->toBeNull()
+        ->and((new ValueOrders)->icon(Icon::ShoppingCart)->descriptor()['icon'])->toBe('shopping-cart');
+});
+
+it('takes the default range when the request names none', function () {
+    $this->travelTo(CarbonImmutable::parse('2026-05-15 10:20:30', 'UTC'));
+    valueOrder('2026-05-14 10:00:00');
+    valueOrder('2026-04-01 10:00:00');
+
+    $widget = (new ValueOrders)->defaultRange(60);
+
+    expect(valueOf($widget)['value'])->toBe(2)
+        ->and(valueOf($widget, ['range' => 30])['value'])->toBe(1)
+        ->and($widget->descriptor()['defaultRange'])->toBe(60)
+        ->and((new ValueOrders)->descriptor()['defaultRange'])->toBeNull();
 });

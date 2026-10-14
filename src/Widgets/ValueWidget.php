@@ -6,6 +6,7 @@ use Carbon\CarbonImmutable;
 use Illuminate\Contracts\Database\Query\Expression;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Lathe\Enums\Icon;
 use Lathe\Http\Requests\LatheRequest;
 use Lathe\Support\Timezone;
 use Lathe\Widgets\Results\ValueResult;
@@ -31,12 +32,44 @@ abstract class ValueWidget extends Widget
 
     protected ?string $component = 'value-widget';
 
+    protected ?string $icon = null;
+
+    protected string|int|null $defaultRange = null;
+
     /**
      * @return array<int|string, string>
      */
     public function ranges(): array
     {
         return [30 => '30 Days', 60 => '60 Days', 365 => '365 Days'];
+    }
+
+    /**
+     * An icon the card draws beside its number.
+     */
+    public function icon(Icon $icon): static
+    {
+        $this->icon = $icon->value;
+
+        return $this;
+    }
+
+    /**
+     * The range used until the user picks one, the first range key unless set.
+     */
+    public function defaultRange(string|int $key): static
+    {
+        $this->defaultRange = $key;
+
+        return $this;
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    public function descriptor(): array
+    {
+        return [...parent::descriptor(), 'icon' => $this->icon, 'defaultRange' => $this->defaultRange];
     }
 
     public function resolve(LatheRequest $request): mixed
@@ -123,7 +156,7 @@ abstract class ValueWidget extends Widget
 
     /**
      * The request's range: days as an int, or one of the range constants. Anything else, and
-     * more days than a trend holds, means the first range key.
+     * more days than a trend holds, means the default range.
      */
     private function selectedRange(LatheRequest $request): int|string
     {
@@ -137,7 +170,7 @@ abstract class ValueWidget extends Widget
             return (int) $range;
         }
 
-        $first = array_key_first($this->ranges()) ?? 30;
+        $first = $this->defaultRange ?? array_key_first($this->ranges()) ?? 30;
 
         return is_numeric($first) ? (int) $first : $first;
     }
