@@ -1,21 +1,40 @@
 <?php
 
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Gate;
 use Inertia\Testing\AssertableInertia;
 use Lathe\Lathe;
+use Lathe\Menu\Menu;
+use Lathe\Menu\MenuItem;
+use Lathe\Menu\MenuSection;
+use Lathe\Tests\Fixtures\Models\Article as ArticleModel;
 use Lathe\Tests\Fixtures\Models\Invoice;
 use Lathe\Tests\Fixtures\Plugins\Gauge;
 use Lathe\Tests\Fixtures\Policies\EmptyPolicy;
+use Lathe\Tests\Fixtures\Resources\Article;
 use Workbench\App\Models\Order;
 use Workbench\App\Models\User;
+use Workbench\App\Policies\ActionEventPolicy;
 use Workbench\Database\Seeders\DemoSeeder;
 
 beforeEach(function () {
     $this->artisan('migrate')->assertSuccessful();
     $this->seed(DemoSeeder::class);
 });
+
+class NavigationTestCountingPolicy
+{
+    public static int $checks = 0;
+
+    public function viewAny(User $user): bool
+    {
+        static::$checks++;
+
+        return false;
+    }
+}
 
 function navigationFor(string $email): array
 {
@@ -24,9 +43,24 @@ function navigationFor(string $email): array
     return $props['navigation'];
 }
 
+it('orders the dashboards, the Navigation group, the sections, the plugin sections and the Resource groups', function () {
+    Gate::policy(ArticleModel::class, ActionEventPolicy::class);
+    Lathe::registerResources(Article::class);
+    Lathe::registerPlugins(Gauge::make());
+    Menu::using(fn (Request $request, Menu $menu) => $menu
+        ->add(MenuSection::section('Insights', [MenuItem::link('Overview', 'pages/overview')]))
+        ->add(MenuItem::link('Docs', '/docs')));
+
+    $navigation = navigationFor('admin@lathephp.com');
+
+    expect(array_column($navigation, 'label'))->toBe(['Dashboards', 'Navigation', 'Insights', 'Heartbeat', 'Gauge', 'Content', 'Resources'])
+        ->and($navigation[1]['items'])->toBe([['label' => 'Docs', 'href' => '/docs', 'icon' => null]])
+        ->and($navigation[5]['items'])->toBe([['label' => 'News', 'href' => '/lathe/resources/articles', 'icon' => 'FileText']]);
+});
+
 it('lists the dashboard and the Resources', function () {
     expect(navigationFor('admin@lathephp.com'))->toBe([
-        ['label' => null, 'icon' => null, 'items' => [['label' => 'Sales', 'href' => '/lathe', 'icon' => 'LayoutDashboard']]],
+        ['label' => 'Dashboards', 'icon' => null, 'items' => [['label' => 'Sales', 'href' => '/lathe', 'icon' => 'LayoutDashboard']]],
         ['label' => 'Heartbeat', 'icon' => null, 'items' => [['label' => 'Heartbeat', 'href' => '/lathe/plugins/heartbeat', 'icon' => 'Activity']]],
         ['label' => 'Resources', 'icon' => null, 'items' => [
             ['label' => 'Categories', 'href' => '/lathe/resources/categories', 'icon' => 'Folder'],
@@ -66,13 +100,23 @@ it('builds one Resource definition for the sidebar and the Orders index among 50
     Lathe::discoverResources($directory, $namespace);
     $this->artisan('lathe:cache')->assertSuccessful();
     Lathe::resources()->flush();
+    Gate::policy(Invoice::class, NavigationTestCountingPolicy::class);
 
     $queries = [];
     DB::listen(function ($event) use (&$queries) {
         $queries[] = $event->sql;
     });
-    $this->actingAs(User::where('email', 'admin@lathephp.com')->firstOrFail())
-        ->get('/lathe/resources/orders')->assertOk()
+    $this->actingAs(User::where('email', 'admin@lathephp.com')->firstOrFail());
+
+    // The home dashboard builds no Resource for its sidebar and asks viewAny once per Resource.
+    $this->get('/lathe')->assertOk();
+
+    expect(Lathe::resources()->definitionsBuilt())->toBe(0)
+        ->and(NavigationTestCountingPolicy::$checks)->toBe(499)
+        ->and(collect($queries)->filter(fn ($sql) => str_contains($sql, 'invoices'))->all())->toBe([]);
+
+    Lathe::resources()->flush();
+    $this->get('/lathe/resources/orders')->assertOk()
         ->assertInertia(fn (AssertableInertia $page) => $page->has('navigation.2.items', 9));
 
     // Orders, and Customers for the titles its Customer column shows; never the 499 others.
@@ -89,4 +133,17 @@ it('sends no navigation to a user who fails viewLathe', function () {
     $props = $this->actingAs($guest)->get('/lathe')->assertForbidden()->viewData('page')['props'];
 
     expect($props['navigation'])->toBe([]);
+});
+
+it('sends the navigation once per hash of its JSON', function () {
+    $this->actingAs(User::where('email', 'admin@lathephp.com')->firstOrFail());
+    $page = $this->get('/lathe')->assertOk()->viewData('page');
+    $key = array_key_first(array_filter($page['onceProps'], fn (array $once) => $once['prop'] === 'navigation'));
+
+    expect($key)->toStartWith('navigation:');
+
+    $visit = fn (string $loaded) => $this->get('/lathe', ['X-Inertia' => 'true', 'X-Inertia-Except-Once-Props' => $loaded])->assertOk()->json('props');
+
+    expect($visit($key))->not->toHaveKey('navigation')
+        ->and($visit('navigation:stale')['navigation'][0]['label'])->toBe('Dashboards');
 });

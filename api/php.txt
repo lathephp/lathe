@@ -882,6 +882,7 @@ Lathe\Dashboards\Dashboard::icon(Lathe\Enums\Icon $icon): static
 Lathe\Dashboards\Dashboard::iconName(): ?Lathe\Enums\Icon
 Lathe\Dashboards\Dashboard::label(): string  [static]
 Lathe\Dashboards\Dashboard::make(): static  [static]
+Lathe\Dashboards\Dashboard::menu(Lathe\Http\Requests\LatheRequest $request): Lathe\Menu\MenuItem
 Lathe\Dashboards\Dashboard::name(): string
 Lathe\Dashboards\Dashboard::path(): string
 Lathe\Dashboards\Dashboard::payload(): array
@@ -2735,6 +2736,7 @@ Lathe\Menu\Menu::arrange(array $entries, Illuminate\Http\Request $request): arra
 Lathe\Menu\Menu::array $items  [protected]
 Lathe\Menu\Menu::build(Illuminate\Http\Request $request): static  [static]
 Lathe\Menu\Menu::buildUserMenu(Illuminate\Http\Request $request): static  [static]
+Lathe\Menu\Menu::entries(): array
 Lathe\Menu\Menu::jsonSerialize(): array
 Lathe\Menu\Menu::mainMenu(Closure $callback): void  [static]
 Lathe\Menu\Menu::prepend(Lathe\Menu\MenuItem|Lathe\Menu\MenuGroup|Lathe\Menu\MenuSection ...$items): static
@@ -2757,6 +2759,7 @@ Lathe\Menu\MenuGroup::bool $collapsedByDefault  [protected]
 Lathe\Menu\MenuGroup::bool $collapsible  [protected]
 Lathe\Menu\MenuGroup::collapsedByDefault(bool $collapsed = true): static
 Lathe\Menu\MenuGroup::collapsible(bool $collapsible = true): static
+Lathe\Menu\MenuGroup::entries(): array
 Lathe\Menu\MenuGroup::group(string $name, array $items = array ( )): static  [static]
 Lathe\Menu\MenuGroup::icon(?Lathe\Enums\Icon $icon): static
 Lathe\Menu\MenuGroup::int $sort  [protected]
@@ -2778,7 +2781,7 @@ Lathe\Menu\MenuItem::activeWhen(Closure $callback): static
 Lathe\Menu\MenuItem::bool $external  [protected]
 Lathe\Menu\MenuItem::dashboard(string $dashboard): static  [static]
 Lathe\Menu\MenuItem::externalLink(string $label, string $url): static  [static]
-Lathe\Menu\MenuItem::href(): string  [protected]
+Lathe\Menu\MenuItem::href(): string
 Lathe\Menu\MenuItem::icon(?Lathe\Enums\Icon $icon): static
 Lathe\Menu\MenuItem::int $sort  [protected]
 Lathe\Menu\MenuItem::jsonSerialize(): array
@@ -2805,6 +2808,7 @@ Lathe\Menu\MenuSection::bool $collapsedByDefault  [protected]
 Lathe\Menu\MenuSection::bool $collapsible  [protected]
 Lathe\Menu\MenuSection::collapsedByDefault(bool $collapsed = true): static
 Lathe\Menu\MenuSection::collapsible(bool $collapsible = true): static
+Lathe\Menu\MenuSection::entries(): array
 Lathe\Menu\MenuSection::icon(?Lathe\Enums\Icon $icon): static
 Lathe\Menu\MenuSection::int $sort  [protected]
 Lathe\Menu\MenuSection::item(Lathe\Menu\MenuItem|Lathe\Menu\MenuGroup $item): static
@@ -2816,10 +2820,19 @@ Lathe\Menu\MenuSection::section(?string $label, array $items = array ( )): stati
 Lathe\Menu\MenuSection::toArray(Illuminate\Http\Request $request): array
 Lathe\Menu\Navigation::Lathe\Auth\ResourceAuthorization $authorization  [protected]
 Lathe\Menu\Navigation::Lathe\Dashboards\DashboardRegistry $dashboards  [protected]
+Lathe\Menu\Navigation::Lathe\Menu\MenuRegistry $menus  [protected]
 Lathe\Menu\Navigation::Lathe\Plugins\PluginRegistry $plugins  [protected]
 Lathe\Menu\Navigation::Lathe\Resources\ResourceRegistry $resources  [protected]
-Lathe\Menu\Navigation::__construct(Lathe\Resources\ResourceRegistry $resources, Lathe\Plugins\PluginRegistry $plugins, Lathe\Auth\ResourceAuthorization $authorization, Lathe\Dashboards\DashboardRegistry $dashboards)
+Lathe\Menu\Navigation::__construct(Lathe\Resources\ResourceRegistry $resources, Lathe\Plugins\PluginRegistry $plugins, Lathe\Auth\ResourceAuthorization $authorization, Lathe\Dashboards\DashboardRegistry $dashboards, Lathe\Menu\MenuRegistry $menus)
+Lathe\Menu\Navigation::assemble(Illuminate\Http\Request $request): array  [protected]
+Lathe\Menu\Navigation::badges(Illuminate\Http\Request $request): array
 Lathe\Menu\Navigation::build(Illuminate\Http\Request $request): array
+Lathe\Menu\Navigation::visible(array $entries, Illuminate\Http\Request $request): array  [protected]
+Lathe\Menu\NavigationProp::?array $navigation  [protected]
+Lathe\Menu\NavigationProp::Closure $build  [protected]
+Lathe\Menu\NavigationProp::__construct(Closure $build)
+Lathe\Menu\NavigationProp::getKey(): string
+Lathe\Menu\NavigationProp::navigation(): array  [protected]
 Lathe\Notifications\LatheNotification::?int $duration  [protected]
 Lathe\Notifications\LatheNotification::?string $body  [protected]
 Lathe\Notifications\LatheNotification::Lathe\Enums\Icon|string $icon  [protected]
@@ -3086,6 +3099,7 @@ Lathe\Resources\Resource::label(): string  [static]
 Lathe\Resources\Resource::layoutFor(Lathe\Field\FieldContext $context, Lathe\Http\Requests\LatheRequest $request, ?Illuminate\Database\Eloquent\Model $model = NULL): array
 Lathe\Resources\Resource::lenses(Lathe\Http\Requests\LatheRequest $request): array
 Lathe\Resources\Resource::make(?Illuminate\Database\Eloquent\Model $model = NULL): static  [static]
+Lathe\Resources\Resource::menu(Lathe\Http\Requests\LatheRequest $request): ?Lathe\Menu\MenuItem  [static]
 Lathe\Resources\Resource::model(): string  [static]
 Lathe\Resources\Resource::newModel(): Illuminate\Database\Eloquent\Model  [static]
 Lathe\Resources\Resource::optionColumns(): array
@@ -4406,6 +4420,7 @@ class Lathe\Menu\MenuItem
 class Lathe\Menu\MenuRegistry
 class Lathe\Menu\MenuSection
 class Lathe\Menu\Navigation
+class Lathe\Menu\NavigationProp
 class Lathe\Notifications\LatheNotification
 class Lathe\Notifications\NotificationAction
 class Lathe\Notifications\NotificationChannelRegistry

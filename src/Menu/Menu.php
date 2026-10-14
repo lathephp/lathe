@@ -102,6 +102,16 @@ class Menu implements JsonSerializable
     }
 
     /**
+     * Every entry added so far, visible or not, in the order they were added.
+     *
+     * @return list<MenuItem|MenuGroup|MenuSection>
+     */
+    public function entries(): array
+    {
+        return $this->items;
+    }
+
+    /**
      * The entries the request may see, by ascending sort. Entries with an equal sort keep
      * the order they were added in.
      *

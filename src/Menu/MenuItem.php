@@ -6,6 +6,7 @@ use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use JsonSerializable;
+use Lathe\Dashboards\DashboardRegistry;
 use Lathe\Enums\Icon;
 use Lathe\Plugins\Plugin;
 use Lathe\Support\ConfigStore;
@@ -65,11 +66,18 @@ class MenuItem implements JsonSerializable
     }
 
     /**
-     * A link to a dashboard, labelled after the key.
+     * A link to a dashboard. A registered dashboard gives its name, icon and path, so the
+     * key main links to the panel home; any other key is labelled after the key.
      */
     public static function dashboard(string $dashboard): static
     {
-        return new static(Str::headline($dashboard), "dashboards/{$dashboard}");
+        $registered = app(DashboardRegistry::class)->forKey($dashboard);
+
+        if ($registered === null) {
+            return new static(Str::headline($dashboard), "dashboards/{$dashboard}");
+        }
+
+        return (new static($registered->name(), $registered->path()))->icon($registered->iconName() ?? Icon::LayoutDashboard);
     }
 
     /**
@@ -177,7 +185,10 @@ class MenuItem implements JsonSerializable
         return [...$json, ...$this->badgePayload()];
     }
 
-    protected function href(): string
+    /**
+     * The URL the item links to. The sidebar lists each href once.
+     */
+    public function href(): string
     {
         if ($this->external || str_starts_with($this->path, '/')) {
             return $this->path;

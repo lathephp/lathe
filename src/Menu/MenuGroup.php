@@ -45,6 +45,14 @@ class MenuGroup implements JsonSerializable
         return $this;
     }
 
+    /**
+     * @return list<MenuItem>
+     */
+    public function entries(): array
+    {
+        return $this->items;
+    }
+
     public function icon(?Icon $icon): static
     {
         $this->icon = $icon;

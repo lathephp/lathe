@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Gate;
 use Inertia\Middleware;
 use Lathe\Lathe;
 use Lathe\Menu\Navigation;
+use Lathe\Menu\NavigationProp;
 use Lathe\Support\TranslationManager;
 
 class HandleInertiaRequests extends Middleware
@@ -50,8 +51,8 @@ class HandleInertiaRequests extends Middleware
             'rtl' => $request->attributes->getBoolean('lathe.rtl'),
             'latheVersion' => Lathe::version(),
             'assetHash' => Lathe::assets()->hash(),
-            // A user who may not open the panel sees no Resource or plugin names.
-            'navigation' => fn () => $user === null || ! Lathe::check($request) ? [] : app(Navigation::class)->build($request),
+            // Lazy badge values change within a sidebar whose hash does not, so they travel apart.
+            'navigationBadges' => fn () => $user === null || ! Lathe::check($request) ? [] : app(Navigation::class)->badges($request),
             'sidebarOpen' => Lathe::resolveSidebarDefaultOpen($request),
             // Per visit, not once per session: the login page loads it before a user exists.
             // An app that never defines globalSearch keeps the palette off: an undefined ability denies.
@@ -72,6 +73,10 @@ class HandleInertiaRequests extends Middleware
     {
         return [
             ...parent::shareOnce($request),
+            // A user who may not open the panel sees no Resource or plugin names.
+            'navigation' => new NavigationProp(fn () => $request->user(Lathe::fortify()->guard()) === null || ! Lathe::check($request)
+                ? []
+                : app(Navigation::class)->build($request)),
             'appName' => fn () => Lathe::name(),
             'basePath' => fn () => '/'.trim(Lathe::path(), '/'),
             'versionLabel' => fn () => Lathe::versionLabel(),

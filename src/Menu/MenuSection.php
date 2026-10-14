@@ -82,6 +82,14 @@ class MenuSection implements JsonSerializable
         return $this;
     }
 
+    /**
+     * @return list<MenuItem|MenuGroup>
+     */
+    public function entries(): array
+    {
+        return $this->items;
+    }
+
     public function collapsible(bool $collapsible = true): static
     {
         $this->collapsible = $collapsible;

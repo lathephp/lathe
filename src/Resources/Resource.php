@@ -33,6 +33,7 @@ use Lathe\Http\Requests\LatheRequest;
 use Lathe\Lathe;
 use Lathe\Layout\SectionPresenter;
 use Lathe\Lenses\Lens;
+use Lathe\Menu\MenuItem;
 use Lathe\Search\SearchableColumn;
 use Lathe\Support\SafeHtml;
 use Lathe\Tabs\Tab;
@@ -322,6 +323,15 @@ abstract class Resource
     public function filterableFields(LatheRequest $request): array
     {
         return array_values($this->fieldsFor(FieldContext::Index, $request)->filter(fn (Field $field) => $field->isFilterable())->all());
+    }
+
+    /**
+     * The sidebar entry that replaces this Resource's default one; null keeps the default.
+     * Static, so the sidebar calls it without building the Resource.
+     */
+    public static function menu(LatheRequest $request): ?MenuItem
+    {
+        return null;
     }
 
     public static function make(?Model $model = null): static

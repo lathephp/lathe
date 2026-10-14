@@ -12,6 +12,7 @@ use Lathe\Attributes\Dashboard\ShowRefreshButton;
 use Lathe\Auth\FortifyConfig;
 use Lathe\Enums\Icon;
 use Lathe\Http\Requests\LatheRequest;
+use Lathe\Menu\MenuItem;
 use ReflectionClass;
 
 /**
@@ -109,6 +110,14 @@ abstract class Dashboard
     public function path(): string
     {
         return static::uriKey() === 'main' ? '' : 'dashboards/'.static::uriKey();
+    }
+
+    /**
+     * The sidebar entry of this dashboard.
+     */
+    public function menu(LatheRequest $request): MenuItem
+    {
+        return MenuItem::dashboard(static::uriKey());
     }
 
     /**
