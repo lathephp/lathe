@@ -10,8 +10,11 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasOneOrMany;
 use Illuminate\Support\Str;
 use InvalidArgumentException;
+use Lathe\ActionEvents\Actionable;
+use Lathe\ActionEvents\ActionEventResource;
 use Lathe\Actions\Action;
 use Lathe\Actions\ActionCollection;
+use Lathe\Auth\ResourceAuthorization;
 use Lathe\Exceptions\ActionUriKeyCollisionException;
 use Lathe\Exceptions\InvalidActionException;
 use Lathe\Field\Avatar;
@@ -175,10 +178,38 @@ abstract class Resource
             FieldContext::Peeking => $this->fieldsForPeeking($request),
         };
         $items = $items === [] ? $this->fields($request) : $items;
+        $items = $context === FieldContext::Detail ? $this->withActionEventsPanel($items) : $items;
 
         $request->attributes->set($key, $items);
 
         return $items;
+    }
+
+    /**
+     * A model that uses Actionable gets a folded Action Events panel at the end of its detail
+     * page, unless the Resource declares a field for the actions relation itself. The panel
+     * shows only to a viewer who may view the log.
+     *
+     * @param  list<mixed>  $items
+     * @return list<mixed>
+     */
+    private function withActionEventsPanel(array $items): array
+    {
+        $model = $this->definition()->getModel();
+
+        if ($model === null || ! in_array(Actionable::class, class_uses_recursive($model), true)) {
+            return $items;
+        }
+
+        foreach (SectionPresenter::flattenFields($items, 'Details') as $field) {
+            if ($field->attribute() === 'actions') {
+                return $items;
+            }
+        }
+
+        return [...$items, Field::morphMany(Lathe::__('Action Events'), 'actions', ActionEventResource::class)
+            ->collapsed()
+            ->canSee(fn (LatheRequest $request) => app(ResourceAuthorization::class)->allows($request->user(), ActionEventResource::class, 'viewAny'))];
     }
 
     /**

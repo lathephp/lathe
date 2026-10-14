@@ -61,6 +61,7 @@ it('answers the add and attach flags of every relation field of an order', funct
         ->assertExactJson([
             'customer' => ['add' => true, 'attach' => false, 'attachAny' => false, 'detach' => false],
             'items' => ['add' => true, 'attach' => false, 'attachAny' => false, 'detach' => false],
+            'actions' => ['add' => false, 'attach' => false, 'attachAny' => false, 'detach' => false],
         ]);
 });
 
