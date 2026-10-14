@@ -137,7 +137,7 @@ it('refuses to change the panel definition while serving', function (string $set
 ]);
 
 it('shares what a plugin provides from serving() with that page', function () {
-    $plugin = new class extends \Lathe\Plugins\Plugin
+    $plugin = new class extends Plugin
     {
         public static function uriKey(): string
         {
