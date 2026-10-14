@@ -8,6 +8,10 @@
     ".": {
       "types": "./dist/index.d.ts",
       "default": "./dist/index.js"
+    },
+    "./testing": {
+      "types": "./dist/testing/index.d.ts",
+      "default": "./dist/testing.js"
     }
   },
   "files": [
@@ -15,7 +19,7 @@
     "!dist/*.tsbuildinfo"
   ],
   "scripts": {
-    "build": "vite build && tsc -b"
+    "build": "vite build && vite build --mode testing && tsc -b"
   },
   "devDependencies": {
     "@types/react": "19.3.0",
