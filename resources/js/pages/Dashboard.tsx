@@ -1,6 +1,8 @@
-import { Head } from '@inertiajs/react';
-import { useTranslation } from '@lathephp/core';
+import { Head, usePage } from '@inertiajs/react';
+import { useLathe, useTranslation } from '@lathephp/core';
 import { Card } from '@lathephp/ui';
+import type { WidgetDescriptor, WidgetValue } from '../widgets/types';
+import { WidgetGrid } from '../widgets/WidgetGrid';
 
 export interface DashboardPayload {
   uriKey: string;
@@ -15,11 +17,13 @@ const widgetCommand = 'php artisan lathe:widget TotalUsers --type=value';
 
 interface DashboardProps {
   dashboard: DashboardPayload;
-  widgets: unknown[];
+  widgets: WidgetDescriptor[];
 }
 
 export default function Dashboard({ dashboard, widgets }: DashboardProps) {
   const { __ } = useTranslation();
+  const { apiPath } = useLathe();
+  const page = usePage();
 
   return (
     <div className="space-y-6">
@@ -28,6 +32,18 @@ export default function Dashboard({ dashboard, widgets }: DashboardProps) {
         <h1 className="text-2xl font-semibold">{dashboard.name}</h1>
         {dashboard.description !== null && <p className="text-sm text-muted-foreground">{dashboard.description}</p>}
       </div>
+      {widgets.length > 0 && (
+        <WidgetGrid
+          widgets={widgets}
+          valueUrl={`${apiPath}/dashboards/${dashboard.uriKey}/widgets`}
+          showRefreshButton={dashboard.showRefreshButton}
+          // Each card's value is its own deferred prop, so the cards fill in one by one.
+          deferred={(uriKey) => ({
+            value: page.props[`widgetValue:${uriKey}`] as WidgetValue | undefined,
+            rescued: page.rescuedProps.includes(`widgetValue:${uriKey}`),
+          })}
+        />
+      )}
       {widgets.length === 0 && (
         <Card className="space-y-3 p-12 text-center text-sm text-muted-foreground">
           <p>{__('No widgets yet')}</p>
