@@ -16,6 +16,9 @@ use Lathe\Resources\ResourceDefinition;
 use Lathe\Search\SearchableRelation;
 use Lathe\Summaries\Summary;
 use Lathe\Tabs\Tab;
+use Workbench\App\Lathe\Actions\CancelOrder;
+use Workbench\App\Lathe\Actions\HoldOrder;
+use Workbench\App\Lathe\Actions\MarkShipped;
 use Workbench\App\Lathe\Filters\OrderCustomer;
 use Workbench\App\Lathe\Filters\OrderStatus;
 use Workbench\App\Lathe\Lenses\PendingOrders;
@@ -102,6 +105,11 @@ class Order extends Resource
     public function lenses(LatheRequest $request): array
     {
         return [new PendingOrders];
+    }
+
+    public function actions(LatheRequest $request): array
+    {
+        return [new MarkShipped, new CancelOrder, new HoldOrder];
     }
 
     public function groups(LatheRequest $request): array

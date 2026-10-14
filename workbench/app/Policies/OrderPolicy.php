@@ -2,6 +2,7 @@
 
 namespace Workbench\App\Policies;
 
+use Lathe\Actions\Action;
 use Workbench\App\Models\Order;
 use Workbench\App\Models\User;
 
@@ -53,6 +54,16 @@ class OrderPolicy
     }
 
     public function addItems(User $user, Order $order): bool
+    {
+        return $user->email === 'admin@lathephp.com';
+    }
+
+    public function runAction(User $user, Order $order, Action $action): bool
+    {
+        return $this->update($user, $order);
+    }
+
+    public function runDestructiveAction(User $user, Order $order, Action $action): bool
     {
         return $user->email === 'admin@lathephp.com';
     }
