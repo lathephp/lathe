@@ -11,7 +11,8 @@ export interface SharedData {
   auth?: { user: { name: string; email: string } | null };
   flash?: { success?: string | null; error?: string | null };
   notifications?: { enabled: boolean; pollingInterval: number; showUnreadCount: boolean };
-  config?: Record<string, unknown>;
+  /** What the server gave Lathe::provideToScript(), read with config(key). */
+  provided?: Record<string, unknown>;
   [key: string]: unknown;
 }
 

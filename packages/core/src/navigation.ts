@@ -44,5 +44,5 @@ export function visit(path: string, options?: Record<string, unknown>): void {
 
 /** A value the server provided to scripts, or undefined. */
 export function config(key: string): unknown {
-  return sharedProps.get().config?.[key];
+  return sharedProps.get().provided?.[key];
 }

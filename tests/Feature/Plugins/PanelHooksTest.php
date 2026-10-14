@@ -135,3 +135,21 @@ it('refuses to change the panel definition while serving', function (string $set
     'footer' => 'footer',
     'userLocale' => 'userLocale',
 ]);
+
+it('shares what a plugin provides from serving() with that page', function () {
+    $plugin = new class extends \Lathe\Plugins\Plugin
+    {
+        public static function uriKey(): string
+        {
+            return 'provider';
+        }
+
+        public function serving(Request $request): void
+        {
+            Lathe::provideToScript(['viewer' => $request->user()?->getAttribute('email')]);
+        }
+    };
+    Lathe::registerPlugins($plugin);
+
+    expect(providedProps($this->admin))->toBe(['viewer' => 'admin@lathephp.com']);
+});

@@ -52,7 +52,8 @@ class HandleInertiaRequests extends Middleware
             'rtl' => Lathe::isRTL($request),
             'latheVersion' => Lathe::version(),
             // What Lathe::provideToScript() gave: global values plus this request's own.
-            'provided' => Lathe::provided($request),
+            // A closure, so plugins' serving(), which runs after this middleware, has provided its values.
+            'provided' => fn () => Lathe::provided($request),
             'assetHash' => Lathe::assets()->hash(),
             // Lazy badge values change within a sidebar whose hash does not, so they travel apart.
             'navigationBadges' => fn () => $user === null || ! Lathe::check($request) ? [] : app(Navigation::class)->badges($request),
