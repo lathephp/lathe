@@ -228,6 +228,32 @@ describe('belongsTo relation picker', () => {
     expect(screen.getAllByRole('option')).toHaveLength(2);
   });
 
+  it('stops the search input at 100 characters', async () => {
+    server();
+    renderField();
+
+    fireEvent.click(screen.getByRole('button', { name: /Customer/ }));
+    await flush();
+
+    expect(screen.getByRole('searchbox').getAttribute('maxlength')).toBe('100');
+  });
+
+  it('shows a refused term in the picker, with no toast and no earlier options', async () => {
+    vi.useFakeTimers();
+    const toasts = __panel.toasts.get().length;
+    server(reply({ items: anns, has_more: false }), reply({ message: 'The search term may not be longer than 100 characters.', errors: { q: ['The search term may not be longer than 100 characters.'] } }, 422));
+    renderField();
+
+    fireEvent.click(screen.getByRole('button', { name: /Customer/ }));
+    await flush();
+    fireEvent.change(screen.getByRole('searchbox'), { target: { value: 'x'.repeat(101) } });
+    await advance(500);
+
+    expect(screen.queryAllByRole('option')).toEqual([]);
+    expect(screen.getByRole('alert').textContent).toBe('The search term may not be longer than 100 characters.');
+    expect(__panel.toasts.get()).toHaveLength(toasts);
+  });
+
   it('shows With trashed only when the field allows it, and adds with_trashed=1', async () => {
     server();
     const { unmount } = renderField();

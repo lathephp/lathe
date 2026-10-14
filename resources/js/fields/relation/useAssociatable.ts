@@ -1,4 +1,4 @@
-import { __panel, request, toast, useLathe, useTranslation } from '@lathephp/core';
+import { __panel, ApiError, request, toast, useLathe, useTranslation } from '@lathephp/core';
 import { useEffect, useState, useSyncExternalStore } from 'react';
 import type { FieldSchema } from '../types';
 
@@ -49,7 +49,8 @@ export function useAssociatableEndpoint(field: FieldSchema, record?: LookupRecor
 
 /**
  * The options of a relation field, one server page at a time. Opening asks at once, a typed
- * term waits the field's debounce (500 ms by default), and a failure toasts with Retry.
+ * term waits the field's debounce (500 ms by default). A failure clears the options: a refused
+ * term (422) returns the server's message, any other failure toasts with Retry.
  */
 export function useAssociatable(field: FieldSchema, { open, term, withTrashed, type, record, endpoint: given }: Options) {
   const { __ } = useTranslation();
@@ -59,7 +60,7 @@ export function useAssociatable(field: FieldSchema, { open, term, withTrashed, t
   const [paging, setPaging] = useState({ key, page: 1 });
   const page = paging.key === key ? paging.page : 1;
   const [attempt, setAttempt] = useState(0);
-  const [result, setResult] = useState<{ items: AssociatableItem[]; hasMore: boolean; loaded: boolean }>({ items: [], hasMore: false, loaded: false });
+  const [result, setResult] = useState<{ items: AssociatableItem[]; hasMore: boolean; loaded: boolean; error: string | null }>({ items: [], hasMore: false, loaded: false, error: null });
   const debounce = typeof field.debounce === 'number' ? field.debounce : 500;
 
   const derived = useAssociatableEndpoint(field, record);
@@ -90,11 +91,19 @@ export function useAssociatable(field: FieldSchema, { open, term, withTrashed, t
     request<AssociatablePage>(`${endpoint}?${params.toString()}`, { signal: controller.signal }).then(
       (reply) => {
         const items = reply?.items ?? [];
-        setResult((current) => ({ items: page === 1 ? items : [...current.items, ...items], hasMore: reply?.has_more === true, loaded: true }));
+        setResult((current) => ({ items: page === 1 ? items : [...current.items, ...items], hasMore: reply?.has_more === true, loaded: true, error: null }));
       },
-      () => {
-        // Typing on or closing aborts the request it replaces; only a real failure toasts.
-        if (!controller.signal.aborted) {
+      (error: unknown) => {
+        // Typing on or closing aborts the request it replaces; only a real failure counts.
+        if (controller.signal.aborted) {
+          return;
+        }
+
+        // Options from an earlier term must not stay pickable under the new one.
+        const message = error instanceof ApiError && error.status === 422 ? (error.data as { message?: unknown } | null)?.message : undefined;
+        setResult({ items: [], hasMore: false, loaded: false, error: typeof message === 'string' ? message : null });
+
+        if (typeof message !== 'string') {
           toast.error(__('Something went wrong. Please try again.'), {
             action: {
               label: __('Retry'),

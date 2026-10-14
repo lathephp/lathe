@@ -44,7 +44,7 @@ export function RelationPicker({ field, value, onChange, id, describedBy, invali
   const [term, setTerm] = useState('');
   const [withTrashed, setWithTrashed] = useState(false);
   const [active, setActive] = useState(-1);
-  const { items, hasMore, loaded, more } = useAssociatable(field, { open, term, withTrashed, type, record, endpoint });
+  const { items, hasMore, loaded, error, more } = useAssociatable(field, { open, term, withTrashed, type, record, endpoint });
   const root = useRef<HTMLDivElement>(null);
   const button = useRef<HTMLButtonElement>(null);
   const search = useRef<HTMLInputElement>(null);
@@ -112,6 +112,8 @@ export function RelationPicker({ field, value, onChange, id, describedBy, invali
             aria-controls={`${id}-listbox`}
             aria-activedescendant={active >= 0 && active < items.length ? `${id}-option-${String(active)}` : undefined}
             value={term}
+            // The server refuses a longer term; 100 is limits.search_term_chars by default.
+            maxLength={typeof field.searchTermChars === 'number' ? field.searchTermChars : 100}
             onChange={(event) => {
               setTerm(event.target.value);
               setActive(-1);
@@ -162,6 +164,11 @@ export function RelationPicker({ field, value, onChange, id, describedBy, invali
               </li>
             ))}
           </ul>
+          {error !== null && (
+            <p role="alert" className="px-2 py-1 text-sm text-destructive">
+              {error}
+            </p>
+          )}
           {loaded && items.length === 0 && <p className="px-2 py-1 text-sm text-muted-foreground">{__('No results')}</p>}
           {hasMore && (
             <Button variant="outline" size="sm" className="mt-1 w-full" onClick={more}>
