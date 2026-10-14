@@ -27,6 +27,7 @@ use Lathe\Console\CacheCommand;
 use Lathe\Console\ClearCommand;
 use Lathe\Console\DoctorCommand;
 use Lathe\Console\InstallCommand;
+use Lathe\Console\PruneActionEventsCommand;
 use Lathe\Console\TranslateCommand;
 use Lathe\Dashboards\DashboardRegistry;
 use Lathe\Exceptions\InvalidConfigurationException;
@@ -108,7 +109,7 @@ class LatheServiceProvider extends ServiceProvider
         });
 
         if ($this->app->runningInConsole()) {
-            $this->commands([ApiCheckCommand::class, CacheCommand::class, ClearCommand::class, DoctorCommand::class, InstallCommand::class, TranslateCommand::class]);
+            $this->commands([ApiCheckCommand::class, CacheCommand::class, ClearCommand::class, DoctorCommand::class, InstallCommand::class, PruneActionEventsCommand::class, TranslateCommand::class]);
             $this->optimizes(optimize: 'lathe:cache', clear: 'lathe:clear', key: 'lathe');
 
             $this->publishes([

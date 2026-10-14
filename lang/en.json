@@ -1,6 +1,7 @@
 {
     "1. Run php artisan lathe:user to create a panel user.": "1. Run php artisan lathe:user to create a panel user.",
     "2. Add that user's email to gate() in app/Providers/LatheServiceProvider.php.": "2. Add that user's email to gate() in app/Providers/LatheServiceProvider.php.",
+    ":count action events deleted.": ":count action events deleted.",
     ":count resource(s) deleted.": ":count resource(s) deleted.",
     ":count resource(s) permanently deleted.": ":count resource(s) permanently deleted.",
     ":count resource(s) restored.": ":count resource(s) restored.",
