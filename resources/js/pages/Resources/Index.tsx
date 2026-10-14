@@ -1,4 +1,5 @@
 import { Head, usePage } from '@inertiajs/react';
+import { useShortcut } from '@lathephp/core';
 import { Card } from '@lathephp/ui';
 import { EmptyState } from '../../index/EmptyState';
 import { IndexBanner } from '../../index/IndexBanner';
@@ -7,6 +8,7 @@ import { IndexToolbar } from '../../index/IndexToolbar';
 import { useLoadMore } from '../../index/Pagination';
 import { usePolling, usePollingChoice } from '../../index/PollingToggle';
 import { ResourceTable } from '../../index/ResourceTable';
+import { SelectionBanner } from '../../index/SelectionBanner';
 import { TabBar } from '../../index/TabBar';
 import type { IndexProps } from '../../index/types';
 import { useIndexState } from '../../index/useIndexState';
@@ -22,6 +24,13 @@ export default function Index({ resource, table, state, count, error, lens, lens
   const selection = useRowSelection();
   const more = useLoadMore(resource.uriKey, table, state);
   usePolling(polling, !showPollingToggle || pollingChoice.on);
+  const ids = more.rows.map((row) => row.id);
+  useShortcut('mod+a', () => {
+    selection.toggleAll(ids);
+  });
+  useShortcut('mod+shift+a', () => {
+    selection.selectAllMatching();
+  });
 
   return (
     <div className="space-y-6">
@@ -48,6 +57,7 @@ export default function Index({ resource, table, state, count, error, lens, lens
         />
       ) : (
         <Card className="overflow-hidden">
+          <SelectionBanner selection={selection} ids={ids} count={count} hasMorePages={more.hasMorePages} />
           <ResourceTable
             resource={resource}
             table={{ ...table, rows: more.rows }}

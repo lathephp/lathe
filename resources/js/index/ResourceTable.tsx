@@ -95,7 +95,7 @@ export function ResourceTable({ resource, table, state, loading, selection, sort
     return { plain: cn(base, 'truncate'), inline: base };
   });
   const ids = table.rows.map((row) => row.id);
-  const ticked = ids.filter((id) => selection.selected.has(id)).length;
+  const ticked = ids.filter((id) => selection.isSelected(id)).length;
 
   // Edit falls back to detail for a user who may not update the row.
   function rowUrl(row: Row): string | null {
@@ -245,7 +245,7 @@ export function ResourceTable({ resource, table, state, loading, selection, sort
                             type="checkbox"
                             aria-label={__('Select :title', { title: row.title })}
                             className="block size-4"
-                            checked={selection.selected.has(row.id)}
+                            checked={selection.isSelected(row.id)}
                             onChange={() => {
                               selection.toggle(row.id);
                             }}

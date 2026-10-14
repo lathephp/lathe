@@ -65,6 +65,32 @@ describe('shortcuts', () => {
     expect(handler).toHaveBeenCalledTimes(1);
   });
 
+  it('tells mod+a from mod+shift+a', () => {
+    setPlatform('Linux x86_64');
+    const page = vi.fn();
+    const all = vi.fn();
+    register('mod+a', page);
+    register('mod+shift+a', all);
+
+    press({ key: 'a', ctrlKey: true });
+    press({ key: 'A', ctrlKey: true, shiftKey: true });
+
+    expect(page).toHaveBeenCalledTimes(1);
+    expect(all).toHaveBeenCalledTimes(1);
+  });
+
+  it('leaves mod+a to a field, where it selects the text', () => {
+    setPlatform('Linux x86_64');
+    document.body.innerHTML = '<input id="i">';
+    const page = vi.fn();
+    register('mod+a', page);
+
+    const event = press({ key: 'a', ctrlKey: true }, byId('i'));
+
+    expect(page).not.toHaveBeenCalled();
+    expect(event.defaultPrevented).toBe(false);
+  });
+
   it('skips a single key while focus is in a field but not mod+k', () => {
     setPlatform('Linux x86_64');
     document.body.innerHTML =

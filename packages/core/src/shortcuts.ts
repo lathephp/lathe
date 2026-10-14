@@ -6,8 +6,8 @@ type Handler = (event: KeyboardEvent) => void;
 interface Shortcut {
   /** The written combination, such as `mod+k` or `g d`. */
   keys: string;
-  /** Each step of a sequence: its key and whether it needs the mod key. */
-  steps: { key: string; mod: boolean }[];
+  /** Each step of a sequence: its key and whether it needs the mod key, and shift with it. */
+  steps: { key: string; mod: boolean; shift: boolean }[];
   handler: Handler;
 }
 
@@ -40,6 +40,13 @@ function isTyping(target: EventTarget | null): boolean {
   return editable !== null && editable.getAttribute('contenteditable') !== 'false';
 }
 
+// Text editing combinations belong to the field the person types in.
+const editingKeys = new Set(['a', 'c', 'v', 'x', 'z']);
+
+function step(mod: boolean, shift: boolean, key: string): string {
+  return `${mod ? 'mod+' : ''}${shift ? 'shift+' : ''}${key}`;
+}
+
 function normalise(keys: string): string {
   return keys.trim().toLowerCase().split(/\s+/).join(' ');
 }
@@ -58,10 +65,13 @@ function onKeyDown(event: KeyboardEvent): void {
   const key = event.key.toLowerCase();
   const mod = mac ? event.metaKey : event.ctrlKey;
   const now = Date.now();
-  // A plain key never fires while the person types or holds another modifier; a mod combination does.
-  const blocked = !mod && (event.ctrlKey || event.metaKey || event.altKey || isTyping(event.target));
+  // A plain key never fires while the person types or holds another modifier; a mod combination
+  // does, except one that edits text.
+  const typing = isTyping(event.target);
+  const blocked = mod ? typing && editingKeys.has(key) : event.ctrlKey || event.metaKey || event.altKey || typing;
   const history = now - pending.at <= SEQUENCE_TIMEOUT ? pending.keys : [];
-  const step = mod ? `mod+${key}` : key;
+  // Shift counts only with mod: on its own it makes the key, such as ?.
+  const pressed = step(mod, mod && event.shiftKey, key);
   let partial = false;
 
   if (blocked) {
@@ -75,11 +85,11 @@ function onKeyDown(event: KeyboardEvent): void {
       continue;
     }
 
-    const steps = shortcut.steps.map((part) => (part.mod ? `mod+${part.key}` : part.key));
+    const steps = shortcut.steps.map((part) => step(part.mod, part.shift, part.key));
     const before = steps.slice(0, -1);
     const recent = before.length === 0 ? [] : history.slice(-before.length);
 
-    if (steps.at(-1) === step && recent.join(' ') === before.join(' ')) {
+    if (steps.at(-1) === pressed && recent.join(' ') === before.join(' ')) {
       if (mod) {
         // The browser binds Ctrl+K, so a mod shortcut takes the key over.
         event.preventDefault();
@@ -91,12 +101,12 @@ function onKeyDown(event: KeyboardEvent): void {
       return;
     }
 
-    if (steps.length > 1 && steps.slice(0, history.length + 1).join(' ') === [...history, step].join(' ')) {
+    if (steps.length > 1 && steps.slice(0, history.length + 1).join(' ') === [...history, pressed].join(' ')) {
       partial = true;
     }
   }
 
-  pending = partial ? { keys: [...history, step], at: now } : { keys: [], at: 0 };
+  pending = partial ? { keys: [...history, pressed], at: now } : { keys: [], at: 0 };
 }
 
 /** Run a handler on a key combination, such as `mod+k`, `/` or the sequence `g d`. Returns the function that removes it. */
@@ -105,7 +115,7 @@ export function addShortcut(keys: string, handler: Handler): () => void {
   const steps = written.split(' ').map((part) => {
     const pieces = part.split('+');
 
-    return { key: pieces.at(-1) ?? '', mod: pieces.includes('mod') };
+    return { key: pieces.at(-1) ?? '', mod: pieces.includes('mod'), shift: pieces.includes('shift') };
   });
   const shortcut: Shortcut = { keys: written, steps, handler };
 
