@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Foundation\PackageManifest;
+use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Gate;
 use Lathe\Lathe;
 use Lathe\Plugins\PluginDiscovery;
@@ -84,4 +85,11 @@ it('adds a Heartbeat section to the sidebar with the Activity icon', function ()
     expect($navigation)->toContain(['label' => 'Heartbeat', 'icon' => null, 'items' => [
         ['label' => 'Heartbeat', 'href' => '/lathe/plugins/heartbeat', 'icon' => 'Activity'],
     ]]);
+});
+
+it('pins that the Heartbeat page imports only React and the two public Lathe packages', function () {
+    $source = File::get(dirname(__DIR__, 3).'/workbench/lathe-components/Heartbeat/resources/js/plugin.tsx');
+    preg_match_all("/^import .* from '([^']+)';$/m", $source, $imports);
+
+    expect(array_values(array_unique($imports[1])))->toEqualCanonicalizing(['@lathephp/core', '@lathephp/ui', 'react']);
 });
