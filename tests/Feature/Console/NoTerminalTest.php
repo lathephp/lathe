@@ -11,7 +11,8 @@ use Lathe\Tests\Feature\Console\Generators\GeneratesIntoTempApp;
 uses(GeneratesIntoTempApp::class);
 
 const WRITABLE = ['app/', 'bootstrap/', 'config/', 'stubs/lathe/', 'lang/vendor/lathe/', 'public/vendor/lathe/', 'database/migrations/'];
-const GENERATOR_WRITABLE = ['lathe-components/', 'resources/js/lathe/', 'composer.json', 'package.json', 'pnpm-workspace.yaml'];
+// vite.lathe.config.ts sits beside the host's own vite.config.ts, which the generators never touch.
+const GENERATOR_WRITABLE = ['lathe-components/', 'resources/js/lathe/', 'composer.json', 'package.json', 'pnpm-workspace.yaml', 'vite.lathe.config.ts'];
 
 /**
  * Every file under a folder with a hash of its contents, keyed by its path below the folder.
