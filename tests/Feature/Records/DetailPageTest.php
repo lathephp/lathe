@@ -57,7 +57,7 @@ it('shows an order with its fields, layout, abilities and default breadcrumbs', 
                 ['label' => '#12', 'href' => null],
             ])
             ->where('actions.actions', fn ($actions) => collect($actions)->map(fn ($action) => [$action['uriKey'], $action['authorizedToRun']])->all() === [
-                ['hold-order', true], ['mark-shipped', true], ['cancel-order', true],
+                ['export', true], ['hold-order', true], ['mark-shipped', true], ['cancel-order', true],
             ])
             ->where('widgets', []));
 });

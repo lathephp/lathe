@@ -80,6 +80,6 @@ it('runs an action as JSON when no field holds a file', function () {
 it('sends the lens twins through the lens routes', function () {
     $tester = LatheTest::resource('orders')->forLens('pending-orders');
 
-    $tester->actions()->assertOk()->assertJsonPath('actions.1.uriKey', 'mark-shipped');
+    $tester->actions()->assertOk()->assertJsonPath('actions.2.uriKey', 'mark-shipped');
     $tester->actionForm('mark-shipped', ['count' => 2])->assertOk()->assertJsonPath('confirmText', 'Mark 2 orders as shipped?');
 });

@@ -78,13 +78,14 @@ it('lists the Orders actions in menu order with their metadata', function () {
     $json = $this->getJson('/lathe/api/resources/orders/actions?display=index')->assertOk()->json();
 
     expect(array_keys($json))->toBe(['actions', 'pivotActions', 'counts'])
-        ->and(array_column($json['actions'], 'uriKey'))->toBe(['hold-order', 'mark-shipped', 'cancel-order'])
-        ->and($json['actions'][1])->toMatchArray(['name' => 'Mark Shipped', 'group' => 'Fulfilment', 'destructive' => false, 'confirmText' => 'Mark :count orders as shipped?'])
-        ->and($json['actions'][2])->toMatchArray(['name' => 'Cancel Order', 'destructive' => true, 'confirmText' => 'Cancel :count order?'])
-        ->and($json['actions'][0])->toMatchArray(['name' => 'Hold Order', 'sole' => true, 'showOnTableRow' => true])
-        ->and($json['actions'][0])->not->toHaveKey('authorizedToRun')
+        ->and(array_column($json['actions'], 'uriKey'))->toBe(['export', 'hold-order', 'mark-shipped', 'cancel-order'])
+        ->and($json['actions'][0])->toMatchArray(['name' => 'Export', 'group' => null, 'standalone' => false])
+        ->and($json['actions'][2])->toMatchArray(['name' => 'Mark Shipped', 'group' => 'Fulfilment', 'destructive' => false, 'confirmText' => 'Mark :count orders as shipped?'])
+        ->and($json['actions'][3])->toMatchArray(['name' => 'Cancel Order', 'destructive' => true, 'confirmText' => 'Cancel :count order?'])
+        ->and($json['actions'][1])->toMatchArray(['name' => 'Hold Order', 'sole' => true, 'showOnTableRow' => true])
+        ->and($json['actions'][1])->not->toHaveKey('authorizedToRun')
         ->and($json['pivotActions'])->toBe([])
-        ->and($json['counts'])->toEqual(['standalone' => 0, 'sole' => 1, 'resource' => 2]);
+        ->and($json['counts'])->toEqual(['standalone' => 0, 'sole' => 1, 'resource' => 3]);
 });
 
 it('lists an action without resolving its fields', function () {
@@ -140,15 +141,15 @@ it('sends the action fields with their defaults on the form', function () {
 it('carries the action menu and row flags on the index page and JSON', function () {
     $json = $this->getJson('/lathe/api/resources/orders')->assertOk()->json();
 
-    expect(array_column($json['actions']['actions'], 'uriKey'))->toBe(['hold-order', 'mark-shipped', 'cancel-order'])
-        ->and($json['table']['rows'][0]['actions'])->toBe(['hold-order', 'mark-shipped', 'cancel-order']);
+    expect(array_column($json['actions']['actions'], 'uriKey'))->toBe(['export', 'hold-order', 'mark-shipped', 'cancel-order'])
+        ->and($json['table']['rows'][0]['actions'])->toBe(['export', 'hold-order', 'mark-shipped', 'cancel-order']);
 
     $this->get('/lathe/resources/orders')
         ->assertOk()
         ->assertInertia(fn (AssertableInertia $page) => $page
             ->component('Resources/Index', shouldExist: false)
-            ->where('actions.actions.1.uriKey', 'mark-shipped')
-            ->where('table.rows.0.actions', ['hold-order', 'mark-shipped', 'cancel-order'])
+            ->where('actions.actions.2.uriKey', 'mark-shipped')
+            ->where('table.rows.0.actions', ['export', 'hold-order', 'mark-shipped', 'cancel-order'])
             ->etc());
 });
 
@@ -157,7 +158,8 @@ it('leaves out the actions an editor may not run from each row', function () {
 
     $rows = $this->getJson('/lathe/api/resources/orders')->assertOk()->json('table.rows');
 
-    expect($rows[0]['actions'])->toBe([]);
+    // The editor may export orders but run none of their other actions.
+    expect($rows[0]['actions'])->toBe(['export']);
 });
 
 it('flags rows by run callback and policy, and skips standalone and hidden actions', function () {
@@ -182,8 +184,8 @@ it('flags rows by run callback and policy, and skips standalone and hidden actio
 it('gives the lens index the same action menu', function () {
     $json = $this->getJson('/lathe/api/resources/orders/lenses/pending-orders')->assertOk()->json();
 
-    expect(array_column($json['actions']['actions'], 'uriKey'))->toBe(['hold-order', 'mark-shipped', 'cancel-order'])
-        ->and($json['table']['rows'][0]['actions'])->toBe(['hold-order', 'mark-shipped', 'cancel-order']);
+    expect(array_column($json['actions']['actions'], 'uriKey'))->toBe(['export', 'hold-order', 'mark-shipped', 'cancel-order'])
+        ->and($json['table']['rows'][0]['actions'])->toBe(['export', 'hold-order', 'mark-shipped', 'cancel-order']);
 });
 
 it('runs the same queries for 10 and 100 rows with 4 actions declared', function () {
