@@ -178,3 +178,24 @@ it('runs composer update only after a yes', function (array $options, ?bool $ans
     'skip flag' => [['--skip-composer' => true], null, false],
     'no interaction' => [['--no-interaction' => true], null, false],
 ]);
+
+it('writes into the Testbench working path when one is set, and into the app base path otherwise', function (bool $testbench) {
+    $this->app->forgetInstance('lathe.host_path');
+    $working = sys_get_temp_dir().'/lathe-working-'.bin2hex(random_bytes(4));
+    File::ensureDirectoryExists($working);
+    File::put("{$working}/composer.json", '{}');
+    $this->beforeApplicationDestroyed(fn () => File::deleteDirectory($working));
+    $previous = getenv('TESTBENCH_WORKING_PATH');
+    putenv($testbench ? "TESTBENCH_WORKING_PATH={$working}" : 'TESTBENCH_WORKING_PATH');
+
+    try {
+        $this->artisan('lathe:plugin', ['name' => 'acme/price-tracker', '--skip-composer' => true])->assertExitCode(0);
+    } finally {
+        putenv($previous === false ? 'TESTBENCH_WORKING_PATH' : "TESTBENCH_WORKING_PATH={$previous}");
+    }
+
+    [$host, $other] = $testbench ? [$working, $this->generatorBase] : [$this->generatorBase, $working];
+
+    expect(File::exists("{$host}/lathe-components/PriceTracker/composer.json"))->toBeTrue()
+        ->and(File::exists("{$other}/lathe-components"))->toBeFalse();
+})->with(['Testbench' => true, 'app' => false]);

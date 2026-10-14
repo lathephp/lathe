@@ -4,9 +4,8 @@ namespace Lathe\Console;
 
 use Composer\InstalledVersions;
 use Illuminate\Filesystem\Filesystem;
-use Illuminate\Foundation\PackageManifest;
+use Illuminate\Support\Env;
 use Illuminate\Support\Str;
-use Lathe\Plugins\PluginDiscovery;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Process\Process;
 
@@ -210,8 +209,9 @@ class MakePluginCommand extends GeneratorCommand
     }
 
     /**
-     * The folder of the project whose Composer autoloader runs. A test binds lathe.host_path to
-     * write somewhere else.
+     * The app's base path, or under Testbench the package being worked on, which Testbench names
+     * in TESTBENCH_WORKING_PATH; its base path is the skeleton inside vendor/. A test binds
+     * lathe.host_path to write somewhere else.
      */
     protected function hostPath(): string
     {
@@ -221,7 +221,9 @@ class MakePluginCommand extends GeneratorCommand
             return $bound;
         }
 
-        return dirname(PluginDiscovery::vendorPath($this->laravel->make(PackageManifest::class)->vendorPath));
+        $working = defined('TESTBENCH_WORKING_PATH') ? constant('TESTBENCH_WORKING_PATH') : Env::get('TESTBENCH_WORKING_PATH');
+
+        return is_string($working) && $working !== '' ? $working : $this->laravel->basePath();
     }
 
     /**
