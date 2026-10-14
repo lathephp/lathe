@@ -20,7 +20,9 @@ class OrderItem extends Resource
     public function fields(LatheRequest $request): array
     {
         return [
-            Field::number('Quantity')->min(1)->required(),
+            Field::belongsTo('Order'),
+            Field::belongsTo('Product')->searchable(),
+            Field::number('Quantity')->min(1)->required()->sortable(),
             Field::currency('Price', 'price_cents')->asMinorUnits()->required(),
         ];
     }

@@ -992,10 +992,14 @@ Lathe\Field\PasswordLifecycle::persist(object $model, string $attribute, mixed $
 Lathe\Field\PasswordLifecycle::present(mixed $raw, object $record, string $attribute): mixed
 Lathe\Field\Relations\BelongsToField::?Closure $filledCallback  [protected]
 Lathe\Field\Relations\BelongsToField::bool $viewable  [protected]
+Lathe\Field\Relations\BelongsToField::cell(Illuminate\Database\Eloquent\Model $model): array
+Lathe\Field\Relations\BelongsToField::fill(Lathe\Http\Requests\LatheRequest $request, object $model, ?string $requestAttribute = NULL): ?Closure
 Lathe\Field\Relations\BelongsToField::filled(?Closure $callback): static
 Lathe\Field\Relations\BelongsToField::getFilledCallback(): ?Closure
 Lathe\Field\Relations\BelongsToField::isViewable(): bool
 Lathe\Field\Relations\BelongsToField::kind(): string
+Lathe\Field\Relations\BelongsToField::loadsWithRecord(): bool
+Lathe\Field\Relations\BelongsToField::resolve(object $record, ?string $attribute = NULL): mixed
 Lathe\Field\Relations\BelongsToField::string $component  [protected]
 Lathe\Field\Relations\BelongsToField::viewable(bool $viewable = true): static
 Lathe\Field\Relations\BelongsToManyField::Closure|array $pivotActions  [protected]
@@ -1072,6 +1076,9 @@ Lathe\Field\Relations\RelationField::creatable(bool $creatable = true): static
 Lathe\Field\Relations\RelationField::createsThroughPanel(): bool
 Lathe\Field\Relations\RelationField::debounce(int $milliseconds): static
 Lathe\Field\Relations\RelationField::display(Closure $callback): static
+Lathe\Field\Relations\RelationField::displayFor(Illuminate\Database\Eloquent\Model $related): string
+Lathe\Field\Relations\RelationField::eagerLoad(): array
+Lathe\Field\Relations\RelationField::fill(Lathe\Http\Requests\LatheRequest $request, object $model, ?string $requestAttribute = NULL): ?Closure
 Lathe\Field\Relations\RelationField::getDisplayCallback(): ?Closure
 Lathe\Field\Relations\RelationField::getInverse(): ?string
 Lathe\Field\Relations\RelationField::getPerPageOptions(): ?array
@@ -1082,6 +1089,7 @@ Lathe\Field\Relations\RelationField::inverse(string $relation): static
 Lathe\Field\Relations\RelationField::isPeekable(Lathe\Http\Requests\LatheRequest $request): bool
 Lathe\Field\Relations\RelationField::jsonSerialize(): array
 Lathe\Field\Relations\RelationField::kind(): string
+Lathe\Field\Relations\RelationField::loadsWithRecord(): bool
 Lathe\Field\Relations\RelationField::modalSize(string $size): static
 Lathe\Field\Relations\RelationField::noPeeking(): static
 Lathe\Field\Relations\RelationField::owner(): ?string
@@ -1089,10 +1097,13 @@ Lathe\Field\Relations\RelationField::peekable(Closure|bool $peekable = true): st
 Lathe\Field\Relations\RelationField::perPageOptions(array $options): static
 Lathe\Field\Relations\RelationField::pluralLabel(string $label): static
 Lathe\Field\Relations\RelationField::relatableQuery(Closure $callback): static
+Lathe\Field\Relations\RelationField::relatedRecord(Illuminate\Database\Eloquent\Model $record): ?Illuminate\Database\Eloquent\Model  [protected]
 Lathe\Field\Relations\RelationField::relatedResource(): ?string
+Lathe\Field\Relations\RelationField::relatedResourceFor(Illuminate\Database\Eloquent\Model $related): ?string  [protected]
 Lathe\Field\Relations\RelationField::relatedResourceGuess(): string
 Lathe\Field\Relations\RelationField::reorderAssociatables(bool $reorder = true): static
 Lathe\Field\Relations\RelationField::reordersAssociatables(): bool
+Lathe\Field\Relations\RelationField::resolve(object $record, ?string $attribute = NULL): mixed
 Lathe\Field\Relations\RelationField::resource(string $class): static
 Lathe\Field\Relations\RelationField::searchable(bool $searchable = true): static
 Lathe\Field\Relations\RelationField::showsCount(): bool
@@ -1776,6 +1787,7 @@ Lathe\Query\QueryContext::Search
 Lathe\Query\QueryContext::Widget
 Lathe\Query\QueryContext::string $name
 Lathe\Query\ResourceQuery::?Illuminate\Database\Eloquent\Builder $scoped  [protected]
+Lathe\Query\ResourceQuery::?Illuminate\Database\Eloquent\Relations\Relation $relation  [protected]
 Lathe\Query\ResourceQuery::?Lathe\Lenses\Lens $lens  [protected]
 Lathe\Query\ResourceQuery::?array $pagination  [protected]
 Lathe\Query\ResourceQuery::?string $trashed  [protected]
@@ -1807,6 +1819,7 @@ Lathe\Query\ResourceQuery::coverColumn(): ?string  [protected]
 Lathe\Query\ResourceQuery::estimatedCount(): ?Lathe\Query\Count  [protected]
 Lathe\Query\ResourceQuery::find(string|int $id): Illuminate\Database\Eloquent\Model
 Lathe\Query\ResourceQuery::forLens(Lathe\Lenses\Lens $lens): static
+Lathe\Query\ResourceQuery::forRelation(Illuminate\Database\Eloquent\Relations\Relation $relation): static
 Lathe\Query\ResourceQuery::hasMorePages(): bool
 Lathe\Query\ResourceQuery::holdsKey(Illuminate\Database\Eloquent\Model $model, string|int $id): bool  [static]
 Lathe\Query\ResourceQuery::onlyTrashed(): static
@@ -1815,6 +1828,7 @@ Lathe\Query\ResourceQuery::pagination(): array  [protected]
 Lathe\Query\ResourceQuery::perPageOptions(): array  [protected]
 Lathe\Query\ResourceQuery::perPageOptionsInUse(): array
 Lathe\Query\ResourceQuery::readPagination(): array  [protected]
+Lathe\Query\ResourceQuery::recordRelations(Lathe\Field\FieldContext $context): array  [protected]
 Lathe\Query\ResourceQuery::rows(): Illuminate\Database\Eloquent\Collection
 Lathe\Query\ResourceQuery::savedTabCount(Lathe\SavedTabs\SavedTab $tab): Lathe\Query\Count
 Lathe\Query\ResourceQuery::scoped(): Illuminate\Database\Eloquent\Builder

@@ -23,6 +23,7 @@ class Product extends Resource
     {
         return [
             Field::text('Name')->required()->sortable(),
+            Field::belongsTo('Category'),
             Field::text('SKU', 'sku')->required()->immutable()->rules('max:16', 'unique:products,sku,{{resourceId}}'),
             Field::currency('Price', 'price_cents')->asMinorUnits()->required()->min(0)->sortable(),
             Field::number('Reorder level')->min(0)->max(10)->step(1)->required(),
@@ -31,6 +32,8 @@ class Product extends Resource
                 Field::text('Name')->required(),
                 Field::text('Value')->required(),
             ])->sortable()->confirmRemoval()->addButtonText('Add spec')->rowLabel('name', 'Spec #{{index}}'),
+            Field::morphToMany('Tags')->pivotFields([Field::number('Position')->min(0)->required()]),
+            Field::morphMany('Comments'),
         ];
     }
 }

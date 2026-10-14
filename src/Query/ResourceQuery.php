@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
@@ -16,6 +17,7 @@ use Illuminate\Validation\ValidationException;
 use Lathe\Field\Contracts\Cover;
 use Lathe\Field\Field;
 use Lathe\Field\FieldContext;
+use Lathe\Field\Relations\RelationField;
 use Lathe\Filters\FilterApplicator;
 use Lathe\Groups\Group;
 use Lathe\Http\Requests\LatheRequest;
@@ -56,6 +58,9 @@ class ResourceQuery
 
     protected ?Lens $lens = null;
 
+    /** @var Relation<Model, Model, mixed>|null The parent's relation the rows are read through. */
+    protected ?Relation $relation = null;
+
     /** Whether the lens's query() applied the filters or the sort itself, so the pipeline skips them. */
     protected bool $lensFiltered = false;
 
@@ -89,6 +94,17 @@ class ResourceQuery
     }
 
     /**
+     * Read the rows through a parent's relation, $order->items() for example, in place of
+     * the model's own query. Scopes, hooks, search, filters and sort still apply.
+     *
+     * @param  Relation<Model, Model, mixed>  $relation
+     */
+    public function forRelation(Relation $relation): static
+    {
+        return $this->change(fn () => $this->relation = $relation);
+    }
+
+    /**
      * Lift one named global scope for this query only.
      */
     public function withoutScope(string $globalScope): static
@@ -104,7 +120,7 @@ class ResourceQuery
     public function scoped(): Builder
     {
         if ($this->scoped === null) {
-            $query = $this->resource::query();
+            $query = $this->relation !== null ? clone $this->relation->getQuery() : $this->resource::query();
 
             foreach ($this->withoutScopes as $scope) {
                 $query->withoutGlobalScope($scope);
@@ -134,7 +150,7 @@ class ResourceQuery
         $query = $this->scoped();
 
         // One row past the page tells whether a next page exists without waiting for the count.
-        $rows = $this->applySort($query->with($this->resource->with()))
+        $rows = $this->applySort($query->with($this->resource->with())->with($this->recordRelations(FieldContext::Index)))
             ->offset(($page - 1) * $perPage)
             ->limit($perPage + 1)
             ->get();
@@ -284,6 +300,25 @@ class ResourceQuery
     }
 
     /**
+     * The eager loads of the relation fields whose value shows on a record of the context,
+     * so a page of rows never loads a parent per row.
+     *
+     * @return array<string, \Closure(Relation<*, *, *>): mixed>
+     */
+    protected function recordRelations(FieldContext $context): array
+    {
+        $loads = [];
+
+        foreach ($this->resource->fieldsFor($context, $this->request) as $field) {
+            if ($field instanceof RelationField && $field->loadsWithRecord()) {
+                $loads = [...$loads, ...$field->eagerLoad()];
+            }
+        }
+
+        return $loads;
+    }
+
+    /**
      * One record, or a 404 when it is outside the scope.
      */
     public function find(string|int $id): Model
@@ -293,7 +328,11 @@ class ResourceQuery
         }
 
         try {
-            return $this->scoped()->findOrFail($id);
+            return $this->scoped()->with($this->recordRelations(match ($this->context) {
+                QueryContext::Edit => FieldContext::Update,
+                QueryContext::Replicate => FieldContext::Create,
+                default => FieldContext::Detail,
+            }))->findOrFail($id);
         } catch (ModelNotFoundException $e) {
             throw new NotFoundHttpException(previous: $e);
         }

@@ -4,6 +4,7 @@ namespace Lathe\Field\Relations;
 
 use Closure;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Lathe\Http\Requests\LatheRequest;
 
 /**
@@ -21,6 +22,51 @@ class BelongsToField extends RelationField
     public function kind(): string
     {
         return 'belongsTo';
+    }
+
+    public function loadsWithRecord(): bool
+    {
+        return true;
+    }
+
+    /**
+     * @return array{value: mixed, display: string}|null
+     */
+    public function resolve(object $record, ?string $attribute = null): mixed
+    {
+        $related = $record instanceof Model ? $this->relatedRecord($record) : null;
+
+        return $related === null ? null : ['value' => $related->getKey(), 'display' => $this->displayFor($related)];
+    }
+
+    /**
+     * @return array{value: mixed, display: string}
+     */
+    public function cell(Model $model): array
+    {
+        $value = $this->resolve($model);
+
+        return ['value' => $value, 'display' => $value['display'] ?? ''];
+    }
+
+    /**
+     * Write the foreign key. The value is the related key, or {value: key} as the form sends it.
+     */
+    public function fill(LatheRequest $request, object $model, ?string $requestAttribute = null): ?Closure
+    {
+        if (! $model instanceof Model || ($model->exists && $this->isImmutable($request, $model))) {
+            return null;
+        }
+
+        $value = $request->input($requestAttribute ?? $this->attribute);
+        $value = is_array($value) ? ($value['value'] ?? null) : $value;
+        $relation = $model->{$this->attribute}();
+
+        if ($relation instanceof BelongsTo) {
+            $model->setAttribute($relation->getForeignKeyName(), $value === '' ? null : $value);
+        }
+
+        return null;
     }
 
     /**

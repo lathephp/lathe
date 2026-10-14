@@ -22,6 +22,7 @@ class Tag extends Resource
     {
         return [
             Field::text('Name')->required(),
+            Field::morphedByMany('Products')->pivotFields([Field::number('Position')->min(0)->required()]),
         ];
     }
 }

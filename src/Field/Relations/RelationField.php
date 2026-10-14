@@ -5,6 +5,9 @@ namespace Lathe\Field\Relations;
 use Closure;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\Relation;
+use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Database\Eloquent\SoftDeletingScope;
 use InvalidArgumentException;
 use Lathe\Field\Field;
 use Lathe\Http\Requests\LatheRequest;
@@ -81,6 +84,86 @@ abstract class RelationField extends Field
     public function attaches(): bool
     {
         return false;
+    }
+
+    /**
+     * Whether index and detail rows eager-load this relation: true for the single-parent
+     * kinds whose value shows on the row.
+     */
+    public function loadsWithRecord(): bool
+    {
+        return false;
+    }
+
+    /**
+     * The eager load of this relation: a soft-deleted related record still shows, every other
+     * global scope stays on.
+     *
+     * @return array<string, Closure(Relation<*, *, *>): mixed>
+     */
+    public function eagerLoad(): array
+    {
+        return [$this->attribute => function (Relation $relation): void {
+            if (in_array(SoftDeletes::class, class_uses_recursive($relation->getRelated()), true)) {
+                $relation->withoutGlobalScope(SoftDeletingScope::class);
+            }
+        }];
+    }
+
+    /**
+     * The related record of a single-parent relation, loaded with eagerLoad() when the
+     * query did not load it.
+     */
+    protected function relatedRecord(Model $record): ?Model
+    {
+        if (! $record->relationLoaded($this->attribute)) {
+            $record->load($this->eagerLoad());
+        }
+
+        $related = $record->getRelation($this->attribute);
+
+        return $related instanceof Model ? $related : null;
+    }
+
+    /**
+     * The title a related record shows: display(), else the related Resource's title.
+     */
+    public function displayFor(Model $related): string
+    {
+        if ($this->titleCallback !== null) {
+            $title = $this->evaluate($this->titleCallback, ['record' => $related, 'model' => $related], [$related]);
+
+            return is_scalar($title) ? (string) $title : '';
+        }
+
+        $resource = $this->relatedResourceFor($related);
+        $key = $related->getKey();
+
+        return $resource !== null ? $resource::make($related)->title() : (is_scalar($key) ? (string) $key : '');
+    }
+
+    /**
+     * @return class-string<resource>|null
+     */
+    protected function relatedResourceFor(Model $related): ?string
+    {
+        return $this->relatedResource();
+    }
+
+    /**
+     * Panels hold no value on the record.
+     */
+    public function resolve(object $record, ?string $attribute = null): mixed
+    {
+        return null;
+    }
+
+    /**
+     * Only the kinds that write a column fill the model; the rest save through their own routes.
+     */
+    public function fill(LatheRequest $request, object $model, ?string $requestAttribute = null): ?Closure
+    {
+        return null;
     }
 
     // The related Resource

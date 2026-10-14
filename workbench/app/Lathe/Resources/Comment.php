@@ -21,6 +21,7 @@ class Comment extends Resource
     public function fields(LatheRequest $request): array
     {
         return [
+            Field::morphTo('Commentable')->types([Post::class, Product::class]),
             Field::textarea('Body')->required(),
         ];
     }

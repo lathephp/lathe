@@ -47,13 +47,14 @@ class Order extends Resource
                 Field::make('Created', 'created_at')->onlyOnDetail()->canSee(fn (LatheRequest $request) => $request->user() instanceof User && $request->user()->email === 'admin@lathephp.com'),
             ]),
             Section::make('Customer', [
-                Field::make('Customer', 'customer.name')->exceptOnForms(),
+                Field::belongsTo('Customer')->searchable()->creatable()->modalSize('lg'),
             ]),
             LayoutTab::group(null, [
                 LayoutTab::make('Billing', [$this->total()->required()->showOnPreview()]),
-                // Picking a product is m4's relation field, so a row edits its quantity and price only.
+                // The form edits the items in a repeater; detail lists them in the Items panel.
                 LayoutTab::make('Items', [
-                    Field::repeater('Items')->asHasMany('items')->fields([
+                    Field::hasMany('Items'),
+                    Field::repeater('Items')->asHasMany('items')->onlyOnForms()->fields([
                         Field::number('Quantity')->min(1)->required(),
                         Field::currency('Price', 'price_cents')->asMinorUnits()->required(),
                     ])->addable(false)->confirmRemoval()->rowLabel('quantity', 'Item #{{index}}'),
