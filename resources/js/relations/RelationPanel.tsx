@@ -2,7 +2,7 @@ import { Link, router } from '@inertiajs/react';
 import { ApiError, QueryClientProvider, queryClient, request, toast, useLathe, useQuery, useTranslation } from '@lathephp/core';
 import { Button, Card } from '@lathephp/ui';
 import { ArrowDown, ArrowUp, ChevronDown, ListFilter } from 'lucide-react';
-import { useId, useState, type MouseEvent } from 'react';
+import { lazy, Suspense, useId, useState, type MouseEvent } from 'react';
 import type { RelationFieldSchema } from '../fields/types';
 import { FilterPanel } from '../index/FilterPanel';
 import { countText } from '../index/IndexFooter';
@@ -19,6 +19,9 @@ import { AttachRelationModal } from './AttachRelationModal';
 import { UpdatePivotModal } from './UpdatePivotModal';
 import { useRelationActions } from './useRelationActions';
 import { useRelateFlags, useRelationIndex, type RelationRow } from './useRelationIndex';
+
+// The pivot action menu loads only for a panel that offers pivot actions.
+const PivotActionMenu = lazy(() => import('../actions/PivotActionMenu').then((module) => ({ default: module.PivotActionMenu })));
 
 /** The relation kinds whose panel creates a child through `via`; a through or pivot relation has no foreign key to lock. */
 const creatingKinds = ['hasMany', 'morphMany'];
@@ -202,6 +205,17 @@ function PanelBody({ parent, field, bodyId, onToggle }: RelationPanelProps & { b
               <ListFilter aria-hidden="true" className="size-4" />
               {__('Filters')}
             </Button>
+          )}
+          {(data?.pivotActions?.length ?? 0) > 0 && (
+            <Suspense fallback={null}>
+              <PivotActionMenu
+                resource={field.resource}
+                via={`${parent.uriKey}/${String(parent.id)}/${field.relationship}`}
+                actions={data?.pivotActions ?? []}
+                ids={[...selection.selected]}
+                queryKey={['relation', parent.uriKey, String(parent.id), field.relationship]}
+              />
+            </Suspense>
           )}
           {filtersOpen && available.length > 0 && (
             <div id={filtersId} className="basis-full pt-2">

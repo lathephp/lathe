@@ -1,3 +1,4 @@
+import type { ActionMeta } from '../actions/types';
 import { request, useLathe, useQuery } from '@lathephp/core';
 import type { Column, Count, Row } from '../index/types';
 import { toQuery, type IndexUrlState } from '../index/useIndexState';
@@ -20,6 +21,8 @@ export interface RelationIndex {
   hasMore: boolean;
   /** Whether the related Resource has search columns or Scout; without them a term changes nothing. */
   searchable: boolean;
+  /** The pivot actions the ticked rows can run, through the parent's via. */
+  pivotActions?: ActionMeta[];
 }
 
 export interface RelateFlags {
