@@ -47,6 +47,8 @@ export { addShortcut, disableShortcut, enableShortcut, pauseShortcuts, resumeSho
 export { QueryClientProvider, queryClient, queryKeys, useQuery, useQueryClient } from './query';
 export { formatCurrency, formatDate, formatDateTime, formatNumber } from './format';
 export { useLathe,useTranslation } from './hooks';
+export { useTheme } from './theme';
+export type { Appearance } from './theme';
 export type { LatheContext } from './hooks';
 export type { SharedData } from './props';
 export type { SafeHtml } from './safe-html';

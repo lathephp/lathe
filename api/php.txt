@@ -629,6 +629,7 @@ Lathe\Assets\RootTags::Lathe\Plugins\PluginRegistry $plugins  [protected]
 Lathe\Assets\RootTags::Lathe\Support\ConfigStore $config  [protected]
 Lathe\Assets\RootTags::Lathe\Theme\ThemeStyleGenerator $theme  [protected]
 Lathe\Assets\RootTags::__construct(Lathe\Assets\AssetManifest $assets, Lathe\Assets\AssetRegistry $registry, Lathe\Plugins\PluginRegistry $plugins, Lathe\Support\ConfigStore $config, Lathe\Theme\ThemeStyleGenerator $theme)
+Lathe\Assets\RootTags::appearanceScript(): string  [protected]
 Lathe\Assets\RootTags::nonce(): string  [protected]
 Lathe\Assets\RootTags::prefix(): string  [protected]
 Lathe\Assets\RootTags::scripts(): string

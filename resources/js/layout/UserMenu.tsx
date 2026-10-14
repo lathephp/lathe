@@ -1,9 +1,11 @@
 import { Link, router } from '@inertiajs/react';
 import { useTranslation } from '@lathephp/core';
 import { LogOut } from 'lucide-react';
-import { useState } from 'react';
+import { lazy, Suspense, useState } from 'react';
 import { cn } from '../lib/cn';
 import type { NavigationItem } from '../types';
+
+const AppearanceSwitcher = lazy(() => import('./AppearanceSwitcher').then((module) => ({ default: module.AppearanceSwitcher })));
 
 interface UserMenuProps {
   user: { name: string; email: string };
@@ -52,8 +54,12 @@ export function UserMenu({ user, items, basePath, collapsed }: UserMenuProps) {
               {item.label}
             </Link>
           ))}
-          {/* The appearance switcher mounts here. */}
-          <div data-lathe-appearance-slot />
+          {/* Lazy: the switcher is only needed once the menu is open. The fallback has its final height. */}
+          <div data-lathe-appearance-slot>
+            <Suspense fallback={<div className="h-[6.625rem]" />}>
+              <AppearanceSwitcher />
+            </Suspense>
+          </div>
           <button
             type="button"
             role="menuitem"

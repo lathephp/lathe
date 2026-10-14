@@ -32,6 +32,7 @@
 @lathephp/core shortcutsEnabled
 @lathephp/core toast
 @lathephp/core type ActionModalProps
+@lathephp/core type Appearance
 @lathephp/core type ComponentOrLazy
 @lathephp/core type FieldProps
 @lathephp/core type FilterProps
@@ -59,6 +60,7 @@
 @lathephp/core useQuery
 @lathephp/core useQueryClient
 @lathephp/core useShortcut
+@lathephp/core useTheme
 @lathephp/core useTranslation
 @lathephp/core visit
 @lathephp/core widget
