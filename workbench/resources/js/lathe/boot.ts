@@ -1,5 +1,7 @@
 import './lathe.css';
 import './renderHooks';
+import './fields/StarRating';
+import './filters/PriceTier';
 import { page, plugin, widget } from '@lathephp/core';
 import Clock from './Clock';
 import Overview from './Overview';

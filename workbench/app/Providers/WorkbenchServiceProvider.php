@@ -65,5 +65,11 @@ class WorkbenchServiceProvider extends ServiceProvider
         if (is_string($entry)) {
             Lathe::script('workbench-extensions', "{$folder}/{$entry}");
         }
+
+        foreach (is_array($manifest) && is_array($manifest['styles'] ?? null) ? $manifest['styles'] : [] as $index => $style) {
+            if (is_string($style)) {
+                Lathe::style("workbench-extensions-{$index}", "{$folder}/{$style}");
+            }
+        }
     }
 }

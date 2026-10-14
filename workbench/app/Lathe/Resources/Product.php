@@ -9,6 +9,8 @@ use Lathe\Resources\Resource;
 use Lathe\Resources\ResourceDefinition;
 use Workbench\App\Lathe\Actions\ImportProducts;
 use Workbench\App\Lathe\Actions\MoveToFirst;
+use Workbench\App\Lathe\Fields\StarRating;
+use Workbench\App\Lathe\Filters\PriceTier;
 use Workbench\App\Models\Product as ProductModel;
 
 class Product extends Resource
@@ -30,6 +32,7 @@ class Product extends Resource
             Field::text('SKU', 'sku')->required()->immutable()->rules('max:16', 'unique:products,sku,{{resourceId}}'),
             Field::currency('Price', 'price_cents')->asMinorUnits()->required()->min(0)->sortable(),
             Field::number('Reorder level')->min(0)->max(10)->step(1)->required(),
+            StarRating::make('Rating')->rules('nullable', 'integer', 'between:1,5'),
             Field::textarea('Description')->onlyOnDetail(),
             Field::repeater('Specifications')->fields([
                 Field::text('Name')->required(),
@@ -38,6 +41,11 @@ class Product extends Resource
             Field::morphToMany('Tags')->pivotFields([Field::number('Position')->min(0)->max(1000)->step(1)->rules('integer')->required()])->pivotActions(fn () => [MoveToFirst::make()]),
             Field::morphMany('Comments'),
         ];
+    }
+
+    public function filters(LatheRequest $request): array
+    {
+        return [new PriceTier];
     }
 
     public function actions(LatheRequest $request): array
