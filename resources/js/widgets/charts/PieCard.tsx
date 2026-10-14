@@ -1,6 +1,7 @@
-import { formatNumber, useTranslation } from '@lathephp/core';
+import { useTranslation } from '@lathephp/core';
 import { ChartContainer, ChartLegend, ChartLegendContent, Label, LabelList, Pie, PieChart, Sector, type PieLabelRenderProps, type PieSectorShapeProps } from '@lathephp/ui/chart';
-import type { WidgetRendererProps } from '../types';
+import { chartFormatter } from '../number';
+import type { NumberDisplay, WidgetRendererProps } from '../types';
 import { ChartFrame, NoData } from './ChartFrame';
 import { useChartTooltip } from './tooltip';
 
@@ -12,14 +13,13 @@ export interface Segment {
 }
 
 /** PieResult::jsonSerialize(). */
-export interface PiePayload {
+export interface PiePayload extends Partial<NumberDisplay> {
   value: Segment[];
   innerRadius: number;
   showLabels?: boolean;
   series?: { name: string; segments: Segment[] }[];
 }
 
-const format = (value: number) => formatNumber(value);
 const outer = 80;
 
 /** The sectors of one ring, coloured by the server. */
@@ -29,6 +29,7 @@ const sectors = (segments: Segment[]) => segments.map((segment) => ({ name: segm
 export function PieCard({ widget, value }: WidgetRendererProps) {
   const { __ } = useTranslation();
   const result = value as PiePayload | null;
+  const format = chartFormatter(result);
   const tooltip = useChartTooltip(widget, { hideLabel: true }, format);
   const rings = result?.series ?? [];
   const segments = result?.value ?? [];

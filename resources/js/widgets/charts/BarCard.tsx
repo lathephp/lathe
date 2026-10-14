@@ -1,12 +1,13 @@
-import { formatNumber, useTranslation } from '@lathephp/core';
+import { useTranslation } from '@lathephp/core';
 import { Bar, BarChart, CartesianGrid, ChartContainer, ChartLegend, ChartLegendContent, LabelList, Rectangle, ReferenceLine, XAxis, YAxis, type BarShapeProps } from '@lathephp/ui/chart';
-import type { WidgetRendererProps } from '../types';
+import { chartFormatter } from '../number';
+import type { NumberDisplay, WidgetRendererProps } from '../types';
 import { ChartFrame, NoData } from './ChartFrame';
 import { seriesColor } from './palette';
 import { useChartTooltip } from './tooltip';
 
 /** BarResult::payload(). */
-export interface BarPayload {
+export interface BarPayload extends Partial<NumberDisplay> {
   bars: { label: string; value: number; color: string }[];
   horizontal?: boolean;
   stacked?: boolean;
@@ -14,12 +15,11 @@ export interface BarPayload {
   negativeColor?: string;
 }
 
-const format = (value: number) => formatNumber(value);
-
 /** Bars, one per group, or one group of bars per label for several series. */
 export function BarCard({ widget, value }: WidgetRendererProps) {
   const { __ } = useTranslation();
   const result = value as BarPayload | null;
+  const format = chartFormatter(result);
   const names = Object.keys(result?.series ?? {});
   const horizontal = result?.horizontal === true;
   const showLabels = widget.showLabels === true;

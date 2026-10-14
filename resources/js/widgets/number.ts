@@ -45,3 +45,17 @@ export function formatMetric(value: number | null, display: NumberDisplay): stri
 
   return `${display.prefix ?? ''}${formatNumber(value, options(value, display.format))}${suffixFor(value, display)}`;
 }
+
+/**
+ * A chart's number formatter: the result's prefix, suffix and format when it sets one,
+ * otherwise the plain locale number.
+ */
+export function chartFormatter(display: Partial<NumberDisplay> | null): (value: number) => string {
+  const { prefix = null, suffix = null, suffixInflection = true, format = null } = display ?? {};
+
+  if (prefix === null && suffix === null && format === null) {
+    return (value) => formatNumber(value);
+  }
+
+  return (value) => formatMetric(value, { prefix, suffix, suffixInflection, format });
+}

@@ -1,12 +1,13 @@
-import { formatNumber, useTranslation } from '@lathephp/core';
+import { useTranslation } from '@lathephp/core';
 import { ChartContainer, Label, LabelList, PolarAngleAxis, PolarGrid, PolarRadiusAxis, RadialBar, RadialBarChart } from '@lathephp/ui/chart';
-import type { WidgetRendererProps } from '../types';
+import { chartFormatter } from '../number';
+import type { NumberDisplay, WidgetRendererProps } from '../types';
 import { ChartFrame, NoData } from './ChartFrame';
 import { seriesColor } from './palette';
 import { useChartTooltip } from './tooltip';
 
 /** RadialResult::jsonSerialize(). */
-export interface RadialPayload {
+export interface RadialPayload extends Partial<NumberDisplay> {
   value: number;
   target: number;
   percentage: number;
@@ -22,12 +23,11 @@ export interface RadialPayload {
   stacked?: { name: string; value: number }[];
 }
 
-const format = (value: number) => formatNumber(value);
-
 /** A value against its target as a gauge, one ring per segment, or items sharing one ring. */
 export function RadialCard({ widget, value }: WidgetRendererProps) {
   const { __ } = useTranslation();
   const result = value as RadialPayload | null;
+  const format = chartFormatter(result);
   const tooltip = useChartTooltip(widget, { hideLabel: true }, format);
 
   if (result === null) {

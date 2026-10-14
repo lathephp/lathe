@@ -1,16 +1,17 @@
-import { formatNumber, useTranslation } from '@lathephp/core';
+import { useTranslation } from '@lathephp/core';
 import { ChartContainer, LabelList, Pie, PieChart } from '@lathephp/ui/chart';
-import type { WidgetRendererProps } from '../types';
+import { chartFormatter } from '../number';
+import type { NumberDisplay, WidgetRendererProps } from '../types';
 import { ChartFrame, NoData } from './ChartFrame';
 import type { Segment } from './PieCard';
 import { useChartTooltip } from './tooltip';
 
-const format = (value: number) => formatNumber(value);
-
 /** Shares of a whole as a small donut beside a legend, or as proportion bars. */
 export function PartitionCard({ widget, value }: WidgetRendererProps) {
   const { __ } = useTranslation();
-  const segments = (value as { value: Segment[] } | null)?.value ?? [];
+  const result = value as ({ value: Segment[] } & Partial<NumberDisplay>) | null;
+  const format = chartFormatter(result);
+  const segments = result?.value ?? [];
   const tooltip = useChartTooltip(widget, { hideLabel: true }, format);
 
   if (segments.length === 0) {

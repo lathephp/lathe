@@ -3,6 +3,7 @@ import { Button, Card } from '@lathephp/ui';
 import { Suspense, useEffect, useEffectEvent, useRef, useState } from 'react';
 import { cn } from '../lib/cn';
 import { HelpTooltip } from './HelpTooltip';
+import { filterParams } from './filterParams';
 import { cellClass } from './layout';
 import { widgetRenderers } from './registry';
 import type { WidgetDescriptor, WidgetValue } from './types';
@@ -32,18 +33,21 @@ export function WidgetCard({ widget, url, params, deferred, register }: WidgetCa
   const { __ } = useTranslation();
   const Renderer = widgetRenderers[widget.component];
   const fetches = widget.requestsValue && Renderer !== undefined;
-  const [range, setRange] = useState(widget.ranges[0] === undefined ? null : String(widget.ranges[0].value));
+  const first = widget.ranges.find((option) => option.value === widget.defaultRange) ?? widget.ranges[0];
+  const [range, setRange] = useState(first === undefined ? null : String(first.value));
   const [fetched, setFetched] = useState<WidgetValue | undefined>(undefined);
   const [failed, setFailed] = useState(false);
   const [pending, setPending] = useState(fetches && deferred === undefined);
   const [held, setHeld] = useState(fetches);
   const holdTimer = useRef<ReturnType<typeof setTimeout>>(undefined);
   const latest = useRef(0);
+  // The filters of the last filters:changed, sent with every later request.
+  const filters = useRef<[string, string][]>([]);
 
   // Asks for the value and keeps the number on screen until the answer: a poll or an event.
   const send = (nextRange: string | null) => {
     const id = ++latest.current;
-    const query = new URLSearchParams({ ...(nextRange === null ? {} : { range: nextRange }), ...params }).toString();
+    const query = new URLSearchParams([...(nextRange === null ? [] : [['range', nextRange]]), ...filters.current, ...Object.entries(params ?? {})]).toString();
 
     request<WidgetValue>(query === '' ? url : `${url}?${query}`).then(
       (data) => {
@@ -115,9 +119,13 @@ export function WidgetCard({ widget, url, params, deferred, register }: WidgetCa
     const refetch = () => {
       quietly();
     };
+    const refilter = (payload: unknown) => {
+      filters.current = filterParams(payload);
+      quietly();
+    };
     const offs = [
       fetches && widget.refreshWhenActionsRun ? on('actions:ran', refetch) : null,
-      fetches && widget.refreshWhenFiltersChange ? on('filters:changed', refetch) : null,
+      fetches && widget.refreshWhenFiltersChange ? on('filters:changed', refilter) : null,
     ];
 
     return () => {
