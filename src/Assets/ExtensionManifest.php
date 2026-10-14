@@ -30,6 +30,19 @@ class ExtensionManifest
     }
 
     /**
+     * The component keys the built extensions register, by kind.
+     *
+     * @return array<string, list<string>>
+     */
+    public function components(): array
+    {
+        $components = $this->manifest()['components'] ?? null;
+
+        /** @var array<string, list<string>> */
+        return is_array($components) ? $components : [];
+    }
+
+    /**
      * @return array<string, mixed>
      */
     protected function manifest(): array

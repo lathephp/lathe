@@ -14,10 +14,17 @@ use Illuminate\Foundation\PackageManifest;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 use Lathe\Assets\AssetManifest;
+use Lathe\Assets\AssetRegistry;
+use Lathe\Assets\ExtensionManifest;
+use Lathe\Dashboards\DashboardRegistry;
 use Lathe\Exceptions\ActionUriKeyCollisionException;
 use Lathe\Exceptions\InvalidActionException;
 use Lathe\Exceptions\LatheException;
+use Lathe\Field\Field;
+use Lathe\Field\FieldContext;
+use Lathe\Filters\Filter;
 use Lathe\Http\Requests\LatheRequest;
+use Lathe\Pages\PageRegistry;
 use Lathe\Plugins\Plugin;
 use Lathe\Plugins\PluginDiscovery;
 use Lathe\Plugins\PluginRegistry;
@@ -30,6 +37,9 @@ use Lathe\Support\ConfigStore;
 use Lathe\Support\ConfigValidator;
 use Lathe\Theme\Color;
 use Lathe\Theme\Contrast;
+use Lathe\Widgets\Widget;
+use ReflectionClass;
+use ReflectionMethod;
 use Throwable;
 
 /**
@@ -79,6 +89,7 @@ class Doctor
             $this->pruneSchedule(),
             ...$this->resourceChecks(),
             ...$this->pluginChecks(),
+            ...$this->componentChecks(),
             ...$this->assets(),
         ];
     }
@@ -426,6 +437,169 @@ class Doctor
         $version = is_array($package) ? ($package['version'] ?? null) : null;
 
         return is_string($version) ? $version : null;
+    }
+
+    /**
+     * A FAIL for each field, filter, widget and page whose component key no plugin manifest,
+     * extensions manifest or app boot file registers. A key the panel's client code registers,
+     * or a Lathe class declares, is the panel's own and never fails.
+     *
+     * @return list<CheckResult>
+     */
+    protected function componentChecks(): array
+    {
+        $registered = $this->registeredComponents();
+        $results = [];
+        $check = function (string $owner, string $kind, string $name, string $key, Field|Filter|Widget|null $item = null) use ($registered, &$results): void {
+            if (($item === null || ! $this->builtInKey($item, $key)) && ! in_array($key, $registered[$kind] ?? [], true)) {
+                $results[] = CheckResult::fail("{$owner}: {$kind} {$name} uses the component {$key}, which no plugin or app extension registers. Register it with {$kind}('{$key}', ...) and rebuild.");
+            }
+        };
+
+        try {
+            $manifest = $this->resources->manifest();
+        } catch (LatheException) {
+            $manifest = [];
+        }
+
+        foreach ($manifest as $entry) {
+            $request = new LatheRequest;
+
+            try {
+                $resource = $entry['class']::make();
+                $fields = [];
+
+                foreach (FieldContext::cases() as $context) {
+                    foreach ($resource->fieldsFor($context, $request) as $field) {
+                        $fields[$field->getComponent().':'.$field->label()] = $field;
+                    }
+                }
+
+                foreach ($fields as $field) {
+                    $check($entry['class'], 'field', $field->label(), $field->getComponent(), $field);
+                }
+
+                foreach ($resource->filters($request) as $filter) {
+                    $check($entry['class'], 'filter', $filter->name(), $filter->component(), $filter);
+                }
+
+                foreach ($resource->widgets($request) as $widget) {
+                    $check($entry['class'], 'widget', $widget->name(), $widget->component(), $widget);
+                }
+            } catch (Throwable $e) {
+                $results[] = CheckResult::skip("{$entry['class']}: component keys: ".$e->getMessage());
+            }
+        }
+
+        foreach ($this->app->make(DashboardRegistry::class)->all() as $dashboard) {
+            try {
+                foreach (array_filter($dashboard->widgets(new LatheRequest), fn (mixed $widget) => $widget instanceof Widget) as $widget) {
+                    $check($dashboard::class, 'widget', $widget->name(), $widget->component(), $widget);
+                }
+            } catch (Throwable $e) {
+                $results[] = CheckResult::skip($dashboard::class.': component keys: '.$e->getMessage());
+            }
+        }
+
+        foreach ($this->app->make(PageRegistry::class)->all() as $page) {
+            $check($page::class, 'page', $page->name(), $page::uriKey());
+        }
+
+        return $results === [] ? [CheckResult::ok('Every field, filter, widget and page component key is registered')] : $results;
+    }
+
+    /**
+     * Whether the key is the panel's own: the default component of the Lathe class a field or
+     * widget extends, or a filter component() that a Lathe class declares.
+     */
+    protected function builtInKey(Field|Filter|Widget $item, string $key): bool
+    {
+        if ($item instanceof Filter) {
+            return str_starts_with((new ReflectionMethod($item, 'component'))->getDeclaringClass()->getName(), 'Lathe\\');
+        }
+
+        $class = new ReflectionClass($item);
+
+        while ($class !== false && ! str_starts_with($class->getName(), 'Lathe\\')) {
+            $class = $class->getParentClass();
+        }
+
+        return $class !== false && $class->getDefaultProperties()['component'] === $key;
+    }
+
+    /**
+     * The component keys by kind that the plugin manifests next to registered scripts, the
+     * extensions manifest and the app boot file register.
+     *
+     * @return array<string, list<string>>
+     */
+    protected function registeredComponents(): array
+    {
+        $sources = [$this->panelComponents(), $this->app->make(ExtensionManifest::class)->components()];
+        $assets = $this->app->make(AssetRegistry::class);
+
+        foreach ($assets->scripts() as $script) {
+            $file = dirname($script).'/lathe-plugin.json';
+            $manifest = ! $assets->isRemote($script) && is_file($file) ? json_decode((string) file_get_contents($file), true) : null;
+            $components = is_array($manifest) ? ($manifest['components'] ?? null) : null;
+
+            if (is_array($components)) {
+                /** @var array<string, list<string>> $components */
+                $sources[] = $components;
+            }
+        }
+
+        $boot = $this->bootFile();
+
+        if (is_file($boot)) {
+            preg_match_all('/(?<![\w$.])(field|filter|widget|plugin|page|resourcePlugin|actionModal)\(\s*([\'"`])([^\'"`]+)\2/', (string) file_get_contents($boot), $matches, PREG_SET_ORDER);
+            $keys = [];
+
+            foreach ($matches as $match) {
+                $keys[$match[1]][] = $match[3];
+            }
+
+            $sources[] = $keys;
+        }
+
+        $keys = [];
+
+        foreach ($sources as $source) {
+            foreach ($source as $kind => $list) {
+                $keys[$kind] = [...$keys[$kind] ?? [], ...$list];
+            }
+        }
+
+        return $keys;
+    }
+
+    /**
+     * The field and widget keys the panel's own client code registers.
+     *
+     * @return array<string, list<string>>
+     */
+    protected function panelComponents(): array
+    {
+        $js = dirname(__DIR__, 2).'/resources/js';
+        $fields = [];
+
+        foreach (glob("{$js}/fields/builtin/*.tsx") ?: [] as $file) {
+            preg_match_all("/registerField\('([^']+)'/", (string) file_get_contents($file), $matches);
+            array_push($fields, ...$matches[1]);
+        }
+
+        $registry = "{$js}/widgets/registry.ts";
+        preg_match_all("/^\s*'([a-z0-9-]+)':/m", is_file($registry) ? (string) file_get_contents($registry) : '', $widgets);
+
+        return ['field' => $fields, 'widget' => $widgets[1]];
+    }
+
+    /**
+     * The app's boot file, where lathe:build starts.
+     */
+    protected function bootFile(): string
+    {
+        return base_path('resources/js/lathe/boot.ts');
     }
 
     /**

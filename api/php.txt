@@ -625,6 +625,7 @@ Lathe\Assets\AssetRegistry::styleUrls(string $prefix): array
 Lathe\Assets\AssetRegistry::styles(): array
 Lathe\Assets\AssetRegistry::url(string $type, string $prefix, string $name): ?string  [protected]
 Lathe\Assets\ExtensionManifest::PUBLIC_DIRECTORY
+Lathe\Assets\ExtensionManifest::components(): array
 Lathe\Assets\ExtensionManifest::manifest(): array  [protected]
 Lathe\Assets\ExtensionManifest::moduleUrls(): array
 Lathe\Assets\ExtensionManifest::path(string $file): string  [protected]
@@ -975,6 +976,9 @@ Lathe\Doctor\Doctor::TABLES
 Lathe\Doctor\Doctor::__construct(Illuminate\Contracts\Foundation\Application $app, Lathe\Support\ConfigStore $config, Lathe\Support\ConfigValidator $validator, Lathe\Resources\ResourceRegistry $resources, Lathe\Plugins\PluginRegistry $plugins, Illuminate\Contracts\Auth\Access\Gate $gate)
 Lathe\Doctor\Doctor::actionChecks(string $class): array  [protected]
 Lathe\Doctor\Doctor::assets(): array  [protected]
+Lathe\Doctor\Doctor::bootFile(): string  [protected]
+Lathe\Doctor\Doctor::builtInKey(Lathe\Field\Field|Lathe\Filters\Filter|Lathe\Widgets\Widget $item, string $key): bool  [protected]
+Lathe\Doctor\Doctor::componentChecks(): array  [protected]
 Lathe\Doctor\Doctor::config(string $key): mixed  [protected]
 Lathe\Doctor\Doctor::configuration(): array  [protected]
 Lathe\Doctor\Doctor::coreVersion(): ?string  [protected]
@@ -982,9 +986,11 @@ Lathe\Doctor\Doctor::database(): array  [protected]
 Lathe\Doctor\Doctor::driverCheck(string $driver, string $version): Lathe\Doctor\CheckResult  [protected]
 Lathe\Doctor\Doctor::environment(): array  [protected]
 Lathe\Doctor\Doctor::manifestChecks(Lathe\Plugins\Plugin $plugin): array  [protected]
+Lathe\Doctor\Doctor::panelComponents(): array  [protected]
 Lathe\Doctor\Doctor::pluginChecks(): array
 Lathe\Doctor\Doctor::pluginPackages(): array
 Lathe\Doctor\Doctor::pruneSchedule(): Lathe\Doctor\CheckResult  [protected]
+Lathe\Doctor\Doctor::registeredComponents(): array  [protected]
 Lathe\Doctor\Doctor::resourceChecks(): array  [protected]
 Lathe\Doctor\Doctor::rowCount(Illuminate\Database\Eloquent\Model $model): int  [protected]
 Lathe\Doctor\Doctor::run(): array

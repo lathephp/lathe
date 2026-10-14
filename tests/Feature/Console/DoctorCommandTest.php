@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\PackageManifest;
 use Illuminate\Support\Facades\Artisan;
@@ -12,13 +13,16 @@ use Illuminate\Support\Facades\Schema;
 use Lathe\Actions\Action;
 use Lathe\Doctor\Doctor;
 use Lathe\Field\Field;
+use Lathe\Filters\Filter;
 use Lathe\Http\Requests\LatheRequest;
 use Lathe\Lathe;
+use Lathe\Pages\Page;
 use Lathe\Resources\Resource;
 use Lathe\Resources\ResourceDefinition;
 use Lathe\Search\SearchableText;
 use Lathe\Tests\Fixtures\Plugins\Beacon;
 use Lathe\Tests\Fixtures\Plugins\BillingPlugin;
+use Lathe\Widgets\CustomWidget;
 use Workbench\App\Lathe\Resources\Customer;
 use Workbench\App\Models\Post;
 
@@ -310,3 +314,114 @@ function snapshotTree(array $folders): array
 
     return $files;
 }
+
+class DoctorPriceTier extends Filter
+{
+    public function apply(LatheRequest $request, Builder $query, mixed $value): Builder
+    {
+        return $query;
+    }
+
+    public function component(): string
+    {
+        return 'price-tier';
+    }
+}
+
+class DoctorClock extends CustomWidget
+{
+    protected ?string $component = 'doctor-clock';
+}
+
+class DoctorReports extends Page {}
+
+class DoctorCustomComponentPosts extends Resource
+{
+    protected function configure(ResourceDefinition $definition): ResourceDefinition
+    {
+        return $definition->model(Post::class)->canonical(false)->allowAll();
+    }
+
+    public function fields(LatheRequest $request): array
+    {
+        return [Field::text('Title'), Field::make('Notes'), Field::number('Rating')->component('star-rating')];
+    }
+
+    public function filters(LatheRequest $request): array
+    {
+        return [new DoctorPriceTier];
+    }
+
+    public function widgets(LatheRequest $request): array
+    {
+        return [DoctorClock::make('Clock')];
+    }
+}
+
+/**
+ * A doctor that reads the app boot file from a scratch folder.
+ */
+class ScratchBootDoctor extends Doctor
+{
+    public static string $bootFile = '';
+
+    protected function bootFile(): string
+    {
+        return self::$bootFile;
+    }
+}
+
+/**
+ * The component key rows the fixtures above cause.
+ *
+ * @param  list<string>  $lines
+ * @return list<string>
+ */
+function fixtureComponentRows(array $lines): array
+{
+    return array_values(array_filter($lines, fn (string $line) => str_contains($line, 'Doctor') && str_contains($line, 'component')));
+}
+
+it('fails on a field, filter, widget and page whose component key nothing registers, and never on a built-in key', function () {
+    Lathe::registerResources(DoctorCustomComponentPosts::class);
+    Lathe::registerPages(DoctorReports::class);
+
+    [$code, $lines] = doctor();
+
+    expect($code)->toBe(1)
+        ->and(fixtureComponentRows($lines))->toBe([
+            'FAIL '.DoctorCustomComponentPosts::class.": field Rating uses the component star-rating, which no plugin or app extension registers. Register it with field('star-rating', ...) and rebuild.",
+            'FAIL '.DoctorCustomComponentPosts::class.": filter Doctor Price Tier uses the component price-tier, which no plugin or app extension registers. Register it with filter('price-tier', ...) and rebuild.",
+            'FAIL '.DoctorCustomComponentPosts::class.": widget Clock uses the component doctor-clock, which no plugin or app extension registers. Register it with widget('doctor-clock', ...) and rebuild.",
+            'FAIL '.DoctorReports::class.": page Doctor Reports uses the component doctor-reports, which no plugin or app extension registers. Register it with page('doctor-reports', ...) and rebuild.",
+        ]);
+});
+
+it('passes component keys that a plugin manifest, the extensions manifest or the app boot file registers', function () {
+    $scratch = sys_get_temp_dir().'/lathe-components-'.bin2hex(random_bytes(4));
+    File::ensureDirectoryExists("{$scratch}/plugin");
+    File::ensureDirectoryExists("{$scratch}/public/vendor/lathe/extensions");
+    File::put("{$scratch}/plugin/beacon.js", '');
+    File::put("{$scratch}/plugin/lathe-plugin.json", json_encode(['name' => 'beacon', 'core' => '*', 'components' => ['field' => ['star-rating']]]));
+    File::put("{$scratch}/public/vendor/lathe/extensions/manifest.json", json_encode(['entry' => 'boot-3f9a1c2e.js', 'components' => ['filter' => ['price-tier'], 'widget' => ['doctor-clock']]]));
+    File::put("{$scratch}/boot.ts", "import { page } from '@lathephp/core';\npage('doctor-reports', Reports);\n");
+    $this->app->usePublicPath("{$scratch}/public");
+    ScratchBootDoctor::$bootFile = "{$scratch}/boot.ts";
+    app()->bind(Doctor::class, ScratchBootDoctor::class);
+    Lathe::script('beacon', "{$scratch}/plugin/beacon.js");
+    Lathe::registerResources(DoctorCustomComponentPosts::class);
+    Lathe::registerPages(DoctorReports::class);
+
+    [, $lines] = doctor();
+
+    expect(fixtureComponentRows($lines))->toBe([]);
+
+    File::delete("{$scratch}/boot.ts");
+    [, $lines] = doctor();
+
+    expect(fixtureComponentRows($lines))->toBe([
+        'FAIL '.DoctorReports::class.": page Doctor Reports uses the component doctor-reports, which no plugin or app extension registers. Register it with page('doctor-reports', ...) and rebuild.",
+    ]);
+
+    File::deleteDirectory($scratch);
+});
