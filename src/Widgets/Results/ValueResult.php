@@ -70,7 +70,7 @@ class ValueResult implements JsonSerializable
     }
 
     /**
-     * Runs on the value on the server, before the value is rounded.
+     * Runs on the value and the previous value on the server, before they are rounded.
      *
      * @param  callable(int|float): mixed  $callback
      */
@@ -112,15 +112,9 @@ class ValueResult implements JsonSerializable
      */
     public function jsonSerialize(): array
     {
-        $value = $this->value;
-
-        if ($value !== null && $this->transformCallback !== null) {
-            $value = ($this->transformCallback)($value);
-        }
-
         return [
-            'value' => $this->round($value),
-            'previous' => $this->round($this->previous),
+            'value' => $this->round($this->transformed($this->value)),
+            'previous' => $this->round($this->transformed($this->previous)),
             'change' => $this->change(),
             'previousLabel' => $this->previousLabel,
             'prefix' => $this->prefix,
@@ -133,6 +127,14 @@ class ValueResult implements JsonSerializable
             'precision' => $this->roundedTo,
             'roundingMode' => $this->roundedBy,
         ];
+    }
+
+    /**
+     * The previous number goes through the transform too, so both are shown in one unit.
+     */
+    private function transformed(int|float|null $number): mixed
+    {
+        return $number === null || $this->transformCallback === null ? $number : ($this->transformCallback)($number);
     }
 
     private function round(mixed $number): mixed

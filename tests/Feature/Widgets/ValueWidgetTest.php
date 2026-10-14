@@ -104,6 +104,14 @@ it('runs transform on the value on the server', function () {
     expect($payload['value'])->toBe(2.5);
 });
 
+it('runs transform on the previous value too, so both share a unit', function () {
+    $payload = valueOf(valueProbe((new ValueResult(192074700, 184977227))->transform(fn (int $cents) => round($cents / 100))));
+
+    expect($payload['value'])->toBe(1920747.0)
+        ->and($payload['previous'])->toBe(1849772.0)
+        ->and($payload['change'])->toBe(3.84);
+});
+
 it('sends the format as given', function (string|array $format) {
     expect(valueOf(valueProbe((new ValueResult(5))->format($format)))['format'])->toBe($format);
 })->with([
