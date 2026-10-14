@@ -129,6 +129,13 @@ export interface RecordResource {
   [key: string]: unknown;
 }
 
+/** A resource plugin placed on the record's detail page; the meta keys the plugin set come along. */
+export interface ResourcePluginEntry {
+  component: string;
+  name: string;
+  [meta: string]: unknown;
+}
+
 export interface DetailRecord {
   id: string | number;
   title: string;
@@ -136,6 +143,7 @@ export interface DetailRecord {
   avatar: { url: string | null; initials: string | null; rounded: boolean } | null;
   fields: DetailFieldData[];
   layout: LayoutBlock[];
+  resourcePlugins?: ResourcePluginEntry[];
   abilities: { view: boolean; update: boolean; delete: boolean; replicate: boolean; restore: boolean; forceDelete: boolean };
   trashed: boolean;
 }

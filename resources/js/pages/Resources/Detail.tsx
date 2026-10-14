@@ -11,6 +11,8 @@ import type { SharedProps } from '../../types';
 
 // The action menu loads after the record, so a page without actions never fetches it.
 const RecordActionMenu = lazy(() => import('../../actions/RecordActionMenu').then((module) => ({ default: module.RecordActionMenu })));
+// A record without resource plugins never fetches the block that draws them.
+const ResourcePlugins = lazy(() => import('../../records/ResourcePlugins').then((module) => ({ default: module.ResourcePlugins })));
 const { RenderHook } = __panel;
 
 /** One record: its fields in the Resource's panels, grids and tabs. */
@@ -84,6 +86,11 @@ export default function Detail({ resource, record, breadcrumbs, actions }: Detai
           return field === undefined ? null : <DetailRow field={field} />;
         }}
       />
+      {record.resourcePlugins !== undefined && record.resourcePlugins.length > 0 ? (
+        <Suspense fallback={null}>
+          <ResourcePlugins resourceName={resource.uriKey} resourceId={id} plugins={record.resourcePlugins} />
+        </Suspense>
+      ) : null}
     </div>
   );
 }
