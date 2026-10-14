@@ -3,6 +3,7 @@
 namespace Lathe\Auth\Actions;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rules\Password;
 use Laravel\Fortify\Contracts\UpdatesUserPasswords;
@@ -25,8 +26,8 @@ class UpdateUserPassword implements UpdatesUserPasswords
             'password' => ['required', 'string', Password::default(), 'confirmed'],
         ])->validate();
 
-        if ($user instanceof Model) {
-            $user->forceFill(['password' => $input['password']])->save();
+        if ($user instanceof Model && is_string($input['password'])) {
+            $user->forceFill(['password' => Hash::make($input['password'])])->save();
         }
     }
 }

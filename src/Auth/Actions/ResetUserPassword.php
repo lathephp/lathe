@@ -4,6 +4,7 @@ namespace Lathe\Auth\Actions;
 
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rules\Password;
 use Laravel\Fortify\Contracts\ResetsUserPasswords;
@@ -24,8 +25,8 @@ class ResetUserPassword implements ResetsUserPasswords
             'password' => ['required', 'string', Password::default(), 'confirmed'],
         ])->validate();
 
-        if ($user instanceof Model) {
-            $user->forceFill(['password' => $input['password']])->save();
+        if ($user instanceof Model && is_string($input['password'])) {
+            $user->forceFill(['password' => Hash::make($input['password'])])->save();
         }
     }
 }
