@@ -333,6 +333,11 @@ abstract class RelationField extends Field
         return $this->option('withTrashed', $withTrashed);
     }
 
+    public function allowsTrashed(): bool
+    {
+        return $this->options['withTrashed'] === true;
+    }
+
     public function withoutTrashed(): static
     {
         return $this->withTrashed(false);

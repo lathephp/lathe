@@ -66,6 +66,12 @@ class ResourceQuery
 
     protected bool $lensOrdered = false;
 
+    /** @var \Closure(LatheRequest, Builder<Model>): Builder<Model>|null A relation field's relatableQuery(). */
+    protected ?\Closure $fieldHook = null;
+
+    /** @var \Closure(LatheRequest, Builder<Model>): Builder<Model>|null The parent's relatable{Model}s, in place of the Resource's generic hook. */
+    protected ?\Closure $parentHook = null;
+
     public function __construct(
         protected Resource $resource,
         protected LatheRequest $request,
@@ -82,6 +88,21 @@ class ResourceQuery
     public function onlyTrashed(): static
     {
         return $this->change(fn () => $this->trashed = 'only');
+    }
+
+    /**
+     * The picker's hooks after the Resource's scopes: the field's, then the parent's own
+     * (which replaces the related Resource's generic relatableQuery) when it has one.
+     *
+     * @param  \Closure(LatheRequest, Builder<Model>): Builder<Model>|null  $field
+     * @param  \Closure(LatheRequest, Builder<Model>): Builder<Model>|null  $parent
+     */
+    public function relatableHooks(?\Closure $field, ?\Closure $parent): static
+    {
+        return $this->change(function () use ($field, $parent) {
+            $this->fieldHook = $field;
+            $this->parentHook = $parent;
+        });
     }
 
     /**
@@ -226,6 +247,19 @@ class ResourceQuery
         $this->hasMorePages = $rows->count() > $limit;
 
         return $rows->take($limit);
+    }
+
+    /**
+     * The one picker row a saved value points at, with the option columns, or null when
+     * the scoped query does not hold the key.
+     */
+    public function option(string $key): ?Model
+    {
+        $query = $this->scoped();
+
+        return $query->select(array_map(fn (string $column) => $query->qualifyColumn($column), $this->resource->optionColumns()))
+            ->whereKey($key)
+            ->first();
     }
 
     /**
@@ -498,7 +532,8 @@ class ResourceQuery
         $column = method_exists($model, 'getQualifiedDeletedAtColumn') ? $model->getQualifiedDeletedAtColumn() : null;
         $column = is_string($column) ? $column : $model->qualifyColumn('deleted_at');
 
-        return match ($this->trashed ?? $this->request->trashed()) {
+        // A picker shows trashed rows only when the field asks; the request's ?trashed= is the index's.
+        return match ($this->trashed ?? ($this->context === QueryContext::Relatable ? '' : $this->request->trashed())) {
             'with' => $query->withoutGlobalScope(SoftDeletingScope::class),
             'only' => $query->withoutGlobalScope(SoftDeletingScope::class)->whereNotNull($column),
             default => $query,
@@ -519,9 +554,24 @@ class ResourceQuery
             QueryContext::Edit => $resource::editQuery($this->request, $query),
             QueryContext::Search => $resource::searchQuery($this->request, $query),
             QueryContext::Widget => $resource::widgetQuery($this->request, $query),
-            QueryContext::Relatable => $resource::relatableQuery($this->request, $query),
+            QueryContext::Relatable => $this->applyRelatableHooks($query),
             QueryContext::Replicate => $resource::replicateQuery($this->request, $query),
         };
+    }
+
+    /**
+     * @param  Builder<Model>  $query
+     * @return Builder<Model>
+     */
+    protected function applyRelatableHooks(Builder $query): Builder
+    {
+        if ($this->fieldHook !== null) {
+            $query = ($this->fieldHook)($this->request, $query);
+        }
+
+        return $this->parentHook !== null
+            ? ($this->parentHook)($this->request, $query)
+            : $this->resource::relatableQuery($this->request, $query);
     }
 
     /**
