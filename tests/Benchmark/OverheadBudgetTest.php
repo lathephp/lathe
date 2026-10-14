@@ -38,12 +38,12 @@ it('adds at most 5 ms at p95 with 500 Resources registered', function () {
     Lathe::resources()->flush();
     $this->actingAs(User::where('email', 'admin@lathephp.com')->firstOrFail());
 
-    // The two routes run the same indexed count; they alternate so drift hits both alike.
+    // The bell's poll and the same count on a plain stack; they alternate so drift hits both alike.
     $panel = [];
     $plain = [];
 
     for ($i = 1; $i <= 550; $i++) {
-        $panelMs = timedJsonGet('/lathe/api/bench/count');
+        $panelMs = timedJsonGet('/lathe/api/notifications/count');
         $plainMs = timedJsonGet('/bench/plain');
 
         if ($i > 50) {

@@ -9,7 +9,7 @@ use Lathe\Lathe;
 
 /**
  * The 500-Resource scale target: each Resource on its own model over the shared table
- * scale_items, with 12 fields, 2 filters and 1 lens. The files go to a temp folder that an
+ * scale_items, with 12 fields, 2 filters, 1 lens and 1 action. The files go to a temp folder that an
  * autoloader serves the way Composer serves a host app, and the panel discovers them.
  */
 class ScaleFixture
@@ -27,6 +27,7 @@ class ScaleFixture
         File::put("{$root}/Support/ScaleStatus.php", static::filter($namespace, 'ScaleStatus', 'status', "['Open' => 'open', 'Closed' => 'closed']"));
         File::put("{$root}/Support/ScaleKind.php", static::filter($namespace, 'ScaleKind', 'kind', "['A' => 'a', 'B' => 'b']"));
         File::put("{$root}/Support/ScaleLens.php", static::lens($namespace));
+        File::put("{$root}/Support/ScaleClose.php", static::action($namespace));
 
         for ($i = 1; $i <= $count; $i++) {
             File::put("{$root}/Support/ScaleItem{$i}.php", "<?php\nnamespace {$namespace}\\Support;\nclass ScaleItem{$i} extends \\Illuminate\\Database\\Eloquent\\Model\n{\n    protected \$table = 'scale_items';\n}\n");
@@ -94,6 +95,11 @@ class ScaleFixture
                 {
                     return [new \\{$namespace}\\Support\\ScaleLens];
                 }
+
+                public function actions(LatheRequest \$request): array
+                {
+                    return [new \\{$namespace}\\Support\\ScaleClose];
+                }
             }
 
             PHP;
@@ -123,6 +129,29 @@ class ScaleFixture
                 public function apply(LatheRequest \$request, Builder \$query, mixed \$value): Builder
                 {
                     return \$query->where(\$query->qualifyColumn('{$column}'), \$value);
+                }
+            }
+
+            PHP;
+    }
+
+    protected static function action(string $namespace): string
+    {
+        return <<<PHP
+            <?php
+            namespace {$namespace}\\Support;
+
+            use Illuminate\\Support\\Collection;
+            use Lathe\\Actions\\ActionFields;
+            use Lathe\\Actions\\ActionResult;
+
+            class ScaleClose extends \\Lathe\\Actions\\Action
+            {
+                public function handle(ActionFields \$fields, Collection \$models): ActionResult
+                {
+                    \$models->each->update(['status' => 'closed']);
+
+                    return ActionResult::message('Closed.');
                 }
             }
 
