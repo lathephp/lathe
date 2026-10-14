@@ -16,6 +16,7 @@ use Lathe\Field\Contracts\PrimesForPage;
 use Lathe\Field\Evaluator;
 use Lathe\Field\FieldContext;
 use Lathe\Http\Requests\LatheRequest;
+use Lathe\Rules\Relatable;
 use Lathe\Support\ConfigStore;
 
 /**
@@ -176,9 +177,34 @@ class BelongsToField extends RelationField implements FilterableField, PrimesFor
 
         if ($relation instanceof BelongsTo) {
             $model->setAttribute($relation->getForeignKeyName(), $value === '' ? null : $value);
+
+            // Right after the key is set, before the save, so the callback can adjust the model.
+            $this->filledCallback?->__invoke($request, $model);
         }
 
         return null;
+    }
+
+    /**
+     * Required unless nullable().
+     */
+    public function isRequired(?LatheRequest $request = null, mixed $model = null): bool
+    {
+        return ! $this->isNullable() || parent::isRequired($request, $model);
+    }
+
+    /**
+     * The value must be a record the picker offers, and relating it must be allowed.
+     */
+    public function getRules(FieldContext $context, ?LatheRequest $request = null, ?Model $model = null): array
+    {
+        $rules = parent::getRules($context, $request, $model);
+
+        if ($request !== null && $this->owner !== null) {
+            $rules[$this->attribute][] = new Relatable($request, new Associatable($request, $this->owner, $this), $this, $model);
+        }
+
+        return $rules;
     }
 
     /**
