@@ -14,6 +14,7 @@ use Lathe\Lathe;
 use Lathe\Resources\Resource;
 use Lathe\Resources\ResourceDefinition;
 use Lathe\Resources\ResourceRegistry;
+use Lathe\Search\SearchablePrimaryKey;
 use Lathe\Tabs\Tab;
 use Workbench\App\Lathe\Resources\Customer;
 use Workbench\App\Models\Order;
@@ -65,7 +66,7 @@ class RelationIndexItems extends Resource
 
     protected function configure(ResourceDefinition $definition): ResourceDefinition
     {
-        return $definition->model(OrderItem::class)->canonical(false)->title('id')->searchable([new \Lathe\Search\SearchablePrimaryKey])->allowAll();
+        return $definition->model(OrderItem::class)->canonical(false)->title('id')->searchable([new SearchablePrimaryKey])->allowAll();
     }
 
     public function fields(LatheRequest $request): array
