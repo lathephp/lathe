@@ -177,7 +177,7 @@ abstract class GeneratorCommand extends Command
     }
 
     /**
-     * Add the three Lathe packages to the host package.json at this package's own version.
+     * Add the three Lathe packages to the host package.json at this package's own version, and the lathe:build and lathe:dev scripts.
      */
     private function addDevDependencies(Filesystem $files): void
     {
@@ -202,6 +202,12 @@ abstract class GeneratorCommand extends Command
 
         ksort($dev);
         $package['devDependencies'] = $dev;
+
+        // The scripts that build the app's extensions with vite.lathe.config.ts; an app's own script of the same name stays.
+        $scripts = is_array($package['scripts'] ?? null) ? $package['scripts'] : [];
+        $scripts += ['lathe:build' => 'vite build --config vite.lathe.config.ts', 'lathe:dev' => 'vite --config vite.lathe.config.ts'];
+        ksort($scripts);
+        $package['scripts'] = $scripts;
 
         $files->put($path, json_encode($package, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES)."\n");
     }

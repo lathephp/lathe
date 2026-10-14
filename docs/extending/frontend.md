@@ -84,7 +84,7 @@ export default defineConfig({
 });
 ```
 
-Add two scripts to `package.json`:
+It also adds two scripts to `package.json`, unless the app already has scripts of those names:
 
 ```json
 "scripts": {

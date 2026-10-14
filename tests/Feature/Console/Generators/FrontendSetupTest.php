@@ -33,6 +33,18 @@ it('sets up the frontend once, beside a host vite config it leaves alone', funct
         ->and(hash_file('sha256', "{$this->generatorBase}/vite.config.ts"))->toBe($before);
 });
 
+it('adds the lathe:build and lathe:dev scripts and keeps a script the app already has', function () {
+    File::put("{$this->generatorBase}/package.json", json_encode(['scripts' => ['dev' => 'vite', 'lathe:dev' => 'my own'], 'devDependencies' => ['vite' => '^7.0.0']]));
+
+    $this->artisan('lathe:widget', ['name' => 'TotalUsers', '--type' => 'custom'])->assertExitCode(0);
+
+    expect(json_decode($this->generated('package.json'), true)['scripts'])->toBe([
+        'dev' => 'vite',
+        'lathe:build' => 'vite build --config vite.lathe.config.ts',
+        'lathe:dev' => 'my own',
+    ]);
+});
+
 it('registers each component in boot.ts and sets up only once', function () {
     $this->artisan('lathe:widget', ['name' => 'TotalUsers', '--type' => 'custom'])->assertExitCode(0);
 
