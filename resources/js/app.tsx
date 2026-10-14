@@ -1,10 +1,11 @@
 import '../css/app.css';
 import { createInertiaApp, router } from '@inertiajs/react';
 import { __panel, QueryClientProvider, queryClient } from '@lathephp/core';
-import type { ComponentType } from 'react';
+import { lazy, type ComponentType } from 'react';
 import { createRoot } from 'react-dom/client';
 import { StaleAssetScreen } from './components/StaleAssetScreen';
 import { registerBuiltinFields } from './fields/builtin';
+import { AppLayout } from './layout/AppLayout';
 import { RunToastsHost } from './actions/RunToastsHost';
 import { Toaster } from './components/Toaster';
 import { panelLayout } from './layout/panelLayout';
@@ -24,6 +25,20 @@ setEntryHash(assetHashFromUrl(import.meta.url));
 const modules = document.getElementById('lathe-modules')?.textContent ?? '[]';
 await __panel.loadModules(JSON.parse(modules) as string[]);
 registerBuiltinFields();
+// Plugins render the panel's own components through core's proxies. The shell is already
+// loaded; the rest come in one chunk on first use.
+const lent = () => import('./lib/lent');
+__panel.registerComponents({
+  AppLayout,
+  ResourceTable: lazy(() => lent().then((module) => ({ default: module.ResourceTable }))),
+  FilterMenu: lazy(() => lent().then((module) => ({ default: module.FilterMenu }))),
+  ActionDropdown: lazy(() => lent().then((module) => ({ default: module.ActionDropdown }))),
+  DetailFieldPanel: lazy(() => lent().then((module) => ({ default: module.DetailFieldPanel }))),
+  DetailHeader: lazy(() => lent().then((module) => ({ default: module.DetailHeader }))),
+  WidgetGrid: lazy(() => lent().then((module) => ({ default: module.WidgetGrid }))),
+  WidgetCard: lazy(() => lent().then((module) => ({ default: module.WidgetCard }))),
+  Excerpt: lazy(() => lent().then((module) => ({ default: module.Excerpt }))),
+});
 __panel.boot();
 
 // The server's CSP nonce, read off our own entry tag, so Inertia's progress-bar style carries it too.
@@ -55,6 +70,17 @@ void createInertiaApp({
     __panel.setRouter(router);
     __panel.sharedProps.set(props.initialPage.props);
     showFlash(props.initialPage.props.flash as SharedProps['flash']);
+    // useNavigationProgress follows the visits a person waits for, never a prefetch or a poll.
+    router.on('start', (event) => {
+      if (!event.detail.visit.prefetch && !event.detail.visit.async) {
+        __panel.navigating.set(true);
+      }
+    });
+    router.on('finish', (event) => {
+      if (!event.detail.visit.prefetch && !event.detail.visit.async) {
+        __panel.navigating.set(false);
+      }
+    });
     router.on('navigate', (event) => {
       __panel.sharedProps.set(event.detail.page.props);
     });

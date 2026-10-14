@@ -1,5 +1,14 @@
+@lathephp/core ActionDropdown
 @lathephp/core ApiError
+@lathephp/core AppLayout
+@lathephp/core DetailFieldPanel
+@lathephp/core DetailHeader
+@lathephp/core Excerpt
+@lathephp/core FilterMenu
 @lathephp/core QueryClientProvider
+@lathephp/core ResourceTable
+@lathephp/core WidgetCard
+@lathephp/core WidgetGrid
 @lathephp/core actionModal
 @lathephp/core addShortcut
 @lathephp/core apiVersion

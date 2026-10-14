@@ -11,6 +11,8 @@ import {
   resourcePluginComponent,
   widgetComponent,
 } from './registry';
+import { registerComponents } from './components';
+import { navigating } from './data';
 import { RenderHook } from './render-hooks';
 import { Slot } from './slots';
 import { dismissToast, toasts } from './toast';
@@ -60,6 +62,17 @@ export {
   useWidgetList,
   useWidgetValue,
 } from './data';
+export {
+  ActionDropdown,
+  AppLayout,
+  DetailFieldPanel,
+  DetailHeader,
+  Excerpt,
+  FilterMenu,
+  ResourceTable,
+  WidgetCard,
+  WidgetGrid,
+} from './components';
 export type { LatheContext } from './hooks';
 export type { SharedData } from './props';
 export type { SafeHtml } from './safe-html';
@@ -78,8 +91,10 @@ export const __panel = {
   fieldComponent,
   filterComponent,
   loadModules,
+  navigating,
   pageComponent,
   pluginPage,
+  registerComponents,
   renderHooks,
   resourcePluginComponent,
   setRouter,

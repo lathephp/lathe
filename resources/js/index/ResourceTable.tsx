@@ -28,7 +28,8 @@ const ownClick = 'a, button, input, label, select, [data-row-menu], [data-inline
 
 interface ResourceTableProps extends Pick<IndexProps, 'resource' | 'table' | 'state'> {
   loading: boolean;
-  selection: RowSelection;
+  /** Only the calls the table makes, so a plugin can hand in its own selection. */
+  selection: Pick<RowSelection, 'isSelected' | 'toggle' | 'toggleAll'>;
   /** The ?sort= of the URL, `-total_cents,placed_at`. */
   sort: string | undefined;
   onSort: (sort: string) => void;
