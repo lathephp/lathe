@@ -206,8 +206,12 @@ describe('the action modal', () => {
     window.addEventListener('lathe:export-started', started);
     renderOrders();
     tick(1, 2, 3);
-    fireEvent.click(within(openMenu()).getByRole('menuitem', { name: /Export/ }));
-    fireEvent.click(within(await screen.findByRole('dialog')).getByRole('button', { name: 'Run Action' }));
+    fireEvent.click(within(await openMenu()).getByRole('menuitem', { name: /Export/ }));
+    const dialog = await screen.findByRole('dialog');
+    await waitFor(() => {
+      expect(within(dialog).getByRole<HTMLButtonElement>('button', { name: 'Run Action' }).disabled).toBe(false);
+    });
+    fireEvent.click(within(dialog).getByRole('button', { name: 'Run Action' }));
 
     await waitFor(() => {
       expect(started).toHaveBeenCalledTimes(1);
