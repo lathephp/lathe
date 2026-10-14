@@ -143,6 +143,36 @@ abstract class RelationField extends Field
     }
 
     /**
+     * One relation picker option: the key and the display, with the subtitle when the field
+     * asks for it and the related Resource has one, and the avatar when it resolves one.
+     *
+     * @return array{value: mixed, display: string, subtitle?: string, avatar?: array<string, mixed>}
+     */
+    public function pickerItem(Model $related): array
+    {
+        $item = ['value' => $related->getKey(), 'display' => $this->displayFor($related)];
+        $class = $this->relatedResourceFor($related);
+
+        if ($class === null) {
+            return $item;
+        }
+
+        $resource = $class::make($related);
+
+        if ($this->options['withSubtitles'] === true && $resource->definition()->getSubtitle() !== '') {
+            $item['subtitle'] = $resource->subtitle();
+        }
+
+        $avatar = $resource->resolveAvatar();
+
+        if ($avatar !== null) {
+            $item['avatar'] = $avatar->jsonSerialize();
+        }
+
+        return $item;
+    }
+
+    /**
      * @return class-string<resource>|null
      */
     protected function relatedResourceFor(Model $related): ?string

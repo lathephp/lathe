@@ -2,6 +2,7 @@
 
 namespace Lathe\Tests\Feature\Relations;
 
+use Illuminate\Database\Eloquent\MissingAttributeException;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 use Lathe\Field\Field;
@@ -17,6 +18,10 @@ use Workbench\Database\Seeders\DemoSeeder;
 class AssociatableSetup
 {
     public static bool $reorder = true;
+
+    public static int $computed = 0;
+
+    public static ?\Closure $display = null;
 }
 
 class AssociatableCustomer extends Resource
@@ -41,9 +46,12 @@ class AssociatableOrder extends Resource
 
     public function fields(LatheRequest $request): array
     {
+        $customer = Field::belongsTo('Customer')->resource(AssociatableCustomer::class)->reorderAssociatables(AssociatableSetup::$reorder);
+
         return [
             Field::text('Number'),
-            Field::belongsTo('Customer')->resource(AssociatableCustomer::class)->reorderAssociatables(AssociatableSetup::$reorder),
+            Field::make('Shout', fn (Order $order) => AssociatableSetup::$computed++),
+            AssociatableSetup::$display !== null ? $customer->display(AssociatableSetup::$display) : $customer,
         ];
     }
 }
@@ -79,18 +87,25 @@ beforeEach(function () {
     Gate::define('viewLathe', fn () => true);
     Lathe::registerResources(AssociatableCustomer::class, AssociatableOrder::class);
     AssociatableSetup::$reorder = true;
+    AssociatableSetup::$computed = 0;
+    AssociatableSetup::$display = null;
     $this->actingAs(User::where('email', 'admin@lathephp.com')->firstOrFail());
 });
 
 it('lists the customers whose name matches the term on the create form', function () {
     $json = $this->getJson('/lathe/api/resources/orders/associatable/customer?q=ann')->assertOk()->json();
 
-    expect(array_keys($json))->toBe(['items', 'has_more'])
-        ->and(count($json['items']))->toBeGreaterThanOrEqual(3);
+    $names = array_filter($json['items'], fn (array $item) => str_starts_with(strtolower($item['display']), 'ann'));
 
+    expect(array_keys($json))->toBe(['items', 'has_more'])
+        ->and(count($names))->toBeGreaterThanOrEqual(3);
+
+    // The Customer Resource also searches inside the email, so "hartmann" matches too.
     foreach ($json['items'] as $item) {
+        $email = (string) DB::table('customers')->where('id', $item['value'])->value('email');
+
         expect($item)->toHaveKeys(['value', 'display'])
-            ->and(strtolower($item['display']))->toStartWith('ann');
+            ->and(str_starts_with(strtolower($item['display']), 'ann') || str_contains($email, 'ann'))->toBeTrue();
     }
 });
 
@@ -137,19 +152,49 @@ it('refuses a term that is too long or has too many words', function (string $te
     '9 words' => ['a b c d e f g h i'],
 ]);
 
+it('selects only the key and the option columns and resolves no parent field', function () {
+    $own = associatableQueries(fn () => $this->getJson('/lathe/api/resources/associatable-orders/associatable/customer?q=ann')->assertOk());
+    $workbench = associatableQueries(fn () => $this->getJson('/lathe/api/resources/orders/associatable/customer?q=ann')->assertOk());
+
+    expect($own)->toHaveCount(1)
+        ->and($own[0])->toStartWith('select customers.id, customers.name from customers')
+        ->and($workbench)->toHaveCount(1)
+        ->and($workbench[0])->toStartWith('select customers.id, customers.name, customers.email from customers')
+        ->and(AssociatableSetup::$computed)->toBe(0);
+});
+
+it('names the column a display Closure reads without selecting it in debug mode', function () {
+    AssociatableSetup::$display = fn (Customer $customer) => (string) $customer->email;
+    config(['app.debug' => true]);
+
+    $this->withoutExceptionHandling();
+
+    expect(fn () => $this->getJson('/lathe/api/resources/associatable-orders/associatable/customer?q=ann'))
+        ->toThrow(MissingAttributeException::class, 'email');
+});
+
+it('does not throw on a missing column outside debug mode', function () {
+    AssociatableSetup::$display = fn (Customer $customer) => (string) $customer->email;
+    config(['app.debug' => false]);
+
+    $this->getJson('/lathe/api/resources/associatable-orders/associatable/customer?q=ann')->assertOk();
+});
+
 it('sorts by title and breaks a tie on the key', function () {
     insertCustomers('Zed', 2);
     $first = DB::table('customers')->insertGetId(['name' => 'Zed Same', 'email' => 'same1@example.com']);
     $second = DB::table('customers')->insertGetId(['name' => 'Zed Same', 'email' => 'same2@example.com']);
 
+    $expected = [
+        DB::table('customers')->where('name', 'Zed 01')->value('id'),
+        DB::table('customers')->where('name', 'Zed 02')->value('id'),
+        $first,
+        $second,
+    ];
+
     $queries = associatableQueries(fn () => $this->getJson('/lathe/api/resources/orders/associatable/customer?q=zed')
         ->assertOk()
-        ->assertJsonPath('items.*.value', [
-            DB::table('customers')->where('name', 'Zed 01')->value('id'),
-            DB::table('customers')->where('name', 'Zed 02')->value('id'),
-            $first,
-            $second,
-        ]));
+        ->assertJsonPath('items.*.value', $expected));
 
     expect(end($queries))->toContain('order by customers.name asc, customers.id asc');
 });

@@ -183,6 +183,40 @@ class ResourceQuery
     }
 
     /**
+     * One page of a relation picker: the key and the option columns of the rows the term
+     * matches, by title then key unless $reorder is off, always ending on the key so pages
+     * never overlap. One row past the page tells hasMorePages() without a count.
+     *
+     * @return Collection<int, Model>
+     */
+    public function options(int $limit, bool $reorder = true): Collection
+    {
+        $page = $this->request->query('page');
+
+        if ($page !== null && (! is_string($page) || ! ctype_digit($page) || (int) $page < 1)) {
+            throw ValidationException::withMessages(['page' => 'The page must be a whole number of 1 or more.']);
+        }
+
+        $query = $this->applySearch($this->scoped());
+        $title = $this->resource->definition()->getTitle();
+
+        $query->select(array_map(fn (string $column) => $query->qualifyColumn($column), $this->resource->optionColumns()));
+
+        if ($reorder && is_string($title) && $title !== '') {
+            $query->orderBy($query->qualifyColumn($title));
+        }
+
+        $rows = $query->orderBy($query->getModel()->getQualifiedKeyName())
+            ->offset(((int) ($page ?? 1) - 1) * $limit)
+            ->limit($limit + 1)
+            ->get();
+
+        $this->hasMorePages = $rows->count() > $limit;
+
+        return $rows->take($limit);
+    }
+
+    /**
      * The column the Resource's avatar reads, so a search row can carry its image.
      */
     protected function coverColumn(): ?string

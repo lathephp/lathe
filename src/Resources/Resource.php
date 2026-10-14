@@ -647,6 +647,27 @@ abstract class Resource
     }
 
     /**
+     * The columns a relation picker reads: the key, the title and subtitle when they are
+     * attributes, and the Cover field's attribute. A display() Closure reading another
+     * column adds it here.
+     *
+     * @return list<string>
+     */
+    public function optionColumns(): array
+    {
+        $request = Evaluator::currentRequest() ?? LatheRequest::createFrom(request());
+        $cover = $this->fieldsFor(FieldContext::Detail, $request)->first(fn (Field $field) => $field instanceof Cover);
+        $definition = $this->definition();
+
+        return array_values(array_unique(array_filter([
+            static::newModel()->getKeyName(),
+            is_string($definition->getTitle()) ? $definition->getTitle() : null,
+            is_string($definition->getSubtitle()) ? $definition->getSubtitle() : null,
+            $cover !== null && ! $cover->isComputed() && ! str_contains($cover->attribute(), '.') ? $cover->attribute() : null,
+        ], fn (?string $column) => $column !== null && $column !== '')));
+    }
+
+    /**
      * @return list<string>
      */
     public function with(): array

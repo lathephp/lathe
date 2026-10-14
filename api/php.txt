@@ -1100,6 +1100,7 @@ Lathe\Field\Relations\RelationField::noPeeking(): static
 Lathe\Field\Relations\RelationField::owner(): ?string
 Lathe\Field\Relations\RelationField::peekable(Closure|bool $peekable = true): static
 Lathe\Field\Relations\RelationField::perPageOptions(array $options): static
+Lathe\Field\Relations\RelationField::pickerItem(Illuminate\Database\Eloquent\Model $related): array
 Lathe\Field\Relations\RelationField::pluralLabel(string $label): static
 Lathe\Field\Relations\RelationField::relatableQuery(Closure $callback): static
 Lathe\Field\Relations\RelationField::relatedRecord(Illuminate\Database\Eloquent\Model $record): ?Illuminate\Database\Eloquent\Model  [protected]
@@ -1396,6 +1397,11 @@ Lathe\Http\Controllers\PageFallbackController::__invoke(Illuminate\Http\Request 
 Lathe\Http\Controllers\Plugins\ModuleController::__invoke(Lathe\Assets\AssetRegistry $assets, string $file, string $type = 'scripts'): Symfony\Component\HttpFoundation\BinaryFileResponse
 Lathe\Http\Controllers\Plugins\PluginApiController::__invoke(Illuminate\Http\Request $request, Lathe\Plugins\PluginRegistry $plugins, string $plugin, string $path = ''): Symfony\Component\HttpFoundation\Response
 Lathe\Http\Controllers\Plugins\PluginPageController::__invoke(Illuminate\Http\Request $request, Lathe\Plugins\PluginRegistry $plugins, string $plugin, string $path = ''): Inertia\Response
+Lathe\Http\Controllers\Resources\AssociatableController::create(Lathe\Http\Requests\LatheRequest $request, Lathe\Auth\ResourceAuthorization $authorization, string $resource, string $field): Illuminate\Http\JsonResponse
+Lathe\Http\Controllers\Resources\AssociatableController::options(Lathe\Http\Requests\LatheRequest $request, Lathe\Field\Relations\RelationField $field): Illuminate\Http\JsonResponse  [protected]
+Lathe\Http\Controllers\Resources\AssociatableController::record(Lathe\Http\Requests\LatheRequest $request, Lathe\Auth\ResourceAuthorization $authorization, string $resource, string $resourceId, string $field): Illuminate\Http\JsonResponse
+Lathe\Http\Controllers\Resources\AssociatableController::relatedQuery(Lathe\Http\Requests\LatheRequest $request, Lathe\Field\Relations\RelationField $field): Lathe\Query\ResourceQuery  [protected]
+Lathe\Http\Controllers\Resources\AssociatableController::relationField(Lathe\Http\Requests\LatheRequest $request, Lathe\Field\FieldCollection $fields, string $attribute): Lathe\Field\Relations\RelationField  [protected]
 Lathe\Http\Controllers\Resources\AuthorizesResources::viewableResource(Lathe\Http\Requests\LatheRequest $request, Lathe\Auth\ResourceAuthorization $authorization): string  [protected]
 Lathe\Http\Controllers\Resources\CountController::__invoke(Lathe\Http\Requests\LatheRequest $request, Lathe\Auth\ResourceAuthorization $authorization, Lathe\Http\Payloads\IndexPayload $payload): Illuminate\Http\JsonResponse
 Lathe\Http\Controllers\Resources\DeleteController::authorizedModel(Lathe\Http\Requests\LatheRequest $request, Lathe\Auth\ResourceAuthorization $authorization, string $class, string $id, string $ability, bool $withTrashed): Illuminate\Database\Eloquent\Model  [protected]
@@ -1828,6 +1834,7 @@ Lathe\Query\ResourceQuery::forRelation(Illuminate\Database\Eloquent\Relations\Re
 Lathe\Query\ResourceQuery::hasMorePages(): bool
 Lathe\Query\ResourceQuery::holdsKey(Illuminate\Database\Eloquent\Model $model, string|int $id): bool  [static]
 Lathe\Query\ResourceQuery::onlyTrashed(): static
+Lathe\Query\ResourceQuery::options(int $limit, bool $reorder = true): Illuminate\Database\Eloquent\Collection
 Lathe\Query\ResourceQuery::page(): array
 Lathe\Query\ResourceQuery::pagination(): array  [protected]
 Lathe\Query\ResourceQuery::perPageOptions(): array  [protected]
@@ -1892,6 +1899,7 @@ Lathe\Resources\Resource::lenses(Lathe\Http\Requests\LatheRequest $request): arr
 Lathe\Resources\Resource::make(?Illuminate\Database\Eloquent\Model $model = NULL): static  [static]
 Lathe\Resources\Resource::model(): string  [static]
 Lathe\Resources\Resource::newModel(): Illuminate\Database\Eloquent\Model  [static]
+Lathe\Resources\Resource::optionColumns(): array
 Lathe\Resources\Resource::redirectAfterCreate(Lathe\Http\Requests\LatheRequest $request, Lathe\Resources\Resource $resource): string  [static]
 Lathe\Resources\Resource::redirectAfterDelete(Lathe\Http\Requests\LatheRequest $request): string  [static]
 Lathe\Resources\Resource::redirectAfterUpdate(Lathe\Http\Requests\LatheRequest $request, Lathe\Resources\Resource $resource): string  [static]
@@ -2481,6 +2489,7 @@ class Lathe\Http\Controllers\PageFallbackController
 class Lathe\Http\Controllers\Plugins\ModuleController
 class Lathe\Http\Controllers\Plugins\PluginApiController
 class Lathe\Http\Controllers\Plugins\PluginPageController
+class Lathe\Http\Controllers\Resources\AssociatableController
 class Lathe\Http\Controllers\Resources\CountController
 class Lathe\Http\Controllers\Resources\DeleteController
 class Lathe\Http\Controllers\Resources\DependencyController
