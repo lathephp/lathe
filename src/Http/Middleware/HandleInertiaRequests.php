@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 use Inertia\Middleware;
 use Lathe\Lathe;
+use Lathe\Menu\Menu;
 use Lathe\Menu\Navigation;
 use Lathe\Menu\NavigationProp;
 use Lathe\Support\TranslationManager;
@@ -53,6 +54,8 @@ class HandleInertiaRequests extends Middleware
             'assetHash' => Lathe::assets()->hash(),
             // Lazy badge values change within a sidebar whose hash does not, so they travel apart.
             'navigationBadges' => fn () => $user === null || ! Lathe::check($request) ? [] : app(Navigation::class)->badges($request),
+            // Per visit, like the badges: the callback and the Fortify features can differ by user.
+            'userMenu' => fn () => $user === null || ! Lathe::check($request) ? [] : self::userMenu($request),
             'sidebarOpen' => Lathe::resolveSidebarDefaultOpen($request),
             // Per visit, not once per session: the login page loads it before a user exists.
             // An app that never defines globalSearch keeps the palette off: an undefined ability denies.
@@ -104,6 +107,23 @@ class HandleInertiaRequests extends Middleware
                 'striped' => Lathe::config()->boolean('table.striped'),
             ],
         ];
+    }
+
+    /**
+     * The Menu::userMenu() items, then Security when a Fortify feature gives the user something to change.
+     *
+     * @return list<array<string, mixed>>
+     */
+    private static function userMenu(Request $request): array
+    {
+        $items = Menu::buildUserMenu($request)->jsonSerialize();
+        $fortify = Lathe::fortify();
+
+        if ($fortify->featureEnabled('updatePasswords') || $fortify->featureEnabled('twoFactorAuthentication')) {
+            $items[] = ['label' => Lathe::__('Security'), 'href' => '/'.trim(Lathe::path(), '/').'/security', 'icon' => 'Shield'];
+        }
+
+        return $items;
     }
 
     // The validator accepts an int or a float, and the client wants a float either way.
