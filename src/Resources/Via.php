@@ -12,6 +12,7 @@ use Lathe\Auth\ResourceAuthorization;
 use Lathe\Field\Field;
 use Lathe\Field\FieldContext;
 use Lathe\Field\Relations\BelongsToField;
+use Lathe\Field\Relations\MorphToField;
 use Lathe\Field\Relations\RelationField;
 use Lathe\Http\Requests\LatheRequest;
 use Lathe\Query\QueryContext;
@@ -32,7 +33,7 @@ class Via
         public readonly string $parent,
         public readonly Model $parentModel,
         public readonly RelationField $relation,
-        public readonly ?BelongsToField $field,
+        public readonly BelongsToField|MorphToField|null $field,
     ) {
         //
     }
@@ -94,14 +95,17 @@ class Via
      *
      * @param  class-string<\Lathe\Resources\Resource>  $child
      */
-    protected static function match(string $child, LatheRequest $request, Model $parent, string $relationship): ?BelongsToField
+    protected static function match(string $child, LatheRequest $request, Model $parent, string $relationship): BelongsToField|MorphToField|null
     {
-        $fields = array_filter($child::make()->fieldsFor(FieldContext::Create, $request)->all(), fn (Field $field) => $field instanceof BelongsToField);
+        $fields = array_filter(
+            $child::make()->fieldsFor(FieldContext::Create, $request)->all(),
+            fn (Field $field) => $field instanceof BelongsToField || $field instanceof MorphToField,
+        );
         $relation = $parent->{$relationship}();
         $model = $child::newModel();
 
-        return Arr::first($fields, fn (BelongsToField $field) => $field->getInverse() === $relationship)
-            ?? Arr::first($fields, fn (BelongsToField $field) => $relation instanceof Relation && $field->writesRelation($model, $relation));
+        return Arr::first($fields, fn (BelongsToField|MorphToField $field) => $field->getInverse() === $relationship)
+            ?? Arr::first($fields, fn (BelongsToField|MorphToField $field) => $relation instanceof Relation && $field->writesRelation($model, $relation));
     }
 
     protected static function invalid(): ValidationException
@@ -130,10 +134,14 @@ class Via
     /**
      * The locked field's form value: the parent's key and title.
      *
-     * @return array{value: mixed, display: string}|null
+     * @return array<string, mixed>|null
      */
     public function value(): ?array
     {
+        if ($this->field instanceof MorphToField) {
+            return ['type' => $this->parent::uriKey(), 'id' => $this->parentKey(), 'display' => $this->field->displayFor($this->parentModel)];
+        }
+
         return $this->field === null ? null : ['value' => $this->parentKey(), 'display' => $this->field->displayFor($this->parentModel)];
     }
 
@@ -143,7 +151,9 @@ class Via
      */
     public function force(LatheRequest $request): void
     {
-        if ($this->field !== null) {
+        if ($this->field instanceof MorphToField) {
+            $request->merge([$this->field->attribute() => ['type' => $this->parent::uriKey(), 'id' => $this->parentKey()]]);
+        } elseif ($this->field !== null) {
             $request->merge([$this->field->attribute() => ['value' => $this->parentKey()]]);
         }
     }

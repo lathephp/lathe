@@ -1098,6 +1098,7 @@ Lathe\Field\Relations\MorphToField::isRequired(?Lathe\Http\Requests\LatheRequest
 Lathe\Field\Relations\MorphToField::jsonSerialize(): array
 Lathe\Field\Relations\MorphToField::kind(): string
 Lathe\Field\Relations\MorphToField::loadsWithRecord(): bool
+Lathe\Field\Relations\MorphToField::pointsBackAt(Illuminate\Database\Eloquent\Model $parent, string $relationship): bool
 Lathe\Field\Relations\MorphToField::relatedResource(): ?string
 Lathe\Field\Relations\MorphToField::relatedResourceFor(Illuminate\Database\Eloquent\Model $related): ?string  [protected]
 Lathe\Field\Relations\MorphToField::resolve(object $record, ?string $attribute = NULL): mixed
@@ -1105,6 +1106,7 @@ Lathe\Field\Relations\MorphToField::resourceForType(?string $uriKey): ?string
 Lathe\Field\Relations\MorphToField::string $component  [protected]
 Lathe\Field\Relations\MorphToField::supportsInline(): bool  [protected]
 Lathe\Field\Relations\MorphToField::types(array $resources): static
+Lathe\Field\Relations\MorphToField::writesRelation(Illuminate\Database\Eloquent\Model $model, Illuminate\Database\Eloquent\Relations\Relation $relation): bool
 Lathe\Field\Relations\MorphToManyField::kind(): string
 Lathe\Field\Relations\MorphToManyField::string $component  [protected]
 Lathe\Field\Relations\MorphedByManyField::kind(): string
@@ -2193,15 +2195,15 @@ Lathe\Resources\ValidationPipeline::string $resource  [protected]
 Lathe\Resources\ValidationPipeline::validate(): void
 Lathe\Resources\ValidationPipeline::validator(): Illuminate\Contracts\Validation\Validator
 Lathe\Resources\ValidationPipeline::writable(Lathe\Field\FieldCollection $fields, Lathe\Field\FieldContext $context, Lathe\Http\Requests\LatheRequest $request, ?Illuminate\Database\Eloquent\Model $model = NULL): Lathe\Field\FieldCollection  [static]
-Lathe\Resources\Via::?Lathe\Field\Relations\BelongsToField $field
 Lathe\Resources\Via::Illuminate\Database\Eloquent\Model $parentModel
+Lathe\Resources\Via::Lathe\Field\Relations\BelongsToField|Lathe\Field\Relations\MorphToField|null $field
 Lathe\Resources\Via::Lathe\Field\Relations\RelationField $relation
-Lathe\Resources\Via::__construct(string $parent, Illuminate\Database\Eloquent\Model $parentModel, Lathe\Field\Relations\RelationField $relation, ?Lathe\Field\Relations\BelongsToField $field)
+Lathe\Resources\Via::__construct(string $parent, Illuminate\Database\Eloquent\Model $parentModel, Lathe\Field\Relations\RelationField $relation, Lathe\Field\Relations\BelongsToField|Lathe\Field\Relations\MorphToField|null $field)
 Lathe\Resources\Via::force(Lathe\Http\Requests\LatheRequest $request): void
 Lathe\Resources\Via::fromRequest(Lathe\Http\Requests\LatheRequest $request, string $child): ?Lathe\Resources\Via  [static]
 Lathe\Resources\Via::invalid(): Illuminate\Validation\ValidationException  [protected static]
 Lathe\Resources\Via::locks(Lathe\Field\Field $field): bool
-Lathe\Resources\Via::match(string $child, Lathe\Http\Requests\LatheRequest $request, Illuminate\Database\Eloquent\Model $parent, string $relationship): ?Lathe\Field\Relations\BelongsToField  [protected static]
+Lathe\Resources\Via::match(string $child, Lathe\Http\Requests\LatheRequest $request, Illuminate\Database\Eloquent\Model $parent, string $relationship): Lathe\Field\Relations\BelongsToField|Lathe\Field\Relations\MorphToField|null  [protected static]
 Lathe\Resources\Via::parentKey(): mixed
 Lathe\Resources\Via::string $parent
 Lathe\Resources\Via::value(): ?array

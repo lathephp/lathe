@@ -55,4 +55,9 @@ class PostPolicy
     {
         return true;
     }
+
+    public function addComments(User $user, Post $post): bool
+    {
+        return $user->email === 'admin@lathephp.com';
+    }
 }

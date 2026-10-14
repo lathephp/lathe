@@ -6,6 +6,7 @@ use Closure;
 use Illuminate\Container\Container;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\MorphOneOrMany;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -126,6 +127,29 @@ class MorphToField extends RelationField implements FilterableField
     protected function supportsInline(): bool
     {
         return true;
+    }
+
+    /**
+     * Whether this morphTo writes the type and key the parent's morphMany or morphOne reads,
+     * with the parent's Resource among its types.
+     *
+     * @param  Relation<*, *, *>  $relation
+     */
+    public function writesRelation(Model $model, Relation $relation): bool
+    {
+        $own = $model->{$this->attribute}();
+
+        return $relation instanceof MorphOneOrMany && $own instanceof MorphTo
+            && $own->getMorphType() === $relation->getMorphType()
+            && $this->relatedResourceFor($relation->getParent()) !== null;
+    }
+
+    /**
+     * Whether the parent of a panel is one of this field's types, so the panel leaves it out.
+     */
+    public function pointsBackAt(Model $parent, string $relationship): bool
+    {
+        return $this->inverse !== null ? $this->inverse === $relationship : $this->relatedResourceFor($parent) !== null;
     }
 
     public function loadsWithRecord(): bool

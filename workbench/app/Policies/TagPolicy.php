@@ -31,4 +31,25 @@ class TagPolicy
     {
         return true;
     }
+
+    /**
+     * @param  array<int, int|string>  $ids
+     */
+    public function attachProducts(User $user, Tag $tag, array $ids): bool
+    {
+        return $user->email === 'admin@lathephp.com';
+    }
+
+    public function attachAnyProducts(User $user, Tag $tag): bool
+    {
+        return $user->email === 'admin@lathephp.com';
+    }
+
+    /**
+     * @param  array<int, int|string>  $ids
+     */
+    public function detachProducts(User $user, Tag $tag, array $ids): bool
+    {
+        return $user->email === 'admin@lathephp.com';
+    }
 }
