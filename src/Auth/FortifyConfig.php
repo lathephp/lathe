@@ -14,7 +14,7 @@ use Lathe\Support\ConfigStore;
  */
 class FortifyConfig
 {
-    public function __construct(protected ConfigStore $lathe, protected Repository $config)
+    public function __construct(protected ConfigStore $lathe)
     {
         //
     }
@@ -32,8 +32,8 @@ class FortifyConfig
      */
     public function userModel(): ?string
     {
-        $provider = $this->config->get("auth.guards.{$this->guard()}.provider");
-        $model = is_string($provider) ? $this->config->get("auth.providers.{$provider}.model") : null;
+        $provider = $this->config()->get("auth.guards.{$this->guard()}.provider");
+        $model = is_string($provider) ? $this->config()->get("auth.providers.{$provider}.model") : null;
 
         return is_string($model) ? $model : null;
     }
@@ -84,7 +84,7 @@ class FortifyConfig
     public function twoFactorOption(string $option): bool
     {
         return $this->featureEnabled('twoFactorAuthentication')
-            && $this->config->get("fortify-options.two-factor-authentication.{$option}") === true;
+            && $this->config()->get("fortify-options.two-factor-authentication.{$option}") === true;
     }
 
     /**
@@ -97,9 +97,9 @@ class FortifyConfig
      */
     public function scoped(Closure $callback): mixed
     {
-        $host = $this->config->get('fortify');
+        $host = $this->config()->get('fortify');
 
-        $this->config->set([
+        $this->config()->set([
             'fortify.guard' => $this->guard(),
             'fortify.passwords' => $this->passwordBroker(),
             'fortify.username' => $this->username(),
@@ -117,13 +117,22 @@ class FortifyConfig
         try {
             return $callback();
         } finally {
-            $this->config->set('fortify', $host);
+            $this->config()->set('fortify', $host);
         }
+    }
+
+    /**
+     * The config of the current request: a singleton built at boot must not keep the boot
+     * repository, because Octane hands each request its own.
+     */
+    protected function config(): Repository
+    {
+        return Container::getInstance()->make('config');
     }
 
     protected function string(string $key): string
     {
-        $value = $this->config->get($key);
+        $value = $this->config()->get($key);
 
         return is_string($value) ? $value : '';
     }

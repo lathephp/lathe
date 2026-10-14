@@ -126,3 +126,16 @@ it('reports features and whether the Security page has anything to show', functi
     'password updates' => [['update-passwords'], false, true],
     'two-factor' => [['two-factor-authentication'], true, true],
 ]);
+
+it('sets fortify config on the request config Octane hands out, not the one at boot', function () {
+    $fortify = Lathe::fortify();
+    config(['fortify.guard' => 'web-host', 'fortify.limiters.login' => 'login']);
+
+    // Octane gives each request a clone of the boot config.
+    app()->instance('config', $request = clone app('config'));
+
+    $seen = $fortify->scoped(fn () => [config('fortify.guard'), config('fortify.limiters.login')]);
+
+    expect($seen)->toBe(['web', null])
+        ->and($request->get('fortify.guard'))->toBe('web-host');
+});
