@@ -2347,7 +2347,7 @@ Lathe\Http\Controllers\NotificationController::unread(Lathe\Http\Requests\LatheR
 Lathe\Http\Controllers\PageController::__invoke(Illuminate\Http\Request $request, Lathe\Pages\PageRegistry $pages, Lathe\Support\ConfigStore $config, string $page, string $path = ''): Inertia\Response
 Lathe\Http\Controllers\PageFallbackController::__invoke(Illuminate\Http\Request $request, Illuminate\Routing\Router $router): never
 Lathe\Http\Controllers\Plugins\ModuleController::__invoke(Lathe\Assets\AssetRegistry $assets, string $file, string $type = 'scripts'): Symfony\Component\HttpFoundation\BinaryFileResponse
-Lathe\Http\Controllers\Plugins\PluginApiController::__invoke(Illuminate\Http\Request $request, Lathe\Plugins\PluginRegistry $plugins, string $plugin, string $path = ''): Symfony\Component\HttpFoundation\Response
+Lathe\Http\Controllers\Plugins\PluginController::__invoke(Illuminate\Http\Request $request, Lathe\Plugins\PluginRegistry $plugins, string $plugin, string $path = ''): Symfony\Component\HttpFoundation\Response
 Lathe\Http\Controllers\Plugins\PluginPageController::__invoke(Illuminate\Http\Request $request, Lathe\Plugins\PluginRegistry $plugins, string $plugin, string $path = ''): Inertia\Response
 Lathe\Http\Controllers\Plugins\ResourcePluginController::__invoke(Lathe\Http\Requests\LatheRequest $request, Lathe\Plugins\ResourcePluginRegistry $plugins, Lathe\Auth\ResourceAuthorization $authorization, string $component, string $path = ''): Symfony\Component\HttpFoundation\Response
 Lathe\Http\Controllers\Resources\ActionController::form(Lathe\Http\Requests\LatheRequest $request, Lathe\Auth\ResourceAuthorization $authorization, string $resource, string $action): Illuminate\Http\JsonResponse
@@ -2968,6 +2968,7 @@ Lathe\Plugins\Plugin::boot(): void
 Lathe\Plugins\Plugin::canSee(Closure $callback): static
 Lathe\Plugins\Plugin::canSeeWhen(string $ability, mixed $arguments = array ( )): static
 Lathe\Plugins\Plugin::handleRequest(Illuminate\Http\Request $request, string $path): Symfony\Component\HttpFoundation\Response
+Lathe\Plugins\Plugin::handleSettingsRequest(Illuminate\Http\Request $request): Symfony\Component\HttpFoundation\Response
 Lathe\Plugins\Plugin::make(): static  [static]
 Lathe\Plugins\Plugin::menu(Illuminate\Http\Request $request): ?array
 Lathe\Plugins\Plugin::middleware(): array
@@ -2977,7 +2978,9 @@ Lathe\Plugins\Plugin::register(): void
 Lathe\Plugins\Plugin::requires(): array
 Lathe\Plugins\Plugin::resources(): array
 Lathe\Plugins\Plugin::routes(Illuminate\Routing\Router $router): void
+Lathe\Plugins\Plugin::saveSettings(array $values): void
 Lathe\Plugins\Plugin::serving(Illuminate\Http\Request $request): void
+Lathe\Plugins\Plugin::setting(string $key, mixed $default = NULL): mixed
 Lathe\Plugins\Plugin::settings(): ?array
 Lathe\Plugins\Plugin::uriKey(): string  [static]
 Lathe\Plugins\Plugin::widgets(): array
@@ -2999,6 +3002,15 @@ Lathe\Plugins\PluginRegistry::moduleUrls(): array
 Lathe\Plugins\PluginRegistry::register(Lathe\Plugins\Plugin ...$plugins): void
 Lathe\Plugins\PluginRegistry::registered(string $class): bool  [protected]
 Lathe\Plugins\PluginRegistry::serve(Illuminate\Http\Request $request): void
+Lathe\Plugins\PluginSetting::$fillable  [protected]
+Lathe\Plugins\PluginSetting::$incrementing
+Lathe\Plugins\PluginSetting::$keyType  [protected]
+Lathe\Plugins\PluginSetting::$primaryKey  [protected]
+Lathe\Plugins\PluginSetting::$table  [protected]
+Lathe\Plugins\PluginSetting::casts(): array  [protected]
+Lathe\Plugins\PluginSettings::array $loaded  [protected]
+Lathe\Plugins\PluginSettings::for(string $pluginKey): array
+Lathe\Plugins\PluginSettings::save(string $pluginKey, array $values): void
 Lathe\Plugins\ResourcePlugin::?Closure $seeCallback  [protected]
 Lathe\Plugins\ResourcePlugin::RECORD_ATTRIBUTE
 Lathe\Plugins\ResourcePlugin::__call(string $method, array $parameters): static
@@ -4534,7 +4546,7 @@ class Lathe\Http\Controllers\NotificationController
 class Lathe\Http\Controllers\PageController
 class Lathe\Http\Controllers\PageFallbackController
 class Lathe\Http\Controllers\Plugins\ModuleController
-class Lathe\Http\Controllers\Plugins\PluginApiController
+class Lathe\Http\Controllers\Plugins\PluginController
 class Lathe\Http\Controllers\Plugins\PluginPageController
 class Lathe\Http\Controllers\Plugins\ResourcePluginController
 class Lathe\Http\Controllers\Resources\ActionController
@@ -4608,6 +4620,8 @@ class Lathe\Pages\PageRegistry
 class Lathe\Plugins\Plugin
 class Lathe\Plugins\PluginDiscovery
 class Lathe\Plugins\PluginRegistry
+class Lathe\Plugins\PluginSetting
+class Lathe\Plugins\PluginSettings
 class Lathe\Plugins\ResourcePlugin
 class Lathe\Plugins\ResourcePluginRegistry
 class Lathe\Query\Count
