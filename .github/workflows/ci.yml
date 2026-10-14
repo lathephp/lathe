@@ -6,9 +6,12 @@ on:
     branches: [main]
   schedule:
     - cron: '0 4 * * 1'
+  # The release workflow re-runs the required jobs on its tag.
+  workflow_call:
 
 concurrency:
-  group: ci-${{ github.ref }}
+  # The event keeps the weekly run and a push to main from cancelling each other.
+  group: ci-${{ github.event_name }}-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:

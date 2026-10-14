@@ -98,8 +98,14 @@ it('uses no token for a package registry or another host', function () {
 
         expect($text)->not->toContain('NPM_TOKEN')
             ->not->toContain('NODE_AUTH_TOKEN')
-            ->and(array_values(array_unique($secrets[1])))->toBeIn([[], ['GITHUB_TOKEN']]);
+            // RELEASE_DISPATCH_TOKEN is a github.com token that starts the site build and the benchmark re-run.
+            ->and(array_diff(array_unique($secrets[1]), ['GITHUB_TOKEN', 'RELEASE_DISPATCH_TOKEN']))->toBe([]);
     }
+});
+
+it('can be called by the release workflow and keeps each event in its own concurrency group', function () {
+    expect(ciWorkflow()['on'])->toHaveKey('workflow_call')
+        ->and(ciWorkflow()['concurrency']['group'])->toBe('ci-${{ github.event_name }}-${{ github.ref }}');
 });
 
 it('runs the weekly schedule on Monday at 04:00 UTC', function () {
