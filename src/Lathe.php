@@ -21,6 +21,7 @@ use Illuminate\Support\Facades\Facade;
  * @method static void registerSearchProviders(\Lathe\Search\SearchProvider ...$providers)
  * @method static \Lathe\LatheManager auth(\Closure $callback)
  * @method static bool check(\Illuminate\Http\Request $request)
+ * @method static void warnAllowAll(string $policyClass)
  * @method static \Lathe\LatheManager footer(\Closure $callback)
  * @method static array{text: string, href: string|null}|array{html: \Lathe\Support\SafeHtml}|null footerFor(\Illuminate\Http\Request $request)
  * @method static string|null versionLabel()

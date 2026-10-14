@@ -2616,6 +2616,7 @@ Lathe\LatheManager::actionEventModel(): string
 Lathe\LatheManager::array $jobContextCaptures  [protected]
 Lathe\LatheManager::array $jobContextRestores  [protected]
 Lathe\LatheManager::array $provided  [protected]
+Lathe\LatheManager::array $warnedAllowAll  [protected]
 Lathe\LatheManager::assertNotBooted(string $setter): void  [protected]
 Lathe\LatheManager::assets(): Lathe\Assets\AssetManifest
 Lathe\LatheManager::auth(Closure $callback): static
@@ -2667,6 +2668,7 @@ Lathe\LatheManager::userTimezone(Closure $callback): static
 Lathe\LatheManager::usingActionEvent(string $class): static
 Lathe\LatheManager::version(): string
 Lathe\LatheManager::versionLabel(): ?string
+Lathe\LatheManager::warnAllowAll(string $policyClass): void
 Lathe\LatheManager::whenServing(Closure $callback, ?Closure $default = NULL): mixed
 Lathe\LatheManager::withoutActionEvents(?Closure $callback = NULL): mixed
 Lathe\LatheServiceProvider::boot(): void

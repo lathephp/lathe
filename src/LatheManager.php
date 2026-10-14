@@ -68,6 +68,13 @@ class LatheManager
     /** @var class-string<ActionEvent> */
     protected string $actionEventModel = ActionEvent::class;
 
+    /**
+     * Allow-all policy classes already warned about. The manager is a singleton, so this lasts the process.
+     *
+     * @var array<string, true>
+     */
+    protected array $warnedAllowAll = [];
+
     public function __construct(protected Container $container)
     {
         //
@@ -171,6 +178,19 @@ class LatheManager
     public function check(Request $request): bool
     {
         return $this->container->make(PanelGate::class)->check($request);
+    }
+
+    /**
+     * Log that a policy allows everything, once per class per process.
+     */
+    public function warnAllowAll(string $policyClass): void
+    {
+        if (isset($this->warnedAllowAll[$policyClass])) {
+            return;
+        }
+
+        $this->warnedAllowAll[$policyClass] = true;
+        $this->container->make('log')->warning("{$policyClass} allows every ability to any user who passes viewLathe.");
     }
 
     /**
