@@ -52,4 +52,9 @@ class ProductPolicy
     {
         return $user->email === 'admin@lathephp.com';
     }
+
+    public function addCategory(User $user, Product $product): bool
+    {
+        return true;
+    }
 }

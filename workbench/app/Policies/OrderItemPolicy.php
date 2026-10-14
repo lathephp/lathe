@@ -31,4 +31,14 @@ class OrderItemPolicy
     {
         return true;
     }
+
+    public function addOrder(User $user, OrderItem $orderItem): bool
+    {
+        return true;
+    }
+
+    public function addProduct(User $user, OrderItem $orderItem): bool
+    {
+        return true;
+    }
 }

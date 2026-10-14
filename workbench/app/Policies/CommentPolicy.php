@@ -31,4 +31,9 @@ class CommentPolicy
     {
         return true;
     }
+
+    public function addCommentable(User $user, Comment $comment): bool
+    {
+        return true;
+    }
 }
