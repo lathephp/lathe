@@ -6,7 +6,17 @@ import { lazyNamed } from '../lib/lazy';
 // loads with the icon set after first paint.
 const icons: Record<string, LucideIcon | undefined> = { Activity, LayoutDashboard, ShoppingCart };
 
-const SetIcon = lazyNamed(() => import('./icon-set').then((module) => module.SetIcon));
+// After a deploy the old build's icon set is gone; a missing set draws circles rather than failing the page.
+const SetIcon = lazyNamed(() =>
+  import('./icon-set').then(
+    (module) => module.SetIcon,
+    () => CircleIcon,
+  ),
+);
+
+function CircleIcon() {
+  return createElement(Circle, { 'aria-hidden': true, className: 'size-4 shrink-0' });
+}
 
 /** A navigation icon by its Lucide name; until the icon set loads, an empty box of the same size holds its place. */
 export function NavIcon({ name }: { name: string | null }) {
