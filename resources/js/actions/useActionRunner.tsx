@@ -60,6 +60,10 @@ export function useActionRunner({ base, onDone }: ActionRunnerOptions): { start:
         window.dispatchEvent(new CustomEvent('lathe:bulk-run-started', { detail: run.bulk_run }));
       }
 
+      if ('export_run' in run) {
+        window.dispatchEvent(new CustomEvent('lathe:export-started', { detail: run.export_run }));
+      }
+
       if (run.result.effect?.type !== 'redirect' && run.result.effect?.type !== 'visit') {
         onDone(action);
       }

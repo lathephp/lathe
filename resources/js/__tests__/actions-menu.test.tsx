@@ -197,6 +197,25 @@ describe('the action modal', () => {
     expect(screen.getByRole('dialog')).toBeTruthy();
   });
 
+  it('starts the progress toast of a queued export', async () => {
+    vi.spyOn(router, 'reload').mockImplementation(() => undefined);
+    vi.spyOn(globalThis, 'fetch')
+      .mockResolvedValueOnce(json({ fields: [], confirmText: null }))
+      .mockResolvedValueOnce(json({ result: { message: 'Export started.', level: 'success', effect: null }, permitted: 0, skipped: 0, failed: 0, errors: [], export_run: { id: 7 } }));
+    const started = vi.fn();
+    window.addEventListener('lathe:export-started', started);
+    renderOrders();
+    tick(1, 2, 3);
+    fireEvent.click(within(openMenu()).getByRole('menuitem', { name: /Export/ }));
+    fireEvent.click(within(await screen.findByRole('dialog')).getByRole('button', { name: 'Run Action' }));
+
+    await waitFor(() => {
+      expect(started).toHaveBeenCalledTimes(1);
+    });
+    window.removeEventListener('lathe:export-started', started);
+    expect((started.mock.calls[0]?.[0] as CustomEvent).detail).toEqual({ id: 7 });
+  });
+
   it('runs an action without confirmation at once and toasts Retry on a server error', async () => {
     vi.spyOn(globalThis, 'fetch').mockResolvedValueOnce(json({ message: 'Server Error' }, 500));
     renderOrders();
