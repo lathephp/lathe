@@ -228,7 +228,9 @@ function EnabledTwoFactor() {
           </Button>
         )}
         <Button
-          variant="destructive"
+          variant="outline"
+          // The tinted destructive variant falls under 4.5:1; the panel marks a destructive button with red text instead.
+          className="text-destructive"
           disabled={busy}
           onClick={() => {
             run(async () => {
