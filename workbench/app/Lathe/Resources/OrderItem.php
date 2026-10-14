@@ -24,7 +24,7 @@ class OrderItem extends Resource
             Field::belongsTo('Order'),
             Field::belongsTo('Product')->searchable(),
             Field::number('Quantity')->min(1)->required()->sortable(),
-            Field::currency('Price', 'price_cents')->asMinorUnits()->required(),
+            Field::currency('Price', 'price_cents')->asMinorUnits()->required()->hideFromIndex(),
         ];
     }
 }
