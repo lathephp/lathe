@@ -1,6 +1,10 @@
 <?php
 
 use Illuminate\Support\Facades\Gate;
+use Lathe\Actions\BulkRun;
+use Lathe\Actions\Export\Export;
+use Lathe\Actions\Import\Import;
+use Workbench\App\Models\Product;
 use Workbench\App\Models\User;
 use Workbench\Database\Seeders\DemoSeeder;
 
@@ -51,3 +55,16 @@ test('each_list_endpoint_has_its_documented_shape', function (string $uri, array
     'actions' => ['/lathe/api/resources/orders/actions?display=index', ['actions', 'pivotActions', 'counts'], 'counts', ['standalone', 'sole', 'resource']],
     'action form' => ['/lathe/api/resources/orders/actions/mark-shipped/form?count=3', ['fields', 'confirmText', 'action'], null, []],
 ])->group('regression');
+
+// The status endpoints m5 adds answer for the run's owner, so each needs a run first.
+test('each_run_status_endpoint_has_its_documented_shape', function () {
+    $userId = User::where('email', 'admin@lathephp.com')->value('id');
+    $bulk = BulkRun::create(['user_id' => $userId, 'resource_class' => 'Workbench\\App\\Lathe\\Resources\\Order', 'action_name' => 'Mark Shipped', 'status' => 'running', 'total' => 3]);
+    $export = Export::create(['user_id' => $userId, 'file_disk' => 'local']);
+    $import = Import::create(['user_id' => $userId, 'file_name' => 'a.csv', 'model_class' => Product::class]);
+
+    expect(jsonShape($this->getJson("/lathe/api/bulk-runs/{$bulk->id}")->assertOk()->json()))->toBe(['failed', 'processed', 'skipped', 'status', 'total'])
+        ->and(jsonShape($this->getJson("/lathe/api/exports/{$export->id}")->assertOk()->json()))->toBe(['download_url', 'exception', 'id', 'processed_rows', 'status', 'total_rows'])
+        ->and(jsonShape($this->getJson("/lathe/api/imports/{$import->id}")->assertOk()->json()))->toBe(['created_rows', 'errors_url', 'exception', 'failed_rows', 'first_errors', 'id', 'mode', 'processed_rows', 'skipped_rows', 'status', 'total_rows', 'updated_rows'])
+        ->and(jsonShape($this->getJson('/lathe/api/resources/action-events')->assertOk()->json()))->toContain('table', 'resource');
+})->group('regression');
