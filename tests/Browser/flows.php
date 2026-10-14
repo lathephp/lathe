@@ -30,4 +30,8 @@ return [
     'stale-edit' => 'ConflictTest.php',
     'record-a11y-csp' => 'A11yAndCspTest.php',
     'import' => 'ImportTest.php',
+    'actions-show-path' => 'ActionsShowPathTest.php',
+    'export' => 'ExportTest.php',
+    'delete-menu' => 'DeleteMenuTest.php',
+    'audit-log' => 'AuditLogTest.php',
 ];
