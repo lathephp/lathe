@@ -784,9 +784,9 @@ Lathe\Auth\FortifyBootstrap::responses(): array  [protected]
 Lathe\Auth\FortifyBootstrap::scoped(Closure $callback): mixed
 Lathe\Auth\FortifyBootstrap::withHooks(Closure $callback): mixed  [protected]
 Lathe\Auth\FortifyBootstrap::withResponses(Closure $callback): mixed  [protected]
-Lathe\Auth\FortifyConfig::Illuminate\Contracts\Config\Repository $config  [protected]
 Lathe\Auth\FortifyConfig::Lathe\Support\ConfigStore $lathe  [protected]
-Lathe\Auth\FortifyConfig::__construct(Lathe\Support\ConfigStore $lathe, Illuminate\Contracts\Config\Repository $config)
+Lathe\Auth\FortifyConfig::__construct(Lathe\Support\ConfigStore $lathe)
+Lathe\Auth\FortifyConfig::config(): Illuminate\Contracts\Config\Repository  [protected]
 Lathe\Auth\FortifyConfig::email(): string
 Lathe\Auth\FortifyConfig::featureEnabled(string $feature): bool
 Lathe\Auth\FortifyConfig::features(): array

@@ -211,3 +211,14 @@ it('checks the submitted values of each field with one query on the source', fun
 
     expect($reads)->toHaveCount(2);
 });
+
+it('refuses any value while an inlined source is empty', function (array $input, string $key) {
+    RemoteOptionsSetup::$inlineUpTo = 100;
+
+    $this->postJson('/lathe/api/resources/remote-parents', ['name' => 'Alpha', ...$input])
+        ->assertUnprocessable()
+        ->assertJsonValidationErrors($key);
+})->with([
+    'multi-select' => [['roles' => ['ghost']], 'roles'],
+    'select' => [['role' => 'ghost'], 'role'],
+]);

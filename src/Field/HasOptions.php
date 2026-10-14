@@ -83,13 +83,14 @@ trait HasOptions
 
     /**
      * For a field the client searches on the server: a rule that every submitted value is in
-     * the source, read with one query. Null when the options are inline, where Rule::in applies.
+     * the source, read with one query. Null when inline options list values, where Rule::in applies.
      */
     protected function remoteValuesRule(): ?Closure
     {
         $remote = $this->remoteOptions;
 
-        if ($remote === null || ! $this->isRemote()) {
+        // Inline options are checked with Rule::in; an inlined source with no rows has nothing to list, so it asks the source.
+        if ($remote === null || $this->optionValues() !== []) {
             return null;
         }
 
