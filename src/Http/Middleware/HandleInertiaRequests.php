@@ -80,6 +80,11 @@ class HandleInertiaRequests extends Middleware
             'timezone' => fn () => Lathe::resolveUserTimezone($request),
             'translations' => fn () => app(TranslationManager::class)->all(Lathe::resolveUserLocale($request)),
             'footer' => fn () => Lathe::footerFor($request),
+            'notifications' => fn () => [
+                'enabled' => Lathe::config()->boolean('notifications.enabled'),
+                'pollingInterval' => Lathe::config()->integer('notifications.polling_interval'),
+                'showUnreadCount' => Lathe::config()->boolean('notifications.show_unread_count'),
+            ],
             'layout' => fn () => [
                 'sidebar' => [
                     'collapsible' => Lathe::config()->string('layout.sidebar.collapsible'),
