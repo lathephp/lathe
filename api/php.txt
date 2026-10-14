@@ -2670,9 +2670,11 @@ Lathe\Http\Payloads\RelationIndexPayload::build(string $class, Illuminate\Databa
 Lathe\Http\Payloads\RelationIndexPayload::pivotCells(Illuminate\Database\Eloquent\Relations\Relation $relation, Illuminate\Database\Eloquent\Model $model, array $fields): array  [protected]
 Lathe\Http\Requests\LatheRequest::config(): Lathe\Support\ConfigStore  [protected]
 Lathe\Http\Requests\LatheRequest::invalidSelection(string $message): Illuminate\Validation\ValidationException  [protected]
+Lathe\Http\Requests\LatheRequest::newResource(): Lathe\Resources\Resource
 Lathe\Http\Requests\LatheRequest::orderByDirection(): string
 Lathe\Http\Requests\LatheRequest::perPage(): int
 Lathe\Http\Requests\LatheRequest::resource(): ?string
+Lathe\Http\Requests\LatheRequest::resourceInstance(): ?Lathe\Resources\Resource
 Lathe\Http\Requests\LatheRequest::resourceKey(): ?string
 Lathe\Http\Requests\LatheRequest::resourceOrFail(): string
 Lathe\Http\Requests\LatheRequest::searchKeyword(): string
@@ -2701,6 +2703,7 @@ Lathe\LatheManager::PROVIDED_BAG
 Lathe\LatheManager::__(string $key, array $replace = array ( ), ?string $default = NULL): string
 Lathe\LatheManager::__construct(Illuminate\Contracts\Container\Container $container)
 Lathe\LatheManager::actionEventModel(): string
+Lathe\LatheManager::actionEvents(): Lathe\ActionEvents\ActionEventRecorder
 Lathe\LatheManager::array $jobContextCaptures  [protected]
 Lathe\LatheManager::array $jobContextRestores  [protected]
 Lathe\LatheManager::array $provided  [protected]
@@ -2760,10 +2763,12 @@ Lathe\LatheManager::resources(): Lathe\Resources\ResourceRegistry
 Lathe\LatheManager::restoreCapturedJobContext(array $extra): void
 Lathe\LatheManager::restoreJobContext(Closure $callback): static
 Lathe\LatheManager::script(string $name, string $path): static
+Lathe\LatheManager::searchProviders(): Lathe\Search\GlobalSearch
 Lathe\LatheManager::servePlugins(Illuminate\Http\Request $request): void
 Lathe\LatheManager::serving(Closure $callback): static
 Lathe\LatheManager::string $actionEventModel  [protected]
 Lathe\LatheManager::style(string $name, string $path): static
+Lathe\LatheManager::translations(): Lathe\Support\TranslationManager
 Lathe\LatheManager::userLocale(Closure $callback): static
 Lathe\LatheManager::userTimezone(Closure $callback): static
 Lathe\LatheManager::usingActionEvent(string $class): static
@@ -2779,6 +2784,7 @@ Lathe\LatheManager::withoutPasswordResetRoutes(?string $forgot = NULL, ?string $
 Lathe\LatheServiceProvider::boot(): void
 Lathe\LatheServiceProvider::register(): void
 Lathe\LatheServiceProvider::registerMiddleware(): void  [protected]
+Lathe\LatheServiceProvider::renderedUserResource(): string  [protected]
 Lathe\LatheServiceProvider::validateConfig(): void  [protected]
 Lathe\Layout\Grid::__construct(int $columns = 2)
 Lathe\Layout\Grid::array $items  [protected]
@@ -3297,6 +3303,9 @@ Lathe\Query\SelectionResolver::narrow(Illuminate\Database\Eloquent\Builder $quer
 Lathe\Query\SelectionResolver::pivotVia(): ?Lathe\Query\PivotVia
 Lathe\Query\SelectionResolver::query(): Illuminate\Database\Eloquent\Builder
 Lathe\Query\SelectionResolver::selectionLens(): ?Lathe\Lenses\Lens  [protected]
+Lathe\Resources\Concerns\HasMeta::array $meta  [protected]
+Lathe\Resources\Concerns\HasMeta::meta(): array
+Lathe\Resources\Concerns\HasMeta::withMeta(array $meta): static
 Lathe\Resources\RecordDeleter::chunk(Lathe\Http\Requests\LatheRequest $request, string $class, string $ability, Illuminate\Support\Collection $models, bool $authorized = false): array
 Lathe\Resources\RecordDeleter::delete(Lathe\Http\Requests\LatheRequest $request, string $class, Illuminate\Database\Eloquent\Model $model): void
 Lathe\Resources\RecordDeleter::forceDelete(Lathe\Http\Requests\LatheRequest $request, string $class, Illuminate\Database\Eloquent\Model $model): void
@@ -3309,6 +3318,7 @@ Lathe\Resources\Resource::?Illuminate\Database\Eloquent\Model $model  [protected
 Lathe\Resources\Resource::?string $policy
 Lathe\Resources\Resource::__construct(?Illuminate\Database\Eloquent\Model $model = NULL)
 Lathe\Resources\Resource::actions(Lathe\Http\Requests\LatheRequest $request): array
+Lathe\Resources\Resource::additionalInformation(Lathe\Http\Requests\LatheRequest $request): array  [static]
 Lathe\Resources\Resource::afterCreate(Lathe\Http\Requests\LatheRequest $request, Illuminate\Database\Eloquent\Model $model): void  [static]
 Lathe\Resources\Resource::afterCreationValidation(Lathe\Http\Requests\LatheRequest $request, Illuminate\Contracts\Validation\Validator $validator): void  [static]
 Lathe\Resources\Resource::afterDelete(Lathe\Http\Requests\LatheRequest $request, Illuminate\Database\Eloquent\Model $model): void  [static]
@@ -3317,6 +3327,7 @@ Lathe\Resources\Resource::afterRestore(Lathe\Http\Requests\LatheRequest $request
 Lathe\Resources\Resource::afterUpdate(Lathe\Http\Requests\LatheRequest $request, Illuminate\Database\Eloquent\Model $model): void  [static]
 Lathe\Resources\Resource::afterUpdateValidation(Lathe\Http\Requests\LatheRequest $request, Illuminate\Contracts\Validation\Validator $validator): void  [static]
 Lathe\Resources\Resource::afterValidation(Lathe\Http\Requests\LatheRequest $request, Illuminate\Contracts\Validation\Validator $validator): void  [static]
+Lathe\Resources\Resource::array $meta  [protected]
 Lathe\Resources\Resource::availableActions(Lathe\Http\Requests\LatheRequest $request): Lathe\Actions\ActionCollection
 Lathe\Resources\Resource::availableFilters(Lathe\Http\Requests\LatheRequest $request): array
 Lathe\Resources\Resource::beforeCreate(Lathe\Http\Requests\LatheRequest $request, Illuminate\Database\Eloquent\Model $model): void  [static]
@@ -4958,6 +4969,7 @@ trait Lathe\Http\Controllers\Auth\CallsFortify
 trait Lathe\Http\Controllers\Resources\AuthorizesResources
 trait Lathe\Menu\HasNavigationBadge
 trait Lathe\Menu\MenuEntry
+trait Lathe\Resources\Concerns\HasMeta
 trait Lathe\Testing\ActionAssertions
 trait Lathe\Testing\InteractsWithLathe
 trait Lathe\Testing\ResourceAssertions

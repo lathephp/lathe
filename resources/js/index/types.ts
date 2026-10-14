@@ -102,6 +102,10 @@ export interface IndexProps {
     /** Rows get a preview button: some field shows in the Preview context. */
     preview?: boolean;
     definition: ResourceDefinition;
+    /** The Resource's withMeta() values. */
+    meta?: Record<string, unknown>;
+    /** What the Resource's additionalInformation() returns for this request. */
+    extra?: Record<string, unknown>;
   };
   table: { columns: Column[]; sortKeys: string[]; rows: Row[]; rowKey: string };
   /** The open lens; null on the plain index. */

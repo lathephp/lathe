@@ -8,10 +8,12 @@ use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Contracts\Http\Kernel;
 use Illuminate\Cookie\Middleware\EncryptCookies;
 use Illuminate\Foundation\Console\AboutCommand;
+use Illuminate\Foundation\Events\VendorTagPublished;
 use Illuminate\Foundation\PackageManifest;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Router;
 use Illuminate\Support\Facades\Blade;
+use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
 use Laravel\Fortify\Fortify;
@@ -162,34 +164,33 @@ class LatheServiceProvider extends ServiceProvider
             ], 'lathe-translations');
 
             $this->publishes([
-                $this->renderedUserResource() => app_path('Lathe/Resources/User.php'),
+                __DIR__.'/../stubs/user-resource.stub' => app_path('Lathe/Resources/User.php'),
             ], 'lathe-resource');
+
+            // A publish copies the stub as is; fill its placeholders the way lathe:install does.
+            Event::listen(VendorTagPublished::class, function (VendorTagPublished $event): void {
+                if ($event->tag === 'lathe-resource') {
+                    array_map($this->fillUserResource(...), array_filter(array_values($event->paths), 'is_string'));
+                }
+            });
         }
     }
 
     /**
-     * The User Resource stub with its placeholders filled the way lathe:install fills them, with
-     * Laravel's default App\ namespace: asking the app for its namespace here would cache it at
-     * boot. A publish copies a file as is, so the rendered text sits in a temp file named by its hash.
+     * Fill the placeholders of a published User Resource with Laravel's default App\ namespace
+     * (asking the app for its namespace here would cache it) and the auth model.
      */
-    protected function renderedUserResource(): string
+    protected function fillUserResource(string $path): void
     {
-        $model = config('auth.providers.users.model');
+        $contents = is_file($path) ? (string) file_get_contents($path) : '';
 
-        $contents = str_replace(
-            ['{{ namespace }}', '{{ model }}'],
-            ['App\\', is_string($model) ? $model : 'App\Models\User'],
-            (string) file_get_contents(__DIR__.'/../stubs/user-resource.stub'),
-        );
-
-        $path = sys_get_temp_dir().'/lathe-publish-'.md5($contents).'/User.php';
-
-        if (! is_file($path)) {
-            @mkdir(dirname($path), 0777, true);
-            file_put_contents($path, $contents);
+        if (! str_contains($contents, '{{ namespace }}')) {
+            return;
         }
 
-        return $path;
+        $model = config('auth.providers.users.model');
+
+        file_put_contents($path, str_replace(['{{ namespace }}', '{{ model }}'], ['App\\', is_string($model) ? $model : 'App\Models\User'], $contents));
     }
 
     protected function registerMiddleware(): void
