@@ -5,6 +5,7 @@ namespace Lathe\Http\Payloads;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Log;
+use Lathe\Actions\ActionMenu;
 use Lathe\Auth\ResourceAuthorization;
 use Lathe\Exceptions\DuplicateRowKeyException;
 use Lathe\Field\Contracts\PrimesForPage;
@@ -45,7 +46,7 @@ class IndexPayload
      * The index, or with $lens that lens of the Resource: its rows, columns and filters, no tabs.
      *
      * @param  class-string<\Lathe\Resources\Resource>  $class
-     * @return array{resource: array<string, mixed>, table: array<string, mixed>, filters: array{available: list<array<string, mixed>>, applied: array<string, mixed>}, state: array<string, mixed>, tabs: array{items: list<array<string, mixed>>, active: string|null, saved: list<array<string, mixed>>, activeSaved: int|null}, groups: array{available: list<array{id: string, label: string}>, active: array{id: string, direction: 'asc'|'desc', collapsible: bool}|null}, lens: array{uriKey: string, name: string}|null, lenses: list<array{uriKey: string, name: string}>}
+     * @return array{resource: array<string, mixed>, table: array<string, mixed>, filters: array{available: list<array<string, mixed>>, applied: array<string, mixed>}, state: array<string, mixed>, tabs: array{items: list<array<string, mixed>>, active: string|null, saved: list<array<string, mixed>>, activeSaved: int|null}, groups: array{available: list<array{id: string, label: string}>, active: array{id: string, direction: 'asc'|'desc', collapsible: bool}|null}, lens: array{uriKey: string, name: string}|null, lenses: list<array{uriKey: string, name: string}>, actions: array{actions: list<array<string, mixed>>, pivotActions: list<array{name: string, actions: list<array<string, mixed>>}>, counts: array{sole: int, standalone: int, resource: int}}}
      */
     public function build(string $class, ?Lens $lens = null): array
     {
@@ -76,6 +77,8 @@ class IndexPayload
         $group = $active['group'] ?? null;
         // Rows of an index with inline cells carry the stale-edit token each cell edit sends back.
         $tokens = $resource->definition()->usesTrafficCop() && array_filter($fields, fn (Field $field) => $field->isInlineEditable($this->request)) !== [];
+        $menu = new ActionMenu($this->request, $this->authorization);
+        $rowActions = $menu->forRows($class);
 
         return [
             'resource' => $this->resource($class),
@@ -88,6 +91,7 @@ class IndexPayload
                     'title' => $resource->forModel($model)->title(),
                     'cells' => FieldResolver::cells($model, $fields),
                     'abilities' => $abilities[$this->key($model)] ?? [],
+                    'actions' => $menu->runnableOn($class, $rowActions, $model),
                     ...($tokens ? ['updatedAt' => TrafficCop::token($model)] : []),
                     ...($softDeletes ? ['trashed' => method_exists($model, 'trashed') && $model->trashed() === true] : []),
                     ...($group !== null ? ['group' => ['key' => $group->keyFor($model), 'title' => $group->titleFor($model), 'description' => $group->descriptionFor($model)]] : []),
@@ -106,6 +110,7 @@ class IndexPayload
             ],
             'lens' => $lens !== null ? $this->lensEntry($lens) : null,
             'lenses' => array_map(fn (Lens $lens) => $this->lensEntry($lens), $this->visibleLenses($class)),
+            'actions' => $menu->build($class, 'index'),
             'state' => [
                 'page' => $page,
                 'perPage' => $perPage,

@@ -180,7 +180,8 @@ class PanelRoutes
      */
     protected function actionRoutes(Router $router): void
     {
-        //
+        $router->get('resources/{resource}/actions', [Controllers\Resources\ActionController::class, 'index'])->name('resources.actions.index');
+        $router->get('resources/{resource}/actions/{action}/form', [Controllers\Resources\ActionController::class, 'form'])->name('resources.actions.form');
     }
 
     /**

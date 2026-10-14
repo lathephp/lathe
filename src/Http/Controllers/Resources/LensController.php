@@ -51,6 +51,7 @@ class LensController
             'tabs' => fn () => $part('tabs'),
             'lens' => fn () => $part('lens'),
             'lenses' => fn () => $part('lenses'),
+            'actions' => fn () => $part('actions'),
             'count' => Inertia::defer(fn () => $payload->count($class, $lens), 'counts'),
         ])->toResponse($request);
     }
