@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Lathe\Http\Requests\LatheRequest;
 use Lathe\Resources\ResourceDefinition;
 use Lathe\Tests\Fixtures\Lenses\ScopedPendingOrders;
+use Lathe\Tests\Fixtures\Widgets\ProgressProbe;
 use Lathe\Tests\Fixtures\Widgets\ValueCustomers;
 use Lathe\Tests\Fixtures\Widgets\ValueOrders;
 use Workbench\App\Lathe\Resources\Order;
@@ -32,7 +33,7 @@ class ScopedWidgetOrder extends Order
 
     public function widgets(LatheRequest $request): array
     {
-        return [new ValueOrders, new ValueCustomers];
+        return [new ValueOrders, new ValueCustomers, new ProgressProbe];
     }
 
     public function lenses(LatheRequest $request): array

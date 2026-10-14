@@ -43,11 +43,16 @@ abstract class ProgressWidget extends Widget
     }
 
     /**
+     * The model's rows in the host Resource's scope, with its table as a cache tag.
+     *
      * @param  Builder<Model>|Model|class-string<Model>  $model
      * @return Builder<Model>
      */
     private function builder(Builder|Model|string $model): Builder
     {
-        return AggregateQuery::builderFor($model);
+        $builder = $this->applyResourceScope(AggregateQuery::builderFor($model));
+        $this->cacheTags([$builder->getModel()->getTable()]);
+
+        return $builder;
     }
 }
