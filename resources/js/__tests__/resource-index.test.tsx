@@ -49,7 +49,8 @@ function row(id: number) {
       total: { value: 1000 * id, display: `$${String(id)}.00` },
       placed_at: { value: '2026-10-01', display: 'Oct 1, 2026' },
     },
-    abilities: { view: true },
+    // No ability, so the rows have no menu column and the test reads the data columns only.
+    abilities: {},
   };
 }
 

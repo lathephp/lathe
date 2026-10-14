@@ -20,7 +20,8 @@ function row(id: number, status: string) {
       number: { value: `ORD-${String(id)}`, display: `ORD-${String(id)}` },
       total_cents: { value: '10.00', display: '10.00' },
     },
-    abilities: { view: true },
+    // No ability, so the rows have no menu column and the test reads the data columns only.
+    abilities: {},
     group: { key: status, title: `Status: ${status}`, description: status === 'paid' ? 'Settled orders' : null },
   };
 }

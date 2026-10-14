@@ -142,7 +142,7 @@ export function ActionModal({ base, action, count, onClose, onRun }: ActionModal
               action.destructive ? 'bg-destructive text-white hover:bg-destructive/90' : 'bg-primary text-primary-foreground hover:bg-primary/90',
             )}
           >
-            {action.confirmButtonText}
+            {busy && action.asBlob ? __('Preparing file') : action.confirmButtonText}
           </button>
         </div>
       </form>

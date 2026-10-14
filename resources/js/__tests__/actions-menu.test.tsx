@@ -230,4 +230,13 @@ describe('the action modal', () => {
     });
     expect(screen.queryByRole('dialog')).toBeNull();
   });
+
+  it('shows Preparing file while a file action without confirmation runs', async () => {
+    vi.spyOn(globalThis, 'fetch').mockResolvedValueOnce(json({ result: { message: null, level: 'success', effect: null }, permitted: 0, skipped: 0, failed: 0, errors: [] }));
+    renderOrders([meta('report', 'Download Report', { standalone: true, withoutConfirmation: true, asBlob: true })]);
+
+    fireEvent.click(within(await openMenu()).getByRole('menuitem', { name: 'Download Report' }));
+
+    expect(__panel.toasts.get().map((toast) => toast.message)).toContain('Preparing file');
+  });
 });

@@ -96,6 +96,11 @@ export function useActionRunner({ base, onDone }: ActionRunnerOptions): { start:
 
   function start(action: ActionMeta, selection: SelectionDescriptor, count: number) {
     if (action.withoutConfirmation) {
+      // A file action takes a moment before the download starts.
+      if (action.asBlob) {
+        toast.info(__('Preparing file'));
+      }
+
       void execute(action, selection, {}, false).catch(() => undefined);
     } else {
       setRunning({ action, selection, count });

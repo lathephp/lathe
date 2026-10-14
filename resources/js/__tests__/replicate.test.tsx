@@ -101,12 +101,12 @@ describe('replicate entries', () => {
     ).toBe('/lathe/resources/orders/12/replicate');
   });
 
-  it('has no row menu for a row that may not be replicated or deleted', () => {
+  it('leaves Replicate out of the row menu for a row that may not be replicated', () => {
     renderIndex(orderRow({ view: true, replicate: false }));
 
-    expect(
-      screen.queryByRole('button', { name: 'Actions for ORD-00012' }),
-    ).toBeNull();
+    fireEvent.click(screen.getByRole('button', { name: 'Actions for ORD-00012' }));
+
+    expect(screen.queryByRole('menuitem', { name: 'Replicate' })).toBeNull();
   });
 
   it('offers Replicate on the detail page next to Edit when allowed', () => {

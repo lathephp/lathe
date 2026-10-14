@@ -218,25 +218,32 @@ describe('row menu', () => {
   it('offers Delete on a live row the user may delete', () => {
     renderOrders({ rows: [row(1, { view: true, delete: true, restore: true, forceDelete: true }, false)] });
 
-    expect(menuItems('ORD-00001')).toEqual(['Delete']);
+    expect(menuItems('ORD-00001')).toEqual(['View', 'Delete']);
   });
 
   it('offers Restore and Force Delete on a trashed row', () => {
     renderOrders({ rows: [row(1, { view: true, delete: true, restore: true, forceDelete: true }, true)] });
 
-    expect(menuItems('ORD-00001')).toEqual(['Restore', 'Force Delete']);
+    expect(menuItems('ORD-00001')).toEqual(['View', 'Restore', 'Force Delete']);
   });
 
   it('offers only what the trashed row allows', () => {
     renderOrders({ rows: [row(1, { view: true, restore: false, forceDelete: true }, true), row(2, { view: true, restore: true, forceDelete: false }, true)] });
 
-    expect(menuItems('ORD-00001')).toEqual(['Force Delete']);
+    expect(menuItems('ORD-00001')).toEqual(['View', 'Force Delete']);
     fireEvent.keyDown(screen.getByRole('menu'), { key: 'Escape' });
-    expect(menuItems('ORD-00002')).toEqual(['Restore']);
+    expect(menuItems('ORD-00002')).toEqual(['View', 'Restore']);
   });
 
-  it('has no menu for a user who may not delete', () => {
+  it('offers View and Edit, without Delete, to a user who may not delete', () => {
     renderOrders({ rows: [row(1, { view: true, update: true, delete: false })] });
+
+    expect(menuItems('ORD-00001')).toEqual(['View', 'Edit']);
+    expect(screen.getByRole('menuitem', { name: 'Edit' }).getAttribute('href')).toBe('/lathe/resources/orders/1/edit');
+  });
+
+  it('has no menu for a row the user may do nothing with', () => {
+    renderOrders({ rows: [row(1, {})] });
 
     expect(screen.queryByRole('button', { name: 'Actions for ORD-00001' })).toBeNull();
   });

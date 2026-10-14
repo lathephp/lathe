@@ -18,7 +18,8 @@ const rows = Array.from({ length: 25 }, (_, index) => ({
     total_cents: { value: '10.00', display: '10.00' },
     items: { value: 2, display: '2' },
   },
-  abilities: { view: true },
+  // No ability, so the rows have no menu column and the test reads the data columns only.
+  abilities: {},
 }));
 
 function renderSummaries(summaries: unknown) {

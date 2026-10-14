@@ -6,22 +6,29 @@ import { lazy, Suspense, useId, useState } from 'react';
 import type { SharedProps } from '../types';
 import type { Row } from './types';
 
-type MenuAction = 'replicate' | 'delete' | 'restore' | 'forceDelete';
-type WriteAction = Exclude<MenuAction, 'replicate'>;
+type MenuAction = 'view' | 'edit' | 'replicate' | 'delete' | 'restore' | 'forceDelete';
+type WriteAction = Exclude<MenuAction, 'view' | 'edit' | 'replicate'>;
+type LinkAction = Extract<MenuAction, 'view' | 'edit' | 'replicate'>;
 
 // The row's actions load on the first open of its menu, so the index's first load leaves them out.
 const InlineRowActions = lazy(() => import('../actions/InlineRowActions').then((module) => ({ default: module.InlineRowActions })));
 
-/** What the row menu offers: Replicate and Delete on a live row, Restore and Force Delete on a trashed one. */
+/** What the row menu offers: View, Edit, Replicate and Delete on a live row; View, Restore and Force Delete on a trashed one. */
 export function menuActions(row: Row): MenuAction[] {
-  const actions: MenuAction[] = row.trashed === true ? ['restore', 'forceDelete'] : ['replicate', 'delete'];
+  const actions: MenuAction[] = row.trashed === true ? ['view', 'restore', 'forceDelete'] : ['view', 'edit', 'replicate', 'delete'];
 
-  return actions.filter((action) => row.abilities[action] === true);
+  return actions.filter((action) => row.abilities[action === 'edit' ? 'update' : action] === true);
 }
 
 /** Whether a row has a menu: a delete family entry, or an action it may run inline. */
 export function hasRowMenu(row: Row): boolean {
   return menuActions(row).length > 0 || (row.actions?.length ?? 0) > 0;
+}
+
+const links: Record<LinkAction, string> = { view: '', edit: '/edit', replicate: '/replicate' };
+
+function isLink(action: MenuAction): action is LinkAction {
+  return action === 'view' || action === 'edit' || action === 'replicate';
 }
 
 const itemClass =
@@ -41,6 +48,8 @@ export function RowMenu({ uriKey, row }: { uriKey: string; row: Row }) {
   const url = `${basePath}/api/resources/${uriKey}/${String(row.id)}`;
 
   const labels: Record<MenuAction, string> = {
+    view: __('View'),
+    edit: __('Edit'),
     replicate: __('Replicate'),
     delete: __('Delete'),
     restore: __('Restore'),
@@ -120,8 +129,8 @@ export function RowMenu({ uriKey, row }: { uriKey: string; row: Row }) {
           }}
         >
           {menuActions(row).map((action) =>
-            action === 'replicate' ? (
-              <Link key={action} role="menuitem" href={`${basePath}/resources/${uriKey}/${String(row.id)}/replicate`} className={itemClass}>
+            isLink(action) ? (
+              <Link key={action} role="menuitem" href={`${basePath}/resources/${uriKey}/${String(row.id)}${links[action]}`} className={itemClass}>
                 {labels[action]}
               </Link>
             ) : (
