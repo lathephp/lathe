@@ -113,6 +113,14 @@ it('writes a test on the test kit, a readme, a changelog and a licence', functio
         ->and($this->generated('lathe-components/README.md'))->toContain('lathe:plugin');
 });
 
+it('keeps the built bundle in git, since apps install the plugin without building it', function () {
+    $this->artisan('lathe:plugin', ['name' => 'acme/price-tracker', '--skip-composer' => true])->assertExitCode(0);
+
+    $ignored = array_map('trim', explode("\n", $this->generated('lathe-components/PriceTracker/.gitignore')));
+
+    expect($ignored)->toContain('/vendor', '/node_modules')->not->toContain('/dist')->not->toContain('dist');
+});
+
 it('leaves no placeholder in any file', function () {
     $this->artisan('lathe:plugin', ['name' => 'acme/price-tracker', '--skip-composer' => true])->assertExitCode(0);
 

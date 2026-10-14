@@ -98,7 +98,7 @@ public function assets(): array
 
 Leave `styles` out when the plugin has none. You do not call `Lathe::script()` or `Lathe::style()` for a plugin.
 
-> Note: Apps install your plugin with Composer and never run its build, so `dist/` must be in the tagged release. The scaffold's `.gitignore` lists `/dist`. Remove that line, or run `git add -f dist`, before you tag.
+> Note: Apps install your plugin with Composer and never run its build, so `dist/` must be in the tagged release. The scaffold keeps `dist/` out of its `.gitignore` for this reason: build, then commit `dist/` before you tag.
 
 ## How the panel loads it
 
