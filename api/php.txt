@@ -1009,6 +1009,7 @@ Lathe\Field\Relations\BelongsToField::primeForPage(Illuminate\Support\Collection
 Lathe\Field\Relations\BelongsToField::resolve(object $record, ?string $attribute = NULL): mixed
 Lathe\Field\Relations\BelongsToField::string $component  [protected]
 Lathe\Field\Relations\BelongsToField::viewable(bool $viewable = true): static
+Lathe\Field\Relations\BelongsToField::writesRelation(Illuminate\Database\Eloquent\Model $model, Illuminate\Database\Eloquent\Relations\Relation $relation): bool
 Lathe\Field\Relations\BelongsToManyField::Closure|array $pivotActions  [protected]
 Lathe\Field\Relations\BelongsToManyField::Closure|array $pivotFields  [protected]
 Lathe\Field\Relations\BelongsToManyField::__construct(string $label, Closure|string|null $attribute = NULL, ?Closure $resolver = NULL)
@@ -1121,6 +1122,7 @@ Lathe\Field\Relations\RelationField::withCount(bool $withCount = true): static
 Lathe\Field\Relations\RelationField::withSubtitles(bool $withSubtitles = true): static
 Lathe\Field\Relations\RelationField::withTrashed(bool $withTrashed = true): static
 Lathe\Field\Relations\RelationField::withoutTrashed(): static
+Lathe\Field\Relations\RelationField::writesRelation(Illuminate\Database\Eloquent\Model $model, Illuminate\Database\Eloquent\Relations\Relation $relation): bool
 Lathe\Field\Relations\ResourceRelationshipGuesser::conventionalResource(string $label): string  [static]
 Lathe\Field\Relations\ResourceRelationshipGuesser::guessRelation(string $label): string  [static]
 Lathe\Field\Relations\ResourceRelationshipGuesser::guessResource(string $label, string $relation, ?string $owner): ?string  [static]
@@ -1550,7 +1552,7 @@ Lathe\Http\Payloads\RecordPayload::Lathe\Http\Requests\LatheRequest $request  [p
 Lathe\Http\Payloads\RecordPayload::Lathe\Support\ConfigStore $config  [protected]
 Lathe\Http\Payloads\RecordPayload::__construct(Lathe\Http\Requests\LatheRequest $request, Lathe\Auth\ResourceAuthorization $authorization, Lathe\Support\ConfigStore $config)
 Lathe\Http\Payloads\RecordPayload::breadcrumbs(string $class, array $tail): array
-Lathe\Http\Payloads\RecordPayload::creationFields(string $class): array
+Lathe\Http\Payloads\RecordPayload::creationFields(string $class, ?Lathe\Resources\Via $via = NULL): array
 Lathe\Http\Payloads\RecordPayload::detail(string $class, Illuminate\Database\Eloquent\Model $model): array
 Lathe\Http\Payloads\RecordPayload::fields(string $class, Lathe\Field\FieldContext $context, ?Illuminate\Database\Eloquent\Model $model = NULL): array  [protected]
 Lathe\Http\Payloads\RecordPayload::href(string $path): string
@@ -2106,6 +2108,18 @@ Lathe\Resources\ValidationPipeline::string $resource  [protected]
 Lathe\Resources\ValidationPipeline::validate(): void
 Lathe\Resources\ValidationPipeline::validator(): Illuminate\Contracts\Validation\Validator
 Lathe\Resources\ValidationPipeline::writable(Lathe\Field\FieldCollection $fields, Lathe\Field\FieldContext $context, Lathe\Http\Requests\LatheRequest $request, ?Illuminate\Database\Eloquent\Model $model = NULL): Lathe\Field\FieldCollection  [static]
+Lathe\Resources\Via::?Lathe\Field\Relations\BelongsToField $field
+Lathe\Resources\Via::Illuminate\Database\Eloquent\Model $parentModel
+Lathe\Resources\Via::Lathe\Field\Relations\RelationField $relation
+Lathe\Resources\Via::__construct(string $parent, Illuminate\Database\Eloquent\Model $parentModel, Lathe\Field\Relations\RelationField $relation, ?Lathe\Field\Relations\BelongsToField $field)
+Lathe\Resources\Via::force(Lathe\Http\Requests\LatheRequest $request): void
+Lathe\Resources\Via::fromRequest(Lathe\Http\Requests\LatheRequest $request, string $child): ?Lathe\Resources\Via  [static]
+Lathe\Resources\Via::invalid(): Illuminate\Validation\ValidationException  [protected static]
+Lathe\Resources\Via::locks(Lathe\Field\Field $field): bool
+Lathe\Resources\Via::match(string $child, Lathe\Http\Requests\LatheRequest $request, Illuminate\Database\Eloquent\Model $parent, string $relationship): ?Lathe\Field\Relations\BelongsToField  [protected static]
+Lathe\Resources\Via::parentKey(): mixed
+Lathe\Resources\Via::string $parent
+Lathe\Resources\Via::value(): ?array
 Lathe\SavedTabs\SavedTab::$fillable  [protected]
 Lathe\SavedTabs\SavedTab::$table  [protected]
 Lathe\SavedTabs\SavedTab::casts(): array  [protected]
@@ -2565,6 +2579,7 @@ class Lathe\Resources\ResourceDefinition
 class Lathe\Resources\ResourceRegistry
 class Lathe\Resources\TrafficCop
 class Lathe\Resources\ValidationPipeline
+class Lathe\Resources\Via
 class Lathe\SavedTabs\SavedTab
 class Lathe\SavedTabs\SavedTabQueryApplicator
 class Lathe\SavedTabs\SchemaHash

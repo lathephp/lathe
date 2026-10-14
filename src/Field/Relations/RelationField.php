@@ -354,6 +354,17 @@ abstract class RelationField extends Field
         return $this->inverse;
     }
 
+    /**
+     * Whether this field writes the column the parent's relation reads, for matching a via
+     * without inverse(). Only the kinds that write a column can.
+     *
+     * @param  Relation<*, *, *>  $relation
+     */
+    public function writesRelation(Model $model, Relation $relation): bool
+    {
+        return false;
+    }
+
     public function reorderAssociatables(bool $reorder = true): static
     {
         $this->mutate();

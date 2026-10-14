@@ -8,6 +8,7 @@ use Lathe\Http\Payloads\RecordPayload;
 use Lathe\Http\Requests\LatheRequest;
 use Lathe\Query\QueryContext;
 use Lathe\Query\ResourceQuery;
+use Lathe\Resources\Via;
 
 /**
  * The create and edit forms as JSON, behind the abilities their submits need.
@@ -22,7 +23,7 @@ class FormFieldsController
 
         abort_unless($authorization->allows($request->user(), $class, 'create'), 403, $authorization->denialMessage($class));
 
-        return new JsonResponse($payload->creationFields($class));
+        return new JsonResponse($payload->creationFields($class, Via::fromRequest($request, $class)));
     }
 
     public function update(LatheRequest $request, ResourceAuthorization $authorization, RecordPayload $payload, string $resource, string $resourceId): JsonResponse

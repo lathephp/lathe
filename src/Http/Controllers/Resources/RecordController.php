@@ -16,6 +16,7 @@ use Lathe\Query\QueryContext;
 use Lathe\Query\ResourceQuery;
 use Lathe\Resources\TrafficCop;
 use Lathe\Resources\ValidationPipeline;
+use Lathe\Resources\Via;
 
 /**
  * Create and update one record. Validation runs first; the before hook, the fill, the save,
@@ -31,6 +32,9 @@ class RecordController
         $class = $this->viewableResource($request, $authorization);
 
         abort_unless($authorization->allows($request->user(), $class, 'create'), 403, $authorization->denialMessage($class));
+
+        // Before validation, so the forced parent is what the rules check and the fill writes.
+        Via::fromRequest($request, $class)?->force($request);
 
         $fields = ValidationPipeline::writable($class::make()->fieldsFor(FieldContext::Create, $request), FieldContext::Create, $request);
         (new ValidationPipeline($fields, $request, FieldContext::Create, $class))->validate();

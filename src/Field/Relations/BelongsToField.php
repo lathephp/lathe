@@ -6,6 +6,9 @@ use Closure;
 use Illuminate\Container\Container;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasOneOrMany;
+use Illuminate\Database\Eloquent\Relations\MorphOneOrMany;
+use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Support\Collection;
 use Lathe\Auth\ResourceAuthorization;
 use Lathe\Field\Contracts\FilterableField;
@@ -176,6 +179,17 @@ class BelongsToField extends RelationField implements FilterableField, PrimesFor
         }
 
         return null;
+    }
+
+    /**
+     * Whether the foreign key is the one the parent's hasMany or hasOne reads.
+     */
+    public function writesRelation(Model $model, Relation $relation): bool
+    {
+        $own = $model->{$this->attribute}();
+
+        return $relation instanceof HasOneOrMany && ! $relation instanceof MorphOneOrMany
+            && $own instanceof BelongsTo && $own->getForeignKeyName() === $relation->getForeignKeyName();
     }
 
     /**

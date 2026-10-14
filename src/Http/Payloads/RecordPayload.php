@@ -10,6 +10,7 @@ use Lathe\Http\Requests\LatheRequest;
 use Lathe\Lathe;
 use Lathe\Resources\Resource;
 use Lathe\Resources\TrafficCop;
+use Lathe\Resources\Via;
 use Lathe\Support\ConfigStore;
 
 /**
@@ -82,11 +83,12 @@ class RecordPayload
 
     /**
      * The create form: the fields, each holding its default, the defaults and the layout.
+     * Under a via, the field pointing at the parent is locked to it.
      *
      * @param  class-string<\Lathe\Resources\Resource>  $class
      * @return array{fields: list<array<string, mixed>>, defaults: array<string, mixed>, layout: list<array<string, mixed>>, borderless: bool}
      */
-    public function creationFields(string $class): array
+    public function creationFields(string $class, ?Via $via = null): array
     {
         $resource = $class::make();
         $fields = $this->fields($class, FieldContext::Create);
@@ -99,11 +101,20 @@ class RecordPayload
             if ($default !== null) {
                 $defaults[$field->key()] = $default;
             }
+
+            // The via's parent wins over any default.
+            if ($via?->locks($field) === true) {
+                $defaults[$field->key()] = $via->value();
+            }
         }
 
         return [
             'fields' => array_map(
-                fn (Field $field) => [...$field->schema(FieldContext::Create, $this->request), 'value' => $defaults[$field->key()] ?? null],
+                fn (Field $field) => [
+                    ...$field->schema(FieldContext::Create, $this->request),
+                    'value' => $defaults[$field->key()] ?? null,
+                    ...($via?->locks($field) === true ? ['readonly' => true] : []),
+                ],
                 $fields,
             ),
             'defaults' => $defaults,

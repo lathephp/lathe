@@ -2,6 +2,7 @@
 
 namespace Lathe\Http\Controllers\Resources;
 
+use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
 use Lathe\Auth\ResourceAuthorization;
 use Lathe\Http\Payloads\IndexPayload;
@@ -10,6 +11,7 @@ use Lathe\Http\Requests\LatheRequest;
 use Lathe\Lathe;
 use Lathe\Query\QueryContext;
 use Lathe\Query\ResourceQuery;
+use Lathe\Resources\Via;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
@@ -26,13 +28,20 @@ class FormPageController
 
         abort_unless($authorization->allows($request->user(), $class, 'create'), 403, $authorization->denialMessage($class));
 
+        // A page has no 422 to show, so a via naming no parent the user may add to is not found.
+        try {
+            $via = Via::fromRequest($request, $class);
+        } catch (ValidationException) {
+            abort(404);
+        }
+
         return Inertia::render('Resources/Form', [
             'resource' => $index->resource($class),
             'mode' => 'create',
             'id' => null,
             'title' => $class::createButtonLabel(),
             'breadcrumbs' => $payload->breadcrumbs($class, [['label' => $class::createButtonLabel(), 'href' => null]]),
-            'form' => $payload->creationFields($class),
+            'form' => $payload->creationFields($class, $via),
             'submitLabel' => $class::createButtonLabel(),
         ])->toResponse($request);
     }
