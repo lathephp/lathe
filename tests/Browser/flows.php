@@ -29,4 +29,5 @@ return [
     'uploads' => 'UploadsTest.php',
     'stale-edit' => 'ConflictTest.php',
     'record-a11y-csp' => 'A11yAndCspTest.php',
+    'import' => 'ImportTest.php',
 ];
