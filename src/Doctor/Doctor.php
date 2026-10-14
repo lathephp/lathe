@@ -28,6 +28,7 @@ use Lathe\Search\LikeSearch;
 use Lathe\Search\SearchableText;
 use Lathe\Support\ConfigStore;
 use Lathe\Support\ConfigValidator;
+use Lathe\Theme\Color;
 use Throwable;
 
 /**
@@ -113,6 +114,14 @@ class Doctor
     {
         $results = array_map(fn (string $error) => CheckResult::fail($error), $this->validator->errors($this->config->all()));
         $results = $results === [] ? [CheckResult::ok('config/lathe.php has no errors')] : $results;
+
+        $colors = $this->config->get('theme.colors');
+
+        foreach (is_array($colors) ? array_keys($colors) : [] as $token) {
+            if (Color::tryFrom((string) $token) === null) {
+                $results[] = CheckResult::fail("config/lathe.php: theme.colors.{$token} is not a colour token. Remove it or use a token such as primary.");
+            }
+        }
 
         foreach ($this->validator->unknownKeys($this->config->all()) as $key) {
             $results[] = CheckResult::warn("config/lathe.php: unknown key {$key}. Remove it or check its spelling.");
