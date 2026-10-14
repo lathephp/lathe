@@ -89,14 +89,20 @@ it('exits 1 and names the missing input under --no-interaction', function (strin
     'user' => ['lathe:user', '--name, --email, --password'],
 ]);
 
-it('changes only the folders it may write, makes no request', function (string $command, array $arguments, bool $generator, int $exit = 0) {
+it('changes only the folders it may write, makes no request', function (string $command, array $arguments, bool $generator, ?int $exit = 0) {
     Http::preventStrayRequests();
     $base = isolatedApp();
     File::put("{$base}/package.json", '{}');
 
     $before = snapshot($base);
 
-    $this->artisan($command, [...$arguments, '--no-interaction' => true])->assertExitCode($exit);
+    $run = $this->artisan($command, [...$arguments, '--no-interaction' => true]);
+
+    if ($exit !== null) {
+        $run->assertExitCode($exit);
+    } else {
+        $run->run();
+    }
 
     $allowed = $generator ? [...WRITABLE, ...GENERATOR_WRITABLE] : WRITABLE;
     $outside = array_filter(
@@ -109,8 +115,8 @@ it('changes only the folders it may write, makes no request', function (string $
     'install' => ['lathe:install', [], false],
     'uninstall' => ['lathe:uninstall', [], false],
     'user' => ['lathe:user', ['--name' => 'Grace Hopper', '--email' => 'grace@example.test', '--password' => 'secret-pass'], false],
-    // The checkout has no built assets, so doctor reports that one FAIL and exits 1.
-    'doctor' => ['lathe:doctor', [], false, 1],
+    // Doctor's exit code follows the checkout (a missing build is a FAIL), so only its writes count.
+    'doctor' => ['lathe:doctor', [], false, null],
     'cache' => ['lathe:cache', [], false],
     'clear' => ['lathe:clear', [], false],
     'prune' => ['lathe:prune', [], false],
