@@ -103,6 +103,17 @@ function renderForm(layout: LayoutBlock[], keys: string[], borderless = false) {
   });
 }
 
+describe('relation blocks', () => {
+  it('renders nothing for a relation-field block and still draws the panels around it', () => {
+    const relation = { type: 'relation-field', key: 'items', field: field('items') } as LayoutBlock;
+
+    renderDetail([panel('order', ['gadget']), relation, { ...relation, type: 'has-one-warranty' } as LayoutBlock], ['gadget']);
+
+    expect(screen.getByText('Gadget')).toBeTruthy();
+    expect(screen.queryByText('Items')).toBeNull();
+  });
+});
+
 describe('panels', () => {
   it('shows limit(3) fields on detail and Show all for the rest', () => {
     renderDetail([panel('order', ['a', 'b', 'c', 'd', 'e'], { limit: 3 })], ['a', 'b', 'c', 'd', 'e']);

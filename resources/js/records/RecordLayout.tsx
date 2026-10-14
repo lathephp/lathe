@@ -46,7 +46,11 @@ export function RecordLayout(props: RecordLayoutProps) {
 }
 
 function blockKey(block: LayoutBlock, index: number): string {
-  return block.type === 'grid' ? `grid-${String(index)}` : block.attribute;
+  if (block.type === 'grid') {
+    return `grid-${String(index)}`;
+  }
+
+  return block.type === 'panel' || block.type === 'tab-group' ? block.attribute : `${block.type}-${block.key}`;
 }
 
 /** Every field key inside a block, through its grids and tabs. */
@@ -55,7 +59,11 @@ function fieldKeys(block: LayoutBlock): string[] {
     return block.fields;
   }
 
-  return block.type === 'grid' ? block.items.flatMap(fieldKeys) : block.tabs.flatMap((tab) => tab.items.flatMap(fieldKeys));
+  if (block.type === 'grid') {
+    return block.items.flatMap(fieldKeys);
+  }
+
+  return block.type === 'tab-group' ? block.tabs.flatMap((tab) => tab.items.flatMap(fieldKeys)) : [];
 }
 
 function hasError(tab: TabData, errorKeys: ReadonlySet<string> | undefined): boolean {
@@ -77,7 +85,12 @@ function Block({ block, ...props }: RecordLayoutProps & { block: LayoutBlock }) 
     );
   }
 
-  return <TabGroup group={block} {...props} />;
+  if (block.type === 'tab-group') {
+    return <TabGroup group={block} {...props} />;
+  }
+
+  // Relation panels are mounted here by a later change.
+  return null;
 }
 
 function Panel({ panel, renderField, borderless, detail }: RecordLayoutProps & { panel: PanelBlock }) {

@@ -91,7 +91,14 @@ export interface TabGroupBlock {
   tabs: TabData[];
 }
 
-export type LayoutBlock = PanelBlock | GridBlock | TabGroupBlock;
+/** A relation panel field or a hasOne field, drawn as a block of its own on detail pages. */
+export interface RelationBlock {
+  type: 'relation-field' | `has-one-${string}`;
+  key: string;
+  field: FieldSchema;
+}
+
+export type LayoutBlock = PanelBlock | GridBlock | TabGroupBlock | RelationBlock;
 
 export interface Breadcrumb {
   label: string;
