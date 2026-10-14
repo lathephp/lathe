@@ -2298,6 +2298,7 @@ Lathe\Http\Controllers\NotificationController::mine(Lathe\Http\Requests\LatheReq
 Lathe\Http\Controllers\NotificationController::read(Lathe\Http\Requests\LatheRequest $request, string $id): Illuminate\Http\Response
 Lathe\Http\Controllers\NotificationController::tableExists(): bool  [protected]
 Lathe\Http\Controllers\NotificationController::unread(Lathe\Http\Requests\LatheRequest $request, string $id): Illuminate\Http\Response
+Lathe\Http\Controllers\PageController::__invoke(Illuminate\Http\Request $request, Lathe\Pages\PageRegistry $pages, Lathe\Support\ConfigStore $config, string $page, string $path = ''): Inertia\Response
 Lathe\Http\Controllers\PageFallbackController::__invoke(Illuminate\Http\Request $request, Illuminate\Routing\Router $router): never
 Lathe\Http\Controllers\Plugins\ModuleController::__invoke(Lathe\Assets\AssetRegistry $assets, string $file, string $type = 'scripts'): Symfony\Component\HttpFoundation\BinaryFileResponse
 Lathe\Http\Controllers\Plugins\PluginApiController::__invoke(Illuminate\Http\Request $request, Lathe\Plugins\PluginRegistry $plugins, string $plugin, string $path = ''): Symfony\Component\HttpFoundation\Response
@@ -2558,9 +2559,11 @@ Lathe\LatheManager::loadTranslations(array|string $translations): static
 Lathe\LatheManager::loginPath(): string
 Lathe\LatheManager::name(): string
 Lathe\LatheManager::notificationChannels(string ...$channels): void
+Lathe\LatheManager::pages(): Lathe\Pages\PageRegistry
 Lathe\LatheManager::path(): string
 Lathe\LatheManager::plugins(): Lathe\Plugins\PluginRegistry
 Lathe\LatheManager::registerDashboards(Lathe\Dashboards\Dashboard|string ...$dashboards): void
+Lathe\LatheManager::registerPages(Lathe\Pages\Page|string ...$pages): void
 Lathe\LatheManager::registerPlugins(Lathe\Plugins\Plugin ...$plugins): void
 Lathe\LatheManager::registerResources(string ...$classes): void
 Lathe\LatheManager::registerSearchProviders(Lathe\Search\SearchProvider ...$providers): void
@@ -2878,6 +2881,21 @@ Lathe\Notifications\NotificationResource::Carbon\CarbonInterface $now  [protecte
 Lathe\Notifications\NotificationResource::Illuminate\Notifications\DatabaseNotification $notification  [protected]
 Lathe\Notifications\NotificationResource::__construct(Illuminate\Notifications\DatabaseNotification $notification, Carbon\CarbonInterface $now)
 Lathe\Notifications\NotificationResource::toArray(): array
+Lathe\Pages\Page::?Closure $seeCallback  [protected]
+Lathe\Pages\Page::?Lathe\Enums\Icon $icon  [protected]
+Lathe\Pages\Page::authorize(Illuminate\Http\Request $request): bool
+Lathe\Pages\Page::canSee(Closure $callback): static
+Lathe\Pages\Page::canSeeWhen(string $ability, mixed $arguments = array ( )): static
+Lathe\Pages\Page::icon(?Lathe\Enums\Icon $icon = NULL): ?Lathe\Enums\Icon
+Lathe\Pages\Page::make(): static  [static]
+Lathe\Pages\Page::name(): string
+Lathe\Pages\Page::path(): string
+Lathe\Pages\Page::uriKey(): string  [static]
+Lathe\Pages\PageRegistry::all(): array
+Lathe\Pages\PageRegistry::array $pages  [protected]
+Lathe\Pages\PageRegistry::authorized(Illuminate\Http\Request $request): array
+Lathe\Pages\PageRegistry::find(string $uriKey): ?Lathe\Pages\Page
+Lathe\Pages\PageRegistry::register(Lathe\Pages\Page|string ...$pages): void
 Lathe\Plugins\Plugin::?Closure $seeCallback  [protected]
 Lathe\Plugins\Plugin::assets(): array
 Lathe\Plugins\Plugin::authorize(Illuminate\Http\Request $request): bool
@@ -4355,6 +4373,7 @@ class Lathe\Http\Controllers\ExportController
 class Lathe\Http\Controllers\GlobalSearchController
 class Lathe\Http\Controllers\ImportController
 class Lathe\Http\Controllers\NotificationController
+class Lathe\Http\Controllers\PageController
 class Lathe\Http\Controllers\PageFallbackController
 class Lathe\Http\Controllers\Plugins\ModuleController
 class Lathe\Http\Controllers\Plugins\PluginApiController
@@ -4425,6 +4444,8 @@ class Lathe\Notifications\LatheNotification
 class Lathe\Notifications\NotificationAction
 class Lathe\Notifications\NotificationChannelRegistry
 class Lathe\Notifications\NotificationResource
+class Lathe\Pages\Page
+class Lathe\Pages\PageRegistry
 class Lathe\Plugins\Plugin
 class Lathe\Plugins\PluginDiscovery
 class Lathe\Plugins\PluginRegistry

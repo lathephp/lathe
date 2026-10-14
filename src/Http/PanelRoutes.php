@@ -14,6 +14,7 @@ use Lathe\Http\Controllers\ExportController;
 use Lathe\Http\Controllers\GlobalSearchController;
 use Lathe\Http\Controllers\ImportController;
 use Lathe\Http\Controllers\NotificationController;
+use Lathe\Http\Controllers\PageController;
 use Lathe\Http\Controllers\PageFallbackController;
 use Lathe\Http\Controllers\Plugins\ModuleController;
 use Lathe\Http\Controllers\Plugins\PluginApiController;
@@ -98,6 +99,9 @@ class PanelRoutes
             $router->get('resources/{resource}/{resourceId}/edit', [FormPageController::class, 'edit'])->name('lathe.resources.edit');
             $router->get('resources/{resource}/{resourceId}/replicate', [FormPageController::class, 'replicate'])->name('lathe.resources.replicate');
             $this->runPageRoutes($router);
+            $router->get('pages/{page}/{path?}', PageController::class)
+                ->where('path', '.*')
+                ->name('lathe.pages.show');
             $router->get('plugins/{plugin}/{path?}', PluginPageController::class)
                 ->where('path', '.*')
                 ->name('lathe.plugins.show');

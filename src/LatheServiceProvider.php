@@ -52,6 +52,7 @@ use Lathe\Http\Middleware\ServePlugins;
 use Lathe\Http\PanelRoutes;
 use Lathe\Menu\MenuRegistry;
 use Lathe\Notifications\NotificationChannelRegistry;
+use Lathe\Pages\PageRegistry;
 use Lathe\Plugins\PluginDiscovery;
 use Lathe\Plugins\PluginRegistry;
 use Lathe\Resources\ResourceRegistry;
@@ -73,6 +74,7 @@ class LatheServiceProvider extends ServiceProvider
         $this->app->singleton(PluginRegistry::class);
         $this->app->singleton(MenuRegistry::class);
         $this->app->singleton(DashboardRegistry::class);
+        $this->app->singleton(PageRegistry::class);
         $this->app->singleton(AssetManifest::class);
         $this->app->singleton(AssetRegistry::class);
         $this->app->singleton(FortifyConfig::class);

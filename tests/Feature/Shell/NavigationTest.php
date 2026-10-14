@@ -61,6 +61,10 @@ it('orders the dashboards, the Navigation group, the sections, the plugin sectio
 it('lists the dashboard and the Resources', function () {
     expect(navigationFor('admin@lathephp.com'))->toBe([
         ['label' => 'Dashboards', 'icon' => null, 'items' => [['label' => 'Sales', 'href' => '/lathe', 'icon' => 'LayoutDashboard']]],
+        ['label' => 'Demo Kit', 'icon' => null, 'items' => [
+            ['label' => 'UI Gallery', 'href' => '/lathe/pages/ui-gallery', 'icon' => null],
+            ['label' => 'System Status', 'href' => '/lathe/pages/system-status', 'icon' => null],
+        ]],
         ['label' => 'Heartbeat', 'icon' => null, 'items' => [['label' => 'Heartbeat', 'href' => '/lathe/plugins/heartbeat', 'icon' => 'Activity']]],
         ['label' => 'Resources', 'icon' => null, 'items' => [
             ['label' => 'Categories', 'href' => '/lathe/resources/categories', 'icon' => 'Folder'],
@@ -79,7 +83,7 @@ it('lists the dashboard and the Resources', function () {
 it('adds the sections an authorized plugin returns from menu()', function () {
     Lathe::registerPlugins(Gauge::make());
 
-    expect(navigationFor('admin@lathephp.com')[2])->toBe(
+    expect(navigationFor('admin@lathephp.com')[3])->toBe(
         ['label' => 'Gauge', 'icon' => null, 'items' => [['label' => 'Gauge', 'href' => '/lathe/plugins/gauge', 'icon' => 'Activity']]],
     );
 });
@@ -117,7 +121,7 @@ it('builds one Resource definition for the sidebar and the Orders index among 50
 
     Lathe::resources()->flush();
     $this->get('/lathe/resources/orders')->assertOk()
-        ->assertInertia(fn (AssertableInertia $page) => $page->has('navigation.2.items', 9));
+        ->assertInertia(fn (AssertableInertia $page) => $page->has('navigation.3.items', 9));
 
     // Orders, and Customers for the titles its Customer column shows; never the 499 others.
     expect(Lathe::resources()->definitionsBuilt())->toBe(2)

@@ -18,6 +18,8 @@ use Lathe\Field\FieldContext;
 use Lathe\Field\GravatarField;
 use Lathe\Http\Requests\LatheRequest;
 use Lathe\Notifications\NotificationChannelRegistry;
+use Lathe\Pages\Page;
+use Lathe\Pages\PageRegistry;
 use Lathe\Plugins\Plugin;
 use Lathe\Plugins\PluginRegistry;
 use Lathe\Resources\ResourceRegistry;
@@ -98,6 +100,19 @@ class LatheManager
     public function registerDashboards(Dashboard|string ...$dashboards): void
     {
         $this->dashboards()->register(...$dashboards);
+    }
+
+    /**
+     * @param  Page|class-string<Page>  ...$pages
+     */
+    public function registerPages(Page|string ...$pages): void
+    {
+        $this->pages()->register(...$pages);
+    }
+
+    public function pages(): PageRegistry
+    {
+        return $this->container->make(PageRegistry::class);
     }
 
     public function registerPlugins(Plugin ...$plugins): void

@@ -6,6 +6,7 @@ use Lathe\Assets\AssetManifest;
 use Lathe\Auth\FortifyConfig;
 use Lathe\Dashboards\DashboardRegistry;
 use Lathe\Lathe;
+use Lathe\Pages\PageRegistry;
 use Lathe\Plugins\PluginRegistry;
 use Lathe\Resources\ResourceRegistry;
 use Lathe\Support\ConfigStore;
@@ -33,6 +34,7 @@ it('resolves each accessor to one binding', function (string $accessor, string $
     ['resources', ResourceRegistry::class],
     ['plugins', PluginRegistry::class],
     ['dashboards', DashboardRegistry::class],
+    ['pages', PageRegistry::class],
     ['assets', AssetManifest::class],
     ['fortify', FortifyConfig::class],
 ]);
