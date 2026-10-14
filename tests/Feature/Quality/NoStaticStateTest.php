@@ -12,6 +12,8 @@ use PHPUnit\Architecture\Elements\ObjectDescription;
 const LATHE_STATIC_ALLOWED = [
     // Declared once per Resource class in its source.
     'Lathe\Resources\Resource::$policy',
+    // Declared once per Action class in its source: the rows of one queued chunk.
+    'Lathe\Actions\Action::$chunkCount',
     // Macroable: macros are registered at boot, by class.
     'Lathe\Field\Field::$macros',
     // Built once from constant config; holds no request data.
