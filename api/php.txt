@@ -2784,7 +2784,6 @@ Lathe\LatheManager::withoutPasswordResetRoutes(?string $forgot = NULL, ?string $
 Lathe\LatheServiceProvider::boot(): void
 Lathe\LatheServiceProvider::register(): void
 Lathe\LatheServiceProvider::registerMiddleware(): void  [protected]
-Lathe\LatheServiceProvider::renderedUserResource(): string  [protected]
 Lathe\LatheServiceProvider::validateConfig(): void  [protected]
 Lathe\Layout\Grid::__construct(int $columns = 2)
 Lathe\Layout\Grid::array $items  [protected]

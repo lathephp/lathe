@@ -179,6 +179,8 @@ class LatheServiceProvider extends ServiceProvider
     /**
      * Fill the placeholders of a published User Resource with Laravel's default App\ namespace
      * (asking the app for its namespace here would cache it) and the auth model.
+     *
+     * @internal
      */
     protected function fillUserResource(string $path): void
     {
