@@ -86,3 +86,35 @@ it('reads settings once per request, and the next request sees a save made elsew
     expect(app(PluginSettings::class))->not->toBe($first)
         ->and(HelloPlugin::make()->setting('greeting'))->toBe('Hey');
 });
+
+it('answers 422 to a value of the wrong type and stores nothing', function (array $values, string $key) {
+    $this->putJson('/lathe/api/plugins/hello-plugin/settings', ['greeting' => 'Hi', ...$values])
+        ->assertUnprocessable()
+        ->assertJsonValidationErrors([$key]);
+
+    expect(PluginSetting::find('hello-plugin'))->toBeNull();
+})->with([
+    'text as a list' => [['greeting' => ['a']], 'greeting'],
+    'text as an object' => [['greeting' => ['a' => [1, 2]]], 'greeting'],
+    'boolean as a word' => [['enabled' => 'banana'], 'enabled'],
+    'boolean as a list' => [['compact' => [1]], 'compact'],
+]);
+
+it('stores a number as a number whether the form sends a string or JSON a number', function (mixed $sent, int $stored) {
+    $this->putJson('/lathe/api/plugins/hello-plugin/settings', ['greeting' => '42', 'max_items' => $sent])->assertOk();
+
+    // A digit-only text stays a string.
+    expect(PluginSetting::find('hello-plugin')?->data)->toBe(['greeting' => '42', 'max_items' => $stored]);
+})->with([
+    'form string' => ['5', 5],
+    'JSON number' => [3, 3],
+]);
+
+it('stores a boolean sent as 1 or "0" as true or false', function (mixed $sent, bool $stored) {
+    $this->putJson('/lathe/api/plugins/hello-plugin/settings', ['greeting' => 'Hi', 'enabled' => $sent])->assertOk();
+
+    expect(PluginSetting::find('hello-plugin')?->data['enabled'])->toBe($stored);
+})->with([
+    'one' => [1, true],
+    'string zero' => ['0', false],
+]);

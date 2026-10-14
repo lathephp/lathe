@@ -10,15 +10,19 @@ use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 use Lathe\Auth\FortifyConfig;
+use Lathe\Field\BooleanField;
 use Lathe\Field\Field;
 use Lathe\Field\FieldCollection;
 use Lathe\Field\FieldContext;
+use Lathe\Field\NumericField;
+use Lathe\Field\TextField;
 use Lathe\Http\Requests\LatheRequest;
 use Lathe\Layout\SectionPresenter;
 use Lathe\Menu\MenuSection;
 use Lathe\Resources\Resource;
 use Lathe\Resources\ResourceRegistry;
 use Lathe\Widgets\Widget;
+use stdClass;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\MethodNotAllowedHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
@@ -179,24 +183,58 @@ abstract class Plugin
         $rules = $messages = $attributes = [];
 
         foreach ($fields as $field) {
-            $rules = [...$rules, ...$field->getRules(FieldContext::Update, $request)];
+            $rules = [...$rules, ...$this->settingRules($field, $request)];
             $messages = [...$messages, ...$field->getMessages()];
             $attributes = [...$attributes, ...$field->getValidationAttributes()];
         }
 
         Validator::make($request->all(), $rules, $messages, $attributes)->validate();
 
+        // Each field fills the values the way it fills a record, so a boolean is stored as true or false.
+        $filled = new stdClass;
         $values = [];
 
         foreach ($fields as $field) {
             if ($request->has($field->attribute())) {
-                $values[$field->attribute()] = $request->input($field->attribute());
+                $field->fill($request, $filled);
+                $values[$field->attribute()] = $this->settingValue($field, data_get($filled, $field->attribute()));
             }
         }
 
         $this->saveSettings($values);
 
         return new JsonResponse(['saved' => true]);
+    }
+
+    /**
+     * The field's rules plus the type a setting must have, since no model column checks it:
+     * a text field takes a string and a boolean field a boolean (a number field implies numeric).
+     *
+     * @return array<string, list<mixed>>
+     */
+    private function settingRules(Field $field, LatheRequest $request): array
+    {
+        $rules = $field->getRules(FieldContext::Update, $request);
+        $type = match (true) {
+            $field instanceof TextField => 'string',
+            $field instanceof BooleanField => 'boolean',
+            default => null,
+        };
+
+        // A translatable text field takes an array of locales and checks each one on its own key.
+        if ($type !== null && isset($rules[$field->attribute()]) && ! in_array('array', $rules[$field->attribute()], true)) {
+            $rules[$field->attribute()][] = $type;
+        }
+
+        return $rules;
+    }
+
+    /**
+     * A number field's value the form sent as a string, stored as the number, as a model cast would.
+     */
+    private function settingValue(Field $field, mixed $value): mixed
+    {
+        return $field instanceof NumericField && is_string($value) && is_numeric($value) ? $value + 0 : $value;
     }
 
     /**
