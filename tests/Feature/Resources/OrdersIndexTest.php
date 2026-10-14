@@ -107,6 +107,7 @@ it('keeps the first paint at four queries and the count at two, at 25 and 100 ro
     $user = User::where('email', 'admin@lathephp.com')->firstOrFail();
     $this->withSession(['login_web_'.sha1(SessionGuard::class) => $user->getKey()]);
     $this->app['auth']->forgetGuards();
+    warmNavigationBadges();
 
     $page = queriesDuring(fn () => $this->get("/lathe/resources/orders?per_page={$perPage}")->assertOk());
     $count = queriesDuring(fn () => $this->get("/lathe/resources/orders?per_page={$perPage}", [

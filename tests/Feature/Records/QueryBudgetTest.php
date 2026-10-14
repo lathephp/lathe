@@ -63,6 +63,7 @@ function recordQueriesDuring(Closure $request): int
 }
 
 it('runs the same pinned query count for an order with one item and with five', function (string $path, int $budget) {
+    warmNavigationBadges();
     $one = recordQueriesDuring(fn () => $this->get(str_replace('{id}', '12', $path))->assertOk());
     $five = recordQueriesDuring(fn () => $this->get(str_replace('{id}', '13', $path))->assertOk());
 

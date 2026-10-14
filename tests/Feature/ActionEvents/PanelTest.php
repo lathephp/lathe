@@ -115,6 +115,7 @@ it('hides the panel from a viewer who may not view the log', function () {
 });
 
 it('reads the detail page with the same queries for 0 and for 5 events', function () {
+    warmNavigationBadges();
     $without = panelQueries(fn () => panelRecord());
     panelEvents(5);
     $with = panelQueries(fn () => panelRecord());

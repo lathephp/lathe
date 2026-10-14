@@ -14,6 +14,7 @@ use Lathe\Http\Requests\LatheRequest;
 use Lathe\Lathe;
 use Lathe\Plugins\PluginRegistry;
 use Lathe\Resources\ResourceRegistry;
+use Throwable;
 
 /**
  * Builds the sidebar: the dashboards, a Navigation group for the app's loose menu entries,
@@ -62,7 +63,12 @@ class Navigation
             $resolve = fn () => (new Badge($lazy['value'], $lazy['type']))->jsonSerialize();
             $key = 'lathe:menu-badge:'.sha1($item->href()).':'.$guard.':'.(is_scalar($user) ? $user : '');
 
-            $badges[$item->href()] = $lazy['ttl'] > 0 ? Cache::remember($key, $lazy['ttl'], $resolve) : $resolve();
+            // A badge that throws is reported and left off; it never takes the page down.
+            try {
+                $badges[$item->href()] = $lazy['ttl'] > 0 ? Cache::remember($key, $lazy['ttl'], $resolve) : $resolve();
+            } catch (Throwable $e) {
+                report($e);
+            }
         }
 
         return $badges;

@@ -12,7 +12,8 @@ use RuntimeException;
 class LaneSession
 {
     /** Keys whose values change on every response, so the comparison drops them. */
-    public const VOLATILE = ['csrf_token', 'nonce', 'requestId', 'request_id'];
+    // insightsServerTime is the workbench Insights plugin's clock, provided on every page.
+    public const VOLATILE = ['csrf_token', 'nonce', 'requestId', 'request_id', 'insightsServerTime'];
 
     protected Client $client;
 
@@ -45,7 +46,7 @@ class LaneSession
      * GET a path as an Inertia visit.
      *
      * @param  array<string, string>  $headers
-     * @return array{status: int, body: mixed, memory: int|null, pid: string|null}
+     * @return array{status: int, body: mixed, memory: int|null, pid: string|null, insights: string}
      */
     public function get(string $path, array $headers = []): array
     {
@@ -60,6 +61,7 @@ class LaneSession
             'body' => self::stable(json_decode((string) $response->getBody(), true)),
             'memory' => $memory === '' ? null : (int) $memory,
             'pid' => $response->getHeaderLine('X-Worker-Pid') ?: null,
+            'insights' => $response->getHeaderLine('X-Lathe-Insights'),
         ];
     }
 

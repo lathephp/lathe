@@ -205,3 +205,12 @@ expect()->extend('toMatchStoredJson', function (mixed $expected) {
 
     return $this;
 });
+
+/**
+ * Opens the panel home once, so a lazy sidebar badge (the workbench Insights plugin counts
+ * open orders) is cached for the user and a query budget counts the page's own queries.
+ */
+function warmNavigationBadges(): void
+{
+    test()->get('/lathe')->assertOk();
+}

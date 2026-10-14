@@ -18,7 +18,9 @@ it('answers 600 requests over four contexts the way a fresh PHP process does', f
         // ArabicContext serves this one request in Arabic, right to left.
         'admin, ar' => ['admin@lathephp.com', ['X-Bench-Locale' => 'ar']],
     ];
-    $paths = ['/lathe/resources/orders', '/lathe/resources/posts'];
+    // The dashboard home brings per-user widget values and the Insights plugin's serving() values,
+    // and the settings call reads a plugin setting() through its request-scoped service.
+    $paths = ['/lathe/resources/orders', '/lathe/resources/posts', '/lathe', '/lathe/api/plugins/hello-plugin/settings'];
 
     $golden = $octane = $goldens = [];
 
@@ -44,12 +46,13 @@ it('answers 600 requests over four contexts the way a fresh PHP process does', f
 
     for ($i = 0; $i < 600; $i++) {
         $name = $names[$i % 4];
-        $path = $paths[intdiv($i, 4) % 2];
+        $path = $paths[intdiv($i, 4) % count($paths)];
         $response = $octane[$name]->get($path, $contexts[$name][1]);
 
         expect($response['status'])->toBe($goldens[$name][$path]['status'], "request {$i}, {$name}, {$path}: status")
             ->and(LaneSession::firstDifference($goldens[$name][$path]['body'], $response['body']))->toBeNull("request {$i}, {$name}, {$path}")
-            ->and($response['memory'])->toBeInt("request {$i} has no X-Worker-Memory header");
+            ->and($response['memory'])->toBeInt("request {$i} has no X-Worker-Memory header")
+            ->and($response['insights'])->toBe('1', "request {$i} lost the Insights plugin middleware");
 
         $memory[$response['pid']][] = [$i, $response['memory']];
 

@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Exceptions;
 use Illuminate\Support\Facades\Gate;
 use Lathe\Dashboards\Dashboard;
 use Lathe\Enums\Icon;
@@ -105,6 +106,16 @@ it('runs a lazy badge once within its TTL, per user', function () {
 
     sidebarProps('editor@lathephp.com');
     expect($runs)->toBe(3);
+});
+
+it('reports a lazy badge that throws and shows the page without it', function () {
+    Exceptions::fake();
+    Menu::using(fn (Request $request, Menu $menu) => $menu->add(
+        MenuItem::link('Orders', 'resources/orders')->withBadge(fn () => throw new RuntimeException('badge failed')),
+    ));
+
+    expect(sidebarProps()['navigationBadges'])->not->toHaveKey('/lathe/resources/orders');
+    Exceptions::assertReported(RuntimeException::class);
 });
 
 it('runs a lazy badge with a TTL of 0 on every view', function () {
