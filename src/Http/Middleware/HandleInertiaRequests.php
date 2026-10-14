@@ -44,6 +44,10 @@ class HandleInertiaRequests extends Middleware
                     'email' => $user->getAttribute('email'),
                 ],
             ],
+            // The shell shows its banner on this; the user above is already the impersonated one.
+            'impersonating' => $user !== null && Lathe::impersonator()->impersonating($request)
+                ? ['name' => $user->getAttribute('name')]
+                : null,
             'authPaths' => Lathe::authPaths(),
             'flash' => [
                 'success' => $request->hasSession() ? $request->session()->get('success') : null,
