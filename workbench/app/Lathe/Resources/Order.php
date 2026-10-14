@@ -4,6 +4,7 @@ namespace Workbench\App\Lathe\Resources;
 
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Lathe\Actions\Export\ExportAction;
 use Lathe\Field\CurrencyField;
 use Lathe\Field\Field;
 use Lathe\Field\SelectField;
@@ -109,7 +110,7 @@ class Order extends Resource
 
     public function actions(LatheRequest $request): array
     {
-        return [new MarkShipped, new CancelOrder, new HoldOrder];
+        return [ExportAction::make(), new MarkShipped, new CancelOrder, new HoldOrder];
     }
 
     public function groups(LatheRequest $request): array

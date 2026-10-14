@@ -2,6 +2,7 @@
 
 namespace Workbench\App\Lathe\Resources;
 
+use Lathe\Actions\Export\ExportAction;
 use Lathe\Field\Field;
 use Lathe\Http\Requests\LatheRequest;
 use Lathe\Resources\Resource;
@@ -41,6 +42,6 @@ class Product extends Resource
 
     public function actions(LatheRequest $request): array
     {
-        return [ImportProducts::make()->forResource(static::class)];
+        return [ExportAction::make(), ImportProducts::make()->forResource(static::class)];
     }
 }

@@ -58,6 +58,11 @@ class OrderPolicy
         return $user->email === 'admin@lathephp.com';
     }
 
+    public function export(User $user): bool
+    {
+        return true;
+    }
+
     public function runAction(User $user, Order $order, Action $action): bool
     {
         return $this->update($user, $order);
