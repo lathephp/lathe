@@ -17,11 +17,11 @@ it('shows the maintenance page to a signed-in visit while the app is down', func
     signInThroughForm($page, 'admin@lathephp.com');
     $page->assertPathIs('/lathe');
 
-    $this->app->maintenanceMode()->activate([]);
-
     if (str_starts_with($project, 'phone')) {
         $page->click('[aria-label="Open menu"]');
     }
+
+    $this->app->maintenanceMode()->activate([]);
 
     $page->click('#lathe-sidebar a[href$="/resources/orders"]')
         ->assertSee('Service unavailable')
