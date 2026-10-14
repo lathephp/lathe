@@ -1117,6 +1117,7 @@ Lathe\Field\Relations\RelationField::perPageOptions(array $options): static
 Lathe\Field\Relations\RelationField::pickerItem(Illuminate\Database\Eloquent\Model $related): array
 Lathe\Field\Relations\RelationField::pluralLabel(string $label): static
 Lathe\Field\Relations\RelationField::pointsBackAt(Illuminate\Database\Eloquent\Model $parent, string $relationship): bool
+Lathe\Field\Relations\RelationField::primeForPage(Illuminate\Support\Collection $records): void
 Lathe\Field\Relations\RelationField::relatableQuery(Closure $callback): static
 Lathe\Field\Relations\RelationField::relatedRecord(Illuminate\Database\Eloquent\Model $record): ?Illuminate\Database\Eloquent\Model  [protected]
 Lathe\Field\Relations\RelationField::relatedResource(): ?string
@@ -2299,6 +2300,7 @@ Lathe\Support\ConfigValidator::stringList(): Closure  [protected]
 Lathe\Support\ConfigValidator::unknownIn(array $given, array $known, string $prefix): array  [protected]
 Lathe\Support\ConfigValidator::unknownKeys(array $config): array
 Lathe\Support\HtmlSanitizer::clean(?string $html): string  [static]
+Lathe\Support\ResourceRelationCountPreloader::preload(Illuminate\Support\Collection $records, array $relations): void  [static]
 Lathe\Support\SafeHtml::from(?string $html): Lathe\Support\SafeHtml  [static]
 Lathe\Support\SafeHtml::jsonSerialize(): array
 Lathe\Support\SafeHtml::toHtml(): string
@@ -2636,6 +2638,7 @@ class Lathe\Summaries\Summary
 class Lathe\Support\ConfigStore
 class Lathe\Support\ConfigValidator
 class Lathe\Support\HtmlSanitizer
+class Lathe\Support\ResourceRelationCountPreloader
 class Lathe\Support\SafeHtml
 class Lathe\Support\Timezone
 class Lathe\Support\TranslationManager

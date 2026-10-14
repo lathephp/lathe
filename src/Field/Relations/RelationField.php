@@ -8,18 +8,21 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Illuminate\Support\Collection;
 use InvalidArgumentException;
+use Lathe\Field\Contracts\PrimesForPage;
 use Lathe\Field\Field;
 use Lathe\Filters\Filter;
 use Lathe\Filters\RelationFilter;
 use Lathe\Http\Requests\LatheRequest;
 use Lathe\Resources\Resource;
+use Lathe\Support\ResourceRelationCountPreloader;
 
 /**
  * A field that shows and edits an Eloquent relation: a picker in forms, a value on index
  * and detail, or a panel on detail. The attribute is the relation's method name.
  */
-abstract class RelationField extends Field
+abstract class RelationField extends Field implements PrimesForPage
 {
     /** The sizes the inline create modal accepts, the same as an action modal's. */
     public const array MODAL_SIZES = ['sm', 'md', 'lg', 'xl', '2xl', '3xl', '4xl', '5xl', '6xl', '7xl'];
@@ -183,11 +186,27 @@ abstract class RelationField extends Field
     }
 
     /**
-     * Panels hold no value on the record.
+     * Panels hold no value on the record; with withCount() the index shows the related count.
      */
     public function resolve(object $record, ?string $attribute = null): mixed
     {
+        if ($this->showsCount() && $record instanceof Model && array_key_exists($this->attribute.'_count', $record->getAttributes())) {
+            return $record->getAttribute($this->attribute.'_count');
+        }
+
         return null;
+    }
+
+    /**
+     * Load the related count of every record of an index page in one query.
+     *
+     * @param  Collection<array-key, Model>  $records
+     */
+    public function primeForPage(Collection $records): void
+    {
+        if ($this->showsCount()) {
+            ResourceRelationCountPreloader::preload($records, [$this->attribute]);
+        }
     }
 
     /**
@@ -490,9 +509,14 @@ abstract class RelationField extends Field
         return $this->options['perPageOptions'];
     }
 
+    /**
+     * Show the related count: a column on index, the panel header's count on detail.
+     */
     public function withCount(bool $withCount = true): static
     {
-        return $this->option('withCount', $withCount);
+        $this->option('withCount', $withCount);
+
+        return $withCount ? $this->showOnIndex() : $this;
     }
 
     public function showsCount(): bool

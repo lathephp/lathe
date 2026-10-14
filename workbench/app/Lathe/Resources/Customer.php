@@ -36,7 +36,7 @@ class Customer extends Resource
             ]),
             Field::select('Type')->options(['person' => 'Person', 'company' => 'Company'])->default('person')->hideFromIndex(),
             Field::text('Company name')->hideFromIndex()->visibleWhen($company)->requiredWhen($company),
-            Field::hasMany('Orders'),
+            Field::hasMany('Orders')->withCount(),
         ];
     }
 }

@@ -10,6 +10,8 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasOneOrManyThrough;
+use Illuminate\Database\Eloquent\Relations\HasOneThrough;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Illuminate\Support\Facades\DB;
@@ -155,6 +157,11 @@ class ResourceQuery
 
             foreach ($this->withoutScopes as $scope) {
                 $query->withoutGlobalScope($scope);
+            }
+
+            // A through relation joins its middle table, whose columns would mix into the row.
+            if ($this->relation instanceof HasOneOrManyThrough) {
+                $query->select($query->getModel()->getTable().'.*');
             }
 
             // The join of a pivot relation would mix the pivot's id into the row, so pick the columns.
@@ -391,9 +398,11 @@ class ResourceQuery
     {
         $definition = $this->resource->definition();
 
-        // A relation panel always counts up to the cap.
+        // A relation panel always counts up to the cap; a one-through relation holds one row.
         if ($this->relation !== null) {
-            return $this->cappedCount($definition->getCountCap());
+            return $this->relation instanceof HasOneThrough
+                ? new Count($this->cappedCount(1)->value, capped: false, exact: true)
+                : $this->cappedCount($definition->getCountCap());
         }
 
         $counted = $this->lens !== null ? $this->lens::countQuery($this->request, $this->scoped()) : null;
@@ -539,6 +548,11 @@ class ResourceQuery
      */
     protected function pagination(): array
     {
+        // A one-through relation answers its first row only, as the relation itself does.
+        if ($this->relation instanceof HasOneThrough) {
+            return $this->pagination ??= [1, 1];
+        }
+
         return $this->pagination ??= $this->readPagination();
     }
 
