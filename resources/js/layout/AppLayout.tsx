@@ -55,7 +55,7 @@ export function AppLayout({ children }: { children: ReactNode }) {
   } as CSSProperties;
 
   return (
-    <div className="flex min-h-svh bg-background text-foreground" style={widths}>
+    <div data-lathe-shell className="flex min-h-svh bg-background text-foreground" style={widths}>
       <a
         href="#content"
         className="sr-only z-50 rounded-md bg-background px-3 py-2 text-sm focus:not-sr-only focus:fixed focus:start-2 focus:top-2 focus:ring-2 focus:ring-ring"
@@ -77,6 +77,7 @@ export function AppLayout({ children }: { children: ReactNode }) {
       <div className="flex min-w-0 flex-1 flex-col">
         <Slot name="shell.header">
           <header
+            data-lathe-header
             className={cn(
               'flex h-14 items-center gap-2 border-b border-border bg-background px-4',
               layout.header.sticky && 'sticky top-0 z-20',
@@ -140,7 +141,7 @@ export function AppLayout({ children }: { children: ReactNode }) {
             </div>
           </header>
         </Slot>
-        <main id="content" tabIndex={-1} className="flex-1 p-6 outline-none">
+        <main id="content" data-lathe-content tabIndex={-1} className="flex-1 p-6 outline-none">
           <div className={cn(layout.content.width === 'contained' && 'mx-auto max-w-384')}>
             <RenderHook position="page:before" className="mb-6 flex flex-wrap gap-2" />
             {children}
@@ -150,7 +151,7 @@ export function AppLayout({ children }: { children: ReactNode }) {
         <RenderHook position="footer:before" />
         <Slot name="shell.footer" footer={footer}>
           {footer !== null && (
-            <footer className="border-t border-border px-6 py-3 text-xs text-muted-foreground">
+            <footer data-lathe-footer className="border-t border-border px-6 py-3 text-xs text-muted-foreground">
               {footer.href === null ? (
                 footer.text
               ) : (

@@ -69,7 +69,7 @@ export default function Detail({ resource, record, breadcrumbs, actions }: Detai
         </div>
       </header>
       {record.trashed ? (
-        <div role="status" className="rounded-md border border-amber-300 bg-amber-50 px-4 py-3 text-sm font-medium text-amber-900">
+        <div role="status" data-lathe-banner className="rounded-md border border-amber-300 bg-amber-50 px-4 py-3 text-sm font-medium text-amber-900">
           {__('Soft Deleted')}
         </div>
       ) : null}

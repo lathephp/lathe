@@ -73,7 +73,7 @@ export default function Index({ resource, table, state, count, error, lens, lens
           }}
         />
       ) : (
-        <Card className="overflow-hidden">
+        <Card data-lathe-card className="overflow-hidden">
           {((actions !== undefined && actions.actions.length > 0) || selection.all || selection.selected.size > 0) && (
             // Hidden when the ticked rows allow nothing; while the menus load, a spacer of their
             // height keeps the table from moving under the pointer.

@@ -31,7 +31,7 @@ export function IndexToolbar({ resource, lens, lenses, q, visit, polling }: Inde
   );
 
   return (
-    <div className="flex flex-wrap items-center justify-between gap-3">
+    <div data-lathe-toolbar className="flex flex-wrap items-center justify-between gap-3">
       <div>
         {lens != null && (
           <Link href={resourcePath} className="text-sm text-muted-foreground hover:underline">

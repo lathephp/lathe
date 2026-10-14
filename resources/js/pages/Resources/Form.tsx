@@ -49,6 +49,7 @@ export default function Form({ resource, mode, id, title, breadcrumbs, form, sub
       <h1 className="text-xl font-semibold">{title}</h1>
       <form
         ref={formRef}
+        data-lathe-form
         noValidate
         className="space-y-6"
         onSubmit={(event) => {

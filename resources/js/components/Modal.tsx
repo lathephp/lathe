@@ -93,6 +93,7 @@ export function Modal({ labelledBy, onClose, children, className }: ModalProps) 
       <div
         ref={panel}
         role="dialog"
+        data-lathe-modal
         aria-modal="true"
         aria-labelledby={labelledBy}
         className={className ?? 'relative w-full max-w-md space-y-4 rounded-lg border border-border bg-background p-4 text-foreground shadow-lg'}

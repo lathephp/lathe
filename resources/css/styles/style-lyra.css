@@ -1,4 +1,7 @@
 .style-lyra {
+  /* Lyra has square corners, so it locks the radius whatever theme.radius says. */
+  --radius: 0;
+
   /* MARK: Accordion */
   .cn-accordion-item {
     @apply not-last:border-b;

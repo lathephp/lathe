@@ -25,6 +25,7 @@ export function Sidebar({ props, url, expanded, mobileOpen }: SidebarProps) {
   return (
     <aside
       id="lathe-sidebar"
+      data-lathe-sidebar
       aria-label={__('Sidebar')}
       data-state={expanded ? 'expanded' : 'collapsed'}
       data-mobile={mobileOpen ? 'open' : 'closed'}

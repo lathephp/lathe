@@ -144,7 +144,7 @@ export function ResourceTable({ resource, table, state, loading, selection, sort
     // Focusable, so a keyboard user can scroll a wide table sideways.
     // Relative, so the visually hidden header labels stay inside the scroll box on a narrow screen.
     <div className="relative overflow-x-auto" role="region" aria-label={__(':resource table', { resource: resource.label })} tabIndex={0}>
-      <table className="w-full text-sm">
+      <table data-lathe-table className="w-full text-sm">
         <thead>
           <tr className="h-10 border-b border-border text-start text-muted-foreground">
             <th scope="col" className={cn(checkboxColumn, border)}>
