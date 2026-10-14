@@ -38,11 +38,13 @@ class RemoteOptionsParents extends Resource
     public function fields(LatheRequest $request): array
     {
         $tags = fn () => MxTag::query();
+        // mx_parents has no column for the picks; the writes test only their validation.
+        $keep = fn () => null;
 
         return [
             Field::text('Name'),
-            Field::multiSelect('Roles')->remoteOptions($tags, 'name', RemoteOptionsSetup::$inlineUpTo),
-            Field::select('Role')->remoteOptions($tags, 'name', RemoteOptionsSetup::$inlineUpTo),
+            Field::multiSelect('Roles')->remoteOptions($tags, 'name', RemoteOptionsSetup::$inlineUpTo)->fillUsing($keep),
+            Field::select('Role')->remoteOptions($tags, 'name', RemoteOptionsSetup::$inlineUpTo)->fillUsing($keep),
             Field::multiSelect('Secret')->remoteOptions($tags)->canSee(fn () => false),
         ];
     }
@@ -180,4 +182,32 @@ it('stays remote when the source holds more than inlineUpTo rows', function () {
 
     expect(remoteField($form, 'roles'))->toMatchArray(['remote' => true, 'options' => []])
         ->and(remoteField($form, 'role'))->toMatchArray(['remote' => true, 'options' => []]);
+});
+
+it('refuses a submitted value the source does not hold', function (array $input, string $key) {
+    remoteTags(remoteNames('item', 30));
+
+    $this->postJson('/lathe/api/resources/remote-parents', ['name' => 'Alpha', ...$input])
+        ->assertUnprocessable()
+        ->assertJsonValidationErrors($key);
+
+    expect(MxParent::query()->count())->toBe(0);
+})->with([
+    'multi-select' => [['roles' => ['item 01', 'nope']], 'roles'],
+    'select' => [['role' => 'nope'], 'role'],
+]);
+
+it('checks the submitted values of each field with one query on the source', function () {
+    remoteTags(remoteNames('item', 30));
+
+    $reads = [];
+    DB::listen(function ($query) use (&$reads) {
+        if (str_contains($query->sql, 'mx_tags')) {
+            $reads[] = $query->sql;
+        }
+    });
+
+    $this->postJson('/lathe/api/resources/remote-parents', ['name' => 'Alpha', 'roles' => ['item 01', 'item 30'], 'role' => 'item 07'])->assertCreated();
+
+    expect($reads)->toHaveCount(2);
 });
