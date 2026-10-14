@@ -1790,6 +1790,7 @@ Lathe\Field\HasOptions::options(Closure|array|string $options): static
 Lathe\Field\HasOptions::remoteOptions(Closure $query, string $column = 'name', ?int $inlineUpTo = NULL): static
 Lathe\Field\HasOptions::remoteQuery(?Lathe\Http\Requests\LatheRequest $request = NULL): Illuminate\Database\Eloquent\Builder
 Lathe\Field\HasOptions::remoteSource(): ?Lathe\Field\RemoteOptions
+Lathe\Field\HasOptions::remoteValuesRule(): ?Closure  [protected]
 Lathe\Field\HasOptions::resolveForDisplay(object $record, ?string $attribute = NULL): mixed
 Lathe\Field\HasOptions::resolvedOptions(): array
 Lathe\Field\HasOptions::searchable(Closure|bool $searchable = true): static

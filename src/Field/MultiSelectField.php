@@ -39,8 +39,14 @@ class MultiSelectField extends Field implements FilterableField
     {
         $rules = parent::getRules($context, $request, $model);
         $values = $this->optionValues();
+        $remote = $this->remoteValuesRule();
 
-        return $values === [] ? $rules : [...$rules, "{$this->attribute}.*" => [Rule::in($values)]];
+        if ($values !== []) {
+            return [...$rules, "{$this->attribute}.*" => [Rule::in($values)]];
+        }
+
+        // The whole list in one rule, so the source is read once however many values arrive.
+        return $remote === null ? $rules : [...$rules, $this->attribute => [...($rules[$this->attribute] ?? []), $remote]];
     }
 
     protected function supportsInline(): bool

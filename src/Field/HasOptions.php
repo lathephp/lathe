@@ -81,6 +81,31 @@ trait HasOptions
         return $this->remoteOptions !== null && $this->inlinedRemoteOptions() === null;
     }
 
+    /**
+     * For a field the client searches on the server: a rule that every submitted value is in
+     * the source, read with one query. Null when the options are inline, where Rule::in applies.
+     */
+    protected function remoteValuesRule(): ?Closure
+    {
+        $remote = $this->remoteOptions;
+
+        if ($remote === null || ! $this->isRemote()) {
+            return null;
+        }
+
+        return function (string $attribute, mixed $value, Closure $fail) use ($remote): void {
+            $values = array_values(array_unique(array_map(
+                fn (mixed $item): string => is_scalar($item) ? (string) $item : '',
+                array_filter(is_array($value) ? $value : [$value], fn (mixed $item): bool => $item !== null && $item !== ''),
+            )));
+
+            if ($values !== [] && $this->remoteQuery()->whereIn($remote->column, $values)->distinct()->count($remote->column) < count($values)) {
+                $message = trans('validation.in', ['attribute' => str_replace('_', ' ', $attribute)]);
+                $fail(is_string($message) ? $message : 'validation.in');
+            }
+        };
+    }
+
     public function displayUsingLabels(bool $show = true): static
     {
         $this->mutate();

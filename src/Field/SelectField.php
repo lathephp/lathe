@@ -21,8 +21,13 @@ class SelectField extends Field implements FilterableField
     protected function impliedRules(): array
     {
         $values = $this->optionValues();
+        $remote = $this->remoteValuesRule();
 
-        return $values === [] ? [] : [Rule::in($values)];
+        return match (true) {
+            $values !== [] => [Rule::in($values)],
+            $remote !== null => [$remote],
+            default => [],
+        };
     }
 
     protected function supportsInline(): bool
