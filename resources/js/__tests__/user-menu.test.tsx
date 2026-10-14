@@ -17,6 +17,15 @@ function openMenu() {
 }
 
 describe('user menu', () => {
+  it('closes once an item is chosen', () => {
+    vi.spyOn(router, 'visit').mockImplementation(() => undefined);
+    renderPage('Dashboard', dashboard, { shared: { userMenu: [{ label: 'Security', href: '/lathe/security', icon: null }] } });
+
+    fireEvent.click(within(openMenu()).getByRole('menuitem', { name: 'Security' }));
+
+    expect(screen.queryByRole('menu', { name: 'User menu' })).toBeNull();
+  });
+
   it('lists the identity, the items, Security, the appearance slot and Log out in that order', () => {
     renderPage('Dashboard', dashboard, {
       shared: {

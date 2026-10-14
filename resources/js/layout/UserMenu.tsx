@@ -50,7 +50,15 @@ export function UserMenu({ user, items, logoutPath, collapsed }: UserMenuProps) 
             <p className="text-muted-foreground">{user.email}</p>
           </div>
           {items.map((item) => (
-            <Link key={item.href} href={item.href} role="menuitem" className={rowClass}>
+            <Link
+              key={item.href}
+              href={item.href}
+              role="menuitem"
+              className={rowClass}
+              onClick={() => {
+                setOpen(false);
+              }}
+            >
               {item.label}
             </Link>
           ))}
