@@ -4,7 +4,6 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
-use Lathe\Http\Middleware\EnsureJson;
 use Lathe\Http\Requests\LatheRequest;
 use Lathe\Query\ResourceQuery;
 use Lathe\Support\Timezone;
