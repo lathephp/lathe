@@ -1,6 +1,6 @@
 import { router } from '@inertiajs/react';
 import { __panel } from '@lathephp/core';
-import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { act, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import { useState } from 'react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { Modal } from '../components/Modal';
@@ -200,6 +200,100 @@ describe('re-auth modal', () => {
     await waitFor(() => {
       expect(reload).toHaveBeenCalled();
     });
+    expect(screen.queryByRole('dialog')).toBeNull();
+  });
+});
+
+describe('re-auth modal, two-factor step', () => {
+  /** The save fails with 419 once, the login asks for two-factor, the challenge answers `challenge`. */
+  function respond(challenge: [number, unknown]) {
+    const sent: string[] = [];
+    vi.spyOn(globalThis, 'fetch').mockImplementation((input, init) => {
+      const url = typeof input === 'string' ? input : '';
+      sent.push(`${url}${typeof init?.body === 'string' ? ` ${init.body}` : ''}`);
+
+      if (url.endsWith('/login')) return Promise.resolve(json(200, { two_factor: true }));
+      if (url.endsWith('/two-factor-challenge')) return Promise.resolve(challenge[0] === 204 ? new Response(null, { status: 204 }) : json(...challenge));
+
+      return Promise.resolve(sent.filter((call) => call.startsWith('/lathe/api/resources/customers')).length === 1 ? json(419, { message: 'CSRF token mismatch.' }) : json(201, { id: 3, redirect: 'customers/3' }));
+    });
+
+    return sent;
+  }
+
+  async function signInWithPassword(email?: string) {
+    fireEvent.click(screen.getByRole('button', { name: 'Create Customer' }));
+    const field = await screen.findByLabelText('Email');
+    if (email !== undefined) fireEvent.change(field, { target: { value: email } });
+    fireEvent.change(screen.getByLabelText('Password'), { target: { value: 'secret' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Sign in' }));
+  }
+
+  it('asks for the 6-digit code after the password and replays the submit once', async () => {
+    const sent = respond([204, null]);
+    const visit = vi.spyOn(router, 'visit').mockImplementation(() => undefined);
+    renderForm();
+
+    await signInWithPassword();
+    fireEvent.change(await screen.findByRole('textbox', { name: 'Code' }), { target: { value: '123456' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Sign in' }));
+
+    await waitFor(() => {
+      expect(visit).toHaveBeenCalledWith('/lathe/resources/customers/3');
+    });
+    expect(sent).toEqual([
+      '/lathe/api/resources/customers {"name":"","country":"US"}',
+      '/lathe/login {"email":"ada@example.com","password":"secret"}',
+      '/lathe/two-factor-challenge {"code":"123456"}',
+      '/lathe/api/resources/customers {"name":"","country":"US"}',
+    ]);
+  });
+
+  it('accepts a recovery code through the toggle', async () => {
+    const sent = respond([204, null]);
+    const visit = vi.spyOn(router, 'visit').mockImplementation(() => undefined);
+    renderForm();
+
+    await signInWithPassword();
+    fireEvent.click(await screen.findByRole('button', { name: 'Use a recovery code' }));
+    expect(screen.queryByRole('textbox', { name: 'Code' })).toBeNull();
+    fireEvent.change(screen.getByLabelText('Recovery code'), { target: { value: 'aaaaaaaaaa-1111111111' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Sign in' }));
+
+    await waitFor(() => {
+      expect(visit).toHaveBeenCalledWith('/lathe/resources/customers/3');
+    });
+    expect(sent[2]).toBe('/lathe/two-factor-challenge {"recovery_code":"aaaaaaaaaa-1111111111"}');
+    expect(sent).toHaveLength(4);
+  });
+
+  it('shows a wrong code under the field and does not replay', async () => {
+    const sent = respond([422, { message: 'Invalid.', errors: { code: ['The provided two factor authentication code was invalid.'] } }]);
+    const visit = vi.spyOn(router, 'visit').mockImplementation(() => undefined);
+    renderForm();
+
+    await signInWithPassword();
+    fireEvent.change(await screen.findByRole('textbox', { name: 'Code' }), { target: { value: '000000' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Sign in' }));
+
+    expect(await within(screen.getByRole('dialog')).findByText('The provided two factor authentication code was invalid.')).toBeTruthy();
+    expect(sent).toHaveLength(3);
+    expect(visit).not.toHaveBeenCalled();
+  });
+
+  it('cancels the replay and reloads when another user passes the code', async () => {
+    const sent = respond([204, null]);
+    const reload = vi.spyOn(router, 'reload').mockImplementation(() => undefined);
+    renderForm();
+
+    await signInWithPassword('grace@example.com');
+    fireEvent.change(await screen.findByRole('textbox', { name: 'Code' }), { target: { value: '123456' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Sign in' }));
+
+    await waitFor(() => {
+      expect(reload).toHaveBeenCalled();
+    });
+    expect(sent).toHaveLength(3);
     expect(screen.queryByRole('dialog')).toBeNull();
   });
 });
