@@ -1,5 +1,5 @@
 import { router } from '@inertiajs/react';
-import { fireEvent, screen, waitFor } from '@testing-library/react';
+import { fireEvent, screen, waitFor, within } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { renderPage } from './support';
 
@@ -14,14 +14,14 @@ const newCodes = oldCodes.map((code) => code.replace(/^./, 'z'));
 /** fetch answers by method and URL; anything else is a 500. */
 function respond(answers: Record<string, [number, unknown]>) {
   return vi.spyOn(globalThis, 'fetch').mockImplementation((input, init) => {
-    const [status, body] = answers[`${init?.method ?? 'GET'} ${String(input)}`] ?? [500, null];
+    const [status, body] = answers[`${init?.method ?? 'GET'} ${input as string}`] ?? [500, null];
 
     return Promise.resolve(new Response(body === '' ? '' : JSON.stringify(body), { status }));
   });
 }
 
 function sent(fetch: ReturnType<typeof respond>): string[] {
-  return fetch.mock.calls.map(([url, init]) => `${init?.method ?? 'GET'} ${String(url)}${typeof init?.body === 'string' ? ` ${init.body}` : ''}`);
+  return fetch.mock.calls.map(([url, init]) => `${init?.method ?? 'GET'} ${url as string}${typeof init?.body === 'string' ? ` ${init.body}` : ''}`);
 }
 
 function renderSecurity(twoFactor: 'off' | 'pending' | 'on') {
@@ -93,7 +93,7 @@ describe('two-factor card', () => {
 
     fireEvent.click(screen.getByRole('button', { name: 'Show recovery codes' }));
     expect(await screen.findByText('aaaaaaaaaa-1111111111')).toBeTruthy();
-    expect(screen.getAllByRole('listitem')).toHaveLength(8);
+    expect(within(screen.getByRole('list', { name: 'Recovery codes' })).getAllByRole('listitem')).toHaveLength(8);
 
     fireEvent.click(screen.getByRole('button', { name: 'Regenerate recovery codes' }));
     expect(await screen.findByText('zaaaaaaaaa-1111111111')).toBeTruthy();
