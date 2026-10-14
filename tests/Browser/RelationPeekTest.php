@@ -6,7 +6,9 @@ require_once __DIR__.'/records.php';
 it('opens a readable customer card inside the viewport on hover', function (string $project) {
     $page = signedInAt('/lathe/resources/orders', $project);
 
-    $page->hover('main tbody tr:first-child a[href*="/resources/customers/"]')
+    // The action menus load after the rows; a hover before they settle can lose the card.
+    $page->assertPresent('main button[aria-haspopup="menu"]')
+        ->hover('main tbody tr:first-child a[href*="/resources/customers/"]')
         ->assertPresent('[role="tooltip"]')
         ->assertScript('getComputedStyle(document.querySelector(\'[role="tooltip"]\')).backgroundColor !== "rgba(0, 0, 0, 0)"', true)
         ->assertScript('(() => { const box = document.querySelector(\'[role="tooltip"]\').getBoundingClientRect(); return box.left >= 0 && box.right <= window.innerWidth; })()', true);
