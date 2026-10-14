@@ -2,13 +2,17 @@
 
 namespace Lathe\Actions;
 
+use Closure;
 use Illuminate\Contracts\Validation\Validator;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Validator as ValidatorFactory;
 use Lathe\Field\Field;
 use Lathe\Field\FieldContext;
+use Lathe\Field\FileField;
 use Lathe\Field\Relations\Associatable;
 use Lathe\Field\Relations\BelongsToField;
 use Lathe\Http\Requests\LatheRequest;
+use Lathe\Lathe;
 use Lathe\Rules\Relatable;
 
 /**
@@ -45,6 +49,16 @@ class ActionFieldValidator
                 $relations[] = $field->attribute();
                 // An action field has no owner, so the key is checked here against the query its picker reads.
                 $rules[$field->attribute()][] = new Relatable($request, new Associatable($request, $class, $field), $field);
+            }
+
+            // A multipart file skips the chunked upload route, so its size and type limits apply here.
+            if ($field instanceof FileField) {
+                $rules[$field->attribute()][] = 'max:'.intdiv($field->getMaxSizeBytes(), 1024);
+                $rules[$field->attribute()][] = function (string $attribute, mixed $value, Closure $fail) use ($field): void {
+                    if ($value instanceof UploadedFile && ! $field->accepts($value->getClientOriginalName(), (string) $value->getClientMimeType())) {
+                        $fail(Lathe::__('The file type is not one of: :types.', ['types' => implode(', ', $field->getAcceptedTypes())]));
+                    }
+                };
             }
         }
 
