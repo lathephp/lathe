@@ -115,7 +115,7 @@ it('collides with a host resource that already owns the roles uriKey', function 
 
     expect(fn () => Lathe::resources()->forKey('roles'))->toThrow(
         ResourceUriKeyCollisionException::class,
-        'Resources '.HostRoleResource::class.' and '.RoleResource::class.' share the uriKey "roles"',
+        'Resources '.RoleResource::class.' and '.HostRoleResource::class.' share the uriKey "roles"',
     );
 });
 
