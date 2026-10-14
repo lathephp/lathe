@@ -31,6 +31,7 @@ use Lathe\Http\Controllers\Resources\InlineUpdateController;
 use Lathe\Http\Controllers\Resources\LensController;
 use Lathe\Http\Controllers\Resources\PeekController;
 use Lathe\Http\Controllers\Resources\RecordController;
+use Lathe\Http\Controllers\Resources\RelationAttachController;
 use Lathe\Http\Controllers\Resources\RelationIndexController;
 use Lathe\Http\Controllers\Resources\SavedTabController;
 use Lathe\Http\Controllers\Uploads\StartUploadController;
@@ -131,6 +132,10 @@ class PanelRoutes
             $router->put('resources/{resource}/{resourceId}/restore', [DeleteController::class, 'restore'])->name('resources.restore');
             $router->get('resources/{resource}/{resourceId}/download/{field}', [FieldFileController::class, 'download'])->name('resources.field.download');
             $router->get('resources/{resource}/{resourceId}/{relationship}', RelationIndexController::class)->name('resources.relation.index');
+            // The constraints keep the upload start and field file delete routes below reachable.
+            $router->post('resources/{resource}/{resourceId}/{relationship}', [RelationAttachController::class, 'attach'])->where('resourceId', '(?!uploads/)[^/]++')->name('resources.relation.attach');
+            $router->delete('resources/{resource}/{resourceId}/{relationship}/{relatedId}', [RelationAttachController::class, 'detach'])->where('relationship', '(?!field/)[^/]++')->name('resources.relation.detach');
+            $router->put('resources/{resource}/{resourceId}/{relationship}/{relatedId}/pivot', [RelationAttachController::class, 'updatePivot'])->name('resources.relation.updatePivot');
             $router->delete('resources/{resource}/{resourceId}/field/{field}', [FieldFileController::class, 'destroy'])->where('field', '.*')->name('resources.field.destroy');
             $router->post('resources/{resource}/uploads/{field}', [StartUploadController::class, 'field'])->name('resources.uploads.start');
             $router->post('uploads', [StartUploadController::class, 'custom'])->name('uploads.start');
