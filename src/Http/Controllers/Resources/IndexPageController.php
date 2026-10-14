@@ -10,6 +10,8 @@ use Lathe\Filters\Filter;
 use Lathe\Http\Payloads\IndexPayload;
 use Lathe\Http\Requests\LatheRequest;
 use Lathe\Query\ResourceQuery;
+use Lathe\Widgets\Widget;
+use Lathe\Widgets\WidgetList;
 use Symfony\Component\HttpFoundation\Response;
 
 class IndexPageController
@@ -81,6 +83,14 @@ class IndexPageController
             'lenses' => fn () => $part('lenses'),
             'actions' => fn () => $part('actions'),
             'staleFilters' => $stale,
+            // The cards this user may see; each fetches its own value after the page paints.
+            'widgets' => fn () => array_values(array_map(
+                fn (Widget $widget) => $widget->descriptor(),
+                array_filter(
+                    (new WidgetList($class::make()->widgets($request), $class))->visible($request),
+                    fn (Widget $widget) => $authorization->allowsWidget($request->user(), $class, $widget::uriKey()),
+                ),
+            )),
             // One group, so a single follow-up visit loads them all.
             'count' => Inertia::defer(fn () => $payload->count($class), 'counts'),
             'tabCounts' => Inertia::defer(fn () => $payload->tabCounts($class), 'counts'),

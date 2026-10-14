@@ -63,7 +63,8 @@ it('sends every part of the index payload to the index page', function () {
 
     $this->get('/lathe/resources/orders')->assertOk();
 
-    expect(array_values(array_diff(array_keys($payload), $this->pageProps['Resources/Index'])))->toBe([]);
+    // The page adds the widget list to the payload.
+    expect(array_values(array_diff([...array_keys($payload), 'widgets'], $this->pageProps['Resources/Index'])))->toBe([]);
 });
 
 it('gives the record pages no prop named like a shared prop', function () {

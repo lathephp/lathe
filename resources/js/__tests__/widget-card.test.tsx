@@ -318,26 +318,24 @@ describe('cards that fetch their own value', () => {
 
 describe('the Resource mounts', () => {
   it.each([
-    ['an index', 'resources/orders', undefined, '/lathe/api/resources/orders/widgets', '/lathe/api/resources/orders/widgets/orders'],
-    ['a lens', 'resources/orders/lenses/big', undefined, '/lathe/api/resources/orders/lenses/big/widgets', '/lathe/api/resources/orders/lenses/big/widgets/orders'],
-    ['a detail page', 'resources/orders', '12', '/lathe/api/resources/orders/widgets?resourceId=12', '/lathe/api/resources/orders/widgets/orders?resourceId=12'],
-  ])('lists and fills the cards of %s', async (_, path, resourceId, list, value) => {
-    const fetch = answer(() => 3, [descriptor('orders')]);
-    render(<ResourceWidgets path={path} resourceId={resourceId} />);
+    ['an index', 'resources/orders', undefined, '/lathe/api/resources/orders/widgets/orders'],
+    ['a lens', 'resources/orders/lenses/big', undefined, '/lathe/api/resources/orders/lenses/big/widgets/orders'],
+    ['a detail page', 'resources/orders', '12', '/lathe/api/resources/orders/widgets/orders?resourceId=12'],
+  ])('fills the listed cards of %s, asking only for their values', async (_, path, resourceId, value) => {
+    const fetch = answer(() => 3);
+    render(<ResourceWidgets widgets={[descriptor('orders')]} path={path} resourceId={resourceId} />);
 
     await waitFor(() => {
       expect(within(card('orders')).getByText('3')).toBeTruthy();
     });
-    expect(fetch.mock.calls.map(([input]) => urlOf(input))).toEqual([list, value]);
+    expect(fetch.mock.calls.map(([input]) => urlOf(input))).toEqual([value]);
   });
 
-  it('renders nothing when the list is empty', async () => {
-    const fetch = answer(() => 3, []);
-    const { container } = render(<ResourceWidgets path="resources/orders" />);
+  it('renders nothing and asks for nothing when the list is empty', () => {
+    const fetch = answer(() => 3);
+    const { container } = render(<ResourceWidgets widgets={[]} path="resources/orders" />);
 
-    await waitFor(() => {
-      expect(fetch).toHaveBeenCalledTimes(1);
-    });
     expect(container.innerHTML).toBe('');
+    expect(fetch).not.toHaveBeenCalled();
   });
 });

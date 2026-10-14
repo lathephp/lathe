@@ -12,6 +12,8 @@ use Lathe\Http\Requests\LatheRequest;
 use Lathe\Lenses\Lens;
 use Lathe\Query\ResourceQuery;
 use Lathe\Resources\Resource;
+use Lathe\Widgets\Widget;
+use Lathe\Widgets\WidgetList;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
@@ -52,6 +54,14 @@ class LensController
             'lens' => fn () => $part('lens'),
             'lenses' => fn () => $part('lenses'),
             'actions' => fn () => $part('actions'),
+            // The lens cards this user may see; each fetches its own value after the page paints.
+            'widgets' => fn () => array_values(array_map(
+                fn (Widget $widget) => $widget->descriptor(),
+                array_filter(
+                    (new WidgetList($lens->widgets($request), $lens::class))->visible($request),
+                    fn (Widget $widget) => $authorization->allowsWidget($request->user(), $class, $widget::uriKey()),
+                ),
+            )),
             'count' => Inertia::defer(fn () => $payload->count($class, $lens), 'counts'),
         ])->toResponse($request);
     }

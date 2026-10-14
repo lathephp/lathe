@@ -10,6 +10,8 @@ use Lathe\Http\Payloads\RecordPayload;
 use Lathe\Http\Requests\LatheRequest;
 use Lathe\Query\QueryContext;
 use Lathe\Query\ResourceQuery;
+use Lathe\Widgets\Widget;
+use Lathe\Widgets\WidgetList;
 use Symfony\Component\HttpFoundation\Response;
 
 class DetailPageController
@@ -40,7 +42,14 @@ class DetailPageController
             'breadcrumbs' => $breadcrumbs,
             // The actions shown on detail, each flagged for this one record.
             'actions' => $menu->build($class, 'detail', $model),
-            'widgets' => [],
+            // The cards this user may see here, detail-only ones included; each fetches its own value.
+            'widgets' => fn () => array_values(array_map(
+                fn (Widget $widget) => $widget->descriptor(),
+                array_filter(
+                    (new WidgetList($class::make()->widgets($request), $class))->visible($request, true),
+                    fn (Widget $widget) => $authorization->allowsWidget($request->user(), $class, $widget::uriKey()),
+                ),
+            )),
         ])->toResponse($request);
     }
 }

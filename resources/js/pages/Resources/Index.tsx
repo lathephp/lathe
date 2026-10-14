@@ -16,13 +16,16 @@ import type { IndexUrlState } from '../../index/useIndexState';
 import { useIndexState } from '../../index/useIndexState';
 import { useRowSelection } from '../../index/useRowSelection';
 import type { SharedProps } from '../../types';
+import type { WidgetDescriptor } from '../../widgets/types';
 
 // The menus load after the rows, so the action code stays out of the index's first load.
 const ActionBar = lazy(() => import('../../actions/ActionBar').then((module) => ({ default: module.ActionBar })));
 const DeleteMenu = lazy(() => import('../../actions/DeleteMenu').then((module) => ({ default: module.DeleteMenu })));
+// The cards load only when the page lists one, so the grid stays out of the index's first load.
+const ResourceWidgets = lazy(() => import('../../widgets/ResourceWidgets').then((module) => ({ default: module.ResourceWidgets })));
 const { RenderHook } = __panel;
 
-export default function Index({ resource, table, state, count, error, lens, lenses, actions }: IndexProps) {
+export default function Index({ resource, table, state, count, error, lens, lenses, actions, widgets = [] }: IndexProps & { widgets?: WidgetDescriptor[] }) {
   const { basePath } = usePage<SharedProps>().props;
   const index = useIndexState({ perPage: resource.perPageOptions[0] ?? state.perPage });
   const filtered = index.state.q !== undefined || index.state.filter !== undefined;
@@ -61,6 +64,11 @@ export default function Index({ resource, table, state, count, error, lens, lens
         polling={polling !== null && showPollingToggle ? pollingChoice : null}
       />
       <RenderHook position="index:header-actions" resource={resource.uriKey} className="flex flex-wrap justify-end gap-2" />
+      {widgets.length > 0 && (
+        <Suspense fallback={<div aria-hidden="true" className="min-h-40" />}>
+          <ResourceWidgets widgets={widgets} path={lens == null ? `resources/${resource.uriKey}` : `resources/${resource.uriKey}/lenses/${lens.uriKey}`} />
+        </Suspense>
+      )}
       {error !== undefined ? (
         <IndexBanner message={error.message} onReset={index.reset} />
       ) : table.rows.length === 0 ? (

@@ -8,15 +8,18 @@ import { Breadcrumbs } from '../../records/Breadcrumbs';
 import { RecordActions } from '../../records/RecordActions';
 import { RecordLayout } from '../../records/RecordLayout';
 import type { SharedProps } from '../../types';
+import type { WidgetDescriptor } from '../../widgets/types';
 
 // The action menu loads after the record, so a page without actions never fetches it.
 const RecordActionMenu = lazy(() => import('../../actions/RecordActionMenu').then((module) => ({ default: module.RecordActionMenu })));
 // A record without resource plugins never fetches the block that draws them.
 const ResourcePlugins = lazy(() => import('../../records/ResourcePlugins').then((module) => ({ default: module.ResourcePlugins })));
+// The cards load only when the page lists one.
+const ResourceWidgets = lazy(() => import('../../widgets/ResourceWidgets').then((module) => ({ default: module.ResourceWidgets })));
 const { RenderHook } = __panel;
 
 /** One record: its fields in the Resource's panels, grids and tabs. */
-export default function Detail({ resource, record, breadcrumbs, actions }: DetailProps) {
+export default function Detail({ resource, record, breadcrumbs, actions, widgets = [] }: DetailProps & { widgets?: WidgetDescriptor[] }) {
   const { id, title, subtitle, fields, layout, abilities } = record;
   const { __ } = useTranslation();
   const { basePath } = usePage<SharedProps>().props;
@@ -75,6 +78,11 @@ export default function Detail({ resource, record, breadcrumbs, actions }: Detai
           {__('Soft Deleted')}
         </div>
       ) : null}
+      {widgets.length > 0 && (
+        <Suspense fallback={<div aria-hidden="true" className="min-h-40" />}>
+          <ResourceWidgets widgets={widgets} path={`resources/${resource.uriKey}`} resourceId={String(id)} />
+        </Suspense>
+      )}
       <RecordLayout
         detail
         parent={{ uriKey: resource.uriKey, id }}
