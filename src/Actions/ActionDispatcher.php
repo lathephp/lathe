@@ -2,13 +2,18 @@
 
 namespace Lathe\Actions;
 
+use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Support\Collection as SupportCollection;
+use Illuminate\Support\Facades\Bus;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
+use Lathe\ActionEvents\ActionEvent;
 use Lathe\ActionEvents\ActionEventRecorder;
+use Lathe\Actions\Jobs\PlanBulkRun;
 use Lathe\Auth\ResourceAuthorization;
 use Lathe\Enums\ActionEventStatus;
 use Lathe\Events\ActionExecuted;
@@ -17,13 +22,14 @@ use Lathe\Lathe;
 use Lathe\Query\Selection;
 use Lathe\Query\SelectionResolver;
 use Lathe\Resources\Resource;
-use LogicException;
+use Lathe\Support\JobContext;
 use Throwable;
 
 /**
  * Runs an action on the rows of a selection: resolves and authorizes them, validates the
  * modal fields, runs the handler once per row in its own transaction and writes the audit
- * rows. One row that throws never stops the rest.
+ * rows. One row that throws never stops the rest. A ShouldQueue action, or a selection over
+ * the Resource's inline limit, goes to the queue as a bulk run instead.
  */
 class ActionDispatcher
 {
@@ -39,7 +45,7 @@ class ActionDispatcher
     }
 
     /**
-     * @return array{result: ActionResult, permitted: int, skipped: int, failed: int, errors: list<array{id: int|string|null, message: string}>}
+     * @return array{result: ActionResult, permitted: int, skipped: int, failed: int, errors: list<array{id: int|string|null, message: string}>, bulk_run?: array{id: string, total: int}}
      */
     public function dispatch(LatheRequest $request, Action $action, Selection $selection): array
     {
@@ -64,11 +70,12 @@ class ActionDispatcher
             throw ValidationException::withMessages(['selection' => Lathe::__('This action accepts at most :max rows.', ['max' => number_format($max)])]);
         }
 
+        $fields = $this->validator->validate($request, $action);
+
         if ($this->shouldQueue($action, $resolver, $max)) {
-            throw new LogicException('Queued action runs are not available yet.');
+            return $this->queue($request, $action, $class, $selection, $resolver, $fields);
         }
 
-        $fields = $this->validator->validate($request, $action);
         $total = 0;
         $allowed = [];
 
@@ -190,11 +197,108 @@ class ActionDispatcher
     }
 
     /**
-     * Whether the run goes to the queue instead of running inline. Every run is inline for now.
+     * One chunk of a queued run: the handler once for all its models, in one transaction. A
+     * throw rolls the chunk back, calls the failed handler for each model, marks their events
+     * failed and reaches the job, so the action's tries apply.
+     *
+     * @param  Collection<int, Model>  $models  one model class, at least one model
+     * @param  string|null  $batchId  the run's event batch, or null when it records none
+     */
+    public function runQueuedChunk(Action $action, ActionFields $fields, Collection $models, ?string $batchId): void
+    {
+        $first = $models->firstOrFail();
+
+        if ($batchId !== null) {
+            $this->chunkEvents($batchId, $models)->where('status', ActionEventStatus::Waiting->value)
+                ->update(['status' => ActionEventStatus::Running->value, 'updated_at' => now()]);
+        }
+
+        $handler = ActionMethodResolver::handlerFor($action, $first::class);
+
+        try {
+            $first->getConnection()->transaction(fn () => $action->{$handler}($fields, $models));
+        } catch (Throwable $e) {
+            $failedHandler = ActionMethodResolver::failedHandlerFor($action, $first::class);
+
+            foreach ($models as $model) {
+                if ($failedHandler !== null) {
+                    $action->{$failedHandler}($e, $model);
+                }
+
+                $action->markAsFailed($model, $e);
+            }
+
+            throw $e;
+        }
+
+        if ($batchId !== null) {
+            $this->chunkEvents($batchId, $models)->where('status', ActionEventStatus::Running->value)
+                ->update(['status' => ActionEventStatus::Finished->value, 'updated_at' => now()]);
+        }
+
+        event(new ActionExecuted($action, $models));
+    }
+
+    /**
+     * Whether the run goes to the queue instead of running inline: always for a ShouldQueue
+     * action, otherwise when the selection holds more rows than the Resource runs inline.
      */
     protected function shouldQueue(Action $action, SelectionResolver $resolver, int $max): bool
     {
-        return false;
+        return $action instanceof ShouldQueue || $resolver->exceeds($max);
+    }
+
+    /**
+     * Starts a queued run: a waiting bulk run row and a batch holding the planner, which
+     * reads the selection again in the worker. Authority runs there, row by row.
+     *
+     * @param  class-string<\Lathe\Resources\Resource>  $class
+     * @return array{result: ActionResult, permitted: int, skipped: int, failed: int, errors: list<array{id: int|string|null, message: string}>, bulk_run: array{id: string, total: int}}
+     */
+    protected function queue(LatheRequest $request, Action $action, string $class, Selection $selection, SelectionResolver $resolver, ActionFields $fields): array
+    {
+        $total = $resolver->query()->count();
+        $run = BulkRun::begin($request, $class, $action->name(), $total);
+
+        /** @var array<string, mixed> $values */
+        $values = $fields->toArray();
+        $batch = Bus::batch([new PlanBulkRun($run->id, JobContext::capture($request), $class, $selection->toArray(), $action->uriKey(), $values)]);
+
+        if ($action->connection !== null) {
+            $batch->onConnection($action->connection);
+        }
+
+        if ($action->queue !== null) {
+            $batch->onQueue($action->queue);
+        }
+
+        if ($action instanceof BatchableAction) {
+            $action->withBatch($fields, $batch);
+        }
+
+        $run->dispatchBatch($batch);
+
+        return [
+            'result' => ActionResult::message(Lathe::__('This action is being processed...')),
+            'permitted' => $total,
+            'skipped' => 0,
+            'failed' => 0,
+            'errors' => [],
+            'bulk_run' => ['id' => $run->id, 'total' => $total],
+        ];
+    }
+
+    /**
+     * The open events of the chunk's models in the run's batch.
+     *
+     * @param  Collection<int, Model>  $models
+     * @return Builder<ActionEvent>
+     */
+    protected function chunkEvents(string $batchId, Collection $models): Builder
+    {
+        return Lathe::actionEventModel()::forBatch($batchId)
+            ->where('actionable_type', $models->firstOrFail()->getMorphClass())
+            ->whereIn('actionable_id', $models->map(fn (Model $model) => ActionEvent::keyOf($model))->all());
     }
 
     /**

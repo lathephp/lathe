@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Str;
+use Illuminate\Support\Testing\Fakes\BatchFake;
 use Lathe\ActionEvents\ActionEvent;
 use Lathe\Actions\Action;
 use Lathe\Actions\ActionFields;
@@ -154,6 +155,7 @@ function queuedBody(array $selection, string $action = 'mark-shipped'): array
 function seedOrders(int $count): void
 {
     (new DemoSeeder)->forOrders($count)->run();
+    Order::where('status', '!=', 'pending')->update(['status' => 'pending']);
 }
 
 /**
@@ -162,20 +164,20 @@ function seedOrders(int $count): void
 function drainQueue(?int $jobs = null): void
 {
     if ($jobs === null) {
-        test()->artisan('queue:work', ['connection' => 'database', '--stop-when-empty' => true])->assertSuccessful();
+        test()->artisan('queue:work', ['connection' => 'database', '--stop-when-empty' => true, '--sleep' => 0])->assertSuccessful();
 
         return;
     }
 
     foreach (range(1, $jobs) as $ignored) {
-        test()->artisan('queue:work', ['connection' => 'database', '--once' => true])->assertSuccessful();
+        test()->artisan('queue:work', ['connection' => 'database', '--once' => true, '--sleep' => 0])->assertSuccessful();
     }
 }
 
 /**
  * The planner of the one faked batch, run against a fake batch.
  *
- * @return array{0: PlanBulkRun, 1: \Illuminate\Support\Testing\Fakes\BatchFake}
+ * @return array{0: PlanBulkRun, 1: BatchFake}
  */
 function runFakedPlanner(): array
 {
