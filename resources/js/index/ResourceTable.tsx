@@ -39,6 +39,13 @@ interface ResourceTableProps extends Pick<IndexProps, 'resource' | 'table' | 'st
  * A click cycles one column through ascending, descending and off. A plain click makes it the
  * only sort; with append the other columns stay and a new one goes last.
  */
+/** A column's fixed width in pixels, from the field's `indexWidth()`; none lets the table size it. */
+export function columnWidth(column: object): { width: string } | undefined {
+  const width = 'indexWidth' in column ? column.indexWidth : undefined;
+
+  return typeof width === 'number' ? { width: `${String(width)}px` } : undefined;
+}
+
 /** The text alignment of a column; the index sends each column as the field's full payload, `textAlign` included. */
 export function alignClass(column: object): string {
   const align = 'textAlign' in column ? column.textAlign : undefined;
@@ -173,6 +180,7 @@ export function ResourceTable({ resource, table, state, loading, selection, sort
                   key={column.key}
                   scope="col"
                   aria-sort={sortable ? sorted : undefined}
+                  style={columnWidth(column)}
                   className={cn('px-3 font-medium whitespace-nowrap', alignClass(column), index === 0 && firstColumn, border)}
                 >
                   {sortable ? (

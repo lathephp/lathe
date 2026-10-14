@@ -101,7 +101,7 @@ describe('sidebar', () => {
         sidebarOpen: false,
         layout: {
           sidebar: { collapsible: 'none', width: '16rem', widthIcon: '3rem' },
-          header: { sticky: true },
+          header: { sticky: true, search: true },
           content: { width: 'full' },
         },
       },
@@ -141,7 +141,7 @@ describe('layout', () => {
       shared: {
         layout: {
           sidebar: { collapsible: 'icon', width: '16rem', widthIcon: '3rem' },
-          header: { sticky: true },
+          header: { sticky: true, search: true },
           content: { width: 'contained' },
         },
       },
@@ -166,13 +166,34 @@ describe('layout', () => {
       shared: {
         layout: {
           sidebar: { collapsible: 'icon', width: '16rem', widthIcon: '3rem' },
-          header: { sticky: false },
+          header: { sticky: false, search: true },
           content: { width: 'full' },
         },
       },
     });
 
     expect(screen.getByRole('banner').className).not.toContain('sticky');
+  });
+
+  it('hides the header search button when the layout turns it off', () => {
+    const globalSearch = { enabled: true, debounce: 0.5 };
+    const { unmount } = renderPage('Dashboard', dashboard, { shared: { globalSearch } });
+
+    expect(screen.getByRole('button', { name: 'Search' })).toBeTruthy();
+    unmount();
+
+    renderPage('Dashboard', dashboard, {
+      shared: {
+        layout: {
+          sidebar: { collapsible: 'icon', width: '16rem', widthIcon: '3rem' },
+          header: { sticky: true, search: false },
+          content: { width: 'full' },
+        },
+        globalSearch,
+      },
+    });
+
+    expect(screen.queryByRole('button', { name: 'Search' })).toBeNull();
   });
 
   it('links the footer to lathephp.com', () => {

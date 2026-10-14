@@ -21,7 +21,7 @@ export interface SharedProps {
   userMenu: NavigationItem[];
   layout: {
     sidebar: { collapsible: 'icon' | 'offcanvas' | 'none'; width: string; widthIcon: string };
-    header: { sticky: boolean };
+    header: { sticky: boolean; search: boolean };
     content: { width: 'full' | 'contained' };
   };
   /** Absent means off. The server sends it once the config and the user's ability allow the palette. */

@@ -30,7 +30,7 @@ export function sharedProps(overrides: Partial<SharedProps> = {}): SharedProps {
     footer: { text: 'Powered by Lathe', href: 'https://lathephp.com' },
     layout: {
       sidebar: { collapsible: 'icon', width: '16rem', widthIcon: '3rem' },
-      header: { sticky: true },
+      header: { sticky: true, search: true },
       content: { width: 'full' },
     },
     tableStyle: { density: 'comfortable', striped: false },

@@ -120,7 +120,7 @@ export function AppLayout({ children }: { children: ReactNode }) {
               </Button>
             )}
             <div className="ms-auto flex items-center gap-2">
-              {searchOn && (
+              {searchOn && layout.header.search && (
                 <Button
                   variant="outline"
                   size="sm"

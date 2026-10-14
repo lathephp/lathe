@@ -53,13 +53,13 @@ it('reads the footer from Lathe::footer(), and an empty string hides it', functi
 });
 
 it('shares the layout and table settings', function () {
-    config(['lathe.layout.content.width' => 'contained', 'lathe.layout.header.sticky' => false, 'lathe.layout.sidebar.collapsible' => 'none', 'lathe.table.density' => 'compact', 'lathe.table.striped' => true]);
+    config(['lathe.layout.content.width' => 'contained', 'lathe.layout.header.sticky' => false, 'lathe.layout.header.search' => false, 'lathe.layout.sidebar.collapsible' => 'none', 'lathe.table.density' => 'compact', 'lathe.table.striped' => true]);
 
     $props = shellProps();
 
     expect($props['layout'])->toBe([
         'sidebar' => ['collapsible' => 'none', 'width' => '16rem', 'widthIcon' => '3rem'],
-        'header' => ['sticky' => false],
+        'header' => ['sticky' => false, 'search' => false],
         'content' => ['width' => 'contained'],
     ])->and($props['tableStyle'])->toBe(['density' => 'compact', 'striped' => true]);
 });

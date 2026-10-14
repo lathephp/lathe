@@ -229,7 +229,7 @@ describe('column alignment', () => {
         table: {
           columns: [
             { key: 'number', label: 'Number', component: 'text', sortable: false, sortKey: 'number', textAlign: 'left' },
-            { key: 'total', label: 'Total', component: 'currency-field', sortable: false, sortKey: 'total', textAlign: 'right' },
+            { key: 'total', label: 'Total', component: 'currency-field', sortable: false, sortKey: 'total', textAlign: 'right', indexWidth: 120 },
           ],
           sortKeys: [],
           rows: [{ id: 1, title: 'ORD-1', cells: { number: { value: 'ORD-1', display: 'ORD-1' }, total: { value: '1234.50', display: '$1,234.50' } }, abilities: { view: true } }],
@@ -245,5 +245,7 @@ describe('column alignment', () => {
     expect(screen.getByText('$1,234.50').closest('td')?.className).toContain('text-end');
     expect(screen.getByRole('columnheader', { name: 'Number' }).className).not.toContain('text-end');
     expect(screen.getByText('ORD-1').closest('td')?.className).not.toContain('text-end');
+    expect(screen.getByRole('columnheader', { name: 'Total' }).style.width).toBe('120px');
+    expect(screen.getByRole('columnheader', { name: 'Number' }).style.width).toBe('');
   });
 });

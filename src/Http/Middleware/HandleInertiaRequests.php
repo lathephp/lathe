@@ -107,7 +107,7 @@ class HandleInertiaRequests extends Middleware
                     'width' => Lathe::config()->string('layout.sidebar.width'),
                     'widthIcon' => Lathe::config()->string('layout.sidebar.width_icon'),
                 ],
-                'header' => ['sticky' => Lathe::config()->boolean('layout.header.sticky')],
+                'header' => ['sticky' => Lathe::config()->boolean('layout.header.sticky'), 'search' => Lathe::config()->boolean('layout.header.search')],
                 'content' => ['width' => Lathe::config()->string('layout.content.width')],
             ],
             'tableStyle' => fn () => [
