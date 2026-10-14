@@ -4,12 +4,12 @@ namespace Lathe\Http\Controllers;
 
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Notifications\DatabaseNotification;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Schema;
+use Lathe\Http\Requests\LatheRequest;
 use Lathe\Notifications\NotificationResource;
 use Lathe\Support\ConfigStore;
 
@@ -25,7 +25,7 @@ class NotificationController
         //
     }
 
-    public function index(Request $request): JsonResponse
+    public function index(LatheRequest $request): JsonResponse
     {
         $this->ensureEnabled();
 
@@ -42,34 +42,34 @@ class NotificationController
         ]);
     }
 
-    public function count(Request $request): JsonResponse
+    public function count(LatheRequest $request): JsonResponse
     {
         $this->ensureEnabled();
 
         return new JsonResponse(['count' => $this->tableExists() ? $this->mine($request)->whereNull('read_at')->count() : 0]);
     }
 
-    public function read(Request $request, string $id): Response
+    public function read(LatheRequest $request, string $id): Response
     {
         return $this->change($request, fn (Builder $query) => $query->whereKey($id)->update(['read_at' => Carbon::now()]));
     }
 
-    public function unread(Request $request, string $id): Response
+    public function unread(LatheRequest $request, string $id): Response
     {
         return $this->change($request, fn (Builder $query) => $query->whereKey($id)->update(['read_at' => null]));
     }
 
-    public function markAllRead(Request $request): Response
+    public function markAllRead(LatheRequest $request): Response
     {
         return $this->change($request, fn (Builder $query) => $query->whereNull('read_at')->update(['read_at' => Carbon::now()]));
     }
 
-    public function destroy(Request $request, string $id): Response
+    public function destroy(LatheRequest $request, string $id): Response
     {
         return $this->change($request, fn (Builder $query) => $query->whereKey($id)->delete());
     }
 
-    public function destroyAll(Request $request): Response
+    public function destroyAll(LatheRequest $request): Response
     {
         return $this->change($request, fn (Builder $query) => $query->delete());
     }
@@ -77,7 +77,7 @@ class NotificationController
     /**
      * @param  callable(Builder<DatabaseNotification>): mixed  $write
      */
-    protected function change(Request $request, callable $write): Response
+    protected function change(LatheRequest $request, callable $write): Response
     {
         $this->ensureEnabled();
 
@@ -91,7 +91,7 @@ class NotificationController
     /**
      * @return Builder<DatabaseNotification>
      */
-    protected function mine(Request $request): Builder
+    protected function mine(LatheRequest $request): Builder
     {
         $user = $request->user();
         abort_if($user === null, 401);

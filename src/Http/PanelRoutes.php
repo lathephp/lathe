@@ -10,6 +10,7 @@ use Lathe\Http\Controllers\Auth\AuthenticatedSessionController;
 use Lathe\Http\Controllers\Auth\LoginPageController;
 use Lathe\Http\Controllers\DashboardController;
 use Lathe\Http\Controllers\GlobalSearchController;
+use Lathe\Http\Controllers\NotificationController;
 use Lathe\Http\Controllers\PageFallbackController;
 use Lathe\Http\Controllers\Plugins\ModuleController;
 use Lathe\Http\Controllers\Plugins\PluginApiController;
@@ -208,7 +209,7 @@ class PanelRoutes
 
     protected function notificationRoutes(Router $router): void
     {
-        $controller = 'Lathe\Http\Controllers\NotificationController';
+        $controller = NotificationController::class;
 
         $router->get('notifications', [$controller, 'index'])->name('notifications.index');
         $router->get('notifications/count', [$controller, 'count'])->name('notifications.count');
