@@ -1027,6 +1027,7 @@ Lathe\Field\Relations\Concerns\HasPivotFields::getPivotFields(): Closure|array
 Lathe\Field\Relations\Concerns\HasPivotFields::noDuplicateRelations(): static
 Lathe\Field\Relations\Concerns\HasPivotFields::pivotActions(Closure|array $actions): static
 Lathe\Field\Relations\Concerns\HasPivotFields::pivotFields(Closure|array $fields): static
+Lathe\Field\Relations\Concerns\HasPivotFields::pivotFieldsFor(Lathe\Http\Requests\LatheRequest $request, ?Illuminate\Database\Eloquent\Model $related = NULL): array
 Lathe\Field\Relations\HasManyField::__construct(string $label, Closure|string|null $attribute = NULL, ?Closure $resolver = NULL)
 Lathe\Field\Relations\HasManyField::createsThroughPanel(): bool
 Lathe\Field\Relations\HasManyField::kind(): string
@@ -1107,6 +1108,7 @@ Lathe\Field\Relations\RelationField::peekable(Closure|bool $peekable = true): st
 Lathe\Field\Relations\RelationField::perPageOptions(array $options): static
 Lathe\Field\Relations\RelationField::pickerItem(Illuminate\Database\Eloquent\Model $related): array
 Lathe\Field\Relations\RelationField::pluralLabel(string $label): static
+Lathe\Field\Relations\RelationField::pointsBackAt(Illuminate\Database\Eloquent\Model $parent, string $relationship): bool
 Lathe\Field\Relations\RelationField::relatableQuery(Closure $callback): static
 Lathe\Field\Relations\RelationField::relatedRecord(Illuminate\Database\Eloquent\Model $record): ?Illuminate\Database\Eloquent\Model  [protected]
 Lathe\Field\Relations\RelationField::relatedResource(): ?string
@@ -1470,6 +1472,8 @@ Lathe\Http\Controllers\Resources\PeekController::respond(Lathe\Http\Requests\Lat
 Lathe\Http\Controllers\Resources\RecordController::fillAndSave(Lathe\Http\Requests\LatheRequest $request, Illuminate\Database\Eloquent\Model $model, array $fields): void  [protected]
 Lathe\Http\Controllers\Resources\RecordController::store(Lathe\Http\Requests\LatheRequest $request, Lathe\Auth\ResourceAuthorization $authorization, string $resource): Illuminate\Http\JsonResponse
 Lathe\Http\Controllers\Resources\RecordController::update(Lathe\Http\Requests\LatheRequest $request, Lathe\Auth\ResourceAuthorization $authorization, string $resource, string $resourceId): Illuminate\Http\JsonResponse
+Lathe\Http\Controllers\Resources\RelationIndexController::PANEL_KINDS
+Lathe\Http\Controllers\Resources\RelationIndexController::__invoke(Lathe\Http\Requests\LatheRequest $request, Lathe\Auth\ResourceAuthorization $authorization, Lathe\Http\Payloads\RelationIndexPayload $payload, string $resource, string $resourceId, string $relationship): Illuminate\Http\JsonResponse
 Lathe\Http\Controllers\Resources\SavedTabController::attributes(Lathe\Http\Requests\LatheRequest $request, Lathe\Resources\Resource $resource, bool $creating): array  [protected]
 Lathe\Http\Controllers\Resources\SavedTabController::destroy(Lathe\Http\Requests\LatheRequest $request, Lathe\Auth\ResourceAuthorization $authorization, Lathe\Support\ConfigStore $config): Illuminate\Http\Response
 Lathe\Http\Controllers\Resources\SavedTabController::enabledResource(Lathe\Http\Requests\LatheRequest $request, Lathe\Auth\ResourceAuthorization $authorization, Lathe\Support\ConfigStore $config): string  [protected]
@@ -1538,7 +1542,7 @@ Lathe\Http\Payloads\IndexPayload::checkRowKeys(string $class, string $rowKey, Il
 Lathe\Http\Payloads\IndexPayload::columns(Lathe\Resources\Resource $resource, ?Lathe\Lenses\Lens $lens = NULL): array
 Lathe\Http\Payloads\IndexPayload::count(string $class, ?Lathe\Lenses\Lens $lens = NULL): ?array
 Lathe\Http\Payloads\IndexPayload::groups(Lathe\Resources\Resource $resource, ?array $active, ?Lathe\Lenses\Lens $lens): array  [protected]
-Lathe\Http\Payloads\IndexPayload::key(Illuminate\Database\Eloquent\Model $model): string|int  [protected]
+Lathe\Http\Payloads\IndexPayload::key(Illuminate\Database\Eloquent\Model $model): string|int
 Lathe\Http\Payloads\IndexPayload::lensEntry(Lathe\Lenses\Lens $lens): array  [protected]
 Lathe\Http\Payloads\IndexPayload::query(Lathe\Resources\Resource $resource, ?Lathe\Lenses\Lens $lens): Lathe\Query\ResourceQuery  [protected]
 Lathe\Http\Payloads\IndexPayload::resource(string $class): array
@@ -1560,6 +1564,12 @@ Lathe\Http\Payloads\RecordPayload::href(string $path): string
 Lathe\Http\Payloads\RecordPayload::replicateFields(string $class, Illuminate\Database\Eloquent\Model $model): array
 Lathe\Http\Payloads\RecordPayload::summary(string $class, Illuminate\Database\Eloquent\Model $model, Lathe\Field\FieldContext $context): array
 Lathe\Http\Payloads\RecordPayload::updateFields(string $class, Illuminate\Database\Eloquent\Model $model): array
+Lathe\Http\Payloads\RelationIndexPayload::Lathe\Auth\ResourceAuthorization $authorization  [protected]
+Lathe\Http\Payloads\RelationIndexPayload::Lathe\Http\Payloads\IndexPayload $index  [protected]
+Lathe\Http\Payloads\RelationIndexPayload::Lathe\Http\Requests\LatheRequest $request  [protected]
+Lathe\Http\Payloads\RelationIndexPayload::__construct(Lathe\Http\Requests\LatheRequest $request, Lathe\Auth\ResourceAuthorization $authorization, Lathe\Http\Payloads\IndexPayload $index)
+Lathe\Http\Payloads\RelationIndexPayload::build(string $class, Illuminate\Database\Eloquent\Model $parent, Lathe\Field\Relations\RelationField $field, Illuminate\Database\Eloquent\Relations\Relation $relation): array
+Lathe\Http\Payloads\RelationIndexPayload::pivotCells(Illuminate\Database\Eloquent\Relations\Relation $relation, Illuminate\Database\Eloquent\Model $model, array $fields): array  [protected]
 Lathe\Http\Requests\LatheRequest::config(): Lathe\Support\ConfigStore  [protected]
 Lathe\Http\Requests\LatheRequest::orderByDirection(): string
 Lathe\Http\Requests\LatheRequest::perPage(): int
@@ -1818,6 +1828,7 @@ Lathe\Query\ResourceQuery::?Closure $fieldHook  [protected]
 Lathe\Query\ResourceQuery::?Closure $parentHook  [protected]
 Lathe\Query\ResourceQuery::?Illuminate\Database\Eloquent\Builder $scoped  [protected]
 Lathe\Query\ResourceQuery::?Illuminate\Database\Eloquent\Relations\Relation $relation  [protected]
+Lathe\Query\ResourceQuery::?Lathe\Field\Relations\RelationField $relationField  [protected]
 Lathe\Query\ResourceQuery::?Lathe\Lenses\Lens $lens  [protected]
 Lathe\Query\ResourceQuery::?array $pagination  [protected]
 Lathe\Query\ResourceQuery::?string $trashed  [protected]
@@ -1851,7 +1862,7 @@ Lathe\Query\ResourceQuery::coverColumn(): ?string  [protected]
 Lathe\Query\ResourceQuery::estimatedCount(): ?Lathe\Query\Count  [protected]
 Lathe\Query\ResourceQuery::find(string|int $id): Illuminate\Database\Eloquent\Model
 Lathe\Query\ResourceQuery::forLens(Lathe\Lenses\Lens $lens): static
-Lathe\Query\ResourceQuery::forRelation(Illuminate\Database\Eloquent\Relations\Relation $relation): static
+Lathe\Query\ResourceQuery::forRelation(Illuminate\Database\Eloquent\Relations\Relation $relation, ?Lathe\Field\Relations\RelationField $field = NULL): static
 Lathe\Query\ResourceQuery::hasMorePages(): bool
 Lathe\Query\ResourceQuery::holdsKey(Illuminate\Database\Eloquent\Model $model, string|int $id): bool  [static]
 Lathe\Query\ResourceQuery::holdsMoreThan(int $count): bool
@@ -1862,6 +1873,8 @@ Lathe\Query\ResourceQuery::page(): array
 Lathe\Query\ResourceQuery::pagination(): array  [protected]
 Lathe\Query\ResourceQuery::perPageOptions(): array  [protected]
 Lathe\Query\ResourceQuery::perPageOptionsInUse(): array
+Lathe\Query\ResourceQuery::pivotColumns(): array  [protected]
+Lathe\Query\ResourceQuery::pivotFields(): array
 Lathe\Query\ResourceQuery::readPagination(): array  [protected]
 Lathe\Query\ResourceQuery::recordRelations(Lathe\Field\FieldContext $context): array  [protected]
 Lathe\Query\ResourceQuery::relatableHooks(?Closure $field, ?Closure $parent): static
@@ -2546,6 +2559,7 @@ class Lathe\Http\Controllers\Resources\InlineUpdateController
 class Lathe\Http\Controllers\Resources\LensController
 class Lathe\Http\Controllers\Resources\PeekController
 class Lathe\Http\Controllers\Resources\RecordController
+class Lathe\Http\Controllers\Resources\RelationIndexController
 class Lathe\Http\Controllers\Resources\SavedTabController
 class Lathe\Http\Controllers\Uploads\StartUploadController
 class Lathe\Http\Controllers\Uploads\UploadController
@@ -2561,6 +2575,7 @@ class Lathe\Http\Middleware\ServePlugins
 class Lathe\Http\PanelRoutes
 class Lathe\Http\Payloads\IndexPayload
 class Lathe\Http\Payloads\RecordPayload
+class Lathe\Http\Payloads\RelationIndexPayload
 class Lathe\Http\Requests\LatheRequest
 class Lathe\Lathe
 class Lathe\LatheApplicationServiceProvider

@@ -45,5 +45,6 @@ test('each_list_endpoint_has_its_documented_shape', function (string $uri, array
     'lens index' => ['/lathe/api/resources/orders/lenses/pending-orders', ['resource', 'table', 'filters', 'tabs', 'groups', 'lens', 'lenses', 'state'], 'table.rows.0', ['id', 'title', 'cells', 'abilities']],
     'lens count' => ['/lathe/api/resources/orders/lenses/pending-orders/count', ['value', 'exact', 'capped', 'estimated'], null, []],
     'lens filters' => ['/lathe/api/resources/orders/lenses/pending-orders/filters', ['filters'], 'filters.0', ['key', 'name', 'component', 'options', 'remote', 'immediate', 'placement', 'default']],
+    'relation index' => ['/lathe/api/resources/orders/12/items', ['columns', 'sortKeys', 'rows', 'count', 'page', 'perPage', 'perPageOptions', 'hasMore'], 'rows.0', ['id', 'title', 'cells', 'abilities', 'related_id']],
     'global search' => ['/lathe/api/search?q=ann', ['groups', 'skipped'], 'groups.0.results.0', ['resourceTitle', 'title', 'subTitle', 'resourceName', 'resourceId', 'avatar', 'rounded', 'url']],
 ])->group('regression');

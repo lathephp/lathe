@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Illuminate\Support\Facades\DB;
@@ -17,6 +18,7 @@ use Illuminate\Validation\ValidationException;
 use Lathe\Field\Contracts\Cover;
 use Lathe\Field\Field;
 use Lathe\Field\FieldContext;
+use Lathe\Field\Relations\BelongsToManyField;
 use Lathe\Field\Relations\RelationField;
 use Lathe\Filters\FilterApplicator;
 use Lathe\Groups\Group;
@@ -60,6 +62,9 @@ class ResourceQuery
 
     /** @var Relation<Model, Model, mixed>|null The parent's relation the rows are read through. */
     protected ?Relation $relation = null;
+
+    /** The parent's panel field that lists the relation, for its page sizes and pivot fields. */
+    protected ?RelationField $relationField = null;
 
     /** Whether the lens's query() applied the filters or the sort itself, so the pipeline skips them. */
     protected bool $lensFiltered = false;
@@ -116,13 +121,18 @@ class ResourceQuery
 
     /**
      * Read the rows through a parent's relation, $order->items() for example, in place of
-     * the model's own query. Scopes, hooks, search, filters and sort still apply.
+     * the model's own query. Scopes, hooks, search, filters and sort still apply. With the
+     * panel's $field, its page sizes apply, its pivot columns are read and sortable, and the
+     * field pointing back at the parent is not loaded.
      *
      * @param  Relation<Model, Model, mixed>  $relation
      */
-    public function forRelation(Relation $relation): static
+    public function forRelation(Relation $relation, ?RelationField $field = null): static
     {
-        return $this->change(fn () => $this->relation = $relation);
+        return $this->change(function () use ($relation, $field) {
+            $this->relation = $relation;
+            $this->relationField = $field;
+        });
     }
 
     /**
@@ -147,6 +157,14 @@ class ResourceQuery
                 $query->withoutGlobalScope($scope);
             }
 
+            // The join of a pivot relation would mix the pivot's id into the row, so pick the columns.
+            if (($relation = $this->relation) instanceof BelongsToMany) {
+                $query->select([$query->getModel()->getTable().'.*', ...array_map(
+                    fn (string $column) => $relation->getTable().'.'.$column.' as pivot_'.$column,
+                    $this->pivotColumns(),
+                )]);
+            }
+
             $query = $this->applyHook($this->applyTrashed($query));
 
             // Tabs, filters and search are the index's view; a record lookup ignores them.
@@ -158,6 +176,36 @@ class ResourceQuery
         }
 
         return clone $this->scoped;
+    }
+
+    /**
+     * The pivot fields of the panel, empty unless the rows come through a pivot relation.
+     *
+     * @return list<Field>
+     */
+    public function pivotFields(): array
+    {
+        return $this->relation instanceof BelongsToMany && $this->relationField instanceof BelongsToManyField
+            ? $this->relationField->pivotFieldsFor($this->request)
+            : [];
+    }
+
+    /**
+     * The pivot columns the rows carry as pivot_<column>: the pivot fields' attributes, and the
+     * pivot table's id when it has one.
+     *
+     * @return list<string>
+     */
+    protected function pivotColumns(): array
+    {
+        if (! $this->relation instanceof BelongsToMany) {
+            return [];
+        }
+
+        $columns = array_map(fn (Field $field) => $field->attribute(), $this->pivotFields());
+        $schema = $this->relation->getParent()->getConnection()->getSchemaBuilder();
+
+        return array_values(array_unique($schema->hasColumn($this->relation->getTable(), 'id') ? ['id', ...$columns] : $columns));
     }
 
     /**
@@ -328,7 +376,7 @@ class ResourceQuery
      */
     public function perPageOptionsInUse(): array
     {
-        $options = $this->lens?->perPageOptions() ?? $this->resource->definition()->getPerPage();
+        $options = $this->relationField?->getPerPageOptions() ?: ($this->lens?->perPageOptions() ?? $this->resource->definition()->getPerPage());
 
         return $options !== null && $options !== [] ? $options : $this->perPageOptions();
     }
@@ -339,6 +387,12 @@ class ResourceQuery
     public function count(): ?Count
     {
         $definition = $this->resource->definition();
+
+        // A relation panel always counts up to the cap.
+        if ($this->relation !== null) {
+            return $this->cappedCount($definition->getCountCap());
+        }
+
         $counted = $this->lens !== null ? $this->lens::countQuery($this->request, $this->scoped()) : null;
 
         if (is_int($counted)) {
@@ -412,7 +466,15 @@ class ResourceQuery
     {
         $loads = [];
 
+        $parent = $this->relation?->getParent();
+        $relationship = $this->relationField?->attribute();
+
         foreach ($this->resource->fieldsFor($context, $this->request) as $field) {
+            // Every row of a panel shares the parent, which the caller already holds.
+            if ($parent !== null && $relationship !== null && $field instanceof RelationField && $field->pointsBackAt($parent, $relationship)) {
+                continue;
+            }
+
             if ($field instanceof RelationField && $field->loadsWithRecord()) {
                 $loads = [...$loads, ...$field->eagerLoad()];
             }
@@ -1013,6 +1075,11 @@ class ResourceQuery
             }
         }
 
+        // A panel sorts by any pivot column it shows.
+        foreach ($this->pivotFields() as $field) {
+            $fields[$field->attribute()] = $field;
+        }
+
         return $fields;
     }
 
@@ -1092,6 +1159,10 @@ class ResourceQuery
     {
         if (! isset($this->sortableFields()[$key])) {
             return null;
+        }
+
+        if ($this->relation instanceof BelongsToMany && in_array($key, array_map(fn (Field $field) => $field->attribute(), $this->pivotFields()), true)) {
+            return ['column' => $this->relation->getTable().'.'.$key, 'relation' => null];
         }
 
         if (! str_contains($key, '.')) {

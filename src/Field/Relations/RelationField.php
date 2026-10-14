@@ -370,6 +370,26 @@ abstract class RelationField extends Field
         return false;
     }
 
+    /**
+     * Whether this belongsTo or morphTo points back at the parent of a panel listing
+     * $relationship, so the panel can leave it out: inverse() names the relation, or the
+     * related Resource's model is the parent's class.
+     */
+    public function pointsBackAt(Model $parent, string $relationship): bool
+    {
+        if (! in_array($this->kind(), ['belongsTo', 'morphTo'], true)) {
+            return false;
+        }
+
+        if ($this->inverse !== null) {
+            return $this->inverse === $relationship;
+        }
+
+        $related = $this->relatedResource();
+
+        return $related !== null && $related::make()->definition()->getModel() === $parent::class;
+    }
+
     public function reorderAssociatables(bool $reorder = true): static
     {
         $this->mutate();

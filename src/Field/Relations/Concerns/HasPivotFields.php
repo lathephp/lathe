@@ -3,7 +3,9 @@
 namespace Lathe\Field\Relations\Concerns;
 
 use Closure;
+use Illuminate\Database\Eloquent\Model;
 use Lathe\Field\Field;
+use Lathe\Http\Requests\LatheRequest;
 
 /**
  * The pivot options of the join-table relations: belongsToMany, morphToMany and morphedByMany.
@@ -37,6 +39,20 @@ trait HasPivotFields
     public function getPivotFields(): Closure|array
     {
         return $this->pivotFields;
+    }
+
+    /**
+     * The pivot fields for a request; a Closure is called with the related record, null for the column list.
+     *
+     * @return list<Field>
+     */
+    public function pivotFieldsFor(LatheRequest $request, ?Model $related = null): array
+    {
+        $fields = $this->pivotFields instanceof Closure
+            ? $this->evaluate($this->pivotFields, ['request' => $request, 'record' => $related], [$request, $related])
+            : $this->pivotFields;
+
+        return array_values(array_filter(is_array($fields) ? $fields : [], fn (mixed $field) => $field instanceof Field));
     }
 
     /**

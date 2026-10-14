@@ -326,7 +326,10 @@ class IndexPayload
         Log::error($message);
     }
 
-    protected function key(Model $model): int|string
+    /**
+     * The model key that abilitiesFor() keys a row's abilities by.
+     */
+    public function key(Model $model): int|string
     {
         $key = $model->getKey();
 

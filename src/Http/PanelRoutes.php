@@ -31,6 +31,7 @@ use Lathe\Http\Controllers\Resources\InlineUpdateController;
 use Lathe\Http\Controllers\Resources\LensController;
 use Lathe\Http\Controllers\Resources\PeekController;
 use Lathe\Http\Controllers\Resources\RecordController;
+use Lathe\Http\Controllers\Resources\RelationIndexController;
 use Lathe\Http\Controllers\Resources\SavedTabController;
 use Lathe\Http\Controllers\Uploads\StartUploadController;
 use Lathe\Http\Controllers\Uploads\UploadController;
@@ -129,6 +130,7 @@ class PanelRoutes
             $router->delete('resources/{resource}/{resourceId}/force', [DeleteController::class, 'forceDelete'])->name('resources.forceDelete');
             $router->put('resources/{resource}/{resourceId}/restore', [DeleteController::class, 'restore'])->name('resources.restore');
             $router->get('resources/{resource}/{resourceId}/download/{field}', [FieldFileController::class, 'download'])->name('resources.field.download');
+            $router->get('resources/{resource}/{resourceId}/{relationship}', RelationIndexController::class)->name('resources.relation.index');
             $router->delete('resources/{resource}/{resourceId}/field/{field}', [FieldFileController::class, 'destroy'])->where('field', '.*')->name('resources.field.destroy');
             $router->post('resources/{resource}/uploads/{field}', [StartUploadController::class, 'field'])->name('resources.uploads.start');
             $router->post('uploads', [StartUploadController::class, 'custom'])->name('uploads.start');
