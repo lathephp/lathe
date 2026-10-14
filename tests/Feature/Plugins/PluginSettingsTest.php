@@ -58,9 +58,12 @@ it('answers 405 to POST and DELETE on the settings path', function () {
     expect(PluginSetting::find('hello-plugin'))->toBeNull();
 });
 
-it('answers 404 on the settings path of a plugin without settings, and stores nothing', function () {
+it('answers 404 on the settings page and API of a plugin without settings, and stores nothing', function () {
     Lathe::registerPlugins(Beacon::make());
     reloadLatheRoutes();
+
+    $this->get('/lathe/plugins/beacon/settings')->assertNotFound();
+    $this->get('/lathe/plugins/hello-plugin/settings')->assertOk();
 
     $this->getJson('/lathe/api/plugins/beacon/settings')->assertNotFound();
     $this->putJson('/lathe/api/plugins/beacon/settings', ['greeting' => 'Hi'])->assertNotFound();

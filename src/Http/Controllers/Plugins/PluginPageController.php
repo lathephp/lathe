@@ -15,6 +15,8 @@ class PluginPageController
 
         abort_if($found === null, 404);
         abort_unless($found->authorize($request), 403);
+        // The settings path belongs to the settings form, which a plugin without settings() lacks.
+        abort_if($path === 'settings' && $found->settings() === null, 404);
 
         return Inertia::render('Plugin', [
             'plugin' => $found::uriKey(),
