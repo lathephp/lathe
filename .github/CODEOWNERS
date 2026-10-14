@@ -1,0 +1,3 @@
+# The speed baseline and the public API snapshots change only with the maintainer's review.
+/tests/Benchmark/baseline.json @saifulapm
+/api/ @saifulapm
