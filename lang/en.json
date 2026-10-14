@@ -22,6 +22,7 @@
     ":resource updated.": ":resource updated.",
     ":skipped will be skipped": ":skipped will be skipped",
     ":succeeded succeeded, :failed failed.": ":succeeded succeeded, :failed failed.",
+    ":succeeded succeeded, :skipped skipped.": ":succeeded succeeded, :skipped skipped.",
     ":title could not be deleted.": ":title could not be deleted.",
     ":title could not be detached.": ":title could not be detached.",
     ":title could not be restored.": ":title could not be restored.",

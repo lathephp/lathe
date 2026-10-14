@@ -65,6 +65,20 @@ describe('run toasts', () => {
     expect(screen.getByText('801 succeeded, 200 failed.')).toBeTruthy();
   });
 
+  it('counts the skipped rows of a finished run instead of reading as a success', async () => {
+    vi.useFakeTimers({ toFake: ['setInterval', 'clearInterval', 'setTimeout'] });
+    vi.spyOn(globalThis, 'fetch').mockResolvedValueOnce(json({ status: 'finished', total: 1001, processed: 600, failed: 0, skipped: 401 }));
+    render(<RunToasts />);
+
+    act(() => {
+      window.dispatchEvent(new CustomEvent('lathe:bulk-run-started', { detail: { id: '01RUN', total: 1001 } }));
+    });
+    await poll();
+
+    expect(screen.getByText('600 succeeded, 401 skipped.')).toBeTruthy();
+    expect(screen.queryByText('Action was executed successfully.')).toBeNull();
+  });
+
   it('turns a finished export into a Download link', async () => {
     vi.useFakeTimers({ toFake: ['setInterval', 'clearInterval', 'setTimeout'] });
     vi.spyOn(globalThis, 'fetch').mockResolvedValueOnce(json({ status: 'finished', total_rows: 501, processed_rows: 501, download_url: '/lathe/api/exports/4/download?signature=x' }));

@@ -126,6 +126,11 @@ export function RunToasts() {
         return { message: __('Action failed for all selected resources.') };
       }
 
+      // A row the policy refused never ran, so the run is not read as a plain success.
+      if (run.verb === 'action' && status.skipped > 0) {
+        return { message: __(':succeeded succeeded, :skipped skipped.', { succeeded: formatNumber(succeeded), skipped: formatNumber(status.skipped) }) };
+      }
+
       const finished: Record<RunVerb, string> = {
         action: __('Action was executed successfully.'),
         delete: __(':count resources deleted.', { count: processed }),
