@@ -7,7 +7,7 @@
         <title>{{ config('lathe.name') }}</title>
         @latheStyles
     </head>
-    <body>
+    <body class="style-{{ config('lathe.theme.style') ?: 'nova' }}">
         {{-- Inertia's page data, written here so it carries the CSP nonce like every other tag. --}}
         <script data-page="app" type="application/json"@if (Illuminate\Support\Facades\Vite::cspNonce()) nonce="{{ Illuminate\Support\Facades\Vite::cspNonce() }}"@endif>{!! json_encode($page, JSON_HEX_TAG) !!}</script>
         <div id="app"></div>

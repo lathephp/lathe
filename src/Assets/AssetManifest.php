@@ -100,6 +100,16 @@ class AssetManifest
         return array_map(fn (string $file) => $this->url($prefix, $file), $this->manifest()[self::ENTRY]['css'] ?? []);
     }
 
+    /**
+     * The stylesheet of one theme style, such as nova. Each style builds on its own.
+     */
+    public function styleUrl(string $prefix, string $style): ?string
+    {
+        $file = $this->manifest()["resources/css/theme-{$style}.css"]['file'] ?? null;
+
+        return $file === null ? null : $this->url($prefix, $file);
+    }
+
     protected function url(string $prefix, string $file): string
     {
         return rtrim($prefix, '/').'/assets/'.$this->hash().'/'.basename($file);

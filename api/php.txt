@@ -589,6 +589,7 @@ Lathe\Assets\AssetManifest::hash(): string
 Lathe\Assets\AssetManifest::importMap(string $prefix): array
 Lathe\Assets\AssetManifest::listedFiles(): array  [protected]
 Lathe\Assets\AssetManifest::manifest(): array  [protected]
+Lathe\Assets\AssetManifest::styleUrl(string $prefix, string $style): ?string
 Lathe\Assets\AssetManifest::stylesheetUrls(string $prefix): array
 Lathe\Assets\AssetManifest::url(string $prefix, string $file): string  [protected]
 Lathe\Assets\AssetManifest::useDistPath(string $path): void
@@ -603,7 +604,8 @@ Lathe\Assets\AssetRegistry::style(string $name, string $path): void
 Lathe\Assets\RootTags::Lathe\Assets\AssetManifest $assets  [protected]
 Lathe\Assets\RootTags::Lathe\Plugins\PluginRegistry $plugins  [protected]
 Lathe\Assets\RootTags::Lathe\Support\ConfigStore $config  [protected]
-Lathe\Assets\RootTags::__construct(Lathe\Assets\AssetManifest $assets, Lathe\Plugins\PluginRegistry $plugins, Lathe\Support\ConfigStore $config)
+Lathe\Assets\RootTags::Lathe\Theme\ThemeStyleGenerator $theme  [protected]
+Lathe\Assets\RootTags::__construct(Lathe\Assets\AssetManifest $assets, Lathe\Plugins\PluginRegistry $plugins, Lathe\Support\ConfigStore $config, Lathe\Theme\ThemeStyleGenerator $theme)
 Lathe\Assets\RootTags::nonce(): string  [protected]
 Lathe\Assets\RootTags::prefix(): string  [protected]
 Lathe\Assets\RootTags::scripts(): string
@@ -3630,6 +3632,51 @@ Lathe\Testing\ResourceTester::uri(): string  [protected]
 Lathe\Testing\TestCase::getPackageProviders($app): array  [protected]
 Lathe\Testing\TestCase::setUp(): void  [protected]
 Lathe\Testing\TestCase::tearDown(): void  [protected]
+Lathe\Theme\Color::Accent
+Lathe\Theme\Color::AccentForeground
+Lathe\Theme\Color::Background
+Lathe\Theme\Color::Border
+Lathe\Theme\Color::Card
+Lathe\Theme\Color::CardForeground
+Lathe\Theme\Color::Chart1
+Lathe\Theme\Color::Chart2
+Lathe\Theme\Color::Chart3
+Lathe\Theme\Color::Chart4
+Lathe\Theme\Color::Chart5
+Lathe\Theme\Color::Destructive
+Lathe\Theme\Color::DestructiveForeground
+Lathe\Theme\Color::Foreground
+Lathe\Theme\Color::Info
+Lathe\Theme\Color::InfoForeground
+Lathe\Theme\Color::Input
+Lathe\Theme\Color::Link
+Lathe\Theme\Color::LinkHover
+Lathe\Theme\Color::Muted
+Lathe\Theme\Color::MutedForeground
+Lathe\Theme\Color::Popover
+Lathe\Theme\Color::PopoverForeground
+Lathe\Theme\Color::Primary
+Lathe\Theme\Color::PrimaryForeground
+Lathe\Theme\Color::Ring
+Lathe\Theme\Color::Secondary
+Lathe\Theme\Color::SecondaryForeground
+Lathe\Theme\Color::Sidebar
+Lathe\Theme\Color::SidebarAccent
+Lathe\Theme\Color::SidebarAccentForeground
+Lathe\Theme\Color::SidebarBorder
+Lathe\Theme\Color::SidebarForeground
+Lathe\Theme\Color::SidebarPrimary
+Lathe\Theme\Color::SidebarPrimaryForeground
+Lathe\Theme\Color::SidebarRing
+Lathe\Theme\Color::Success
+Lathe\Theme\Color::SuccessForeground
+Lathe\Theme\Color::Warning
+Lathe\Theme\Color::WarningForeground
+Lathe\Theme\Color::string $name
+Lathe\Theme\Color::string $value
+Lathe\Theme\Color::utility(): string
+Lathe\Theme\Color::variable(): string
+Lathe\Theme\ThemeStyleGenerator::generate(string $radius, array $colors): string
 Lathe\Uploads\FieldAttachment::$fillable  [protected]
 Lathe\Uploads\FieldAttachment::$table  [protected]
 Lathe\Uploads\FieldAttachment::keyOf(Illuminate\Database\Eloquent\Model $model): string  [static]
@@ -4528,6 +4575,7 @@ class Lathe\Testing\LatheTest
 class Lathe\Testing\RelationTester
 class Lathe\Testing\ResourceTester
 class Lathe\Testing\TestCase
+class Lathe\Theme\ThemeStyleGenerator
 class Lathe\Uploads\FieldAttachment
 class Lathe\Uploads\PendingUpload
 class Lathe\Uploads\UploadHandler
@@ -4568,6 +4616,7 @@ enum Lathe\Enums\TableStyle
 enum Lathe\Field\FieldContext
 enum Lathe\Query\CountStrategy
 enum Lathe\Query\QueryContext
+enum Lathe\Theme\Color
 enum Lathe\Widgets\TrendUnit
 interface Lathe\Actions\BatchableAction
 interface Lathe\Attributes\Action\ActionAttribute

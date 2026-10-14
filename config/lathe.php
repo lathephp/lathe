@@ -157,7 +157,8 @@ return [
     |--------------------------------------------------------------------------
     |
     | Each colour is a CSS colour string or ['light' => ..., 'dark' => ...];
-    | null keeps the style's own value.
+    | null keeps the style's own value. The style is one of nova (the default),
+    | vega, lyra, maia, mira, luma, rhea or sera.
     |
     */
 

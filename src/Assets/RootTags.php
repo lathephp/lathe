@@ -5,6 +5,7 @@ namespace Lathe\Assets;
 use Illuminate\Support\Facades\Vite;
 use Lathe\Plugins\PluginRegistry;
 use Lathe\Support\ConfigStore;
+use Lathe\Theme\ThemeStyleGenerator;
 
 /**
  * The tags the root view writes through @latheStyles and @latheScripts, each with the CSP nonce.
@@ -15,16 +16,27 @@ class RootTags
         protected AssetManifest $assets,
         protected PluginRegistry $plugins,
         protected ConfigStore $config,
+        protected ThemeStyleGenerator $theme,
     ) {
         //
     }
 
     public function styles(): string
     {
-        return implode("\n", array_map(
-            fn (string $url) => '<link rel="stylesheet" href="'.e($url).'"'.$this->nonce().'>',
-            $this->assets->stylesheetUrls($this->prefix()),
-        ));
+        $urls = $this->assets->stylesheetUrls($this->prefix());
+        $style = $this->assets->styleUrl($this->prefix(), $this->config->nullableString('theme.style') ?? 'nova');
+
+        if ($style !== null) {
+            $urls[] = $style;
+        }
+
+        $tags = array_map(fn (string $url) => '<link rel="stylesheet" href="'.e($url).'"'.$this->nonce().'>', $urls);
+
+        // After the links, so the config overrides win over the stylesheet defaults.
+        $colors = $this->config->get('theme.colors');
+        $tags[] = '<style'.$this->nonce().'>'.$this->theme->generate($this->config->nullableString('theme.radius') ?? '0.625rem', is_array($colors) ? $colors : []).'</style>';
+
+        return implode("\n", $tags);
     }
 
     public function scripts(): string
