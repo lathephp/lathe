@@ -255,7 +255,79 @@ Lathe\Actions\DestructiveAction::bool $destructive
 Lathe\Actions\Export\Export::$fillable  [protected]
 Lathe\Actions\Export\Export::$table  [protected]
 Lathe\Actions\Export\Export::casts(): array  [protected]
+Lathe\Actions\Export\Export::downloadName(): string
+Lathe\Actions\Export\Export::downloadUrl(): string
+Lathe\Actions\Export\Export::markFailed(Throwable $e): void
 Lathe\Actions\Export\Export::ownedBy(string|int|null $userId): bool
+Lathe\Actions\Export\Export::prunable(): Illuminate\Database\Eloquent\Builder
+Lathe\Actions\Export\Export::pruning(): void  [protected]
+Lathe\Actions\Export\Export::status(): string
+Lathe\Actions\Export\Export::toStatusArray(): array
+Lathe\Actions\Export\ExportAction::?Closure $fieldsCallback  [protected]
+Lathe\Actions\Export\ExportAction::?Closure $formatCallback  [protected]
+Lathe\Actions\Export\ExportAction::?Closure $queryCallback  [protected]
+Lathe\Actions\Export\ExportAction::?int $chunkSize
+Lathe\Actions\Export\ExportAction::Closure|string|null $filenameDefault  [protected]
+Lathe\Actions\Export\ExportAction::Closure|string|null $typeDefault  [protected]
+Lathe\Actions\Export\ExportAction::XLSX_MAX_ROWS
+Lathe\Actions\Export\ExportAction::authorizedToRunOn(Lathe\Http\Requests\LatheRequest $request, Illuminate\Database\Eloquent\Model $model): bool
+Lathe\Actions\Export\ExportAction::bool $confirmable  [protected]
+Lathe\Actions\Export\ExportAction::bool $recordsActionEvents  [protected]
+Lathe\Actions\Export\ExportAction::cell(mixed $value, string $timezone): string  [protected]
+Lathe\Actions\Export\ExportAction::chunkSize(): int  [protected]
+Lathe\Actions\Export\ExportAction::countRows(Illuminate\Database\Eloquent\Builder $query): int  [protected]
+Lathe\Actions\Export\ExportAction::displayed(Illuminate\Database\Eloquent\Model $model, array $columns, string $timezone): array  [protected]
+Lathe\Actions\Export\ExportAction::fields(Lathe\Http\Requests\LatheRequest $request): array
+Lathe\Actions\Export\ExportAction::formatted(Illuminate\Database\Eloquent\Model $model, string $timezone): array  [protected]
+Lathe\Actions\Export\ExportAction::handleRequest(Lathe\Http\Requests\LatheRequest $request, Lathe\Query\Selection $selection): array
+Lathe\Actions\Export\ExportAction::isDate(Illuminate\Database\Eloquent\Model $model, string $attribute): bool  [protected]
+Lathe\Actions\Export\ExportAction::name(): string
+Lathe\Actions\Export\ExportAction::nameable(Closure|string|null $default = NULL): static
+Lathe\Actions\Export\ExportAction::path(Lathe\Actions\ActionFields $fields, string $type): string  [protected]
+Lathe\Actions\Export\ExportAction::queueable(?string $connection = NULL, ?string $queue = NULL, ?int $tries = NULL, ?int $timeout = NULL, ?int $chunkSize = NULL): static
+Lathe\Actions\Export\ExportAction::type(Lathe\Http\Requests\LatheRequest $request, Lathe\Actions\ActionFields $fields): string  [protected]
+Lathe\Actions\Export\ExportAction::uriKey(): string
+Lathe\Actions\Export\ExportAction::withFields(Closure $callback): static
+Lathe\Actions\Export\ExportAction::withFormat(Closure $callback): static
+Lathe\Actions\Export\ExportAction::withQuery(Closure $callback): static
+Lathe\Actions\Export\ExportAction::withTypeSelector(Closure|string|null $default = NULL): static
+Lathe\Actions\Export\ExportAction::write(Lathe\Actions\Export\Export $export, Lathe\Http\Requests\LatheRequest $request, Lathe\Resources\Resource $resource, Lathe\Query\Selection $selection, Lathe\Actions\ActionFields $fields, string $type, string $timezone, int $chunk): void
+Lathe\Actions\Export\ExportReady::__construct(Lathe\Actions\Export\Export $export)
+Lathe\Actions\Export\ExportWriter::OpenSpout\Writer\WriterInterface $writer  [protected]
+Lathe\Actions\Export\ExportWriter::__construct(string $type)
+Lathe\Actions\Export\ExportWriter::addRow(array $values): void
+Lathe\Actions\Export\ExportWriter::bool $open  [protected]
+Lathe\Actions\Export\ExportWriter::close(): string
+Lathe\Actions\Export\ExportWriter::delete(): void
+Lathe\Actions\Export\ExportWriter::string $path  [protected]
+Lathe\Actions\Export\ProcessExport::$afterCommit
+Lathe\Actions\Export\ProcessExport::$chainCatchCallbacks
+Lathe\Actions\Export\ProcessExport::$chainConnection
+Lathe\Actions\Export\ProcessExport::$chainQueue
+Lathe\Actions\Export\ProcessExport::$chained
+Lathe\Actions\Export\ProcessExport::$connection
+Lathe\Actions\Export\ProcessExport::$debounceOwner
+Lathe\Actions\Export\ProcessExport::$deduplicator
+Lathe\Actions\Export\ProcessExport::$delay
+Lathe\Actions\Export\ProcessExport::$job
+Lathe\Actions\Export\ProcessExport::$messageGroup
+Lathe\Actions\Export\ProcessExport::$middleware
+Lathe\Actions\Export\ProcessExport::$queue
+Lathe\Actions\Export\ProcessExport::$uniqueLockOwner
+Lathe\Actions\Export\ProcessExport::?int $timeout
+Lathe\Actions\Export\ProcessExport::?int $tries
+Lathe\Actions\Export\ProcessExport::Lathe\Actions\Export\Export $export
+Lathe\Actions\Export\ProcessExport::Lathe\Support\JobContext $context
+Lathe\Actions\Export\ProcessExport::__construct(Lathe\Actions\Export\Export $export, string $resource, string $action, array $selection, array $fields, string $type, Lathe\Support\JobContext $context, int $chunkSize)
+Lathe\Actions\Export\ProcessExport::array $fields
+Lathe\Actions\Export\ProcessExport::array $selection
+Lathe\Actions\Export\ProcessExport::failed(Throwable $e): void
+Lathe\Actions\Export\ProcessExport::handle(): void
+Lathe\Actions\Export\ProcessExport::int $chunkSize
+Lathe\Actions\Export\ProcessExport::notify(Lathe\Actions\Export\ExportReady $notification): void  [protected]
+Lathe\Actions\Export\ProcessExport::string $action
+Lathe\Actions\Export\ProcessExport::string $resource
+Lathe\Actions\Export\ProcessExport::string $type
 Lathe\Actions\Import\ColumnMapper::MAX_DISTANCE
 Lathe\Actions\Import\ColumnMapper::MAX_FUZZY_HEADER_LENGTH
 Lathe\Actions\Import\ColumnMapper::autoMap(array $headers, array $columns): array  [static]
@@ -2048,6 +2120,9 @@ Lathe\Http\Controllers\BulkRunController::owned(Lathe\Http\Requests\LatheRequest
 Lathe\Http\Controllers\BulkRunController::show(Lathe\Http\Requests\LatheRequest $request, string $id): Illuminate\Http\JsonResponse
 Lathe\Http\Controllers\BulkRunController::status(Lathe\Actions\BulkRun $run): array  [protected]
 Lathe\Http\Controllers\DashboardController::__invoke(): Inertia\Response
+Lathe\Http\Controllers\ExportController::download(Lathe\Http\Requests\LatheRequest $request, string $export): Symfony\Component\HttpFoundation\StreamedResponse
+Lathe\Http\Controllers\ExportController::show(Lathe\Http\Requests\LatheRequest $request, string $export): Illuminate\Http\JsonResponse
+Lathe\Http\Controllers\ExportController::userId(Lathe\Http\Requests\LatheRequest $request): string|int|null  [protected]
 Lathe\Http\Controllers\GlobalSearchController::__invoke(Lathe\Http\Requests\LatheRequest $request, Lathe\Support\ConfigStore $config, Illuminate\Contracts\Auth\Access\Gate $gate, Lathe\Search\GlobalSearch $search, Lathe\Auth\ResourceAuthorization $authorization): Illuminate\Http\JsonResponse
 Lathe\Http\Controllers\ImportController::downloadErrors(Lathe\Http\Requests\LatheRequest $request, string $import): Symfony\Component\HttpFoundation\StreamedResponse
 Lathe\Http\Controllers\ImportController::owned(Lathe\Http\Requests\LatheRequest $request, string $id): Lathe\Actions\Import\Import  [protected]
@@ -3285,6 +3360,10 @@ class Lathe\Actions\ActionResult
 class Lathe\Actions\BulkRun
 class Lathe\Actions\DestructiveAction
 class Lathe\Actions\Export\Export
+class Lathe\Actions\Export\ExportAction
+class Lathe\Actions\Export\ExportReady
+class Lathe\Actions\Export\ExportWriter
+class Lathe\Actions\Export\ProcessExport
 class Lathe\Actions\Import\ColumnMapper
 class Lathe\Actions\Import\FailedImportRow
 class Lathe\Actions\Import\Import
@@ -3456,6 +3535,7 @@ class Lathe\Http\Controllers\Auth\AuthenticatedSessionController
 class Lathe\Http\Controllers\Auth\LoginPageController
 class Lathe\Http\Controllers\BulkRunController
 class Lathe\Http\Controllers\DashboardController
+class Lathe\Http\Controllers\ExportController
 class Lathe\Http\Controllers\GlobalSearchController
 class Lathe\Http\Controllers\ImportController
 class Lathe\Http\Controllers\NotificationController
