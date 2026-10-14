@@ -141,8 +141,12 @@ the rate-limit check.
 `/usr/local/bin/lathe-demo-reset` (a copy of `scripts/demo/reset.sh`) as www-data:
 
 1. `php artisan down`: every page answers 503 with the maintenance screen.
-2. `zstd -dc snapshot.sql.zst | mysql lathe_demo`: the dump drops and recreates each table.
-3. `php artisan up`.
+2. `php artisan db:wipe --force`, then `zstd -dc snapshot.sql.zst | mysql lathe_demo`, then
+   it removes the files visitors left: everything in `storage/app/public` (uploads) and the
+   `lathe-uploads`, `lathe-exports` and `lathe-imports` folders in `storage/app/private`.
+3. `php artisan migrate --force`: a snapshot taken before a redeploy gets that release's new
+   migrations back.
+4. `php artisan up`.
 
 It should finish well within 30 minutes. To run it now and read what it printed:
 
@@ -152,11 +156,13 @@ journalctl -u lathe-demo-reset.service -n 20
 ```
 
 The journal shows `Application is now in maintenance mode.`, then
-`reset: restored lathe_demo from /var/lib/lathe-demo/snapshot.sql.zst in N s`, then
+`Dropped all tables successfully.`, then `reset: restored lathe_demo from /var/lib/lathe-demo/snapshot.sql.zst in N s`, then
+`reset: removed the files visitors uploaded, exported and imported`, then the migrate
+output (`Nothing to migrate.` unless the snapshot is older than the release), then
 `Application is now live.`
 
-If the restore fails, the script stops with the app still down, so no visitor sees a
-half-restored store. Read the journal, fix the cause, then run `systemctl start
+If the restore or the migrate fails, the script stops with the app still down, so no
+visitor sees a half-restored store. Read the journal, fix the cause, then run `systemctl start
 lathe-demo-reset.service` again; `cd /srv/lathe-demo && runuser -u www-data -- php artisan up`
 brings the app back without a restore.
 
@@ -175,8 +181,9 @@ new migrations, restarts the queue worker and the scheduler, and keeps the datab
 `.env` and the snapshot. It prints `keeping the database and the snapshot at ...` instead
 of seeding.
 
-When a release changes the demo tables' schema, the snapshot no longer matches: delete it
-and redeploy, which seeds again and writes a new one (about 10 minutes, see the seed time
+The nightly reset runs the new release's migrations on the restored snapshot. When a
+release changes what the demo seeds, the snapshot no longer matches: delete it and
+redeploy, which seeds again and writes a new one (about 10 minutes, see the seed time
 above):
 
 ```sh
