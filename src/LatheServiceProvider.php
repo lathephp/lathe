@@ -56,7 +56,7 @@ class LatheServiceProvider extends ServiceProvider
         $this->app->singleton(AssetManifest::class);
         $this->app->singleton(AssetRegistry::class);
         $this->app->singleton(FortifyConfig::class);
-        $this->app->singleton(NotificationChannelRegistry::class, fn ($app) => new NotificationChannelRegistry(fn () => $app->isBooted()));
+        $this->app->singleton(NotificationChannelRegistry::class, fn () => new NotificationChannelRegistry(fn () => $this->app->isBooted()));
         $this->app->scoped(ActionEventRecorder::class);
 
         // Lathe registers login and logout under its own path. Fortify's routes at the host root

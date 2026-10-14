@@ -258,9 +258,11 @@ abstract class RelationField extends Field implements PrimesForPage
             return;
         }
 
+        /** @var array<int|string, array<string, mixed>> $before */
         $before = [];
 
         foreach ($relation->newPivotQuery()->get() as $row) {
+            /** @var array<string, mixed> $row */
             $row = (array) $row;
             $key = $row[$relation->getRelatedPivotKeyName()] ?? null;
 
@@ -283,7 +285,7 @@ abstract class RelationField extends Field implements PrimesForPage
         }
 
         if ($keys($changes['detached']) !== []) {
-            event(new ResourceDetached($model, $owner, $this->attribute, $keys($changes['detached'])));
+            event(new ResourceDetached($model, $owner, $this->attribute, $keys($changes['detached']), array_intersect_key($before, array_flip($keys($changes['detached'])))));
         }
 
         foreach ($keys($changes['updated']) as $id) {

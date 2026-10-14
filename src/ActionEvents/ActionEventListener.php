@@ -3,6 +3,8 @@
 namespace Lathe\ActionEvents;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Events\Dispatcher;
 use Lathe\Events\ImpersonationStarted;
@@ -84,7 +86,7 @@ class ActionEventListener
         $batchId = $this->recorder()->newBatchId();
 
         foreach ($event->ids as $id) {
-            $this->recorder()->forDetach($this->request(), $event->parent, $this->related($event->parent, $event->relationship, $id), $event->resource, [], $batchId);
+            $this->recorder()->forDetach($this->request(), $event->parent, $this->related($event->parent, $event->relationship, $id), $event->resource, $this->pivotValues($event->parent, $event->relationship, $event->rows[$id] ?? []), $batchId);
         }
     }
 
@@ -119,6 +121,34 @@ class ActionEventListener
         $related->setAttribute($related->getKeyName(), $id);
 
         return $related;
+    }
+
+    /**
+     * A pivot row's own values, without the keys that tie it to the parent and the related
+     * record and without its timestamps, as an attach row records them.
+     *
+     * @param  array<string, mixed>  $row
+     * @return array<string, mixed>
+     */
+    protected function pivotValues(Model $parent, string $relationship, array $row): array
+    {
+        $relation = $parent->{$relationship}();
+
+        if (! $relation instanceof BelongsToMany) {
+            return $row;
+        }
+
+        $keys = [$relation->getForeignPivotKeyName(), $relation->getRelatedPivotKeyName(), $relation->newPivot()->getKeyName()];
+
+        if ($relation instanceof MorphToMany) {
+            $keys[] = $relation->getMorphType();
+        }
+
+        if ($relation->withTimestamps) {
+            array_push($keys, $relation->createdAt(), $relation->updatedAt());
+        }
+
+        return array_diff_key($row, array_flip($keys));
     }
 
     protected function recorder(): ActionEventRecorder

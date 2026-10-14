@@ -58,13 +58,13 @@ class RelationAttachController
     public function detach(LatheRequest $request, ResourceAuthorization $authorization, string $resource, string $resourceId, string $relationship, string $relatedId): JsonResponse
     {
         [$class, $parent, , $relation] = $this->resolve($request, $authorization, $resourceId, $relationship);
-        [$key] = $this->attachedRow($request, $relation, $relatedId);
+        [$key, $row] = $this->attachedRow($request, $relation, $relatedId);
 
         $this->authorizeIds($request, $authorization, $class, $parent, 'detach'.Str::studly($relationship), [$key]);
 
-        $parent->getConnection()->transaction(function () use ($parent, $class, $relationship, $relation, $key) {
+        $parent->getConnection()->transaction(function () use ($parent, $class, $relationship, $relation, $key, $row) {
             $relation->detach($key);
-            event(new ResourceDetached($parent, $class, $relationship, [$key]));
+            event(new ResourceDetached($parent, $class, $relationship, [$key], [$key => $row]));
         });
 
         return new JsonResponse(['detached' => true]);
