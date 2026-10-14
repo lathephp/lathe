@@ -2,9 +2,10 @@
 
 namespace {{ namespace }};
 
+use App\Models\User;
 use Lathe\Http\Requests\LatheRequest;
-use Lathe\Widgets\Results\RadialResult;
 use Lathe\Widgets\RadialWidget;
+use Lathe\Widgets\Results\RadialResult;
 
 class {{ class }} extends RadialWidget
 {
@@ -12,7 +13,7 @@ class {{ class }} extends RadialWidget
     {
         return $this->count(
             $request,
-            \App\Models\User::class,
+            User::class,
             fn ($query) => $query->whereNotNull('email_verified_at'),
         );
     }

@@ -3,13 +3,13 @@
 namespace {{ namespace }};
 
 use Lathe\Http\Requests\LatheRequest;
-use Lathe\Widgets\Results\ProgressResult;
 use Lathe\Widgets\ProgressWidget;
+use Lathe\Widgets\Results\ProgressResult;
 
 class {{ class }} extends ProgressWidget
 {
     public function calculate(LatheRequest $request): ProgressResult
     {
-        return $this->result(0, 100);
+        return new ProgressResult(0, 100);
     }
 }

@@ -10,6 +10,6 @@ class {{ class }} extends ValueWidget
 {
     public function calculate(LatheRequest $request): ValueResult
     {
-        return $this->result(0);
+        return new ValueResult(0);
     }
 }

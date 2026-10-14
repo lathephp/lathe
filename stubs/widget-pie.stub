@@ -2,14 +2,15 @@
 
 namespace {{ namespace }};
 
+use App\Models\User;
 use Lathe\Http\Requests\LatheRequest;
-use Lathe\Widgets\Results\PieResult;
 use Lathe\Widgets\PieWidget;
+use Lathe\Widgets\Results\PieResult;
 
 class {{ class }} extends PieWidget
 {
     public function calculate(LatheRequest $request): PieResult
     {
-        return $this->count($request, \App\Models\User::class, 'status');
+        return $this->count($request, User::class, 'status');
     }
 }

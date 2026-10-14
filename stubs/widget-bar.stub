@@ -2,14 +2,15 @@
 
 namespace {{ namespace }};
 
+use App\Models\User;
 use Lathe\Http\Requests\LatheRequest;
-use Lathe\Widgets\Results\BarResult;
 use Lathe\Widgets\BarWidget;
+use Lathe\Widgets\Results\BarResult;
 
 class {{ class }} extends BarWidget
 {
     public function calculate(LatheRequest $request): BarResult
     {
-        return $this->count($request, \App\Models\User::class, 'status');
+        return $this->count($request, User::class, 'status');
     }
 }
