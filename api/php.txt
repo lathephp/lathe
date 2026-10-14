@@ -2339,7 +2339,9 @@ Lathe\Http\Controllers\Assets\AssetController::__invoke(Illuminate\Http\Request 
 Lathe\Http\Controllers\Auth\AuthenticatedSessionController::destroy(Illuminate\Http\Request $request): Symfony\Component\HttpFoundation\Response
 Lathe\Http\Controllers\Auth\AuthenticatedSessionController::store(Illuminate\Http\Request $request): Symfony\Component\HttpFoundation\Response
 Lathe\Http\Controllers\Auth\CallsFortify::callFortify(Illuminate\Http\Request $request, string $controller, string $method): Symfony\Component\HttpFoundation\Response  [protected]
-Lathe\Http\Controllers\Auth\LoginPageController::__invoke(Lathe\Auth\FortifyConfig $fortify): Inertia\Response
+Lathe\Http\Controllers\Auth\LoginPageController::__invoke(Illuminate\Http\Request $request, Lathe\Auth\FortifyConfig $fortify): Inertia\Response
+Lathe\Http\Controllers\Auth\NewPasswordController::create(Illuminate\Http\Request $request, string $token): Symfony\Component\HttpFoundation\Response
+Lathe\Http\Controllers\Auth\NewPasswordController::store(Illuminate\Http\Request $request): Symfony\Component\HttpFoundation\Response
 Lathe\Http\Controllers\Auth\PasswordResetLinkController::create(Illuminate\Http\Request $request): Symfony\Component\HttpFoundation\Response
 Lathe\Http\Controllers\Auth\PasswordResetLinkController::store(Illuminate\Http\Request $request): Symfony\Component\HttpFoundation\Response
 Lathe\Http\Controllers\BulkRunController::destroy(Lathe\Http\Requests\LatheRequest $request, string $id): Illuminate\Http\JsonResponse
@@ -4646,6 +4648,7 @@ class Lathe\Groups\Group
 class Lathe\Http\Controllers\Assets\AssetController
 class Lathe\Http\Controllers\Auth\AuthenticatedSessionController
 class Lathe\Http\Controllers\Auth\LoginPageController
+class Lathe\Http\Controllers\Auth\NewPasswordController
 class Lathe\Http\Controllers\Auth\PasswordResetLinkController
 class Lathe\Http\Controllers\BulkRunController
 class Lathe\Http\Controllers\DashboardController

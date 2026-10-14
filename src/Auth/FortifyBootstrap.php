@@ -9,12 +9,16 @@ use Illuminate\Contracts\Auth\CanResetPassword;
 use Laravel\Fortify\Contracts\FailedPasswordResetLinkRequestResponse;
 use Laravel\Fortify\Contracts\LoginResponse as LoginResponseContract;
 use Laravel\Fortify\Contracts\LogoutResponse as LogoutResponseContract;
+use Laravel\Fortify\Contracts\PasswordResetResponse as PasswordResetResponseContract;
+use Laravel\Fortify\Contracts\ResetsUserPasswords;
 use Laravel\Fortify\Contracts\SuccessfulPasswordResetLinkRequestResponse;
 use Laravel\Fortify\Features;
 use Laravel\Fortify\Fortify;
+use Lathe\Auth\Actions\ResetUserPassword;
 use Lathe\Auth\Responses\LoginResponse;
 use Lathe\Auth\Responses\LogoutResponse;
 use Lathe\Auth\Responses\PasswordResetLinkSentResponse;
+use Lathe\Auth\Responses\PasswordResetResponse;
 use Lathe\Lathe;
 
 /**
@@ -82,7 +86,7 @@ class FortifyBootstrap extends FortifyConfig
     }
 
     /**
-     * The Fortify response contracts the panel answers with its own classes.
+     * The Fortify responses and actions the panel answers with its own classes.
      *
      * @return array<class-string, class-string>
      */
@@ -93,6 +97,8 @@ class FortifyBootstrap extends FortifyConfig
             LogoutResponseContract::class => LogoutResponse::class,
             SuccessfulPasswordResetLinkRequestResponse::class => PasswordResetLinkSentResponse::class,
             FailedPasswordResetLinkRequestResponse::class => PasswordResetLinkSentResponse::class,
+            ResetsUserPasswords::class => ResetUserPassword::class,
+            PasswordResetResponseContract::class => PasswordResetResponse::class,
         ];
     }
 

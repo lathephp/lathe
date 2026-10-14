@@ -8,12 +8,13 @@ import type { SharedProps } from '../../types';
 
 interface LoginProps {
   username: string;
+  status?: string | null;
   errors: Partial<Record<'email' | 'password', string>>;
 }
 
 const { Slot } = __panel;
 
-export default function Login({ username, errors }: LoginProps) {
+export default function Login({ username, status = null, errors }: LoginProps) {
   const { __ } = useTranslation();
   const { basePath, authPaths } = usePage<SharedProps>().props;
   const form = useForm({ email: '', password: '', remember: false });
@@ -32,6 +33,11 @@ export default function Login({ username, errors }: LoginProps) {
   return (
     <Slot name="auth.login" username={username} errors={errors}>
       <AuthLayout title={__('Sign in')}>
+        {status !== null && (
+          <p role="status" className="text-sm font-medium">
+            {status}
+          </p>
+        )}
             <form className="space-y-4" noValidate onSubmit={submit}>
               <div className="space-y-1.5">
                 <label htmlFor="email" className="text-sm font-medium">

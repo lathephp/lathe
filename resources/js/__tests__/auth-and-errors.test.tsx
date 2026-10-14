@@ -214,3 +214,45 @@ describe('forgot password', () => {
     expect(screen.getByLabelText('Email').getAttribute('aria-describedby')).toBe(screen.getByText('The email field must be a valid email address.').id);
   });
 });
+
+describe('reset password', () => {
+  function renderReset(errors: Record<string, string> = {}) {
+    return renderPage('Auth/ResetPassword', { token: 'abc', email: 'ada@example.com', errors }, { shared: signedOut, url: '/lathe/reset-password/abc' });
+  }
+
+  it('shows the email read-only and posts the token with the new password', () => {
+    const visit = vi.spyOn(router, 'visit').mockImplementation(() => undefined);
+    renderReset();
+
+    const email = screen.getByLabelText<HTMLInputElement>('Email');
+    expect(email.readOnly).toBe(true);
+    expect(email.value).toBe('ada@example.com');
+
+    fireEvent.change(screen.getByLabelText('New password'), { target: { value: 'new-password-2026' } });
+    fireEvent.change(screen.getByLabelText('Confirm password'), { target: { value: 'new-password-2026' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Reset password' }));
+
+    expect(visit).toHaveBeenCalledWith(
+      '/lathe/reset-password',
+      expect.objectContaining({ method: 'post', data: { token: 'abc', email: 'ada@example.com', password: 'new-password-2026', password_confirmation: 'new-password-2026' } }),
+    );
+  });
+
+  it('links back to Forgot password under an expired token error', () => {
+    renderPage(
+      'Auth/ResetPassword',
+      { token: 'abc', email: 'ada@example.com', errors: { email: 'This password reset token is invalid.' } },
+      { shared: { ...signedOut, authPaths: { login: '/lathe/login', logout: '/lathe/logout', forgotPassword: '/lathe/forgot-password', resetPassword: '/lathe/reset-password' } }, url: '/lathe/reset-password/abc' },
+    );
+
+    expect(screen.getByText('This password reset token is invalid.')).toBeTruthy();
+    expect(screen.getByRole('link', { name: 'Send a new reset link' }).getAttribute('href')).toBe('/lathe/forgot-password');
+  });
+
+  it('says on the login screen that the password was reset', () => {
+    renderPage('Auth/Login', { username: 'email', status: 'Your password has been reset.', errors: {} }, { shared: signedOut, url: '/lathe/login' });
+
+    expect(screen.getByRole('status').textContent).toBe('Your password has been reset.');
+  });
+});
+

@@ -8,6 +8,7 @@ use Lathe\Auth\FortifyConfig;
 use Lathe\Http\Controllers\Assets\AssetController;
 use Lathe\Http\Controllers\Auth\AuthenticatedSessionController;
 use Lathe\Http\Controllers\Auth\LoginPageController;
+use Lathe\Http\Controllers\Auth\NewPasswordController;
 use Lathe\Http\Controllers\Auth\PasswordResetLinkController;
 use Lathe\Http\Controllers\BulkRunController;
 use Lathe\Http\Controllers\DashboardController;
@@ -95,6 +96,8 @@ class PanelRoutes
             if (Lathe::hasPasswordResetRoutes()) {
                 $router->get('forgot-password', [PasswordResetLinkController::class, 'create'])->middleware($guest)->name('password.request');
                 $router->post('forgot-password', [PasswordResetLinkController::class, 'store'])->middleware($guest)->name('password.email');
+                $router->get('reset-password/{token}', [NewPasswordController::class, 'create'])->middleware($guest)->name('password.reset');
+                $router->post('reset-password', [NewPasswordController::class, 'store'])->middleware($guest)->name('password.update');
             }
         });
 
