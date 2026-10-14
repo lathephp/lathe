@@ -1231,6 +1231,8 @@ Lathe\Events\ResourceUpdated::array $original
 Lathe\Events\ResourceUpdated::string $resource
 Lathe\Events\ServingLathe::Illuminate\Http\Request $request
 Lathe\Events\ServingLathe::__construct(Illuminate\Http\Request $request)
+Lathe\Exceptions\DuplicateResourcePluginException::forComponent(string $component, string $first, string $second): Lathe\Exceptions\DuplicateResourcePluginException  [static]
+Lathe\Exceptions\DuplicateResourcePluginException::twiceIn(string $component, string $resource): Lathe\Exceptions\DuplicateResourcePluginException  [static]
 Lathe\Field\AudioField::Closure|string $preload  [protected]
 Lathe\Field\AudioField::__construct(string $label, Closure|string|null $attribute = NULL, ?Closure $resolver = NULL)
 Lathe\Field\AudioField::array $acceptedTypes  [protected]
@@ -2347,6 +2349,7 @@ Lathe\Http\Controllers\PageFallbackController::__invoke(Illuminate\Http\Request 
 Lathe\Http\Controllers\Plugins\ModuleController::__invoke(Lathe\Assets\AssetRegistry $assets, string $file, string $type = 'scripts'): Symfony\Component\HttpFoundation\BinaryFileResponse
 Lathe\Http\Controllers\Plugins\PluginApiController::__invoke(Illuminate\Http\Request $request, Lathe\Plugins\PluginRegistry $plugins, string $plugin, string $path = ''): Symfony\Component\HttpFoundation\Response
 Lathe\Http\Controllers\Plugins\PluginPageController::__invoke(Illuminate\Http\Request $request, Lathe\Plugins\PluginRegistry $plugins, string $plugin, string $path = ''): Inertia\Response
+Lathe\Http\Controllers\Plugins\ResourcePluginController::__invoke(Lathe\Http\Requests\LatheRequest $request, Lathe\Plugins\ResourcePluginRegistry $plugins, Lathe\Auth\ResourceAuthorization $authorization, string $component, string $path = ''): Symfony\Component\HttpFoundation\Response
 Lathe\Http\Controllers\Resources\ActionController::form(Lathe\Http\Requests\LatheRequest $request, Lathe\Auth\ResourceAuthorization $authorization, string $resource, string $action): Illuminate\Http\JsonResponse
 Lathe\Http\Controllers\Resources\ActionController::index(Lathe\Http\Requests\LatheRequest $request, Lathe\Auth\ResourceAuthorization $authorization, Lathe\Actions\ActionMenu $menu): Illuminate\Http\JsonResponse
 Lathe\Http\Controllers\Resources\ActionLookupController::action(Lathe\Http\Requests\LatheRequest $request, Lathe\Auth\ResourceAuthorization $authorization): Lathe\Actions\Action  [protected]
@@ -2521,6 +2524,7 @@ Lathe\Http\PanelRoutes::group(): Illuminate\Routing\RouteRegistrar  [protected]
 Lathe\Http\PanelRoutes::importRoutes(Illuminate\Routing\Router $router): void  [protected]
 Lathe\Http\PanelRoutes::notificationRoutes(Illuminate\Routing\Router $router): void  [protected]
 Lathe\Http\PanelRoutes::register(): void
+Lathe\Http\PanelRoutes::resourcePluginRoutes(Illuminate\Routing\Router $router): void  [protected]
 Lathe\Http\PanelRoutes::runPageRoutes(Illuminate\Routing\Router $router): void  [protected]
 Lathe\Http\Payloads\IndexPayload::Lathe\Auth\ResourceAuthorization $authorization  [protected]
 Lathe\Http\Payloads\IndexPayload::Lathe\Http\Requests\LatheRequest $request  [protected]
@@ -2625,6 +2629,7 @@ Lathe\LatheManager::registerSearchProviders(Lathe\Search\SearchProvider ...$prov
 Lathe\LatheManager::resolveSidebarDefaultOpen(Illuminate\Http\Request $request): bool
 Lathe\LatheManager::resolveUserLocale(Illuminate\Http\Request $request): string
 Lathe\LatheManager::resolveUserTimezone(Illuminate\Http\Request $request): ?string
+Lathe\LatheManager::resourcePlugins(): Lathe\Plugins\ResourcePluginRegistry
 Lathe\LatheManager::resources(): Lathe\Resources\ResourceRegistry
 Lathe\LatheManager::restoreCapturedJobContext(array $extra): void
 Lathe\LatheManager::restoreJobContext(Closure $callback): static
@@ -2994,6 +2999,31 @@ Lathe\Plugins\PluginRegistry::moduleUrls(): array
 Lathe\Plugins\PluginRegistry::register(Lathe\Plugins\Plugin ...$plugins): void
 Lathe\Plugins\PluginRegistry::registered(string $class): bool  [protected]
 Lathe\Plugins\PluginRegistry::serve(Illuminate\Http\Request $request): void
+Lathe\Plugins\ResourcePlugin::?Closure $seeCallback  [protected]
+Lathe\Plugins\ResourcePlugin::RECORD_ATTRIBUTE
+Lathe\Plugins\ResourcePlugin::__call(string $method, array $parameters): static
+Lathe\Plugins\ResourcePlugin::array $meta  [protected]
+Lathe\Plugins\ResourcePlugin::assets(): array
+Lathe\Plugins\ResourcePlugin::authorize(Illuminate\Http\Request $request): bool
+Lathe\Plugins\ResourcePlugin::canSee(Closure $callback): static
+Lathe\Plugins\ResourcePlugin::component(): string
+Lathe\Plugins\ResourcePlugin::handleRequest(Illuminate\Http\Request $request, string $path): Symfony\Component\HttpFoundation\Response
+Lathe\Plugins\ResourcePlugin::jsonSerialize(): array
+Lathe\Plugins\ResourcePlugin::make(): static  [static]
+Lathe\Plugins\ResourcePlugin::meta(): array
+Lathe\Plugins\ResourcePlugin::metaFields(): array  [protected]
+Lathe\Plugins\ResourcePlugin::name(): string
+Lathe\Plugins\ResourcePlugin::resourceRecord(Illuminate\Http\Request $request): Illuminate\Database\Eloquent\Model
+Lathe\Plugins\ResourcePlugin::withMeta(array $meta): static
+Lathe\Plugins\ResourcePluginRegistry::?array $index  [protected]
+Lathe\Plugins\ResourcePluginRegistry::Lathe\Assets\AssetRegistry $assets  [protected]
+Lathe\Plugins\ResourcePluginRegistry::Lathe\Resources\ResourceRegistry $resources  [protected]
+Lathe\Plugins\ResourcePluginRegistry::__construct(Lathe\Resources\ResourceRegistry $resources, Lathe\Assets\AssetRegistry $assets)
+Lathe\Plugins\ResourcePluginRegistry::boot(?Lathe\Http\Requests\LatheRequest $request = NULL): void
+Lathe\Plugins\ResourcePluginRegistry::flush(): void
+Lathe\Plugins\ResourcePluginRegistry::index(?Lathe\Http\Requests\LatheRequest $request = NULL): array  [protected]
+Lathe\Plugins\ResourcePluginRegistry::placedIn(string $class, Lathe\Http\Requests\LatheRequest $request): array  [static]
+Lathe\Plugins\ResourcePluginRegistry::resourceFor(string $component, string $uriKey): ?string
 Lathe\Query\Count::__construct(int $value, bool $capped, bool $exact = false, bool $estimated = false)
 Lathe\Query\Count::bool $capped
 Lathe\Query\Count::bool $estimated
@@ -4410,6 +4440,7 @@ class Lathe\Events\ResourceRestored
 class Lathe\Events\ResourceUpdated
 class Lathe\Events\ServingLathe
 class Lathe\Exceptions\ActionUriKeyCollisionException
+class Lathe\Exceptions\DuplicateResourcePluginException
 class Lathe\Exceptions\DuplicateRowKeyException
 class Lathe\Exceptions\InvalidActionException
 class Lathe\Exceptions\InvalidConfigurationException
@@ -4505,6 +4536,7 @@ class Lathe\Http\Controllers\PageFallbackController
 class Lathe\Http\Controllers\Plugins\ModuleController
 class Lathe\Http\Controllers\Plugins\PluginApiController
 class Lathe\Http\Controllers\Plugins\PluginPageController
+class Lathe\Http\Controllers\Plugins\ResourcePluginController
 class Lathe\Http\Controllers\Resources\ActionController
 class Lathe\Http\Controllers\Resources\ActionLookupController
 class Lathe\Http\Controllers\Resources\ActionRunController
@@ -4576,6 +4608,8 @@ class Lathe\Pages\PageRegistry
 class Lathe\Plugins\Plugin
 class Lathe\Plugins\PluginDiscovery
 class Lathe\Plugins\PluginRegistry
+class Lathe\Plugins\ResourcePlugin
+class Lathe\Plugins\ResourcePluginRegistry
 class Lathe\Query\Count
 class Lathe\Query\DateBucket
 class Lathe\Query\PivotVia

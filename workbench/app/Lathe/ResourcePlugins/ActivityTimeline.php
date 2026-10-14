@@ -2,6 +2,7 @@
 
 namespace Workbench\App\Lathe\ResourcePlugins;
 
+use Carbon\CarbonInterface;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Lathe\ActionEvents\ActionEvent;
@@ -14,6 +15,8 @@ use Workbench\App\Models\Order;
 
 /**
  * The latest events of an order: when it was created and what its action log records since.
+ *
+ * @method $this heading(string $heading)
  */
 class ActivityTimeline extends ResourcePlugin
 {
@@ -50,7 +53,7 @@ class ActivityTimeline extends ResourcePlugin
             'title' => Lathe::__('Created'),
             'detail' => null,
             'user' => null,
-            'at' => $order->created_at?->utc()->toIso8601ZuluString(),
+            'at' => $this->iso($order->getAttribute('created_at')),
         ];
 
         return new JsonResponse(['events' => $logged->push($created)->take(self::LIMIT)->values()->all()]);
@@ -69,7 +72,12 @@ class ActivityTimeline extends ResourcePlugin
             'title' => $updated ? Lathe::__('Updated') : (string) $event->action_name,
             'detail' => $updated ? implode(', ', array_keys($event->changes ?? [])) : null,
             'user' => is_string($name) ? $name : null,
-            'at' => $event->created_at?->utc()->toIso8601ZuluString(),
+            'at' => $this->iso($event->getAttribute('created_at')),
         ];
+    }
+
+    private function iso(mixed $at): ?string
+    {
+        return $at instanceof CarbonInterface ? $at->copy()->utc()->toIso8601ZuluString() : null;
     }
 }
