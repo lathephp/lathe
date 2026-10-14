@@ -52,3 +52,9 @@ composer analyse
 composer lint
 composer types
 ```
+
+`scripts/gates.sh` runs every gate on PHP 8.5 and in the `lathe-php84` container (the image `scripts/matrix.sh` builds at the repo root), each on the highest versions and after `composer update --prefer-lowest` (Spatie 7.x). It prints the resolved Spatie version and one `rc=` line per lane and gate, restores the highest install, and exits 1 when any rc is not 0.
+
+```bash
+bash scripts/gates.sh
+```
