@@ -425,3 +425,18 @@ it('passes component keys that a plugin manifest, the extensions manifest or the
 
     File::deleteDirectory($scratch);
 });
+
+it('passes a component key that the extensions manifest next to a registered script registers', function () {
+    $scratch = sys_get_temp_dir().'/lathe-components-'.bin2hex(random_bytes(4));
+    File::ensureDirectoryExists($scratch);
+    File::put("{$scratch}/boot-3f9a1c2e.js", '');
+    File::put("{$scratch}/manifest.json", json_encode(['entry' => 'boot-3f9a1c2e.js', 'components' => ['page' => ['doctor-reports']]]));
+    Lathe::script('extensions', "{$scratch}/boot-3f9a1c2e.js");
+    Lathe::registerPages(DoctorReports::class);
+
+    [, $lines] = doctor();
+
+    expect(fixtureComponentRows($lines))->toBe([]);
+
+    File::deleteDirectory($scratch);
+});

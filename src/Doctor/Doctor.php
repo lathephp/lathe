@@ -538,14 +538,17 @@ class Doctor
         $sources = [$this->panelComponents(), $this->app->make(ExtensionManifest::class)->components()];
         $assets = $this->app->make(AssetRegistry::class);
 
+        // A plugin build writes lathe-plugin.json and an extensions build manifest.json.
         foreach ($assets->scripts() as $script) {
-            $file = dirname($script).'/lathe-plugin.json';
-            $manifest = ! $assets->isRemote($script) && is_file($file) ? json_decode((string) file_get_contents($file), true) : null;
-            $components = is_array($manifest) ? ($manifest['components'] ?? null) : null;
+            foreach (['lathe-plugin.json', 'manifest.json'] as $name) {
+                $file = dirname($script).'/'.$name;
+                $manifest = ! $assets->isRemote($script) && is_file($file) ? json_decode((string) file_get_contents($file), true) : null;
+                $components = is_array($manifest) ? ($manifest['components'] ?? null) : null;
 
-            if (is_array($components)) {
-                /** @var array<string, list<string>> $components */
-                $sources[] = $components;
+                if (is_array($components)) {
+                    /** @var array<string, list<string>> $components */
+                    $sources[] = $components;
+                }
             }
         }
 
