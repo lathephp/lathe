@@ -9,6 +9,7 @@ use Illuminate\Contracts\Http\Kernel;
 use Illuminate\Cookie\Middleware\EncryptCookies;
 use Illuminate\Foundation\Console\AboutCommand;
 use Illuminate\Foundation\Events\VendorTagPublished;
+use Illuminate\Foundation\Http\Middleware\PreventRequestsDuringMaintenance;
 use Illuminate\Foundation\PackageManifest;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Router;
@@ -120,6 +121,11 @@ class LatheServiceProvider extends ServiceProvider
 
         // The sidebar writes this cookie in the browser, so it is read unencrypted.
         EncryptCookies::except(['sidebar_state']);
+
+        // The maintenance page is a panel page, so it needs the built files while the app is down.
+        // Laravel's prerendered maintenance check matches paths only, so the domain plays no part.
+        $path = trim($this->app->make(ConfigStore::class)->string('path'), '/');
+        PreventRequestsDuringMaintenance::except(["{$path}/assets/*", "{$path}/modules/*", "{$path}/styles/*"]);
 
         $this->app->make(ExceptionHandler::class)->renderable(
             fn (Throwable $e, Request $request) => $this->app->make(ErrorPages::class)->render($e, $request),
