@@ -1,5 +1,5 @@
 import { Link, router } from '@inertiajs/react';
-import { QueryClientProvider, queryClient, request, useLathe, useQuery, useTranslation } from '@lathephp/core';
+import { ApiError, QueryClientProvider, queryClient, request, toast, useLathe, useQuery, useTranslation } from '@lathephp/core';
 import { Button, Card } from '@lathephp/ui';
 import { ArrowDown, ArrowUp, ChevronDown, ListFilter } from 'lucide-react';
 import { useId, useState, type MouseEvent } from 'react';
@@ -12,12 +12,19 @@ import { ToolbarSearch } from '../index/ToolbarSearch';
 import type { AvailableFilter } from '../index/types';
 import { applyChanges, type IndexUrlState } from '../index/useIndexState';
 import { useRowSelection } from '../index/useRowSelection';
+import { Modal } from '../components/Modal';
 import { cn } from '../lib/cn';
 import { TableCell } from '../table/cells';
+import { AttachRelationModal } from './AttachRelationModal';
+import { UpdatePivotModal } from './UpdatePivotModal';
+import { useRelationActions } from './useRelationActions';
 import { useRelateFlags, useRelationIndex, type RelationRow } from './useRelationIndex';
 
 /** The relation kinds whose panel creates a child through `via`; a through or pivot relation has no foreign key to lock. */
 const creatingKinds = ['hasMany', 'morphMany'];
+
+/** The relation kinds whose rows sit on a join table, so the panel attaches, edits the pivot and detaches. */
+const pivotKinds = ['belongsToMany', 'morphToMany', 'morphedByMany'];
 
 // A click on these does its own thing, never the row's link.
 const ownClick = 'a, button, input, label, select';
@@ -86,6 +93,11 @@ function PanelBody({ parent, field, bodyId, onToggle }: RelationPanelProps & { b
   const [filtersOpen, setFiltersOpen] = useState(false);
   const perPageId = useId();
   const filtersId = useId();
+  const detachTitleId = useId();
+  const [attaching, setAttaching] = useState(false);
+  const [editing, setEditing] = useState<RelationRow | null>(null);
+  const [detaching, setDetaching] = useState<RelationRow | null>(null);
+  const actions = useRelationActions(parent.uriKey, parent.id, field.relationship);
   const selection = useRowSelection();
   const index = useRelationIndex(parent.uriKey, parent.id, field.relationship, state);
   const flags = useRelateFlags(parent.uriKey, parent.id);
@@ -99,6 +111,8 @@ function PanelBody({ parent, field, bodyId, onToggle }: RelationPanelProps & { b
   const filtered = (state.q ?? '') !== '' || Object.keys(state.filter ?? {}).length > 0;
   const empty = data !== null && rows.length === 0;
   const canCreate = creatingKinds.includes(field.kind) && flags.data?.[field.relationship]?.add === true;
+  const pivoted = pivotKinds.includes(field.kind);
+  const canAttach = pivoted && flags.data?.[field.relationship]?.attachAny === true;
   const createHref = `${basePath}/resources/${field.resource}/new?via=${parent.uriKey}/${String(parent.id)}/${field.relationship}`;
   const ids = rows.map((row) => row.id);
   const ticked = ids.filter((id) => selection.selected.has(id)).length;
@@ -124,6 +138,18 @@ function PanelBody({ parent, field, bodyId, onToggle }: RelationPanelProps & { b
     }
   }
 
+  async function detach(row: RelationRow) {
+    setDetaching(null);
+
+    try {
+      await actions.detach(row.related_id, row.pivot_id);
+      toast.success(__(':title was detached.', { title: row.title }));
+    } catch (failure) {
+      const message = failure instanceof ApiError && failure.status === 403 ? (failure.data as { message?: string } | null)?.message : undefined;
+      toast.error(message ?? __(':title could not be detached.', { title: row.title }));
+    }
+  }
+
   const create = (
     <Link
       href={createHref}
@@ -138,6 +164,15 @@ function PanelBody({ parent, field, bodyId, onToggle }: RelationPanelProps & { b
       <div className="flex flex-wrap items-center justify-between gap-2">
         <Heading field={field} open bodyId={bodyId} count={count} onToggle={onToggle} />
         {canCreate && !(empty && !filtered) ? create : null}
+        {canAttach ? (
+          <Button
+            onClick={() => {
+              setAttaching(true);
+            }}
+          >
+            {__('Attach')}
+          </Button>
+        ) : null}
       </div>
       <Card id={bodyId} className="overflow-hidden">
         <div className="flex flex-wrap items-center gap-2 border-b border-border p-3">
@@ -225,6 +260,11 @@ function PanelBody({ parent, field, bodyId, onToggle }: RelationPanelProps & { b
                       </th>
                     );
                   })}
+                  {pivoted ? (
+                    <th scope="col" className="px-3">
+                      <span className="sr-only">{__('Actions')}</span>
+                    </th>
+                  ) : null}
                 </tr>
               </thead>
               <tbody>
@@ -256,6 +296,29 @@ function PanelBody({ parent, field, bodyId, onToggle }: RelationPanelProps & { b
                         </td>
                       );
                     })}
+                    {pivoted ? (
+                      <td className="px-3 text-end whitespace-nowrap">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => {
+                            setEditing(row);
+                          }}
+                        >
+                          {__('Edit pivot')}
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="text-destructive"
+                          onClick={() => {
+                            setDetaching(row);
+                          }}
+                        >
+                          {__('Detach')}
+                        </Button>
+                      </td>
+                    ) : null}
                   </tr>
                 ))}
               </tbody>
@@ -294,6 +357,55 @@ function PanelBody({ parent, field, bodyId, onToggle }: RelationPanelProps & { b
           </div>
         )}
       </Card>
+      {attaching ? (
+        <AttachRelationModal
+          parent={parent}
+          field={field}
+          onClose={() => {
+            setAttaching(false);
+          }}
+        />
+      ) : null}
+      {editing === null ? null : (
+        <UpdatePivotModal
+          parent={parent}
+          field={field}
+          row={editing}
+          onClose={() => {
+            setEditing(null);
+          }}
+        />
+      )}
+      {detaching === null ? null : (
+        <Modal
+          labelledBy={detachTitleId}
+          onClose={() => {
+            setDetaching(null);
+          }}
+        >
+          <h2 id={detachTitleId} className="text-base font-semibold">
+            {__('Detach :title?', { title: detaching.title })}
+          </h2>
+          <div className="flex justify-end gap-2">
+            <Button
+              variant="ghost"
+              onClick={() => {
+                setDetaching(null);
+              }}
+            >
+              {__('Cancel')}
+            </Button>
+            <Button
+              className="bg-destructive text-white hover:bg-destructive/90"
+              onClick={() => {
+                void detach(detaching);
+              }}
+            >
+              {__('Detach')}
+            </Button>
+          </div>
+        </Modal>
+      )}
     </>
   );
 }
