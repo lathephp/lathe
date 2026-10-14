@@ -30,6 +30,9 @@ class Authenticate
         $user = $this->auth->guard($this->fortify->guard())->user();
 
         if ($user !== null) {
+            // Fortify's actions read $request->user(), which asks the default guard.
+            $this->auth->shouldUse($this->fortify->guard());
+
             return in_array('unverified', $options, true) || ! $this->awaitsVerification($user) ? $next($request) : $this->holdForVerification($request);
         }
 

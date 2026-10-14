@@ -79,3 +79,10 @@ it('fails the doctor on a missing guard, broker or user model (pin)', function (
     'missing broker' => [['lathe.passwords' => 'nowhere'], 'FAIL Password broker nowhere is not defined in config/auth.php.'],
     'provider without a model' => [['auth.providers.staff.model' => null], 'FAIL The user model of guard staff cannot be found.'],
 ]);
+
+it('confirms the password of the user on the panel guard', function () {
+    // Through the form: actingAs() would also make staff the default guard.
+    $this->post('/lathe/login', ['email' => 'admin@lathephp.com', 'password' => 'password']);
+
+    $this->postJson('/lathe/confirm-password', ['password' => 'password'])->assertCreated();
+});
