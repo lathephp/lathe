@@ -39,7 +39,7 @@ function demoResetApp(): string
     $repo = demoResetRepo();
     $dir = sys_get_temp_dir().'/lathe-demo-reset-'.bin2hex(random_bytes(4));
 
-    File::ensureDirectoryExists("{$dir}/storage/framework");
+    File::ensureDirectoryExists("{$dir}/storage/framework/views");
     File::ensureDirectoryExists("{$dir}/bin");
     File::put("{$dir}/artisan", '<?php chdir('.var_export($repo, true).'); passthru(implode(" ", array_map("escapeshellarg", [PHP_BINARY, "vendor/bin/testbench", ...array_slice($argv, 1)])), $code); exit($code);');
     File::put("{$dir}/.env", implode("\n", [
