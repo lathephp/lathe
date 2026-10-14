@@ -766,6 +766,18 @@ Lathe\Attributes\Widget\RefreshEvery::__construct(int $seconds)
 Lathe\Attributes\Widget\RefreshEvery::int $seconds
 Lathe\Attributes\Widget\Width::Lathe\Enums\CardWidth $width
 Lathe\Attributes\Widget\Width::__construct(Lathe\Enums\CardWidth $width)
+Lathe\Auth\FortifyBootstrap::$authenticateThrough  [protected]
+Lathe\Auth\FortifyBootstrap::$authenticateUsing  [protected]
+Lathe\Auth\FortifyBootstrap::$confirmPasswordsUsing  [protected]
+Lathe\Auth\FortifyBootstrap::authenticateThrough(callable $callback): static
+Lathe\Auth\FortifyBootstrap::authenticateUsing(callable $callback): static
+Lathe\Auth\FortifyBootstrap::confirmPasswordsUsing(callable $callback): static
+Lathe\Auth\FortifyBootstrap::enabled(string $feature): bool
+Lathe\Auth\FortifyBootstrap::hasSecurityFeatures(): bool
+Lathe\Auth\FortifyBootstrap::responses(): array  [protected]
+Lathe\Auth\FortifyBootstrap::scoped(Closure $callback): mixed
+Lathe\Auth\FortifyBootstrap::withHooks(Closure $callback): mixed  [protected]
+Lathe\Auth\FortifyBootstrap::withResponses(Closure $callback): mixed  [protected]
 Lathe\Auth\FortifyConfig::Illuminate\Contracts\Config\Repository $config  [protected]
 Lathe\Auth\FortifyConfig::Lathe\Support\ConfigStore $lathe  [protected]
 Lathe\Auth\FortifyConfig::__construct(Lathe\Support\ConfigStore $lathe, Illuminate\Contracts\Config\Repository $config)
@@ -2633,7 +2645,7 @@ Lathe\LatheManager::enableRTL(Closure|bool $callback = true): static
 Lathe\LatheManager::ensureBooted(): void
 Lathe\LatheManager::footer(Closure $callback): static
 Lathe\LatheManager::footerFor(Illuminate\Http\Request $request): ?array
-Lathe\LatheManager::fortify(): Lathe\Auth\FortifyConfig
+Lathe\LatheManager::fortify(): Lathe\Auth\FortifyBootstrap
 Lathe\LatheManager::isRTL(?Illuminate\Http\Request $request = NULL): bool
 Lathe\LatheManager::isServing(): bool
 Lathe\LatheManager::loadTranslations(array|string $translations): static
@@ -4483,6 +4495,7 @@ class Lathe\Attributes\Widget\RefreshEvery
 class Lathe\Attributes\Widget\RefreshWhenActionsRun
 class Lathe\Attributes\Widget\RefreshWhenFiltersChange
 class Lathe\Attributes\Widget\Width
+class Lathe\Auth\FortifyBootstrap
 class Lathe\Auth\FortifyConfig
 class Lathe\Auth\PanelGate
 class Lathe\Auth\ResourceAuthorization

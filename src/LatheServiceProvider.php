@@ -22,6 +22,7 @@ use Lathe\ActionEvents\ActionEventResource;
 use Lathe\Assets\AssetManifest;
 use Lathe\Assets\AssetRegistry;
 use Lathe\Assets\RootTags;
+use Lathe\Auth\FortifyBootstrap;
 use Lathe\Auth\FortifyConfig;
 use Lathe\Console\ApiCheckCommand;
 use Lathe\Console\AssetsCommand;
@@ -84,7 +85,8 @@ class LatheServiceProvider extends ServiceProvider
         $this->app->singleton(PageRegistry::class);
         $this->app->singleton(AssetManifest::class);
         $this->app->singleton(AssetRegistry::class);
-        $this->app->singleton(FortifyConfig::class);
+        $this->app->singleton(FortifyBootstrap::class);
+        $this->app->alias(FortifyBootstrap::class, FortifyConfig::class);
         $this->app->singleton(NotificationChannelRegistry::class, fn () => new NotificationChannelRegistry(fn () => $this->app->isBooted()));
         $this->app->scoped(ActionEventRecorder::class);
         $this->app->scoped(PluginSettings::class);

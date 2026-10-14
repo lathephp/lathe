@@ -120,9 +120,7 @@ class HandleInertiaRequests extends Middleware
     private static function userMenu(Request $request): array
     {
         $items = Menu::buildUserMenu($request)->jsonSerialize();
-        $fortify = Lathe::fortify();
-
-        if ($fortify->featureEnabled('updatePasswords') || $fortify->featureEnabled('twoFactorAuthentication')) {
+        if (Lathe::fortify()->hasSecurityFeatures()) {
             $items[] = ['label' => Lathe::__('Security'), 'href' => '/'.trim(Lathe::path(), '/').'/security', 'icon' => null];
         }
 

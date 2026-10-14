@@ -11,7 +11,7 @@ use Lathe\ActionEvents\ActionEvent;
 use Lathe\ActionEvents\ActionEventRecorder;
 use Lathe\Assets\AssetManifest;
 use Lathe\Assets\AssetRegistry;
-use Lathe\Auth\FortifyConfig;
+use Lathe\Auth\FortifyBootstrap;
 use Lathe\Auth\PanelGate;
 use Lathe\Dashboards\Dashboard;
 use Lathe\Dashboards\DashboardRegistry;
@@ -110,9 +110,9 @@ class LatheManager
         return $this->container->make(AssetManifest::class);
     }
 
-    public function fortify(): FortifyConfig
+    public function fortify(): FortifyBootstrap
     {
-        return $this->container->make(FortifyConfig::class);
+        return $this->container->make(FortifyBootstrap::class);
     }
 
     /**
