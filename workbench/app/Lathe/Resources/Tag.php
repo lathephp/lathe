@@ -22,7 +22,7 @@ class Tag extends Resource
     {
         return [
             Field::text('Name')->required(),
-            Field::morphedByMany('Products')->pivotFields([Field::number('Position')->min(0)->required()]),
+            Field::morphedByMany('Products')->pivotFields([Field::number('Position')->min(0)->max(1000)->step(1)->rules('integer')->required()]),
         ];
     }
 }

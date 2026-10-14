@@ -53,7 +53,7 @@ class Order extends Resource
                 LayoutTab::make('Billing', [$this->total()->required()->showOnPreview()]),
                 // The form edits the items in a repeater; detail lists them in the Items panel.
                 LayoutTab::make('Items', [
-                    Field::hasMany('Items'),
+                    Field::hasMany('Items')->withCount()->collapsible(),
                     Field::repeater('Items')->asHasMany('items')->onlyOnForms()->fields([
                         Field::number('Quantity')->min(1)->required(),
                         Field::currency('Price', 'price_cents')->asMinorUnits()->required(),

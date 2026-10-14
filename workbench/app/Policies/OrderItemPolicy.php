@@ -32,9 +32,10 @@ class OrderItemPolicy
         return true;
     }
 
+    // Mirrors OrderPolicy::addItems: only the admin ties an item to an order, from either side.
     public function addOrder(User $user, OrderItem $orderItem): bool
     {
-        return true;
+        return $user->email === 'admin@lathephp.com';
     }
 
     public function addProduct(User $user, OrderItem $orderItem): bool

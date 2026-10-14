@@ -32,7 +32,7 @@ class Product extends Resource
                 Field::text('Name')->required(),
                 Field::text('Value')->required(),
             ])->sortable()->confirmRemoval()->addButtonText('Add spec')->rowLabel('name', 'Spec #{{index}}'),
-            Field::morphToMany('Tags')->pivotFields([Field::number('Position')->min(0)->required()])->pivotActions(['Tag Actions']),
+            Field::morphToMany('Tags')->pivotFields([Field::number('Position')->min(0)->max(1000)->step(1)->rules('integer')->required()])->pivotActions(['Tag Actions']),
             Field::morphMany('Comments'),
         ];
     }

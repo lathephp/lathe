@@ -59,8 +59,8 @@ it('answers the add and attach flags of every relation field of an order', funct
     $this->getJson('/lathe/api/resources/orders/relate-authorization?resourceId=12')
         ->assertOk()
         ->assertExactJson([
-            'customer' => ['add' => true, 'attach' => false, 'attachAny' => false],
-            'items' => ['add' => true, 'attach' => false, 'attachAny' => false],
+            'customer' => ['add' => true, 'attach' => false, 'attachAny' => false, 'detach' => false],
+            'items' => ['add' => true, 'attach' => false, 'attachAny' => false, 'detach' => false],
         ]);
 });
 

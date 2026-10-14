@@ -42,6 +42,7 @@ class RelatableAuthorizationController
                 'add' => $authorization->allows($user, $class, 'add'.$relation, $model),
                 'attach' => $authorization->allows($user, $class, 'attach'.$relation, $model, [[]]),
                 'attachAny' => $authorization->allows($user, $class, 'attachAny'.$relation, $model),
+                'detach' => $authorization->allows($user, $class, 'detach'.$relation, $model, [[]]),
             ];
         }
 

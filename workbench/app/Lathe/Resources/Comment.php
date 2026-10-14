@@ -22,7 +22,7 @@ class Comment extends Resource
     {
         return [
             Field::morphTo('Commentable')->types([Post::class, Product::class]),
-            Field::textarea('Body')->required(),
+            Field::textarea('Body')->required()->showOnIndex(),
         ];
     }
 }
