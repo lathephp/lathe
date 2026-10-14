@@ -1334,6 +1334,7 @@ Lathe\Field\BooleanField::string $component  [protected]
 Lathe\Field\BooleanField::supportsInline(): bool  [protected]
 Lathe\Field\BooleanField::trueValue(mixed $value): static
 Lathe\Field\BooleanField::values(mixed $true, mixed $false): static
+Lathe\Field\BooleanGroupField::?Lathe\Field\RemoteOptions $remoteOptions  [protected]
 Lathe\Field\BooleanGroupField::Closure|array|string $optionSource  [protected]
 Lathe\Field\BooleanGroupField::Closure|bool $searchable  [protected]
 Lathe\Field\BooleanGroupField::__construct(string $label, Closure|string|null $attribute = NULL, ?Closure $resolver = NULL)
@@ -1776,14 +1777,19 @@ Lathe\Field\GravatarField::?string $source  [protected]
 Lathe\Field\GravatarField::emailOf(object $record): string  [protected]
 Lathe\Field\GravatarField::imageUrl(object $record): ?string  [protected]
 Lathe\Field\GravatarField::initials(object $record): ?string  [protected]
+Lathe\Field\HasOptions::?Lathe\Field\RemoteOptions $remoteOptions  [protected]
 Lathe\Field\HasOptions::Closure|array|string $optionSource  [protected]
 Lathe\Field\HasOptions::Closure|bool $searchable  [protected]
 Lathe\Field\HasOptions::bool $displayUsingLabels  [protected]
 Lathe\Field\HasOptions::cell(Illuminate\Database\Eloquent\Model $model): array
 Lathe\Field\HasOptions::displayUsingLabels(bool $show = true): static
+Lathe\Field\HasOptions::isRemote(): bool
 Lathe\Field\HasOptions::jsonSerialize(): array
 Lathe\Field\HasOptions::optionValues(): array  [protected]
 Lathe\Field\HasOptions::options(Closure|array|string $options): static
+Lathe\Field\HasOptions::remoteOptions(Closure $query, string $column = 'name', ?int $inlineUpTo = NULL): static
+Lathe\Field\HasOptions::remoteQuery(?Lathe\Http\Requests\LatheRequest $request = NULL): Illuminate\Database\Eloquent\Builder
+Lathe\Field\HasOptions::remoteSource(): ?Lathe\Field\RemoteOptions
 Lathe\Field\HasOptions::resolveForDisplay(object $record, ?string $attribute = NULL): mixed
 Lathe\Field\HasOptions::resolvedOptions(): array
 Lathe\Field\HasOptions::searchable(Closure|bool $searchable = true): static
@@ -1863,6 +1869,7 @@ Lathe\Field\MorphToActionTarget::modelClass(Lathe\ActionEvents\ActionEvent $even
 Lathe\Field\MorphToActionTarget::primeForPage(Illuminate\Database\Eloquent\Collection $records): void
 Lathe\Field\MorphToActionTarget::resolve(object $record, ?string $attribute = NULL): mixed
 Lathe\Field\MorphToActionTarget::string $component  [protected]
+Lathe\Field\MultiSelectField::?Lathe\Field\RemoteOptions $remoteOptions  [protected]
 Lathe\Field\MultiSelectField::Closure|array|string $optionSource  [protected]
 Lathe\Field\MultiSelectField::Closure|bool $searchable  [protected]
 Lathe\Field\MultiSelectField::__construct(string $label, Closure|string|null $attribute = NULL, ?Closure $resolver = NULL)
@@ -2094,6 +2101,13 @@ Lathe\Field\Relations\TagField::preload(bool $preload = true): static
 Lathe\Field\Relations\TagField::resolve(object $record, ?string $attribute = NULL): mixed
 Lathe\Field\Relations\TagField::string $component  [protected]
 Lathe\Field\Relations\TagField::withPreview(bool $preview = true): static
+Lathe\Field\RemoteOptions::?int $inlineUpTo
+Lathe\Field\RemoteOptions::Closure $query
+Lathe\Field\RemoteOptions::__construct(Closure $query, string $column, ?int $inlineUpTo)
+Lathe\Field\RemoteOptions::find(Illuminate\Database\Eloquent\Builder $query, string $value): ?array
+Lathe\Field\RemoteOptions::inline(Illuminate\Database\Eloquent\Builder $query): ?array
+Lathe\Field\RemoteOptions::search(Illuminate\Database\Eloquent\Builder $query, string $term, int $limit): array
+Lathe\Field\RemoteOptions::string $column
 Lathe\Field\RepeaterField::?Closure $beforeFill  [protected]
 Lathe\Field\RepeaterField::?Closure $beforeSave  [protected]
 Lathe\Field\RepeaterField::?Closure $labelCallback  [protected]
@@ -2156,6 +2170,7 @@ Lathe\Field\Repeater\Repeatable::label(): string
 Lathe\Field\Repeater\Repeatable::make(string $label, Closure|array $fields = array ( )): static  [static]
 Lathe\Field\Repeater\Repeatable::string $label  [protected]
 Lathe\Field\Repeater\Repeatable::toPayload(Closure $field): array
+Lathe\Field\SelectField::?Lathe\Field\RemoteOptions $remoteOptions  [protected]
 Lathe\Field\SelectField::Closure|array|string $optionSource  [protected]
 Lathe\Field\SelectField::Closure|bool $searchable  [protected]
 Lathe\Field\SelectField::bool $displayUsingLabels  [protected]
@@ -2419,10 +2434,14 @@ Lathe\Http\Controllers\Resources\ActionLookupController::associatable(Lathe\Http
 Lathe\Http\Controllers\Resources\ActionLookupController::dependencies(Lathe\Http\Requests\LatheRequest $request, Lathe\Auth\ResourceAuthorization $authorization, Lathe\Http\Controllers\Resources\DependencyController $engine): Illuminate\Http\JsonResponse
 Lathe\Http\Controllers\Resources\ActionLookupController::fields(Lathe\Http\Requests\LatheRequest $request, Lathe\Actions\Action $action): Lathe\Field\FieldCollection  [protected]
 Lathe\Http\Controllers\Resources\ActionRunController::__invoke(Lathe\Http\Requests\LatheRequest $request, Lathe\Auth\ResourceAuthorization $authorization): Illuminate\Http\JsonResponse
+Lathe\Http\Controllers\Resources\AssociatableController::answer(Lathe\Http\Requests\LatheRequest $request, string $parent, Lathe\Field\Relations\RelationField|Lathe\Field\SelectField|Lathe\Field\MultiSelectField $field, ?Illuminate\Database\Eloquent\Model $record = NULL): Illuminate\Http\JsonResponse  [protected]
 Lathe\Http\Controllers\Resources\AssociatableController::create(Lathe\Http\Requests\LatheRequest $request, Lathe\Auth\ResourceAuthorization $authorization, string $resource, string $field): Illuminate\Http\JsonResponse
+Lathe\Http\Controllers\Resources\AssociatableController::isPicker(Lathe\Field\Field $field, string $attribute): bool  [protected]
 Lathe\Http\Controllers\Resources\AssociatableController::options(Lathe\Http\Requests\LatheRequest $request, string $parent, Lathe\Field\Relations\RelationField $field, ?Illuminate\Database\Eloquent\Model $record = NULL): Illuminate\Http\JsonResponse  [protected]
+Lathe\Http\Controllers\Resources\AssociatableController::pickerField(Lathe\Http\Requests\LatheRequest $request, Lathe\Field\FieldCollection $fields, string $attribute): Lathe\Field\Relations\RelationField|Lathe\Field\SelectField|Lathe\Field\MultiSelectField  [protected]
 Lathe\Http\Controllers\Resources\AssociatableController::record(Lathe\Http\Requests\LatheRequest $request, Lathe\Auth\ResourceAuthorization $authorization, string $resource, string $resourceId, string $field): Illuminate\Http\JsonResponse
 Lathe\Http\Controllers\Resources\AssociatableController::relationField(Lathe\Http\Requests\LatheRequest $request, Lathe\Field\FieldCollection $fields, string $attribute): Lathe\Field\Relations\RelationField  [protected]
+Lathe\Http\Controllers\Resources\AssociatableController::remoteOptions(Lathe\Http\Requests\LatheRequest $request, string $parent, Lathe\Field\SelectField|Lathe\Field\MultiSelectField $field): Illuminate\Http\JsonResponse  [protected]
 Lathe\Http\Controllers\Resources\AuthorizesResources::viewableResource(Lathe\Http\Requests\LatheRequest $request, Lathe\Auth\ResourceAuthorization $authorization): string  [protected]
 Lathe\Http\Controllers\Resources\BatchDeleteController::delete(Lathe\Http\Requests\LatheRequest $request, Lathe\Auth\ResourceAuthorization $authorization, Lathe\Resources\RecordDeleter $deleter, Lathe\ActionEvents\ActionEventRecorder $recorder): Illuminate\Http\JsonResponse
 Lathe\Http\Controllers\Resources\BatchDeleteController::forceDelete(Lathe\Http\Requests\LatheRequest $request, Lathe\Auth\ResourceAuthorization $authorization, Lathe\Resources\RecordDeleter $deleter, Lathe\ActionEvents\ActionEventRecorder $recorder): Illuminate\Http\JsonResponse
@@ -4654,6 +4673,7 @@ class Lathe\Field\Relations\MorphedByManyField
 class Lathe\Field\Relations\RelationField
 class Lathe\Field\Relations\ResourceRelationshipGuesser
 class Lathe\Field\Relations\TagField
+class Lathe\Field\RemoteOptions
 class Lathe\Field\RepeaterField
 class Lathe\Field\Repeater\Repeatable
 class Lathe\Field\SelectField
