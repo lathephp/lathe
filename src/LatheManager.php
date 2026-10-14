@@ -5,14 +5,17 @@ namespace Lathe;
 use Closure;
 use Composer\InstalledVersions;
 use Illuminate\Contracts\Container\Container;
+use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Http\Request;
 use Lathe\ActionEvents\ActionEvent;
 use Lathe\ActionEvents\ActionEventRecorder;
 use Lathe\Assets\AssetManifest;
+use Lathe\Assets\AssetRegistry;
 use Lathe\Auth\FortifyConfig;
 use Lathe\Auth\PanelGate;
 use Lathe\Dashboards\Dashboard;
 use Lathe\Dashboards\DashboardRegistry;
+use Lathe\Events\ServingLathe;
 use Lathe\Field\Field;
 use Lathe\Field\FieldContext;
 use Lathe\Field\GravatarField;
@@ -28,12 +31,21 @@ use Lathe\Search\SearchProvider;
 use Lathe\Support\ConfigStore;
 use Lathe\Support\SafeHtml;
 use Lathe\Support\TranslationManager;
+use LogicException;
 
 /**
  * What the Lathe facade answers. Holds no state of its own: each accessor resolves a binding.
  */
 class LatheManager
 {
+    /** The values provideToScript() got while a panel request was served; they last for that request only. */
+    public const string PROVIDED_BAG = 'lathe.provided.request';
+
+    /** @var array<string, mixed> */
+    protected array $provided = [];
+
+    protected bool $ensured = false;
+
     /** @var (Closure(Request): string)|null */
     protected ?Closure $footer = null;
 
@@ -138,6 +150,7 @@ class LatheManager
      */
     public function auth(Closure $callback): static
     {
+        $this->assertNotBooted('auth');
         $this->container->make(PanelGate::class)->using($callback);
 
         return $this;
@@ -228,6 +241,7 @@ class LatheManager
      */
     public function userLocale(Closure $callback): static
     {
+        $this->assertNotBooted('userLocale');
         $this->userLocale = $callback;
 
         return $this;
@@ -320,6 +334,7 @@ class LatheManager
      */
     public function footer(Closure $callback): static
     {
+        $this->assertNotBooted('footer');
         $this->footer = $callback;
 
         return $this;
@@ -388,6 +403,152 @@ class LatheManager
         }
 
         return [];
+    }
+
+    /**
+     * Register a script to load with the panel: a file path, or an https:// URL for a remote one.
+     */
+    public function script(string $name, string $path): static
+    {
+        $this->container->make(AssetRegistry::class)->script($name, $path);
+
+        return $this;
+    }
+
+    /**
+     * Register a stylesheet to load on every panel page: a file path, or an https:// URL for a remote one.
+     */
+    public function style(string $name, string $path): static
+    {
+        $this->container->make(AssetRegistry::class)->style($name, $path);
+
+        return $this;
+    }
+
+    /**
+     * Run a callback at the start of every panel request, with the ServingLathe event.
+     *
+     * @param  Closure(ServingLathe): mixed  $callback
+     */
+    public function serving(Closure $callback): static
+    {
+        $this->container->make(Dispatcher::class)->listen(ServingLathe::class, $callback);
+
+        return $this;
+    }
+
+    /**
+     * Run a callback once the app has booted, or at once when it already has.
+     *
+     * @param  Closure(): mixed  $callback
+     */
+    public function booted(Closure $callback): static
+    {
+        app()->booted($callback);
+
+        return $this;
+    }
+
+    /**
+     * Whether a panel request is being served.
+     */
+    public function isServing(): bool
+    {
+        return $this->container->bound(LatheRequest::class);
+    }
+
+    /**
+     * The callback's result while a panel request is served, else the default's with the current request.
+     *
+     * @param  Closure(LatheRequest): mixed  $callback
+     * @param  (Closure(Request): mixed)|null  $default
+     */
+    public function whenServing(Closure $callback, ?Closure $default = null): mixed
+    {
+        if ($this->isServing()) {
+            return $callback($this->container->make(LatheRequest::class));
+        }
+
+        return $default === null ? null : $default($this->container->make('request'));
+    }
+
+    /**
+     * Run serving() on every plugin the request is authorized for.
+     */
+    public function servePlugins(Request $request): void
+    {
+        $this->plugins()->serve($request);
+    }
+
+    /**
+     * Boot the panel outside HTTP, in an artisan command or a script: runs the serving callbacks
+     * and the plugins' serving() once. It binds no request, so the first real request is served as usual.
+     */
+    public function ensureBooted(): void
+    {
+        if ($this->ensured) {
+            return;
+        }
+
+        $this->ensured = true;
+        $request = Request::create('/'.trim($this->path(), '/'));
+
+        event(new ServingLathe($request));
+        $this->servePlugins($request);
+    }
+
+    /**
+     * Give the page script values, read there with config(key). Called at boot they are global;
+     * called while a panel request is served they belong to that request. A closure value gets the Request.
+     *
+     * @param  array<string, mixed>  $values
+     */
+    public function provideToScript(array $values): static
+    {
+        if (! $this->isServing()) {
+            $this->provided = [...$this->provided, ...$values];
+
+            return $this;
+        }
+
+        $this->container->instance(self::PROVIDED_BAG, [...$this->providedBag(), ...$values]);
+
+        return $this;
+    }
+
+    /**
+     * The values for the page script: the global ones, then this request's, closures resolved.
+     *
+     * @return array<string, mixed>
+     */
+    public function provided(Request $request): array
+    {
+        return array_map(
+            fn (mixed $value) => $value instanceof Closure ? $value($request) : $value,
+            [...$this->provided, ...$this->providedBag()],
+        );
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    protected function providedBag(): array
+    {
+        $bag = $this->container->bound(self::PROVIDED_BAG) ? $this->container->make(self::PROVIDED_BAG) : [];
+
+        /** @var array<string, mixed> */
+        return is_array($bag) ? $bag : [];
+    }
+
+    /**
+     * The setters define the panel once. While a request is served, or after ensureBooted(), a
+     * change would leak into the next request of a long-lived worker.
+     */
+    protected function assertNotBooted(string $setter): void
+    {
+        if ($this->ensured || $this->isServing()) {
+            throw new LogicException("Lathe::{$setter}() defines the panel and must run in a service provider's boot(), before the panel serves a request.");
+        }
     }
 
     public function name(): string

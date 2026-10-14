@@ -593,19 +593,42 @@ Lathe\Assets\AssetManifest::styleUrl(string $prefix, string $style): ?string
 Lathe\Assets\AssetManifest::stylesheetUrls(string $prefix): array
 Lathe\Assets\AssetManifest::url(string $prefix, string $file): string  [protected]
 Lathe\Assets\AssetManifest::useDistPath(string $path): void
+Lathe\Assets\AssetRegistry::Illuminate\Contracts\Container\Container $container  [protected]
+Lathe\Assets\AssetRegistry::PUBLIC_DIRECTORY
+Lathe\Assets\AssetRegistry::REQUEST_BAG
+Lathe\Assets\AssetRegistry::__construct(Illuminate\Contracts\Container\Container $container)
+Lathe\Assets\AssetRegistry::add(string $type, string $name, string $entry): void  [protected]
 Lathe\Assets\AssetRegistry::array $scripts  [protected]
 Lathe\Assets\AssetRegistry::array $styles  [protected]
+Lathe\Assets\AssetRegistry::copyPath(string $type, string $name): string
+Lathe\Assets\AssetRegistry::directiveIndex(array $directives, string $name): ?int  [protected]
+Lathe\Assets\AssetRegistry::entries(string $type): array  [protected]
+Lathe\Assets\AssetRegistry::extendPolicy(string $policy): string
+Lathe\Assets\AssetRegistry::extension(string $type): string  [protected]
 Lathe\Assets\AssetRegistry::hash(string $path): string
+Lathe\Assets\AssetRegistry::https(string $url): string  [protected]
+Lathe\Assets\AssetRegistry::isRemote(string $entry): bool
+Lathe\Assets\AssetRegistry::origins(array $entries): array  [protected]
+Lathe\Assets\AssetRegistry::register(array $assets): void
+Lathe\Assets\AssetRegistry::remoteOrigins(): array
+Lathe\Assets\AssetRegistry::remoteScript(string $name, string $url): void
+Lathe\Assets\AssetRegistry::remoteStyle(string $name, string $url): void
+Lathe\Assets\AssetRegistry::requestBag(): array  [protected]
 Lathe\Assets\AssetRegistry::resolve(string $type, string $file): ?string
 Lathe\Assets\AssetRegistry::script(string $name, string $path): void
 Lathe\Assets\AssetRegistry::scriptUrl(string $prefix, string $name): ?string
 Lathe\Assets\AssetRegistry::scripts(): array
 Lathe\Assets\AssetRegistry::style(string $name, string $path): void
+Lathe\Assets\AssetRegistry::styleUrl(string $prefix, string $name): ?string
+Lathe\Assets\AssetRegistry::styleUrls(string $prefix): array
+Lathe\Assets\AssetRegistry::styles(): array
+Lathe\Assets\AssetRegistry::url(string $type, string $prefix, string $name): ?string  [protected]
 Lathe\Assets\RootTags::Lathe\Assets\AssetManifest $assets  [protected]
+Lathe\Assets\RootTags::Lathe\Assets\AssetRegistry $registry  [protected]
 Lathe\Assets\RootTags::Lathe\Plugins\PluginRegistry $plugins  [protected]
 Lathe\Assets\RootTags::Lathe\Support\ConfigStore $config  [protected]
 Lathe\Assets\RootTags::Lathe\Theme\ThemeStyleGenerator $theme  [protected]
-Lathe\Assets\RootTags::__construct(Lathe\Assets\AssetManifest $assets, Lathe\Plugins\PluginRegistry $plugins, Lathe\Support\ConfigStore $config, Lathe\Theme\ThemeStyleGenerator $theme)
+Lathe\Assets\RootTags::__construct(Lathe\Assets\AssetManifest $assets, Lathe\Assets\AssetRegistry $registry, Lathe\Plugins\PluginRegistry $plugins, Lathe\Support\ConfigStore $config, Lathe\Theme\ThemeStyleGenerator $theme)
 Lathe\Assets\RootTags::nonce(): string  [protected]
 Lathe\Assets\RootTags::prefix(): string  [protected]
 Lathe\Assets\RootTags::scripts(): string
@@ -763,6 +786,10 @@ Lathe\Auth\ResourceAuthorization::denialMessage(string $resource): string
 Lathe\Auth\ResourceAuthorization::narrowBulk(?Illuminate\Contracts\Auth\Authenticatable $user, string $resource, string $ability, Illuminate\Database\Eloquent\Builder $query): Illuminate\Database\Eloquent\Builder
 Lathe\Auth\ResourceAuthorization::narrowsBulk(string $resource, string $ability): bool
 Lathe\Auth\ResourceAuthorization::policyFor(string $resource): ?object  [protected]
+Lathe\Console\AssetsCommand::$description  [protected]
+Lathe\Console\AssetsCommand::$signature  [protected]
+Lathe\Console\AssetsCommand::copy(string $target, string $name, string $source): void  [protected]
+Lathe\Console\AssetsCommand::handle(Lathe\Assets\AssetRegistry $assets): int
 Lathe\Console\CacheCommand::$description  [protected]
 Lathe\Console\CacheCommand::$signature  [protected]
 Lathe\Console\CacheCommand::handle(Lathe\Resources\ResourceRegistry $registry): int
@@ -2473,6 +2500,7 @@ Lathe\Http\Middleware\HandleInertiaRequests::version(Illuminate\Http\Request $re
 Lathe\Http\Middleware\RedirectIfAuthenticated::redirectTo(Illuminate\Http\Request $request): ?string  [protected]
 Lathe\Http\Middleware\ServeLathe::Illuminate\Contracts\Container\Container $container  [protected]
 Lathe\Http\Middleware\ServeLathe::__construct(Illuminate\Contracts\Container\Container $container)
+Lathe\Http\Middleware\ServeLathe::addRemoteOrigins(Symfony\Component\HttpFoundation\Response $response): void  [protected]
 Lathe\Http\Middleware\ServeLathe::handle(Illuminate\Http\Request $request, Closure $next): Symfony\Component\HttpFoundation\Response
 Lathe\Http\Middleware\ServePlugins::Lathe\Plugins\PluginRegistry $plugins  [protected]
 Lathe\Http\Middleware\ServePlugins::__construct(Lathe\Plugins\PluginRegistry $plugins)
@@ -2555,13 +2583,18 @@ Lathe\LatheManager::?Closure $footer  [protected]
 Lathe\LatheManager::?Closure $userLocale  [protected]
 Lathe\LatheManager::?Closure $userTimezone  [protected]
 Lathe\LatheManager::Illuminate\Contracts\Container\Container $container  [protected]
+Lathe\LatheManager::PROVIDED_BAG
 Lathe\LatheManager::__(string $key, array $replace = array ( ), ?string $default = NULL): string
 Lathe\LatheManager::__construct(Illuminate\Contracts\Container\Container $container)
 Lathe\LatheManager::actionEventModel(): string
 Lathe\LatheManager::array $jobContextCaptures  [protected]
 Lathe\LatheManager::array $jobContextRestores  [protected]
+Lathe\LatheManager::array $provided  [protected]
+Lathe\LatheManager::assertNotBooted(string $setter): void  [protected]
 Lathe\LatheManager::assets(): Lathe\Assets\AssetManifest
 Lathe\LatheManager::auth(Closure $callback): static
+Lathe\LatheManager::bool $ensured  [protected]
+Lathe\LatheManager::booted(Closure $callback): static
 Lathe\LatheManager::captureJobContext(Closure $callback): static
 Lathe\LatheManager::capturedJobContext(): array
 Lathe\LatheManager::check(Illuminate\Http\Request $request): bool
@@ -2569,9 +2602,11 @@ Lathe\LatheManager::config(): Lathe\Support\ConfigStore
 Lathe\LatheManager::cspImageSources(): array
 Lathe\LatheManager::dashboards(): Lathe\Dashboards\DashboardRegistry
 Lathe\LatheManager::discoverResources(string $directory, ?string $namespace = NULL): void
+Lathe\LatheManager::ensureBooted(): void
 Lathe\LatheManager::footer(Closure $callback): static
 Lathe\LatheManager::footerFor(Illuminate\Http\Request $request): ?array
 Lathe\LatheManager::fortify(): Lathe\Auth\FortifyConfig
+Lathe\LatheManager::isServing(): bool
 Lathe\LatheManager::loadTranslations(array|string $translations): static
 Lathe\LatheManager::loginPath(): string
 Lathe\LatheManager::name(): string
@@ -2579,6 +2614,9 @@ Lathe\LatheManager::notificationChannels(string ...$channels): void
 Lathe\LatheManager::pages(): Lathe\Pages\PageRegistry
 Lathe\LatheManager::path(): string
 Lathe\LatheManager::plugins(): Lathe\Plugins\PluginRegistry
+Lathe\LatheManager::provideToScript(array $values): static
+Lathe\LatheManager::provided(Illuminate\Http\Request $request): array
+Lathe\LatheManager::providedBag(): array  [protected]
 Lathe\LatheManager::registerDashboards(Lathe\Dashboards\Dashboard|string ...$dashboards): void
 Lathe\LatheManager::registerPages(Lathe\Pages\Page|string ...$pages): void
 Lathe\LatheManager::registerPlugins(Lathe\Plugins\Plugin ...$plugins): void
@@ -2590,12 +2628,17 @@ Lathe\LatheManager::resolveUserTimezone(Illuminate\Http\Request $request): ?stri
 Lathe\LatheManager::resources(): Lathe\Resources\ResourceRegistry
 Lathe\LatheManager::restoreCapturedJobContext(array $extra): void
 Lathe\LatheManager::restoreJobContext(Closure $callback): static
+Lathe\LatheManager::script(string $name, string $path): static
+Lathe\LatheManager::servePlugins(Illuminate\Http\Request $request): void
+Lathe\LatheManager::serving(Closure $callback): static
 Lathe\LatheManager::string $actionEventModel  [protected]
+Lathe\LatheManager::style(string $name, string $path): static
 Lathe\LatheManager::userLocale(Closure $callback): static
 Lathe\LatheManager::userTimezone(Closure $callback): static
 Lathe\LatheManager::usingActionEvent(string $class): static
 Lathe\LatheManager::version(): string
 Lathe\LatheManager::versionLabel(): ?string
+Lathe\LatheManager::whenServing(Closure $callback, ?Closure $default = NULL): mixed
 Lathe\LatheManager::withoutActionEvents(?Closure $callback = NULL): mixed
 Lathe\LatheServiceProvider::boot(): void
 Lathe\LatheServiceProvider::register(): void
@@ -4325,6 +4368,7 @@ class Lathe\Attributes\Widget\Width
 class Lathe\Auth\FortifyConfig
 class Lathe\Auth\PanelGate
 class Lathe\Auth\ResourceAuthorization
+class Lathe\Console\AssetsCommand
 class Lathe\Console\CacheCommand
 class Lathe\Console\ClearCommand
 class Lathe\Console\DoctorCommand

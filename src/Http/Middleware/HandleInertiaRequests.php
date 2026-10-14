@@ -51,6 +51,8 @@ class HandleInertiaRequests extends Middleware
             // Read by the page root for `dir`. Nothing public sets it yet: a request attribute is the hook.
             'rtl' => $request->attributes->getBoolean('lathe.rtl'),
             'latheVersion' => Lathe::version(),
+            // What Lathe::provideToScript() gave: global values plus this request's own.
+            'provided' => Lathe::provided($request),
             'assetHash' => Lathe::assets()->hash(),
             // Lazy badge values change within a sidebar whose hash does not, so they travel apart.
             'navigationBadges' => fn () => $user === null || ! Lathe::check($request) ? [] : app(Navigation::class)->badges($request),

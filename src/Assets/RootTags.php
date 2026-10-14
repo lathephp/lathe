@@ -14,6 +14,7 @@ class RootTags
 {
     public function __construct(
         protected AssetManifest $assets,
+        protected AssetRegistry $registry,
         protected PluginRegistry $plugins,
         protected ConfigStore $config,
         protected ThemeStyleGenerator $theme,
@@ -29,6 +30,8 @@ class RootTags
         if ($style !== null) {
             $urls[] = $style;
         }
+
+        array_push($urls, ...$this->registry->styleUrls($this->prefix()));
 
         $tags = array_map(fn (string $url) => '<link rel="stylesheet" href="'.e($url).'"'.$this->nonce().'>', $urls);
 

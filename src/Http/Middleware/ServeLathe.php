@@ -5,9 +5,11 @@ namespace Lathe\Http\Middleware;
 use Closure;
 use Illuminate\Contracts\Container\Container;
 use Illuminate\Http\Request;
+use Lathe\Assets\AssetRegistry;
 use Lathe\Events\ServingLathe;
 use Lathe\Http\Requests\LatheRequest;
 use Lathe\Lathe;
+use Lathe\LatheManager;
 use Lathe\Support\TranslationManager;
 use Lathe\Support\Util;
 use Symfony\Component\HttpFoundation\Response;
@@ -41,14 +43,30 @@ class ServeLathe
             event(new ServingLathe($request));
 
             $response = $next($request);
+            $this->addRemoteOrigins($response);
         } finally {
             $this->container->forgetInstance(LatheRequest::class);
             $this->container->forgetInstance(TranslationManager::REQUEST_BAG);
+            $this->container->forgetInstance(AssetRegistry::REQUEST_BAG);
+            $this->container->forgetInstance(LatheManager::PROVIDED_BAG);
         }
 
         $response->headers->set('X-Lathe-Version', Lathe::version());
         $response->headers->set('X-Lathe-Assets', Lathe::assets()->hash());
 
         return $response;
+    }
+
+    /**
+     * Lets the origins of remote assets into the script-src and style-src the host's policy set on
+     * this response. A response without a policy stays without one.
+     */
+    protected function addRemoteOrigins(Response $response): void
+    {
+        $policy = $response->headers->get('Content-Security-Policy');
+
+        if ($policy !== null) {
+            $response->headers->set('Content-Security-Policy', $this->container->make(AssetRegistry::class)->extendPolicy($policy));
+        }
     }
 }
