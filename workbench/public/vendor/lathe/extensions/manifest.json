@@ -1,0 +1,24 @@
+{
+  "entry": "boot-Bx1rdS6k.js",
+  "styles": [
+    "boot-BtovmAUP.css"
+  ],
+  "components": {
+    "widget": [
+      "workbench-clock"
+    ],
+    "page": [
+      "ui-gallery",
+      "system-status"
+    ],
+    "plugin": [
+      "insights"
+    ],
+    "field": [
+      "workbench-star-rating"
+    ],
+    "filter": [
+      "workbench-price-tier"
+    ]
+  }
+}
