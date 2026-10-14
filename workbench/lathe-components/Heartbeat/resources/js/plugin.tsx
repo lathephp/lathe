@@ -1,4 +1,4 @@
-import { plugin, request, toast, useLathe, useTranslation } from '@lathephp/core';
+import { actionModal, plugin, request, toast, useLathe, useTranslation, type ActionModalProps } from '@lathephp/core';
 import { Badge } from '@lathephp/ui';
 import { useCallback, useEffect, useState, type ReactNode } from 'react';
 
@@ -75,4 +75,19 @@ function Page() {
   );
 }
 
+/** What the workbench action Hold order opens with modal('hold-order', {id}). */
+function HoldOrder({ data, close }: ActionModalProps) {
+  const { __ } = useTranslation();
+
+  return (
+    <div>
+      <p>{__('Order #:id is on hold.', { id: String(data.id) })}</p>
+      <button type="button" onClick={close}>
+        {__('Close')}
+      </button>
+    </div>
+  );
+}
+
 plugin('heartbeat', Page);
+actionModal('hold-order', HoldOrder);
