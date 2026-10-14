@@ -68,6 +68,12 @@ code=$(curl -s -o /root/login.html -w '%{http_code}' -c "$jar" "$base/lathe/logi
 echo "      GET /lathe/login: $code; payload: $(grep -o 'demoLogin.\{0,110\}' /root/login.html | head -n 1)"
 check "/lathe/login answers 200" test "$code" = 200
 check "the login page payload holds admin@lathephp.com and password" grep -q 'demoLogin.*admin@lathephp\.com.*password' /root/login.html
+# The boot script draws the hook badges in the browser, so the page must tell it this is the demo.
+check "the login page tells the boot script it runs in the demo" grep -Eq 'demo(&quot;|")?:true' /root/login.html
+check "the login page holds no hook badge marker" bash -c '! grep -q "data-demo-hook" /root/login.html'
+entries=$(grep -o 'id="lathe-modules"[^>]*>[^<]*' /root/login.html | grep -oE '/[^",]*(boot|workbench-extensions)[^",]*\.js')
+echo "      extension entry scripts on the login page: ${entries//$'\n'/ }"
+check "the login page lists the extension entry script once" test "$(grep -c . <<<"$entries")" = 1
 external=$(grep -oE 'https?://[^"&<> ]+' /root/login.html | grep -v '^http://localhost' | sort -u)
 echo "      URLs on the login page outside the app: ${external:-none}"
 check "the login page loads nothing from another host" test -z "$external"
@@ -149,6 +155,9 @@ first=$(printf '%s\n' "${codes[@]:0:60}" | sort | uniq -c | tr -s ' ' | tr '\n' 
 echo "      requests 1 to 60 from $host:$first request 61: ${codes[60]}"
 check "the first 60 requests in a minute pass" test "$(printf '%s\n' "${codes[@]:0:60}" | grep -c 429)" = 0
 check "the 61st request in a minute gets 429" test "${codes[60]}" = 429
+limited=$(curl -s "http://$host/up")
+echo "      body of the 429: $limited"
+check "the 429 body tells the visitor to wait a minute" grep -q 'Too many requests from your address. Wait a minute and try again.' <<<"$limited"
 
 echo "failures=$failures"
 ((failures == 0))
