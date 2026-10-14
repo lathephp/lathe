@@ -95,17 +95,13 @@ beforeEach(function () {
 it('lists the customers whose name matches the term on the create form', function () {
     $json = $this->getJson('/lathe/api/resources/orders/associatable/customer?q=ann')->assertOk()->json();
 
-    $names = array_filter($json['items'], fn (array $item) => str_starts_with(strtolower($item['display']), 'ann'));
-
     expect(array_keys($json))->toBe(['items', 'has_more'])
-        ->and(count($names))->toBeGreaterThanOrEqual(3);
+        ->and(count($json['items']))->toBeGreaterThanOrEqual(3);
 
-    // The Customer Resource also searches inside the email, so "hartmann" matches too.
+    // The picker types ahead on the title, so the email match the index search makes ("hartmann") stays out.
     foreach ($json['items'] as $item) {
-        $email = (string) DB::table('customers')->where('id', $item['value'])->value('email');
-
         expect($item)->toHaveKeys(['value', 'display'])
-            ->and(str_starts_with(strtolower($item['display']), 'ann') || str_contains($email, 'ann'))->toBeTrue();
+            ->and(str_starts_with(strtolower($item['display']), 'ann'))->toBeTrue();
     }
 });
 

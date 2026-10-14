@@ -10,6 +10,7 @@ use Illuminate\Support\Collection;
 use Lathe\Auth\ResourceAuthorization;
 use Lathe\Field\Contracts\PrimesForPage;
 use Lathe\Field\Evaluator;
+use Lathe\Field\FieldContext;
 use Lathe\Http\Requests\LatheRequest;
 use Lathe\Support\ConfigStore;
 
@@ -61,6 +62,29 @@ class BelongsToField extends RelationField implements PrimesForPage
             'display' => $this->displayFor($related),
             'href' => $this->mayView($related) ? $this->detailPath($related) : null,
         ];
+    }
+
+    /**
+     * Whether hovering the value opens a card: peeking is on and the related Resource has
+     * fields to show in it.
+     */
+    public function opensPeek(?LatheRequest $request): bool
+    {
+        $class = $this->relatedResource();
+
+        if ($request === null || $class === null || ! $this->isPeekable($request)) {
+            return false;
+        }
+
+        return $class::make()->fieldsFor(FieldContext::Peeking, $request)
+            ->forContext(FieldContext::Peeking, $request)
+            ->authorized($request)
+            ->isNotEmpty();
+    }
+
+    public function jsonSerialize(): array
+    {
+        return [...parent::jsonSerialize(), 'peekable' => $this->opensPeek(Evaluator::currentRequest())];
     }
 
     /**

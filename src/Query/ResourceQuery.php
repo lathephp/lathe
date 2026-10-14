@@ -197,8 +197,8 @@ class ResourceQuery
             throw ValidationException::withMessages(['page' => 'The page must be a whole number of 1 or more.']);
         }
 
-        $query = $this->applySearch($this->scoped());
         $title = $this->resource->definition()->getTitle();
+        $query = $this->applyPickerSearch($this->scoped(), $title);
 
         $query->select(array_map(fn (string $column) => $query->qualifyColumn($column), $this->resource->optionColumns()));
 
@@ -214,6 +214,29 @@ class ResourceQuery
         $this->hasMorePages = $rows->count() > $limit;
 
         return $rows->take($limit);
+    }
+
+    /**
+     * A picker types ahead on what it shows: the start of the title, or the key. A title
+     * that is a Closure has no column, so the Resource's own search applies.
+     *
+     * @param  Builder<Model>  $query
+     * @return Builder<Model>
+     */
+    protected function applyPickerSearch(Builder $query, mixed $title): Builder
+    {
+        $definition = $this->resource->definition();
+
+        if (! is_string($title) || $title === '' || $definition->usesScout()) {
+            return $this->applySearch($query);
+        }
+
+        $term = SearchApplicator::term($this->request->query('q'), $definition->getSearchTermChars(), $definition->getSearchTermWords());
+
+        return $term === null ? $query : (new SearchApplicator([
+            LikeSearch::prefix($title),
+            new SearchablePrimaryKey($definition->getMaxPrimaryKeySize()),
+        ]))->apply($query, $term);
     }
 
     /**
