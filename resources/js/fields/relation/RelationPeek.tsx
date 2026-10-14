@@ -1,5 +1,6 @@
 import { request, useLathe, useQuery } from '@lathephp/core';
 import { useRef, useState, type ReactNode } from 'react';
+import { createPortal } from 'react-dom';
 import { DetailField } from '../registry';
 import type { DetailFieldData } from '../types';
 
@@ -15,7 +16,7 @@ interface PeekPayload {
 const hoverDelayMs = 300;
 
 /** The card a peek request fills. Each record's payload stays in the query cache, so a second hover sends nothing. */
-function PeekCard({ uriKey, id }: { uriKey: string; id: string | number }) {
+function PeekCard({ uriKey, id, top, left }: { uriKey: string; id: string | number; top: number; left: number }) {
   const { apiPath } = useLathe();
   const { data } = useQuery({
     queryKey: ['relation-peek', uriKey, id],
@@ -27,8 +28,9 @@ function PeekCard({ uriKey, id }: { uriKey: string; id: string | number }) {
     return null;
   }
 
-  return (
-    <div role="tooltip" className="bg-popover text-popover-foreground absolute top-full left-0 z-50 mt-1 w-72 rounded-md border p-3 shadow-md">
+  // The card goes to document.body, fixed, because a table cell's overflow would clip it.
+  return createPortal(
+    <div role="tooltip" style={{ position: 'fixed', top: `${String(top)}px`, left: `${String(left)}px` }} className="bg-popover text-popover-foreground z-50 w-72 rounded-md border p-3 shadow-md">
       <div className="flex items-center gap-2">
         {typeof data.avatar?.url === 'string' ? (
           <img src={data.avatar.url} alt="" className="size-8 rounded-full object-cover" />
@@ -52,30 +54,33 @@ function PeekCard({ uriKey, id }: { uriKey: string; id: string | number }) {
           ))}
         </dl>
       )}
-    </div>
+    </div>,
+    document.body,
   );
 }
 
 /** Wraps a related value so hovering it opens a card of the related record's peek fields. */
 export function RelationPeek({ uriKey, id, children }: { uriKey: string; id: string | number; children: ReactNode }) {
-  const [open, setOpen] = useState(false);
+  const [position, setPosition] = useState<{ top: number; left: number } | null>(null);
   const timer = useRef<ReturnType<typeof setTimeout>>(undefined);
 
   return (
     <span
-      className="relative inline-block"
-      onMouseEnter={() => {
+      className="inline-block"
+      onMouseEnter={(event) => {
+        const trigger = event.currentTarget;
         timer.current = setTimeout(() => {
-          setOpen(true);
+          const rect = trigger.getBoundingClientRect();
+          setPosition({ top: rect.bottom + 4, left: rect.left });
         }, hoverDelayMs);
       }}
       onMouseLeave={() => {
         clearTimeout(timer.current);
-        setOpen(false);
+        setPosition(null);
       }}
     >
       {children}
-      {open && <PeekCard uriKey={uriKey} id={id} />}
+      {position !== null && <PeekCard uriKey={uriKey} id={id} top={position.top} left={position.left} />}
     </span>
   );
 }

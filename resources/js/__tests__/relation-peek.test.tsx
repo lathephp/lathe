@@ -69,6 +69,22 @@ describe('relation peek', () => {
     expect(peeks).toEqual(['/lathe/api/resources/customers/12/peek']);
   });
 
+  it('renders the card outside the table cell, fixed under the trigger', async () => {
+    vi.useFakeTimers({ shouldAdvanceTime: true });
+    answerPeek();
+    renderOrders(true);
+
+    const trigger = link(0).parentElement ?? link(0);
+    vi.spyOn(trigger, 'getBoundingClientRect').mockReturnValue({ top: 100, bottom: 120, left: 40, right: 140, width: 100, height: 20, x: 40, y: 100, toJSON: () => ({}) });
+    await hover(link(0));
+
+    const card = await screen.findByRole('tooltip');
+    expect(card.parentElement).toBe(document.body);
+    expect(card.style.position).toBe('fixed');
+    expect(card.style.top).toBe('124px');
+    expect(card.style.left).toBe('40px');
+  });
+
   it('opens nothing when the field does not peek', async () => {
     vi.useFakeTimers({ shouldAdvanceTime: true });
     const fetch = answerPeek();
