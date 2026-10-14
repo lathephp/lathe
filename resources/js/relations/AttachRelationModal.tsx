@@ -88,6 +88,8 @@ export function AttachRelationModal({ parent, field, onClose }: AttachRelationMo
   const [typed, setTyped] = useState<Record<string, unknown>>({});
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [busy, setBusy] = useState(false);
+  // Each attach-another bumps it, so the picker remounts with an empty search.
+  const [round, setRound] = useState(0);
   const values = { ...initialValues(fields), ...typed };
 
   async function attach(another: boolean) {
@@ -101,6 +103,7 @@ export function AttachRelationModal({ parent, field, onClose }: AttachRelationMo
       if (another) {
         setPicked(null);
         setTyped({});
+        setRound(round + 1);
       } else {
         onClose();
       }
@@ -121,6 +124,7 @@ export function AttachRelationModal({ parent, field, onClose }: AttachRelationMo
           {field.singularLabel}
         </label>
         <RelationPicker
+          key={round}
           field={{ ...field, attribute: 'related_id', searchable: true, value: picked }}
           value={picked}
           onChange={(value) => {
@@ -129,7 +133,8 @@ export function AttachRelationModal({ parent, field, onClose }: AttachRelationMo
           id={pickerId}
           describedBy={errors.related_id === undefined ? undefined : `${pickerId}-error`}
           invalid={errors.related_id !== undefined}
-          disabled={false}
+          // Locked while an attach is out: the reset that follows remounts the picker and would close it.
+          disabled={busy}
           endpoint={`${actions.base}/associatable`}
         />
         <FieldError id={`${pickerId}-error`} message={errors.related_id} />

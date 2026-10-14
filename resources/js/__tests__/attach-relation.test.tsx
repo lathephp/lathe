@@ -93,7 +93,7 @@ function server({
   mayAttach = true,
   mayDetach = true,
   attach = () => new Response(JSON.stringify({ attached: true }), { status: 201 }),
-}: { attachAny?: boolean; mayAttach?: boolean; mayDetach?: boolean; attach?: () => Response } = {}) {
+}: { attachAny?: boolean; mayAttach?: boolean; mayDetach?: boolean; attach?: () => Response | Promise<Response> } = {}) {
   const calls: Call[] = [];
 
   vi.spyOn(globalThis, 'fetch').mockImplementation((input, init) => {
@@ -233,6 +233,47 @@ describe('attaching to a pivot relation', () => {
     expect(within(dialog).getByRole('button', { name: 'Tag' }).textContent).toBe('Select Tag');
     expect(within(dialog).getByRole('spinbutton', { name: 'Position' })).toHaveProperty('value', '');
     expect(api.asked('/pivot-fields')).toHaveLength(1);
+  });
+
+  it('empties the picker search on Attach & attach another', async () => {
+    const api = server();
+    renderProduct();
+    await screen.findByRole('cell', { name: 'new' });
+    const before = api.listed();
+    const dialog = await openAttach();
+    fireEvent.click(within(dialog).getByRole('button', { name: 'Tag' }));
+    fireEvent.change(within(dialog).getByRole('searchbox'), { target: { value: 'sale' } });
+    fireEvent.click(await within(dialog).findByRole('option', { name: 'sale' }));
+    fireEvent.change(within(dialog).getByRole('spinbutton', { name: 'Position' }), { target: { value: '1' } });
+    fireEvent.click(within(dialog).getByRole('button', { name: 'Attach & attach another' }));
+    await waitFor(() => {
+      expect(api.listed()).toBe(before + 1);
+    });
+
+    fireEvent.click(within(dialog).getByRole('button', { name: 'Tag' }));
+
+    expect(within(dialog).getByRole('searchbox')).toHaveProperty('value', '');
+  });
+
+  it('locks the picker while an attach is on its way, so the reset cannot close it under the user', async () => {
+    let land: (response: Response) => void = () => undefined;
+    server({ attach: () => new Promise<Response>((resolve) => (land = resolve)) });
+    renderProduct();
+    await screen.findByRole('cell', { name: 'new' });
+    const dialog = await openAttach();
+    await pick(dialog, 'sale');
+    fireEvent.change(within(dialog).getByRole('spinbutton', { name: 'Position' }), { target: { value: '1' } });
+    fireEvent.click(within(dialog).getByRole('button', { name: 'Attach & attach another' }));
+
+    expect(within(dialog).getByRole('button', { name: 'Tag' })).toHaveProperty('disabled', true);
+
+    act(() => {
+      land(new Response(JSON.stringify({ attached: true }), { status: 201 }));
+    });
+
+    await waitFor(() => {
+      expect(within(dialog).getByRole('button', { name: 'Tag' })).toHaveProperty('disabled', false);
+    });
   });
 
   it('shows a related_id error from the server in the modal', async () => {
