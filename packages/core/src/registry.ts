@@ -16,8 +16,71 @@ export interface ActionModalProps {
   close: () => void;
 }
 
+/** The props a page registered with page(uriKey, component) receives at /lathe/pages/{uriKey}. */
+export interface PageProps {
+  pageKey: string;
+  basePath: string;
+  path?: string;
+}
+
+/** The props a custom form field receives. */
+export interface FieldProps {
+  field: { attribute: string; placeholder?: string };
+  value: unknown;
+  onChange: (attribute: string, value: unknown) => void;
+}
+
+/** The props a custom filter receives. */
+export interface FilterProps {
+  filter: { name: string };
+  value: unknown;
+  onChange: (value: unknown) => void;
+}
+
+/** The props a custom widget receives: its descriptor and the value the server computed. */
+export interface WidgetProps {
+  widget: { name: string };
+  value: unknown;
+}
+
+/** The props a resource plugin on a detail page receives. */
+export interface ResourcePluginProps {
+  resourceName: string;
+  resourceId: string;
+}
+
+/** Where a render hook shows in the panel. */
+export type RenderHookName =
+  | 'head'
+  | 'header:end'
+  | 'sidebar:before'
+  | 'sidebar:after'
+  | 'page:before'
+  | 'page:after'
+  | 'footer:before'
+  | 'index:header-actions'
+  | 'detail:header-actions'
+  | 'auth:after-form';
+
+/** The props a render hook receives: the Resource's uriKey on resource pages, and the record on a detail page. */
+export interface RenderHookProps {
+  resource?: string;
+  record?: { id: string | number };
+}
+
+export interface RenderHookEntry {
+  component: ComponentOrLazy<RenderHookProps>;
+  resources: string[] | undefined;
+}
+
 const pluginPages = new Map<string, ComponentOrLazy<PluginPageProps>>();
 const actionModals = new Map<string, ComponentOrLazy<ActionModalProps>>();
+const pages = new Map<string, ComponentOrLazy<PageProps>>();
+const fields = new Map<string, ComponentOrLazy<FieldProps>>();
+const filters = new Map<string, ComponentOrLazy<FilterProps>>();
+const widgets = new Map<string, ComponentOrLazy<WidgetProps>>();
+const resourcePlugins = new Map<string, ComponentOrLazy<ResourcePluginProps>>();
+const hooks = new Map<RenderHookName, RenderHookEntry[]>();
 const bootingCallbacks: (() => void)[] = [];
 let booted = false;
 
@@ -37,6 +100,63 @@ export function actionModal(name: string, component: ComponentOrLazy<ActionModal
 
 export function actionModalComponent(name: string): ComponentOrLazy<ActionModalProps> | undefined {
   return actionModals.get(name);
+}
+
+/** Register the page shown at /lathe/pages/{uriKey}. The last registration wins. */
+export function page(uriKey: string, component: ComponentOrLazy<PageProps>): void {
+  pages.set(uriKey, component);
+}
+
+export function pageComponent(uriKey: string): ComponentOrLazy<PageProps> | undefined {
+  return pages.get(uriKey);
+}
+
+/** Register the component that draws a field's component key. The last registration wins. */
+export function field(key: string, component: ComponentOrLazy<FieldProps>): void {
+  fields.set(key, component);
+}
+
+export function fieldComponent(key: string): ComponentOrLazy<FieldProps> | undefined {
+  return fields.get(key);
+}
+
+/** Register the component that draws a filter's component key. The last registration wins. */
+export function filter(key: string, component: ComponentOrLazy<FilterProps>): void {
+  filters.set(key, component);
+}
+
+export function filterComponent(key: string): ComponentOrLazy<FilterProps> | undefined {
+  return filters.get(key);
+}
+
+/** Register the component that draws a widget's component key. The last registration wins. */
+export function widget(key: string, component: ComponentOrLazy<WidgetProps>): void {
+  widgets.set(key, component);
+}
+
+export function widgetComponent(key: string): ComponentOrLazy<WidgetProps> | undefined {
+  return widgets.get(key);
+}
+
+/** Register the component a resource plugin's key draws on a detail page. The last registration wins. */
+export function resourcePlugin(key: string, component: ComponentOrLazy<ResourcePluginProps>): void {
+  resourcePlugins.set(key, component);
+}
+
+export function resourcePluginComponent(key: string): ComponentOrLazy<ResourcePluginProps> | undefined {
+  return resourcePlugins.get(key);
+}
+
+/**
+ * Add a component at a position of the panel. Every hook for a position renders, in the
+ * order they were added; options.resources limits one to those Resource uriKeys.
+ */
+export function renderHook(position: RenderHookName, component: ComponentOrLazy<RenderHookProps>, options: { resources?: string[] } = {}): void {
+  hooks.set(position, [...renderHooks(position), { component, resources: options.resources }]);
+}
+
+export function renderHooks(position: RenderHookName): RenderHookEntry[] {
+  return hooks.get(position) ?? [];
 }
 
 /** Run a callback before first paint, or at once when the panel has already booted. */

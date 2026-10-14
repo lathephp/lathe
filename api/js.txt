@@ -9,6 +9,8 @@
 @lathephp/core disableShortcut
 @lathephp/core emit
 @lathephp/core enableShortcut
+@lathephp/core field
+@lathephp/core filter
 @lathephp/core formatCurrency
 @lathephp/core formatDate
 @lathephp/core formatDateTime
@@ -16,21 +18,30 @@
 @lathephp/core off
 @lathephp/core on
 @lathephp/core once
+@lathephp/core page
 @lathephp/core pauseShortcuts
 @lathephp/core plugin
 @lathephp/core queryClient
 @lathephp/core queryKeys
+@lathephp/core renderHook
 @lathephp/core request
+@lathephp/core resourcePlugin
 @lathephp/core resumeShortcuts
 @lathephp/core router
 @lathephp/core shortcutsEnabled
 @lathephp/core toast
 @lathephp/core type ActionModalProps
 @lathephp/core type ComponentOrLazy
+@lathephp/core type FieldProps
+@lathephp/core type FilterProps
 @lathephp/core type LatheContext
+@lathephp/core type PageProps
 @lathephp/core type PanelRouter
 @lathephp/core type PluginPageProps
+@lathephp/core type RenderHookName
+@lathephp/core type RenderHookProps
 @lathephp/core type RequestOptions
+@lathephp/core type ResourcePluginProps
 @lathephp/core type SafeHtml
 @lathephp/core type SharedData
 @lathephp/core type ToastAction
@@ -39,6 +50,7 @@
 @lathephp/core type ToastOptions
 @lathephp/core type ToastType
 @lathephp/core type Translator
+@lathephp/core type WidgetProps
 @lathephp/core url
 @lathephp/core useLathe
 @lathephp/core usePauseShortcuts
@@ -47,6 +59,7 @@
 @lathephp/core useShortcut
 @lathephp/core useTranslation
 @lathephp/core visit
+@lathephp/core widget
 @lathephp/ui Badge
 @lathephp/ui Button
 @lathephp/ui Card
