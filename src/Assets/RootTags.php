@@ -102,7 +102,7 @@ class RootTags
     public function scripts(): string
     {
         $tags = ['<script type="importmap"'.$this->nonce().'>'.json_encode(['imports' => $this->assets->importMap($this->prefix())], JSON_UNESCAPED_SLASHES).'</script>'];
-        $modules = $this->plugins->moduleUrls();
+        $modules = [...$this->plugins->moduleUrls(), ...app(ExtensionManifest::class)->moduleUrls()];
 
         foreach ($modules as $url) {
             $tags[] = '<link rel="modulepreload" href="'.e($url).'"'.$this->nonce().'>';

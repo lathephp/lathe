@@ -624,6 +624,10 @@ Lathe\Assets\AssetRegistry::styleUrl(string $prefix, string $name): ?string
 Lathe\Assets\AssetRegistry::styleUrls(string $prefix): array
 Lathe\Assets\AssetRegistry::styles(): array
 Lathe\Assets\AssetRegistry::url(string $type, string $prefix, string $name): ?string  [protected]
+Lathe\Assets\ExtensionManifest::PUBLIC_DIRECTORY
+Lathe\Assets\ExtensionManifest::manifest(): array  [protected]
+Lathe\Assets\ExtensionManifest::moduleUrls(): array
+Lathe\Assets\ExtensionManifest::path(string $file): string  [protected]
 Lathe\Assets\RootTags::Lathe\Assets\AssetManifest $assets  [protected]
 Lathe\Assets\RootTags::Lathe\Assets\AssetRegistry $registry  [protected]
 Lathe\Assets\RootTags::Lathe\Plugins\PluginRegistry $plugins  [protected]
@@ -4367,6 +4371,7 @@ class Lathe\Actions\Jobs\ExecuteAction
 class Lathe\Actions\Jobs\PlanBulkRun
 class Lathe\Assets\AssetManifest
 class Lathe\Assets\AssetRegistry
+class Lathe\Assets\ExtensionManifest
 class Lathe\Assets\RootTags
 class Lathe\Attributes\Action\Confirmable
 class Lathe\Attributes\Action\Destructive
