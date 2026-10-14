@@ -4,6 +4,9 @@ use Illuminate\Contracts\Process\ProcessResult;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Process;
 
+// These run Node scripts; the PHP-only lanes leave the frontend group out.
+pest()->group('frontend');
+
 function runContrastScript(string $script, string ...$args): ProcessResult
 {
     $root = dirname(__DIR__, 3);

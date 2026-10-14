@@ -98,8 +98,9 @@ fi
 host_php=$(php -r 'echo PHP_MAJOR_VERSION.".".PHP_MINOR_VERSION;')
 echo "logs: $scratch"
 
-# The prefer-lowest copy holds this tree's files with its own vendor folder.
-rsync -a --exclude vendor --exclude node_modules --exclude .git --exclude dist --exclude .phpunit.cache \
+# The prefer-lowest copy holds this tree's files with its own vendor folder. It keeps .git, so
+# Composer reads the root version as on main, and dist/, which lathe:doctor checks.
+rsync -a --exclude vendor --exclude node_modules --exclude .phpunit.cache \
     "$repo/" "$lowest/"
 mkdir -p "$composer_cache"
 in_php84 "$lowest" sqlite composer update --prefer-lowest --prefer-stable --no-interaction --prefer-dist \

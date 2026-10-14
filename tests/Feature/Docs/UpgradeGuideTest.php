@@ -20,13 +20,13 @@ it('keeps the upgrade page in step with the changelog', function () {
     $root = dirname(__DIR__, 3);
 
     expect(File::get("{$root}/docs/getting-started/upgrade.md"))->toBe(upgradeGuide(File::get("{$root}/CHANGELOG.md")));
-});
+})->group('frontend');
 
 it('says the first release has no entries', function () {
     expect(upgradeGuide("# Changelog\n\n## [Unreleased]\n\n## [1.0.0-beta.1] - 2026-10-20\n\n- [api] Everything.\n"))
         ->toContain('1.0.0-beta.1 is the first release of Lathe, so there are no API changes to upgrade across.')
         ->not->toContain('Everything');
-});
+})->group('frontend');
 
 it('lists the api entries of the newest release since the one before', function () {
     $page = upgradeGuide(<<<'MD'
@@ -50,4 +50,4 @@ it('lists the api entries of the newest release since the one before', function 
         ->not->toContain('Older change')
         ->not->toContain('Not released yet')
         ->not->toContain('A fix with no API change');
-});
+})->group('frontend');

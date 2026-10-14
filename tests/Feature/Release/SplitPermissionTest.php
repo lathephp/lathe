@@ -7,7 +7,9 @@ it('writes the permission plugin into its own repo as one tagged commit', functi
     $target = sys_get_temp_dir().'/split-permission-'.bin2hex(random_bytes(6));
     $root = dirname(__DIR__, 3);
 
-    $result = Process::run(['bash', "{$root}/scripts/split-permission.sh", '1.0.0-beta.1', $target]);
+    // A container without a git identity still commits.
+    $identity = ['GIT_AUTHOR_NAME' => 'Test', 'GIT_AUTHOR_EMAIL' => 'test@example.test', 'GIT_COMMITTER_NAME' => 'Test', 'GIT_COMMITTER_EMAIL' => 'test@example.test'];
+    $result = Process::env($identity)->run(['bash', "{$root}/scripts/split-permission.sh", '1.0.0-beta.1', $target]);
     $git = fn (string $command) => trim(Process::path($target)->run($command)->output());
     $manifest = json_decode(File::get("{$target}/composer.json"), true);
 
@@ -23,7 +25,7 @@ it('writes the permission plugin into its own repo as one tagged commit', functi
         ->and("{$target}/tests/Discovery/PluginDiscoveryTest.php")->toBeFile()
         ->and("{$target}/scripts/gates.sh")->not->toBeFile();
 
-    expect(Process::run(['bash', "{$root}/scripts/split-permission.sh", '1.0.0-beta.1', $target])->errorOutput())->toContain('tag v1.0.0-beta.1 exists');
+    expect(Process::env($identity)->run(['bash', "{$root}/scripts/split-permission.sh", '1.0.0-beta.1', $target])->errorOutput())->toContain('tag v1.0.0-beta.1 exists');
 
     File::deleteDirectory($target);
 });

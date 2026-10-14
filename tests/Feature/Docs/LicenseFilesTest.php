@@ -51,7 +51,7 @@ it('lists each production dependency with its licence', function () {
         ->and(File::get("{$dir}/THIRD-PARTY-LICENSES.md"))->toContain('| react | 19.2.0 | MIT |', '| victory-vendor | 37.3.6 | MIT AND ISC |');
 
     File::deleteDirectory($dir);
-});
+})->group('frontend');
 
 it('fails on a production dependency whose licence is not allowed', function () {
     [$result, $dir] = writeThirdPartyLicenses([
@@ -64,4 +64,4 @@ it('fails on a production dependency whose licence is not allowed', function () 
         ->and("{$dir}/THIRD-PARTY-LICENSES.md")->not->toBeFile();
 
     File::deleteDirectory($dir);
-});
+})->group('frontend');

@@ -55,7 +55,7 @@ it('cuts the release branch and tag with the build, and pushes nothing', functio
 
     File::deleteDirectory($repo);
     File::deleteDirectory("{$repo}-origin.git");
-});
+})->group('frontend');
 
 it('refuses a dirty tree, a version without a changelog section and a tag that exists', function () {
     $repo = releaseRepo();
@@ -71,4 +71,4 @@ it('refuses a dirty tree, a version without a changelog section and a tag that e
 
     File::deleteDirectory($repo);
     File::deleteDirectory("{$repo}-origin.git");
-});
+})->group('frontend');

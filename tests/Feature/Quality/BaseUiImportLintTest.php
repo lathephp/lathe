@@ -3,6 +3,9 @@
 use Illuminate\Contracts\Process\ProcessResult;
 use Illuminate\Support\Facades\Process;
 
+// These run Node scripts; the PHP-only lanes leave the frontend group out.
+pest()->group('frontend');
+
 // ESLint reads the source from stdin under a filename in the package, so nothing is written.
 // The name ends in .mjs because the type-aware rules refuse a file the tsconfig does not list.
 function lintSource(string $filename, string $source): ProcessResult
