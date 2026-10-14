@@ -268,11 +268,34 @@ jobs:
           path: ~/.cache/ms-playwright
           key: playwright-${{ hashFiles('pnpm-lock.yaml') }}
       - run: pnpm exec playwright install --with-deps chromium firefox webkit
+      # The screenshot baselines come from this image only, so its fonts match. With none
+      # committed yet, the desktop browsers write them here, the runs below compare against
+      # them, and the job uploads them for one commit.
+      - id: baselines
+        run: |
+          if [ -d tests/.pest/snapshots/Browser/VisualTest ]; then
+            echo "missing=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "missing=true" >> "$GITHUB_OUTPUT"
+          fi
+      - if: steps.baselines.outputs.missing == 'true'
+        run: |
+          php vendor/bin/pest tests/Browser/VisualTest.php --update-snapshots
+          php vendor/bin/pest tests/Browser/VisualTest.php --update-snapshots --browser firefox
+          php vendor/bin/pest tests/Browser/VisualTest.php --update-snapshots --browser safari
       - run: LATHE_BROWSER_PROJECT=desktop-chrome composer test:browser
       - run: LATHE_BROWSER_PROJECT=desktop-firefox composer test:browser -- --browser firefox
       - run: LATHE_BROWSER_PROJECT=desktop-safari composer test:browser -- --browser safari
       - run: LATHE_BROWSER_PROJECT=phone-android composer test:browser
       - run: LATHE_BROWSER_PROJECT=phone-ios composer test:browser -- --browser safari
+      - if: steps.baselines.outputs.missing == 'true' && !cancelled()
+        uses: actions/upload-artifact@v4
+        with:
+          name: screenshot-baselines
+          path: tests/.pest/snapshots/Browser/VisualTest
+          # The baselines sit under the hidden .pest folder, which the action skips by default.
+          include-hidden-files: true
+          if-no-files-found: error
 
   # Weekly: the php matrix against the next Laravel 13 release and Laravel's master branch.
   # A failure opens or updates one issue labelled upstream and blocks no pull request.
