@@ -3,16 +3,12 @@
 namespace Lathe\Field\Relations;
 
 use Closure;
-use Illuminate\Container\Container;
 use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
-use Illuminate\Support\Str;
-use Lathe\Auth\ResourceAuthorization;
 use Lathe\Field\Evaluator;
 use Lathe\Field\FieldContext;
 use Lathe\Http\Requests\LatheRequest;
-use Lathe\Lathe;
 
 /**
  * A many-to-many relation shown as tags: it syncs the related ids, with no pivot data.
@@ -145,36 +141,10 @@ class TagField extends RelationField
     public function getRules(FieldContext $context, ?LatheRequest $request = null, ?Model $model = null): array
     {
         $rules = parent::getRules($context, $request, $model);
-        $owner = $this->owner;
 
-        if ($request === null || $owner === null) {
-            return $rules;
+        if ($request !== null && $this->owner !== null) {
+            $rules[$this->attribute][] = $this->relatedIdsRule($request, $this->owner, $model);
         }
-
-        $rules[$this->attribute][] = function (string $attribute, mixed $value, Closure $fail) use ($request, $owner, $model): void {
-            $ids = self::ids($value);
-            $max = $owner::make()->definition()->getIdListMax();
-
-            if (count($ids) > $max) {
-                $fail(Lathe::__('The :attribute may not have more than :max items.', ['max' => (string) $max]));
-
-                return;
-            }
-
-            $query = (new Associatable($request, $owner, $this))->query();
-
-            if ($ids !== [] && ($query === null || ! $query->holdsAll($ids))) {
-                $fail(Lathe::__('The :attribute must be a valid relation.'));
-
-                return;
-            }
-
-            $ability = 'attach'.Str::studly($this->attribute);
-
-            if ($ids !== [] && ! Container::getInstance()->make(ResourceAuthorization::class)->allows($request->user(), $owner, $ability, $model ?? $owner::newModel(), [$ids])) {
-                $fail(Lathe::__('You are not authorized to relate this resource.'));
-            }
-        };
 
         return $rules;
     }

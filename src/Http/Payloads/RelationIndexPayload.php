@@ -11,6 +11,7 @@ use Lathe\Field\Field;
 use Lathe\Field\FieldCollection;
 use Lathe\Field\FieldContext;
 use Lathe\Field\FieldResolver;
+use Lathe\Field\Relations\BelongsToManyField;
 use Lathe\Field\Relations\RelationField;
 use Lathe\Http\Requests\LatheRequest;
 use Lathe\Query\ResourceQuery;
@@ -35,7 +36,7 @@ class RelationIndexPayload
      *
      * @param  class-string<\Lathe\Resources\Resource>  $class  The related Resource.
      * @param  Relation<Model, Model, mixed>  $relation
-     * @return array{columns: list<Field>, sortKeys: list<string>, rows: list<array<string, mixed>>, count: array{value: int, exact: bool, capped: bool, estimated: bool}|null, page: int, perPage: int, perPageOptions: non-empty-list<int>, hasMore: bool}
+     * @return array{columns: list<Field>, sortKeys: list<string>, rows: list<array<string, mixed>>, count: array{value: int, exact: bool, capped: bool, estimated: bool}|null, page: int, perPage: int, perPageOptions: non-empty-list<int>, hasMore: bool, pivotActions: list<string>}
      */
     public function build(string $class, Model $parent, RelationField $field, Relation $relation): array
     {
@@ -81,6 +82,7 @@ class RelationIndexPayload
             'perPage' => $perPage,
             'perPageOptions' => $query->perPageOptionsInUse(),
             'hasMore' => $query->hasMorePages(),
+            'pivotActions' => $field instanceof BelongsToManyField ? $field->pivotActionNames($this->request) : [],
         ];
     }
 
