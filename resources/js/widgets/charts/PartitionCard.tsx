@@ -20,16 +20,19 @@ export function PartitionCard({ widget, value }: WidgetRendererProps) {
 
   const rows = segments.map((segment) => [segment.label, format(segment.value), `${String(segment.percentage)}%`]);
   const legend = (
-    <ul className="min-w-0 flex-1 space-y-1.5 overflow-y-auto text-xs">
-      {segments.map((segment) => (
-        <li key={segment.label} className="flex items-center gap-2">
-          <span className="size-2.5 shrink-0 rounded-[2px]" style={{ backgroundColor: segment.color }} />
-          <span className="min-w-0 truncate font-medium">{segment.label}</span>
-          <span className="ms-auto shrink-0 text-muted-foreground tabular-nums">{format(segment.value)}</span>
-          <span className="shrink-0 text-muted-foreground tabular-nums">{`(${String(segment.percentage)}%)`}</span>
-        </li>
-      ))}
-    </ul>
+    // The legend scrolls within the card, so it takes keyboard focus to scroll by key.
+    <div role="region" aria-label={__(':name legend', { name: widget.name })} tabIndex={0} className="max-h-full min-w-0 flex-1 overflow-y-auto">
+      <ul className="space-y-1.5 text-xs">
+        {segments.map((segment) => (
+          <li key={segment.label} className="flex items-center gap-2">
+            <span className="size-2.5 shrink-0 rounded-[2px]" style={{ backgroundColor: segment.color }} />
+            <span className="min-w-0 truncate font-medium">{segment.label}</span>
+            <span className="ms-auto shrink-0 text-muted-foreground tabular-nums">{format(segment.value)}</span>
+            <span className="shrink-0 text-muted-foreground tabular-nums">{`(${String(segment.percentage)}%)`}</span>
+          </li>
+        ))}
+      </ul>
+    </div>
   );
 
   return (

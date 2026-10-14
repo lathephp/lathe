@@ -42,7 +42,8 @@ export function RadarCard({ widget, value }: WidgetRendererProps) {
   return (
     <ChartFrame name={widget.name} columns={[__('Label'), ...result.datasets.map((dataset) => dataset.name)]} rows={rows}>
       <ChartContainer className="mx-auto h-full w-full">
-        <RadarChart data={data}>
+        {/* The side margins leave room for the axis labels left and right of the chart. */}
+        <RadarChart data={data} margin={{ top: 5, right: 48, bottom: 5, left: 48 }}>
           {tooltip}
           <PolarAngleAxis dataKey="axis" />
           {!result.gridNone && (

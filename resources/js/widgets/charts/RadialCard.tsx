@@ -107,7 +107,7 @@ export function RadialCard({ widget, value }: WidgetRendererProps) {
     // The angle axis runs 0 to 100, so the bar covers the share and the track the whole arc.
     chart = (
       <RadialBarChart data={[{ name: widget.name, value: Math.min(100, result.percentage), fill: result.color }]} startAngle={result.startAngle} endAngle={result.endAngle} innerRadius="75%" outerRadius="100%">
-        <PolarAngleAxis type="number" domain={[0, 100]} tick={false} />
+        <PolarAngleAxis type="number" domain={[0, 100]} tick={false} tickLine={false} axisLine={false} />
         <RadialBar dataKey="value" background={result.showTrack} cornerRadius={10} />
         {centre(format(result.value), result.label ?? `/ ${format(result.target)}`)}
       </RadialBarChart>

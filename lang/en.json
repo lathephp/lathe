@@ -19,6 +19,7 @@
     ":group descending": ":group descending",
     ":n of :total": ":n of :total",
     ":name failed: :error": ":name failed: :error",
+    ":name legend": ":name legend",
     ":path already exists. Use --force to replace it.": ":path already exists. Use --force to replace it.",
     ":plugin settings": ":plugin settings",
     ":resource Actions": ":resource Actions",

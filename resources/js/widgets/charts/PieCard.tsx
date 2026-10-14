@@ -20,6 +20,7 @@ export interface PiePayload extends Partial<NumberDisplay> {
   series?: { name: string; segments: Segment[] }[];
 }
 
+// The outer radius as a percentage of the space the legend leaves, so the pie fits its card.
 const outer = 80;
 
 /** The sectors of one ring, coloured by the server. */
@@ -39,7 +40,7 @@ export function PieCard({ widget, value }: WidgetRendererProps) {
   }
 
   const active = widget.activeDonut as { strokeWidth: number; activeIndex: number } | undefined;
-  const inner = result.innerRadius > 0 ? outer * result.innerRadius : 0;
+  const inner = result.innerRadius > 0 ? `${String(outer * result.innerRadius)}%` : 0;
   const total = segments.reduce((sum, segment) => sum + segment.value, 0);
   const labelMode = widget.labelMode as 'inline' | 'custom' | 'list' | undefined;
   const stroke = widget.separatorNone === true ? { stroke: 'none' } : { stroke: 'var(--background)' };
@@ -71,7 +72,7 @@ export function PieCard({ widget, value }: WidgetRendererProps) {
               dataKey="value"
               nameKey="name"
               innerRadius={inner}
-              outerRadius={outer}
+              outerRadius={`${String(outer)}%`}
               strokeWidth={active === undefined ? 1 : active.strokeWidth}
               shape={shape}
               label={label}
@@ -79,7 +80,7 @@ export function PieCard({ widget, value }: WidgetRendererProps) {
               {...stroke}
             >
               {labelMode === 'list' && <LabelList dataKey="name" className="fill-background" stroke="none" fontSize={10} />}
-              {widget.showTotal === true && inner > 0 && (
+              {widget.showTotal === true && result.innerRadius > 0 && (
                 <Label
                   content={({ viewBox }) => {
                     if (viewBox === undefined || !('cx' in viewBox) || !('cy' in viewBox)) {
@@ -104,7 +105,14 @@ export function PieCard({ widget, value }: WidgetRendererProps) {
               )}
             </Pie>
           )}
-          <ChartLegend content={<ChartLegendContent />} />
+          {/* A long legend scrolls in at most 64 px and leaves the rest of the card to the pie; it takes focus to scroll by key. */}
+          <ChartLegend
+            content={({ payload }) => (
+              <div role="region" aria-label={__(':name legend', { name: widget.name })} tabIndex={0} className="max-h-16 overflow-y-auto">
+                <ChartLegendContent payload={payload} />
+              </div>
+            )}
+          />
         </PieChart>
       </ChartContainer>
     </ChartFrame>

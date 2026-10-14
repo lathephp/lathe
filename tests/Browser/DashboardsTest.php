@@ -25,6 +25,40 @@ const CARDS_FILLED_AT = <<<'JS'
 // How many chart chunks the page fetched.
 const CHART_CHUNKS = 'performance.getEntriesByType("resource").filter((entry) => /\/charts-[^/]+\.js$/.test(new URL(entry.name).pathname)).length';
 
+// Each drawn part of a chart, legend and axis labels too, that sits outside its card or reaches
+// up into the card title, once the chart animations have ended. A part in a scrolling list, such
+// as a legend row, counts only where the list shows it; a part a hidden overflow cuts counts whole.
+const CHART_OVERFLOW = <<<'JS'
+    async () => {
+        await new Promise((resolve) => setTimeout(resolve, 1600));
+        const shown = (part, card) => {
+            let { left, right, top, bottom } = part.getBoundingClientRect();
+            for (let parent = part.parentElement; parent !== card; parent = parent.parentElement) {
+                if (/auto|scroll/.test(getComputedStyle(parent).overflow)) {
+                    const clip = parent.getBoundingClientRect();
+                    left = Math.max(left, clip.left); right = Math.min(right, clip.right);
+                    top = Math.max(top, clip.top); bottom = Math.min(bottom, clip.bottom);
+                }
+            }
+            return { left, right, top, bottom };
+        };
+        return [...document.querySelectorAll('[data-lathe-widget]:has([role=figure])')].flatMap((card) => {
+            const box = card.getBoundingClientRect();
+            const title = card.querySelector('h2').getBoundingClientRect();
+            return [...card.querySelectorAll('[role=figure] *')]
+                .filter((part) => part.closest('.sr-only, .recharts-tooltip-wrapper') === null)
+                .filter((part) => {
+                    const rect = shown(part, card);
+                    // An SVG cuts what it draws past its edges, such as a long axis label.
+                    const edge = part.ownerSVGElement?.getBoundingClientRect() ?? box;
+                    return rect.right > rect.left && rect.bottom > rect.top
+                        && (rect.left < edge.left - 1 || rect.right > edge.right + 1 || rect.top < Math.max(edge.top - 1, title.bottom) || rect.bottom > edge.bottom + 1);
+                })
+                .map((part) => `${card.dataset.latheWidget}: <${part.tagName.toLowerCase()}> ${part.textContent.slice(0, 20)}`);
+        });
+    }
+    JS;
+
 it('fills every gallery card within a second, with named charts and their numbers as tables', function (string $project) {
     $page = signedInAt('/lathe/dashboards/widget-gallery', $project);
 
@@ -56,6 +90,14 @@ it('shows the time on the Clock card, under its one title', function () {
     $page->assertCount("{$clock} h2, {$clock} h3", 1)
         ->assertScript("/^\\d{1,2}:\\d{2}/.test(document.querySelector('{$clock} time').textContent)", true);
 });
+
+it('keeps every chart, its legend and its labels inside its card and below its title', function (int $width) {
+    $page = signedInAt('/lathe/dashboards/widget-gallery');
+    $page->resize($width, 900);
+    $page->script(CARDS_FILLED_AT);
+
+    expect($page->script(CHART_OVERFLOW))->toBe([]);
+})->with(['1280 px' => 1280, '390 px' => 390]);
 
 it('has no accessibility issue on the gallery in light and in dark', function () {
     $page = signedInAt('/lathe/dashboards/widget-gallery');

@@ -200,8 +200,8 @@ describe('the chart cards', () => {
 
     expect(attributes('path.recharts-sector', 'stroke-width')).toEqual(['5', '5']);
     expect(attributes('path.recharts-sector', 'fill')).toEqual(['var(--chart-1)', '#ef4444']);
-    // The active sector reaches 6 px past the 80 px radius.
-    expect(attributes('path.recharts-sector', 'd').map((path) => /A ([\d.]+),/.exec(path ?? '')?.[1])).toEqual(['86', '80']);
+    // The active sector reaches 6 px past the radius: 80% of the 95 px half side the legend leaves.
+    expect(attributes('path.recharts-sector', 'd').map((path) => /A ([\d.]+),/.exec(path ?? '')?.[1])).toEqual(['82', '76']);
     expect(svg().textContent).toContain('30Total');
     expect(hiddenRows()).toEqual([
       ['Paid', '20', '66.67%'],
