@@ -35,9 +35,38 @@ function closure(keys, seen = new Set()) {
   return seen;
 }
 
-const vendors = Object.keys(manifest).filter((key) => key.startsWith('lathe-vendor:'));
+// A subpath entry such as @lathephp/ui/chart loads only when code imports it. The panel
+// keeps it external, so the manifest cannot show the import; the built code does.
+const subpath = /^lathe-vendor:@lathephp\/ui\/./;
+const vendors = Object.keys(manifest).filter((key) => key.startsWith('lathe-vendor:') && !subpath.test(key));
+const subpaths = Object.keys(manifest).filter((key) => subpath.test(key));
+
+function staticallyImports(keys, specifier) {
+  const pattern = new RegExp(`(?:from|import)\\s*["']${specifier.replaceAll('/', '\\/')}["']`);
+
+  return [...keys].some((key) => pattern.test(readFileSync(join(dist, manifest[key].file), 'utf8')));
+}
+
+function firstPaint(page) {
+  const keys = closure(['resources/js/app.tsx', page, ...vendors]);
+  let added = true;
+
+  while (added) {
+    added = false;
+
+    for (const key of subpaths) {
+      if (!keys.has(key) && staticallyImports(keys, key.slice('lathe-vendor:'.length))) {
+        closure([key], keys);
+        added = true;
+      }
+    }
+  }
+
+  return keys;
+}
+
 const results = Object.entries(routes).map(([route, page]) => {
-  const files = [...new Set([...closure(['resources/js/app.tsx', page, ...vendors])].map((key) => manifest[key].file))]
+  const files = [...new Set([...firstPaint(page)].map((key) => manifest[key].file))]
     .filter((file) => file.endsWith('.js'))
     .sort();
   const bytes = files.reduce((sum, file) => sum + gzipSync(readFileSync(join(dist, file)), { level: 9 }).length, 0);
