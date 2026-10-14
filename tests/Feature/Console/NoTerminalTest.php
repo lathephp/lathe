@@ -5,6 +5,7 @@ use Illuminate\Contracts\Console\Kernel;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\ServiceProvider;
 use Lathe\LatheServiceProvider;
 use Lathe\Tests\Feature\Console\Generators\GeneratesIntoTempApp;
 
@@ -51,6 +52,7 @@ function isolatedApp(): string
     $test = test();
     $test->artisan('migrate')->assertSuccessful();
 
+    $skeleton = base_path();
     $base = $test->generatorApp();
 
     foreach (['config', 'public', 'storage', 'bootstrap/cache', 'lang', 'database/migrations', 'resources/js'] as $folder) {
@@ -66,6 +68,12 @@ function isolatedApp(): string
     app()->useBootstrapPath("{$base}/bootstrap");
     app()->useLangPath("{$base}/lang");
     app()->useDatabasePath("{$base}/database");
+
+    // Publish targets were fixed at boot under the shared Testbench skeleton, where a published
+    // config/lathe.php would shadow the package's for every later test; point them in here.
+    $into = fn (array $paths): array => array_map(fn (string $target) => str_replace($skeleton, $base, $target), $paths);
+    ServiceProvider::$publishes = array_map($into, ServiceProvider::$publishes);
+    ServiceProvider::$publishGroups = array_map($into, ServiceProvider::$publishGroups);
 
     return $base;
 }
