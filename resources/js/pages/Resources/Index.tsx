@@ -63,9 +63,10 @@ export default function Index({ resource, table, state, count, error, lens, lens
       ) : (
         <Card className="overflow-hidden">
           {((actions !== undefined && actions.actions.length > 0) || selection.all || selection.selected.size > 0) && (
-            // Empty while the menus load or when the ticked rows allow nothing, and then hidden.
+            // Hidden when the ticked rows allow nothing; while the menus load, a spacer of their
+            // height keeps the table from moving under the pointer.
             <div className="flex justify-end gap-2 border-b border-border px-3 py-2 empty:hidden">
-              <Suspense fallback={null}>
+              <Suspense fallback={actions !== undefined && actions.actions.length > 0 ? <div aria-hidden="true" className="h-8" /> : null}>
               <DeleteMenu
                 uriKey={resource.uriKey}
                 lens={lens?.uriKey ?? null}

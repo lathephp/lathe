@@ -7,6 +7,12 @@ require_once __DIR__.'/records.php';
 
 const CONFLICT_DIALOG = '[role="dialog"]';
 
+// The in-process server keeps one session between requests: the bell's poll from the first
+// browser would sign the second one in before it reaches the login form.
+beforeEach(function () {
+    config(['lathe.notifications.enabled' => false]);
+});
+
 /**
  * Two people on order 12's edit form, each in their own browser context. The second saves
  * shipped two seconds later, so the first form's token is stale.

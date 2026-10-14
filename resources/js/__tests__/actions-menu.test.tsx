@@ -1,9 +1,14 @@
 import { router } from '@inertiajs/react';
 import { __panel } from '@lathephp/core';
 import { fireEvent, screen, waitFor, within } from '@testing-library/react';
-import { afterEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import type { ActionMeta } from '../actions/types';
 import { renderPage } from './support';
+
+// A run reloads the rows through Inertia; no test here may send that request for real.
+beforeEach(() => {
+  vi.spyOn(router, 'reload').mockImplementation(() => undefined);
+});
 
 afterEach(() => {
   vi.restoreAllMocks();
