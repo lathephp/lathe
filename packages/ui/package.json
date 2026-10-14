@@ -9,9 +9,93 @@
       "types": "./dist/index.d.ts",
       "default": "./dist/index.js"
     },
+    "./breadcrumb": {
+      "types": "./dist/breadcrumb.d.ts",
+      "default": "./dist/breadcrumb.js"
+    },
+    "./button-group": {
+      "types": "./dist/button-group.d.ts",
+      "default": "./dist/button-group.js"
+    },
+    "./calendar": {
+      "types": "./dist/calendar.d.ts",
+      "default": "./dist/calendar.js"
+    },
     "./chart": {
       "types": "./dist/chart.d.ts",
       "default": "./dist/chart.js"
+    },
+    "./code-editor": {
+      "types": "./dist/code-editor.d.ts",
+      "default": "./dist/code-editor.js"
+    },
+    "./collapsible": {
+      "types": "./dist/collapsible.d.ts",
+      "default": "./dist/collapsible.js"
+    },
+    "./combobox": {
+      "types": "./dist/combobox.d.ts",
+      "default": "./dist/combobox.js"
+    },
+    "./command": {
+      "types": "./dist/command.d.ts",
+      "default": "./dist/command.js"
+    },
+    "./direction": {
+      "types": "./dist/direction.d.ts",
+      "default": "./dist/direction.js"
+    },
+    "./empty": {
+      "types": "./dist/empty.d.ts",
+      "default": "./dist/empty.js"
+    },
+    "./field": {
+      "types": "./dist/field.d.ts",
+      "default": "./dist/field.js"
+    },
+    "./hover-card": {
+      "types": "./dist/hover-card.d.ts",
+      "default": "./dist/hover-card.js"
+    },
+    "./input-group": {
+      "types": "./dist/input-group.d.ts",
+      "default": "./dist/input-group.js"
+    },
+    "./item": {
+      "types": "./dist/item.d.ts",
+      "default": "./dist/item.js"
+    },
+    "./otp-field": {
+      "types": "./dist/otp-field.d.ts",
+      "default": "./dist/otp-field.js"
+    },
+    "./pagination": {
+      "types": "./dist/pagination.d.ts",
+      "default": "./dist/pagination.js"
+    },
+    "./scroll-area": {
+      "types": "./dist/scroll-area.d.ts",
+      "default": "./dist/scroll-area.js"
+    },
+    "./shimmer-bar": {
+      "types": "./dist/shimmer-bar.d.ts",
+      "default": "./dist/shimmer-bar.js"
+    },
+    "./sidebar": {
+      "types": "./dist/sidebar.d.ts",
+      "default": "./dist/sidebar.js"
+    },
+    "./sonner": {
+      "types": "./dist/sonner.d.ts",
+      "default": "./dist/sonner.js"
+    },
+    "./toggle": {
+      "types": "./dist/toggle.d.ts",
+      "default": "./dist/toggle.js"
+    },
+    "./toggle-group": {
+      "types": "./dist/toggle-group.d.ts",
+      "default": "./dist/toggle-group.js"
     }
   },
   "files": [

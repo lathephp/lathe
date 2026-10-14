@@ -5,6 +5,32 @@ import { createRequire } from 'node:module';
 import { fileURLToPath } from 'node:url';
 import { defineConfig, type Plugin } from 'vite';
 
+// The kit components a plugin loads only when it imports them, one entry each.
+const uiSubpaths = [
+  'breadcrumb',
+  'button-group',
+  'calendar',
+  'chart',
+  'code-editor',
+  'collapsible',
+  'combobox',
+  'command',
+  'direction',
+  'empty',
+  'field',
+  'hover-card',
+  'input-group',
+  'item',
+  'otp-field',
+  'pagination',
+  'scroll-area',
+  'shimmer-bar',
+  'sidebar',
+  'sonner',
+  'toggle',
+  'toggle-group',
+];
+
 // The import map maps each specifier to its own entry file. The manifest lists
 // that file under the key "lathe-vendor:{specifier}".
 const importMapSpecifiers = [
@@ -15,13 +41,13 @@ const importMapSpecifiers = [
   'react-dom/client',
   '@lathephp/core',
   '@lathephp/ui',
-  '@lathephp/ui/chart',
+  ...uiSubpaths.map((name) => `@lathephp/ui/${name}`),
 ];
 
 const packageSources: Record<string, string> = {
   '@lathephp/core': 'packages/core/src/index.ts',
   '@lathephp/ui': 'packages/ui/src/index.ts',
-  '@lathephp/ui/chart': 'packages/ui/src/chart.tsx',
+  ...Object.fromEntries(uiSubpaths.map((name) => [`@lathephp/ui/${name}`, `packages/ui/src/${name}.tsx`])),
 };
 
 const themeStyles = ['nova', 'vega', 'lyra', 'maia', 'mira', 'luma', 'rhea', 'sera'];

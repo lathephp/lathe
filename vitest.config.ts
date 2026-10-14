@@ -8,6 +8,14 @@ const floors = JSON.parse(readFileSync(new URL('coverage-floors.json', import.me
   { statements: number }
 >;
 
+// Each subpath the ui package exports, such as "sidebar" for "./sidebar".
+const uiSubpaths = Object.keys(
+  (JSON.parse(readFileSync(new URL('packages/ui/package.json', import.meta.url), 'utf8')) as { exports: Record<string, unknown> })
+    .exports,
+)
+  .filter((key) => key !== '.')
+  .map((key) => key.slice(2));
+
 export default defineConfig({
   test: {
     coverage: {
@@ -25,8 +33,10 @@ export default defineConfig({
           alias: {
             '@lathephp/core': fileURLToPath(new URL('packages/core/src/index.ts', import.meta.url)),
             // Before '@lathephp/ui', which would match the subpath as a prefix.
-            '@lathephp/ui/chart': fileURLToPath(new URL('packages/ui/src/chart.tsx', import.meta.url)),
-            '@lathephp/ui': fileURLToPath(new URL('packages/ui/src/index.ts', import.meta.url)),
+            ...Object.fromEntries(
+              uiSubpaths.map((name) => [`@lathephp/ui/${name}`, fileURLToPath(new URL(`packages/ui/src/${name}.tsx`, import.meta.url))]),
+            ),
+            '@lathephp/ui':fileURLToPath(new URL('packages/ui/src/index.ts', import.meta.url)),
           },
         },
         test: {
