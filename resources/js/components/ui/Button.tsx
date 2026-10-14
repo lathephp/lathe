@@ -1,5 +1,7 @@
 import type { ComponentProps } from 'react';
 
+// The panel's own copy for first paint. The @lathephp/ui entry carries Base UI and
+// every kit component, so the first load of a page leaves it out.
 export interface ButtonProps extends ComponentProps<'button'> {
   variant?: 'default' | 'outline' | 'ghost';
   size?: 'default' | 'sm' | 'icon';

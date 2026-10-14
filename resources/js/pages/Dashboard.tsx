@@ -1,6 +1,6 @@
 import { Head, usePage } from '@inertiajs/react';
 import { useLathe, useTranslation } from '@lathephp/core';
-import { Card } from '@lathephp/ui';
+import { Card } from '../components/ui/Card';
 import type { WidgetDescriptor, WidgetValue } from '../widgets/types';
 import { WidgetGrid } from '../widgets/WidgetGrid';
 

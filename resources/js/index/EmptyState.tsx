@@ -1,6 +1,7 @@
 import { Link } from '@inertiajs/react';
 import { useTranslation } from '@lathephp/core';
-import { Button, Card } from '@lathephp/ui';
+import { Button } from '../components/ui/Button';
+import { Card } from '../components/ui/Card';
 
 interface EmptyStateProps {
   label: string;

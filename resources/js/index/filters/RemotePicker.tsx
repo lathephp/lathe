@@ -1,6 +1,6 @@
 import { queryKeys, request, useQuery, useTranslation } from '@lathephp/core';
-import { Button } from '@lathephp/ui';
 import { useEffect, useRef, useState } from 'react';
+import { Button } from '../../components/ui/Button';
 import type { FilterControlProps, FilterOption } from '../types';
 import { FilterFieldset, fieldClass } from './FilterFieldset';
 

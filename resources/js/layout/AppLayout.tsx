@@ -1,8 +1,8 @@
 import { usePage } from '@inertiajs/react';
 import { __panel, addShortcut, QueryClientProvider, queryClient, shortcutsEnabled, useTranslation } from '@lathephp/core';
-import { Button } from '@lathephp/ui';
 import { Menu, PanelLeft, Search } from 'lucide-react';
 import { lazy, Suspense, useEffect, useState, type CSSProperties, type ReactNode } from 'react';
+import { Button } from '../components/ui/Button';
 import { cn } from '../lib/cn';
 import type { SharedProps } from '../types';
 import { SafeHtml } from '../components/SafeHtml';

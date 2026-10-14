@@ -1,8 +1,9 @@
 import { usePage } from '@inertiajs/react';
 import { useTranslation } from '@lathephp/core';
-import { Button, Card } from '@lathephp/ui';
 import { ListFilter } from 'lucide-react';
 import { type ComponentType, useId, useState } from 'react';
+import { Button } from '../components/ui/Button';
+import { Card } from '../components/ui/Card';
 import type { SharedProps } from '../types';
 import { DateFilter } from './filters/DateFilter';
 import { fieldClass } from './filters/FilterFieldset';

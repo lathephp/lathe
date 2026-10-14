@@ -1,5 +1,5 @@
 import { useTranslation } from '@lathephp/core';
-import { Button } from '@lathephp/ui';
+import { Button } from '../components/ui/Button';
 import { countText } from './IndexFooter';
 import type { Count, Row } from './types';
 import type { RowSelection } from './useRowSelection';

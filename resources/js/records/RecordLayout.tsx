@@ -1,7 +1,7 @@
 import { useTranslation } from '@lathephp/core';
-import { Card } from '@lathephp/ui';
 import { ChevronDown } from 'lucide-react';
 import { lazy, Suspense, useState, type ReactNode } from 'react';
+import { Card } from '../components/ui/Card';
 import { SafeHtml } from '../components/SafeHtml';
 import type { DetailFieldData, LayoutBlock, PanelBlock, RelationFieldSchema, TabData, TabGroupBlock } from '../fields/types';
 import { cn } from '../lib/cn';

@@ -1,6 +1,6 @@
 import { useTranslation } from '@lathephp/core';
-import { Button } from '@lathephp/ui';
 import { useId, useState } from 'react';
+import { Button } from '../components/ui/Button';
 
 interface RenameTabDialogProps {
   name: string;

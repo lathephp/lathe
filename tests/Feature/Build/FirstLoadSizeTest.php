@@ -66,12 +66,13 @@ it('counts the entry, the page, the import map entries and their imports, but no
     File::deleteDirectory($dist);
 });
 
-it('counts a ui subpath entry only on a route whose first load imports it', function () {
+it('counts the ui entry and a ui subpath entry only on a route whose first load imports it', function () {
     $dist = sys_get_temp_dir().'/size-'.bin2hex(random_bytes(6));
     File::ensureDirectoryExists("{$dist}/assets");
     $manifest = [
         'resources/js/app.tsx' => ['file' => 'assets/app.js'],
-        'lathe-vendor:@lathephp/ui' => ['file' => 'assets/ui.js'],
+        'lathe-vendor:@lathephp/ui' => ['file' => 'assets/ui.js', 'imports' => ['_base.js']],
+        '_base.js' => ['file' => 'assets/base.js'],
         'lathe-vendor:@lathephp/ui/chart' => ['file' => 'assets/chart.js', 'imports' => ['_scale.js']],
         '_scale.js' => ['file' => 'assets/scale.js'],
         'resources/js/pages/Dashboard.tsx' => ['file' => 'assets/Dashboard.js'],
@@ -80,18 +81,20 @@ it('counts a ui subpath entry only on a route whose first load imports it', func
     ];
     File::put("{$dist}/manifest.json", json_encode($manifest));
 
-    foreach (['app', 'ui', 'chart', 'scale', 'Form'] as $name) {
+    foreach (['app', 'ui', 'base', 'chart', 'scale'] as $name) {
         File::put("{$dist}/assets/{$name}.js", "export const {$name} = 1;\n");
     }
     // The dashboard imports the chart entry statically, the index only when a card asks.
     File::put("{$dist}/assets/Dashboard.js", 'import{BarChart as e}from"@lathephp/ui/chart";export const d=e;');
     File::put("{$dist}/assets/Index.js", 'export const i=()=>import("@lathephp/ui/chart");');
+    // The form imports the ui entry statically; no other route loads it.
+    File::put("{$dist}/assets/Form.js", 'import{Button as e}from"@lathephp/ui";export const f=e;');
 
     $results = array_column(json_decode(sizeRun($dist)->getOutput(), true), 'files', 'route');
 
-    expect($results['/lathe'])->toBe(['assets/Dashboard.js', 'assets/app.js', 'assets/chart.js', 'assets/scale.js', 'assets/ui.js'])
-        ->and($results['/lathe/resources/orders'])->toBe(['assets/Index.js', 'assets/app.js', 'assets/ui.js'])
-        ->and($results['/lathe/resources/orders/new'])->toBe(['assets/Form.js', 'assets/app.js', 'assets/ui.js']);
+    expect($results['/lathe'])->toBe(['assets/Dashboard.js', 'assets/app.js', 'assets/chart.js', 'assets/scale.js'])
+        ->and($results['/lathe/resources/orders'])->toBe(['assets/Index.js', 'assets/app.js'])
+        ->and($results['/lathe/resources/orders/new'])->toBe(['assets/Form.js', 'assets/app.js', 'assets/base.js', 'assets/ui.js']);
 
     File::deleteDirectory($dist);
 });

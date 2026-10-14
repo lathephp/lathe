@@ -1,6 +1,6 @@
 import { Link, usePage } from '@inertiajs/react';
 import { useTranslation } from '@lathephp/core';
-import { Card } from '@lathephp/ui';
+import { Card } from '../components/ui/Card';
 import type { DetailFieldData } from '../fields/types';
 import type { SharedProps } from '../types';
 

@@ -1,6 +1,6 @@
 import { useTranslation } from '@lathephp/core';
-import { Button } from '@lathephp/ui';
 import { useState } from 'react';
+import { Button } from '../components/ui/Button';
 import { gridClass } from './layout';
 import type { WidgetDescriptor } from './types';
 import { type DeferredValue, WidgetCard } from './WidgetCard';

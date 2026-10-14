@@ -1,6 +1,6 @@
 import { __panel, useTranslation } from '@lathephp/core';
-import { Button } from '@lathephp/ui';
 import { useSyncExternalStore } from 'react';
+import { Button } from './ui/Button';
 import { entryAssetHash, isBuildStale, subscribeToStale } from '../lib/assets';
 
 /**

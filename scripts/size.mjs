@@ -1,7 +1,8 @@
 // B4: the first-load JavaScript of each panel route, gzip -9 bytes, against the 200 KB budget.
 // A route loads the app entry, the page component it renders and the import-map entries
-// (react, react-dom, @lathephp/core, @lathephp/ui), each with every chunk it imports
-// statically. CSS, fonts and plugin modules are left out.
+// (react, react-dom, @lathephp/core), each with every chunk it imports statically, and
+// an @lathephp/ui entry only when one of those chunks imports it. CSS, fonts and plugin
+// modules are left out.
 // Usage: node scripts/size.mjs [dist-folder] [--json]; exits 1 when a route is over budget.
 import { readFileSync } from 'node:fs';
 import { join, resolve } from 'node:path';
@@ -35,9 +36,10 @@ function closure(keys, seen = new Set()) {
   return seen;
 }
 
-// A subpath entry such as @lathephp/ui/chart loads only when code imports it. The panel
-// keeps it external, so the manifest cannot show the import; the built code does.
-const subpath = /^lathe-vendor:@lathephp\/ui\/./;
+// An @lathephp/ui entry, the main one or a subpath such as @lathephp/ui/chart, loads only
+// when code imports it. The panel keeps it external, so the manifest cannot show the
+// import; the built code does.
+const subpath = /^lathe-vendor:@lathephp\/ui($|\/)/;
 const vendors = Object.keys(manifest).filter((key) => key.startsWith('lathe-vendor:') && !subpath.test(key));
 const subpaths = Object.keys(manifest).filter((key) => subpath.test(key));
 

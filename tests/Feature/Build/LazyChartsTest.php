@@ -26,7 +26,9 @@ function lazyChartsSource(string $file): string
 
 const LAZY_CHARTS_SUBPATH_IMPORT = '/(?:from|import)\s*["\']@lathephp\/ui\/[^"\']+["\']/';
 
-it('still keeps every @lathephp/ui subpath out of the static imports of first-paint chunks', function () {
+/** @return array<string, string> file of each chunk the app entry and the three measured routes import statically, by manifest key */
+function lazyChartsFirstPaint(): array
+{
     $manifest = lazyChartsManifest();
     $keys = ['resources/js/app.tsx', 'resources/js/pages/Dashboard.tsx', 'resources/js/pages/Resources/Index.tsx', 'resources/js/pages/Resources/Form.tsx'];
     $seen = [];
@@ -42,9 +44,22 @@ it('still keeps every @lathephp/ui subpath out of the static imports of first-pa
         array_push($keys, ...($manifest[$key]['imports'] ?? []));
     }
 
+    return $seen;
+}
+
+it('still keeps every @lathephp/ui subpath out of the static imports of first-paint chunks', function () {
+    $seen = lazyChartsFirstPaint();
     $offenders = array_keys(array_filter($seen, fn (string $file) => preg_match(LAZY_CHARTS_SUBPATH_IMPORT, lazyChartsSource($file)) === 1));
 
     expect($seen)->toHaveKey('resources/js/pages/Resources/Index.tsx')
+        ->and($offenders)->toBe([]);
+});
+
+it('keeps the @lathephp/ui main entry out of the static imports of first-paint chunks', function () {
+    $seen = lazyChartsFirstPaint();
+    $offenders = array_keys(array_filter($seen, fn (string $file) => preg_match('/(?:from|import)\s*["\']@lathephp\/ui["\']/', lazyChartsSource($file)) === 1));
+
+    expect($seen)->toHaveKey('resources/js/pages/Dashboard.tsx')
         ->and($offenders)->toBe([]);
 });
 

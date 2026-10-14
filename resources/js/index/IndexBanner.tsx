@@ -1,5 +1,6 @@
 import { useTranslation } from '@lathephp/core';
-import { Button, Card } from '@lathephp/ui';
+import { Button } from '../components/ui/Button';
+import { Card } from '../components/ui/Card';
 
 interface IndexBannerProps {
   message: string;

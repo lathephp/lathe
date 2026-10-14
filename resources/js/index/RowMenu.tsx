@@ -1,8 +1,8 @@
 import { Link, router, usePage } from '@inertiajs/react';
 import { request, toast, useTranslation } from '@lathephp/core';
-import { Button } from '@lathephp/ui';
 import { EllipsisVertical } from 'lucide-react';
 import { lazy, Suspense, useId, useState } from 'react';
+import { Button } from '../components/ui/Button';
 import type { SharedProps } from '../types';
 import type { Row } from './types';
 

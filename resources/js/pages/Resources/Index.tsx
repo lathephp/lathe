@@ -1,7 +1,7 @@
 import { Head, usePage } from '@inertiajs/react';
 import { lazy, Suspense } from 'react';
 import { __panel, emit, useShortcut } from '@lathephp/core';
-import { Card } from '@lathephp/ui';
+import { Card } from '../../components/ui/Card';
 import { EmptyState } from '../../index/EmptyState';
 import { IndexBanner } from '../../index/IndexBanner';
 import { IndexFooter } from '../../index/IndexFooter';

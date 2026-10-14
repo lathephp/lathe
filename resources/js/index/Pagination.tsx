@@ -1,7 +1,7 @@
 import { usePage } from '@inertiajs/react';
 import { request, toast, useTranslation } from '@lathephp/core';
-import { Button } from '@lathephp/ui';
 import { useState } from 'react';
+import { Button } from '../components/ui/Button';
 import type { SharedProps } from '../types';
 import type { IndexProps, ResourceDefinition, Row } from './types';
 

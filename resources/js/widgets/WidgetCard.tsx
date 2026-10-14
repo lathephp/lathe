@@ -1,6 +1,7 @@
 import { on, request, useTranslation } from '@lathephp/core';
-import { Button, Card } from '@lathephp/ui';
 import { Suspense, useEffect, useEffectEvent, useRef, useState } from 'react';
+import { Button } from '../components/ui/Button';
+import { Card } from '../components/ui/Card';
 import { cn } from '../lib/cn';
 import { HelpTooltip } from './HelpTooltip';
 import { filterParams } from './filterParams';

@@ -1,6 +1,6 @@
 import { useTranslation } from '@lathephp/core';
-import { Button } from '@lathephp/ui';
 import { useId, useState } from 'react';
+import { Button } from '../components/ui/Button';
 import { cn } from '../lib/cn';
 
 type BadgeColour = 'success' | 'danger' | 'warning';

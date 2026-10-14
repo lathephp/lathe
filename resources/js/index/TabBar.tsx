@@ -1,8 +1,8 @@
 import { usePage } from '@inertiajs/react';
 import { formatNumber, useTranslation } from '@lathephp/core';
-import { Button } from '@lathephp/ui';
 import { Ellipsis, GripVertical, Plus } from 'lucide-react';
 import { useId, useState, type KeyboardEvent } from 'react';
+import { Button } from '../components/ui/Button';
 import { NavIcon } from '../components/NavIcon';
 import { cn } from '../lib/cn';
 import { RenameTabDialog } from './RenameTabDialog';
