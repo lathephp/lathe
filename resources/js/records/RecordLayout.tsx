@@ -166,10 +166,23 @@ function Panel({ panel, renderField, borderless, detail }: RecordLayoutProps & {
   );
 }
 
-/** The tab the URL names, else activeTab. */
+/** The keys of the relation panels inside a block, through its grids. */
+function relationKeys(block: LayoutBlock): string[] {
+  if (block.type === 'grid') {
+    return block.items.flatMap(relationKeys);
+  }
+
+  return block.type === 'relation-field' ? [block.key] : [];
+}
+
+/**
+ * The tab the URL names, else the tab that holds the relation panel it names, else activeTab.
+ * A save under a via comes back with the relationship as the tab value.
+ */
 function initialTab(group: TabGroupBlock): number {
   const named = typeof window === 'undefined' ? null : new URLSearchParams(window.location.search).get(group.queryKey);
-  const index = group.tabs.findIndex((tab) => tab.attribute === named);
+  const byKey = group.tabs.findIndex((tab) => tab.attribute === named);
+  const index = byKey >= 0 ? byKey : group.tabs.findIndex((tab) => tab.items.flatMap(relationKeys).includes(named ?? ''));
 
   return index >= 0 ? index : Math.min(Math.max(group.activeTab, 0), group.tabs.length - 1);
 }

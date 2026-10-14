@@ -18,10 +18,15 @@ export default function Form({ resource, mode, id, title, breadcrumbs, form, sub
   // A create opened from a relation panel: `orders/12/items` names the parent and the relation.
   const via = mode === 'create' ? new URLSearchParams(page.url.split('?')[1] ?? '').get('via') : null;
   const record = useRecordForm({ resource, mode, id, form, via }, (redirect) => {
-    // Under a via the save goes back to the parent record, whose panel lists the new row.
-    const parent = via?.split('/').slice(0, 2).join('/');
+    // Under a via the save goes back to the parent record, on the tab whose panel lists the new row.
+    if (via === null) {
+      router.visit(`${basePath}/resources/${redirect}`);
 
-    router.visit(`${basePath}/resources/${parent ?? redirect}`);
+      return;
+    }
+
+    const [parentKey, parentId, relationship] = via.split('/');
+    router.visit(`${basePath}/resources/${parentKey ?? ''}/${parentId ?? ''}?tab=${encodeURIComponent(relationship ?? '')}`);
   });
   const updating = mode === 'update';
   const cancelHref = updating ? `${basePath}/resources/${resource.uriKey}/${String(id)}` : `${basePath}/resources/${resource.uriKey}`;

@@ -54,7 +54,8 @@ it('creates an item from the Items panel with the order locked', function () {
         ->type('#field-price_cents', '9.99')
         ->click('form button[type="submit"]')
         ->assertPathIs('/lathe/resources/orders/12')
-        ->click(PANEL_ITEMS_TAB)
+        ->assertQueryStringHas('tab', 'items')
+        ->assertAttribute(PANEL_ITEMS_TAB, 'aria-selected', 'true')
         ->assertCount(ITEM_ROWS, $before + 1);
 
     expect(Order::findOrFail(12)->items()->where('product_id', $product->id)->where('quantity', 2)->exists())->toBeTrue();

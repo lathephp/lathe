@@ -192,6 +192,30 @@ describe('record form', () => {
     expect(bodyOf(init)).toEqual({ name: 'Ann Lee', country: 'US' });
   });
 
+  it('returns to the parent on the relation tab after a create under a via', async () => {
+    respond(201, { id: 50, redirect: 'order-items/50' });
+    const visit = vi.spyOn(router, 'visit').mockImplementation(() => undefined);
+    renderPage(
+      'Resources/Form',
+      {
+        resource: { uriKey: 'order-items', label: 'Order Items', singularLabel: 'Order Item', abilities: { create: true } },
+        mode: 'create',
+        id: null,
+        title: 'Create Order Item',
+        breadcrumbs: [],
+        form: { fields: [{ ...schema('quantity'), value: '2' }], layout: [panel(['quantity'])] },
+        submitLabel: 'Create Order Item',
+      },
+      { url: '/lathe/resources/order-items/new?via=orders%2F12%2Fitems' },
+    );
+
+    fireEvent.click(screen.getByRole('button', { name: 'Create Order Item' }));
+
+    await waitFor(() => {
+      expect(visit).toHaveBeenCalledWith('/lathe/resources/orders/12?tab=items');
+    });
+  });
+
   it('shows a 422 under its field, keeps the typed values, focuses the field and toasts', async () => {
     respond(422, { message: 'The name field is required.', errors: { name: ['The name field is required.'] } });
     renderForm();

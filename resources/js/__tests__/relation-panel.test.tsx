@@ -2,7 +2,7 @@ import { router } from '@inertiajs/react';
 import { queryClient } from '@lathephp/core';
 import { act, fireEvent, screen, waitFor, within } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import type { LayoutBlock, PanelBlock } from '../fields/types';
+import type { LayoutBlock, PanelBlock, TabGroupBlock } from '../fields/types';
 import { renderPage } from './support';
 
 afterEach(() => {
@@ -174,6 +174,18 @@ describe('relation panel', () => {
     renderDetail([inTabs(relationBlock())]);
 
     expect(await screen.findByText('Autem blanditiis')).toBeTruthy();
+    expect(listCalls(fetch)).toEqual(['/lathe/api/resources/orders/12/items']);
+  });
+
+  it('opens the tab that holds the relation the URL names when no tab has that key', async () => {
+    window.history.replaceState(null, '', '/lathe/resources/orders/12?tab=items');
+    const fetch = answer();
+    const group = inTabs(relationBlock()) as TabGroupBlock;
+    group.tabs = group.tabs.map((tab) => (tab.attribute === 'items' ? { ...tab, attribute: 'order-lines', label: 'Order lines' } : tab));
+    renderDetail([group]);
+
+    expect(await screen.findByText('Autem blanditiis')).toBeTruthy();
+    expect(screen.getByRole('tab', { name: 'Order lines' }).getAttribute('aria-selected')).toBe('true');
     expect(listCalls(fetch)).toEqual(['/lathe/api/resources/orders/12/items']);
   });
 
