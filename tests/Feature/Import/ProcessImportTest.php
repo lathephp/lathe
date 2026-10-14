@@ -192,6 +192,27 @@ it('imports products.csv and tells the admin', function () use ($productsMap) {
     ]);
 });
 
+it('quotes a failed cell that a spreadsheet would run as a formula in the error CSV', function () use ($productsMap) {
+    Notification::fake();
+    $import = uploadedImport("Name,SKU,Price\n=HYPERLINK(\"http://x\"),SKU-90021,abc\n", $productsMap);
+
+    ImportProducts::make()->start($import, 'dry_run', adminContext());
+
+    expect(Storage::disk('local')->get((string) $import->fresh()?->error_file))->toContain("\"'=HYPERLINK(\"\"http://x\"\")\"");
+});
+
+it('marks an import failed and notifies when the queue gives up on the job without a throw', function () use ($productsMap) {
+    Notification::fake();
+    $import = uploadedImport(fixtureCsv('products.csv'), $productsMap);
+    $import->update(['status' => 'processing', 'mode' => 'import']);
+
+    (new ProcessImport($import, ImportProducts::make(), adminContext()))->failed(new RuntimeException('The job ran too long.'));
+
+    expect($import->fresh()?->status)->toBe('failed')
+        ->and($import->fresh()?->exception)->toBe('The job ran too long.');
+    Notification::assertSentTimes(ImportComplete::class, 1);
+});
+
 it('imports products-bad.csv with a warning and a Download Failed Rows button', function () use ($productsMap) {
     Notification::fake();
     $import = uploadedImport(fixtureCsv('products-bad.csv'), $productsMap);

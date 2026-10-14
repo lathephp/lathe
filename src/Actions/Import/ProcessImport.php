@@ -14,6 +14,8 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
+use Lathe\Actions\Export\ExportWriter;
+use Lathe\Lathe;
 use Lathe\Support\ConfigStore;
 use Lathe\Support\JobContext;
 use LogicException;
@@ -69,6 +71,24 @@ class ProcessImport implements ShouldQueue
 
             throw $exception;
         }
+    }
+
+    /**
+     * The queue gave up on the job: a timeout, a lost worker or the last failed try. A throw
+     * inside handle() has marked the import already; anything else would leave it processing
+     * for good, so it is marked failed here and can be resumed.
+     */
+    public function failed(?Throwable $exception): void
+    {
+        $import = $this->import->fresh();
+
+        if ($import === null || $import->status === 'failed') {
+            return;
+        }
+
+        $this->context->restore();
+        $import->update(['status' => 'failed', 'exception' => $exception?->getMessage() ?? Lathe::__('The import stopped before it finished.')]);
+        $this->notify($import);
     }
 
     protected function run(Import $import): void
@@ -494,7 +514,7 @@ class ProcessImport implements ShouldQueue
                 array_keys($failed->errors),
             );
 
-            $writer->addRow(Row::fromValues([$failed->row_number, ...$cells, implode(' | ', $errors)]));
+            $writer->addRow(Row::fromValues([$failed->row_number, ...array_map(fn (mixed $cell) => is_string($cell) ? ExportWriter::csvSafe($cell) : $cell, [...$cells, implode(' | ', $errors)])]));
         }
 
         $writer->close();

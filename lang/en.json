@@ -271,6 +271,7 @@
     "The :resource already has a :related.": "The :resource already has a :related.",
     "The file is empty and has no headers.": "The file is empty and has no headers.",
     "The file type is not one of: :types.": "The file type is not one of: :types.",
+    "The import stopped before it finished.": "The import stopped before it finished.",
     "The next rows could not be loaded.": "The next rows could not be loaded.",
     "The page you are looking for does not exist.": "The page you are looking for does not exist.",
     "The panel is down for maintenance. Try again soon.": "The panel is down for maintenance. Try again soon.",

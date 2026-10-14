@@ -11,7 +11,8 @@ use RuntimeException;
 
 /**
  * Writes rows to a local temp file, CSV or XLSX. Every value is a text cell, so a value
- * that starts with "=" stays text and never becomes a spreadsheet formula.
+ * that starts with "=" stays text and never becomes a spreadsheet formula; a CSV holds no
+ * cell types, so there such a value gets a leading quote.
  */
 class ExportWriter
 {
@@ -42,7 +43,20 @@ class ExportWriter
      */
     public function addRow(array $values): void
     {
-        $this->writer->addRow(new Row(array_map(fn (string $value) => new StringCell($value), $values)));
+        $csv = $this->writer instanceof CsvWriter;
+
+        $this->writer->addRow(new Row(array_map(fn (string $value) => new StringCell($csv ? static::csvSafe($value) : $value), $values)));
+    }
+
+    /**
+     * A CSV cell a spreadsheet would run as a formula (=, +, -, @, a tab or a carriage return
+     * first), with a leading quote so it opens as text. A number keeps its sign.
+     */
+    public static function csvSafe(string $value): string
+    {
+        return $value !== '' && ! is_numeric($value) && in_array($value[0], ['=', '+', '-', '@', "\t", "\r"], true)
+            ? "'".$value
+            : $value;
     }
 
     /**
