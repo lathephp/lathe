@@ -46,7 +46,7 @@ Lathe\ActionEvents\ActionEventRecorder::bool $disabled  [protected]
 Lathe\ActionEvents\ActionEventRecorder::clean(array $attributes, ?Illuminate\Database\Eloquent\Model $model, ?string $resourceClass): array  [protected]
 Lathe\ActionEvents\ActionEventRecorder::disable(): void
 Lathe\ActionEvents\ActionEventRecorder::enable(): void
-Lathe\ActionEvents\ActionEventRecorder::forActionRan(?Lathe\Http\Requests\LatheRequest $request, object|string $actionName, Illuminate\Support\Collection $models, string $resourceClass, Lathe\Enums\ActionEventStatus $status, array $fields = array ( )): string
+Lathe\ActionEvents\ActionEventRecorder::forActionRan(?Lathe\Http\Requests\LatheRequest $request, Lathe\Actions\Action|string $actionName, Illuminate\Support\Collection $models, string $resourceClass, Lathe\Enums\ActionEventStatus $status, array $fields = array ( )): string
 Lathe\ActionEvents\ActionEventRecorder::forAttach(?Lathe\Http\Requests\LatheRequest $request, Illuminate\Database\Eloquent\Model $parent, Illuminate\Database\Eloquent\Model $related, string $resourceClass, array $pivot = array ( ), ?string $batchId = NULL): void
 Lathe\ActionEvents\ActionEventRecorder::forDetach(?Lathe\Http\Requests\LatheRequest $request, Illuminate\Database\Eloquent\Model $parent, Illuminate\Database\Eloquent\Model $related, string $resourceClass, array $pivot = array ( ), ?string $batchId = NULL): void
 Lathe\ActionEvents\ActionEventRecorder::forImpersonationStarted(?Lathe\Http\Requests\LatheRequest $request, Illuminate\Database\Eloquent\Model $impersonator, Illuminate\Database\Eloquent\Model $impersonated): void
@@ -84,6 +84,7 @@ Lathe\Actions\Action::?Closure $seeCallback  [protected]
 Lathe\Actions\Action::?Closure $thenCallback  [protected]
 Lathe\Actions\Action::?int $timeout
 Lathe\Actions\Action::?int $tries
+Lathe\Actions\Action::?string $actionBatchId  [protected]
 Lathe\Actions\Action::?string $cancelButtonText  [protected]
 Lathe\Actions\Action::?string $confirmButtonText  [protected]
 Lathe\Actions\Action::?string $connection
@@ -132,6 +133,7 @@ Lathe\Actions\Action::getGroup(): ?string
 Lathe\Actions\Action::getUriKey(): string
 Lathe\Actions\Action::group(string $group): static
 Lathe\Actions\Action::handle(Lathe\Actions\ActionFields $fields, Illuminate\Support\Collection $models): Lathe\Actions\ActionResult
+Lathe\Actions\Action::handleRequest(Lathe\Http\Requests\LatheRequest $request, Lathe\Query\Selection $selection): array
 Lathe\Actions\Action::handleResult(Lathe\Actions\ActionFields $fields, array $results): Lathe\Actions\ActionResult
 Lathe\Actions\Action::handleUsing(Closure $callback): static
 Lathe\Actions\Action::hasFileField(Lathe\Http\Requests\LatheRequest $request): bool
@@ -146,6 +148,8 @@ Lathe\Actions\Action::isStandalone(): bool
 Lathe\Actions\Action::jsonSerialize(): array
 Lathe\Actions\Action::label(): string
 Lathe\Actions\Action::make(mixed ...$args): static  [static]
+Lathe\Actions\Action::markAsFailed(Illuminate\Database\Eloquent\Model $model, ?Throwable $exception = NULL): void
+Lathe\Actions\Action::markAsFinished(Illuminate\Database\Eloquent\Model $model): void
 Lathe\Actions\Action::message(string $text): Lathe\Actions\ActionResult  [static]
 Lathe\Actions\Action::modal(string $name, string $component, Closure|array $data = array ( )): static  [static]
 Lathe\Actions\Action::name(): string
@@ -175,6 +179,7 @@ Lathe\Actions\Action::then(callable $callback): static
 Lathe\Actions\Action::uriKey(): string
 Lathe\Actions\Action::using(string $name, Closure $handler): static  [static]
 Lathe\Actions\Action::visit(string $name, Closure|string $path, array $options = array ( )): static  [static]
+Lathe\Actions\Action::withActionBatchId(?string $batchId): static
 Lathe\Actions\Action::withName(string $name): static
 Lathe\Actions\Action::withUriKey(string $uriKey): static
 Lathe\Actions\Action::withoutActionEvents(): static
@@ -184,6 +189,18 @@ Lathe\Actions\ActionCollection::counts(): array
 Lathe\Actions\ActionCollection::findByUriKey(string $uriKey): ?Lathe\Actions\Action
 Lathe\Actions\ActionCollection::forDisplay(string $display): static
 Lathe\Actions\ActionCollection::menuOrder(): static
+Lathe\Actions\ActionDispatcher::Lathe\ActionEvents\ActionEventRecorder $recorder  [protected]
+Lathe\Actions\ActionDispatcher::Lathe\Actions\ActionFieldValidator $validator  [protected]
+Lathe\Actions\ActionDispatcher::Lathe\Auth\ResourceAuthorization $authorization  [protected]
+Lathe\Actions\ActionDispatcher::MAX_ERRORS
+Lathe\Actions\ActionDispatcher::__construct(Lathe\ActionEvents\ActionEventRecorder $recorder, Lathe\Auth\ResourceAuthorization $authorization, Lathe\Actions\ActionFieldValidator $validator)
+Lathe\Actions\ActionDispatcher::dispatch(Lathe\Http\Requests\LatheRequest $request, Lathe\Actions\Action $action, Lathe\Query\Selection $selection): array
+Lathe\Actions\ActionDispatcher::filterForExecution(Lathe\Http\Requests\LatheRequest $request, Lathe\Actions\Action $action, string $class, Illuminate\Support\Collection $models): Illuminate\Support\Collection
+Lathe\Actions\ActionDispatcher::record(Lathe\Http\Requests\LatheRequest $request, Lathe\Actions\Action $action, Illuminate\Database\Eloquent\Collection $models, string $class, Lathe\Actions\ActionFields $fields): ?string  [protected]
+Lathe\Actions\ActionDispatcher::runChunk(Lathe\Actions\Action $action, Lathe\Actions\ActionFields $fields, Illuminate\Database\Eloquent\Collection $models): array
+Lathe\Actions\ActionDispatcher::runStandalone(Lathe\Http\Requests\LatheRequest $request, Lathe\Actions\Action $action, string $class): array  [protected]
+Lathe\Actions\ActionDispatcher::shouldQueue(Lathe\Actions\Action $action, Lathe\Query\SelectionResolver $resolver, int $max): bool  [protected]
+Lathe\Actions\ActionFieldValidator::validate(Lathe\Http\Requests\LatheRequest $request, Lathe\Actions\Action $action): Lathe\Actions\ActionFields
 Lathe\Actions\ActionMenu::Lathe\Auth\ResourceAuthorization $authorization  [protected]
 Lathe\Actions\ActionMenu::Lathe\Http\Requests\LatheRequest $request  [protected]
 Lathe\Actions\ActionMenu::__construct(Lathe\Http\Requests\LatheRequest $request, Lathe\Auth\ResourceAuthorization $authorization)
@@ -1869,6 +1886,7 @@ Lathe\Http\Controllers\Plugins\PluginApiController::__invoke(Illuminate\Http\Req
 Lathe\Http\Controllers\Plugins\PluginPageController::__invoke(Illuminate\Http\Request $request, Lathe\Plugins\PluginRegistry $plugins, string $plugin, string $path = ''): Inertia\Response
 Lathe\Http\Controllers\Resources\ActionController::form(Lathe\Http\Requests\LatheRequest $request, Lathe\Auth\ResourceAuthorization $authorization, string $resource, string $action): Illuminate\Http\JsonResponse
 Lathe\Http\Controllers\Resources\ActionController::index(Lathe\Http\Requests\LatheRequest $request, Lathe\Auth\ResourceAuthorization $authorization, Lathe\Actions\ActionMenu $menu): Illuminate\Http\JsonResponse
+Lathe\Http\Controllers\Resources\ActionRunController::__invoke(Lathe\Http\Requests\LatheRequest $request, Lathe\Auth\ResourceAuthorization $authorization): Illuminate\Http\JsonResponse
 Lathe\Http\Controllers\Resources\AssociatableController::create(Lathe\Http\Requests\LatheRequest $request, Lathe\Auth\ResourceAuthorization $authorization, string $resource, string $field): Illuminate\Http\JsonResponse
 Lathe\Http\Controllers\Resources\AssociatableController::options(Lathe\Http\Requests\LatheRequest $request, string $parent, Lathe\Field\Relations\RelationField $field, ?Illuminate\Database\Eloquent\Model $record = NULL): Illuminate\Http\JsonResponse  [protected]
 Lathe\Http\Controllers\Resources\AssociatableController::record(Lathe\Http\Requests\LatheRequest $request, Lathe\Auth\ResourceAuthorization $authorization, string $resource, string $resourceId, string $field): Illuminate\Http\JsonResponse
@@ -3045,6 +3063,8 @@ class Lathe\ActionEvents\ActionEventRecorder
 class Lathe\ActionEvents\ActionEventResource
 class Lathe\Actions\Action
 class Lathe\Actions\ActionCollection
+class Lathe\Actions\ActionDispatcher
+class Lathe\Actions\ActionFieldValidator
 class Lathe\Actions\ActionFields
 class Lathe\Actions\ActionMenu
 class Lathe\Actions\ActionMethodResolver
@@ -3223,6 +3243,7 @@ class Lathe\Http\Controllers\Plugins\ModuleController
 class Lathe\Http\Controllers\Plugins\PluginApiController
 class Lathe\Http\Controllers\Plugins\PluginPageController
 class Lathe\Http\Controllers\Resources\ActionController
+class Lathe\Http\Controllers\Resources\ActionRunController
 class Lathe\Http\Controllers\Resources\AssociatableController
 class Lathe\Http\Controllers\Resources\BatchDeleteController
 class Lathe\Http\Controllers\Resources\CountController
