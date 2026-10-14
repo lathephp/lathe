@@ -36,6 +36,51 @@ it('renders every @lathephp/ui component on the UI Gallery and toasts on g then 
         ->and($page->script('window.__lathe.errors'))->toBe([]);
 });
 
+/**
+ * How many demo badges each render hook position shows on the page.
+ *
+ * @return array<string, int>
+ */
+function hookBadges($page): array
+{
+    $page->assertPresent('[data-demo-hook="head"]');
+
+    return $page->script(<<<'JS'
+        Object.fromEntries(['head', 'header:end', 'sidebar:before', 'sidebar:after', 'page:before', 'page:after', 'footer:before',
+            'index:header-actions', 'detail:header-actions', 'auth:after-form']
+            .map((position) => [position, document.querySelectorAll(`[data-lathe-hook="${position}"] [data-demo-hook="${position}"]`).length]))
+        JS);
+}
+
+it('shows a badge at each of the 10 render hook positions on Users', function () {
+    forgetServerSession();
+    $login = latheVisit('/lathe/login', 'desktop-chrome');
+
+    expect(hookBadges($login)['auth:after-form'])->toBe(1);
+
+    signInThroughForm($login, 'admin@lathephp.com');
+    $page = $login->navigate('/lathe/resources/users');
+    $index = hookBadges($page->assertPresent('[data-demo-hook="index:header-actions"]'));
+    $detail = hookBadges($page->navigate('/lathe/resources/users/1')->assertPresent('[data-demo-hook="detail:header-actions"]'));
+
+    expect($index)->toBe([
+        'head' => 1, 'header:end' => 1, 'sidebar:before' => 1, 'sidebar:after' => 1, 'page:before' => 1, 'page:after' => 1,
+        'footer:before' => 1, 'index:header-actions' => 1, 'detail:header-actions' => 0, 'auth:after-form' => 0,
+    ])->and($detail['detail:header-actions'])->toBe(1);
+    assertCleanPage($page);
+});
+
+it('leaves out the two Users-only badges on Orders', function () {
+    $index = hookBadges(signedInAt('/lathe/resources/orders')->assertPresent('table tbody > tr'));
+    $page = signedInAt('/lathe/resources/orders/1')->assertPresent('[data-demo-hook="page:after"]');
+
+    expect($index)->toBe([
+        'head' => 1, 'header:end' => 1, 'sidebar:before' => 1, 'sidebar:after' => 1, 'page:before' => 1, 'page:after' => 1,
+        'footer:before' => 1, 'index:header-actions' => 0, 'detail:header-actions' => 0, 'auth:after-form' => 0,
+    ])->and(hookBadges($page)['detail:header-actions'])->toBe(0);
+    assertCleanPage($page);
+});
+
 it('opens System Status from the Demo Kit section of the sidebar', function () {
     $page = signedInAt('/lathe');
 

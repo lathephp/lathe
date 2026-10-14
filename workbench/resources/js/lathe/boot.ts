@@ -1,4 +1,5 @@
 import './lathe.css';
+import './renderHooks';
 import { page, plugin, widget } from '@lathephp/core';
 import Clock from './Clock';
 import Overview from './Overview';
