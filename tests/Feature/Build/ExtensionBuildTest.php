@@ -107,8 +107,29 @@ it('builds the app boot file into hashed modules and an extensions manifest', fu
         ->and($files[0])->toMatch('/^boot-[\w-]{8}\.js$/')
         ->and($files[1])->toBe('manifest.json')
         ->and($files[2])->toMatch('/^reports-[\w-]{8}\.js$/')
-        ->and($manifest)->toBe(['entry' => $files[0], 'components' => ['widget' => ['clock'], 'page' => ['reports']]])
+        ->and($manifest)->toBe(['entry' => $files[0], 'styles' => [], 'components' => ['widget' => ['clock'], 'page' => ['reports']]])
         ->and((string) file_get_contents("{$out}/{$files[0]}"))->toMatch('/from\s*"@lathephp\/core"/');
+
+    File::deleteDirectory($dir);
+});
+
+it('lists the stylesheet of the CSS the app boot file imports in the extensions manifest', function () {
+    $dir = extensionFixture([
+        'resources/js/lathe/boot.ts' => "import './lathe.css';\nimport { widget } from '@lathephp/core';\nwidget('clock', () => null);\n",
+        'resources/js/lathe/lathe.css' => "@import \"tailwindcss\";\n@import \"@lathephp/core/tokens.css\";\n@source \"./boot.ts\";\n",
+    ]);
+    file_put_contents("{$dir}/resources/js/lathe/boot.ts", "// bg-card\n", FILE_APPEND);
+
+    $process = runExtensionScript($dir, ' await vite.build({ configFile: false, root, logLevel: "silent", plugins: [lathe({ mode: "app", autoDiscover: false }), tailwindcss()] });');
+
+    expect($process->getExitCode())->toBe(0, $process->getErrorOutput());
+
+    $out = "{$dir}/public/vendor/lathe/extensions";
+    $styles = json_decode((string) file_get_contents("{$out}/manifest.json"), true)['styles'];
+
+    expect($styles)->toHaveCount(1)
+        ->and($styles[0])->toMatch('/^boot-[\w-]{8}\.css$/')
+        ->and((string) file_get_contents("{$out}/{$styles[0]}"))->toContain('.bg-card{background-color:var(--card)}');
 
     File::deleteDirectory($dir);
 });

@@ -629,6 +629,7 @@ Lathe\Assets\ExtensionManifest::components(): array
 Lathe\Assets\ExtensionManifest::manifest(): array  [protected]
 Lathe\Assets\ExtensionManifest::moduleUrls(): array
 Lathe\Assets\ExtensionManifest::path(string $file): string  [protected]
+Lathe\Assets\ExtensionManifest::styleUrls(): array
 Lathe\Assets\RootTags::Lathe\Assets\AssetManifest $assets  [protected]
 Lathe\Assets\RootTags::Lathe\Assets\AssetRegistry $registry  [protected]
 Lathe\Assets\RootTags::Lathe\Plugins\PluginRegistry $plugins  [protected]

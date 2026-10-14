@@ -1,0 +1,5 @@
+/* The utilities only the workbench's own components use. The panel's stylesheet holds the rest. */
+@import "tailwindcss";
+@import "@lathephp/core/tokens.css";
+
+@source "./";

@@ -303,7 +303,7 @@ export function lathe(options: PluginModeOptions | AppModeOptions): Plugin {
                 fileName: 'lathe-plugin.json',
                 source: `${JSON.stringify({ name: options.name, core: coreRange, scripts, styles, components }, null, 2)}\n`,
               }
-            : { type: 'asset', fileName: 'manifest.json', source: `${JSON.stringify({ entry, components }, null, 2)}\n` },
+            : { type: 'asset', fileName: 'manifest.json', source: `${JSON.stringify({ entry, styles, components }, null, 2)}\n` },
         );
       },
     },

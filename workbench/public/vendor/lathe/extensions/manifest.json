@@ -1,5 +1,8 @@
 {
-  "entry": "boot-CZnHzBM5.js",
+  "entry": "boot-deMXdaHp.js",
+  "styles": [
+    "boot-DIDz2owI.css"
+  ],
   "components": {
     "widget": [
       "workbench-clock"

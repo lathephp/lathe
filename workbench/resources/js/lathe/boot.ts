@@ -1,3 +1,4 @@
+import './lathe.css';
 import { page, plugin, widget } from '@lathephp/core';
 import Clock from './Clock';
 import Overview from './Overview';

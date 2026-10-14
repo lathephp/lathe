@@ -30,6 +30,18 @@ class ExtensionManifest
     }
 
     /**
+     * The stylesheets the build wrote for the CSS the boot module imports.
+     *
+     * @return list<string>
+     */
+    public function styleUrls(): array
+    {
+        $styles = $this->manifest()['styles'] ?? null;
+
+        return is_array($styles) ? array_values(array_map(fn (mixed $file) => '/'.self::PUBLIC_DIRECTORY.'/'.$file, array_filter($styles, 'is_string'))) : [];
+    }
+
+    /**
      * The component keys the built extensions register, by kind.
      *
      * @return array<string, list<string>>

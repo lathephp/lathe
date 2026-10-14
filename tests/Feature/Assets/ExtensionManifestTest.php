@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Vite;
 use Lathe\Assets\RootTags;
 use Lathe\Lathe;
 
@@ -40,4 +41,11 @@ it('lists the dev server URL from the hot file instead of the built entry', func
     File::put("{$this->extensions}/hot", "http://localhost:5174/resources/js/lathe/boot.ts\n");
 
     expect(pageModules())->toBe(['http://localhost:5174/resources/js/lathe/boot.ts']);
+});
+
+it('links the stylesheets of the built extensions manifest with the CSP nonce', function () {
+    Vite::useCspNonce('n0nce');
+    File::put("{$this->extensions}/manifest.json", json_encode(['entry' => 'boot-3f9a1c2e.js', 'styles' => ['boot-7d0c4b19.css'], 'components' => []]));
+
+    expect(app(RootTags::class)->styles())->toContain('<link rel="stylesheet" href="/vendor/lathe/extensions/boot-7d0c4b19.css" nonce="n0nce">');
 });

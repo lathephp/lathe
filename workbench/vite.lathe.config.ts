@@ -1,3 +1,4 @@
+import tailwindcss from '@tailwindcss/vite';
 import { defineConfig } from 'vite';
 // The workbench is no workspace package, so it imports the plugin from its build.
 import { lathe } from '../packages/vite-plugin/dist/index.js';
@@ -6,5 +7,5 @@ import { lathe } from '../packages/vite-plugin/dist/index.js';
 // workbench/public/vendor/lathe/extensions, which the workbench commits.
 export default defineConfig({
   root: import.meta.dirname,
-  plugins: [lathe({ mode: 'app' })],
+  plugins: [lathe({ mode: 'app' }), tailwindcss()],
 });

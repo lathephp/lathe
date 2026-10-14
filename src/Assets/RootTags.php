@@ -31,7 +31,7 @@ class RootTags
             $urls[] = $style;
         }
 
-        array_push($urls, ...$this->registry->styleUrls($this->prefix()));
+        array_push($urls, ...$this->registry->styleUrls($this->prefix()), ...app(ExtensionManifest::class)->styleUrls());
 
         $tags = array_map(fn (string $url) => '<link rel="stylesheet" href="'.e($url).'"'.$this->nonce().'>', $urls);
 
