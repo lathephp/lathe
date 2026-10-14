@@ -54,8 +54,8 @@ export function ValueCard({ widget, value }: WidgetRendererProps) {
             data-change={direction}
             className={cn(
               'flex shrink-0 items-center gap-1 rounded-md px-2 py-1 text-xs font-medium tabular-nums',
-              direction === 'up' && 'bg-success/10 text-success',
-              direction === 'down' && 'bg-destructive/10 text-destructive',
+              direction === 'up' && 'bg-success text-success-foreground',
+              direction === 'down' && 'bg-destructive text-destructive-foreground',
               direction === 'flat' && 'bg-muted text-muted-foreground',
             )}
           >

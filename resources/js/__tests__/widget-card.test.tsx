@@ -123,6 +123,14 @@ describe('the dashboard grid', () => {
     expect(within(card('revenue')).getByRole('status', { name: 'Loading' })).toBeTruthy();
   });
 
+  it('draws the cards when the page has no rescued props, as the server sends it', async () => {
+    renderDashboard([descriptor('orders')], { orders: 1234 }, { rescuedProps: undefined });
+
+    await waitFor(() => {
+      expect(within(card('orders')).getByText('1,234')).toBeTruthy();
+    });
+  });
+
   it('shows a failed card alone, with Retry that loads the value', async () => {
     const fetch = answer(() => 42);
     renderDashboard([descriptor('orders'), descriptor('revenue')], { orders: 1234 }, { rescuedProps: ['widgetValue:revenue'] });

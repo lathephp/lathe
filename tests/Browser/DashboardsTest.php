@@ -32,9 +32,9 @@ it('fills every gallery card within a second, with named charts and their number
 
     $page->assertSee('Widget Gallery')
         ->assertCount('[data-lathe-widget]', 11)
-        ->assertScript('[...document.querySelectorAll("[data-lathe-widget] h3")].map((title) => title.textContent)', GALLERY_CARDS)
-        // Only the clock card fails: its client component is not registered.
-        ->assertScript('[...document.querySelectorAll("[data-lathe-widget]")].filter((card) => card.textContent.includes("The widget could not be loaded.")).map((card) => card.dataset.latheWidget)', ['custom-widget'])
+        ->assertScript('[...document.querySelectorAll("[data-lathe-widget] h2")].map((title) => title.textContent)', GALLERY_CARDS)
+        // Every card loads, the clock too: the workbench extension build registers its component.
+        ->assertScript('[...document.querySelectorAll("[data-lathe-widget]")].filter((card) => card.textContent.includes("The widget could not be loaded.")).map((card) => card.dataset.latheWidget)', [])
         ->assertSeeIn('[data-lathe-widget="help-widget"]', 'Each card on this page is one of the 11 widget types')
         ->assertSeeIn('[data-lathe-widget="paid-orders"]', '%')
         ->assertCount('[data-lathe-widget="top-customers"] tbody tr', 5)

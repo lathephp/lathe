@@ -82,11 +82,12 @@ it('drops the dashboards a user may not see from authorized() and the sidebar', 
     $keysFor = fn (string $email) => collect($this->actingAs(User::where('email', $email)->firstOrFail())
         ->get('/lathe')->viewData('page')['props']['navigation'][0]['items'])->pluck('href')->all();
 
-    expect($keysFor('admin@lathephp.com'))->toBe(['/lathe', '/lathe/dashboards/sales'])
-        ->and($keysFor('editor@lathephp.com'))->toBe(['/lathe']);
+    // The workbench adds dashboards of its own; these assertions cover the two registered here.
+    expect($keysFor('admin@lathephp.com'))->toContain('/lathe', '/lathe/dashboards/sales')->not->toContain('/lathe/dashboards/described')
+        ->and($keysFor('editor@lathephp.com'))->toContain('/lathe')->not->toContain('/lathe/dashboards/sales', '/lathe/dashboards/described');
 
     $this->actingAs(admin());
-    expect(array_map(fn ($d) => $d::uriKey(), Lathe::dashboards()->authorized(request())))->toBe(['main', 'sales']);
+    expect(array_map(fn ($d) => $d::uriKey(), Lathe::dashboards()->authorized(request())))->toContain('main', 'sales')->not->toContain('described');
 });
 
 it('runs widgets() only on its own dashboard requests', function () {

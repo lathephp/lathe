@@ -157,7 +157,7 @@ export function WidgetCard({ widget, url, params, deferred, register }: WidgetCa
     <Card data-lathe-widget={widget.uriKey} className={cn('flex flex-col gap-2 overflow-hidden p-4', cellClass(widget))}>
       <div className="flex items-center justify-between gap-2">
         <div className="flex min-w-0 items-center gap-1">
-          <h3 className="truncate text-sm font-medium text-muted-foreground">{widget.name}</h3>
+          <h2 className="truncate text-sm font-medium text-muted-foreground">{widget.name}</h2>
           {widget.help !== null && <HelpTooltip text={widget.help} width={widget.helpWidth} />}
         </div>
         {widget.ranges.length > 0 && (

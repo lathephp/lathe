@@ -24,6 +24,8 @@ export default function Dashboard({ dashboard, widgets }: DashboardProps) {
   const { __ } = useTranslation();
   const { apiPath } = useLathe();
   const page = usePage();
+  // The server leaves rescuedProps out when no deferred prop failed, whatever the type says.
+  const rescued = (page.rescuedProps as string[] | undefined) ?? [];
 
   return (
     <div className="space-y-6">
@@ -40,7 +42,7 @@ export default function Dashboard({ dashboard, widgets }: DashboardProps) {
           // Each card's value is its own deferred prop, so the cards fill in one by one.
           deferred={(uriKey) => ({
             value: page.props[`widgetValue:${uriKey}`] as WidgetValue | undefined,
-            rescued: page.rescuedProps.includes(`widgetValue:${uriKey}`),
+            rescued: rescued.includes(`widgetValue:${uriKey}`),
           })}
         />
       )}

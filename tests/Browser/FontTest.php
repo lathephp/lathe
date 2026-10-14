@@ -19,7 +19,7 @@ it('fetches nothing from another origin on the login, home and Orders pages', fu
     signInThroughForm($page, 'admin@lathephp.com');
 
     $page->assertPathIs('/lathe')
-        ->assertSee('No widgets yet')
+        ->assertPresent('[data-lathe-widget="orders"]')
         ->assertScript(FOREIGN_REQUESTS, []);
 
     $page->navigate('/lathe/resources/orders')
