@@ -31,6 +31,7 @@ use Lathe\Http\Controllers\Resources\InlineUpdateController;
 use Lathe\Http\Controllers\Resources\LensController;
 use Lathe\Http\Controllers\Resources\PeekController;
 use Lathe\Http\Controllers\Resources\RecordController;
+use Lathe\Http\Controllers\Resources\RelatableAuthorizationController;
 use Lathe\Http\Controllers\Resources\RelationAttachController;
 use Lathe\Http\Controllers\Resources\RelationIndexController;
 use Lathe\Http\Controllers\Resources\SavedTabController;
@@ -111,6 +112,7 @@ class PanelRoutes
             $router->get('resources/{resource}/lenses/{lens}/count', [LensController::class, 'count'])->name('resources.lenses.count');
             $router->get('resources/{resource}/lenses/{lens}/filters', [LensController::class, 'filters'])->name('resources.lenses.filters');
             $router->get('resources/{resource}/creation-fields', [FormFieldsController::class, 'creation'])->name('resources.creationFields');
+            $router->get('resources/{resource}/relate-authorization', RelatableAuthorizationController::class)->name('resources.relateAuthorization');
             $router->get('resources/{resource}/associatable/{field}', [AssociatableController::class, 'create'])->name('resources.associatable');
             $router->post('resources/{resource}/field/{field}/preview', [FieldPreviewController::class, 'create'])->name('resources.field.preview');
             $router->get('resources/{resource}/field-attachment/{field}/draft-id', [FieldAttachmentController::class, 'draftId'])->name('resources.fieldAttachment.draftId');

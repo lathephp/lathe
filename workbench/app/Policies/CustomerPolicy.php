@@ -31,4 +31,9 @@ class CustomerPolicy
     {
         return true;
     }
+
+    public function addOrders(User $user, Customer $customer): bool
+    {
+        return $user->email === 'admin@lathephp.com';
+    }
 }
