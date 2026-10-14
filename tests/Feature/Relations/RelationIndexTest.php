@@ -65,7 +65,7 @@ class RelationIndexItems extends Resource
 
     protected function configure(ResourceDefinition $definition): ResourceDefinition
     {
-        return $definition->model(OrderItem::class)->canonical(false)->title('id')->searchable(['quantity'])->allowAll();
+        return $definition->model(OrderItem::class)->canonical(false)->title('id')->searchable([new \Lathe\Search\SearchablePrimaryKey])->allowAll();
     }
 
     public function fields(LatheRequest $request): array
@@ -168,7 +168,9 @@ it('takes the search, page, page size and filters of the related Resource', func
         ->and($json['perPage'])->toBe(10)
         ->and($json['count']['value'])->toBe(26);
 
-    $found = $this->getJson('/lathe/api/resources/relation-index-orders/12/items?q=7')->assertOk()->json('rows');
+    // A key search, which every database answers; a LIKE on an integer column fails on PostgreSQL.
+    $seventh = OrderItem::where('order_id', 12)->where('quantity', 7)->value('id');
+    $found = $this->getJson("/lathe/api/resources/relation-index-orders/12/items?q={$seventh}")->assertOk()->json('rows');
 
     expect(array_column(array_column(array_column($found, 'cells'), 'quantity'), 'value'))->toBe([7]);
 });
