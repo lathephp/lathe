@@ -17,12 +17,12 @@ Lathe is an admin panel builder for Laravel on Inertia, React and shadcn/ui. You
 ## Install
 
 ```bash
-composer require lathe/lathe
+composer require lathe/lathe:^1.0@beta
 php artisan lathe:install
 php artisan lathe:user
 ```
 
-During the beta, require it as `composer require lathe/lathe:^1.0@beta`.
+Lathe is in beta, so the version constraint names it; once 1.0.0 is out, `composer require lathe/lathe` is enough.
 
 Then add the new user's email to `gate()` in `app/Providers/LatheServiceProvider.php`:
 

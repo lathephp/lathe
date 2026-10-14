@@ -38,3 +38,20 @@ it('gives the README the install flow with no private repository or key step', f
         ->and(strpos($readme, 'lathe:install'))->toBeLessThan(strpos($readme, 'lathe:user'))
         ->and($readme)->not->toMatch('/http-basic|"repositories"|license[_ ]key|LICENSE_KEY/i');
 });
+
+it('gives every install command the beta constraint while Lathe is in beta', function () {
+    $root = dirname(__DIR__, 3);
+    $pages = ['README.md', 'docs/getting-started/installation.md', 'docs/extending/permission-plugin.md', 'plugins/permission/README.md'];
+
+    foreach ($pages as $page) {
+        // The commands a reader copies: those inside fenced code blocks.
+        preg_match_all('/^```.*?^```/ms', File::get("{$root}/{$page}"), $blocks);
+        preg_match_all('/composer require (lathe\/(?:lathe|permission))(\S*)/', implode("\n", $blocks[0]), $commands, PREG_SET_ORDER);
+
+        expect($commands)->not->toBeEmpty($page);
+
+        foreach ($commands as [$command, $package, $constraint]) {
+            expect($constraint)->toBe(':^1.0@beta', "{$page}: {$command}");
+        }
+    }
+});

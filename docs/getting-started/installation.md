@@ -19,11 +19,11 @@ The panel's JavaScript and CSS are already built inside the package. Your app do
 ## Install with Composer
 
 ```bash
-composer require lathe/lathe
+composer require lathe/lathe:^1.0@beta
 php artisan lathe:install
 ```
 
-During the beta, require the beta explicitly: `composer require lathe/lathe:^1.0@beta`.
+Lathe is in beta, so the version constraint names it: without `@beta`, Composer refuses a beta in an app whose minimum stability is `stable`. Once 1.0.0 is out, `composer require lathe/lathe` is enough.
 
 `lathe:install` does six things and leaves any file that already exists alone:
 

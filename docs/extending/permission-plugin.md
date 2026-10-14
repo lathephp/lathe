@@ -11,7 +11,7 @@ order: 3
 ## Install
 
 ```bash
-composer require lathe/permission
+composer require lathe/permission:^1.0@beta
 php artisan vendor:publish --provider="Spatie\Permission\PermissionServiceProvider"
 php artisan migrate
 ```

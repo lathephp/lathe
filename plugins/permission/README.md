@@ -5,7 +5,7 @@ Roles and permissions from [spatie/laravel-permission](https://github.com/spatie
 ## Install
 
 ```bash
-composer require lathe/permission
+composer require lathe/permission:^1.0@beta
 php artisan vendor:publish --provider="Spatie\Permission\PermissionServiceProvider"
 php artisan migrate
 ```
@@ -43,18 +43,16 @@ Saving or deleting a role or a permission flushes Spatie's permission cache, so 
 
 ## Development
 
-Until this package moves to its own repository, `composer.json` installs `lathe/lathe` from the checkout two folders up through a path repository.
+This repository is a read-only copy of `plugins/permission` in [lathephp/lathe](https://github.com/lathephp/lathe), where the plugin is developed and released together with Lathe. Send issues and pull requests there.
+
+To run the plugin's own checks here:
 
 ```bash
-composer install
+composer update
 composer test
 composer analyse
 composer lint
 composer types
 ```
 
-`scripts/gates.sh` runs every gate on PHP 8.5 and in the `lathe-php84` container (the image `scripts/matrix.sh` builds at the repo root), each on the highest versions and after `composer update --prefer-lowest` (Spatie 7.x). It prints the resolved Spatie version and one `rc=` line per lane and gate, restores the highest install, and exits 1 when any rc is not 0.
-
-```bash
-bash scripts/gates.sh
-```
+CI runs the tests on PHP 8.4 and 8.5, each on the highest versions and after `composer update --prefer-lowest` (spatie/laravel-permission 7.x).
