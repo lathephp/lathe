@@ -27,7 +27,7 @@ class Navigation
     }
 
     /**
-     * @return list<array{label: string|null, icon: string|null, items: list<array{label: string, href: string, icon: string|null}>}>
+     * @return list<array<string, mixed>>
      */
     public function build(Request $request): array
     {

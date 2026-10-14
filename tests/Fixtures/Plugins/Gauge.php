@@ -12,6 +12,6 @@ class Gauge extends Plugin
 {
     public function menu(Request $request): ?array
     {
-        return [MenuSection::section('Gauge', [MenuItem::plugin(static::class, 'Gauge')->icon(Icon::Activity)])];
+        return [MenuSection::section('Gauge', [MenuItem::plugin(static::class)->icon(Icon::Activity)])];
     }
 }

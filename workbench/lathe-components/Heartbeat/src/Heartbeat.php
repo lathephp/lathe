@@ -17,7 +17,7 @@ class Heartbeat extends Plugin
 {
     public function menu(Request $request): ?array
     {
-        return [MenuSection::section('Heartbeat', [MenuItem::plugin(static::class, 'Heartbeat')->icon(Icon::Activity)])];
+        return [MenuSection::section('Heartbeat', [MenuItem::plugin(static::class)->icon(Icon::Activity)])];
     }
 
     public function assets(): array

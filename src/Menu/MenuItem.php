@@ -77,11 +77,11 @@ class MenuItem implements JsonSerializable
      *
      * @param  class-string<Plugin>  $plugin
      */
-    public static function plugin(string $plugin, ?string $label = null, ?string $subPath = null): static
+    public static function plugin(string $plugin, ?string $subPath = null): static
     {
         $path = 'plugins/'.$plugin::uriKey().($subPath !== null ? '/'.ltrim($subPath, '/') : '');
 
-        return new static($label ?? $plugin::make()->name(), $path);
+        return new static($plugin::make()->name(), $path);
     }
 
     /**

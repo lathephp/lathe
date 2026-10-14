@@ -61,7 +61,7 @@ it('resolves item targets under the panel path', function (Closure $make, string
     'link with a panel path' => [fn () => MenuItem::link('Docs', 'pages/ui-gallery'), '/lathe/pages/ui-gallery'],
     'resource' => [fn () => MenuItem::resource('orders'), '/lathe/resources/orders'],
     'dashboard' => [fn () => MenuItem::dashboard('widget-gallery'), '/lathe/dashboards/widget-gallery'],
-    'plugin sub path' => [fn () => MenuItem::plugin('Acme\Heartbeat\Heartbeat', subPath: 'status'), '/lathe/plugins/heartbeat/status'],
+    'plugin sub path' => [fn () => MenuItem::plugin('Acme\Heartbeat\Heartbeat', 'status'), '/lathe/plugins/heartbeat/status'],
     'lens' => [fn () => MenuItem::lens('orders', 'pending-orders'), '/lathe/resources/orders/lens/pending-orders'],
     'external link' => [fn () => MenuItem::externalLink('Docs', 'https://lathephp.com'), 'https://lathephp.com'],
 ]);
