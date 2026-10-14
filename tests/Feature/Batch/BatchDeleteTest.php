@@ -168,6 +168,8 @@ it('answers 403 on posts, whose policy denies delete', function () {
 });
 
 it('deletes in mode all exactly what the index shows, reading the set 200 rows at a time', function () {
+    // 450 paid orders: over two chunks, under the 500 rows a batch delete runs inline.
+    Order::where('status', 'paid')->whereNotIn('id', Order::where('status', 'paid')->orderBy('id')->limit(450)->pluck('id'))->update(['status' => 'pending']);
     $paid = Order::where('status', 'paid')->pluck('id')->all();
     $kept = array_slice($paid, 0, 2);
     $log = [];
