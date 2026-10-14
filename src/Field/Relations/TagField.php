@@ -5,7 +5,6 @@ namespace Lathe\Field\Relations;
 use Closure;
 use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Lathe\Field\Evaluator;
 use Lathe\Field\FieldContext;
 use Lathe\Http\Requests\LatheRequest;
@@ -99,19 +98,17 @@ class TagField extends RelationField
      */
     public function fill(LatheRequest $request, object $model, ?string $requestAttribute = null): ?Closure
     {
-        if (! $model instanceof Model || ($model->exists && $this->isImmutable($request, $model))) {
+        $attribute = $requestAttribute ?? $this->attribute;
+
+        // A request without the field leaves the tags as they are.
+        if (! $model instanceof Model || ! $request->exists($attribute) || ($model->exists && $this->isImmutable($request, $model))) {
             return null;
         }
 
-        $ids = self::ids($request->input($requestAttribute ?? $this->attribute));
+        $records = array_fill_keys(self::ids($request->input($attribute)), []);
 
-        return function () use ($model, $ids): void {
-            $relation = $model->{$this->attribute}();
-
-            if ($relation instanceof BelongsToMany) {
-                $relation->sync($ids);
-                $model->unsetRelation($this->attribute);
-            }
+        return function () use ($model, $records): void {
+            $this->syncWithEvents($model, $records);
         };
     }
 

@@ -60,4 +60,12 @@ class PostPolicy
     {
         return $user->email === 'admin@lathephp.com';
     }
+
+    /**
+     * @param  array<int, int|string>  $ids
+     */
+    public function detachTags(User $user, Post $post, array $ids): bool
+    {
+        return true;
+    }
 }

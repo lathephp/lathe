@@ -33,6 +33,21 @@ class Associatable
     /**
      * The same picker for one morph type.
      */
+    /** Whether a saved value may name a trashed record when the field allows them. */
+    protected bool $savedValue = false;
+
+    /**
+     * The same query for checking a saved value: a field with withTrashed() accepts trashed
+     * records without the picker's with_trashed=1.
+     */
+    public function forSavedValue(): static
+    {
+        $copy = clone $this;
+        $copy->savedValue = true;
+
+        return $copy;
+    }
+
     public function forType(?string $type): static
     {
         $copy = clone $this;
@@ -66,7 +81,7 @@ class Associatable
             } : null,
         );
 
-        if ($field->allowsTrashed() && $this->request->query('with_trashed') === '1') {
+        if ($field->allowsTrashed() && ($this->savedValue || $this->request->query('with_trashed') === '1')) {
             $query->withTrashed();
         }
 

@@ -1,6 +1,9 @@
 <?php
 
+use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Gate;
+use Lathe\Events\ResourceAttached;
+use Lathe\Events\ResourceDetached;
 use Lathe\Field\Field;
 use Lathe\Lathe;
 use Lathe\Resources\ResourceDefinition;
@@ -9,6 +12,7 @@ use Workbench\App\Lathe\Resources\Order as OrderResource;
 use Workbench\App\Models\Post;
 use Workbench\App\Models\Tag;
 use Workbench\App\Models\User;
+use Workbench\App\Policies\PostPolicy;
 use Workbench\Database\Seeders\DemoSeeder;
 
 class TagLimitPosts extends Workbench\App\Lathe\Resources\Post
@@ -95,4 +99,47 @@ it('caps the list at limits.id_list_max', function () {
     $this->putJson("/lathe/api/resources/posts/{$post->id}", postPayload($post, range(1, 1001)))
         ->assertUnprocessable()
         ->assertJsonValidationErrors('tags');
+});
+
+class NoDetachPostPolicy extends PostPolicy
+{
+    public function detachTags(User $user, Post $post, array $ids): bool
+    {
+        return false;
+    }
+}
+
+it('refuses to remove tags without detachTags, an empty list included', function () {
+    Gate::policy(Post::class, NoDetachPostPolicy::class);
+    $post = Post::orderBy('id')->firstOrFail();
+    $post->tags()->sync([1, 2]);
+
+    $this->putJson("/lathe/api/resources/posts/{$post->id}", postPayload($post, []))
+        ->assertUnprocessable()
+        ->assertJsonValidationErrors('tags');
+    $this->putJson("/lathe/api/resources/posts/{$post->id}", postPayload($post, [1]))
+        ->assertUnprocessable();
+
+    expect($post->tags()->count())->toBe(2);
+
+    // Adding without removing needs attach only.
+    $this->putJson("/lathe/api/resources/posts/{$post->id}", postPayload($post, [1, 2, 3]))->assertOk();
+    expect($post->tags()->count())->toBe(3);
+});
+
+it('fires the attach and detach events of a tag sync and leaves the tags alone when the field is not sent', function () {
+    Event::fake([ResourceAttached::class, ResourceDetached::class]);
+    $post = Post::orderBy('id')->firstOrFail();
+    $post->tags()->sync([1, 2]);
+
+    $this->putJson("/lathe/api/resources/posts/{$post->id}", postPayload($post, [2, 3]))->assertOk();
+
+    Event::assertDispatched(ResourceAttached::class, fn ($event) => $event->ids === [3] && $event->relationship === 'tags');
+    Event::assertDispatched(ResourceDetached::class, fn ($event) => $event->ids === [1]);
+
+    $payload = postPayload($post, []);
+    unset($payload['tags']);
+    $this->putJson("/lathe/api/resources/posts/{$post->id}", $payload)->assertOk();
+
+    expect($post->tags()->orderBy('tags.id')->pluck('tags.id')->all())->toBe([2, 3]);
 });

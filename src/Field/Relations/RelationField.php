@@ -3,23 +3,24 @@
 namespace Lathe\Field\Relations;
 
 use Closure;
-use Illuminate\Container\Container;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Str;
 use InvalidArgumentException;
-use Lathe\Auth\ResourceAuthorization;
+use Lathe\Events\ResourceAttached;
+use Lathe\Events\ResourceAttachmentUpdated;
+use Lathe\Events\ResourceDetached;
 use Lathe\Field\Contracts\PrimesForPage;
 use Lathe\Field\Field;
 use Lathe\Filters\Filter;
 use Lathe\Filters\RelationFilter;
 use Lathe\Http\Requests\LatheRequest;
-use Lathe\Lathe;
 use Lathe\Resources\Resource;
+use Lathe\Rules\RelatedIds;
 use Lathe\Support\ResourceRelationCountPreloader;
 
 /**
@@ -230,37 +231,62 @@ abstract class RelationField extends Field implements PrimesForPage
     }
 
     /**
-     * The rule of a posted id list: at most the owner's idListMax ids, each one the picker
-     * offers, and attach{Relation} allowed for all of them in one policy call.
+     * The rule of a posted id list; see RelatedIds.
      *
      * @param  class-string<resource>  $owner
      */
-    protected function relatedIdsRule(LatheRequest $request, string $owner, ?Model $model): Closure
+    protected function relatedIdsRule(LatheRequest $request, string $owner, ?Model $model): RelatedIds
     {
-        return function (string $attribute, mixed $value, Closure $fail) use ($request, $owner, $model): void {
-            $ids = TagField::ids($value);
-            $max = $owner::make()->definition()->getIdListMax();
+        return new RelatedIds($request, $owner, $this, $model);
+    }
 
-            if (count($ids) > $max) {
-                $fail(Lathe::__('The :attribute may not have more than :max items.', ['max' => (string) $max]));
+    /**
+     * Sync a many-to-many relation to $records (key => pivot values) after the parent saves,
+     * firing ResourceAttached, ResourceDetached and ResourceAttachmentUpdated in that same
+     * transaction, the updated rows with their pivot values from before.
+     *
+     * @param  array<int|string, array<string, mixed>>  $records
+     */
+    protected function syncWithEvents(Model $model, array $records): void
+    {
+        $relation = $model->{$this->attribute}();
 
-                return;
+        if (! $relation instanceof BelongsToMany) {
+            return;
+        }
+
+        $before = [];
+
+        foreach ($relation->newPivotQuery()->get() as $row) {
+            $row = (array) $row;
+            $key = $row[$relation->getRelatedPivotKeyName()] ?? null;
+
+            if (is_int($key) || is_string($key)) {
+                $before[$key] = $row;
             }
+        }
 
-            $query = (new Associatable($request, $owner, $this))->query();
+        $changes = $relation->sync($records);
+        $model->unsetRelation($this->attribute);
+        $owner = $this->owner;
+        $keys = fn (mixed $ids): array => array_values(array_filter(is_array($ids) ? $ids : [], fn (mixed $id) => is_int($id) || is_string($id)));
 
-            if ($ids !== [] && ($query === null || ! $query->holdsAll($ids))) {
-                $fail(Lathe::__('The :attribute must be a valid relation.'));
+        if ($owner === null) {
+            return;
+        }
 
-                return;
-            }
+        foreach ($keys($changes['attached']) as $id) {
+            event(new ResourceAttached($model, $owner, $this->attribute, [$id], $records[$id] ?? []));
+        }
 
-            $ability = 'attach'.Str::studly($this->attribute);
+        if ($keys($changes['detached']) !== []) {
+            event(new ResourceDetached($model, $owner, $this->attribute, $keys($changes['detached'])));
+        }
 
-            if ($ids !== [] && ! Container::getInstance()->make(ResourceAuthorization::class)->allows($request->user(), $owner, $ability, $model ?? $owner::newModel(), [$ids])) {
-                $fail(Lathe::__('You are not authorized to relate this resource.'));
-            }
-        };
+        foreach ($keys($changes['updated']) as $id) {
+            $changed = $records[$id] ?? [];
+            event(new ResourceAttachmentUpdated($model, $owner, $this->attribute, [$id], array_intersect_key($before[$id] ?? [], $changed), $changed));
+        }
     }
 
     // The related Resource

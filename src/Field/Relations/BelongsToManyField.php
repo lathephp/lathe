@@ -5,11 +5,7 @@ namespace Lathe\Field\Relations;
 use Closure;
 use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Support\Str;
-use Lathe\Events\ResourceAttached;
-use Lathe\Events\ResourceAttachmentUpdated;
-use Lathe\Events\ResourceDetached;
 use Lathe\Field\Contracts\FilterableField;
 use Lathe\Field\Field;
 use Lathe\Field\FieldContext;
@@ -196,34 +192,8 @@ class BelongsToManyField extends RelationField implements FilterableField
             $records[$id] = array_intersect_key($values, array_flip($columns));
         }
 
-        $owner = $this->owner;
-
-        return function () use ($model, $records, $owner): void {
-            $relation = $model->{$this->attribute}();
-
-            if (! $relation instanceof BelongsToMany) {
-                return;
-            }
-
-            $changes = $relation->sync($records);
-            $model->unsetRelation($this->attribute);
-            $keys = fn (mixed $ids): array => array_values(array_filter(is_array($ids) ? $ids : [], fn (mixed $id) => is_int($id) || is_string($id)));
-
-            if ($owner === null) {
-                return;
-            }
-
-            foreach ($keys($changes['attached']) as $id) {
-                event(new ResourceAttached($model, $owner, $this->attribute, [$id], $records[$id] ?? []));
-            }
-
-            if ($keys($changes['detached']) !== []) {
-                event(new ResourceDetached($model, $owner, $this->attribute, $keys($changes['detached'])));
-            }
-
-            foreach ($keys($changes['updated']) as $id) {
-                event(new ResourceAttachmentUpdated($model, $owner, $this->attribute, [$id], [], $records[$id] ?? []));
-            }
+        return function () use ($model, $records): void {
+            $this->syncWithEvents($model, $records);
         };
     }
 

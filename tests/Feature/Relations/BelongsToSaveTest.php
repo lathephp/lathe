@@ -237,3 +237,49 @@ class NoAddCustomerOrderPolicy extends OrderPolicy
         return false;
     }
 }
+
+it('keeps a customer the picker no longer offers when the order is saved unchanged', function () {
+    Lathe::registerResources(UsOnlyOrders::class);
+    $order = Order::findOrFail(12);
+    $customer = Customer::whereKeyNot($order->customer_id)->where('country', '!=', 'US')->firstOrFail();
+    $order->update(['customer_id' => $customer->id]);
+
+    $this->putJson('/lathe/api/resources/us-only-orders/12', [
+        'number' => $order->number,
+        'status' => $order->status,
+        'placed_at' => $order->placed_at->toIso8601String(),
+        'total_cents' => $order->total_cents,
+        'customer' => ['value' => $customer->id],
+    ])->assertOk();
+
+    // A change to a customer outside the picker is still refused.
+    $other = Customer::where('country', '!=', 'US')->whereKeyNot($customer->id)->firstOrFail();
+    $this->putJson('/lathe/api/resources/us-only-orders/12', [
+        'number' => $order->number,
+        'status' => $order->status,
+        'placed_at' => $order->placed_at->toIso8601String(),
+        'total_cents' => $order->total_cents,
+        'customer' => ['value' => $other->id],
+    ])->assertUnprocessable();
+});
+
+class UsOnlyOrders extends \Workbench\App\Lathe\Resources\Order
+{
+    public static function uriKey(): string
+    {
+        return 'us-only-orders';
+    }
+
+    protected function configure(ResourceDefinition $definition): ResourceDefinition
+    {
+        return parent::configure($definition)->canonical(false)->allowAll();
+    }
+
+    public function fields(LatheRequest $request): array
+    {
+        return [
+            Field::text('Number')->required(),
+            Field::belongsTo('Customer')->relatableQuery(fn ($request, $query) => $query->where('country', 'US')),
+        ];
+    }
+}

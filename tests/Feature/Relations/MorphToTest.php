@@ -92,3 +92,18 @@ it('still names a trashed post on the comments index, in a fixed number of queri
 
     expect($count(25))->toBe($count(100));
 });
+
+it('saves a comment on a trashed post, kept or newly picked', function () {
+    $trashed = Post::onlyTrashed()->orderBy('id')->firstOrFail();
+    $comment = commentOn(Product::class);
+    $comment->update(['commentable_type' => Post::class, 'commentable_id' => $trashed->id]);
+
+    // Keeping the trashed post the comment already has.
+    $this->putJson("/lathe/api/resources/comments/{$comment->id}", ['body' => 'Kept', 'commentable' => ['type' => 'posts', 'id' => $trashed->id]])->assertOk();
+
+    // Picking a trashed post anew: Commentable shows trashed records by default.
+    $other = commentOn(Product::class);
+    $this->putJson("/lathe/api/resources/comments/{$other->id}", ['body' => 'Moved', 'commentable' => ['type' => 'posts', 'id' => $trashed->id]])->assertOk();
+
+    expect($other->fresh()?->commentable_id)->toBe($trashed->id);
+});

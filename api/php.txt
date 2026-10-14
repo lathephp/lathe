@@ -1013,6 +1013,8 @@ Lathe\Field\Relations\Associatable::?string $type  [protected]
 Lathe\Field\Relations\Associatable::Lathe\Field\Relations\RelationField $field  [protected]
 Lathe\Field\Relations\Associatable::Lathe\Http\Requests\LatheRequest $request  [protected]
 Lathe\Field\Relations\Associatable::__construct(Lathe\Http\Requests\LatheRequest $request, string $parent, Lathe\Field\Relations\RelationField $field)
+Lathe\Field\Relations\Associatable::bool $savedValue  [protected]
+Lathe\Field\Relations\Associatable::forSavedValue(): static
 Lathe\Field\Relations\Associatable::forType(?string $type): static
 Lathe\Field\Relations\Associatable::query(): ?Lathe\Query\ResourceQuery
 Lathe\Field\Relations\Associatable::relatedResource(): ?string
@@ -1173,7 +1175,7 @@ Lathe\Field\Relations\RelationField::pointsBackAt(Illuminate\Database\Eloquent\M
 Lathe\Field\Relations\RelationField::pointsBackThrough(Illuminate\Database\Eloquent\Model $model, Illuminate\Database\Eloquent\Relations\Relation $relation, string $relationship): bool
 Lathe\Field\Relations\RelationField::primeForPage(Illuminate\Support\Collection $records): void
 Lathe\Field\Relations\RelationField::relatableQuery(Closure $callback): static
-Lathe\Field\Relations\RelationField::relatedIdsRule(Lathe\Http\Requests\LatheRequest $request, string $owner, ?Illuminate\Database\Eloquent\Model $model): Closure  [protected]
+Lathe\Field\Relations\RelationField::relatedIdsRule(Lathe\Http\Requests\LatheRequest $request, string $owner, ?Illuminate\Database\Eloquent\Model $model): Lathe\Rules\RelatedIds  [protected]
 Lathe\Field\Relations\RelationField::relatedRecord(Illuminate\Database\Eloquent\Model $record): ?Illuminate\Database\Eloquent\Model  [protected]
 Lathe\Field\Relations\RelationField::relatedResource(): ?string
 Lathe\Field\Relations\RelationField::relatedResourceFor(Illuminate\Database\Eloquent\Model $related): ?string  [protected]
@@ -1185,6 +1187,7 @@ Lathe\Field\Relations\RelationField::resource(string $class): static
 Lathe\Field\Relations\RelationField::searchable(bool $searchable = true): static
 Lathe\Field\Relations\RelationField::showsCount(): bool
 Lathe\Field\Relations\RelationField::singularLabel(string $label): static
+Lathe\Field\Relations\RelationField::syncWithEvents(Illuminate\Database\Eloquent\Model $model, array $records): void  [protected]
 Lathe\Field\Relations\RelationField::withCount(bool $withCount = true): static
 Lathe\Field\Relations\RelationField::withSubtitles(bool $withSubtitles = true): static
 Lathe\Field\Relations\RelationField::withTrashed(bool $withTrashed = true): static
@@ -2237,7 +2240,17 @@ Lathe\Rules\Relatable::Lathe\Field\Relations\Associatable $associatable  [protec
 Lathe\Rules\Relatable::Lathe\Field\Relations\RelationField $field  [protected]
 Lathe\Rules\Relatable::Lathe\Http\Requests\LatheRequest $request  [protected]
 Lathe\Rules\Relatable::__construct(Lathe\Http\Requests\LatheRequest $request, Lathe\Field\Relations\Associatable $associatable, Lathe\Field\Relations\RelationField $field, ?Illuminate\Database\Eloquent\Model $parent = NULL)
+Lathe\Rules\Relatable::same(mixed $stored, string|int $key): bool  [protected static]
+Lathe\Rules\Relatable::unchanged(mixed $key, mixed $type): bool  [protected]
 Lathe\Rules\Relatable::validate(string $attribute, mixed $value, Closure $fail): void
+Lathe\Rules\RelatedIds::?Illuminate\Database\Eloquent\Model $model  [protected]
+Lathe\Rules\RelatedIds::Lathe\Field\Relations\RelationField $field  [protected]
+Lathe\Rules\RelatedIds::Lathe\Http\Requests\LatheRequest $request  [protected]
+Lathe\Rules\RelatedIds::__construct(Lathe\Http\Requests\LatheRequest $request, string $owner, Lathe\Field\Relations\RelationField $field, ?Illuminate\Database\Eloquent\Model $model)
+Lathe\Rules\RelatedIds::bool $implicit
+Lathe\Rules\RelatedIds::current(): array  [protected]
+Lathe\Rules\RelatedIds::string $owner  [protected]
+Lathe\Rules\RelatedIds::validate(string $attribute, mixed $value, Closure $fail): void
 Lathe\SavedTabs\SavedTab::$fillable  [protected]
 Lathe\SavedTabs\SavedTab::$table  [protected]
 Lathe\SavedTabs\SavedTab::casts(): array  [protected]
@@ -2730,6 +2743,7 @@ class Lathe\Resources\Via
 class Lathe\Rules\NotAttached
 class Lathe\Rules\NotExactlyAttached
 class Lathe\Rules\Relatable
+class Lathe\Rules\RelatedIds
 class Lathe\SavedTabs\SavedTab
 class Lathe\SavedTabs\SavedTabQueryApplicator
 class Lathe\SavedTabs\SchemaHash
