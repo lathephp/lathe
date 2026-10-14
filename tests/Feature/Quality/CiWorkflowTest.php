@@ -136,7 +136,7 @@ it('gives the quality job Node, pnpm and the whole history the word check reads'
         ->and($steps->firstWhere('uses', 'actions/checkout@v4')['with']['fetch-depth'] ?? null)->toBe(0)
         ->and(strpos($runs, 'pnpm install --frozen-lockfile'))->toBeLessThan(strpos($runs, 'composer lint'))
         ->and($steps->firstWhere('run', 'bash scripts/check-word.sh')['env']['LATHE_PR_TEXT'] ?? null)->toContain('github.event.pull_request.title');
-||||||| parent of 1fefd7a (Pin the CI step that uploads new screenshot baselines)
+});
 
 it('makes the screenshot baselines when none are committed and uploads them', function () {
     $steps = collect(ciWorkflow()['jobs']['browser']['steps']);
