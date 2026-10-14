@@ -2,6 +2,7 @@ import { registerChoiceFields } from './choice';
 import { registerDateFields } from './date';
 import { registerDisplayFields } from './display';
 import { registerNumberFields } from './number';
+import { registerRelationFields } from './relation';
 import { registerRepeaterFields } from './repeater';
 import { registerRichFields } from './rich';
 import { registerTextFields } from './text';
@@ -17,4 +18,5 @@ export function registerBuiltinFields(): void {
   registerRichFields();
   registerUploadFields();
   registerRepeaterFields();
+  registerRelationFields();
 }

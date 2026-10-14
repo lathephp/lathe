@@ -75,7 +75,8 @@ it('builds one Resource definition for the sidebar and the Orders index among 50
         ->get('/lathe/resources/orders')->assertOk()
         ->assertInertia(fn (AssertableInertia $page) => $page->has('navigation.2.items', 9));
 
-    expect(Lathe::resources()->definitionsBuilt())->toBe(1)
+    // Orders, and Customers for the titles its Customer column shows; never the 499 others.
+    expect(Lathe::resources()->definitionsBuilt())->toBe(2)
         ->and(collect($queries)->filter(fn ($sql) => str_contains($sql, 'invoices'))->all())->toBe([]);
 
     Lathe::resources()->clearCache();

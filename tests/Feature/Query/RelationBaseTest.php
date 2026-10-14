@@ -35,7 +35,7 @@ it('sends a belongsTo value as the related key and title', function () {
     $json = LatheTest::resource('orders')->updateFields(12)->assertOk()->json();
     $field = collect($json['fields'])->firstWhere('key', 'customer');
 
-    expect($field['value'])->toBe(['value' => $customer->id, 'display' => $customer->name])
+    expect($field['value'])->toBe(['value' => $customer->id, 'display' => $customer->name, 'href' => "/lathe/resources/customers/{$customer->id}"])
         ->and($field)->toMatchArray(['kind' => 'belongsTo', 'relationship' => 'customer', 'resource' => 'customers']);
 });
 

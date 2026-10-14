@@ -3,21 +3,30 @@
 namespace Lathe\Field\Relations;
 
 use Closure;
+use Illuminate\Container\Container;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Collection;
+use Lathe\Auth\ResourceAuthorization;
+use Lathe\Field\Contracts\PrimesForPage;
+use Lathe\Field\Evaluator;
 use Lathe\Http\Requests\LatheRequest;
+use Lathe\Support\ConfigStore;
 
 /**
  * The parent record of a belongsTo relation: a picker in forms, a linked name on index and
  * detail. Required unless nullable().
  */
-class BelongsToField extends RelationField
+class BelongsToField extends RelationField implements PrimesForPage
 {
     protected string $component = 'belongs-to-field';
 
     protected bool $viewable = true;
 
     protected ?Closure $filledCallback = null;
+
+    /** @var array<int|string, bool>|null Whether the user may view each related record of the page, by key. */
+    protected ?array $viewableKeys = null;
 
     public function kind(): string
     {
@@ -30,13 +39,88 @@ class BelongsToField extends RelationField
     }
 
     /**
-     * @return array{value: mixed, display: string}|null
+     * The sort key of a related title column joins the related table: customer.name.
+     */
+    public function getSortableUriKey(): string
+    {
+        $related = $this->relatedResource();
+        $title = $related !== null ? $related::make()->definition()->getTitle() : null;
+
+        return $this->sortUriKey ?? (is_string($title) ? $this->attribute.'.'.$title : $this->attribute);
+    }
+
+    /**
+     * @return array{value: mixed, display: string, href: string|null}|null
      */
     public function resolve(object $record, ?string $attribute = null): mixed
     {
         $related = $record instanceof Model ? $this->relatedRecord($record) : null;
 
-        return $related === null ? null : ['value' => $related->getKey(), 'display' => $this->displayFor($related)];
+        return $related === null ? null : [
+            'value' => $related->getKey(),
+            'display' => $this->displayFor($related),
+            'href' => $this->mayView($related) ? $this->detailPath($related) : null,
+        ];
+    }
+
+    /**
+     * The panel path of the related record's detail page.
+     */
+    protected function detailPath(Model $related): ?string
+    {
+        $class = $this->relatedResource();
+        $key = $related->getKey();
+
+        if ($class === null || ! (is_int($key) || is_string($key))) {
+            return null;
+        }
+
+        $base = '/'.trim(Container::getInstance()->make(ConfigStore::class)->string('path'), '/');
+
+        return rtrim($base, '/').'/resources/'.$class::uriKey().'/'.$key;
+    }
+
+    /**
+     * Check view on every related record of an index page in one batch.
+     *
+     * @param  Collection<array-key, Model>  $records
+     */
+    public function primeForPage(Collection $records): void
+    {
+        $class = $this->relatedResource();
+
+        if (! $this->viewable || $class === null) {
+            return;
+        }
+
+        $related = $records
+            ->map(fn (Model $record) => $record->relationLoaded($this->attribute) ? $record->getRelation($this->attribute) : null)
+            ->filter(fn (mixed $model) => $model instanceof Model)
+            ->unique(fn (Model $model) => $model->getKey())
+            ->values();
+
+        $abilities = Container::getInstance()->make(ResourceAuthorization::class)
+            ->abilitiesFor(Evaluator::currentRequest()?->user(), $class, $related, ['view']);
+
+        $this->viewableKeys = array_map(fn (array $row) => $row['view'], $abilities);
+    }
+
+    protected function mayView(Model $related): bool
+    {
+        $class = $this->relatedResource();
+
+        if (! $this->viewable || $class === null) {
+            return false;
+        }
+
+        $key = $related->getKey();
+
+        if ($this->viewableKeys !== null && (is_int($key) || is_string($key)) && array_key_exists($key, $this->viewableKeys)) {
+            return $this->viewableKeys[$key];
+        }
+
+        return Container::getInstance()->make(ResourceAuthorization::class)
+            ->allows(Evaluator::currentRequest()?->user(), $class, 'view', $related);
     }
 
     /**

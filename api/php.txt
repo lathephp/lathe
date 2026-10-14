@@ -991,14 +991,19 @@ Lathe\Field\PasswordField::string $component  [protected]
 Lathe\Field\PasswordLifecycle::persist(object $model, string $attribute, mixed $value): ?Closure
 Lathe\Field\PasswordLifecycle::present(mixed $raw, object $record, string $attribute): mixed
 Lathe\Field\Relations\BelongsToField::?Closure $filledCallback  [protected]
+Lathe\Field\Relations\BelongsToField::?array $viewableKeys  [protected]
 Lathe\Field\Relations\BelongsToField::bool $viewable  [protected]
 Lathe\Field\Relations\BelongsToField::cell(Illuminate\Database\Eloquent\Model $model): array
+Lathe\Field\Relations\BelongsToField::detailPath(Illuminate\Database\Eloquent\Model $related): ?string  [protected]
 Lathe\Field\Relations\BelongsToField::fill(Lathe\Http\Requests\LatheRequest $request, object $model, ?string $requestAttribute = NULL): ?Closure
 Lathe\Field\Relations\BelongsToField::filled(?Closure $callback): static
 Lathe\Field\Relations\BelongsToField::getFilledCallback(): ?Closure
+Lathe\Field\Relations\BelongsToField::getSortableUriKey(): string
 Lathe\Field\Relations\BelongsToField::isViewable(): bool
 Lathe\Field\Relations\BelongsToField::kind(): string
 Lathe\Field\Relations\BelongsToField::loadsWithRecord(): bool
+Lathe\Field\Relations\BelongsToField::mayView(Illuminate\Database\Eloquent\Model $related): bool  [protected]
+Lathe\Field\Relations\BelongsToField::primeForPage(Illuminate\Support\Collection $records): void
 Lathe\Field\Relations\BelongsToField::resolve(object $record, ?string $attribute = NULL): mixed
 Lathe\Field\Relations\BelongsToField::string $component  [protected]
 Lathe\Field\Relations\BelongsToField::viewable(bool $viewable = true): static
