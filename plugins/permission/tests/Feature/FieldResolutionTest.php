@@ -58,23 +58,23 @@ it('inlines the role options ordered by name while there are few roles', functio
         ->and(array_column((new RoleSelectField)->resolvedOptions(), 'value'))->toBe(['admin', 'editor']);
 });
 
-it('hides the sync fields from the index but shows them on detail and forms', function (Closure $make) {
-    $field = $make();
+it('hides the sync fields from the index but shows them on detail and forms', function (string $class) {
+    $field = new $class;
 
     expect(array_map(fn (FieldContext $context) => $field->isShownOn($context), [FieldContext::Index, FieldContext::Detail, FieldContext::Create, FieldContext::Update]))
         ->toBe([false, true, true, true]);
 })->with([
-    'permissions' => fn () => fn () => new PermissionMultiSelectField,
-    'roles' => fn () => fn () => new RoleMultiSelectField,
-    'role' => fn () => fn () => new RoleSelectField,
+    'permissions' => PermissionMultiSelectField::class,
+    'roles' => RoleMultiSelectField::class,
+    'role' => RoleSelectField::class,
 ]);
 
-it('draws each field with the select component of its kind', function (Closure $make, string $component) {
-    expect($make()->getComponent())->toBe($component);
+it('draws each field with the select component of its kind', function (string $class, string $component) {
+    expect((new $class)->getComponent())->toBe($component);
 })->with([
-    'permissions' => [fn () => fn () => new PermissionMultiSelectField, 'multi-select-field'],
-    'roles' => [fn () => fn () => new RoleMultiSelectField, 'multi-select-field'],
-    'role' => [fn () => fn () => new RoleSelectField, 'select-field'],
+    'permissions' => [PermissionMultiSelectField::class, 'multi-select-field'],
+    'roles' => [RoleMultiSelectField::class, 'multi-select-field'],
+    'role' => [RoleSelectField::class, 'select-field'],
 ]);
 
 it('names and attributes each field for use on a host User resource', function () {

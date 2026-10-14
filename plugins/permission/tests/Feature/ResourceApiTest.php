@@ -31,9 +31,10 @@ it('lists roles through the resource index', function () {
     Role::create(['name' => 'admin']);
     Role::create(['name' => 'editor']);
 
-    $rows = $this->getJson('/lathe/api/resources/roles')->assertOk()->json('table.rows');
+    $titles = array_column($this->getJson('/lathe/api/resources/roles')->assertOk()->json('table.rows'), 'title');
+    sort($titles);
 
-    expect(array_column($rows, 'title'))->toBe(['admin', 'editor']);
+    expect($titles)->toBe(['admin', 'editor']);
 });
 
 it('lists permissions through the resource index', function () {
@@ -95,6 +96,7 @@ it('offers exactly the configured guards in a required select with two guards', 
 it('defaults the guard to permission.default_guard, else auth.defaults.guard', function (?string $permissionDefault, string $expected) {
     useTwoGuards();
     config(['auth.defaults.guard' => 'api', 'permission.default_guard' => $permissionDefault]);
+    $this->actingAs($this->user, 'api');
 
     expect($this->getJson('/lathe/api/resources/roles/creation-fields')->assertOk()->json('defaults.guard_name'))->toBe($expected);
 })->with([
@@ -202,7 +204,7 @@ it('lists the users assigned to a role through the relation endpoint', function 
     $this->user->assignRole('admin');
     TestUser::create(['email' => 'other@example.test']);
 
-    $rows = $this->getJson("/lathe/api/resources/roles/{$role->id}/users")->assertOk()->json('table.rows');
+    $rows = $this->getJson("/lathe/api/resources/roles/{$role->id}/users")->assertOk()->json('rows');
 
     expect(array_column($rows, 'id'))->toBe([$this->user->id]);
 });
