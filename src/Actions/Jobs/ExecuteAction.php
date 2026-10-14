@@ -73,13 +73,13 @@ class ExecuteAction implements ShouldQueue
             } catch (Throwable $e) {
                 // A retry runs the chunk again, so only the last attempt counts its rows.
                 if ($this->attempts() >= ($this->tries ?? 1)) {
-                    BulkRun::count($this->bulkRunId, $models->count(), $models->count());
+                    BulkRun::addCounts($this->bulkRunId, $models->count(), $models->count());
                 }
 
                 throw $e;
             }
 
-            BulkRun::count($this->bulkRunId, $models->count());
+            BulkRun::addCounts($this->bulkRunId, $models->count());
         } finally {
             app()->forgetInstance(LatheRequest::class);
         }

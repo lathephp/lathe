@@ -54,7 +54,7 @@ class DeleteChunk implements ShouldQueue
             $totals = $recorder->inBatch(fn () => $deleter->chunk($request, $this->resource, $this->ability, $models, authorized: $this->authorized));
 
             // A row that threw counts as failed, one the write does not apply to or the policy refused as skipped.
-            BulkRun::count($this->bulkRunId, $totals['attempted'], $totals['attempted'] - $totals['done'], count($this->keys) - $totals['attempted']);
+            BulkRun::addCounts($this->bulkRunId, $totals['attempted'], $totals['attempted'] - $totals['done'], count($this->keys) - $totals['attempted']);
         } finally {
             app()->forgetInstance(LatheRequest::class);
         }

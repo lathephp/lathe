@@ -97,7 +97,7 @@ class BulkRun extends Model
     /**
      * Adds a chunk's rows to the counters the progress toast polls.
      */
-    public static function count(string $id, int $processed, int $failed = 0, int $skipped = 0): void
+    public static function addCounts(string $id, int $processed, int $failed = 0, int $skipped = 0): void
     {
         self::whereKey($id)->incrementEach(['processed' => $processed, 'failed' => $failed, 'skipped' => $skipped]);
     }

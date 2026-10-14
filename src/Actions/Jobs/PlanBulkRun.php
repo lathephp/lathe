@@ -73,7 +73,7 @@ class PlanBulkRun implements ShouldQueue
             $run = BulkRun::find($this->bulkRunId);
 
             if ($run !== null && $run->total > $seen) {
-                BulkRun::count($this->bulkRunId, 0, 0, $run->total - $seen);
+                BulkRun::addCounts($this->bulkRunId, 0, 0, $run->total - $seen);
             }
         } finally {
             app()->forgetInstance(LatheRequest::class);
@@ -133,7 +133,7 @@ class PlanBulkRun implements ShouldQueue
             $models = $chunk->values()->collect();
             $allowed = $dispatcher->filterForExecution($request, $action, $this->resource, $models);
             $seen += $models->count();
-            BulkRun::count($this->bulkRunId, 0, 0, $models->count() - $allowed->count());
+            BulkRun::addCounts($this->bulkRunId, 0, 0, $models->count() - $allowed->count());
 
             if ($allowed->isEmpty()) {
                 continue;
