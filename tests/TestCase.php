@@ -35,6 +35,17 @@ abstract class TestCase extends Orchestra
         );
 
         $this->startOnEmptyServerDatabase();
+
+        // A PDO lives until nothing references it, and a leftover reference kept server
+        // connections open until PostgreSQL ran out of clients late in a parallel run. This
+        // runs after the database traits' own teardown, which was registered first.
+        $this->beforeApplicationDestroyed(function () {
+            if (config('database.connections.'.config('database.default').'.driver') !== 'sqlite') {
+                foreach (array_keys(DB::getConnections()) as $name) {
+                    DB::disconnect($name);
+                }
+            }
+        });
     }
 
     /**
