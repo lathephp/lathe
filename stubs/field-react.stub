@@ -1,20 +1,18 @@
-import { field } from '@lathephp/core';
+import { field, type FieldProps } from '@lathephp/core';
 
-interface {{ class }}Props {
-  field: { attribute: string; placeholder?: string };
-  value: unknown;
-  onChange: (attribute: string, value: unknown) => void;
-}
-
-function {{ class }}({ field: definition, value, onChange }: {{ class }}Props) {
+function {{ class }}({ field: definition, value, onChange, id, describedBy, invalid, disabled }: FieldProps) {
   return (
     <input
+      id={id}
       type="text"
       value={typeof value === 'string' ? value : ''}
       onChange={(event) => {
-        onChange(definition.attribute, event.target.value);
+        onChange(event.target.value);
       }}
-      placeholder={definition.placeholder}
+      placeholder={definition.placeholder ?? undefined}
+      aria-describedby={describedBy}
+      aria-invalid={invalid || undefined}
+      disabled={disabled}
       className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm"
     />
   );

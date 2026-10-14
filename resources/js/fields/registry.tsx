@@ -1,3 +1,4 @@
+import { __panel } from '@lathephp/core';
 import { createElement, type ComponentType, type ReactElement } from 'react';
 import type { Cell, DetailFieldData, FieldSchema, FormFieldData } from './types';
 
@@ -94,14 +95,19 @@ function keepLeftToRight(component: string, node: ReactElement): ReactElement {
   return leftToRight.has(component) ? <span dir="ltr">{node}</span> : node;
 }
 
+// Plugin modules register with core before the built-ins register, so a built-in keeps its key.
+function renderer<C extends keyof FieldRenderers>(context: C, key: string) {
+  return (registries[context].get(key) ?? __panel.fieldComponent(key)?.[context]) as FieldRenderers[C];
+}
+
 export function IndexField(props: IndexFieldProps) {
-  return keepLeftToRight(props.field.component, createElement(registries.index.get(props.field.component) ?? FallbackField, props));
+  return keepLeftToRight(props.field.component, createElement(renderer('index', props.field.component) ?? FallbackField, props));
 }
 
 export function DetailField(props: DetailFieldProps) {
-  return keepLeftToRight(props.field.component, createElement(registries.detail.get(props.field.component) ?? DetailFallbackField, props));
+  return keepLeftToRight(props.field.component, createElement(renderer('detail', props.field.component) ?? DetailFallbackField, props));
 }
 
 export function FormField(props: FormFieldProps) {
-  return createElement(registries.form.get(props.field.component) ?? FormFallbackField, props);
+  return createElement(renderer('form', props.field.component) ?? FormFallbackField, props);
 }

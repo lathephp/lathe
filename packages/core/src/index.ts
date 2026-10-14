@@ -28,6 +28,7 @@ export type {
   ActionModalProps,
   ComponentOrLazy,
   FieldProps,
+  FieldRenderers,
   FilterProps,
   PageProps,
   PluginPageProps,

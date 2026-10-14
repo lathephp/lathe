@@ -52,6 +52,7 @@
 @lathephp/core type DetailFieldProps
 @lathephp/core type FieldData
 @lathephp/core type FieldProps
+@lathephp/core type FieldRenderers
 @lathephp/core type FilterComponentProps
 @lathephp/core type FilterData
 @lathephp/core type FilterProps

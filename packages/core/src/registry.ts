@@ -1,4 +1,5 @@
 import type { ComponentType, LazyExoticComponent } from 'react';
+import type { DetailFieldProps, FormFieldProps, IndexFieldProps } from './types';
 
 /** The props a plugin page receives. */
 export interface PluginPageProps {
@@ -23,11 +24,20 @@ export interface PageProps {
   path?: string;
 }
 
-/** The props a custom form field receives. */
-export interface FieldProps {
-  field: { attribute: string; placeholder?: string };
-  value: unknown;
-  onChange: (attribute: string, value: unknown) => void;
+/**
+ * The props a custom form field receives, the same as a built-in input's: call onChange(value)
+ * with the new value, and put id, describedBy, invalid and disabled on the input.
+ */
+export type FieldProps = FormFieldProps;
+
+/**
+ * The components that draw a field's component key: form gets FieldProps, index gets
+ * { field, cell } and detail gets { field } with the record's value and display on it.
+ */
+export interface FieldRenderers {
+  form?: ComponentOrLazy<FieldProps>;
+  index?: ComponentOrLazy<IndexFieldProps>;
+  detail?: ComponentOrLazy<DetailFieldProps>;
 }
 
 /** The props a custom filter receives. */
@@ -76,7 +86,7 @@ export interface RenderHookEntry {
 const pluginPages = new Map<string, ComponentOrLazy<PluginPageProps>>();
 const actionModals = new Map<string, ComponentOrLazy<ActionModalProps>>();
 const pages = new Map<string, ComponentOrLazy<PageProps>>();
-const fields = new Map<string, ComponentOrLazy<FieldProps>>();
+const fields = new Map<string, FieldRenderers>();
 const filters = new Map<string, ComponentOrLazy<FilterProps>>();
 const widgets = new Map<string, ComponentOrLazy<WidgetProps>>();
 const resourcePlugins = new Map<string, ComponentOrLazy<ResourcePluginProps>>();
@@ -111,12 +121,16 @@ export function pageComponent(uriKey: string): ComponentOrLazy<PageProps> | unde
   return pages.get(uriKey);
 }
 
-/** Register the component that draws a field's component key. The last registration wins. */
-export function field(key: string, component: ComponentOrLazy<FieldProps>): void {
-  fields.set(key, component);
+/**
+ * Register the components that draw a field's component key; a bare component is the form.
+ * The last registration wins, and a built-in field keeps its own renderers for its key.
+ */
+export function field(key: string, renderers: FieldRenderers | ComponentOrLazy<FieldProps>): void {
+  // A component is a function, or a lazy, memo or forwardRef object React tags with $$typeof.
+  fields.set(key, typeof renderers === 'function' || '$$typeof' in renderers ? { form: renderers as ComponentOrLazy<FieldProps> } : renderers);
 }
 
-export function fieldComponent(key: string): ComponentOrLazy<FieldProps> | undefined {
+export function fieldComponent(key: string): FieldRenderers | undefined {
   return fields.get(key);
 }
 

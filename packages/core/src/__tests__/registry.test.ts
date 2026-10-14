@@ -19,8 +19,7 @@ import {
 } from '../index';
 
 // The shapes the generated stubs give their components, so this file also checks they still type-check.
-const FirstField = (props: { field: { attribute: string; placeholder?: string }; value: unknown; onChange: (attribute: string, value: unknown) => void }) =>
-  String(props.value);
+const FirstField = (props: { field: { attribute: string }; value: unknown; onChange: (value: unknown) => void }) => String(props.value);
 const SecondField = (props: FieldProps) => props.field.attribute;
 const FirstFilter = (props: { filter: { name: string }; value: unknown; onChange: (value: unknown) => void }) => props.filter.name;
 const SecondFilter = (props: FilterProps) => props.filter.name;
@@ -36,7 +35,7 @@ describe('registration', () => {
     field('color-picker', FirstField);
     field('color-picker', SecondField);
 
-    expect(__panel.fieldComponent('color-picker')).toBe(SecondField);
+    expect(__panel.fieldComponent('color-picker')).toEqual({ form: SecondField });
   });
 
   it('keeps the last component registered for a filter key', () => {
