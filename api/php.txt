@@ -122,6 +122,7 @@ Lathe\Actions\Action::canSeeWhen(string $ability, mixed $arguments = array ( )):
 Lathe\Actions\Action::cancelButtonText(string $text): static
 Lathe\Actions\Action::confirmButtonText(string $text): static
 Lathe\Actions\Action::confirmText(Closure|string $text): static
+Lathe\Actions\Action::confirmTextFor(int $count): ?string
 Lathe\Actions\Action::confirmable(Closure|string $text = ''): static
 Lathe\Actions\Action::danger(string $name, string $message): static  [static]
 Lathe\Actions\Action::deleted(): Lathe\Actions\ActionResult  [static]
@@ -182,6 +183,7 @@ Lathe\Actions\Action::target(Closure|string $value): string  [protected static]
 Lathe\Actions\Action::then(callable $callback): static
 Lathe\Actions\Action::uriKey(): string
 Lathe\Actions\Action::using(string $name, Closure $handler): static  [static]
+Lathe\Actions\Action::validateFields(Lathe\Http\Requests\LatheRequest $request): Lathe\Actions\ActionFields
 Lathe\Actions\Action::visit(string $name, Closure|string $path, array $options = array ( )): static  [static]
 Lathe\Actions\Action::withActionBatchId(?string $batchId): static
 Lathe\Actions\Action::withName(string $name): static
