@@ -3787,6 +3787,9 @@ Lathe\Tabs\Tab::string $key  [protected]
 Lathe\Tabs\Tab::string $name  [protected]
 Lathe\Tabs\Tab::toArray(): array
 Lathe\Tabs\Tab::withCount(bool $enabled = true): static
+Lathe\Testing\ActionAssertions::assertActionExists(string $class): void  [protected]
+Lathe\Testing\ActionAssertions::assertActionResultType(Lathe\Actions\ActionResult $result, string $type): void  [protected]
+Lathe\Testing\ActionAssertions::assertActionSuccess(Lathe\Actions\ActionResult $result): void  [protected]
 Lathe\Testing\DashboardTester::$defaultCookies  [protected]
 Lathe\Testing\DashboardTester::$defaultHeaders  [protected]
 Lathe\Testing\DashboardTester::$encryptCookies  [protected]
@@ -3805,11 +3808,14 @@ Lathe\Testing\InteractsWithLathe::assertQueryCount(int $expected, Closure $reque
 Lathe\Testing\InteractsWithLathe::assertScoped(string $model, Closure $request): void  [protected]
 Lathe\Testing\InteractsWithLathe::flushLathe(): void  [protected]
 Lathe\Testing\InteractsWithLathe::latheRequest(string $uri = '/lathe/api', string $method = 'GET', array $parameters = array ( )): Lathe\Http\Requests\LatheRequest  [protected]
+Lathe\Testing\InteractsWithLathe::registerDashboards(Lathe\Dashboards\Dashboard|string ...$dashboards): void  [protected]
+Lathe\Testing\InteractsWithLathe::registerPlugins(Lathe\Plugins\Plugin ...$plugins): void  [protected]
 Lathe\Testing\InteractsWithLathe::registerResources(string ...$classes): void  [protected]
 Lathe\Testing\LatheTest::actingAs(Illuminate\Contracts\Auth\Authenticatable $user): void  [static]
 Lathe\Testing\LatheTest::dashboard(string $uriKey): Lathe\Testing\DashboardTester  [static]
 Lathe\Testing\LatheTest::dashboards(): Illuminate\Testing\TestResponse  [static]
 Lathe\Testing\LatheTest::resource(string $classOrKey): Lathe\Testing\ResourceTester  [static]
+Lathe\Testing\LatheTest::search(string $term): Illuminate\Testing\TestResponse  [static]
 Lathe\Testing\RelationTester::$defaultCookies  [protected]
 Lathe\Testing\RelationTester::$defaultHeaders  [protected]
 Lathe\Testing\RelationTester::$encryptCookies  [protected]
@@ -3829,6 +3835,10 @@ Lathe\Testing\RelationTester::string $uriKey  [protected]
 Lathe\Testing\RelationTester::string|int $id  [protected]
 Lathe\Testing\RelationTester::updatePivot(string|int $relatedId, array $pivot): Illuminate\Testing\TestResponse
 Lathe\Testing\RelationTester::uri(): string  [protected]
+Lathe\Testing\ResourceAssertions::assertResourceExists(string $class): void  [protected]
+Lathe\Testing\ResourceAssertions::assertResourceFieldCount(string $class, int $expected): void  [protected]
+Lathe\Testing\ResourceAssertions::assertResourceHasField(string $class, string $attribute): void  [protected]
+Lathe\Testing\ResourceAssertions::assertResourceSearchable(string $class, array $columns): void  [protected]
 Lathe\Testing\ResourceTester::$defaultCookies  [protected]
 Lathe\Testing\ResourceTester::$defaultHeaders  [protected]
 Lathe\Testing\ResourceTester::$encryptCookies  [protected]
@@ -3847,24 +3857,35 @@ Lathe\Testing\ResourceTester::base(): string  [protected]
 Lathe\Testing\ResourceTester::batchDelete(array $selection): Illuminate\Testing\TestResponse
 Lathe\Testing\ResourceTester::batchForceDelete(array $selection): Illuminate\Testing\TestResponse
 Lathe\Testing\ResourceTester::batchRestore(array $selection): Illuminate\Testing\TestResponse
+Lathe\Testing\ResourceTester::count(array $params = array ( )): Illuminate\Testing\TestResponse
+Lathe\Testing\ResourceTester::createSavedTab(array $data): Illuminate\Testing\TestResponse
 Lathe\Testing\ResourceTester::creationFields(array $query = array ( )): Illuminate\Testing\TestResponse
 Lathe\Testing\ResourceTester::delete(string|int $id): Illuminate\Testing\TestResponse
+Lathe\Testing\ResourceTester::deleteSavedTab(string|int $id): Illuminate\Testing\TestResponse
+Lathe\Testing\ResourceTester::filters(): Illuminate\Testing\TestResponse
 Lathe\Testing\ResourceTester::forLens(string $lens): static
 Lathe\Testing\ResourceTester::forceDelete(string|int $id): Illuminate\Testing\TestResponse
 Lathe\Testing\ResourceTester::index(array $query = array ( )): Illuminate\Testing\TestResponse
+Lathe\Testing\ResourceTester::inertiaHeaders(): array  [protected]
 Lathe\Testing\ResourceTester::lens(string $lens): static
+Lathe\Testing\ResourceTester::lenses(): Illuminate\Testing\TestResponse
+Lathe\Testing\ResourceTester::page(): string  [protected]
 Lathe\Testing\ResourceTester::peek(string|int $id): Illuminate\Testing\TestResponse
 Lathe\Testing\ResourceTester::postAction(string $action, array $selection, array $fields = array ( )): Illuminate\Testing\TestResponse
 Lathe\Testing\ResourceTester::preview(string|int $id): Illuminate\Testing\TestResponse
 Lathe\Testing\ResourceTester::relation(string $relationship, string|int $id): Lathe\Testing\RelationTester
+Lathe\Testing\ResourceTester::reorderSavedTabs(array $order): Illuminate\Testing\TestResponse
 Lathe\Testing\ResourceTester::replicateFields(string|int $id): Illuminate\Testing\TestResponse
 Lathe\Testing\ResourceTester::restore(string|int $id): Illuminate\Testing\TestResponse
 Lathe\Testing\ResourceTester::runAction(string $action, array $selection, array $fields = array ( )): Illuminate\Testing\TestResponse
+Lathe\Testing\ResourceTester::savedTabs(): Illuminate\Testing\TestResponse
+Lathe\Testing\ResourceTester::show(string|int $id): Illuminate\Testing\TestResponse
 Lathe\Testing\ResourceTester::startActionUpload(string $action, string $field, array $body): Illuminate\Testing\TestResponse
 Lathe\Testing\ResourceTester::store(array $data): Illuminate\Testing\TestResponse
 Lathe\Testing\ResourceTester::string $uriKey  [protected]
 Lathe\Testing\ResourceTester::update(string|int $id, array $data): Illuminate\Testing\TestResponse
 Lathe\Testing\ResourceTester::updateFields(string|int $id): Illuminate\Testing\TestResponse
+Lathe\Testing\ResourceTester::updateSavedTab(string|int $id, array $data): Illuminate\Testing\TestResponse
 Lathe\Testing\ResourceTester::uri(): string  [protected]
 Lathe\Testing\ResourceTester::widget(string $widget, array $params = array ( )): Illuminate\Testing\TestResponse
 Lathe\Testing\ResourceTester::widgets(array $params = array ( )): Illuminate\Testing\TestResponse
@@ -4937,6 +4958,8 @@ trait Lathe\Http\Controllers\Auth\CallsFortify
 trait Lathe\Http\Controllers\Resources\AuthorizesResources
 trait Lathe\Menu\HasNavigationBadge
 trait Lathe\Menu\MenuEntry
+trait Lathe\Testing\ActionAssertions
 trait Lathe\Testing\InteractsWithLathe
+trait Lathe\Testing\ResourceAssertions
 trait Lathe\Widgets\Concerns\FormatsNumbers
 trait Lathe\Widgets\Concerns\RoundingPrecision
