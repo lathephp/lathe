@@ -2,6 +2,7 @@
 
 namespace Lathe;
 
+use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Contracts\Debug\ExceptionHandler;
 use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Contracts\Http\Kernel;
@@ -38,7 +39,10 @@ use Lathe\Console\MakeResourcePluginCommand;
 use Lathe\Console\MakeWidgetCommand;
 use Lathe\Console\PluginsCommand;
 use Lathe\Console\PruneActionEventsCommand;
+use Lathe\Console\PruneCommand;
 use Lathe\Console\TranslateCommand;
+use Lathe\Console\UninstallCommand;
+use Lathe\Console\UserCommand;
 use Lathe\Dashboards\DashboardRegistry;
 use Lathe\Exceptions\InvalidConfigurationException;
 use Lathe\Http\ErrorPages;
@@ -120,8 +124,12 @@ class LatheServiceProvider extends ServiceProvider
             }
         });
 
+        $this->callAfterResolving(Schedule::class, function (Schedule $schedule) {
+            $schedule->command('lathe:prune')->daily();
+        });
+
         if ($this->app->runningInConsole()) {
-            $this->commands([ApiCheckCommand::class, CacheCommand::class, ClearCommand::class, DoctorCommand::class, InstallCommand::class, MakeActionCommand::class, MakeDashboardCommand::class, MakeFieldCommand::class, MakeFilterCommand::class, MakeLensCommand::class, MakePageCommand::class, MakeResourceCommand::class, MakeResourcePluginCommand::class, MakeWidgetCommand::class, PluginsCommand::class, PruneActionEventsCommand::class, TranslateCommand::class]);
+            $this->commands([ApiCheckCommand::class, CacheCommand::class, ClearCommand::class, DoctorCommand::class, InstallCommand::class, MakeActionCommand::class, MakeDashboardCommand::class, MakeFieldCommand::class, MakeFilterCommand::class, MakeLensCommand::class, MakePageCommand::class, MakeResourceCommand::class, MakeResourcePluginCommand::class, MakeWidgetCommand::class, PluginsCommand::class, PruneActionEventsCommand::class, PruneCommand::class, TranslateCommand::class, UninstallCommand::class, UserCommand::class]);
             $this->optimizes(optimize: 'lathe:cache', clear: 'lathe:clear', key: 'lathe');
 
             $this->publishes([

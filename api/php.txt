@@ -853,10 +853,22 @@ Lathe\Console\PruneActionEventsCommand::$signature  [protected]
 Lathe\Console\PruneActionEventsCommand::CHUNK
 Lathe\Console\PruneActionEventsCommand::deleteInChunks(Illuminate\Database\Connection $connection, string $table, callable $pick): int  [protected]
 Lathe\Console\PruneActionEventsCommand::handle(): int
+Lathe\Console\PruneCommand::$description  [protected]
+Lathe\Console\PruneCommand::$signature  [protected]
+Lathe\Console\PruneCommand::handle(): int
 Lathe\Console\TranslateCommand::$description  [protected]
 Lathe\Console\TranslateCommand::$signature  [protected]
 Lathe\Console\TranslateCommand::handle(Illuminate\Filesystem\Filesystem $files): int
 Lathe\Console\TranslateCommand::stringArgument(string $name): string  [protected]
+Lathe\Console\UninstallCommand::$description  [protected]
+Lathe\Console\UninstallCommand::$signature  [protected]
+Lathe\Console\UninstallCommand::handle(Illuminate\Filesystem\Filesystem $files): int
+Lathe\Console\UninstallCommand::removeProviderRegistration(Illuminate\Filesystem\Filesystem $files): void  [protected]
+Lathe\Console\UserCommand::$description  [protected]
+Lathe\Console\UserCommand::$signature  [protected]
+Lathe\Console\UserCommand::handle(): int
+Lathe\Console\UserCommand::optionOrPrompt(string $option, Closure $prompt): ?string  [protected]
+Lathe\Console\UserCommand::userModel(): Illuminate\Database\Eloquent\Model  [protected]
 Lathe\Dashboards\Dashboard::?Closure $seeCallback  [protected]
 Lathe\Dashboards\Dashboard::?Lathe\Enums\Icon $icon  [protected]
 Lathe\Dashboards\Dashboard::?string $description  [protected]
@@ -916,6 +928,7 @@ Lathe\Doctor\Doctor::environment(): array  [protected]
 Lathe\Doctor\Doctor::manifestChecks(Lathe\Plugins\Plugin $plugin): array  [protected]
 Lathe\Doctor\Doctor::pluginChecks(): array
 Lathe\Doctor\Doctor::pluginPackages(): array
+Lathe\Doctor\Doctor::pruneSchedule(): Lathe\Doctor\CheckResult  [protected]
 Lathe\Doctor\Doctor::resourceChecks(): array  [protected]
 Lathe\Doctor\Doctor::rowCount(Illuminate\Database\Eloquent\Model $model): int  [protected]
 Lathe\Doctor\Doctor::run(): array
@@ -3848,7 +3861,10 @@ class Lathe\Console\MakeResourcePluginCommand
 class Lathe\Console\MakeWidgetCommand
 class Lathe\Console\PluginsCommand
 class Lathe\Console\PruneActionEventsCommand
+class Lathe\Console\PruneCommand
 class Lathe\Console\TranslateCommand
+class Lathe\Console\UninstallCommand
+class Lathe\Console\UserCommand
 class Lathe\Dashboards\Dashboard
 class Lathe\Dashboards\DashboardRegistry
 class Lathe\Dashboards\Main

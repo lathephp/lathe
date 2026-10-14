@@ -5,6 +5,8 @@ namespace Lathe\Doctor;
 use Composer\InstalledVersions;
 use Composer\Semver\Semver;
 use Composer\Semver\VersionParser;
+use Illuminate\Console\Scheduling\Event;
+use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Contracts\Auth\Access\Gate;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Database\Eloquent\Model;
@@ -66,10 +68,25 @@ class Doctor
             ...$this->environment(),
             ...$this->configuration(),
             ...$this->database(),
+            $this->pruneSchedule(),
             ...$this->resourceChecks(),
             ...$this->pluginChecks(),
             ...$this->assets(),
         ];
+    }
+
+    /**
+     * lathe:prune keeps the export, import, upload, bulk run and action event tables small;
+     * the package schedules it daily.
+     */
+    protected function pruneSchedule(): CheckResult
+    {
+        $scheduled = collect($this->app->make(Schedule::class)->events())
+            ->contains(fn (Event $event) => str_contains((string) $event->command, 'lathe:prune') && ! str_contains((string) $event->command, 'lathe:prune-'));
+
+        return $scheduled
+            ? CheckResult::ok('lathe:prune is scheduled')
+            : CheckResult::warn('lathe:prune is not scheduled. Schedule it daily so old exports, imports and uploads are deleted.');
     }
 
     /**
