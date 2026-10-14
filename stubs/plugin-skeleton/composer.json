@@ -1,0 +1,41 @@
+{
+    "name": "{{ name }}",
+    "description": "A Lathe plugin.",
+    "keywords": ["laravel", "lathe"],
+    "license": "MIT",
+    "type": "library",
+    "require": {
+        "php": "^8.4",
+        "lathe/lathe": "{{ lathe }}"
+    },
+    "require-dev": {
+        "orchestra/testbench": "^11.0",
+        "pestphp/pest": "^4.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "{{ escapedNamespace }}\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "{{ escapedNamespace }}\\Tests\\": "tests/"
+        }
+    },
+    "scripts": {
+        "test": "vendor/bin/pest --compact"
+    },
+    "extra": {
+        "lathe": {
+            "plugin": "{{ escapedNamespace }}\\{{ class }}"
+        }
+    },
+    "config": {
+        "sort-packages": true,
+        "allow-plugins": {
+            "pestphp/pest-plugin": true
+        }
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true
+}

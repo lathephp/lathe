@@ -1,0 +1,8 @@
+<?php
+
+use Illuminate\Routing\Router;
+
+// Mounted under {path}/api/plugins/{{ package }}/ for the users the plugin authorizes.
+return function (Router $router): void {
+    $router->get('ping', fn () => ['pong' => true]);
+};

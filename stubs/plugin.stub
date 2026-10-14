@@ -1,0 +1,17 @@
+<?php
+
+namespace {{ namespace }};
+
+use Illuminate\Http\Request;
+use Lathe\Enums\Icon;
+use Lathe\Menu\MenuItem;
+use Lathe\Menu\MenuSection;
+use Lathe\Plugins\Plugin;
+
+class {{ class }} extends Plugin
+{
+    public function menu(Request $request): ?array
+    {
+        return [MenuSection::section($this->name(), [MenuItem::plugin(static::class)->icon(Icon::Wrench)])];
+    }
+}

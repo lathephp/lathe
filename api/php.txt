@@ -821,6 +821,15 @@ Lathe\Console\MakePageCommand::$signature  [protected]
 Lathe\Console\MakePageCommand::folder(): string  [protected]
 Lathe\Console\MakePageCommand::scaffoldReact(Illuminate\Filesystem\Filesystem $files, string $class): void  [protected]
 Lathe\Console\MakePageCommand::stub(): string  [protected]
+Lathe\Console\MakePluginCommand::$description  [protected]
+Lathe\Console\MakePluginCommand::$signature  [protected]
+Lathe\Console\MakePluginCommand::folder(): string  [protected]
+Lathe\Console\MakePluginCommand::handle(Illuminate\Filesystem\Filesystem $files): int
+Lathe\Console\MakePluginCommand::hostPath(): string  [protected]
+Lathe\Console\MakePluginCommand::installedVersion(): ?string  [protected]
+Lathe\Console\MakePluginCommand::runComposerUpdate(string $package): void  [protected]
+Lathe\Console\MakePluginCommand::scaffoldReact(Illuminate\Filesystem\Filesystem $files, string $class): void  [protected]
+Lathe\Console\MakePluginCommand::stub(): string  [protected]
 Lathe\Console\MakeResourceCommand::$description  [protected]
 Lathe\Console\MakeResourceCommand::$signature  [protected]
 Lathe\Console\MakeResourceCommand::folder(): string  [protected]
@@ -856,6 +865,9 @@ Lathe\Console\PruneActionEventsCommand::handle(): int
 Lathe\Console\PruneCommand::$description  [protected]
 Lathe\Console\PruneCommand::$signature  [protected]
 Lathe\Console\PruneCommand::handle(): int
+Lathe\Console\StubsCommand::$description  [protected]
+Lathe\Console\StubsCommand::$signature  [protected]
+Lathe\Console\StubsCommand::handle(Illuminate\Filesystem\Filesystem $files): int
 Lathe\Console\TranslateCommand::$description  [protected]
 Lathe\Console\TranslateCommand::$signature  [protected]
 Lathe\Console\TranslateCommand::handle(Illuminate\Filesystem\Filesystem $files): int
@@ -4256,12 +4268,14 @@ class Lathe\Console\MakeFieldCommand
 class Lathe\Console\MakeFilterCommand
 class Lathe\Console\MakeLensCommand
 class Lathe\Console\MakePageCommand
+class Lathe\Console\MakePluginCommand
 class Lathe\Console\MakeResourceCommand
 class Lathe\Console\MakeResourcePluginCommand
 class Lathe\Console\MakeWidgetCommand
 class Lathe\Console\PluginsCommand
 class Lathe\Console\PruneActionEventsCommand
 class Lathe\Console\PruneCommand
+class Lathe\Console\StubsCommand
 class Lathe\Console\TranslateCommand
 class Lathe\Console\UninstallCommand
 class Lathe\Console\UserCommand

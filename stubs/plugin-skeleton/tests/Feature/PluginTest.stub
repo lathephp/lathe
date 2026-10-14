@@ -1,0 +1,19 @@
+<?php
+
+use {{ namespace }}\{{ class }};
+use {{ namespace }}\{{ class }}Search;
+use Lathe\Lathe;
+
+it('registers the plugin', function () {
+    expect(Lathe::plugins()->find({{ class }}::uriKey()))->toBeInstanceOf({{ class }}::class);
+});
+
+it('adds one sidebar section for the plugin page', function () {
+    expect((new {{ class }})->menu($this->latheRequest()))->toHaveCount(1);
+});
+
+it('finds the plugin page by its name', function () {
+    $rows = (new {{ class }}Search(new {{ class }}))->search($this->latheRequest('/lathe/api/search', 'GET', ['q' => '{{ title }}']));
+
+    expect($rows)->toHaveCount(1);
+});

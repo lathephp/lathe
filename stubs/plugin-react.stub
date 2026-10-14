@@ -1,0 +1,13 @@
+import { plugin } from '@lathephp/core';
+import { Card } from '@lathephp/ui';
+
+function {{ class }}() {
+  return (
+    <Card className="p-6">
+      <h1 className="font-semibold leading-none tracking-tight">{{ name }}</h1>
+      {/* Your plugin page content */}
+    </Card>
+  );
+}
+
+plugin('{{ component }}', {{ class }});

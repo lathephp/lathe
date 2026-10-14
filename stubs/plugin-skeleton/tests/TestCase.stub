@@ -1,0 +1,17 @@
+<?php
+
+namespace {{ namespace }}\Tests;
+
+use {{ namespace }}\{{ class }};
+use Lathe\Lathe;
+use Lathe\Testing\TestCase as LatheTestCase;
+
+abstract class TestCase extends LatheTestCase
+{
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        Lathe::registerPlugins(new {{ class }});
+    }
+}

@@ -1,0 +1,45 @@
+<?php
+
+namespace {{ namespace }};
+
+use Lathe\Http\Requests\LatheRequest;
+use Lathe\Search\GlobalSearchResult;
+use Lathe\Search\SearchProvider;
+
+/**
+ * Puts the plugin page in the command palette when the term matches the plugin name.
+ */
+class {{ class }}Search extends SearchProvider
+{
+    public function __construct(protected {{ class }} $plugin)
+    {
+        //
+    }
+
+    public function title(): string
+    {
+        return $this->plugin->name();
+    }
+
+    public function uriKey(): string
+    {
+        return {{ class }}::uriKey();
+    }
+
+    public function authorize(LatheRequest $request): bool
+    {
+        return $this->plugin->authorize($request);
+    }
+
+    public function search(LatheRequest $request): array
+    {
+        $term = $request->query('q');
+        $term = is_string($term) ? mb_strtolower(trim($term)) : '';
+
+        if ($term === '' || ! str_contains(mb_strtolower($this->plugin->name()), $term)) {
+            return [];
+        }
+
+        return [GlobalSearchResult::make($this->plugin->name())->url('plugins/'.{{ class }}::uriKey())];
+    }
+}

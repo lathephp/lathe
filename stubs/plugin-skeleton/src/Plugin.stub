@@ -1,0 +1,49 @@
+<?php
+
+namespace {{ namespace }};
+
+use Illuminate\Http\Request;
+use Illuminate\Routing\Router;
+use Lathe\Enums\Icon;
+use Lathe\Lathe;
+use Lathe\Menu\MenuItem;
+use Lathe\Menu\MenuSection;
+use Lathe\Plugins\Plugin;
+
+class {{ class }} extends Plugin
+{
+    public function register(): void
+    {
+        parent::register();
+
+        /** @var array<string, mixed> $defaults */
+        $defaults = require __DIR__.'/../config/{{ package }}.php';
+
+        config()->set('{{ package }}', array_replace_recursive($defaults, config()->array('{{ package }}', [])));
+    }
+
+    public function boot(): void
+    {
+        parent::boot();
+
+        Lathe::registerSearchProviders(new {{ class }}Search($this));
+    }
+
+    public function assets(): array
+    {
+        return ['scripts' => ['{{ package }}' => __DIR__.'/../dist/{{ package }}.js']];
+    }
+
+    public function menu(Request $request): ?array
+    {
+        return [MenuSection::section($this->name(), [MenuItem::plugin(static::class)->icon(Icon::Wrench)])];
+    }
+
+    public function routes(Router $router): void
+    {
+        /** @var callable(Router): void $routes */
+        $routes = require __DIR__.'/../routes/api.php';
+
+        $routes($router);
+    }
+}
