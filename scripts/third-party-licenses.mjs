@@ -32,7 +32,7 @@ const packages = Object.entries(JSON.parse(json))
 
 const refused = packages.filter((entry) => !permits(entry.license));
 if (refused.length > 0) {
-  for (const entry of refused) console.error(`not allowed: ${entry.name}@${entry.versions.join(', ')} (${entry.license})`);
+  for (const entry of refused) process.stderr.write(`not allowed: ${entry.name}@${entry.versions.join(', ')} (${entry.license})\n`);
   process.exit(1);
 }
 
@@ -50,4 +50,4 @@ writeFileSync(
     '',
   ].join('\n'),
 );
-console.log(`${packages.length} packages written to ${output}`);
+process.stdout.write(`${packages.length} packages written to ${output}\n`);
