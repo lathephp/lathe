@@ -213,6 +213,19 @@ it('marks an import failed and notifies when the queue gives up on the job witho
     Notification::assertSentTimes(ImportComplete::class, 1);
 });
 
+it('imports with notifications off and keeps the result for the run page', function () use ($productsMap) {
+    Notification::fake();
+    config(['lathe.notifications.enabled' => false]);
+    $import = uploadedImport(fixtureCsv('products.csv'), $productsMap);
+
+    ImportProducts::make()->start($import, 'import', adminContext());
+
+    expect($import->fresh()?->status)->toBe('completed')
+        ->and(importCounts($import))->toBe(['created_rows' => 2, 'updated_rows' => 1, 'skipped_rows' => 0, 'failed_rows' => 0])
+        ->and(Product::count())->toBe(502);
+    Notification::assertNothingSent();
+});
+
 it('imports products-bad.csv with a warning and a Download Failed Rows button', function () use ($productsMap) {
     Notification::fake();
     $import = uploadedImport(fixtureCsv('products-bad.csv'), $productsMap);

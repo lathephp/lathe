@@ -83,6 +83,20 @@ it('serves the picker of an action relation field, capped at the picker size', f
         ->and(array_keys($json['items'][0]))->toContain('value', 'display');
 });
 
+it('reads only the option columns of the related Resource for the action picker', function () {
+    $selects = [];
+    DB::listen(function ($query) use (&$selects) {
+        if (str_contains($query->sql, 'from "tags"') || str_contains($query->sql, 'from `tags`')) {
+            $selects[] = $query->sql;
+        }
+    });
+
+    LatheTest::resource('tags')->actionAssociatable('merge-tags', 'target')->assertOk();
+
+    expect($selects)->not->toBeEmpty()
+        ->and(array_filter($selects, fn (string $sql) => str_contains($sql, '*')))->toBe([]);
+});
+
 it('answers 404 for an unknown action or field and 403 for a hidden action', function () {
     LatheTest::resource('tags')->actionAssociatable('nope', 'target')->assertNotFound();
     LatheTest::resource('tags')->actionAssociatable('merge-tags', 'nope')->assertNotFound();

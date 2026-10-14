@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Schema;
 use Lathe\Actions\Action;
 use Lathe\Doctor\Doctor;
 use Lathe\Field\Field;
@@ -67,9 +68,6 @@ afterEach(function () {
     Lathe::resources()->clearCache();
 });
 
-/**
- * @return array{0: int, 1: list<string>}
- */
 class DoctorQueuedUpload extends Action implements ShouldQueue
 {
     public function fields(LatheRequest $request): array
@@ -96,6 +94,9 @@ class DoctorQueuedUploadPosts extends Resource
     }
 }
 
+/**
+ * @return array{0: int, 1: list<string>}
+ */
 function doctor(): array
 {
     $code = Artisan::call('lathe:doctor');
@@ -253,6 +254,19 @@ it('fails a full text search column the driver cannot run', function () {
     } else {
         expect(array_filter($lines, fn ($line) => str_starts_with($line, 'FAIL')))->toBe([]);
     }
+});
+
+it('warns when the queue runs jobs in the request and when job_batches is missing', function () {
+    config(['queue.default' => 'sync']);
+    [, $lines] = doctor();
+
+    expect($lines)->toContain('WARN The queue connection is sync, so large bulk runs would run inside the request. Use a real queue.');
+
+    config(['queue.default' => 'database']);
+    Schema::drop('job_batches');
+    [, $lines] = doctor();
+
+    expect($lines)->toContain('WARN The job_batches table is missing, so queued bulk runs would fail. Run php artisan make:queue-batches-table and migrate.');
 });
 
 it('fails a queued action with a file field', function () {
