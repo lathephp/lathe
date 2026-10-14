@@ -2,15 +2,14 @@
 
 namespace Lathe\Http\Controllers\Resources;
 
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Support\Str;
 use Lathe\Auth\ResourceAuthorization;
 use Lathe\Field\Field;
 use Lathe\Field\FieldCollection;
 use Lathe\Field\FieldContext;
+use Lathe\Field\Relations\Associatable;
 use Lathe\Field\Relations\RelationField;
 use Lathe\Http\Requests\LatheRequest;
 use Lathe\Query\QueryContext;
@@ -80,7 +79,10 @@ class AssociatableController
         abort_if($related === null, 404);
 
         $resource = $related::make();
-        $query = $this->relatedQuery($request, $parent, $field);
+        $query = (new Associatable($request, $parent, $field))->query();
+
+        abort_if($query === null, 404);
+
         $current = $request->query('current');
 
         // A saved value asks for its one row; q and page do not apply.
@@ -107,35 +109,5 @@ class AssociatableController
         }
 
         return new JsonResponse(['items' => $items, 'has_more' => $query->hasMorePages()]);
-    }
-
-    /**
-     * The related Resource's query the options come from: its scopes, the field's
-     * relatableQuery, then the parent's relatable{Model}s when it defines one.
-     *
-     * @param  class-string<resource>  $parent
-     */
-    protected function relatedQuery(LatheRequest $request, string $parent, RelationField $field): ResourceQuery
-    {
-        $related = $field->relatedResource();
-
-        abort_if($related === null, 404);
-
-        $query = new ResourceQuery($related::make(), $request, QueryContext::Relatable);
-        $method = 'relatable'.Str::plural(class_basename($related::newModel()));
-
-        $query->relatableHooks(
-            $field->getRelatableQuery(),
-            method_exists($parent, $method) ? function (LatheRequest $request, Builder $builder) use ($parent, $method, $field): Builder {
-                /** @var Builder<Model> */
-                return $parent::$method($request, $builder, $field);
-            } : null,
-        );
-
-        if ($field->allowsTrashed() && $request->query('with_trashed') === '1') {
-            $query->withTrashed();
-        }
-
-        return $query;
     }
 }
