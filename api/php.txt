@@ -1076,6 +1076,7 @@ Lathe\Field\Relations\RelationField::?string $resourceClass  [protected]
 Lathe\Field\Relations\RelationField::Closure|bool $peekable  [protected]
 Lathe\Field\Relations\RelationField::MODAL_SIZES
 Lathe\Field\Relations\RelationField::__construct(string $label, Closure|string|null $attribute = NULL, ?Closure $resolver = NULL)
+Lathe\Field\Relations\RelationField::allowsTrashed(): bool
 Lathe\Field\Relations\RelationField::attaches(): bool
 Lathe\Field\Relations\RelationField::bool $reorderAssociatables  [protected]
 Lathe\Field\Relations\RelationField::collapsed(bool $collapsed = true): static
@@ -1414,9 +1415,9 @@ Lathe\Http\Controllers\Plugins\ModuleController::__invoke(Lathe\Assets\AssetRegi
 Lathe\Http\Controllers\Plugins\PluginApiController::__invoke(Illuminate\Http\Request $request, Lathe\Plugins\PluginRegistry $plugins, string $plugin, string $path = ''): Symfony\Component\HttpFoundation\Response
 Lathe\Http\Controllers\Plugins\PluginPageController::__invoke(Illuminate\Http\Request $request, Lathe\Plugins\PluginRegistry $plugins, string $plugin, string $path = ''): Inertia\Response
 Lathe\Http\Controllers\Resources\AssociatableController::create(Lathe\Http\Requests\LatheRequest $request, Lathe\Auth\ResourceAuthorization $authorization, string $resource, string $field): Illuminate\Http\JsonResponse
-Lathe\Http\Controllers\Resources\AssociatableController::options(Lathe\Http\Requests\LatheRequest $request, Lathe\Field\Relations\RelationField $field): Illuminate\Http\JsonResponse  [protected]
+Lathe\Http\Controllers\Resources\AssociatableController::options(Lathe\Http\Requests\LatheRequest $request, string $parent, Lathe\Field\Relations\RelationField $field): Illuminate\Http\JsonResponse  [protected]
 Lathe\Http\Controllers\Resources\AssociatableController::record(Lathe\Http\Requests\LatheRequest $request, Lathe\Auth\ResourceAuthorization $authorization, string $resource, string $resourceId, string $field): Illuminate\Http\JsonResponse
-Lathe\Http\Controllers\Resources\AssociatableController::relatedQuery(Lathe\Http\Requests\LatheRequest $request, Lathe\Field\Relations\RelationField $field): Lathe\Query\ResourceQuery  [protected]
+Lathe\Http\Controllers\Resources\AssociatableController::relatedQuery(Lathe\Http\Requests\LatheRequest $request, string $parent, Lathe\Field\Relations\RelationField $field): Lathe\Query\ResourceQuery  [protected]
 Lathe\Http\Controllers\Resources\AssociatableController::relationField(Lathe\Http\Requests\LatheRequest $request, Lathe\Field\FieldCollection $fields, string $attribute): Lathe\Field\Relations\RelationField  [protected]
 Lathe\Http\Controllers\Resources\AuthorizesResources::viewableResource(Lathe\Http\Requests\LatheRequest $request, Lathe\Auth\ResourceAuthorization $authorization): string  [protected]
 Lathe\Http\Controllers\Resources\CountController::__invoke(Lathe\Http\Requests\LatheRequest $request, Lathe\Auth\ResourceAuthorization $authorization, Lathe\Http\Payloads\IndexPayload $payload): Illuminate\Http\JsonResponse
@@ -1813,6 +1814,8 @@ Lathe\Query\QueryContext::Replicate
 Lathe\Query\QueryContext::Search
 Lathe\Query\QueryContext::Widget
 Lathe\Query\QueryContext::string $name
+Lathe\Query\ResourceQuery::?Closure $fieldHook  [protected]
+Lathe\Query\ResourceQuery::?Closure $parentHook  [protected]
 Lathe\Query\ResourceQuery::?Illuminate\Database\Eloquent\Builder $scoped  [protected]
 Lathe\Query\ResourceQuery::?Illuminate\Database\Eloquent\Relations\Relation $relation  [protected]
 Lathe\Query\ResourceQuery::?Lathe\Lenses\Lens $lens  [protected]
@@ -1830,6 +1833,7 @@ Lathe\Query\ResourceQuery::applyHook(Illuminate\Database\Eloquent\Builder $query
 Lathe\Query\ResourceQuery::applyLens(Illuminate\Database\Eloquent\Builder $query): Illuminate\Database\Eloquent\Builder  [protected]
 Lathe\Query\ResourceQuery::applyLensSearch(Illuminate\Database\Eloquent\Builder $query): Illuminate\Database\Eloquent\Builder  [protected]
 Lathe\Query\ResourceQuery::applyPickerSearch(Illuminate\Database\Eloquent\Builder $query, mixed $title): Illuminate\Database\Eloquent\Builder  [protected]
+Lathe\Query\ResourceQuery::applyRelatableHooks(Illuminate\Database\Eloquent\Builder $query): Illuminate\Database\Eloquent\Builder  [protected]
 Lathe\Query\ResourceQuery::applySavedTab(Illuminate\Database\Eloquent\Builder $query): Illuminate\Database\Eloquent\Builder  [protected]
 Lathe\Query\ResourceQuery::applySearch(Illuminate\Database\Eloquent\Builder $query): Illuminate\Database\Eloquent\Builder  [protected]
 Lathe\Query\ResourceQuery::applySort(Illuminate\Database\Eloquent\Builder $query): Illuminate\Database\Eloquent\Builder  [protected]
@@ -1852,6 +1856,7 @@ Lathe\Query\ResourceQuery::hasMorePages(): bool
 Lathe\Query\ResourceQuery::holdsKey(Illuminate\Database\Eloquent\Model $model, string|int $id): bool  [static]
 Lathe\Query\ResourceQuery::holdsMoreThan(int $count): bool
 Lathe\Query\ResourceQuery::onlyTrashed(): static
+Lathe\Query\ResourceQuery::option(string $key): ?Illuminate\Database\Eloquent\Model
 Lathe\Query\ResourceQuery::options(int $limit, bool $reorder = true): Illuminate\Database\Eloquent\Collection
 Lathe\Query\ResourceQuery::page(): array
 Lathe\Query\ResourceQuery::pagination(): array  [protected]
@@ -1859,6 +1864,7 @@ Lathe\Query\ResourceQuery::perPageOptions(): array  [protected]
 Lathe\Query\ResourceQuery::perPageOptionsInUse(): array
 Lathe\Query\ResourceQuery::readPagination(): array  [protected]
 Lathe\Query\ResourceQuery::recordRelations(Lathe\Field\FieldContext $context): array  [protected]
+Lathe\Query\ResourceQuery::relatableHooks(?Closure $field, ?Closure $parent): static
 Lathe\Query\ResourceQuery::rows(): Illuminate\Database\Eloquent\Collection
 Lathe\Query\ResourceQuery::savedTabCount(Lathe\SavedTabs\SavedTab $tab): Lathe\Query\Count
 Lathe\Query\ResourceQuery::scoped(): Illuminate\Database\Eloquent\Builder
