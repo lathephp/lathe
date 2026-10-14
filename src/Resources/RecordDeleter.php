@@ -23,7 +23,7 @@ use Throwable;
 class RecordDeleter
 {
     /**
-     * @param  class-string<resource>  $class
+     * @param  class-string<\Lathe\Resources\Resource>  $class
      */
     public function delete(LatheRequest $request, string $class, Model $model): void
     {
@@ -31,7 +31,7 @@ class RecordDeleter
     }
 
     /**
-     * @param  class-string<resource>  $class
+     * @param  class-string<\Lathe\Resources\Resource>  $class
      */
     public function forceDelete(LatheRequest $request, string $class, Model $model): void
     {
@@ -39,10 +39,13 @@ class RecordDeleter
     }
 
     /**
-     * @param  class-string<resource>  $class
+     * @param  class-string<\Lathe\Resources\Resource>  $class
      */
     public function restore(LatheRequest $request, string $class, Model $model): void
     {
+        // A model without soft deletes has nothing to restore.
+        assert(method_exists($model, 'restore'));
+
         $this->run($request, $class, $model, 'Restore', fn () => $model->restore(), ResourceRestored::class);
     }
 
@@ -51,7 +54,7 @@ class RecordDeleter
      * (a delete of a trashed row, a restore of a live one) is left out, and a row that throws is
      * reported and left as it was. With $authorized false, the chunk's abilities are read in one go.
      *
-     * @param  class-string<resource>  $class
+     * @param  class-string<\Lathe\Resources\Resource>  $class
      * @param  'delete'|'forceDelete'|'restore'  $ability
      * @param  Collection<int, Model>  $models
      * @return array{done: int, attempted: int, denied: int} rows written, rows tried, rows the policy refused
@@ -86,7 +89,7 @@ class RecordDeleter
     }
 
     /**
-     * @param  class-string<resource>  $class
+     * @param  class-string<\Lathe\Resources\Resource>  $class
      * @param  Closure(): mixed  $write
      * @param  class-string<ResourceDeleted|ResourceForceDeleted|ResourceRestored>  $event
      */

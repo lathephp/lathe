@@ -5,6 +5,7 @@ namespace Lathe\Auth;
 use Illuminate\Auth\Access\Response;
 use Illuminate\Contracts\Auth\Access\Gate;
 use Illuminate\Contracts\Auth\Authenticatable;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
@@ -105,6 +106,50 @@ class ResourceAuthorization
         }
 
         return $answer === true || ($answer instanceof Response && $answer->allowed()) ? $ids : [];
+    }
+
+    /**
+     * Whether the policy narrows a bulk write itself, with a `{ability}Any(User, Builder): Builder` method.
+     *
+     * @param  class-string<\Lathe\Resources\Resource>  $resource
+     */
+    public function narrowsBulk(string $resource, string $ability): bool
+    {
+        $policy = $this->policyFor($resource);
+
+        return $policy !== null && method_exists($policy, $ability.'Any');
+    }
+
+    /**
+     * The query narrowed to the rows the user may write, by the policy's `{ability}Any` method.
+     * A boolean answer keeps every row (true) or none (false); a missing user or method keeps none.
+     *
+     * @param  class-string<\Lathe\Resources\Resource>  $resource
+     * @param  Builder<Model>  $query
+     * @return Builder<Model>
+     */
+    public function narrowBulk(?Authenticatable $user, string $resource, string $ability, Builder $query): Builder
+    {
+        if ($this->resources->definition($resource)->allowsAll()) {
+            return $query;
+        }
+
+        if ($user === null || ! $this->narrowsBulk($resource, $ability)) {
+            return $query->whereRaw('0 = 1');
+        }
+
+        $method = $ability.'Any';
+        $policy = $this->policyFor($resource);
+
+        $answer = $resource::$policy !== null && $policy !== null
+            ? $policy->{$method}($user, $query)
+            : $this->gate->forUser($user)->raw($method, [$query->getModel()::class, $query]);
+
+        if ($answer instanceof Builder) {
+            return $answer;
+        }
+
+        return $answer === true || ($answer instanceof Response && $answer->allowed()) ? $query : $query->whereRaw('0 = 1');
     }
 
     /**

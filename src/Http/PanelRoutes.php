@@ -16,6 +16,7 @@ use Lathe\Http\Controllers\Plugins\ModuleController;
 use Lathe\Http\Controllers\Plugins\PluginApiController;
 use Lathe\Http\Controllers\Plugins\PluginPageController;
 use Lathe\Http\Controllers\Resources\AssociatableController;
+use Lathe\Http\Controllers\Resources\BatchDeleteController;
 use Lathe\Http\Controllers\Resources\CountController;
 use Lathe\Http\Controllers\Resources\DeleteController;
 use Lathe\Http\Controllers\Resources\DependencyController;
@@ -186,7 +187,11 @@ class PanelRoutes
      */
     protected function batchRoutes(Router $router): void
     {
-        //
+        $controller = BatchDeleteController::class;
+
+        $router->delete('resources/{resource}/batch', [$controller, 'delete'])->name('resources.batch.delete');
+        $router->delete('resources/{resource}/batch/force', [$controller, 'forceDelete'])->name('resources.batch.forceDelete');
+        $router->put('resources/{resource}/batch/restore', [$controller, 'restore'])->name('resources.batch.restore');
     }
 
     /**

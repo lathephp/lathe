@@ -2,6 +2,7 @@
 
 namespace Lathe\ActionEvents;
 
+use Closure;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Arr;
@@ -25,6 +26,9 @@ use Lathe\Resources\Resource;
 class ActionEventRecorder
 {
     protected bool $disabled = false;
+
+    /** The batch id inBatch() hands to every write inside it. */
+    protected ?string $batchId = null;
 
     /** @var array<class-string<resource>, list<string>> */
     protected array $secrets = [];
@@ -196,6 +200,27 @@ class ActionEventRecorder
     }
 
     /**
+     * Runs the callback so every write it records shares one batch id, for a request that
+     * writes many records.
+     *
+     * @template TReturn
+     *
+     * @param  Closure(): TReturn  $callback
+     * @return TReturn
+     */
+    public function inBatch(Closure $callback): mixed
+    {
+        $outer = $this->batchId;
+        $this->batchId ??= $this->newBatchId();
+
+        try {
+            return $callback();
+        } finally {
+            $this->batchId = $outer;
+        }
+    }
+
+    /**
      * @param  class-string<resource>|null  $resourceClass
      */
     protected function shouldRecord(?string $resourceClass): bool
@@ -215,7 +240,7 @@ class ActionEventRecorder
         }
 
         $this->model()::query()->insert([
-            $this->row($type, $request, $batchId ?? $this->newBatchId(), $resourceClass, $model, $target ?? $model, $original, $changes),
+            $this->row($type, $request, $batchId ?? $this->batchId ?? $this->newBatchId(), $resourceClass, $model, $target ?? $model, $original, $changes),
         ]);
     }
 
