@@ -175,6 +175,21 @@ class LatheManager
         $this->container->make(GlobalSearch::class)->register(...$providers);
     }
 
+    public function searchProviders(): GlobalSearch
+    {
+        return $this->container->make(GlobalSearch::class);
+    }
+
+    public function translations(): TranslationManager
+    {
+        return $this->container->make(TranslationManager::class);
+    }
+
+    public function actionEvents(): ActionEventRecorder
+    {
+        return $this->container->make(ActionEventRecorder::class);
+    }
+
     public function discoverResources(string $directory, ?string $namespace = null): void
     {
         $this->resources()->discover($directory, $namespace);

@@ -163,7 +163,7 @@ Lathe::withoutActionEvents(function () {
 });
 ```
 
-Without a closure, `Lathe::withoutActionEvents()` turns recording off for the rest of the request or job. The recorder can also be switched by hand with `disable()` and `enable()` on `Lathe\ActionEvents\ActionEventRecorder`.
+Without a closure, `Lathe::withoutActionEvents()` turns recording off for the rest of the request or job. The recorder can also be switched by hand with `disable()` and `enable()` on `Lathe\ActionEvents\ActionEventRecorder`, which `Lathe::actionEvents()` returns.
 
 ## Use your own model
 

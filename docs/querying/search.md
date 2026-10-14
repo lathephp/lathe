@@ -258,6 +258,8 @@ public function boot(): void
 }
 ```
 
+`Lathe::searchProviders()` returns the `Lathe\Search\GlobalSearch` registry that holds them, and `register()` on it does what `registerSearchProviders()` does.
+
 ## Scout
 
 When the model uses `Laravel\Scout\Searchable`, Lathe searches that Resource through Scout. You do not configure anything else. Lathe passes the search to the Scout builder, keeps the matching keys, and applies filters, tabs, sorting and paging on top of them.
