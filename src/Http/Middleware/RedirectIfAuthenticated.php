@@ -14,8 +14,6 @@ class RedirectIfAuthenticated extends Middleware
 {
     protected function redirectTo(Request $request): ?string
     {
-        $initial = Lathe::config()->nullableString('initial_path');
-
-        return $initial ?? '/'.trim(Lathe::path(), '/');
+        return Lathe::resolveInitialPath($request);
     }
 }

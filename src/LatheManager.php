@@ -290,11 +290,11 @@ class LatheManager
     }
 
     /**
-     * The initial path for this request, else the panel root.
+     * The initial path for this request, else lathe.initial_path, else the panel root.
      */
     public function resolveInitialPath(Request $request): string
     {
-        $path = $this->initialPath instanceof Closure ? ($this->initialPath)($request) : $this->initialPath;
+        $path = $this->initialPath instanceof Closure ? ($this->initialPath)($request) : $this->initialPath ?? $this->config()->nullableString('initial_path');
 
         return is_string($path) && $path !== '' ? $path : '/'.trim($this->path(), '/');
     }

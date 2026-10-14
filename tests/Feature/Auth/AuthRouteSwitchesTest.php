@@ -115,3 +115,14 @@ it('resolves the panel root when no initial path is set', function () {
     $this->post('/lathe/login', ['email' => 'admin@lathephp.com', 'password' => 'password'])
         ->assertRedirect('http://localhost/lathe');
 });
+
+it('falls back to lathe.initial_path, for a sign-in and for a signed-in visit to the login page', function () {
+    config(['lathe.initial_path' => '/lathe/resources/orders']);
+
+    $this->post('/lathe/login', ['email' => 'admin@lathephp.com', 'password' => 'password'])
+        ->assertRedirect('http://localhost/lathe/resources/orders');
+
+    Lathe::initialPath(fn (Request $request) => '/lathe/dashboards/main');
+
+    $this->get('/lathe/login')->assertRedirect('/lathe/dashboards/main');
+});
