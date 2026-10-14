@@ -4,6 +4,7 @@ namespace Lathe\Http\Middleware;
 
 use Closure;
 use Illuminate\Contracts\Auth\Factory as AuthFactory;
+use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Http\Request;
 use Lathe\Auth\FortifyConfig;
 use Lathe\Lathe;
@@ -20,12 +21,16 @@ class Authenticate
     }
 
     /**
+     * With `unverified`, a user whose email awaits verification passes too (the verify and sign-out routes).
+     *
      * @param  Closure(Request): Response  $next
      */
-    public function handle(Request $request, Closure $next): Response
+    public function handle(Request $request, Closure $next, string ...$options): Response
     {
-        if ($this->auth->guard($this->fortify->guard())->check()) {
-            return $next($request);
+        $user = $this->auth->guard($this->fortify->guard())->user();
+
+        if ($user !== null) {
+            return in_array('unverified', $options, true) || ! $this->awaitsVerification($user) ? $next($request) : $this->holdForVerification($request);
         }
 
         if (static::answersJson($request)) {
@@ -44,5 +49,20 @@ class Authenticate
         $api = ltrim(trim(Lathe::path(), '/').'/api', '/');
 
         return $request->expectsJson() || $request->is($api, $api.'/*');
+    }
+
+    /**
+     * Email verification holds a user whose model verifies email and has not yet.
+     */
+    protected function awaitsVerification(object $user): bool
+    {
+        return $user instanceof MustVerifyEmail && ! $user->hasVerifiedEmail() && $this->fortify->featureEnabled('emailVerification');
+    }
+
+    protected function holdForVerification(Request $request): Response
+    {
+        return static::answersJson($request)
+            ? response()->json(['message' => Lathe::__('Your email address is not verified.')], 403)
+            : redirect()->guest(route('lathe.verification.notice'));
     }
 }

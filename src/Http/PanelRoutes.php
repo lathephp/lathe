@@ -7,6 +7,7 @@ use Illuminate\Routing\RouteRegistrar;
 use Lathe\Auth\FortifyConfig;
 use Lathe\Http\Controllers\Assets\AssetController;
 use Lathe\Http\Controllers\Auth\AuthenticatedSessionController;
+use Lathe\Http\Controllers\Auth\EmailVerificationController;
 use Lathe\Http\Controllers\Auth\LoginPageController;
 use Lathe\Http\Controllers\Auth\NewPasswordController;
 use Lathe\Http\Controllers\Auth\PasswordResetLinkController;
@@ -91,7 +92,14 @@ class PanelRoutes
                 $router->get('login', LoginPageController::class)->middleware($guest)->name('login');
                 $router->post('login', [AuthenticatedSessionController::class, 'store'])->middleware($guest)->name('login.store');
                 // POST only: a GET would let any image tag sign the user out.
-                $router->post('logout', [AuthenticatedSessionController::class, 'destroy'])->middleware(Authenticate::class)->name('logout');
+                $router->post('logout', [AuthenticatedSessionController::class, 'destroy'])->middleware(Authenticate::class.':unverified')->name('logout');
+            }
+
+            if ($this->fortify->featureEnabled('emailVerification')) {
+                $unverified = Authenticate::class.':unverified';
+                $router->get('email/verify', [EmailVerificationController::class, 'notice'])->middleware($unverified)->name('verification.notice');
+                $router->get('email/verify/{id}/{hash}', [EmailVerificationController::class, 'verify'])->middleware([$unverified, 'signed', 'throttle:6,1'])->name('verification.verify');
+                $router->post('email/verification-notification', [EmailVerificationController::class, 'send'])->middleware([$unverified, 'throttle:6,1'])->name('verification.send');
             }
 
             if (Lathe::hasPasswordResetRoutes()) {

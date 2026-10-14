@@ -4,14 +4,19 @@ namespace Lathe\Auth;
 
 use Closure;
 use Illuminate\Auth\Notifications\ResetPassword;
+use Illuminate\Auth\Notifications\VerifyEmail;
 use Illuminate\Container\Container;
+use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Contracts\Auth\CanResetPassword;
+use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Illuminate\Support\Facades\URL;
 use Laravel\Fortify\Contracts\FailedPasswordResetLinkRequestResponse;
 use Laravel\Fortify\Contracts\LoginResponse as LoginResponseContract;
 use Laravel\Fortify\Contracts\LogoutResponse as LogoutResponseContract;
 use Laravel\Fortify\Contracts\PasswordResetResponse as PasswordResetResponseContract;
 use Laravel\Fortify\Contracts\ResetsUserPasswords;
 use Laravel\Fortify\Contracts\SuccessfulPasswordResetLinkRequestResponse;
+use Laravel\Fortify\Contracts\VerifyEmailResponse as VerifyEmailResponseContract;
 use Laravel\Fortify\Features;
 use Laravel\Fortify\Fortify;
 use Lathe\Auth\Actions\ResetUserPassword;
@@ -19,6 +24,7 @@ use Lathe\Auth\Responses\LoginResponse;
 use Lathe\Auth\Responses\LogoutResponse;
 use Lathe\Auth\Responses\PasswordResetLinkSentResponse;
 use Lathe\Auth\Responses\PasswordResetResponse;
+use Lathe\Auth\Responses\VerifyEmailResponse;
 use Lathe\Lathe;
 
 /**
@@ -99,6 +105,7 @@ class FortifyBootstrap extends FortifyConfig
             FailedPasswordResetLinkRequestResponse::class => PasswordResetLinkSentResponse::class,
             ResetsUserPasswords::class => ResetUserPassword::class,
             PasswordResetResponseContract::class => PasswordResetResponse::class,
+            VerifyEmailResponseContract::class => VerifyEmailResponse::class,
         ];
     }
 
@@ -115,7 +122,7 @@ class FortifyBootstrap extends FortifyConfig
      */
     protected function withHooks(Closure $callback): mixed
     {
-        $host = [Fortify::$authenticateThroughCallback, Fortify::$authenticateUsingCallback, Fortify::$confirmPasswordsUsingCallback, ResetPassword::$createUrlCallback];
+        $host = [Fortify::$authenticateThroughCallback, Fortify::$authenticateUsingCallback, Fortify::$confirmPasswordsUsingCallback, ResetPassword::$createUrlCallback, VerifyEmail::$createUrlCallback];
 
         Fortify::$authenticateThroughCallback = $this->authenticateThrough;
         Fortify::$authenticateUsingCallback = $this->authenticateUsing;
@@ -125,10 +132,16 @@ class FortifyBootstrap extends FortifyConfig
             'email' => $user instanceof CanResetPassword ? $user->getEmailForPasswordReset() : null,
         ]);
 
+        // And the verification mail to the panel's signed route.
+        VerifyEmail::$createUrlCallback = fn (mixed $user): string => URL::temporarySignedRoute('lathe.verification.verify', now()->addMinutes(config()->integer('auth.verification.expire', 60)), [
+            'id' => $user instanceof Authenticatable ? $user->getAuthIdentifier() : null,
+            'hash' => $user instanceof MustVerifyEmail ? sha1($user->getEmailForVerification()) : null,
+        ]);
+
         try {
             return $callback();
         } finally {
-            [Fortify::$authenticateThroughCallback, Fortify::$authenticateUsingCallback, Fortify::$confirmPasswordsUsingCallback, ResetPassword::$createUrlCallback] = $host;
+            [Fortify::$authenticateThroughCallback, Fortify::$authenticateUsingCallback, Fortify::$confirmPasswordsUsingCallback, ResetPassword::$createUrlCallback, VerifyEmail::$createUrlCallback] = $host;
         }
     }
 

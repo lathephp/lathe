@@ -256,3 +256,23 @@ describe('reset password', () => {
   });
 });
 
+describe('verify email', () => {
+  it('explains, resends and signs out', () => {
+    const visit = vi.spyOn(router, 'visit').mockImplementation(() => undefined);
+    renderPage('Auth/VerifyEmail', { sent: false }, { shared: signedOut, url: '/lathe/email/verify' });
+
+    expect(screen.queryByRole('status')).toBeNull();
+    fireEvent.click(screen.getByRole('button', { name: 'Resend verification email' }));
+    expect(visit).toHaveBeenCalledWith('/lathe/email/verification-notification', expect.objectContaining({ method: 'post' }));
+
+    fireEvent.click(screen.getByRole('button', { name: 'Sign out' }));
+    expect(visit).toHaveBeenCalledWith('/lathe/logout', expect.objectContaining({ method: 'post' }));
+  });
+
+  it('says when a new link went out', () => {
+    renderPage('Auth/VerifyEmail', { sent: true }, { shared: signedOut, url: '/lathe/email/verify' });
+
+    expect(screen.getByRole('status').textContent).toBe('A new verification link has been sent to your email address.');
+  });
+});
+
