@@ -1,10 +1,13 @@
 import { useTranslation } from '@lathephp/core';
 import { ImageOff } from 'lucide-react';
-import { useContext } from 'react';
+import { Suspense, useContext } from 'react';
 import type { FormFieldProps } from '../registry';
-import { Uploader } from './Uploader';
+import { lazyNamed } from '../../lib/lazy';
 import type { FieldSchema } from '../types';
 import { RepeaterPathContext } from '../repeater/errors';
+
+// The chunked uploader loads with the first form that has a file field, not with the index.
+export const Uploader = lazyNamed(() => import('./Uploader').then((module) => module.Uploader));
 
 /** The stored file as the server resolves it. */
 export interface FileData {
@@ -103,7 +106,9 @@ export function FileControl({
         </div>
       )}
       <div data-upload-slot="">
-        <Uploader field={field} attribute={row === '' ? field.attribute : `${row}.${field.attribute}`} onChange={onChange} id={id} describedBy={describedBy} invalid={invalid} disabled={disabled} />
+        <Suspense fallback={<div className="h-9" aria-hidden="true" />}>
+          <Uploader field={field} attribute={row === '' ? field.attribute : `${row}.${field.attribute}`} onChange={onChange} id={id} describedBy={describedBy} invalid={invalid} disabled={disabled} />
+        </Suspense>
       </div>
     </div>
   );

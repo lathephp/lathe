@@ -40,28 +40,57 @@
 @lathephp/core router
 @lathephp/core shortcutsEnabled
 @lathephp/core toast
+@lathephp/core type ActionData
+@lathephp/core type ActionModalComponentProps
 @lathephp/core type ActionModalProps
 @lathephp/core type Appearance
+@lathephp/core type BadgeData
+@lathephp/core type BadgeType
 @lathephp/core type ComponentOrLazy
+@lathephp/core type CustomPageProps
+@lathephp/core type CustomWidgetComponentProps
+@lathephp/core type DetailFieldProps
+@lathephp/core type FieldData
 @lathephp/core type FieldProps
+@lathephp/core type FilterComponentProps
+@lathephp/core type FilterData
 @lathephp/core type FilterProps
+@lathephp/core type FormFieldProps
+@lathephp/core type GlobalSearchResult
+@lathephp/core type IndexFieldProps
 @lathephp/core type LatheContext
+@lathephp/core type LayoutBlock
+@lathephp/core type NotificationData
 @lathephp/core type PageProps
+@lathephp/core type PaginatedResponse
 @lathephp/core type PanelRouter
+@lathephp/core type PluginMeta
 @lathephp/core type PluginPageProps
+@lathephp/core type RenderHookContext
 @lathephp/core type RenderHookName
+@lathephp/core type RenderHookOptions
 @lathephp/core type RenderHookProps
 @lathephp/core type RequestOptions
+@lathephp/core type ResourceDetailResponse
+@lathephp/core type ResourceIndexResponse
+@lathephp/core type ResourceMeta
+@lathephp/core type ResourcePluginLayout
 @lathephp/core type ResourcePluginProps
+@lathephp/core type ResourceRow
 @lathephp/core type SafeHtml
+@lathephp/core type SectionLayout
 @lathephp/core type SharedData
 @lathephp/core type SlotProps
+@lathephp/core type TabGroupLayout
+@lathephp/core type TabLayout
 @lathephp/core type ToastAction
 @lathephp/core type ToastLink
 @lathephp/core type ToastMessage
 @lathephp/core type ToastOptions
 @lathephp/core type ToastType
 @lathephp/core type Translator
+@lathephp/core type WidgetComponentProps
+@lathephp/core type WidgetData
 @lathephp/core type WidgetProps
 @lathephp/core url
 @lathephp/core useDebounce

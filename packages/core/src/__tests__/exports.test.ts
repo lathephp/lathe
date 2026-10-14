@@ -94,6 +94,7 @@ describe('the @lathephp/core exports', () => {
       'useResourceDetail',
       'useResourceIndex',
       'useShortcut',
+      'useTheme',
       'useTranslation',
       'useWidgetList',
       'useWidgetValue',
