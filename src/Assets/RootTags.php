@@ -39,6 +39,9 @@ class RootTags
         $colors = $this->config->get('theme.colors');
         $tags[] = '<style'.$this->nonce().'>'.$this->theme->generate($this->config->nullableString('theme.radius') ?? '0.625rem', is_array($colors) ? $colors : []).'</style>';
 
+        // Before the entry module, so the dark class is on <html> before first paint.
+        $tags[] = '<script'.$this->nonce().'>'.$this->appearanceScript().'</script>';
+
         return implode("\n", $tags);
     }
 
@@ -60,6 +63,24 @@ class RootTags
         }
 
         return implode("\n", $tags);
+    }
+
+    /**
+     * Sets the dark class from the stored choice, or the configured default when storage is blocked or empty.
+     * The choice also sits in data-lathe-appearance so the client reads it when storage is blocked, and the
+     * listener keeps System in step with the OS while the menu is closed.
+     */
+    protected function appearanceScript(): string
+    {
+        $default = $this->config->nullableString('theme.appearance');
+        $default = in_array($default, ['light', 'dark', 'system'], true) ? $default : 'system';
+
+        return '(function(){var d='.json_encode($default).',r=document.documentElement,a,q=matchMedia("(prefers-color-scheme: dark)");'
+            ."try{a=localStorage.getItem('lathe-appearance')}catch(e){}"
+            .'if(a!=="light"&&a!=="dark"&&a!=="system"){a=d}'
+            .'r.dataset.latheAppearance=a;'
+            .'function f(){var k=r.dataset.latheAppearance,x=k==="dark"||(k==="system"&&q.matches);r.classList.toggle("dark",x);r.classList.toggle("light",!x)}'
+            .'f();q.addEventListener("change",f)})()';
     }
 
     protected function prefix(): string
