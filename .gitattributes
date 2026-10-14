@@ -1,0 +1,24 @@
+# Left out of the installed package (Packagist's dist archive and composer archive).
+/.claude export-ignore
+/.editorconfig export-ignore
+/.gitattributes export-ignore
+/.github export-ignore
+/.gitignore export-ignore
+/coverage-floors.json export-ignore
+/docs export-ignore
+/eslint-rules export-ignore
+/eslint.config.js export-ignore
+/package.json export-ignore
+/phpstan.neon export-ignore
+/phpunit.xml export-ignore
+/pint.json export-ignore
+/plugins export-ignore
+/pnpm-lock.yaml export-ignore
+/pnpm-workspace.yaml export-ignore
+/scripts export-ignore
+/testbench.yaml export-ignore
+/tests export-ignore
+/tsconfig*.json export-ignore
+/vite.config.ts export-ignore
+/vitest.config.ts export-ignore
+/workbench export-ignore

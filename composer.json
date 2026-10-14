@@ -133,5 +133,14 @@
         }
     },
     "minimum-stability": "stable",
-    "prefer-stable": true
+    "prefer-stable": true,
+    "archive": {
+        "exclude": [
+            "/vendor",
+            "node_modules",
+            "/.phpstan-cache",
+            "/.phpunit.cache",
+            "/coverage"
+        ]
+    }
 }

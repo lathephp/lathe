@@ -24,6 +24,25 @@ if [ -d dist ]; then
     done < <({ grep -rIilE "$word" dist; find dist | grep -iE "$word"; } | sort -u)
 fi
 
+# 3b. The archives users install: composer archive of the root and pnpm pack of each package,
+# unpacked and searched for content and names. This covers Composer and npm metadata.
+if [ -f composer.json ] && command -v composer >/dev/null; then
+    packed=$(mktemp -d)
+    composer archive --format=tar --dir="$packed/composer" --file=package -q >/dev/null 2>&1 \
+        && mkdir -p "$packed/composer/x" && tar -xf "$packed/composer/package.tar" -C "$packed/composer/x"
+    for manifest in packages/*/package.json; do
+        [ -f "$manifest" ] || continue
+        name=$(basename "$(dirname "$manifest")")
+        mkdir -p "$packed/npm/$name"
+        (cd "$(dirname "$manifest")" && pnpm pack --pack-destination "$packed/npm" >/dev/null 2>&1) \
+            && tar -xzf "$packed"/npm/*"$name"-*.tgz -C "$packed/npm/$name" 2>/dev/null
+    done
+    while IFS= read -r file; do
+        hits+=("archive: ${file#"$packed"/}")
+    done < <({ grep -rIilE "$word" "$packed"/composer/x "$packed"/npm/*/ 2>/dev/null; find "$packed"/composer/x "$packed"/npm/*/ 2>/dev/null | grep -iE "$word"; } | sort -u)
+    rm -rf "$packed"
+fi
+
 # 4. Commit messages.
 while IFS= read -r sha; do
     hits+=("commit message: $sha")

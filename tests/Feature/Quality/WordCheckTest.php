@@ -52,6 +52,13 @@ it('fails and lists a planted hit', function (Closure $plant, string $expected) 
         File::put("$repo/dist/app.js", 'window.'.bannedWord().'=1;');
     }, 'dist/app.js'],
     'commit message' => [fn (string $repo) => Process::path($repo)->run('git commit -q --allow-empty -m "Port from '.bannedWord().'"'), 'commit'],
+    'packed npm package' => [function (string $repo) {
+        File::put("$repo/composer.json", '{"name": "acme/thing", "license": "MIT"}');
+        File::put("$repo/.gitignore", "dist\n");
+        File::ensureDirectoryExists("$repo/packages/core/dist");
+        File::put("$repo/packages/core/package.json", '{"name": "@acme/core", "version": "1.0.0", "files": ["dist"]}');
+        File::put("$repo/packages/core/dist/index.js", 'export const name = "'.bannedWord().'";');
+    }, 'archive: npm/core/package/dist/index.js'],
     'product named as part of Laravel' => [fn (string $repo) => File::put("$repo/about.md", 'Laravel'.' Lathe is great'."\n"), 'branding: about.md'],
     'old ticket id' => [function (string $repo) {
         File::ensureDirectoryExists("$repo/tests");
