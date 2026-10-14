@@ -136,4 +136,24 @@ it('gives the quality job Node, pnpm and the whole history the word check reads'
         ->and($steps->firstWhere('uses', 'actions/checkout@v4')['with']['fetch-depth'] ?? null)->toBe(0)
         ->and(strpos($runs, 'pnpm install --frozen-lockfile'))->toBeLessThan(strpos($runs, 'composer lint'))
         ->and($steps->firstWhere('run', 'bash scripts/check-word.sh')['env']['LATHE_PR_TEXT'] ?? null)->toContain('github.event.pull_request.title');
+||||||| parent of 1fefd7a (Pin the CI step that uploads new screenshot baselines)
+
+it('makes the screenshot baselines when none are committed and uploads them', function () {
+    $steps = collect(ciWorkflow()['jobs']['browser']['steps']);
+    $missing = "steps.baselines.outputs.missing == 'true'";
+    $upload = $steps->firstWhere('uses', 'actions/upload-artifact@v4');
+
+    expect($steps->firstWhere('id', 'baselines')['run'])->toContain('tests/.pest/snapshots/Browser/VisualTest')
+        ->and($steps->firstWhere('if', $missing)['run'])
+        ->toContain('pest tests/Browser/VisualTest.php --update-snapshots')
+        ->toContain('--browser firefox')
+        ->toContain('--browser safari')
+        ->and($upload['if'])->toBe("{$missing} && !cancelled()")
+        ->and($upload['with'])->toBe([
+            'name' => 'screenshot-baselines',
+            'path' => 'tests/.pest/snapshots/Browser/VisualTest',
+            // The baselines sit under the hidden .pest folder, which the action skips by default.
+            'include-hidden-files' => true,
+            'if-no-files-found' => 'error',
+        ]);
 });
