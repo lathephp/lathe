@@ -32,7 +32,7 @@ it('tags the first 100 products twice with integer positions', function () {
         ->and(Product::find(2)->tags->first()->pivot->position)->toBeInt();
 });
 
-it('registers the relation milestone resources by uri key', function () {
+it('registers the Category, Tag, OrderItem and Comment resources by uri key', function () {
     $registry = app(ResourceRegistry::class);
 
     expect($registry->forKey('categories'))->toBe(Category::class)

@@ -69,10 +69,12 @@ class RelationFilter extends Filter
             return parent::searchOptions($request, $term, $page, $perPage);
         }
 
-        // The picker reads q and page from the request; one row past the page says more follow.
-        $models = $query->options($perPage + 1);
+        // The picker reads q and page from the request and pages by $perPage.
+        $models = $query->options($perPage);
+        $options = array_values($models->map(fn (Model $model) => ['label' => $this->field->displayFor($model), 'value' => $model->getKey()])->all());
 
-        return array_values($models->map(fn (Model $model) => ['label' => $this->field->displayFor($model), 'value' => $model->getKey()])->all());
+        // The caller reads one option past the page as "more follow"; it never shows it.
+        return $query->hasMorePages() ? [...$options, ['label' => '', 'value' => null]] : $options;
     }
 
     /**

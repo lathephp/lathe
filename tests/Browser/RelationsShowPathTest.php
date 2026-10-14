@@ -6,7 +6,7 @@ use Workbench\App\Models\Tag;
 
 require_once __DIR__.'/records.php';
 
-// m4's Show path: create an order, pick its customer by typing in the picker, add an item on
+// The relations Show path: create an order, pick its customer by typing in the picker, add an item on
 // its Items tab, then attach two tags to a product with a position.
 it('walks the relations Show path from an order to a product\'s tags', function () {
     $dialog = '[role="dialog"]';

@@ -221,7 +221,7 @@ it('refuses to attach a tag that is already attached', function () {
 
     $this->postJson('/lathe/api/resources/products/1/tags', ['related_id' => 1, 'pivot' => ['position' => 2]])
         ->assertStatus(422)
-        ->assertJsonValidationErrors(['related_id' => 'This related id is already attached.']);
+        ->assertJsonValidationErrors(['related_id' => 'This Tag is already attached.']);
 
     expect(DB::table('taggables')->where('taggable_id', 1)->where('tag_id', 1)->count())->toBe(1);
 });
@@ -233,7 +233,7 @@ it('attaches a tag twice when duplicates are allowed, but never an identical row
     $this->postJson($url, ['related_id' => 1, 'pivot' => ['position' => 2]])->assertCreated();
     $this->postJson($url, ['related_id' => 1, 'pivot' => ['position' => 2]])
         ->assertStatus(422)
-        ->assertJsonValidationErrors(['related_id' => 'This related id is already attached with the same values.']);
+        ->assertJsonValidationErrors(['related_id' => 'This Tag is already attached with the same values.']);
 
     expect(DB::table('taggables')->where('taggable_id', 1)->where('tag_id', 1)->orderBy('position')->pluck('position')->all())->toBe([1, 2]);
 });

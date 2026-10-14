@@ -2,6 +2,7 @@
 
 namespace Lathe\Auth;
 
+use Illuminate\Auth\Access\Response;
 use Illuminate\Contracts\Auth\Access\Gate;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Database\Eloquent\Model;
@@ -103,7 +104,7 @@ class ResourceAuthorization
             return array_values(array_filter($ids, fn (int|string $id) => in_array($id, $answer, false)));
         }
 
-        return $answer === true ? $ids : [];
+        return $answer === true || ($answer instanceof Response && $answer->allowed()) ? $ids : [];
     }
 
     /**

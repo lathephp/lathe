@@ -6,7 +6,9 @@ use Lathe\Field\Field;
 use Lathe\Http\Requests\LatheRequest;
 use Lathe\Lathe;
 use Lathe\Resources\ResourceDefinition;
+use Workbench\App\Lathe\Resources\Order;
 use Workbench\App\Lathe\Resources\Product as ProductResource;
+use Workbench\App\Models\Customer;
 use Workbench\App\Models\Product;
 use Workbench\App\Models\Tag;
 use Workbench\App\Models\User;
@@ -107,3 +109,68 @@ it('drops the tags the policy denies from the attach picker with one policy call
         ->and($values)->toHaveCount(24)
         ->and($values)->not->toContain(Tag::where('name', 'sale')->value('id'));
 });
+
+class OptionalPositionProducts extends ProductResource
+{
+    public static function uriKey(): string
+    {
+        return 'optional-position-products';
+    }
+
+    protected function configure(ResourceDefinition $definition): ResourceDefinition
+    {
+        return parent::configure($definition)->canonical(false)->allowAll();
+    }
+
+    public function fields(LatheRequest $request): array
+    {
+        return [Field::text('Name'), Field::morphToMany('Tags')->pivotFields([Field::number('Position')->nullable()])];
+    }
+}
+
+it('keeps a pivot value the update does not send', function () {
+    Lathe::registerResources(OptionalPositionProducts::class);
+    $tag = Product::findOrFail(2)->tags()->orderBy('tags.id')->firstOrFail();
+    $position = $tag->pivot->position;
+
+    $this->putJson("/lathe/api/resources/optional-position-products/2/tags/{$tag->id}/pivot", ['pivot' => []])->assertOk();
+
+    expect(Product::findOrFail(2)->tags()->where('tags.id', $tag->id)->first()?->pivot->position)->toBe($position);
+});
+
+it('names the tag when it is attached twice', function () {
+    $tag = Product::findOrFail(2)->tags()->orderBy('tags.id')->firstOrFail();
+
+    $this->postJson('/lathe/api/resources/products/2/tags', ['related_id' => $tag->id, 'pivot' => ['position' => 1]])
+        ->assertUnprocessable()
+        ->assertJsonPath('errors.related_id.0', 'This Tag is already attached.');
+});
+
+it('pages the remote customer filter without skipping a customer at the page boundary', function () {
+    Lathe::registerResources(FilteredCustomerOrdersForPaging::class);
+
+    $first = $this->getJson('/lathe/api/resources/paged-filter-orders/filters/field_customer/options?page=1')->assertOk()->json();
+    $second = $this->getJson('/lathe/api/resources/paged-filter-orders/filters/field_customer/options?page=2')->assertOk()->json();
+    $expected = Customer::orderBy('name')->orderBy('id')->limit(50)->pluck('id')->all();
+
+    expect($first['hasMore'])->toBeTrue()
+        ->and([...array_column($first['options'], 'value'), ...array_column($second['options'], 'value')])->toBe($expected);
+});
+
+class FilteredCustomerOrdersForPaging extends Order
+{
+    public static function uriKey(): string
+    {
+        return 'paged-filter-orders';
+    }
+
+    protected function configure(ResourceDefinition $definition): ResourceDefinition
+    {
+        return parent::configure($definition)->canonical(false)->allowAll();
+    }
+
+    public function fieldsForIndex(LatheRequest $request): array
+    {
+        return [Field::text('Number'), Field::belongsTo('Customer')->filterable()];
+    }
+}

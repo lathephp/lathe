@@ -45,7 +45,7 @@ class RelationAttachController
 
         $this->validatePivot($request, $fields, FieldContext::Create, [
             'related_id' => [$field->allowsDuplicateRelations() ? new NotExactlyAttached($relation, $pivot) : new NotAttached($relation)],
-        ]);
+        ], $field);
 
         $parent->getConnection()->transaction(function () use ($parent, $class, $relationship, $relation, $key, $pivot) {
             $relation->attach($key, $pivot);
@@ -80,7 +80,8 @@ class RelationAttachController
         $fields = $this->pivotFields($request, $field, (new Associatable($request, $class, $field))->query()?->option((string) $key));
         $this->validatePivot($request, $fields, FieldContext::Update);
 
-        $changes = $this->pivotValues($request, $fields);
+        // A pivot field the request leaves out keeps its stored value.
+        $changes = array_filter($this->pivotValues($request, $fields), fn (string $attribute) => $request->has('pivot.'.$attribute), ARRAY_FILTER_USE_KEY);
         $original = array_intersect_key($row, $changes);
 
         $parent->getConnection()->transaction(function () use ($parent, $class, $relationship, $relation, $key, $original, $changes) {
@@ -249,10 +250,11 @@ class RelationAttachController
      * @param  list<Field>  $fields
      * @param  array<string, list<mixed>>  $rules  extra rules
      */
-    protected function validatePivot(LatheRequest $request, array $fields, FieldContext $context, array $rules = []): void
+    protected function validatePivot(LatheRequest $request, array $fields, FieldContext $context, array $rules = [], ?BelongsToManyField $relation = null): void
     {
         $messages = [];
-        $attributes = [];
+        // "This Tag is already attached.": the related record goes by the field's singular label.
+        $attributes = $relation === null ? [] : ['related_id' => $relation->getSingularLabel()];
         $prefix = fn (array $keyed) => array_combine(array_map(fn (int|string $key) => 'pivot.'.$key, array_keys($keyed)), array_values($keyed));
 
         foreach ($fields as $field) {
