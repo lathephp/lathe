@@ -8,6 +8,7 @@ use Lathe\Auth\FortifyConfig;
 use Lathe\Http\Controllers\Assets\AssetController;
 use Lathe\Http\Controllers\Auth\AuthenticatedSessionController;
 use Lathe\Http\Controllers\Auth\LoginPageController;
+use Lathe\Http\Controllers\BulkRunController;
 use Lathe\Http\Controllers\DashboardController;
 use Lathe\Http\Controllers\GlobalSearchController;
 use Lathe\Http\Controllers\NotificationController;
@@ -202,7 +203,8 @@ class PanelRoutes
      */
     protected function bulkRunRoutes(Router $router): void
     {
-        //
+        $router->get('bulk-runs/{id}', [BulkRunController::class, 'show'])->name('bulkRuns.show');
+        $router->delete('bulk-runs/{id}', [BulkRunController::class, 'destroy'])->name('bulkRuns.destroy');
     }
 
     protected function exportRoutes(Router $router): void

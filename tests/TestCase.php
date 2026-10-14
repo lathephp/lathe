@@ -36,6 +36,9 @@ abstract class TestCase extends Orchestra
 
         $this->startOnEmptyServerDatabase();
 
+        // Queued bulk runs keep their batches on the connection the tests migrate, as a host's do.
+        config(['queue.batching.database' => config('database.default')]);
+
         // A PDO lives until nothing references it, and a leftover reference kept server
         // connections open until PostgreSQL ran out of clients late in a parallel run. This
         // runs after the database traits' own teardown, which was registered first.

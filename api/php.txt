@@ -206,6 +206,7 @@ Lathe\Actions\BulkRun::$fillable  [protected]
 Lathe\Actions\BulkRun::$table  [protected]
 Lathe\Actions\BulkRun::casts(): array  [protected]
 Lathe\Actions\BulkRun::ownedBy(string|int|null $userId): bool
+Lathe\Actions\BulkRun::prunable(): Illuminate\Database\Eloquent\Builder
 Lathe\Actions\DestructiveAction::bool $confirmable  [protected]
 Lathe\Actions\DestructiveAction::bool $destructive
 Lathe\Actions\Export\Export::$fillable  [protected]
@@ -1812,6 +1813,10 @@ Lathe\Http\Controllers\Auth\AuthenticatedSessionController::callFortify(Illumina
 Lathe\Http\Controllers\Auth\AuthenticatedSessionController::destroy(Illuminate\Http\Request $request): Symfony\Component\HttpFoundation\Response
 Lathe\Http\Controllers\Auth\AuthenticatedSessionController::store(Illuminate\Http\Request $request): Symfony\Component\HttpFoundation\Response
 Lathe\Http\Controllers\Auth\LoginPageController::__invoke(Lathe\Auth\FortifyConfig $fortify): Inertia\Response
+Lathe\Http\Controllers\BulkRunController::destroy(Lathe\Http\Requests\LatheRequest $request, string $id): Illuminate\Http\JsonResponse
+Lathe\Http\Controllers\BulkRunController::owned(Lathe\Http\Requests\LatheRequest $request, string $id): Lathe\Actions\BulkRun  [protected]
+Lathe\Http\Controllers\BulkRunController::show(Lathe\Http\Requests\LatheRequest $request, string $id): Illuminate\Http\JsonResponse
+Lathe\Http\Controllers\BulkRunController::status(Lathe\Actions\BulkRun $run): array  [protected]
 Lathe\Http\Controllers\DashboardController::__invoke(): Inertia\Response
 Lathe\Http\Controllers\GlobalSearchController::__invoke(Lathe\Http\Requests\LatheRequest $request, Lathe\Support\ConfigStore $config, Illuminate\Contracts\Auth\Access\Gate $gate, Lathe\Search\GlobalSearch $search, Lathe\Auth\ResourceAuthorization $authorization): Illuminate\Http\JsonResponse
 Lathe\Http\Controllers\NotificationController::LIMIT
@@ -1853,7 +1858,7 @@ Lathe\Http\Controllers\Resources\DependencyController::MAX_DEPTH
 Lathe\Http\Controllers\Resources\DependencyController::__invoke(Lathe\Http\Requests\LatheRequest $request, Lathe\Auth\ResourceAuthorization $authorization, string $resource): Illuminate\Http\JsonResponse
 Lathe\Http\Controllers\Resources\DependencyController::call(Lathe\Field\Dependency $dependency, Lathe\Field\FieldPatch $patch, Lathe\Http\Requests\LatheRequest $request, Lathe\Field\FormData $data): void  [protected]
 Lathe\Http\Controllers\Resources\DependencyController::model(Lathe\Http\Requests\LatheRequest $request, Lathe\Auth\ResourceAuthorization $authorization, string $class, Lathe\Field\FieldContext $context, mixed $id): ?Illuminate\Database\Eloquent\Model  [protected]
-Lathe\Http\Controllers\Resources\DetailPageController::__invoke(Lathe\Http\Requests\LatheRequest $request, Lathe\Auth\ResourceAuthorization $authorization, Lathe\Http\Payloads\IndexPayload $index, Lathe\Http\Payloads\RecordPayload $payload, string $resource, string $resourceId): Symfony\Component\HttpFoundation\Response
+Lathe\Http\Controllers\Resources\DetailPageController::__invoke(Lathe\Http\Requests\LatheRequest $request, Lathe\Auth\ResourceAuthorization $authorization, Lathe\Http\Payloads\IndexPayload $index, Lathe\Http\Payloads\RecordPayload $payload, Lathe\Actions\ActionMenu $menu, string $resource, string $resourceId): Symfony\Component\HttpFoundation\Response
 Lathe\Http\Controllers\Resources\FieldAttachmentController::Lathe\Uploads\UploadHandler $uploads  [protected]
 Lathe\Http\Controllers\Resources\FieldAttachmentController::__construct(Lathe\Uploads\UploadHandler $uploads)
 Lathe\Http\Controllers\Resources\FieldAttachmentController::destroy(Lathe\Http\Requests\LatheRequest $request, Lathe\Auth\ResourceAuthorization $authorization, string $resource, string $field): Illuminate\Http\Response
@@ -3175,6 +3180,7 @@ class Lathe\Groups\Group
 class Lathe\Http\Controllers\Assets\AssetController
 class Lathe\Http\Controllers\Auth\AuthenticatedSessionController
 class Lathe\Http\Controllers\Auth\LoginPageController
+class Lathe\Http\Controllers\BulkRunController
 class Lathe\Http\Controllers\DashboardController
 class Lathe\Http\Controllers\GlobalSearchController
 class Lathe\Http\Controllers\NotificationController

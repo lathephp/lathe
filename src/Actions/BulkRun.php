@@ -2,9 +2,12 @@
 
 namespace Lathe\Actions;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Concerns\HasUlids;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Prunable;
 use Illuminate\Support\Carbon;
+use Lathe\Lathe;
 
 /**
  * A queued run of an action or a batch delete over more rows than run inline: its batch,
@@ -25,7 +28,7 @@ use Illuminate\Support\Carbon;
  */
 class BulkRun extends Model
 {
-    use HasUlids;
+    use HasUlids, Prunable;
 
     protected $table = 'lathe_bulk_runs';
 
@@ -42,6 +45,17 @@ class BulkRun extends Model
             'cancelled_at' => 'datetime',
             'completed_at' => 'datetime',
         ];
+    }
+
+    /**
+     * Ended runs older than action_events.prune_after_days, for model:prune.
+     *
+     * @return Builder<static>
+     */
+    public function prunable(): Builder
+    {
+        return static::query()->whereIn('status', ['finished', 'failed', 'cancelled'])
+            ->where('updated_at', '<=', now()->subDays(Lathe::config()->integer('action_events.prune_after_days')));
     }
 
     /**
