@@ -1,6 +1,5 @@
 import { renderHook, type RenderHookName } from '@lathephp/core';
 import { Badge } from '@lathephp/ui';
-import type { CSSProperties } from 'react';
 
 // White text on a 700 or 800 shade keeps each badge above the 4.5:1 contrast floor.
 const positions: [RenderHookName, string][] = [
@@ -16,9 +15,6 @@ const positions: [RenderHookName, string][] = [
   ['auth:after-form', 'bg-lime-800'],
 ];
 
-// The head position sits in the shell's flex row, so its badge floats in a corner and lets clicks through.
-const floating: CSSProperties = { position: 'fixed', insetBlockEnd: 8, insetInlineEnd: 8, zIndex: 50, pointerEvents: 'none' };
-
 // The two positions that know their Resource show only on Users.
 const usersOnly = new Set<RenderHookName>(['index:header-actions', 'detail:header-actions']);
 
@@ -26,8 +22,13 @@ for (const [position, colour] of positions) {
   renderHook(
     position,
     function DemoHookBadge() {
+      // The head position is for <Head> content, so its marker is hidden rather than drawn in the shell.
+      if (position === 'head') {
+        return <span hidden data-demo-hook="head" />;
+      }
+
       return (
-        <Badge data-demo-hook={position} className={`${colour} text-white`} style={position === 'head' ? floating : undefined}>
+        <Badge data-demo-hook={position} className={`${colour} text-white`}>
           {position}
         </Badge>
       );

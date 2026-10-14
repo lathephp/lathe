@@ -56,7 +56,7 @@ describe('render hooks in the shell', () => {
     await shows('page:before', 'firstsecond');
   });
 
-  it('places header:end in the header, page:after in the content and footer:before above the footer', () => {
+  it('places header:end in the header, page:after in the content and footer:before first in the footer', () => {
     renderHook('header:end', Badge('in header'));
     renderHook('page:after', Badge('after page'));
     renderHook('footer:before', Badge('above footer'));
@@ -66,7 +66,9 @@ describe('render hooks in the shell', () => {
     expect(hook('header:end')?.closest('header')).not.toBeNull();
     expect(hook('page:after')?.closest('main')).not.toBeNull();
     expect(hook('page:after')?.previousElementSibling?.textContent).toContain('Dashboard');
-    expect(hook('footer:before')?.nextElementSibling?.tagName).toBe('FOOTER');
+    // First inside the footer landmark, so its content belongs to a region.
+    expect(hook('footer:before')?.parentElement?.tagName).toBe('FOOTER');
+    expect(hook('footer:before')?.previousElementSibling).toBeNull();
   });
 
   it('lets a head hook write into the document head with its own Head', async () => {

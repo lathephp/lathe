@@ -149,10 +149,12 @@ export function AppLayout({ children }: { children: ReactNode }) {
             <RenderHook position="page:after" className="mt-6 flex flex-wrap gap-2" />
           </div>
         </main>
-        <RenderHook position="footer:before" />
+        {footer === null && <RenderHook position="footer:before" />}
         <Slot name="shell.footer" footer={footer}>
           {footer !== null && (
             <footer data-lathe-footer className="border-t border-border px-6 py-3 text-xs text-muted-foreground">
+              {/* Inside the footer landmark, so what a hook adds belongs to a region. */}
+              <RenderHook position="footer:before" />
               {'html' in footer ? (
                 <SafeHtml html={footer.html} />
               ) : footer.href === null ? (
