@@ -1083,6 +1083,7 @@ Lathe\Field\Relations\HasOneField::getValidationAttributes(): array
 Lathe\Field\Relations\HasOneField::impliedRules(): array  [protected]
 Lathe\Field\Relations\HasOneField::isOfMany(): bool
 Lathe\Field\Relations\HasOneField::kind(): string
+Lathe\Field\Relations\HasOneField::mayWriteChild(Lathe\Http\Requests\LatheRequest $request, Illuminate\Database\Eloquent\Model $parent, ?Illuminate\Database\Eloquent\Model $related): bool  [protected]
 Lathe\Field\Relations\HasOneField::ofMany(): static
 Lathe\Field\Relations\HasOneField::ownerModel(): ?Illuminate\Database\Eloquent\Model  [protected]
 Lathe\Field\Relations\HasOneField::recordSummary(Illuminate\Database\Eloquent\Model $related): array  [protected]

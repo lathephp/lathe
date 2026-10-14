@@ -13,6 +13,7 @@ use Lathe\Field\Evaluator;
 use Lathe\Field\Field;
 use Lathe\Field\FieldContext;
 use Lathe\Http\Requests\LatheRequest;
+use Lathe\Lathe;
 use Lathe\Support\ConfigStore;
 
 /**
@@ -212,7 +213,35 @@ class HasOneField extends RelationField
             }
         }
 
+        // The parent form writes the child row too, so it needs what writing it alone would.
+        $rules[$this->attribute][] = function (string $attribute, mixed $value, Closure $fail) use ($request, $parent, $related): void {
+            if (! $this->mayWriteChild($request, $parent, $related)) {
+                $fail(Lathe::__('You are not authorized to relate this resource.'));
+            }
+        };
+
         return $rules;
+    }
+
+    /**
+     * A new child row needs create on the related Resource and add{Relation} on the parent;
+     * an existing one needs update on it.
+     */
+    protected function mayWriteChild(LatheRequest $request, Model $parent, ?Model $related): bool
+    {
+        $class = $this->relatedResource();
+        $owner = $this->owner;
+
+        if ($class === null || $owner === null) {
+            return false;
+        }
+
+        $authorization = Container::getInstance()->make(ResourceAuthorization::class);
+
+        return $related !== null
+            ? $authorization->allows($request->user(), $class, 'update', $related)
+            : $authorization->allows($request->user(), $class, 'create')
+                && $authorization->allows($request->user(), $owner, 'add'.Str::studly($this->attribute), $parent);
     }
 
     public function getMessages(): array

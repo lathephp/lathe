@@ -368,3 +368,46 @@ it('creates a morphOne image under the via once', function () {
     expect($post->image()->firstOrFail()->url)->toBe('a.png')
         ->and(Image::count())->toBe(1);
 });
+
+class GuardedHasOneProducts extends HasOneProducts
+{
+    public static function uriKey(): string
+    {
+        return 'guarded-has-one-products';
+    }
+
+    protected function configure(ResourceDefinition $definition): ResourceDefinition
+    {
+        return parent::configure($definition)->allowAll(false);
+    }
+}
+
+class NoAddWarrantyPolicy
+{
+    public function viewAny(mixed $user): bool
+    {
+        return true;
+    }
+
+    public function view(mixed $user, Model $product): bool
+    {
+        return true;
+    }
+
+    public function create(mixed $user): bool
+    {
+        return true;
+    }
+}
+
+it('refuses to write the warranty from the product form without addWarranty', function () {
+    Lathe::registerResources(GuardedHasOneProducts::class);
+    Gate::policy(WarrantyProduct::class, NoAddWarrantyPolicy::class);
+
+    LatheTest::resource('guarded-has-one-products')->store([
+        'name' => 'Kettle', 'sku' => 'HO-DENY', 'price_cents' => 900, 'category_id' => Category::firstOrFail()->id,
+        'warranty' => ['type' => 'gold', 'months' => 12],
+    ])->assertUnprocessable()->assertJsonValidationErrors('warranty');
+
+    expect(Warranty::count())->toBe(0);
+});
