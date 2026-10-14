@@ -4,6 +4,9 @@ namespace Lathe\Http\Requests;
 
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Http\Request;
+use Illuminate\Validation\ValidationException;
+use Lathe\Lathe;
+use Lathe\Query\Selection;
 use Lathe\Resources\Resource;
 use Lathe\Resources\ResourceRegistry;
 use Lathe\Support\ConfigStore;
@@ -73,6 +76,67 @@ class LatheRequest extends Request
         $words = array_slice($words, 0, $this->config()->integer('limits.search_term_words'));
 
         return mb_substr(implode(' ', $words), 0, $this->config()->integer('limits.search_term_chars'));
+    }
+
+    /**
+     * The `selection` field: an object, or its JSON text in a multipart body. 422 on the
+     * `selection` key for a shape the server cannot read, so a half-read selection never
+     * reaches a write.
+     */
+    public function selection(): Selection
+    {
+        $data = $this->input('selection');
+        $data = is_string($data) ? json_decode($data, true) : $data;
+
+        if (! is_array($data) || ($data !== [] && array_is_list($data))) {
+            throw $this->invalidSelection(Lathe::__('The selection must be an object.'));
+        }
+
+        $mode = $data['mode'] ?? null;
+
+        if ($mode !== 'ids' && $mode !== 'all') {
+            throw $this->invalidSelection(Lathe::__('The selection mode must be ids or all.'));
+        }
+
+        foreach (['q', 'tab', 'saved_tab', 'trashed', 'lens', 'via'] as $key) {
+            if (isset($data[$key]) && ! is_string($data[$key])) {
+                throw $this->invalidSelection(Lathe::__('The selection must be an object.'));
+            }
+        }
+
+        if (isset($data['filters']) && ! is_array($data['filters'])) {
+            throw $this->invalidSelection(Lathe::__('The selection must be an object.'));
+        }
+
+        $ids = $this->selectionKeys($data['ids'] ?? []);
+        $exclusions = $this->selectionKeys($data['exclusions'] ?? []);
+
+        $max = $this->resourceOrFail()::make()->definition()->getIdListMax();
+
+        if ($mode === 'ids' && count($ids) > $max) {
+            throw $this->invalidSelection(Lathe::__('The selection may name at most :max ids.', ['max' => number_format($max)]));
+        }
+
+        if (count($exclusions) > 1000) {
+            throw $this->invalidSelection(Lathe::__('The selection may leave out at most :max rows.', ['max' => '1,000']));
+        }
+
+        return Selection::fromArray($data);
+    }
+
+    /**
+     * @return list<int|string>
+     */
+    protected function selectionKeys(mixed $keys): array
+    {
+        $list = is_array($keys) ? array_values(array_filter($keys, fn (mixed $key) => is_int($key) || is_string($key))) : null;
+
+        return $list !== null && count($list) === count($keys) ? $list : throw $this->invalidSelection(Lathe::__('The selection keys must be numbers or text.'));
+    }
+
+    protected function invalidSelection(string $message): ValidationException
+    {
+        return ValidationException::withMessages(['selection' => $message]);
     }
 
     /**
