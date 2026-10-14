@@ -96,8 +96,7 @@ class NotificationController
         $user = $request->user();
         abort_if($user === null, 401);
 
-        return DatabaseNotification::query()
-            ->where('notifiable_type', $user->getMorphClass())
+        return DatabaseNotification::where('notifiable_type', $user->getMorphClass())
             ->where('notifiable_id', $user->getAuthIdentifier());
     }
 

@@ -13,7 +13,7 @@ use Lathe\Lathe;
  * a request: who started it, on which guard, in which locale and timezone, and whatever
  * the host added through Lathe::captureJobContext().
  */
-final class JobContext
+class JobContext
 {
     /**
      * @param  array<string, mixed>  $extra

@@ -23,18 +23,18 @@ enum ActionEventType: string
 
     public function label(): string
     {
-        return Lathe::__(match ($this) {
-            self::Create => 'Create',
-            self::Update => 'Update',
-            self::Delete => 'Delete',
-            self::ForceDelete => 'Force Delete',
-            self::Restore => 'Restore',
-            self::Attach => 'Attach',
-            self::Detach => 'Detach',
-            self::UpdateAttached => 'Update Attached',
-            self::ActionRan => 'Action Ran',
-            self::ImpersonationStarted => 'Impersonation Started',
-            self::ImpersonationStopped => 'Impersonation Stopped',
-        });
+        return match ($this) {
+            self::Create => Lathe::__('Create'),
+            self::Update => Lathe::__('Update'),
+            self::Delete => Lathe::__('Delete'),
+            self::ForceDelete => Lathe::__('Force Delete'),
+            self::Restore => Lathe::__('Restore'),
+            self::Attach => Lathe::__('Attach'),
+            self::Detach => Lathe::__('Detach'),
+            self::UpdateAttached => Lathe::__('Update Attached'),
+            self::ActionRan => Lathe::__('Action Ran'),
+            self::ImpersonationStarted => Lathe::__('Impersonation Started'),
+            self::ImpersonationStopped => Lathe::__('Impersonation Stopped'),
+        };
     }
 }

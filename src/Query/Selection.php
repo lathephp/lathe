@@ -7,7 +7,7 @@ namespace Lathe\Query;
  * minus the rows the user unticked. It holds the request body as sent; SelectionResolver
  * turns it into rows.
  */
-final class Selection
+class Selection
 {
     /**
      * @param  'ids'|'all'  $mode

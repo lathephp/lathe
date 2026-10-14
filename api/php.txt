@@ -1,3 +1,247 @@
+Lathe\ActionEvents\ActionEvent::$fillable  [protected]
+Lathe\ActionEvents\ActionEvent::$table  [protected]
+Lathe\ActionEvents\ActionEvent::actionable(): Illuminate\Database\Eloquent\Relations\MorphTo
+Lathe\ActionEvents\ActionEvent::casts(): array  [protected]
+Lathe\ActionEvents\ActionEvent::failure(?Throwable $exception): array  [protected static]
+Lathe\ActionEvents\ActionEvent::keyOf(Illuminate\Database\Eloquent\Model|Illuminate\Contracts\Auth\Authenticatable|string|int $subject): string  [static]
+Lathe\ActionEvents\ActionEvent::markAsFailed(string $batchId, Illuminate\Database\Eloquent\Model $model, ?Throwable $exception = NULL): void  [static]
+Lathe\ActionEvents\ActionEvent::markAsFinished(string $batchId, Illuminate\Database\Eloquent\Model $model): void  [static]
+Lathe\ActionEvents\ActionEvent::markBatchAsFailed(string $batchId, ?Throwable $exception = NULL): void  [static]
+Lathe\ActionEvents\ActionEvent::markBatchAsFinished(string $batchId): void  [static]
+Lathe\ActionEvents\ActionEvent::markBatchAsRunning(string $batchId): void  [static]
+Lathe\ActionEvents\ActionEvent::open(string $batchId): Illuminate\Database\Eloquent\Builder  [protected static]
+Lathe\ActionEvents\ActionEvent::prunable(): Illuminate\Database\Eloquent\Builder
+Lathe\ActionEvents\ActionEvent::scopeByUser(Illuminate\Database\Eloquent\Builder $query, Illuminate\Contracts\Auth\Authenticatable|string|int $user): void
+Lathe\ActionEvents\ActionEvent::scopeForActionable(Illuminate\Database\Eloquent\Builder $query, Illuminate\Database\Eloquent\Model $model): void
+Lathe\ActionEvents\ActionEvent::scopeForBatch(Illuminate\Database\Eloquent\Builder $query, string $batchId): void
+Lathe\ActionEvents\ActionEvent::scopeOfType(Illuminate\Database\Eloquent\Builder $query, Lathe\Enums\ActionEventType $type): void
+Lathe\ActionEvents\ActionEvent::target(): Illuminate\Database\Eloquent\Relations\MorphTo
+Lathe\ActionEvents\ActionEvent::user(): Illuminate\Database\Eloquent\Relations\BelongsTo
+Lathe\ActionEvents\ActionEventListener::attached(Lathe\Events\ResourceAttached $event): void
+Lathe\ActionEvents\ActionEventListener::attachmentUpdated(Lathe\Events\ResourceAttachmentUpdated $event): void
+Lathe\ActionEvents\ActionEventListener::created(Lathe\Events\ResourceCreated $event): void
+Lathe\ActionEvents\ActionEventListener::deleted(Lathe\Events\ResourceDeleted $event): void
+Lathe\ActionEvents\ActionEventListener::detached(Lathe\Events\ResourceDetached $event): void
+Lathe\ActionEvents\ActionEventListener::forceDeleted(Lathe\Events\ResourceForceDeleted $event): void
+Lathe\ActionEvents\ActionEventListener::impersonationStarted(Lathe\Events\ImpersonationStarted $event): void
+Lathe\ActionEvents\ActionEventListener::impersonationStopped(Lathe\Events\ImpersonationStopped $event): void
+Lathe\ActionEvents\ActionEventListener::pivotValues(Illuminate\Database\Eloquent\Model $parent, string $relationship, array $row): array  [protected]
+Lathe\ActionEvents\ActionEventListener::recorder(): Lathe\ActionEvents\ActionEventRecorder  [protected]
+Lathe\ActionEvents\ActionEventListener::related(Illuminate\Database\Eloquent\Model $parent, string $relationship, string|int $id): Illuminate\Database\Eloquent\Model  [protected]
+Lathe\ActionEvents\ActionEventListener::request(): ?Lathe\Http\Requests\LatheRequest  [protected]
+Lathe\ActionEvents\ActionEventListener::restored(Lathe\Events\ResourceRestored $event): void
+Lathe\ActionEvents\ActionEventListener::subscribe(Illuminate\Events\Dispatcher $events): array
+Lathe\ActionEvents\ActionEventListener::updated(Lathe\Events\ResourceUpdated $event): void
+Lathe\ActionEvents\ActionEventRecorder::array $secrets  [protected]
+Lathe\ActionEvents\ActionEventRecorder::bool $disabled  [protected]
+Lathe\ActionEvents\ActionEventRecorder::clean(array $attributes, ?Illuminate\Database\Eloquent\Model $model, ?string $resourceClass): array  [protected]
+Lathe\ActionEvents\ActionEventRecorder::disable(): void
+Lathe\ActionEvents\ActionEventRecorder::enable(): void
+Lathe\ActionEvents\ActionEventRecorder::forActionRan(?Lathe\Http\Requests\LatheRequest $request, object|string $actionName, Illuminate\Support\Collection $models, string $resourceClass, Lathe\Enums\ActionEventStatus $status, array $fields = array ( )): string
+Lathe\ActionEvents\ActionEventRecorder::forAttach(?Lathe\Http\Requests\LatheRequest $request, Illuminate\Database\Eloquent\Model $parent, Illuminate\Database\Eloquent\Model $related, string $resourceClass, array $pivot = array ( ), ?string $batchId = NULL): void
+Lathe\ActionEvents\ActionEventRecorder::forDetach(?Lathe\Http\Requests\LatheRequest $request, Illuminate\Database\Eloquent\Model $parent, Illuminate\Database\Eloquent\Model $related, string $resourceClass, array $pivot = array ( ), ?string $batchId = NULL): void
+Lathe\ActionEvents\ActionEventRecorder::forImpersonationStarted(?Lathe\Http\Requests\LatheRequest $request, Illuminate\Database\Eloquent\Model $impersonator, Illuminate\Database\Eloquent\Model $impersonated): void
+Lathe\ActionEvents\ActionEventRecorder::forImpersonationStopped(?Lathe\Http\Requests\LatheRequest $request, Illuminate\Database\Eloquent\Model $impersonator, Illuminate\Database\Eloquent\Model $impersonated): void
+Lathe\ActionEvents\ActionEventRecorder::forResourceCreate(?Lathe\Http\Requests\LatheRequest $request, Illuminate\Database\Eloquent\Model $model, string $resourceClass, array $original = array ( ), array $changes = array ( )): void
+Lathe\ActionEvents\ActionEventRecorder::forResourceDelete(?Lathe\Http\Requests\LatheRequest $request, Illuminate\Database\Eloquent\Model $model, string $resourceClass, array $original = array ( ), array $changes = array ( )): void
+Lathe\ActionEvents\ActionEventRecorder::forResourceForceDelete(?Lathe\Http\Requests\LatheRequest $request, Illuminate\Database\Eloquent\Model $model, string $resourceClass, array $original = array ( ), array $changes = array ( )): void
+Lathe\ActionEvents\ActionEventRecorder::forResourceRestore(?Lathe\Http\Requests\LatheRequest $request, Illuminate\Database\Eloquent\Model $model, string $resourceClass, array $original = array ( ), array $changes = array ( )): void
+Lathe\ActionEvents\ActionEventRecorder::forResourceUpdate(?Lathe\Http\Requests\LatheRequest $request, Illuminate\Database\Eloquent\Model $model, string $resourceClass, array $original = array ( ), array $changes = array ( )): void
+Lathe\ActionEvents\ActionEventRecorder::forUpdateAttached(?Lathe\Http\Requests\LatheRequest $request, Illuminate\Database\Eloquent\Model $parent, Illuminate\Database\Eloquent\Model $related, string $resourceClass, array $original, array $changes, ?string $batchId = NULL): void
+Lathe\ActionEvents\ActionEventRecorder::isEnabled(): bool
+Lathe\ActionEvents\ActionEventRecorder::model(): string  [protected]
+Lathe\ActionEvents\ActionEventRecorder::modelState(Illuminate\Database\Eloquent\Model $model, ?string $resourceClass = NULL): array
+Lathe\ActionEvents\ActionEventRecorder::newBatchId(): string
+Lathe\ActionEvents\ActionEventRecorder::recordImpersonation(Lathe\Enums\ActionEventType $type, ?Lathe\Http\Requests\LatheRequest $request, Illuminate\Database\Eloquent\Model $impersonator, Illuminate\Database\Eloquent\Model $impersonated): void  [protected]
+Lathe\ActionEvents\ActionEventRecorder::recordWrite(Lathe\Enums\ActionEventType $type, ?Lathe\Http\Requests\LatheRequest $request, Illuminate\Database\Eloquent\Model $model, string $resourceClass, ?array $original, ?array $changes, ?Illuminate\Database\Eloquent\Model $target = NULL, ?string $batchId = NULL): void  [protected]
+Lathe\ActionEvents\ActionEventRecorder::row(Lathe\Enums\ActionEventType $type, ?Lathe\Http\Requests\LatheRequest $request, string $batchId, ?string $resourceClass, ?Illuminate\Database\Eloquent\Model $actionable, ?Illuminate\Database\Eloquent\Model $target, ?array $original, ?array $changes, Lathe\Enums\ActionEventStatus $status = Lathe\Enums\ActionEventStatus::Finished, ?string $actionName = NULL, ?array $fields = NULL, mixed $userId = NULL): array  [protected]
+Lathe\ActionEvents\ActionEventRecorder::safeValue(mixed $value): mixed  [protected]
+Lathe\ActionEvents\ActionEventRecorder::secretAttributes(string $resourceClass): array  [protected]
+Lathe\ActionEvents\ActionEventRecorder::shouldRecord(?string $resourceClass): bool  [protected]
+Lathe\ActionEvents\Actionable::actions(): Illuminate\Database\Eloquent\Relations\MorphMany
+Lathe\Actions\Action::?Closure $handleCallback  [protected]
+Lathe\Actions\Action::?Closure $runCallback  [protected]
+Lathe\Actions\Action::?Closure $runWhenCallback  [protected]
+Lathe\Actions\Action::?Closure $seeCallback  [protected]
+Lathe\Actions\Action::?Closure $thenCallback  [protected]
+Lathe\Actions\Action::?int $timeout
+Lathe\Actions\Action::?int $tries
+Lathe\Actions\Action::?string $cancelButtonText  [protected]
+Lathe\Actions\Action::?string $confirmButtonText  [protected]
+Lathe\Actions\Action::?string $connection
+Lathe\Actions\Action::?string $description  [protected]
+Lathe\Actions\Action::?string $group  [protected]
+Lathe\Actions\Action::?string $icon  [protected]
+Lathe\Actions\Action::?string $name  [protected]
+Lathe\Actions\Action::?string $queue
+Lathe\Actions\Action::?string $uriKey  [protected]
+Lathe\Actions\Action::Closure|string|null $confirmText  [protected]
+Lathe\Actions\Action::__construct()
+Lathe\Actions\Action::__invoke(Lathe\Actions\ActionFields $fields, Illuminate\Support\Collection $models): Lathe\Actions\ActionResult
+Lathe\Actions\Action::afterValidation(Lathe\Http\Requests\LatheRequest $request, Illuminate\Contracts\Validation\Validator $validator): void
+Lathe\Actions\Action::asBlob(): static
+Lathe\Actions\Action::authorizedToRunOn(Lathe\Http\Requests\LatheRequest $request, Illuminate\Database\Eloquent\Model $model): ?bool
+Lathe\Actions\Action::authorizedToSee(Lathe\Http\Requests\LatheRequest $request): bool
+Lathe\Actions\Action::bool $asBlob  [protected]
+Lathe\Actions\Action::bool $confirmable  [protected]
+Lathe\Actions\Action::bool $destructive
+Lathe\Actions\Action::bool $pinned  [protected]
+Lathe\Actions\Action::bool $recordsActionEvents  [protected]
+Lathe\Actions\Action::bool $showOnDetail  [protected]
+Lathe\Actions\Action::bool $showOnIndex  [protected]
+Lathe\Actions\Action::bool $showOnTableRow  [protected]
+Lathe\Actions\Action::bool $sole  [protected]
+Lathe\Actions\Action::bool $standalone  [protected]
+Lathe\Actions\Action::canRun(Closure $callback): static
+Lathe\Actions\Action::canRunWhen(Closure $callback): static
+Lathe\Actions\Action::canSee(Closure $callback): static
+Lathe\Actions\Action::canSeeWhen(string $ability, mixed $arguments = array ( )): static
+Lathe\Actions\Action::cancelButtonText(string $text): static
+Lathe\Actions\Action::confirmButtonText(string $text): static
+Lathe\Actions\Action::confirmText(Closure|string $text): static
+Lathe\Actions\Action::confirmable(Closure|string $text = ''): static
+Lathe\Actions\Action::danger(string $name, string $message): static  [static]
+Lathe\Actions\Action::deleted(): Lathe\Actions\ActionResult  [static]
+Lathe\Actions\Action::description(string $description): static
+Lathe\Actions\Action::downloadURL(string $name, Closure|string $url): static  [static]
+Lathe\Actions\Action::exceptInline(): static
+Lathe\Actions\Action::exceptOnDetail(): static
+Lathe\Actions\Action::exceptOnIndex(): static
+Lathe\Actions\Action::exceptOnTableRow(): static
+Lathe\Actions\Action::fields(Lathe\Http\Requests\LatheRequest $request): array
+Lathe\Actions\Action::fullscreen(bool $fullscreen = true): static
+Lathe\Actions\Action::getGroup(): ?string
+Lathe\Actions\Action::getUriKey(): string
+Lathe\Actions\Action::group(string $group): static
+Lathe\Actions\Action::handle(Lathe\Actions\ActionFields $fields, Illuminate\Support\Collection $models): Lathe\Actions\ActionResult
+Lathe\Actions\Action::handleResult(Lathe\Actions\ActionFields $fields, array $results): Lathe\Actions\ActionResult
+Lathe\Actions\Action::handleUsing(Closure $callback): static
+Lathe\Actions\Action::hasFileField(Lathe\Http\Requests\LatheRequest $request): bool
+Lathe\Actions\Action::hasRunCallback(): bool
+Lathe\Actions\Action::icon(string $icon): static
+Lathe\Actions\Action::int $chunkCount
+Lathe\Actions\Action::isConfirmable(): bool
+Lathe\Actions\Action::isDestructive(): bool
+Lathe\Actions\Action::isPinned(): bool
+Lathe\Actions\Action::isSole(): bool
+Lathe\Actions\Action::isStandalone(): bool
+Lathe\Actions\Action::jsonSerialize(): array
+Lathe\Actions\Action::label(): string
+Lathe\Actions\Action::make(mixed ...$args): static  [static]
+Lathe\Actions\Action::message(string $text): Lathe\Actions\ActionResult  [static]
+Lathe\Actions\Action::modal(string $name, string $component, Closure|array $data = array ( )): static  [static]
+Lathe\Actions\Action::name(): string
+Lathe\Actions\Action::noop(): static
+Lathe\Actions\Action::onlyInline(): static
+Lathe\Actions\Action::onlyOnDetail(): static
+Lathe\Actions\Action::onlyOnIndex(): static
+Lathe\Actions\Action::onlyOnTableRow(): static
+Lathe\Actions\Action::openInNewTab(string $name, Closure|string $url): static  [static]
+Lathe\Actions\Action::pinned(): static
+Lathe\Actions\Action::recordsActionEvents(): bool
+Lathe\Actions\Action::redirect(string $name, Closure|string $url): static  [static]
+Lathe\Actions\Action::runThen(Illuminate\Support\Collection $models): void
+Lathe\Actions\Action::showInline(): static
+Lathe\Actions\Action::showOn(bool $index, bool $detail, bool $tableRow): static  [protected]
+Lathe\Actions\Action::shownOnDetail(): bool
+Lathe\Actions\Action::shownOnIndex(): bool
+Lathe\Actions\Action::shownOnTableRow(): bool
+Lathe\Actions\Action::singularLabel(): string
+Lathe\Actions\Action::size(string $size): static
+Lathe\Actions\Action::sole(): static
+Lathe\Actions\Action::standalone(): static
+Lathe\Actions\Action::string $size  [protected]
+Lathe\Actions\Action::string $style  [protected]
+Lathe\Actions\Action::target(Closure|string $value): string  [protected static]
+Lathe\Actions\Action::then(callable $callback): static
+Lathe\Actions\Action::uriKey(): string
+Lathe\Actions\Action::using(string $name, Closure $handler): static  [static]
+Lathe\Actions\Action::visit(string $name, Closure|string $path, array $options = array ( )): static  [static]
+Lathe\Actions\Action::withName(string $name): static
+Lathe\Actions\Action::withUriKey(string $uriKey): static
+Lathe\Actions\Action::withoutActionEvents(): static
+Lathe\Actions\Action::withoutConfirmation(): static
+Lathe\Actions\ActionCollection::authorizedToSee(Lathe\Http\Requests\LatheRequest $request): static
+Lathe\Actions\ActionCollection::counts(): array
+Lathe\Actions\ActionCollection::findByUriKey(string $uriKey): ?Lathe\Actions\Action
+Lathe\Actions\ActionCollection::forDisplay(string $display): static
+Lathe\Actions\ActionCollection::menuOrder(): static
+Lathe\Actions\ActionMethodResolver::failedHandlerFor(Lathe\Actions\Action $action, string $modelClass): ?string  [static]
+Lathe\Actions\ActionMethodResolver::firstDefined(Lathe\Actions\Action $action, string $prefix, string $modelClass): ?string  [protected static]
+Lathe\Actions\ActionMethodResolver::handlerFor(Lathe\Actions\Action $action, string $modelClass): string  [static]
+Lathe\Actions\ActionResult::?array $effect  [protected]
+Lathe\Actions\ActionResult::?string $message  [protected]
+Lathe\Actions\ActionResult::danger(string $text): static  [static]
+Lathe\Actions\ActionResult::deleted(): static  [static]
+Lathe\Actions\ActionResult::download(string $name, string $url): static  [static]
+Lathe\Actions\ActionResult::emit(string $event, array $data = array ( )): static  [static]
+Lathe\Actions\ActionResult::jsonSerialize(): array
+Lathe\Actions\ActionResult::message(string $text): static  [static]
+Lathe\Actions\ActionResult::modal(string $component, array $data = array ( )): static  [static]
+Lathe\Actions\ActionResult::openInNewTab(string $url): static  [static]
+Lathe\Actions\ActionResult::redirect(string $url, bool $newTab = false): static  [static]
+Lathe\Actions\ActionResult::safeUrl(string $url): string  [protected static]
+Lathe\Actions\ActionResult::string $level  [protected]
+Lathe\Actions\ActionResult::usingNewTab(): static
+Lathe\Actions\ActionResult::visit(string $path, array $options = array ( )): static  [static]
+Lathe\Actions\ActionResult::withDangerMessage(string $text): static
+Lathe\Actions\ActionResult::withDeleted(): static
+Lathe\Actions\ActionResult::withDownload(string $name, string $url): static
+Lathe\Actions\ActionResult::withEvent(string $event, array $data = array ( )): static
+Lathe\Actions\ActionResult::withMessage(string $text): static
+Lathe\Actions\ActionResult::withModal(string $component, array $data = array ( )): static
+Lathe\Actions\ActionResult::withRedirect(string $url, bool $newTab = false): static
+Lathe\Actions\ActionResult::withVisitOptions(string $path, array $options = array ( )): static
+Lathe\Actions\DestructiveAction::bool $confirmable  [protected]
+Lathe\Actions\DestructiveAction::bool $destructive
+Lathe\Actions\Import\ColumnMapper::MAX_DISTANCE
+Lathe\Actions\Import\ColumnMapper::MAX_FUZZY_HEADER_LENGTH
+Lathe\Actions\Import\ColumnMapper::autoMap(array $headers, array $columns): array  [static]
+Lathe\Actions\Import\ColumnMapper::normalize(string $value): string  [protected static]
+Lathe\Actions\Import\ImportColumn::?Closure $castUsing  [protected]
+Lathe\Actions\Import\ImportColumn::?array $relationship  [protected]
+Lathe\Actions\Import\ImportColumn::?int $decimalPlaces  [protected]
+Lathe\Actions\Import\ImportColumn::?string $cast  [protected]
+Lathe\Actions\Import\ImportColumn::?string $dateFormat  [protected]
+Lathe\Actions\Import\ImportColumn::?string $label  [protected]
+Lathe\Actions\Import\ImportColumn::__construct(string $name)
+Lathe\Actions\Import\ImportColumn::array $messages  [protected]
+Lathe\Actions\Import\ImportColumn::array $rules  [protected]
+Lathe\Actions\Import\ImportColumn::bool $ignoreAutoMapping  [protected]
+Lathe\Actions\Import\ImportColumn::bool $nullable  [protected]
+Lathe\Actions\Import\ImportColumn::boolean(): static
+Lathe\Actions\Import\ImportColumn::castUsing(Closure $callback): static
+Lathe\Actions\Import\ImportColumn::date(?string $format = NULL): static
+Lathe\Actions\Import\ImportColumn::getCast(): ?string
+Lathe\Actions\Import\ImportColumn::getCastUsing(): ?Closure
+Lathe\Actions\Import\ImportColumn::getDateFormat(): ?string
+Lathe\Actions\Import\ImportColumn::getDecimalPlaces(): ?int
+Lathe\Actions\Import\ImportColumn::getLabel(): string
+Lathe\Actions\Import\ImportColumn::getMessages(): array
+Lathe\Actions\Import\ImportColumn::getName(): string
+Lathe\Actions\Import\ImportColumn::getRelationship(): ?array
+Lathe\Actions\Import\ImportColumn::getRules(): array
+Lathe\Actions\Import\ImportColumn::ignoreAutoMapping(): static
+Lathe\Actions\Import\ImportColumn::ignoresAutoMapping(): bool
+Lathe\Actions\Import\ImportColumn::isNullable(): bool
+Lathe\Actions\Import\ImportColumn::isRequired(): bool
+Lathe\Actions\Import\ImportColumn::jsonSerialize(): array
+Lathe\Actions\Import\ImportColumn::label(string $label): static
+Lathe\Actions\Import\ImportColumn::make(string $name): static  [static]
+Lathe\Actions\Import\ImportColumn::messages(array $messages): static
+Lathe\Actions\Import\ImportColumn::nullable(bool $nullable = true): static
+Lathe\Actions\Import\ImportColumn::numeric(?int $decimalPlaces = NULL): static
+Lathe\Actions\Import\ImportColumn::relationship(string $name, string $resolveBy = 'id'): static
+Lathe\Actions\Import\ImportColumn::rules(string ...$rules): static
+Lathe\Actions\Import\ImportColumn::string $name  [protected]
+Lathe\Actions\Import\RowCaster::__construct(string $timezone)
+Lathe\Actions\Import\RowCaster::cast(Lathe\Actions\Import\ImportColumn $column, mixed $value): mixed
+Lathe\Actions\Import\RowCaster::castRow(array $columns, array $row): array
+Lathe\Actions\Import\RowCaster::clean(string $value): string  [protected]
+Lathe\Actions\Import\RowCaster::string $timezone  [protected]
+Lathe\Actions\Import\RowCaster::toBoolean(mixed $value): bool  [protected]
+Lathe\Actions\Import\RowCaster::toDate(mixed $value, ?string $format): Illuminate\Support\Carbon  [protected]
+Lathe\Actions\Import\RowCaster::toNumber(mixed $value, ?int $decimalPlaces): int|float|null  [protected]
 Lathe\Assets\AssetManifest::?array $manifest  [protected]
 Lathe\Assets\AssetManifest::?string $distPath  [protected]
 Lathe\Assets\AssetManifest::ENTRY
@@ -28,6 +272,28 @@ Lathe\Assets\RootTags::nonce(): string  [protected]
 Lathe\Assets\RootTags::prefix(): string  [protected]
 Lathe\Assets\RootTags::scripts(): string
 Lathe\Assets\RootTags::styles(): string
+Lathe\Attributes\Action\ActionAttribute::apply(Lathe\Actions\Action $action): void
+Lathe\Attributes\Action\Confirmable::__construct(string $text = '')
+Lathe\Attributes\Action\Confirmable::apply(Lathe\Actions\Action $action): void
+Lathe\Attributes\Action\Confirmable::string $text
+Lathe\Attributes\Action\Destructive::apply(Lathe\Actions\Action $action): void
+Lathe\Attributes\Action\ModalSize::__construct(string $size)
+Lathe\Attributes\Action\ModalSize::apply(Lathe\Actions\Action $action): void
+Lathe\Attributes\Action\ModalSize::string $size
+Lathe\Attributes\Action\ModalStyle::__construct(string $style)
+Lathe\Attributes\Action\ModalStyle::apply(Lathe\Actions\Action $action): void
+Lathe\Attributes\Action\ModalStyle::string $style
+Lathe\Attributes\Action\Pinned::apply(Lathe\Actions\Action $action): void
+Lathe\Attributes\Action\ShowInline::apply(Lathe\Actions\Action $action): void
+Lathe\Attributes\Action\ShowOnDetail::__construct(bool $show = true)
+Lathe\Attributes\Action\ShowOnDetail::apply(Lathe\Actions\Action $action): void
+Lathe\Attributes\Action\ShowOnDetail::bool $show
+Lathe\Attributes\Action\ShowOnIndex::__construct(bool $show = true)
+Lathe\Attributes\Action\ShowOnIndex::apply(Lathe\Actions\Action $action): void
+Lathe\Attributes\Action\ShowOnIndex::bool $show
+Lathe\Attributes\Action\Sole::apply(Lathe\Actions\Action $action): void
+Lathe\Attributes\Action\Standalone::apply(Lathe\Actions\Action $action): void
+Lathe\Attributes\Action\WithoutActionEvents::apply(Lathe\Actions\Action $action): void
 Lathe\Attributes\Lens\PerPage::__construct(array $options)
 Lathe\Attributes\Lens\PerPage::array $options
 Lathe\Attributes\Lens\Polling::__construct(int $seconds = 15)
@@ -206,6 +472,27 @@ Lathe\Doctor\Doctor::run(): array
 Lathe\Doctor\Doctor::runsFullText(Illuminate\Database\Eloquent\Model $model, string $column): bool  [protected]
 Lathe\Doctor\Doctor::searchChecks(string $class, Lathe\Resources\ResourceDefinition $definition): array  [protected]
 Lathe\Doctor\Doctor::stringConfig(string $key): string  [protected]
+Lathe\Enums\ActionEventStatus::Failed
+Lathe\Enums\ActionEventStatus::Finished
+Lathe\Enums\ActionEventStatus::Running
+Lathe\Enums\ActionEventStatus::Waiting
+Lathe\Enums\ActionEventStatus::string $name
+Lathe\Enums\ActionEventStatus::string $value
+Lathe\Enums\ActionEventStatus::terminal(): array  [static]
+Lathe\Enums\ActionEventType::ActionRan
+Lathe\Enums\ActionEventType::Attach
+Lathe\Enums\ActionEventType::Create
+Lathe\Enums\ActionEventType::Delete
+Lathe\Enums\ActionEventType::Detach
+Lathe\Enums\ActionEventType::ForceDelete
+Lathe\Enums\ActionEventType::ImpersonationStarted
+Lathe\Enums\ActionEventType::ImpersonationStopped
+Lathe\Enums\ActionEventType::Restore
+Lathe\Enums\ActionEventType::Update
+Lathe\Enums\ActionEventType::UpdateAttached
+Lathe\Enums\ActionEventType::label(): string
+Lathe\Enums\ActionEventType::string $name
+Lathe\Enums\ActionEventType::string $value
 Lathe\Enums\ClickAction::Detail
 Lathe\Enums\ClickAction::Edit
 Lathe\Enums\ClickAction::Ignore
@@ -380,6 +667,15 @@ Lathe\Enums\TableStyle::Default
 Lathe\Enums\TableStyle::Tight
 Lathe\Enums\TableStyle::string $name
 Lathe\Enums\TableStyle::string $value
+Lathe\Events\ActionExecuted::Illuminate\Support\Collection $models
+Lathe\Events\ActionExecuted::__construct(object|string $action, Illuminate\Support\Collection $models)
+Lathe\Events\ActionExecuted::object|string $action
+Lathe\Events\ImpersonationStarted::Illuminate\Database\Eloquent\Model $impersonated
+Lathe\Events\ImpersonationStarted::Illuminate\Database\Eloquent\Model $impersonator
+Lathe\Events\ImpersonationStarted::__construct(Illuminate\Database\Eloquent\Model $impersonator, Illuminate\Database\Eloquent\Model $impersonated)
+Lathe\Events\ImpersonationStopped::Illuminate\Database\Eloquent\Model $impersonated
+Lathe\Events\ImpersonationStopped::Illuminate\Database\Eloquent\Model $impersonator
+Lathe\Events\ImpersonationStopped::__construct(Illuminate\Database\Eloquent\Model $impersonator, Illuminate\Database\Eloquent\Model $impersonated)
 Lathe\Events\ResourceAttached::Illuminate\Database\Eloquent\Model $parent
 Lathe\Events\ResourceAttached::__construct(Illuminate\Database\Eloquent\Model $parent, string $resource, string $relationship, array $ids, array $pivot = array ( ))
 Lathe\Events\ResourceAttached::array $ids
@@ -400,8 +696,9 @@ Lathe\Events\ResourceDeleted::Illuminate\Database\Eloquent\Model $model
 Lathe\Events\ResourceDeleted::__construct(Illuminate\Database\Eloquent\Model $model, string $resource)
 Lathe\Events\ResourceDeleted::string $resource
 Lathe\Events\ResourceDetached::Illuminate\Database\Eloquent\Model $parent
-Lathe\Events\ResourceDetached::__construct(Illuminate\Database\Eloquent\Model $parent, string $resource, string $relationship, array $ids)
+Lathe\Events\ResourceDetached::__construct(Illuminate\Database\Eloquent\Model $parent, string $resource, string $relationship, array $ids, array $rows = array ( ))
 Lathe\Events\ResourceDetached::array $ids
+Lathe\Events\ResourceDetached::array $rows
 Lathe\Events\ResourceDetached::string $relationship
 Lathe\Events\ResourceDetached::string $resource
 Lathe\Events\ResourceForceDeleted::Illuminate\Database\Eloquent\Model $model
@@ -1488,6 +1785,20 @@ Lathe\Http\Controllers\Auth\AuthenticatedSessionController::store(Illuminate\Htt
 Lathe\Http\Controllers\Auth\LoginPageController::__invoke(Lathe\Auth\FortifyConfig $fortify): Inertia\Response
 Lathe\Http\Controllers\DashboardController::__invoke(): Inertia\Response
 Lathe\Http\Controllers\GlobalSearchController::__invoke(Lathe\Http\Requests\LatheRequest $request, Lathe\Support\ConfigStore $config, Illuminate\Contracts\Auth\Access\Gate $gate, Lathe\Search\GlobalSearch $search, Lathe\Auth\ResourceAuthorization $authorization): Illuminate\Http\JsonResponse
+Lathe\Http\Controllers\NotificationController::LIMIT
+Lathe\Http\Controllers\NotificationController::Lathe\Support\ConfigStore $config  [protected]
+Lathe\Http\Controllers\NotificationController::__construct(Lathe\Support\ConfigStore $config)
+Lathe\Http\Controllers\NotificationController::change(Lathe\Http\Requests\LatheRequest $request, callable $write): Illuminate\Http\Response  [protected]
+Lathe\Http\Controllers\NotificationController::count(Lathe\Http\Requests\LatheRequest $request): Illuminate\Http\JsonResponse
+Lathe\Http\Controllers\NotificationController::destroy(Lathe\Http\Requests\LatheRequest $request, string $id): Illuminate\Http\Response
+Lathe\Http\Controllers\NotificationController::destroyAll(Lathe\Http\Requests\LatheRequest $request): Illuminate\Http\Response
+Lathe\Http\Controllers\NotificationController::ensureEnabled(): void  [protected]
+Lathe\Http\Controllers\NotificationController::index(Lathe\Http\Requests\LatheRequest $request): Illuminate\Http\JsonResponse
+Lathe\Http\Controllers\NotificationController::markAllRead(Lathe\Http\Requests\LatheRequest $request): Illuminate\Http\Response
+Lathe\Http\Controllers\NotificationController::mine(Lathe\Http\Requests\LatheRequest $request): Illuminate\Database\Eloquent\Builder  [protected]
+Lathe\Http\Controllers\NotificationController::read(Lathe\Http\Requests\LatheRequest $request, string $id): Illuminate\Http\Response
+Lathe\Http\Controllers\NotificationController::tableExists(): bool  [protected]
+Lathe\Http\Controllers\NotificationController::unread(Lathe\Http\Requests\LatheRequest $request, string $id): Illuminate\Http\Response
 Lathe\Http\Controllers\PageFallbackController::__invoke(Illuminate\Http\Request $request, Illuminate\Routing\Router $router): never
 Lathe\Http\Controllers\Plugins\ModuleController::__invoke(Lathe\Assets\AssetRegistry $assets, string $file, string $type = 'scripts'): Symfony\Component\HttpFoundation\BinaryFileResponse
 Lathe\Http\Controllers\Plugins\PluginApiController::__invoke(Illuminate\Http\Request $request, Lathe\Plugins\PluginRegistry $plugins, string $plugin, string $path = ''): Symfony\Component\HttpFoundation\Response
@@ -1616,10 +1927,17 @@ Lathe\Http\PanelRoutes::Lathe\Auth\FortifyConfig $fortify  [protected]
 Lathe\Http\PanelRoutes::Lathe\Plugins\PluginRegistry $plugins  [protected]
 Lathe\Http\PanelRoutes::Lathe\Support\ConfigStore $config  [protected]
 Lathe\Http\PanelRoutes::__construct(Illuminate\Routing\Router $router, Lathe\Support\ConfigStore $config, Lathe\Plugins\PluginRegistry $plugins, Lathe\Auth\FortifyConfig $fortify)
+Lathe\Http\PanelRoutes::actionRoutes(Illuminate\Routing\Router $router): void  [protected]
 Lathe\Http\PanelRoutes::api(): Illuminate\Routing\RouteRegistrar  [protected]
 Lathe\Http\PanelRoutes::apiPrefix(): string  [protected]
+Lathe\Http\PanelRoutes::batchRoutes(Illuminate\Routing\Router $router): void  [protected]
+Lathe\Http\PanelRoutes::bulkRunRoutes(Illuminate\Routing\Router $router): void  [protected]
+Lathe\Http\PanelRoutes::exportRoutes(Illuminate\Routing\Router $router): void  [protected]
 Lathe\Http\PanelRoutes::group(): Illuminate\Routing\RouteRegistrar  [protected]
+Lathe\Http\PanelRoutes::importRoutes(Illuminate\Routing\Router $router): void  [protected]
+Lathe\Http\PanelRoutes::notificationRoutes(Illuminate\Routing\Router $router): void  [protected]
 Lathe\Http\PanelRoutes::register(): void
+Lathe\Http\PanelRoutes::runPageRoutes(Illuminate\Routing\Router $router): void  [protected]
 Lathe\Http\Payloads\IndexPayload::Lathe\Auth\ResourceAuthorization $authorization  [protected]
 Lathe\Http\Payloads\IndexPayload::Lathe\Http\Requests\LatheRequest $request  [protected]
 Lathe\Http\Payloads\IndexPayload::ROW_ABILITIES
@@ -1659,12 +1977,15 @@ Lathe\Http\Payloads\RelationIndexPayload::__construct(Lathe\Http\Requests\LatheR
 Lathe\Http\Payloads\RelationIndexPayload::build(string $class, Illuminate\Database\Eloquent\Model $parent, Lathe\Field\Relations\RelationField $field, Illuminate\Database\Eloquent\Relations\Relation $relation): array
 Lathe\Http\Payloads\RelationIndexPayload::pivotCells(Illuminate\Database\Eloquent\Relations\Relation $relation, Illuminate\Database\Eloquent\Model $model, array $fields): array  [protected]
 Lathe\Http\Requests\LatheRequest::config(): Lathe\Support\ConfigStore  [protected]
+Lathe\Http\Requests\LatheRequest::invalidSelection(string $message): Illuminate\Validation\ValidationException  [protected]
 Lathe\Http\Requests\LatheRequest::orderByDirection(): string
 Lathe\Http\Requests\LatheRequest::perPage(): int
 Lathe\Http\Requests\LatheRequest::resource(): ?string
 Lathe\Http\Requests\LatheRequest::resourceKey(): ?string
 Lathe\Http\Requests\LatheRequest::resourceOrFail(): string
 Lathe\Http\Requests\LatheRequest::searchKeyword(): string
+Lathe\Http\Requests\LatheRequest::selection(): Lathe\Query\Selection
+Lathe\Http\Requests\LatheRequest::selectionKeys(mixed $keys): array  [protected]
 Lathe\Http\Requests\LatheRequest::trashed(): string
 Lathe\Http\Requests\LatheRequest::user($guard = NULL): ?Illuminate\Contracts\Auth\Authenticatable
 Lathe\Lathe::getFacadeAccessor(): string  [protected static]
@@ -1680,8 +2001,13 @@ Lathe\LatheManager::?Closure $userTimezone  [protected]
 Lathe\LatheManager::Illuminate\Contracts\Container\Container $container  [protected]
 Lathe\LatheManager::__(string $key, array $replace = array ( ), ?string $default = NULL): string
 Lathe\LatheManager::__construct(Illuminate\Contracts\Container\Container $container)
+Lathe\LatheManager::actionEventModel(): string
+Lathe\LatheManager::array $jobContextCaptures  [protected]
+Lathe\LatheManager::array $jobContextRestores  [protected]
 Lathe\LatheManager::assets(): Lathe\Assets\AssetManifest
 Lathe\LatheManager::auth(Closure $callback): static
+Lathe\LatheManager::captureJobContext(Closure $callback): static
+Lathe\LatheManager::capturedJobContext(): array
 Lathe\LatheManager::check(Illuminate\Http\Request $request): bool
 Lathe\LatheManager::config(): Lathe\Support\ConfigStore
 Lathe\LatheManager::cspImageSources(): array
@@ -1693,6 +2019,7 @@ Lathe\LatheManager::fortify(): Lathe\Auth\FortifyConfig
 Lathe\LatheManager::loadTranslations(array|string $translations): static
 Lathe\LatheManager::loginPath(): string
 Lathe\LatheManager::name(): string
+Lathe\LatheManager::notificationChannels(string ...$channels): void
 Lathe\LatheManager::path(): string
 Lathe\LatheManager::plugins(): Lathe\Plugins\PluginRegistry
 Lathe\LatheManager::registerPlugins(Lathe\Plugins\Plugin ...$plugins): void
@@ -1702,10 +2029,15 @@ Lathe\LatheManager::resolveSidebarDefaultOpen(Illuminate\Http\Request $request):
 Lathe\LatheManager::resolveUserLocale(Illuminate\Http\Request $request): string
 Lathe\LatheManager::resolveUserTimezone(Illuminate\Http\Request $request): ?string
 Lathe\LatheManager::resources(): Lathe\Resources\ResourceRegistry
+Lathe\LatheManager::restoreCapturedJobContext(array $extra): void
+Lathe\LatheManager::restoreJobContext(Closure $callback): static
+Lathe\LatheManager::string $actionEventModel  [protected]
 Lathe\LatheManager::userLocale(Closure $callback): static
 Lathe\LatheManager::userTimezone(Closure $callback): static
+Lathe\LatheManager::usingActionEvent(string $class): static
 Lathe\LatheManager::version(): string
 Lathe\LatheManager::versionLabel(): ?string
+Lathe\LatheManager::withoutActionEvents(?Closure $callback = NULL): mixed
 Lathe\LatheServiceProvider::boot(): void
 Lathe\LatheServiceProvider::register(): void
 Lathe\LatheServiceProvider::registerMiddleware(): void  [protected]
@@ -1856,6 +2188,51 @@ Lathe\Menu\Navigation::Lathe\Plugins\PluginRegistry $plugins  [protected]
 Lathe\Menu\Navigation::Lathe\Resources\ResourceRegistry $resources  [protected]
 Lathe\Menu\Navigation::__construct(Lathe\Resources\ResourceRegistry $resources, Lathe\Plugins\PluginRegistry $plugins, Lathe\Auth\ResourceAuthorization $authorization)
 Lathe\Menu\Navigation::build(Illuminate\Http\Request $request): array
+Lathe\Notifications\LatheNotification::?int $duration  [protected]
+Lathe\Notifications\LatheNotification::?string $body  [protected]
+Lathe\Notifications\LatheNotification::Lathe\Enums\Icon|string $icon  [protected]
+Lathe\Notifications\LatheNotification::action(string $text, string $url): static
+Lathe\Notifications\LatheNotification::actionButton(string $text, string $url, ?Lathe\Enums\Icon $icon = NULL): static
+Lathe\Notifications\LatheNotification::actionIcon(string $text, string $url, Lathe\Enums\Icon $icon): static
+Lathe\Notifications\LatheNotification::actions(Lathe\Notifications\NotificationAction ...$actions): static
+Lathe\Notifications\LatheNotification::array $actions  [protected]
+Lathe\Notifications\LatheNotification::body(Stringable|string $body): static
+Lathe\Notifications\LatheNotification::duration(int $milliseconds): static
+Lathe\Notifications\LatheNotification::error(): static
+Lathe\Notifications\LatheNotification::icon(Lathe\Enums\Icon|string $icon): static
+Lathe\Notifications\LatheNotification::info(): static
+Lathe\Notifications\LatheNotification::jsonSerialize(): array
+Lathe\Notifications\LatheNotification::message(Stringable|string $message): static
+Lathe\Notifications\LatheNotification::openInNewTab(): static
+Lathe\Notifications\LatheNotification::string $message  [protected]
+Lathe\Notifications\LatheNotification::string $type  [protected]
+Lathe\Notifications\LatheNotification::success(): static
+Lathe\Notifications\LatheNotification::toArray(): array
+Lathe\Notifications\LatheNotification::toDatabase(mixed $notifiable): array
+Lathe\Notifications\LatheNotification::type(string $type): static
+Lathe\Notifications\LatheNotification::via(mixed $notifiable): array
+Lathe\Notifications\LatheNotification::warning(): static
+Lathe\Notifications\NotificationAction::?Lathe\Enums\Icon $icon  [protected]
+Lathe\Notifications\NotificationAction::__construct(string $text, string $url, string $style, ?Lathe\Enums\Icon $icon)  [protected]
+Lathe\Notifications\NotificationAction::bool $newTab  [protected]
+Lathe\Notifications\NotificationAction::button(string $text, string $url, ?Lathe\Enums\Icon $icon = NULL): static  [static]
+Lathe\Notifications\NotificationAction::iconButton(string $text, string $url, Lathe\Enums\Icon $icon): static  [static]
+Lathe\Notifications\NotificationAction::isSafeUrl(string $url): bool  [protected static]
+Lathe\Notifications\NotificationAction::make(string $text, string $url): static  [static]
+Lathe\Notifications\NotificationAction::openInNewTab(): static
+Lathe\Notifications\NotificationAction::string $style  [protected]
+Lathe\Notifications\NotificationAction::string $text  [protected]
+Lathe\Notifications\NotificationAction::string $url  [protected]
+Lathe\Notifications\NotificationAction::toArray(): array
+Lathe\Notifications\NotificationChannelRegistry::Closure $booted  [protected]
+Lathe\Notifications\NotificationChannelRegistry::__construct(Closure $booted)
+Lathe\Notifications\NotificationChannelRegistry::add(string ...$channels): void
+Lathe\Notifications\NotificationChannelRegistry::all(): array
+Lathe\Notifications\NotificationChannelRegistry::array $channels  [protected]
+Lathe\Notifications\NotificationResource::Carbon\CarbonInterface $now  [protected]
+Lathe\Notifications\NotificationResource::Illuminate\Notifications\DatabaseNotification $notification  [protected]
+Lathe\Notifications\NotificationResource::__construct(Illuminate\Notifications\DatabaseNotification $notification, Carbon\CarbonInterface $now)
+Lathe\Notifications\NotificationResource::toArray(): array
 Lathe\Plugins\Plugin::?Closure $seeCallback  [protected]
 Lathe\Plugins\Plugin::assets(): array
 Lathe\Plugins\Plugin::authorize(Illuminate\Http\Request $request): bool
@@ -1980,9 +2357,37 @@ Lathe\Query\ResourceQuery::tabs(): array
 Lathe\Query\ResourceQuery::validate(): void
 Lathe\Query\ResourceQuery::withTrashed(): static
 Lathe\Query\ResourceQuery::withoutScope(string $globalScope): static
+Lathe\Query\Selection::?string $lens
+Lathe\Query\Selection::?string $q
+Lathe\Query\Selection::?string $savedTab
+Lathe\Query\Selection::?string $tab
+Lathe\Query\Selection::?string $trashed
+Lathe\Query\Selection::?string $via
+Lathe\Query\Selection::__construct(string $mode, array $ids = array ( ), array $exclusions = array ( ), ?string $q = NULL, array $filters = array ( ), ?string $tab = NULL, ?string $savedTab = NULL, ?string $trashed = NULL, ?string $lens = NULL, ?string $via = NULL)
+Lathe\Query\Selection::array $exclusions
+Lathe\Query\Selection::array $filters
+Lathe\Query\Selection::array $ids
+Lathe\Query\Selection::fromArray(array $data): Lathe\Query\Selection  [static]
+Lathe\Query\Selection::isAll(): bool
+Lathe\Query\Selection::string $mode
+Lathe\Query\Selection::toArray(): array
+Lathe\Query\SelectionResolver::?Illuminate\Database\Eloquent\Builder $query  [protected]
+Lathe\Query\SelectionResolver::?Lathe\Lenses\Lens $lens  [protected]
+Lathe\Query\SelectionResolver::Lathe\Http\Requests\LatheRequest $request  [protected]
+Lathe\Query\SelectionResolver::Lathe\Query\Selection $selection  [protected]
+Lathe\Query\SelectionResolver::Lathe\Resources\Resource $resource  [protected]
+Lathe\Query\SelectionResolver::__construct(Lathe\Resources\Resource $resource, Lathe\Http\Requests\LatheRequest $request, Lathe\Query\Selection $selection, ?Lathe\Lenses\Lens $lens = NULL)
+Lathe\Query\SelectionResolver::ensureNotEmpty(): void
+Lathe\Query\SelectionResolver::exceeds(int $max): bool
+Lathe\Query\SelectionResolver::indexQuery(): Lathe\Query\ResourceQuery  [protected]
+Lathe\Query\SelectionResolver::lazy(int $chunk = 200): Illuminate\Support\LazyCollection
+Lathe\Query\SelectionResolver::narrow(Illuminate\Database\Eloquent\Builder $query): Illuminate\Database\Eloquent\Builder  [protected]
+Lathe\Query\SelectionResolver::query(): Illuminate\Database\Eloquent\Builder
+Lathe\Query\SelectionResolver::selectionLens(): ?Lathe\Lenses\Lens  [protected]
 Lathe\Resources\Resource::?Illuminate\Database\Eloquent\Model $model  [protected]
 Lathe\Resources\Resource::?string $policy
 Lathe\Resources\Resource::__construct(?Illuminate\Database\Eloquent\Model $model = NULL)
+Lathe\Resources\Resource::actions(Lathe\Http\Requests\LatheRequest $request): array
 Lathe\Resources\Resource::afterCreate(Lathe\Http\Requests\LatheRequest $request, Illuminate\Database\Eloquent\Model $model): void  [static]
 Lathe\Resources\Resource::afterCreationValidation(Lathe\Http\Requests\LatheRequest $request, Illuminate\Contracts\Validation\Validator $validator): void  [static]
 Lathe\Resources\Resource::afterDelete(Lathe\Http\Requests\LatheRequest $request, Illuminate\Database\Eloquent\Model $model): void  [static]
@@ -1991,6 +2396,7 @@ Lathe\Resources\Resource::afterRestore(Lathe\Http\Requests\LatheRequest $request
 Lathe\Resources\Resource::afterUpdate(Lathe\Http\Requests\LatheRequest $request, Illuminate\Database\Eloquent\Model $model): void  [static]
 Lathe\Resources\Resource::afterUpdateValidation(Lathe\Http\Requests\LatheRequest $request, Illuminate\Contracts\Validation\Validator $validator): void  [static]
 Lathe\Resources\Resource::afterValidation(Lathe\Http\Requests\LatheRequest $request, Illuminate\Contracts\Validation\Validator $validator): void  [static]
+Lathe\Resources\Resource::availableActions(Lathe\Http\Requests\LatheRequest $request): Lathe\Actions\ActionCollection
 Lathe\Resources\Resource::availableFilters(Lathe\Http\Requests\LatheRequest $request): array
 Lathe\Resources\Resource::beforeCreate(Lathe\Http\Requests\LatheRequest $request, Illuminate\Database\Eloquent\Model $model): void  [static]
 Lathe\Resources\Resource::beforeDelete(Lathe\Http\Requests\LatheRequest $request, Illuminate\Database\Eloquent\Model $model): void  [static]
@@ -2026,6 +2432,7 @@ Lathe\Resources\Resource::make(?Illuminate\Database\Eloquent\Model $model = NULL
 Lathe\Resources\Resource::model(): string  [static]
 Lathe\Resources\Resource::newModel(): Illuminate\Database\Eloquent\Model  [static]
 Lathe\Resources\Resource::optionColumns(): array
+Lathe\Resources\Resource::recordsActionEvents(): bool  [static]
 Lathe\Resources\Resource::redirectAfterCreate(Lathe\Http\Requests\LatheRequest $request, Lathe\Resources\Resource $resource): string  [static]
 Lathe\Resources\Resource::redirectAfterDelete(Lathe\Http\Requests\LatheRequest $request): string  [static]
 Lathe\Resources\Resource::redirectAfterUpdate(Lathe\Http\Requests\LatheRequest $request, Lathe\Resources\Resource $resource): string  [static]
@@ -2398,6 +2805,14 @@ Lathe\Support\ConfigValidator::stringList(): Closure  [protected]
 Lathe\Support\ConfigValidator::unknownIn(array $given, array $known, string $prefix): array  [protected]
 Lathe\Support\ConfigValidator::unknownKeys(array $config): array
 Lathe\Support\HtmlSanitizer::clean(?string $html): string  [static]
+Lathe\Support\JobContext::__construct(string|int|null $actor, string $guard, string $locale, string $timezone, array $extra = array ( ))
+Lathe\Support\JobContext::array $extra
+Lathe\Support\JobContext::capture(Lathe\Http\Requests\LatheRequest $request): Lathe\Support\JobContext  [static]
+Lathe\Support\JobContext::restore(): void
+Lathe\Support\JobContext::string $guard
+Lathe\Support\JobContext::string $locale
+Lathe\Support\JobContext::string $timezone
+Lathe\Support\JobContext::string|int|null $actor
 Lathe\Support\ResourceRelationCountPreloader::preload(Illuminate\Support\Collection $records, array $relations): void  [static]
 Lathe\Support\SafeHtml::from(?string $html): Lathe\Support\SafeHtml  [static]
 Lathe\Support\SafeHtml::jsonSerialize(): array
@@ -2535,9 +2950,33 @@ Lathe\Uploads\UploadHandler::persistDraft(?Illuminate\Contracts\Auth\Authenticat
 Lathe\Uploads\UploadHandler::received(Lathe\Uploads\PendingUpload $upload): array
 Lathe\Uploads\UploadHandler::start(?Illuminate\Contracts\Auth\Authenticatable $user, string $field, string $disk, string $directory, array $file): Lathe\Uploads\PendingUpload
 Lathe\Uploads\UploadHandler::storeChunk(Lathe\Uploads\PendingUpload $upload, int $index, string $bytes): void
+class Lathe\ActionEvents\ActionEvent
+class Lathe\ActionEvents\ActionEventListener
+class Lathe\ActionEvents\ActionEventRecorder
+class Lathe\Actions\Action
+class Lathe\Actions\ActionCollection
+class Lathe\Actions\ActionFields
+class Lathe\Actions\ActionMethodResolver
+class Lathe\Actions\ActionResult
+class Lathe\Actions\DestructiveAction
+class Lathe\Actions\Import\ColumnMapper
+class Lathe\Actions\Import\ImportColumn
+class Lathe\Actions\Import\RowCastException
+class Lathe\Actions\Import\RowCaster
 class Lathe\Assets\AssetManifest
 class Lathe\Assets\AssetRegistry
 class Lathe\Assets\RootTags
+class Lathe\Attributes\Action\Confirmable
+class Lathe\Attributes\Action\Destructive
+class Lathe\Attributes\Action\ModalSize
+class Lathe\Attributes\Action\ModalStyle
+class Lathe\Attributes\Action\Pinned
+class Lathe\Attributes\Action\ShowInline
+class Lathe\Attributes\Action\ShowOnDetail
+class Lathe\Attributes\Action\ShowOnIndex
+class Lathe\Attributes\Action\Sole
+class Lathe\Attributes\Action\Standalone
+class Lathe\Attributes\Action\WithoutActionEvents
 class Lathe\Attributes\Filter\Searchable
 class Lathe\Attributes\Lens\PerPage
 class Lathe\Attributes\Lens\Polling
@@ -2582,6 +3021,9 @@ class Lathe\Dashboards\DashboardRegistry
 class Lathe\Dashboards\Main
 class Lathe\Doctor\CheckResult
 class Lathe\Doctor\Doctor
+class Lathe\Events\ActionExecuted
+class Lathe\Events\ImpersonationStarted
+class Lathe\Events\ImpersonationStopped
 class Lathe\Events\ResourceAttached
 class Lathe\Events\ResourceAttachmentUpdated
 class Lathe\Events\ResourceCreated
@@ -2591,7 +3033,9 @@ class Lathe\Events\ResourceForceDeleted
 class Lathe\Events\ResourceRestored
 class Lathe\Events\ResourceUpdated
 class Lathe\Events\ServingLathe
+class Lathe\Exceptions\ActionUriKeyCollisionException
 class Lathe\Exceptions\DuplicateRowKeyException
+class Lathe\Exceptions\InvalidActionException
 class Lathe\Exceptions\InvalidConfigurationException
 class Lathe\Exceptions\InvalidSearchColumn
 class Lathe\Exceptions\LatheException
@@ -2675,6 +3119,7 @@ class Lathe\Http\Controllers\Auth\AuthenticatedSessionController
 class Lathe\Http\Controllers\Auth\LoginPageController
 class Lathe\Http\Controllers\DashboardController
 class Lathe\Http\Controllers\GlobalSearchController
+class Lathe\Http\Controllers\NotificationController
 class Lathe\Http\Controllers\PageFallbackController
 class Lathe\Http\Controllers\Plugins\ModuleController
 class Lathe\Http\Controllers\Plugins\PluginApiController
@@ -2729,12 +3174,18 @@ class Lathe\Lenses\Lens
 class Lathe\Menu\MenuItem
 class Lathe\Menu\MenuSection
 class Lathe\Menu\Navigation
+class Lathe\Notifications\LatheNotification
+class Lathe\Notifications\NotificationAction
+class Lathe\Notifications\NotificationChannelRegistry
+class Lathe\Notifications\NotificationResource
 class Lathe\Plugins\Plugin
 class Lathe\Plugins\PluginDiscovery
 class Lathe\Plugins\PluginRegistry
 class Lathe\Query\Count
 class Lathe\Query\DateBucket
 class Lathe\Query\ResourceQuery
+class Lathe\Query\Selection
+class Lathe\Query\SelectionResolver
 class Lathe\Resources\Resource
 class Lathe\Resources\ResourceDefinition
 class Lathe\Resources\ResourceRegistry
@@ -2764,6 +3215,7 @@ class Lathe\Summaries\Summary
 class Lathe\Support\ConfigStore
 class Lathe\Support\ConfigValidator
 class Lathe\Support\HtmlSanitizer
+class Lathe\Support\JobContext
 class Lathe\Support\ResourceRelationCountPreloader
 class Lathe\Support\SafeHtml
 class Lathe\Support\Timezone
@@ -2777,6 +3229,8 @@ class Lathe\Testing\TestCase
 class Lathe\Uploads\FieldAttachment
 class Lathe\Uploads\PendingUpload
 class Lathe\Uploads\UploadHandler
+enum Lathe\Enums\ActionEventStatus
+enum Lathe\Enums\ActionEventType
 enum Lathe\Enums\ClickAction
 enum Lathe\Enums\Icon
 enum Lathe\Enums\PaginationType
@@ -2784,6 +3238,7 @@ enum Lathe\Enums\TableStyle
 enum Lathe\Field\FieldContext
 enum Lathe\Query\CountStrategy
 enum Lathe\Query\QueryContext
+interface Lathe\Attributes\Action\ActionAttribute
 interface Lathe\Attributes\Resource\ResourceAttribute
 interface Lathe\Field\Contracts\Cover
 interface Lathe\Field\Contracts\Deletable
@@ -2793,6 +3248,7 @@ interface Lathe\Field\Contracts\PrimesForPage
 interface Lathe\Field\Contracts\Storable
 interface Lathe\Field\FieldLifecycle
 interface Lathe\Search\SearchableColumn
+trait Lathe\ActionEvents\Actionable
 trait Lathe\Field\Concerns\ChoiceFactories
 trait Lathe\Field\Concerns\DateFactories
 trait Lathe\Field\Concerns\DisplayFactories

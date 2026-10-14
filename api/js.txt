@@ -1,5 +1,6 @@
 @lathephp/core ApiError
 @lathephp/core QueryClientProvider
+@lathephp/core actionModal
 @lathephp/core addShortcut
 @lathephp/core apiVersion
 @lathephp/core booting
@@ -24,6 +25,7 @@
 @lathephp/core router
 @lathephp/core shortcutsEnabled
 @lathephp/core toast
+@lathephp/core type ActionModalProps
 @lathephp/core type ComponentOrLazy
 @lathephp/core type LatheContext
 @lathephp/core type PanelRouter
@@ -32,6 +34,7 @@
 @lathephp/core type SafeHtml
 @lathephp/core type SharedData
 @lathephp/core type ToastAction
+@lathephp/core type ToastLink
 @lathephp/core type ToastMessage
 @lathephp/core type ToastOptions
 @lathephp/core type ToastType
