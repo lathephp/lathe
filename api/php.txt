@@ -32,6 +32,14 @@ Lathe\ActionEvents\ActionEventListener::request(): ?Lathe\Http\Requests\LatheReq
 Lathe\ActionEvents\ActionEventListener::restored(Lathe\Events\ResourceRestored $event): void
 Lathe\ActionEvents\ActionEventListener::subscribe(Illuminate\Events\Dispatcher $events): array
 Lathe\ActionEvents\ActionEventListener::updated(Lathe\Events\ResourceUpdated $event): void
+Lathe\ActionEvents\ActionEventPolicy::create(object $user): bool
+Lathe\ActionEvents\ActionEventPolicy::delete(object $user, Lathe\ActionEvents\ActionEvent $event): bool
+Lathe\ActionEvents\ActionEventPolicy::forceDelete(object $user, Lathe\ActionEvents\ActionEvent $event): bool
+Lathe\ActionEvents\ActionEventPolicy::replicate(object $user, Lathe\ActionEvents\ActionEvent $event): bool
+Lathe\ActionEvents\ActionEventPolicy::restore(object $user, Lathe\ActionEvents\ActionEvent $event): bool
+Lathe\ActionEvents\ActionEventPolicy::update(object $user, Lathe\ActionEvents\ActionEvent $event): bool
+Lathe\ActionEvents\ActionEventPolicy::view(object $user, Lathe\ActionEvents\ActionEvent $event): bool
+Lathe\ActionEvents\ActionEventPolicy::viewAny(object $user): bool
 Lathe\ActionEvents\ActionEventRecorder::?string $batchId  [protected]
 Lathe\ActionEvents\ActionEventRecorder::array $secrets  [protected]
 Lathe\ActionEvents\ActionEventRecorder::bool $disabled  [protected]
@@ -60,6 +68,14 @@ Lathe\ActionEvents\ActionEventRecorder::row(Lathe\Enums\ActionEventType $type, ?
 Lathe\ActionEvents\ActionEventRecorder::safeValue(mixed $value): mixed  [protected]
 Lathe\ActionEvents\ActionEventRecorder::secretAttributes(string $resourceClass): array  [protected]
 Lathe\ActionEvents\ActionEventRecorder::shouldRecord(?string $resourceClass): bool  [protected]
+Lathe\ActionEvents\ActionEventResource::configure(Lathe\Resources\ResourceDefinition $definition): Lathe\Resources\ResourceDefinition  [protected]
+Lathe\ActionEvents\ActionEventResource::detailBreadcrumbs(Lathe\Http\Requests\LatheRequest $request): ?array
+Lathe\ActionEvents\ActionEventResource::fields(Lathe\Http\Requests\LatheRequest $request): array
+Lathe\ActionEvents\ActionEventResource::initiator(Illuminate\Database\Eloquent\Model $event): string  [protected static]
+Lathe\ActionEvents\ActionEventResource::label(): string  [static]
+Lathe\ActionEvents\ActionEventResource::recordsActionEvents(): bool  [static]
+Lathe\ActionEvents\ActionEventResource::singularLabel(): string  [static]
+Lathe\ActionEvents\ActionEventResource::uriKey(): string  [static]
 Lathe\ActionEvents\Actionable::actions(): Illuminate\Database\Eloquent\Relations\MorphMany
 Lathe\Actions\Action::?Closure $handleCallback  [protected]
 Lathe\Actions\Action::?Closure $runCallback  [protected]
@@ -457,6 +473,11 @@ Lathe\Console\InstallCommand::handle(Illuminate\Filesystem\Filesystem $files): i
 Lathe\Console\InstallCommand::publish(string $tag): int  [protected]
 Lathe\Console\InstallCommand::tasks(Illuminate\Filesystem\Filesystem $files): array  [protected]
 Lathe\Console\InstallCommand::write(Illuminate\Filesystem\Filesystem $files, string $stub, string $path, array $replace): int  [protected]
+Lathe\Console\PruneActionEventsCommand::$description  [protected]
+Lathe\Console\PruneActionEventsCommand::$signature  [protected]
+Lathe\Console\PruneActionEventsCommand::CHUNK
+Lathe\Console\PruneActionEventsCommand::deleteInChunks(Illuminate\Database\Connection $connection, string $table, callable $pick): int  [protected]
+Lathe\Console\PruneActionEventsCommand::handle(): int
 Lathe\Console\TranslateCommand::$description  [protected]
 Lathe\Console\TranslateCommand::$signature  [protected]
 Lathe\Console\TranslateCommand::handle(Illuminate\Filesystem\Filesystem $files): int
@@ -1308,6 +1329,15 @@ Lathe\Field\MarkdownField::string $component  [protected]
 Lathe\Field\MarkdownField::string $preset  [protected]
 Lathe\Field\MarkdownField::withoutScriptBodies(string $value): string  [protected static]
 Lathe\Field\MarkdownField::zeroEnvironment(array $config): League\CommonMark\Environment\Environment  [protected]
+Lathe\Field\MorphToActionTarget::__construct(string $label, Closure|string|null $attribute = NULL, ?Closure $resolver = NULL)
+Lathe\Field\MorphToActionTarget::array $viewable  [protected]
+Lathe\Field\MorphToActionTarget::cell(Illuminate\Database\Eloquent\Model $model): array
+Lathe\Field\MorphToActionTarget::detailPath(string $uriKey, string $id): string  [protected]
+Lathe\Field\MorphToActionTarget::keyOf(Illuminate\Database\Eloquent\Model $model): string  [protected]
+Lathe\Field\MorphToActionTarget::modelClass(Lathe\ActionEvents\ActionEvent $event): ?string  [protected]
+Lathe\Field\MorphToActionTarget::primeForPage(Illuminate\Database\Eloquent\Collection $records): void
+Lathe\Field\MorphToActionTarget::resolve(object $record, ?string $attribute = NULL): mixed
+Lathe\Field\MorphToActionTarget::string $component  [protected]
 Lathe\Field\MultiSelectField::Closure|array|string $optionSource  [protected]
 Lathe\Field\MultiSelectField::Closure|bool $searchable  [protected]
 Lathe\Field\MultiSelectField::__construct(string $label, Closure|string|null $attribute = NULL, ?Closure $resolver = NULL)
@@ -3010,7 +3040,9 @@ Lathe\Uploads\UploadHandler::start(?Illuminate\Contracts\Auth\Authenticatable $u
 Lathe\Uploads\UploadHandler::storeChunk(Lathe\Uploads\PendingUpload $upload, int $index, string $bytes): void
 class Lathe\ActionEvents\ActionEvent
 class Lathe\ActionEvents\ActionEventListener
+class Lathe\ActionEvents\ActionEventPolicy
 class Lathe\ActionEvents\ActionEventRecorder
+class Lathe\ActionEvents\ActionEventResource
 class Lathe\Actions\Action
 class Lathe\Actions\ActionCollection
 class Lathe\Actions\ActionFields
@@ -3078,6 +3110,7 @@ class Lathe\Console\CacheCommand
 class Lathe\Console\ClearCommand
 class Lathe\Console\DoctorCommand
 class Lathe\Console\InstallCommand
+class Lathe\Console\PruneActionEventsCommand
 class Lathe\Console\TranslateCommand
 class Lathe\Dashboards\Dashboard
 class Lathe\Dashboards\DashboardRegistry
@@ -3133,6 +3166,7 @@ class Lathe\Field\ImageField
 class Lathe\Field\KeyValueField
 class Lathe\Field\LineField
 class Lathe\Field\MarkdownField
+class Lathe\Field\MorphToActionTarget
 class Lathe\Field\MultiSelectField
 class Lathe\Field\NumberField
 class Lathe\Field\NumericField
