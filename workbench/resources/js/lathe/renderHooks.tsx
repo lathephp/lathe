@@ -1,4 +1,4 @@
-import { renderHook, type RenderHookName } from '@lathephp/core';
+import { config, renderHook, type RenderHookName } from '@lathephp/core';
 import { Badge } from '@lathephp/ui';
 
 // White text on a 700 or 800 shade keeps each badge above the 4.5:1 contrast floor.
@@ -22,6 +22,11 @@ for (const [position, colour] of positions) {
   renderHook(
     position,
     function DemoHookBadge() {
+      // The live demo's server sets this flag, and visitors see no developer badges.
+      if (config('demo') === true) {
+        return null;
+      }
+
       // The head position is for <Head> content, so its marker is hidden rather than drawn in the shell.
       if (position === 'head') {
         return <span hidden data-demo-hook="head" />;
