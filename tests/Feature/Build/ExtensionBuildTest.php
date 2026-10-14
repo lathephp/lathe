@@ -91,6 +91,8 @@ it('builds the app boot file into hashed modules and an extensions manifest', fu
     $dir = extensionFixture([
         'resources/js/lathe/boot.ts' => "import { page, widget } from '@lathephp/core';\nwidget('clock', () => null);\npage('reports', () => import('./reports').then((m) => m.default));\n",
         'resources/js/lathe/reports.ts' => "export default () => null;\n",
+        // The app's own public folder, which holds the output folder and must not be copied into it.
+        'public/robots.txt' => "User-agent: *\n",
     ]);
 
     $process = runExtensionScript($dir, ' await vite.build({ configFile: false, root, logLevel: "silent", plugins: [lathe({ mode: "app", autoDiscover: false })] });');

@@ -149,6 +149,8 @@ export function lathe(options: PluginModeOptions | AppModeOptions): Plugin {
       return {
         // Relative chunk imports, so the modules load from wherever the folder is served.
         base: './',
+        // The output folder sits inside the app's public folder, which must not be copied into it.
+        publicDir: false,
         // The panel's import map serves the externals, so the dev server bundles none of them.
         optimizeDeps: { noDiscovery: true, include: [] },
         build: {
