@@ -88,7 +88,9 @@ it('merges two tags into the one picked in the modal', function () {
 
     $page->click(ACTIONS_BUTTON)
         ->click('[role="menuitem"]:has-text("Merge Tags")')
+        // The select turns into the searchable picker once its first page shows there are more than 25 tags.
         ->click('#action-merge-tags-target')
+        ->click('button#action-merge-tags-target')
         ->type('input[aria-controls="action-merge-tags-target-listbox"]', 'sale')
         ->click('[role="option"]:has-text("sale")')
         ->click('Run Action')
