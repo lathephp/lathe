@@ -2,6 +2,7 @@ import { Head, usePage } from '@inertiajs/react';
 import { useShortcut } from '@lathephp/core';
 import { Card } from '@lathephp/ui';
 import { ActionBar } from '../../actions/ActionBar';
+import { batchOperations, DeleteMenu } from '../../actions/DeleteMenu';
 import { EmptyState } from '../../index/EmptyState';
 import { IndexBanner } from '../../index/IndexBanner';
 import { IndexFooter } from '../../index/IndexFooter';
@@ -58,17 +59,28 @@ export default function Index({ resource, table, state, count, error, lens, lens
         />
       ) : (
         <Card className="overflow-hidden">
-          {actions !== undefined && actions.actions.length > 0 && (
-            <div className="flex justify-end border-b border-border px-3 py-2">
-              <ActionBar
+          {((actions !== undefined && actions.actions.length > 0) || batchOperations(resource.softDeletes, selection, more.rows).length > 0) && (
+            <div className="flex justify-end gap-2 border-b border-border px-3 py-2">
+              <DeleteMenu
                 uriKey={resource.uriKey}
                 lens={lens?.uriKey ?? null}
-                list={actions}
+                softDeletes={resource.softDeletes}
                 selection={selection}
                 rows={more.rows}
                 total={count == null ? null : count.value}
                 state={index.state}
               />
+              {actions !== undefined && (
+                <ActionBar
+                  uriKey={resource.uriKey}
+                  lens={lens?.uriKey ?? null}
+                  list={actions}
+                  selection={selection}
+                  rows={more.rows}
+                  total={count == null ? null : count.value}
+                  state={index.state}
+                />
+              )}
             </div>
           )}
           <SelectionBanner selection={selection} ids={ids} count={count} hasMorePages={more.hasMorePages} />
