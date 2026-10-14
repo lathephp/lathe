@@ -41,4 +41,19 @@ class OrderPolicy
     {
         return true;
     }
+
+    public function create(User $user): bool
+    {
+        return $user->email === 'admin@lathephp.com';
+    }
+
+    public function addCustomer(User $user, Order $order): bool
+    {
+        return $user->email === 'admin@lathephp.com';
+    }
+
+    public function addItems(User $user, Order $order): bool
+    {
+        return $user->email === 'admin@lathephp.com';
+    }
 }

@@ -122,7 +122,7 @@ class DemoSeeder extends Seeder
         ));
 
         DB::table('tags')->insert(array_map(
-            fn (int $i) => ['name' => "tag-{$i}", 'created_at' => $now, 'updated_at' => $now],
+            fn (int $i) => ['name' => $i === 1 ? 'sale' : "tag-{$i}", 'created_at' => $now, 'updated_at' => $now],
             range(1, 50),
         ));
 
@@ -134,6 +134,24 @@ class DemoSeeder extends Seeder
             'created_at' => $now,
             'updated_at' => $now,
         ], range(1, 500)));
+
+        // Tags 2 to 50 only, so product 1 is free to take "sale".
+        $taggables = [];
+
+        for ($product = 1; $product <= 100; $product++) {
+            foreach ([0, 1] as $position) {
+                $taggables[] = [
+                    'tag_id' => 2 + ($product * 2 + $position) % 49,
+                    'taggable_type' => Product::class,
+                    'taggable_id' => $product,
+                    'position' => $position,
+                    'created_at' => $now,
+                    'updated_at' => $now,
+                ];
+            }
+        }
+
+        DB::table('taggables')->insert($taggables);
     }
 
     protected function orders(): void

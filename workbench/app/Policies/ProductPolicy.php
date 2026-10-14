@@ -26,4 +26,30 @@ class ProductPolicy
     {
         return true;
     }
+
+    /**
+     * @param  array<int, int|string>  $ids
+     */
+    public function attachTags(User $user, Product $product, array $ids): bool
+    {
+        return $user->email === 'admin@lathephp.com';
+    }
+
+    public function attachAnyTags(User $user, Product $product): bool
+    {
+        return $user->email === 'admin@lathephp.com';
+    }
+
+    /**
+     * @param  array<int, int|string>  $ids
+     */
+    public function detachTags(User $user, Product $product, array $ids): bool
+    {
+        return $user->email === 'admin@lathephp.com';
+    }
+
+    public function addComments(User $user, Product $product): bool
+    {
+        return $user->email === 'admin@lathephp.com';
+    }
 }
