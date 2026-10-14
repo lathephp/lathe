@@ -3671,22 +3671,163 @@ Lathe\Widgets\AggregateQuery::value(): Lathe\Widgets\Results\ValueResult
 Lathe\Widgets\AggregateQuery::valueBetween(DateTimeInterface $start, DateTimeInterface $end, ?DateTimeInterface $previousStart = NULL, ?DateTimeInterface $previousEnd = NULL): Lathe\Widgets\Results\ValueResult
 Lathe\Widgets\AggregateQuery::wrapped(Illuminate\Contracts\Database\Query\Expression|string $column): string  [protected]
 Lathe\Widgets\AggregateQuery::zone(): string  [protected]
+Lathe\Widgets\BarWidget::?int $activeIndex  [protected]
+Lathe\Widgets\BarWidget::?string $component  [protected]
+Lathe\Widgets\BarWidget::activeIndex(int $index): static
+Lathe\Widgets\BarWidget::average(Lathe\Http\Requests\LatheRequest $request, Illuminate\Database\Eloquent\Builder|Illuminate\Database\Eloquent\Model|string $model, Illuminate\Contracts\Database\Query\Expression|string $column, Illuminate\Contracts\Database\Query\Expression|string $groupBy): Lathe\Widgets\Results\BarResult  [protected]
+Lathe\Widgets\BarWidget::bool $insideLabels  [protected]
+Lathe\Widgets\BarWidget::bool $showLabels  [protected]
+Lathe\Widgets\BarWidget::count(Lathe\Http\Requests\LatheRequest $request, Illuminate\Database\Eloquent\Builder|Illuminate\Database\Eloquent\Model|string $model, Illuminate\Contracts\Database\Query\Expression|string $groupBy, Illuminate\Contracts\Database\Query\Expression|string|null $column = NULL): Lathe\Widgets\Results\BarResult  [protected]
+Lathe\Widgets\BarWidget::descriptor(): array
+Lathe\Widgets\BarWidget::insideLabels(bool $show = true): static
+Lathe\Widgets\BarWidget::max(Lathe\Http\Requests\LatheRequest $request, Illuminate\Database\Eloquent\Builder|Illuminate\Database\Eloquent\Model|string $model, Illuminate\Contracts\Database\Query\Expression|string $column, Illuminate\Contracts\Database\Query\Expression|string $groupBy): Lathe\Widgets\Results\BarResult  [protected]
+Lathe\Widgets\BarWidget::min(Lathe\Http\Requests\LatheRequest $request, Illuminate\Database\Eloquent\Builder|Illuminate\Database\Eloquent\Model|string $model, Illuminate\Contracts\Database\Query\Expression|string $column, Illuminate\Contracts\Database\Query\Expression|string $groupBy): Lathe\Widgets\Results\BarResult  [protected]
+Lathe\Widgets\BarWidget::resolve(Lathe\Http\Requests\LatheRequest $request): mixed
+Lathe\Widgets\BarWidget::result(array $bars): Lathe\Widgets\Results\BarResult  [protected]
+Lathe\Widgets\BarWidget::showLabels(bool $show = true): static
+Lathe\Widgets\BarWidget::sum(Lathe\Http\Requests\LatheRequest $request, Illuminate\Database\Eloquent\Builder|Illuminate\Database\Eloquent\Model|string $model, Illuminate\Contracts\Database\Query\Expression|string $column, Illuminate\Contracts\Database\Query\Expression|string $groupBy): Lathe\Widgets\Results\BarResult  [protected]
 Lathe\Widgets\Concerns\RoundingPrecision::bool $roundingSet  [protected]
 Lathe\Widgets\Concerns\RoundingPrecision::int $roundingMode  [protected]
 Lathe\Widgets\Concerns\RoundingPrecision::int $roundingPrecision  [protected]
 Lathe\Widgets\Concerns\RoundingPrecision::precision(int $precision = 0, int $mode = Lathe\Widgets\Concerns\PHP_ROUND_HALF_UP): static
 Lathe\Widgets\Concerns\RoundingPrecision::roundNumber(int|float $value): int|float
+Lathe\Widgets\CustomWidget::?string $clientComponent  [protected]
+Lathe\Widgets\CustomWidget::?string $component  [protected]
+Lathe\Widgets\CustomWidget::__construct(string $name = '')
+Lathe\Widgets\CustomWidget::calculate(Lathe\Http\Requests\LatheRequest $request): mixed
+Lathe\Widgets\CustomWidget::descriptor(): array
+Lathe\Widgets\CustomWidget::dynamicHeight(): static
+Lathe\Widgets\CustomWidget::fixedHeight(): static
+Lathe\Widgets\CustomWidget::fullWidth(): static
+Lathe\Widgets\CustomWidget::height(string $height): static
+Lathe\Widgets\CustomWidget::make(string $name = ''): static  [static]
+Lathe\Widgets\CustomWidget::name(): string
+Lathe\Widgets\CustomWidget::requestsValue(): bool
+Lathe\Widgets\CustomWidget::string $height  [protected]
+Lathe\Widgets\CustomWidget::string $name  [protected]
+Lathe\Widgets\CustomWidget::withComponent(string $key): static
+Lathe\Widgets\HelpWidget::?string $component  [protected]
+Lathe\Widgets\HelpWidget::__construct(string $name = 'Help')
+Lathe\Widgets\HelpWidget::content(string $content): static
+Lathe\Widgets\HelpWidget::descriptor(): array
+Lathe\Widgets\HelpWidget::make(string $name = 'Help'): static  [static]
+Lathe\Widgets\HelpWidget::string $content  [protected]
+Lathe\Widgets\MetricTableRow::?Closure $actions  [protected]
+Lathe\Widgets\MetricTableRow::?string $icon  [protected]
+Lathe\Widgets\MetricTableRow::?string $iconClass  [protected]
+Lathe\Widgets\MetricTableRow::actions(Closure $callback): static
+Lathe\Widgets\MetricTableRow::icon(Lathe\Enums\Icon $icon): static
+Lathe\Widgets\MetricTableRow::iconClass(string $class): static
+Lathe\Widgets\MetricTableRow::jsonSerialize(): array
+Lathe\Widgets\MetricTableRow::make(): static  [static]
+Lathe\Widgets\MetricTableRow::string $subtitle  [protected]
+Lathe\Widgets\MetricTableRow::string $title  [protected]
+Lathe\Widgets\MetricTableRow::subtitle(Stringable|string $subtitle): static
+Lathe\Widgets\MetricTableRow::title(Stringable|string $title): static
+Lathe\Widgets\PartitionColors::forKeys(array $keys, array $userColors = array ( )): array  [static]
+Lathe\Widgets\PartitionWidget::?string $component  [protected]
+Lathe\Widgets\PartitionWidget::asBar(): static
+Lathe\Widgets\PartitionWidget::average(Lathe\Http\Requests\LatheRequest $request, Illuminate\Database\Eloquent\Builder|Illuminate\Database\Eloquent\Model|string $model, Illuminate\Contracts\Database\Query\Expression|string $column, Illuminate\Contracts\Database\Query\Expression|string $groupBy): Lathe\Widgets\Results\PartitionResult  [protected]
+Lathe\Widgets\PartitionWidget::bool $asBar  [protected]
+Lathe\Widgets\PartitionWidget::bool $showLabels  [protected]
+Lathe\Widgets\PartitionWidget::count(Lathe\Http\Requests\LatheRequest $request, Illuminate\Database\Eloquent\Builder|Illuminate\Database\Eloquent\Model|string $model, Illuminate\Contracts\Database\Query\Expression|string $groupBy, Illuminate\Contracts\Database\Query\Expression|string|null $column = NULL): Lathe\Widgets\Results\PartitionResult  [protected]
+Lathe\Widgets\PartitionWidget::descriptor(): array
+Lathe\Widgets\PartitionWidget::max(Lathe\Http\Requests\LatheRequest $request, Illuminate\Database\Eloquent\Builder|Illuminate\Database\Eloquent\Model|string $model, Illuminate\Contracts\Database\Query\Expression|string $column, Illuminate\Contracts\Database\Query\Expression|string $groupBy): Lathe\Widgets\Results\PartitionResult  [protected]
+Lathe\Widgets\PartitionWidget::min(Lathe\Http\Requests\LatheRequest $request, Illuminate\Database\Eloquent\Builder|Illuminate\Database\Eloquent\Model|string $model, Illuminate\Contracts\Database\Query\Expression|string $column, Illuminate\Contracts\Database\Query\Expression|string $groupBy): Lathe\Widgets\Results\PartitionResult  [protected]
+Lathe\Widgets\PartitionWidget::resolve(Lathe\Http\Requests\LatheRequest $request): mixed
+Lathe\Widgets\PartitionWidget::result(array $segments): Lathe\Widgets\Results\PartitionResult  [protected]
+Lathe\Widgets\PartitionWidget::showLabels(bool $show = true): static
+Lathe\Widgets\PartitionWidget::sum(Lathe\Http\Requests\LatheRequest $request, Illuminate\Database\Eloquent\Builder|Illuminate\Database\Eloquent\Model|string $model, Illuminate\Contracts\Database\Query\Expression|string $column, Illuminate\Contracts\Database\Query\Expression|string $groupBy): Lathe\Widgets\Results\PartitionResult  [protected]
+Lathe\Widgets\PieWidget::?string $component  [protected]
+Lathe\Widgets\PieWidget::?string $labelMode  [protected]
+Lathe\Widgets\PieWidget::activeDonut(): static
+Lathe\Widgets\PieWidget::average(Lathe\Http\Requests\LatheRequest $request, Illuminate\Database\Eloquent\Builder|Illuminate\Database\Eloquent\Model|string $model, Illuminate\Contracts\Database\Query\Expression|string $column, Illuminate\Contracts\Database\Query\Expression|string $groupBy): Lathe\Widgets\Results\PieResult  [protected]
+Lathe\Widgets\PieWidget::bool $activeDonut  [protected]
+Lathe\Widgets\PieWidget::bool $separatorNone  [protected]
+Lathe\Widgets\PieWidget::bool $showTotal  [protected]
+Lathe\Widgets\PieWidget::count(Lathe\Http\Requests\LatheRequest $request, Illuminate\Database\Eloquent\Builder|Illuminate\Database\Eloquent\Model|string $model, Illuminate\Contracts\Database\Query\Expression|string $groupBy, Illuminate\Contracts\Database\Query\Expression|string|null $column = NULL): Lathe\Widgets\Results\PieResult  [protected]
+Lathe\Widgets\PieWidget::descriptor(): array
+Lathe\Widgets\PieWidget::fromPartition(Lathe\Widgets\AggregateQuery $query): Lathe\Widgets\Results\PieResult  [protected]
+Lathe\Widgets\PieWidget::max(Lathe\Http\Requests\LatheRequest $request, Illuminate\Database\Eloquent\Builder|Illuminate\Database\Eloquent\Model|string $model, Illuminate\Contracts\Database\Query\Expression|string $column, Illuminate\Contracts\Database\Query\Expression|string $groupBy): Lathe\Widgets\Results\PieResult  [protected]
+Lathe\Widgets\PieWidget::min(Lathe\Http\Requests\LatheRequest $request, Illuminate\Database\Eloquent\Builder|Illuminate\Database\Eloquent\Model|string $model, Illuminate\Contracts\Database\Query\Expression|string $column, Illuminate\Contracts\Database\Query\Expression|string $groupBy): Lathe\Widgets\Results\PieResult  [protected]
+Lathe\Widgets\PieWidget::resolve(Lathe\Http\Requests\LatheRequest $request): mixed
+Lathe\Widgets\PieWidget::result(array $segments): Lathe\Widgets\Results\PieResult  [protected]
+Lathe\Widgets\PieWidget::separatorNone(): static
+Lathe\Widgets\PieWidget::showCustomLabel(): static
+Lathe\Widgets\PieWidget::showInlineLabel(): static
+Lathe\Widgets\PieWidget::showLabelList(): static
+Lathe\Widgets\PieWidget::showTotal(): static
+Lathe\Widgets\PieWidget::string $height  [protected]
+Lathe\Widgets\PieWidget::sum(Lathe\Http\Requests\LatheRequest $request, Illuminate\Database\Eloquent\Builder|Illuminate\Database\Eloquent\Model|string $model, Illuminate\Contracts\Database\Query\Expression|string $column, Illuminate\Contracts\Database\Query\Expression|string $groupBy): Lathe\Widgets\Results\PieResult  [protected]
 Lathe\Widgets\ProgressWidget::?string $component  [protected]
 Lathe\Widgets\ProgressWidget::count(Lathe\Http\Requests\LatheRequest $request, Illuminate\Database\Eloquent\Builder|Illuminate\Database\Eloquent\Model|string $model, callable $progress, Illuminate\Contracts\Database\Query\Expression|string|null $column = NULL, int|float|null $target = NULL): Lathe\Widgets\Results\ProgressResult  [protected]
 Lathe\Widgets\ProgressWidget::sum(Lathe\Http\Requests\LatheRequest $request, Illuminate\Database\Eloquent\Builder|Illuminate\Database\Eloquent\Model|string $model, callable $progress, Illuminate\Contracts\Database\Query\Expression|string $column, int|float|null $target = NULL): Lathe\Widgets\Results\ProgressResult  [protected]
+Lathe\Widgets\RadarWidget::?string $component  [protected]
+Lathe\Widgets\RadarWidget::average(Lathe\Http\Requests\LatheRequest $request, Illuminate\Database\Eloquent\Builder|Illuminate\Database\Eloquent\Model|string $model, Illuminate\Contracts\Database\Query\Expression|string $column, Illuminate\Contracts\Database\Query\Expression|string $groupBy): Lathe\Widgets\Results\RadarResult  [protected]
+Lathe\Widgets\RadarWidget::count(Lathe\Http\Requests\LatheRequest $request, Illuminate\Database\Eloquent\Builder|Illuminate\Database\Eloquent\Model|string $model, Illuminate\Contracts\Database\Query\Expression|string $groupBy, Illuminate\Contracts\Database\Query\Expression|string|null $column = NULL): Lathe\Widgets\Results\RadarResult  [protected]
+Lathe\Widgets\RadarWidget::fromGroups(Lathe\Widgets\AggregateQuery $query): Lathe\Widgets\Results\RadarResult  [protected]
+Lathe\Widgets\RadarWidget::max(Lathe\Http\Requests\LatheRequest $request, Illuminate\Database\Eloquent\Builder|Illuminate\Database\Eloquent\Model|string $model, Illuminate\Contracts\Database\Query\Expression|string $column, Illuminate\Contracts\Database\Query\Expression|string $groupBy): Lathe\Widgets\Results\RadarResult  [protected]
+Lathe\Widgets\RadarWidget::min(Lathe\Http\Requests\LatheRequest $request, Illuminate\Database\Eloquent\Builder|Illuminate\Database\Eloquent\Model|string $model, Illuminate\Contracts\Database\Query\Expression|string $column, Illuminate\Contracts\Database\Query\Expression|string $groupBy): Lathe\Widgets\Results\RadarResult  [protected]
+Lathe\Widgets\RadarWidget::resolve(Lathe\Http\Requests\LatheRequest $request): mixed
+Lathe\Widgets\RadarWidget::result(array $axes, array $datasets): Lathe\Widgets\Results\RadarResult  [protected]
+Lathe\Widgets\RadarWidget::string $height  [protected]
+Lathe\Widgets\RadarWidget::sum(Lathe\Http\Requests\LatheRequest $request, Illuminate\Database\Eloquent\Builder|Illuminate\Database\Eloquent\Model|string $model, Illuminate\Contracts\Database\Query\Expression|string $column, Illuminate\Contracts\Database\Query\Expression|string $groupBy): Lathe\Widgets\Results\RadarResult  [protected]
+Lathe\Widgets\RadialWidget::?string $component  [protected]
+Lathe\Widgets\RadialWidget::count(Lathe\Http\Requests\LatheRequest $request, Illuminate\Database\Eloquent\Builder|Illuminate\Database\Eloquent\Model|string $model, callable $progress, Illuminate\Contracts\Database\Query\Expression|string|null $column = NULL, int|float|null $target = NULL): Lathe\Widgets\Results\RadialResult  [protected]
+Lathe\Widgets\RadialWidget::number(Lathe\Widgets\AggregateQuery $query): int|float  [protected]
+Lathe\Widgets\RadialWidget::resolve(Lathe\Http\Requests\LatheRequest $request): mixed
+Lathe\Widgets\RadialWidget::result(int|float $value, int|float $target = 100): Lathe\Widgets\Results\RadialResult  [protected]
+Lathe\Widgets\RadialWidget::string $height  [protected]
+Lathe\Widgets\RadialWidget::sum(Lathe\Http\Requests\LatheRequest $request, Illuminate\Database\Eloquent\Builder|Illuminate\Database\Eloquent\Model|string $model, callable $progress, Illuminate\Contracts\Database\Query\Expression|string $column, int|float|null $target = NULL): Lathe\Widgets\Results\RadialResult  [protected]
+Lathe\Widgets\Results\BarResult::?Closure $labelCallback  [protected]
+Lathe\Widgets\Results\BarResult::?Closure $transformCallback  [protected]
+Lathe\Widgets\Results\BarResult::?array $series  [protected]
+Lathe\Widgets\Results\BarResult::?string $negativeColor  [protected]
 Lathe\Widgets\Results\BarResult::__construct(array $data, array $colors = array ( ))
 Lathe\Widgets\Results\BarResult::array $colors
 Lathe\Widgets\Results\BarResult::array $data
+Lathe\Widgets\Results\BarResult::bool $horizontal  [protected]
+Lathe\Widgets\Results\BarResult::bool $roundingSet  [protected]
+Lathe\Widgets\Results\BarResult::bool $stacked  [protected]
+Lathe\Widgets\Results\BarResult::colors(array $colors): static
+Lathe\Widgets\Results\BarResult::horizontal(): static
+Lathe\Widgets\Results\BarResult::int $roundingMode  [protected]
+Lathe\Widgets\Results\BarResult::int $roundingPrecision  [protected]
 Lathe\Widgets\Results\BarResult::jsonSerialize(): array
+Lathe\Widgets\Results\BarResult::label(Closure $callback): static
+Lathe\Widgets\Results\BarResult::negativeColor(string $color): static
+Lathe\Widgets\Results\BarResult::payload(): array
+Lathe\Widgets\Results\BarResult::stacked(): static
+Lathe\Widgets\Results\BarResult::transform(callable $callback): static
+Lathe\Widgets\Results\BarResult::withSeries(array $series): static
+Lathe\Widgets\Results\PartitionResult::?Closure $labelCallback  [protected]
 Lathe\Widgets\Results\PartitionResult::__construct(array $data, array $colors = array ( ))
 Lathe\Widgets\Results\PartitionResult::array $colors
 Lathe\Widgets\Results\PartitionResult::array $data
+Lathe\Widgets\Results\PartitionResult::bool $roundingSet  [protected]
+Lathe\Widgets\Results\PartitionResult::colors(array $colors): static
+Lathe\Widgets\Results\PartitionResult::int $roundingMode  [protected]
+Lathe\Widgets\Results\PartitionResult::int $roundingPrecision  [protected]
 Lathe\Widgets\Results\PartitionResult::jsonSerialize(): array
+Lathe\Widgets\Results\PartitionResult::label(Closure $callback): static
+Lathe\Widgets\Results\PartitionResult::payload(): array
+Lathe\Widgets\Results\PieResult::?Closure $labelCallback  [protected]
+Lathe\Widgets\Results\PieResult::?array $series  [protected]
+Lathe\Widgets\Results\PieResult::__construct(array $data, array $colors = array ( ))
+Lathe\Widgets\Results\PieResult::array $colors
+Lathe\Widgets\Results\PieResult::array $data
+Lathe\Widgets\Results\PieResult::bool $roundingSet  [protected]
+Lathe\Widgets\Results\PieResult::bool $showLabels  [protected]
+Lathe\Widgets\Results\PieResult::colors(array $colors): static
+Lathe\Widgets\Results\PieResult::float $innerRadius  [protected]
+Lathe\Widgets\Results\PieResult::innerRadius(float $radius): static
+Lathe\Widgets\Results\PieResult::int $roundingMode  [protected]
+Lathe\Widgets\Results\PieResult::int $roundingPrecision  [protected]
+Lathe\Widgets\Results\PieResult::jsonSerialize(): array
+Lathe\Widgets\Results\PieResult::label(Closure $callback): static
+Lathe\Widgets\Results\PieResult::segments(array $data): array  [protected]
+Lathe\Widgets\Results\PieResult::showLabels(bool $show = true): static
+Lathe\Widgets\Results\PieResult::withSeries(array $series): static
 Lathe\Widgets\Results\ProgressResult::?Closure $transformCallback  [protected]
 Lathe\Widgets\Results\ProgressResult::?string $prefix
 Lathe\Widgets\Results\ProgressResult::?string $suffix
@@ -3708,6 +3849,60 @@ Lathe\Widgets\Results\ProgressResult::prefix(string $prefix): static
 Lathe\Widgets\Results\ProgressResult::suffix(string $suffix): static
 Lathe\Widgets\Results\ProgressResult::transform(callable $callback): static
 Lathe\Widgets\Results\ProgressResult::withoutSuffixInflection(): static
+Lathe\Widgets\Results\RadarResult::?array $polarRadius  [protected]
+Lathe\Widgets\Results\RadarResult::__construct(array $axes = array ( ), array $datasets = array ( ))
+Lathe\Widgets\Results\RadarResult::array $axes
+Lathe\Widgets\Results\RadarResult::array $datasets
+Lathe\Widgets\Results\RadarResult::bool $dots  [protected]
+Lathe\Widgets\Results\RadarResult::bool $gridFilled  [protected]
+Lathe\Widgets\Results\RadarResult::bool $gridNone  [protected]
+Lathe\Widgets\Results\RadarResult::bool $lineOnly  [protected]
+Lathe\Widgets\Results\RadarResult::bool $radialLines  [protected]
+Lathe\Widgets\Results\RadarResult::bool $showLegend  [protected]
+Lathe\Widgets\Results\RadarResult::dots(bool $show = true): static
+Lathe\Widgets\Results\RadarResult::fillOpacity(float $opacity): static
+Lathe\Widgets\Results\RadarResult::float $fillOpacity  [protected]
+Lathe\Widgets\Results\RadarResult::gridFilled(bool $filled = true): static
+Lathe\Widgets\Results\RadarResult::gridNone(bool $none = true): static
+Lathe\Widgets\Results\RadarResult::gridType(string $type): static
+Lathe\Widgets\Results\RadarResult::jsonSerialize(): array
+Lathe\Widgets\Results\RadarResult::lineOnly(bool $lineOnly = true): static
+Lathe\Widgets\Results\RadarResult::polarRadius(array $radii): static
+Lathe\Widgets\Results\RadarResult::radialLines(bool $show = true): static
+Lathe\Widgets\Results\RadarResult::showLegend(bool $show = true): static
+Lathe\Widgets\Results\RadarResult::string $gridType  [protected]
+Lathe\Widgets\Results\RadialResult::?Closure $transformCallback  [protected]
+Lathe\Widgets\Results\RadialResult::?array $segments  [protected]
+Lathe\Widgets\Results\RadialResult::?array $stacked  [protected]
+Lathe\Widgets\Results\RadialResult::?string $color  [protected]
+Lathe\Widgets\Results\RadialResult::?string $label  [protected]
+Lathe\Widgets\Results\RadialResult::__construct(int|float $value = 0, int|float $target = 100)
+Lathe\Widgets\Results\RadialResult::avoid(): static
+Lathe\Widgets\Results\RadialResult::bool $avoid  [protected]
+Lathe\Widgets\Results\RadialResult::bool $roundingSet  [protected]
+Lathe\Widgets\Results\RadialResult::bool $showGrid  [protected]
+Lathe\Widgets\Results\RadialResult::bool $showLabels  [protected]
+Lathe\Widgets\Results\RadialResult::bool $showTrack  [protected]
+Lathe\Widgets\Results\RadialResult::color(string $color): static
+Lathe\Widgets\Results\RadialResult::endAngle(int $angle): static
+Lathe\Widgets\Results\RadialResult::int $endAngle  [protected]
+Lathe\Widgets\Results\RadialResult::int $roundingMode  [protected]
+Lathe\Widgets\Results\RadialResult::int $roundingPrecision  [protected]
+Lathe\Widgets\Results\RadialResult::int $startAngle  [protected]
+Lathe\Widgets\Results\RadialResult::int|float $target
+Lathe\Widgets\Results\RadialResult::int|float $value
+Lathe\Widgets\Results\RadialResult::jsonSerialize(): array
+Lathe\Widgets\Results\RadialResult::label(string $label): static
+Lathe\Widgets\Results\RadialResult::percentage(): float
+Lathe\Widgets\Results\RadialResult::progressColor(float $percentage): string  [protected]
+Lathe\Widgets\Results\RadialResult::segmentList(array $segments): array  [protected]
+Lathe\Widgets\Results\RadialResult::segments(array $segments): static
+Lathe\Widgets\Results\RadialResult::showGrid(bool $show = true): static
+Lathe\Widgets\Results\RadialResult::showLabels(bool $show = true): static
+Lathe\Widgets\Results\RadialResult::showTrack(bool $show = true): static
+Lathe\Widgets\Results\RadialResult::stacked(array $items): static
+Lathe\Widgets\Results\RadialResult::startAngle(int $angle): static
+Lathe\Widgets\Results\RadialResult::transform(callable $callback): static
 Lathe\Widgets\Results\TrendResult::?Closure $roundCallback  [protected]
 Lathe\Widgets\Results\TrendResult::?Closure $transformCallback  [protected]
 Lathe\Widgets\Results\TrendResult::?array $labels
@@ -3769,6 +3964,30 @@ Lathe\Widgets\Results\ValueResult::suffix(string $suffix): static
 Lathe\Widgets\Results\ValueResult::tooltipFormat(string $format): static
 Lathe\Widgets\Results\ValueResult::transform(callable $callback): static
 Lathe\Widgets\Results\ValueResult::withoutSuffixInflection(): static
+Lathe\Widgets\TableWidget::?string $component  [protected]
+Lathe\Widgets\TableWidget::?string $emptyText  [protected]
+Lathe\Widgets\TableWidget::MAX_ROWS
+Lathe\Widgets\TableWidget::calculate(Lathe\Http\Requests\LatheRequest $request): mixed
+Lathe\Widgets\TableWidget::columns(): array
+Lathe\Widgets\TableWidget::emptyText(Stringable|string $text): static
+Lathe\Widgets\TableWidget::rows(Lathe\Http\Requests\LatheRequest $request): array
+Lathe\Widgets\TableWidget::string $height  [protected]
+Lathe\Widgets\Tooltip::?string $label  [protected]
+Lathe\Widgets\Tooltip::?string $valuePrefix  [protected]
+Lathe\Widgets\Tooltip::?string $valueSuffix  [protected]
+Lathe\Widgets\Tooltip::bool $hideIndicator  [protected]
+Lathe\Widgets\Tooltip::bool $hideLabel  [protected]
+Lathe\Widgets\Tooltip::bool $showTotal  [protected]
+Lathe\Widgets\Tooltip::hideIndicator(bool $hide = true): static
+Lathe\Widgets\Tooltip::hideLabel(bool $hide = true): static
+Lathe\Widgets\Tooltip::indicator(string $indicator): static
+Lathe\Widgets\Tooltip::jsonSerialize(): array
+Lathe\Widgets\Tooltip::label(string $label): static
+Lathe\Widgets\Tooltip::make(): static  [static]
+Lathe\Widgets\Tooltip::showTotal(bool $show = true): static
+Lathe\Widgets\Tooltip::string $indicator  [protected]
+Lathe\Widgets\Tooltip::valuePrefix(string $prefix): static
+Lathe\Widgets\Tooltip::valueSuffix(string $suffix): static
 Lathe\Widgets\TrendUnit::Day
 Lathe\Widgets\TrendUnit::Hour
 Lathe\Widgets\TrendUnit::Minute
@@ -3850,6 +4069,7 @@ Lathe\Widgets\ValueWidget::ranges(): array
 Lathe\Widgets\ValueWidget::resolve(Lathe\Http\Requests\LatheRequest $request): mixed
 Lathe\Widgets\ValueWidget::sum(Lathe\Http\Requests\LatheRequest $request, Illuminate\Database\Eloquent\Builder|Illuminate\Database\Eloquent\Model|string $model, Illuminate\Contracts\Database\Query\Expression|string $column, ?string $dateColumn = NULL): Lathe\Widgets\Results\ValueResult  [protected]
 Lathe\Widgets\Widget::?Closure $seeCallback  [protected]
+Lathe\Widgets\Widget::?Lathe\Widgets\Tooltip $tooltip  [protected]
 Lathe\Widgets\Widget::?string $component  [protected]
 Lathe\Widgets\Widget::?string $helpText  [protected]
 Lathe\Widgets\Widget::Lathe\Enums\CardWidth $width  [protected]
@@ -3890,6 +4110,7 @@ Lathe\Widgets\Widget::requestsValue(): bool
 Lathe\Widgets\Widget::resolve(Lathe\Http\Requests\LatheRequest $request): mixed
 Lathe\Widgets\Widget::string $height  [protected]
 Lathe\Widgets\Widget::string|int $helpWidth  [protected]
+Lathe\Widgets\Widget::tooltip(Lathe\Widgets\Tooltip $tooltip): static
 Lathe\Widgets\Widget::uriKey(): string  [static]
 Lathe\Widgets\Widget::width(Lathe\Enums\CardWidth $width): static
 Lathe\Widgets\Widget::withMeta(array $meta): static
@@ -4243,12 +4464,26 @@ class Lathe\Uploads\FieldAttachment
 class Lathe\Uploads\PendingUpload
 class Lathe\Uploads\UploadHandler
 class Lathe\Widgets\AggregateQuery
+class Lathe\Widgets\BarWidget
+class Lathe\Widgets\CustomWidget
+class Lathe\Widgets\HelpWidget
+class Lathe\Widgets\MetricTableRow
+class Lathe\Widgets\PartitionColors
+class Lathe\Widgets\PartitionWidget
+class Lathe\Widgets\PieWidget
 class Lathe\Widgets\ProgressWidget
+class Lathe\Widgets\RadarWidget
+class Lathe\Widgets\RadialWidget
 class Lathe\Widgets\Results\BarResult
 class Lathe\Widgets\Results\PartitionResult
+class Lathe\Widgets\Results\PieResult
 class Lathe\Widgets\Results\ProgressResult
+class Lathe\Widgets\Results\RadarResult
+class Lathe\Widgets\Results\RadialResult
 class Lathe\Widgets\Results\TrendResult
 class Lathe\Widgets\Results\ValueResult
+class Lathe\Widgets\TableWidget
+class Lathe\Widgets\Tooltip
 class Lathe\Widgets\TrendWidget
 class Lathe\Widgets\ValueWidget
 class Lathe\Widgets\Widget
