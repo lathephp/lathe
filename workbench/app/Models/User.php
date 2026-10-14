@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Carbon;
+use Lathe\Auth\Impersonatable;
 use Spatie\Permission\Traits\HasRoles;
 use Workbench\Database\Factories\UserFactory;
 
@@ -23,7 +24,15 @@ use Workbench\Database\Factories\UserFactory;
 class User extends Authenticatable
 {
     /** @use HasFactory<UserFactory> */
-    use HasFactory, HasRoles, Notifiable;
+    use HasFactory, HasRoles, Impersonatable, Notifiable;
+
+    /**
+     * Only the workbench admin may impersonate other users.
+     */
+    public function canImpersonate(): bool
+    {
+        return $this->getAttribute('email') === 'admin@lathephp.com';
+    }
 
     /**
      * Get the attributes that should be cast.

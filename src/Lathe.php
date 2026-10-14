@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Facade;
  * @method static \Lathe\Dashboards\DashboardRegistry dashboards()
  * @method static \Lathe\Assets\AssetManifest assets()
  * @method static \Lathe\Auth\FortifyBootstrap fortify()
+ * @method static \Lathe\Auth\Contracts\ImpersonatesUsers impersonator()
  * @method static void registerResources(class-string<\Lathe\Resources\Resource> ...$classes)
  * @method static void discoverResources(string $directory, ?string $namespace = null)
  * @method static void registerDashboards(\Lathe\Dashboards\Dashboard|string ...$dashboards)

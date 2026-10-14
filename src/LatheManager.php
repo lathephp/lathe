@@ -11,6 +11,7 @@ use Lathe\ActionEvents\ActionEvent;
 use Lathe\ActionEvents\ActionEventRecorder;
 use Lathe\Assets\AssetManifest;
 use Lathe\Assets\AssetRegistry;
+use Lathe\Auth\Contracts\ImpersonatesUsers;
 use Lathe\Auth\FortifyBootstrap;
 use Lathe\Auth\PanelGate;
 use Lathe\Dashboards\Dashboard;
@@ -128,6 +129,11 @@ class LatheManager
     public function fortify(): FortifyBootstrap
     {
         return $this->container->make(FortifyBootstrap::class);
+    }
+
+    public function impersonator(): ImpersonatesUsers
+    {
+        return $this->container->make(ImpersonatesUsers::class);
     }
 
     /**

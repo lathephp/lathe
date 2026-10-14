@@ -14,6 +14,7 @@ use Lathe\Http\Controllers\BulkRunController;
 use Lathe\Http\Controllers\DashboardController;
 use Lathe\Http\Controllers\ExportController;
 use Lathe\Http\Controllers\GlobalSearchController;
+use Lathe\Http\Controllers\ImpersonateController;
 use Lathe\Http\Controllers\ImportController;
 use Lathe\Http\Controllers\NotificationController;
 use Lathe\Http\Controllers\PageController;
@@ -188,6 +189,9 @@ class PanelRoutes
             $router->post('uploads/{upload}/complete', [UploadController::class, 'complete'])->name('uploads.complete');
             $router->delete('uploads/{upload}', [UploadController::class, 'destroy'])->name('uploads.destroy');
             $router->get('search', GlobalSearchController::class)->name('search');
+            $router->get('impersonate', [ImpersonateController::class, 'show'])->name('impersonate.show');
+            $router->post('impersonate', [ImpersonateController::class, 'store'])->name('impersonate.store');
+            $router->delete('impersonate', [ImpersonateController::class, 'destroy'])->name('impersonate.destroy');
 
             // Registered after every plugin's own routes, so those win.
             $router->any('plugins/{plugin}/{path?}', PluginController::class)
