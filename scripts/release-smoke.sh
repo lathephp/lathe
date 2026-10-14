@@ -43,6 +43,9 @@ for tarball in "$work"/npm/*.tgz; do
     grep -q '^package/LICENSE$' <<<"$(tar -tzf "$tarball")" || fail "$(basename "$tarball") has no LICENSE"
 done
 
+# The clean app reads its own .env, so drop app settings inherited from a test runner.
+while IFS= read -r name; do unset "$name"; done < <(compgen -e | grep -E '^(APP_|DB_|CACHE_|SESSION_|QUEUE_|MAIL_|BCRYPT_|BROADCAST_|FILESYSTEM_|LOG_|TELESCOPE_|PULSE_|NIGHTWATCH_)')
+
 step "create a Laravel $laravel app"
 composer create-project laravel/laravel "$work/app" --no-interaction --prefer-dist -q || fail "create-project failed"
 cd "$work/app" || fail "no app"
