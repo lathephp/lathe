@@ -6,6 +6,7 @@ use Illuminate\Testing\TestResponse;
 use Lathe\Actions\Import\Import;
 use Lathe\Testing\LatheTest;
 use Lathe\Uploads\PendingUpload;
+use Symfony\Component\HttpFoundation\Response;
 use Workbench\App\Models\Product;
 use Workbench\App\Models\User;
 use Workbench\Database\Seeders\DemoSeeder;
@@ -22,7 +23,7 @@ beforeEach(function () {
 
 /**
  * @param  array<string, mixed>  $body
- * @return TestResponse<\Symfony\Component\HttpFoundation\Response>
+ * @return TestResponse<Response>
  */
 function startImportUpload(array $body): TestResponse
 {
@@ -30,7 +31,7 @@ function startImportUpload(array $body): TestResponse
 }
 
 /**
- * @return TestResponse<\Symfony\Component\HttpFoundation\Response>
+ * @return TestResponse<Response>
  */
 function putImportChunk(string $id, string $bytes): TestResponse
 {
@@ -51,7 +52,7 @@ function sendImportFile(string $name, string $bytes): string
 
 /**
  * @param  array<string, mixed>  $fields
- * @return TestResponse<\Symfony\Component\HttpFoundation\Response>
+ * @return TestResponse<Response>
  */
 function importStep(array $fields): TestResponse
 {

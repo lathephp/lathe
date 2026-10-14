@@ -195,6 +195,7 @@ class PanelRoutes
         $router->post('resources/{resource}/lenses/{lens}/action', [LensActionController::class, 'run'])->name('resources.lenses.action.run');
         $router->get('resources/{resource}/actions/{action}/form', [ActionController::class, 'form'])->name('resources.actions.form');
         $router->post('resources/{resource}/action', ActionRunController::class)->name('resources.action.run');
+        $router->post('resources/{resource}/actions/{action}/uploads/{field}', [StartUploadController::class, 'action'])->name('resources.actions.uploads.start');
     }
 
     /**

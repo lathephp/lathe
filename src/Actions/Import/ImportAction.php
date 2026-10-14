@@ -8,8 +8,10 @@ use Illuminate\Support\Facades\Bus;
 use Illuminate\Support\Facades\Storage;
 use Laravel\SerializableClosure\SerializableClosure;
 use Lathe\Actions\Action;
+use Lathe\Actions\ActionResult;
 use Lathe\Http\Requests\LatheRequest;
 use Lathe\Lathe;
+use Lathe\Query\Selection;
 use Lathe\Resources\Resource;
 use Lathe\Support\JobContext;
 use LogicException;
@@ -20,6 +22,9 @@ use LogicException;
  */
 class ImportAction extends Action
 {
+    /** The modal's file field, which uploads through the action's chunked upload route. */
+    public const string FILE_FIELD = 'file';
+
     /** @var list<ImportColumn> */
     protected array $columns = [];
 
@@ -81,6 +86,16 @@ class ImportAction extends Action
         ]);
 
         Bus::dispatch(new ProcessImport($import, $this, $context));
+    }
+
+    /**
+     * The modal's steps, by fields.import_step; the import ability guards each one.
+     *
+     * @return array{result: ActionResult, permitted: int, skipped: int, failed: int, errors: list<array{id: int|string|null, message: string}>, import_run?: array{id: int}}
+     */
+    public function handleRequest(LatheRequest $request, Selection $selection): array
+    {
+        return app(ImportSteps::class)->handle($request, $this);
     }
 
     /**
@@ -295,6 +310,16 @@ class ImportAction extends Action
     public function getChunkSize(): ?int
     {
         return $this->chunkSize;
+    }
+
+    /**
+     * The menu metadata, marked so the client opens the import modal for it.
+     *
+     * @return array<string, mixed>
+     */
+    public function jsonSerialize(): array
+    {
+        return [...parent::jsonSerialize(), 'import' => true];
     }
 
     /**

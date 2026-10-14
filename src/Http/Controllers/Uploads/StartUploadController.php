@@ -6,6 +6,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
+use Lathe\Actions\Import\ImportAction;
 use Lathe\Auth\ResourceAuthorization;
 use Lathe\Field\FieldContext;
 use Lathe\Field\FileField;
@@ -66,6 +67,37 @@ class StartUploadController
         abort_unless($target instanceof FileField, 404);
 
         return $this->start($request, $target->attribute(), $target->getStorageDisk(), $target->getStorageDir(), $target->getMaxSizeBytes(), $target);
+    }
+
+    /**
+     * An upload to a file field of an action's modal. An import's file is its `file` field:
+     * csv or xlsx up to imports.max_file_size_mb, for a user with the import ability. The
+     * pending upload names the action too, so a Resource field's upload never feeds an action.
+     */
+    public function action(LatheRequest $request, ResourceAuthorization $authorization, string $resource, string $action, string $field): JsonResponse
+    {
+        $class = $this->viewableResource($request, $authorization);
+        $target = $class::make()->availableActions($request)->findByUriKey($action);
+
+        abort_if($target === null, 404);
+        abort_unless($target->authorizedToSee($request), 403);
+
+        if ($target instanceof ImportAction) {
+            abort_unless($authorization->allows($request->user(), $class, $target->ability()), 403, $authorization->denialMessage($class));
+            abort_unless($field === ImportAction::FILE_FIELD, 404);
+
+            $file = FileField::make(Lathe::__('File'), $field)
+                ->disk($this->config->string('imports.disk'))
+                ->path($this->config->string('imports.directory'))
+                ->maxSize($this->config->integer('imports.max_file_size_mb'))
+                ->acceptedTypes('csv', 'xlsx');
+        } else {
+            $file = collect($target->fields($request))->first(fn (mixed $candidate) => $candidate instanceof FileField && $candidate->attribute() === $field);
+        }
+
+        abort_unless($file instanceof FileField, 404);
+
+        return $this->start($request, "actions/{$action}/{$field}", $file->getStorageDisk(), $file->getStorageDir(), $file->getMaxSizeBytes(), $file);
     }
 
     /**
