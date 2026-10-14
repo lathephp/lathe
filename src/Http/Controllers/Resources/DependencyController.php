@@ -48,6 +48,18 @@ class DependencyController
             $fields[$field->key()] = $field;
         }
 
+        return new JsonResponse($this->lookup($request, $fields, $context));
+    }
+
+    /**
+     * Runs the dependsOn callbacks of the named fields, then of the fields their new values
+     * reach. An action's modal asks the same through PATCH /action.
+     *
+     * @param  array<string, Field>  $fields  by key
+     * @return array{patches: object, changed: object}
+     */
+    public function lookup(LatheRequest $request, array $fields, FieldContext $context): array
+    {
         $values = $request->input('values');
         $values = is_array($values) ? $values : [];
         $dirty = array_values(array_filter((array) $request->input('dirty', []), is_string(...)));
@@ -90,7 +102,7 @@ class DependencyController
             ) !== [], ARRAY_FILTER_USE_BOTH));
         }
 
-        return new JsonResponse(['patches' => (object) $patches, 'changed' => (object) $changed]);
+        return ['patches' => (object) $patches, 'changed' => (object) $changed];
     }
 
     /**

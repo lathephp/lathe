@@ -18,6 +18,7 @@ use Lathe\Http\Controllers\Plugins\ModuleController;
 use Lathe\Http\Controllers\Plugins\PluginApiController;
 use Lathe\Http\Controllers\Plugins\PluginPageController;
 use Lathe\Http\Controllers\Resources\ActionController;
+use Lathe\Http\Controllers\Resources\ActionLookupController;
 use Lathe\Http\Controllers\Resources\ActionRunController;
 use Lathe\Http\Controllers\Resources\AssociatableController;
 use Lathe\Http\Controllers\Resources\BatchDeleteController;
@@ -34,6 +35,7 @@ use Lathe\Http\Controllers\Resources\FormPageController;
 use Lathe\Http\Controllers\Resources\IndexController;
 use Lathe\Http\Controllers\Resources\IndexPageController;
 use Lathe\Http\Controllers\Resources\InlineUpdateController;
+use Lathe\Http\Controllers\Resources\LensActionController;
 use Lathe\Http\Controllers\Resources\LensController;
 use Lathe\Http\Controllers\Resources\PeekController;
 use Lathe\Http\Controllers\Resources\RecordController;
@@ -185,6 +187,11 @@ class PanelRoutes
     protected function actionRoutes(Router $router): void
     {
         $router->get('resources/{resource}/actions', [ActionController::class, 'index'])->name('resources.actions.index');
+        $router->patch('resources/{resource}/action', [ActionLookupController::class, 'dependencies'])->name('resources.action.dependencies');
+        $router->get('resources/{resource}/action/associatable', [ActionLookupController::class, 'associatable'])->name('resources.action.associatable');
+        $router->get('resources/{resource}/lenses/{lens}/actions', [LensActionController::class, 'actions'])->name('resources.lenses.actions.index');
+        $router->get('resources/{resource}/lenses/{lens}/actions/{action}/form', [LensActionController::class, 'form'])->name('resources.lenses.actions.form');
+        $router->post('resources/{resource}/lenses/{lens}/action', [LensActionController::class, 'run'])->name('resources.lenses.action.run');
         $router->get('resources/{resource}/actions/{action}/form', [ActionController::class, 'form'])->name('resources.actions.form');
         $router->post('resources/{resource}/action', ActionRunController::class)->name('resources.action.run');
     }
@@ -199,6 +206,9 @@ class PanelRoutes
         $router->delete('resources/{resource}/batch', [$controller, 'delete'])->name('resources.batch.delete');
         $router->delete('resources/{resource}/batch/force', [$controller, 'forceDelete'])->name('resources.batch.forceDelete');
         $router->put('resources/{resource}/batch/restore', [$controller, 'restore'])->name('resources.batch.restore');
+        $router->delete('resources/{resource}/lenses/{lens}/batch', [LensActionController::class, 'batchDelete'])->name('resources.lenses.batch.delete');
+        $router->delete('resources/{resource}/lenses/{lens}/batch/force', [LensActionController::class, 'batchForceDelete'])->name('resources.lenses.batch.forceDelete');
+        $router->put('resources/{resource}/lenses/{lens}/batch/restore', [LensActionController::class, 'batchRestore'])->name('resources.lenses.batch.restore');
     }
 
     /**

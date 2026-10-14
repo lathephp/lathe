@@ -6,6 +6,7 @@ use Lathe\Field\Field;
 use Lathe\Http\Requests\LatheRequest;
 use Lathe\Resources\Resource;
 use Lathe\Resources\ResourceDefinition;
+use Workbench\App\Lathe\Actions\MergeTags;
 use Workbench\App\Models\Tag as TagModel;
 
 class Tag extends Resource
@@ -24,5 +25,10 @@ class Tag extends Resource
             Field::text('Name')->required(),
             Field::morphedByMany('Products')->pivotFields([Field::number('Position')->min(0)->max(1000)->step(1)->rules('integer')->required()]),
         ];
+    }
+
+    public function actions(LatheRequest $request): array
+    {
+        return [MergeTags::make()];
     }
 }

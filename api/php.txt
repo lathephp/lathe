@@ -1985,6 +1985,10 @@ Lathe\Http\Controllers\Plugins\PluginApiController::__invoke(Illuminate\Http\Req
 Lathe\Http\Controllers\Plugins\PluginPageController::__invoke(Illuminate\Http\Request $request, Lathe\Plugins\PluginRegistry $plugins, string $plugin, string $path = ''): Inertia\Response
 Lathe\Http\Controllers\Resources\ActionController::form(Lathe\Http\Requests\LatheRequest $request, Lathe\Auth\ResourceAuthorization $authorization, string $resource, string $action): Illuminate\Http\JsonResponse
 Lathe\Http\Controllers\Resources\ActionController::index(Lathe\Http\Requests\LatheRequest $request, Lathe\Auth\ResourceAuthorization $authorization, Lathe\Actions\ActionMenu $menu): Illuminate\Http\JsonResponse
+Lathe\Http\Controllers\Resources\ActionLookupController::action(Lathe\Http\Requests\LatheRequest $request, Lathe\Auth\ResourceAuthorization $authorization): Lathe\Actions\Action  [protected]
+Lathe\Http\Controllers\Resources\ActionLookupController::associatable(Lathe\Http\Requests\LatheRequest $request, Lathe\Auth\ResourceAuthorization $authorization): Illuminate\Http\JsonResponse
+Lathe\Http\Controllers\Resources\ActionLookupController::dependencies(Lathe\Http\Requests\LatheRequest $request, Lathe\Auth\ResourceAuthorization $authorization, Lathe\Http\Controllers\Resources\DependencyController $engine): Illuminate\Http\JsonResponse
+Lathe\Http\Controllers\Resources\ActionLookupController::fields(Lathe\Http\Requests\LatheRequest $request, Lathe\Actions\Action $action): Lathe\Field\FieldCollection  [protected]
 Lathe\Http\Controllers\Resources\ActionRunController::__invoke(Lathe\Http\Requests\LatheRequest $request, Lathe\Auth\ResourceAuthorization $authorization): Illuminate\Http\JsonResponse
 Lathe\Http\Controllers\Resources\AssociatableController::create(Lathe\Http\Requests\LatheRequest $request, Lathe\Auth\ResourceAuthorization $authorization, string $resource, string $field): Illuminate\Http\JsonResponse
 Lathe\Http\Controllers\Resources\AssociatableController::options(Lathe\Http\Requests\LatheRequest $request, string $parent, Lathe\Field\Relations\RelationField $field, ?Illuminate\Database\Eloquent\Model $record = NULL): Illuminate\Http\JsonResponse  [protected]
@@ -2004,6 +2008,7 @@ Lathe\Http\Controllers\Resources\DeleteController::restore(Lathe\Http\Requests\L
 Lathe\Http\Controllers\Resources\DependencyController::MAX_DEPTH
 Lathe\Http\Controllers\Resources\DependencyController::__invoke(Lathe\Http\Requests\LatheRequest $request, Lathe\Auth\ResourceAuthorization $authorization, string $resource): Illuminate\Http\JsonResponse
 Lathe\Http\Controllers\Resources\DependencyController::call(Lathe\Field\Dependency $dependency, Lathe\Field\FieldPatch $patch, Lathe\Http\Requests\LatheRequest $request, Lathe\Field\FormData $data): void  [protected]
+Lathe\Http\Controllers\Resources\DependencyController::lookup(Lathe\Http\Requests\LatheRequest $request, array $fields, Lathe\Field\FieldContext $context): array
 Lathe\Http\Controllers\Resources\DependencyController::model(Lathe\Http\Requests\LatheRequest $request, Lathe\Auth\ResourceAuthorization $authorization, string $class, Lathe\Field\FieldContext $context, mixed $id): ?Illuminate\Database\Eloquent\Model  [protected]
 Lathe\Http\Controllers\Resources\DetailPageController::__invoke(Lathe\Http\Requests\LatheRequest $request, Lathe\Auth\ResourceAuthorization $authorization, Lathe\Http\Payloads\IndexPayload $index, Lathe\Http\Payloads\RecordPayload $payload, Lathe\Actions\ActionMenu $menu, string $resource, string $resourceId): Symfony\Component\HttpFoundation\Response
 Lathe\Http\Controllers\Resources\FieldAttachmentController::Lathe\Uploads\UploadHandler $uploads  [protected]
@@ -2033,6 +2038,15 @@ Lathe\Http\Controllers\Resources\IndexController::__invoke(Lathe\Http\Requests\L
 Lathe\Http\Controllers\Resources\IndexPageController::__invoke(Lathe\Http\Requests\LatheRequest $request, Lathe\Auth\ResourceAuthorization $authorization, Lathe\Http\Payloads\IndexPayload $payload): Symfony\Component\HttpFoundation\Response
 Lathe\Http\Controllers\Resources\InlineUpdateController::__invoke(Lathe\Http\Requests\LatheRequest $request, Lathe\Auth\ResourceAuthorization $authorization, string $resource, string $resourceId, string $field): Illuminate\Http\JsonResponse
 Lathe\Http\Controllers\Resources\InlineUpdateController::save(Lathe\Http\Requests\LatheRequest $request, string $class, Illuminate\Database\Eloquent\Model $model, Lathe\Field\Field $field): void  [protected]
+Lathe\Http\Controllers\Resources\LensActionController::actions(Lathe\Http\Requests\LatheRequest $request, Lathe\Auth\ResourceAuthorization $authorization): Illuminate\Http\JsonResponse
+Lathe\Http\Controllers\Resources\LensActionController::batchDelete(Lathe\Http\Requests\LatheRequest $request, Lathe\Auth\ResourceAuthorization $authorization): Illuminate\Http\JsonResponse
+Lathe\Http\Controllers\Resources\LensActionController::batchForceDelete(Lathe\Http\Requests\LatheRequest $request, Lathe\Auth\ResourceAuthorization $authorization): Illuminate\Http\JsonResponse
+Lathe\Http\Controllers\Resources\LensActionController::batchRestore(Lathe\Http\Requests\LatheRequest $request, Lathe\Auth\ResourceAuthorization $authorization): Illuminate\Http\JsonResponse
+Lathe\Http\Controllers\Resources\LensActionController::call(string $controller, string $method, array $parameters = array ( )): Illuminate\Http\JsonResponse  [protected]
+Lathe\Http\Controllers\Resources\LensActionController::form(Lathe\Http\Requests\LatheRequest $request, Lathe\Auth\ResourceAuthorization $authorization, string $resource, string $lens, string $action): Illuminate\Http\JsonResponse
+Lathe\Http\Controllers\Resources\LensActionController::run(Lathe\Http\Requests\LatheRequest $request, Lathe\Auth\ResourceAuthorization $authorization): Illuminate\Http\JsonResponse
+Lathe\Http\Controllers\Resources\LensActionController::throughLens(Lathe\Http\Requests\LatheRequest $request, Lathe\Auth\ResourceAuthorization $authorization): void  [protected]
+Lathe\Http\Controllers\Resources\LensActionController::viewableLens(Lathe\Http\Requests\LatheRequest $request, Lathe\Auth\ResourceAuthorization $authorization): Lathe\Lenses\Lens  [protected]
 Lathe\Http\Controllers\Resources\LensController::count(Lathe\Http\Requests\LatheRequest $request, Lathe\Auth\ResourceAuthorization $authorization, Lathe\Http\Payloads\IndexPayload $payload): Illuminate\Http\JsonResponse
 Lathe\Http\Controllers\Resources\LensController::filters(Lathe\Http\Requests\LatheRequest $request, Lathe\Auth\ResourceAuthorization $authorization): Illuminate\Http\JsonResponse
 Lathe\Http\Controllers\Resources\LensController::index(Lathe\Http\Requests\LatheRequest $request, Lathe\Auth\ResourceAuthorization $authorization, Lathe\Http\Payloads\IndexPayload $payload): Illuminate\Http\JsonResponse
@@ -3104,6 +3118,8 @@ Lathe\Testing\ResourceTester::$withCredentials  [protected]
 Lathe\Testing\ResourceTester::?string $lens  [protected]
 Lathe\Testing\ResourceTester::Illuminate\Contracts\Foundation\Application $app  [protected]
 Lathe\Testing\ResourceTester::__construct(string $uriKey)
+Lathe\Testing\ResourceTester::actionAssociatable(string $action, string $field, array $query = array ( )): Illuminate\Testing\TestResponse
+Lathe\Testing\ResourceTester::actionDependencies(string $action, string $field, array $values = array ( ), array $dirty = array ( )): Illuminate\Testing\TestResponse
 Lathe\Testing\ResourceTester::actionForm(string $action, array $query = array ( )): Illuminate\Testing\TestResponse
 Lathe\Testing\ResourceTester::actions(string $display = 'index', array $query = array ( )): Illuminate\Testing\TestResponse
 Lathe\Testing\ResourceTester::base(): string  [protected]
@@ -3357,6 +3373,7 @@ class Lathe\Http\Controllers\Plugins\ModuleController
 class Lathe\Http\Controllers\Plugins\PluginApiController
 class Lathe\Http\Controllers\Plugins\PluginPageController
 class Lathe\Http\Controllers\Resources\ActionController
+class Lathe\Http\Controllers\Resources\ActionLookupController
 class Lathe\Http\Controllers\Resources\ActionRunController
 class Lathe\Http\Controllers\Resources\AssociatableController
 class Lathe\Http\Controllers\Resources\BatchDeleteController
@@ -3373,6 +3390,7 @@ class Lathe\Http\Controllers\Resources\FormPageController
 class Lathe\Http\Controllers\Resources\IndexController
 class Lathe\Http\Controllers\Resources\IndexPageController
 class Lathe\Http\Controllers\Resources\InlineUpdateController
+class Lathe\Http\Controllers\Resources\LensActionController
 class Lathe\Http\Controllers\Resources\LensController
 class Lathe\Http\Controllers\Resources\PeekController
 class Lathe\Http\Controllers\Resources\RecordController

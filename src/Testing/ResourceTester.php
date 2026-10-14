@@ -190,6 +190,29 @@ class ResourceTester
     }
 
     /**
+     * The dependent-field lookup of an action's modal: the field the user changed and the values.
+     *
+     * @param  array<string, mixed>  $values
+     * @param  list<string>  $dirty
+     * @return TestResponse<Response>
+     */
+    public function actionDependencies(string $action, string $field, array $values = [], array $dirty = []): TestResponse
+    {
+        return $this->patchJson($this->base().'/action?'.http_build_query(['action' => $action, 'field' => $field]), ['values' => $values, 'dirty' => $dirty]);
+    }
+
+    /**
+     * One page of the picker of an action's relation field.
+     *
+     * @param  array<string, mixed>  $query
+     * @return TestResponse<Response>
+     */
+    public function actionAssociatable(string $action, string $field, array $query = []): TestResponse
+    {
+        return $this->getJson($this->base().'/action/associatable?'.http_build_query(['action' => $action, 'field' => $field] + $query));
+    }
+
+    /**
      * Run an action with a JSON body, whatever its fields hold.
      *
      * @param  array<string, mixed>  $selection

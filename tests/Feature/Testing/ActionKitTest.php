@@ -2,11 +2,9 @@
 
 namespace Lathe\Tests\Feature\Testing;
 
-use Illuminate\Http\Request;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Gate;
-use Illuminate\Support\Facades\Route;
 use Lathe\Actions\Action;
 use Lathe\Actions\ActionFields;
 use Lathe\Actions\ActionResult;
@@ -80,9 +78,8 @@ it('runs an action as JSON when no field holds a file', function () {
 });
 
 it('sends the lens twins through the lens routes', function () {
-    Route::post('lathe/api/resources/orders/lenses/big-spenders/action', fn (Request $request) => ['selection' => $request->input('selection')]);
+    $tester = LatheTest::resource('orders')->forLens('pending-orders');
 
-    LatheTest::resource('orders')->forLens('big-spenders')->postAction('mark-shipped', ['mode' => 'all'])
-        ->assertOk()
-        ->assertJson(['selection' => ['mode' => 'all']]);
+    $tester->actions()->assertOk()->assertJsonPath('actions.1.uriKey', 'mark-shipped');
+    $tester->actionForm('mark-shipped', ['count' => 2])->assertOk()->assertJsonPath('confirmText', 'Mark 2 orders as shipped?');
 });
