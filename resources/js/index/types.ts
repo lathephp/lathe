@@ -1,3 +1,4 @@
+import type { ActionList } from '../actions/types';
 import type { Cell } from '../table/cells';
 import type { FilterValue } from './useIndexState';
 
@@ -26,6 +27,8 @@ export interface Row {
   abilities: Record<string, boolean>;
   /** Sent only by a soft-deleting Resource. */
   trashed?: boolean;
+  /** The actions the user may run on this row, by uriKey. */
+  actions?: string[];
   /** The stale-edit token an inline save sends back; sent when a column is inline. */
   updatedAt?: string | null;
   /** Present while the rows are grouped. */
@@ -111,6 +114,8 @@ export interface IndexProps {
   staleFilters?: string[];
   /** Null when the Resource counts nothing. */
   count?: Count | null;
+  /** The actions of the index, metadata only. */
+  actions?: ActionList;
   /** A bad URL parameter: the page shows its message in place of the rows. */
   error?: { key: string; message: string };
   /** Deferred; null when no field is summarized. */

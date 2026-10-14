@@ -1,6 +1,7 @@
 import { Head, usePage } from '@inertiajs/react';
 import { useShortcut } from '@lathephp/core';
 import { Card } from '@lathephp/ui';
+import { ActionBar } from '../../actions/ActionBar';
 import { EmptyState } from '../../index/EmptyState';
 import { IndexBanner } from '../../index/IndexBanner';
 import { IndexFooter } from '../../index/IndexFooter';
@@ -15,7 +16,7 @@ import { useIndexState } from '../../index/useIndexState';
 import { useRowSelection } from '../../index/useRowSelection';
 import type { SharedProps } from '../../types';
 
-export default function Index({ resource, table, state, count, error, lens, lenses }: IndexProps) {
+export default function Index({ resource, table, state, count, error, lens, lenses, actions }: IndexProps) {
   const { basePath } = usePage<SharedProps>().props;
   const index = useIndexState({ perPage: resource.perPageOptions[0] ?? state.perPage });
   const filtered = index.state.q !== undefined || index.state.filter !== undefined;
@@ -57,6 +58,19 @@ export default function Index({ resource, table, state, count, error, lens, lens
         />
       ) : (
         <Card className="overflow-hidden">
+          {actions !== undefined && actions.actions.length > 0 && (
+            <div className="flex justify-end border-b border-border px-3 py-2">
+              <ActionBar
+                uriKey={resource.uriKey}
+                lens={lens?.uriKey ?? null}
+                list={actions}
+                selection={selection}
+                rows={more.rows}
+                total={count == null ? null : count.value}
+                state={index.state}
+              />
+            </div>
+          )}
           <SelectionBanner selection={selection} ids={ids} count={count} hasMorePages={more.hasMorePages} />
           <ResourceTable
             resource={resource}

@@ -82,7 +82,8 @@ export function FormFields({ uriKey, mode, id, record, idPrefix = 'field' }: For
   );
 }
 
-function FormRow({ field, idPrefix, value, values, error, onChange }: { field: FormFieldData; idPrefix: string; value: unknown; values: Record<string, unknown>; error: string | undefined; onChange: (value: unknown) => void }) {
+/** One field of a form: its label, control, help and first error. */
+export function FormRow({ field, idPrefix, value, values, error, onChange }: { field: FormFieldData; idPrefix: string; value: unknown; values: Record<string, unknown>; error: string | undefined; onChange: (value: unknown) => void }) {
   const id = `${idPrefix}-${field.attribute}`;
   const helpId = field.help === null ? undefined : `${id}-help`;
   const errorId = error === undefined ? undefined : `${id}-error`;
