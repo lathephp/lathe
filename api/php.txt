@@ -361,6 +361,7 @@ Lathe\Actions\Import\ImportAction::?string $model  [protected]
 Lathe\Actions\Import\ImportAction::?string $resourceClass  [protected]
 Lathe\Actions\Import\ImportAction::?string $skipDuplicates  [protected]
 Lathe\Actions\Import\ImportAction::?string $upsertBy  [protected]
+Lathe\Actions\Import\ImportAction::FILE_FIELD
 Lathe\Actions\Import\ImportAction::__construct()
 Lathe\Actions\Import\ImportAction::__serialize(): array
 Lathe\Actions\Import\ImportAction::__unserialize(array $data): void
@@ -381,6 +382,8 @@ Lathe\Actions\Import\ImportAction::getModel(): string
 Lathe\Actions\Import\ImportAction::getResourceClass(): ?string
 Lathe\Actions\Import\ImportAction::getSkipDuplicates(): ?string
 Lathe\Actions\Import\ImportAction::getUpsertBy(): ?string
+Lathe\Actions\Import\ImportAction::handleRequest(Lathe\Http\Requests\LatheRequest $request, Lathe\Query\Selection $selection): array
+Lathe\Actions\Import\ImportAction::jsonSerialize(): array
 Lathe\Actions\Import\ImportAction::queueable(?string $connection = NULL, ?string $queue = NULL, ?int $tries = NULL, ?int $timeout = NULL, ?int $chunkSize = NULL): static
 Lathe\Actions\Import\ImportAction::skipDuplicates(string $column): static
 Lathe\Actions\Import\ImportAction::start(Lathe\Actions\Import\Import $import, string $mode, Lathe\Support\JobContext $context): void
@@ -427,8 +430,17 @@ Lathe\Actions\Import\ImportColumn::string $name  [protected]
 Lathe\Actions\Import\ImportComplete::__construct(Lathe\Actions\Import\Import $import)
 Lathe\Actions\Import\ImportReader::__construct(string $path)
 Lathe\Actions\Import\ImportReader::count(): int
+Lathe\Actions\Import\ImportReader::preview(int $rows = 5): array
 Lathe\Actions\Import\ImportReader::rows(): Generator
 Lathe\Actions\Import\ImportReader::string $path  [protected]
+Lathe\Actions\Import\ImportSteps::Lathe\Auth\ResourceAuthorization $authorization  [protected]
+Lathe\Actions\Import\ImportSteps::Lathe\Support\ConfigStore $config  [protected]
+Lathe\Actions\Import\ImportSteps::Lathe\Uploads\UploadHandler $uploads  [protected]
+Lathe\Actions\Import\ImportSteps::__construct(Lathe\Uploads\UploadHandler $uploads, Lathe\Support\ConfigStore $config, Lathe\Auth\ResourceAuthorization $authorization)
+Lathe\Actions\Import\ImportSteps::handle(Lathe\Http\Requests\LatheRequest $request, Lathe\Actions\Import\ImportAction $action): array
+Lathe\Actions\Import\ImportSteps::response(Lathe\Actions\ActionResult $result): array  [protected]
+Lathe\Actions\Import\ImportSteps::run(Lathe\Http\Requests\LatheRequest $request, Lathe\Actions\Import\ImportAction $action, string $mode): array  [protected]
+Lathe\Actions\Import\ImportSteps::upload(Lathe\Http\Requests\LatheRequest $request, Lathe\Actions\Import\ImportAction $action): Lathe\Actions\ActionResult  [protected]
 Lathe\Actions\Import\ProcessImport::$afterCommit
 Lathe\Actions\Import\ProcessImport::$chainCatchCallbacks
 Lathe\Actions\Import\ProcessImport::$chainConnection
@@ -2254,6 +2266,7 @@ Lathe\Http\Controllers\RunPageController::__invoke(Lathe\Http\Requests\LatheRequ
 Lathe\Http\Controllers\Uploads\StartUploadController::Lathe\Support\ConfigStore $config  [protected]
 Lathe\Http\Controllers\Uploads\StartUploadController::Lathe\Uploads\UploadHandler $uploads  [protected]
 Lathe\Http\Controllers\Uploads\StartUploadController::__construct(Lathe\Uploads\UploadHandler $uploads, Lathe\Support\ConfigStore $config)
+Lathe\Http\Controllers\Uploads\StartUploadController::action(Lathe\Http\Requests\LatheRequest $request, Lathe\Auth\ResourceAuthorization $authorization, string $resource, string $action, string $field): Illuminate\Http\JsonResponse
 Lathe\Http\Controllers\Uploads\StartUploadController::custom(Lathe\Http\Requests\LatheRequest $request): Illuminate\Http\JsonResponse
 Lathe\Http\Controllers\Uploads\StartUploadController::field(Lathe\Http\Requests\LatheRequest $request, Lathe\Auth\ResourceAuthorization $authorization, string $resource, string $field): Illuminate\Http\JsonResponse
 Lathe\Http\Controllers\Uploads\StartUploadController::start(Lathe\Http\Requests\LatheRequest $request, string $field, string $disk, string $directory, int $maxBytes, ?Lathe\Field\FileField $target = NULL): Illuminate\Http\JsonResponse  [protected]
@@ -3306,6 +3319,7 @@ Lathe\Testing\ResourceTester::relation(string $relationship, string|int $id): La
 Lathe\Testing\ResourceTester::replicateFields(string|int $id): Illuminate\Testing\TestResponse
 Lathe\Testing\ResourceTester::restore(string|int $id): Illuminate\Testing\TestResponse
 Lathe\Testing\ResourceTester::runAction(string $action, array $selection, array $fields = array ( )): Illuminate\Testing\TestResponse
+Lathe\Testing\ResourceTester::startActionUpload(string $action, string $field, array $body): Illuminate\Testing\TestResponse
 Lathe\Testing\ResourceTester::store(array $data): Illuminate\Testing\TestResponse
 Lathe\Testing\ResourceTester::string $uriKey  [protected]
 Lathe\Testing\ResourceTester::update(string|int $id, array $data): Illuminate\Testing\TestResponse
@@ -3377,6 +3391,7 @@ class Lathe\Actions\Import\ImportAction
 class Lathe\Actions\Import\ImportColumn
 class Lathe\Actions\Import\ImportComplete
 class Lathe\Actions\Import\ImportReader
+class Lathe\Actions\Import\ImportSteps
 class Lathe\Actions\Import\ProcessImport
 class Lathe\Actions\Import\RowCastException
 class Lathe\Actions\Import\RowCaster
