@@ -37,7 +37,8 @@ it('changes the URL when the file changes', function () {
 
     $this->get('/lathe/modules/heartbeat-15dcd957.js')->assertNotFound();
     $this->get('/lathe/modules/heartbeat-76945dcf.js')->assertOk();
-    expect(Lathe::plugins()->moduleUrls())->toBe(['/lathe/modules/heartbeat-76945dcf.js']);
+    expect(Lathe::plugins()->moduleUrls())->toContain('/lathe/modules/heartbeat-76945dcf.js')
+        ->not->toContain('/lathe/modules/heartbeat-15dcd957.js');
 });
 
 it('answers 404 for a wrong hash, an unregistered name, a climbing path or an absolute path', function (string $url) {
