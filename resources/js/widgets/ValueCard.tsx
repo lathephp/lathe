@@ -20,7 +20,8 @@ export function ValueCard({ widget, value }: WidgetRendererProps) {
     return <p className="text-sm font-medium text-muted-foreground">{__('No Data')}</p>;
   }
 
-  const { change } = result;
+  // A calculate() that returns a bare number sends no change at all.
+  const change = typeof result.change === 'number' && Number.isFinite(result.change) ? result.change : null;
   const direction = change === null ? null : change > 0 ? 'up' : change < 0 ? 'down' : 'flat';
   const Arrow = direction === 'up' ? ArrowUpRight : direction === 'down' ? ArrowDownRight : ArrowRight;
 

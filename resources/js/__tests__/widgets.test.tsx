@@ -132,6 +132,13 @@ describe('the change badge', () => {
     expect(container.textContent).not.toMatch(/NaN|Infinity/);
   });
 
+  it('shows no badge for a bare number from calculate()', () => {
+    const { container } = render(<ValueCard widget={widget} value={42} />);
+
+    expect(container.querySelector('[data-change]')).toBeNull();
+    expect(container.textContent).not.toContain('NaN');
+  });
+
   it('shows the previous value under its label', () => {
     showValue({ value: 150, previous: 100, change: 50, previousLabel: 'last month' });
 
