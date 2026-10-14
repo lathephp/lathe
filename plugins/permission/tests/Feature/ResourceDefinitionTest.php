@@ -6,6 +6,7 @@ use Lathe\Field\Relations\MorphToManyField;
 use Lathe\Http\Requests\LatheRequest;
 use Lathe\Permission\Resources\PermissionResource;
 use Lathe\Permission\Resources\RoleResource;
+use Lathe\Permission\Tests\Fixtures\CustomRole;
 use Lathe\Permission\Tests\Fixtures\TestUserResource;
 use Spatie\Permission\Models\Role;
 use Spatie\Permission\PermissionRegistrar;
@@ -90,8 +91,11 @@ it('wires a detail-only MorphToMany users field at the host User resource', func
         ->toBe([false, true, false, false]);
 })->with([RoleResource::class, PermissionResource::class]);
 
-it('omits the users field when no resource is registered for the user model', function (string $resource) {
-    config(['auth.providers.users.model' => null]);
+it('omits the users field when no resource is registered for the user model', function (string $resource, ?string $model) {
+    config(['auth.providers.users.model' => $model]);
 
     expect(collect(permissionResourceFields($resource))->first(fn (Field $field) => $field->attribute() === 'users'))->toBeNull();
-})->with([RoleResource::class, PermissionResource::class]);
+})->with([RoleResource::class, PermissionResource::class])->with([
+    'no user model' => null,
+    'a user model without a Resource' => CustomRole::class,
+]);
