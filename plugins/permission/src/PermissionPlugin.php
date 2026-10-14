@@ -11,6 +11,7 @@ use Lathe\Permission\Resources\PermissionResource;
 use Lathe\Permission\Resources\RoleResource;
 use Lathe\Plugins\Plugin;
 use Spatie\Permission\PermissionRegistrar;
+use Spatie\Permission\PermissionServiceProvider as SpatiePermissionServiceProvider;
 
 /**
  * Roles and permissions from spatie/laravel-permission, managed in the panel. Nobody may
@@ -56,6 +57,20 @@ class PermissionPlugin extends Plugin
         }
 
         return [$this->registrar];
+    }
+
+    /**
+     * Lathe can discover this plugin in an app that does not discover Laravel packages, such
+     * as a Testbench suite; Spatie's provider and this package's then load here.
+     */
+    public function register(): void
+    {
+        if (! app()->bound(PermissionRegistrar::class)) {
+            app()->register(SpatiePermissionServiceProvider::class);
+            app()->register(PermissionServiceProvider::class);
+        }
+
+        parent::register();
     }
 
     public function resources(): array
