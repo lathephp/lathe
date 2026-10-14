@@ -1,5 +1,6 @@
 <?php
 
+use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\PackageManifest;
 use Illuminate\Support\Facades\Artisan;
@@ -7,7 +8,9 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Http;
+use Lathe\Actions\Action;
 use Lathe\Doctor\Doctor;
+use Lathe\Field\Field;
 use Lathe\Http\Requests\LatheRequest;
 use Lathe\Lathe;
 use Lathe\Resources\Resource;
@@ -67,11 +70,11 @@ afterEach(function () {
 /**
  * @return array{0: int, 1: list<string>}
  */
-class DoctorQueuedUpload extends \Lathe\Actions\Action implements \Illuminate\Contracts\Queue\ShouldQueue
+class DoctorQueuedUpload extends Action implements ShouldQueue
 {
     public function fields(LatheRequest $request): array
     {
-        return [\Lathe\Field\Field::file('Manifest')];
+        return [Field::file('Manifest')];
     }
 }
 

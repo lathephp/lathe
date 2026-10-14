@@ -19,6 +19,7 @@ use Lathe\Http\Requests\LatheRequest;
 use Lathe\Plugins\Plugin;
 use Lathe\Plugins\PluginDiscovery;
 use Lathe\Plugins\PluginRegistry;
+use Lathe\Resources\Resource;
 use Lathe\Resources\ResourceDefinition;
 use Lathe\Resources\ResourceRegistry;
 use Lathe\Search\LikeSearch;
