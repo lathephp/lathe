@@ -23,6 +23,7 @@
 @lathephp/core plugin
 @lathephp/core queryClient
 @lathephp/core queryKeys
+@lathephp/core registry
 @lathephp/core renderHook
 @lathephp/core request
 @lathephp/core resourcePlugin
@@ -44,6 +45,7 @@
 @lathephp/core type ResourcePluginProps
 @lathephp/core type SafeHtml
 @lathephp/core type SharedData
+@lathephp/core type SlotProps
 @lathephp/core type ToastAction
 @lathephp/core type ToastLink
 @lathephp/core type ToastMessage

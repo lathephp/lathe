@@ -1,6 +1,6 @@
 import { Head, usePage } from '@inertiajs/react';
 import { lazy, Suspense } from 'react';
-import { useShortcut } from '@lathephp/core';
+import { __panel, emit, useShortcut } from '@lathephp/core';
 import { Card } from '@lathephp/ui';
 import { EmptyState } from '../../index/EmptyState';
 import { IndexBanner } from '../../index/IndexBanner';
@@ -12,6 +12,7 @@ import { ResourceTable } from '../../index/ResourceTable';
 import { SelectionBanner } from '../../index/SelectionBanner';
 import { TabBar } from '../../index/TabBar';
 import type { IndexProps } from '../../index/types';
+import type { IndexUrlState } from '../../index/useIndexState';
 import { useIndexState } from '../../index/useIndexState';
 import { useRowSelection } from '../../index/useRowSelection';
 import type { SharedProps } from '../../types';
@@ -19,6 +20,7 @@ import type { SharedProps } from '../../types';
 // The menus load after the rows, so the action code stays out of the index's first load.
 const ActionBar = lazy(() => import('../../actions/ActionBar').then((module) => ({ default: module.ActionBar })));
 const DeleteMenu = lazy(() => import('../../actions/DeleteMenu').then((module) => ({ default: module.DeleteMenu })));
+const { RenderHook } = __panel;
 
 export default function Index({ resource, table, state, count, error, lens, lenses, actions }: IndexProps) {
   const { basePath } = usePage<SharedProps>().props;
@@ -37,18 +39,28 @@ export default function Index({ resource, table, state, count, error, lens, lens
     selection.selectAllMatching();
   });
 
+  // Plugins hear about a filter change through the event bus.
+  function visit(changes: IndexUrlState) {
+    if ('filter' in changes) {
+      emit('filters:changed', { resource: resource.uriKey, filters: changes.filter ?? {} });
+    }
+
+    index.visit(changes);
+  }
+
   return (
     <div className="space-y-6">
       <Head title={lens?.name ?? resource.label} />
-      <TabBar resource={resource} state={index.state} visit={index.visit} />
+      <TabBar resource={resource} state={index.state} visit={visit} />
       <IndexToolbar
         resource={resource}
         lens={lens}
         lenses={lenses}
         q={index.state.q}
-        visit={index.visit}
+        visit={visit}
         polling={polling !== null && showPollingToggle ? pollingChoice : null}
       />
+      <RenderHook position="index:header-actions" resource={resource.uriKey} className="flex flex-wrap justify-end gap-2" />
       {error !== undefined ? (
         <IndexBanner message={error.message} onReset={index.reset} />
       ) : table.rows.length === 0 ? (
@@ -57,7 +69,7 @@ export default function Index({ resource, table, state, count, error, lens, lens
           filtered={filtered}
           createHref={resource.abilities.create && lens == null ? `${basePath}/resources/${resource.uriKey}/new` : null}
           onClear={() => {
-            index.visit({ q: undefined, filter: undefined });
+            visit({ q: undefined, filter: undefined });
           }}
         />
       ) : (

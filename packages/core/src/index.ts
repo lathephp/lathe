@@ -11,6 +11,8 @@ import {
   resourcePluginComponent,
   widgetComponent,
 } from './registry';
+import { RenderHook } from './render-hooks';
+import { Slot } from './slots';
 import { dismissToast, toasts } from './toast';
 import { loadModules } from './loader';
 import { shortcutPauseCount } from './shortcuts';
@@ -32,6 +34,8 @@ export type {
   ResourcePluginProps,
   WidgetProps,
 } from './registry';
+export { registry } from './slots';
+export type { SlotProps } from './slots';
 export { config, router, url, visit } from './navigation';
 export type { PanelRouter } from './navigation';
 export { ApiError, csrfHeaders, request } from './http';
@@ -54,6 +58,7 @@ export type { Translator } from './translation';
  * @internal
  */
 export const __panel = {
+  RenderHook,
   actionModalComponent,
   boot,
   dismissToast,
@@ -68,6 +73,7 @@ export const __panel = {
   setTranslator,
   sharedProps,
   shortcutPauseCount,
+  Slot,
   toasts,
   translatorFor,
   widgetComponent,

@@ -1,5 +1,5 @@
 import { router, usePage } from '@inertiajs/react';
-import { ApiError, toast, useTranslation, visit } from '@lathephp/core';
+import { ApiError, emit, toast, useTranslation, visit } from '@lathephp/core';
 import { lazy, Suspense, useCallback, useState, type ReactNode } from 'react';
 import type { SelectionDescriptor } from '../index/useRowSelection';
 import { ReauthModal } from '../records/ReauthModal';
@@ -47,6 +47,7 @@ export function useActionRunner({ base, onDone }: ActionRunnerOptions): { start:
     try {
       const run = await runAction(`${base}/action`, action.uriKey, selection, fields);
       setRunning(null);
+      emit('actions:ran', { action: action.uriKey });
       applyActionResult(run.result, {
         openModal: (component, data) => {
           setResponse({ component, data });

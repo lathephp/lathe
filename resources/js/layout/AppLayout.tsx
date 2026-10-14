@@ -1,5 +1,5 @@
 import { usePage } from '@inertiajs/react';
-import { addShortcut, QueryClientProvider, queryClient, shortcutsEnabled, useTranslation } from '@lathephp/core';
+import { __panel, addShortcut, QueryClientProvider, queryClient, shortcutsEnabled, useTranslation } from '@lathephp/core';
 import { Button } from '@lathephp/ui';
 import { Menu, PanelLeft, Search } from 'lucide-react';
 import { lazy, Suspense, useEffect, useState, type CSSProperties, type ReactNode } from 'react';
@@ -11,6 +11,7 @@ import { Sidebar } from './Sidebar';
 const SearchPalette = lazy(() => import('../palette/SearchPalette').then((module) => ({ default: module.SearchPalette })));
 
 const oneYear = 60 * 60 * 24 * 365;
+const { RenderHook, Slot } = __panel;
 
 // The bell loads beside the page, so no route's first load carries it.
 const NotificationCenter = lazy(() => import('../notifications/NotificationCenter').then((module) => ({ default: module.NotificationCenter })));
@@ -61,6 +62,7 @@ export function AppLayout({ children }: { children: ReactNode }) {
       >
         {__('Skip to content')}
       </a>
+      <RenderHook position="head" />
       {mobileOpen && (
         <button
           type="button"
@@ -73,82 +75,92 @@ export function AppLayout({ children }: { children: ReactNode }) {
       )}
       <Sidebar props={props} url={url} expanded={expanded} mobileOpen={mobileOpen} />
       <div className="flex min-w-0 flex-1 flex-col">
-        <header
-          className={cn(
-            'flex h-14 items-center gap-2 border-b border-border bg-background px-4',
-            layout.header.sticky && 'sticky top-0 z-20',
-          )}
-        >
-          <Button
-            variant="ghost"
-            size="icon"
-            className="md:hidden"
-            aria-label={__('Open menu')}
-            aria-controls="lathe-sidebar"
-            aria-expanded={mobileOpen}
-            onClick={() => {
-              setSheetUrl(url);
-            }}
+        <Slot name="shell.header">
+          <header
+            className={cn(
+              'flex h-14 items-center gap-2 border-b border-border bg-background px-4',
+              layout.header.sticky && 'sticky top-0 z-20',
+            )}
           >
-            <Menu aria-hidden="true" className="size-4" />
-          </Button>
-          {collapsible !== 'none' && (
             <Button
               variant="ghost"
               size="icon"
-              className="max-md:hidden"
-              aria-label={__('Toggle sidebar')}
+              className="md:hidden"
+              aria-label={__('Open menu')}
               aria-controls="lathe-sidebar"
-              aria-expanded={expanded}
-              onClick={toggle}
+              aria-expanded={mobileOpen}
+              onClick={() => {
+                setSheetUrl(url);
+              }}
             >
-              <PanelLeft aria-hidden="true" className="size-4" />
+              <Menu aria-hidden="true" className="size-4" />
             </Button>
-          )}
-          <div className="ms-auto flex items-center gap-2">
-            {searchOn && (
+            {collapsible !== 'none' && (
               <Button
-                variant="outline"
-                size="sm"
-                aria-label={__('Search')}
-                aria-keyshortcuts="Control+K Meta+K"
-                onClick={() => {
-                  setSearching(true);
-                }}
+                variant="ghost"
+                size="icon"
+                className="max-md:hidden"
+                aria-label={__('Toggle sidebar')}
+                aria-controls="lathe-sidebar"
+                aria-expanded={expanded}
+                onClick={toggle}
               >
-                <Search aria-hidden="true" className="size-4" />
-                {shortcutsEnabled() && (
-                  <kbd aria-hidden="true" className="text-xs text-muted-foreground max-md:hidden">
-                    {/mac/i.test(navigator.platform) ? '⌘K' : 'Ctrl K'}
-                  </kbd>
-                )}
+                <PanelLeft aria-hidden="true" className="size-4" />
               </Button>
             )}
-            {notifications?.enabled === true && (
-              <Suspense fallback={null}>
-                <NotificationCenter
-                  basePath={props.basePath}
-                  pollingInterval={notifications.pollingInterval}
-                  showUnreadCount={notifications.showUnreadCount}
-                />
-              </Suspense>
-            )}
-          </div>
-        </header>
+            <div className="ms-auto flex items-center gap-2">
+              {searchOn && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  aria-label={__('Search')}
+                  aria-keyshortcuts="Control+K Meta+K"
+                  onClick={() => {
+                    setSearching(true);
+                  }}
+                >
+                  <Search aria-hidden="true" className="size-4" />
+                  {shortcutsEnabled() && (
+                    <kbd aria-hidden="true" className="text-xs text-muted-foreground max-md:hidden">
+                      {/mac/i.test(navigator.platform) ? '⌘K' : 'Ctrl K'}
+                    </kbd>
+                  )}
+                </Button>
+              )}
+              {notifications?.enabled === true && (
+                <Suspense fallback={null}>
+                  <NotificationCenter
+                    basePath={props.basePath}
+                    pollingInterval={notifications.pollingInterval}
+                    showUnreadCount={notifications.showUnreadCount}
+                  />
+                </Suspense>
+              )}
+              <RenderHook position="header:end" />
+            </div>
+          </header>
+        </Slot>
         <main id="content" tabIndex={-1} className="flex-1 p-6 outline-none">
-          <div className={cn(layout.content.width === 'contained' && 'mx-auto max-w-384')}>{children}</div>
+          <div className={cn(layout.content.width === 'contained' && 'mx-auto max-w-384')}>
+            <RenderHook position="page:before" className="mb-6 flex flex-wrap gap-2" />
+            {children}
+            <RenderHook position="page:after" className="mt-6 flex flex-wrap gap-2" />
+          </div>
         </main>
-        {footer !== null && (
-          <footer className="border-t border-border px-6 py-3 text-xs text-muted-foreground">
-            {footer.href === null ? (
-              footer.text
-            ) : (
-              <a href={footer.href} className="hover:underline">
-                {footer.text}
-              </a>
-            )}
-          </footer>
-        )}
+        <RenderHook position="footer:before" />
+        <Slot name="shell.footer" footer={footer}>
+          {footer !== null && (
+            <footer className="border-t border-border px-6 py-3 text-xs text-muted-foreground">
+              {footer.href === null ? (
+                footer.text
+              ) : (
+                <a href={footer.href} className="hover:underline">
+                  {footer.text}
+                </a>
+              )}
+            </footer>
+          )}
+        </Slot>
       </div>
       {searchOn && searching && (
         // The palette reads through the shared client even where no provider wraps the layout.

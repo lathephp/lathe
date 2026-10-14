@@ -1,6 +1,6 @@
 import { Head, Link, router, usePage } from '@inertiajs/react';
 import { lazy, Suspense } from 'react';
-import { shortcutsEnabled, useShortcut, useTranslation } from '@lathephp/core';
+import { __panel, shortcutsEnabled, useShortcut, useTranslation } from '@lathephp/core';
 import { DetailField } from '../../fields/registry';
 import type { DetailFieldData, DetailProps } from '../../fields/types';
 import { cn } from '../../lib/cn';
@@ -11,6 +11,7 @@ import type { SharedProps } from '../../types';
 
 // The action menu loads after the record, so a page without actions never fetches it.
 const RecordActionMenu = lazy(() => import('../../actions/RecordActionMenu').then((module) => ({ default: module.RecordActionMenu })));
+const { RenderHook } = __panel;
 
 /** One record: its fields in the Resource's panels, grids and tabs. */
 export default function Detail({ resource, record, breadcrumbs, actions }: DetailProps) {
@@ -38,6 +39,7 @@ export default function Detail({ resource, record, breadcrumbs, actions }: Detai
           {subtitle === '' ? null : <p className="text-sm text-muted-foreground">{subtitle}</p>}
         </div>
         <div className="flex flex-wrap items-center gap-2">
+          <RenderHook position="detail:header-actions" resource={resource.uriKey} record={record} />
           {actions !== undefined && actions.actions.length > 0 && (
             <Suspense fallback={null}>
               <RecordActionMenu uriKey={resource.uriKey} id={id} actions={actions.actions} />
