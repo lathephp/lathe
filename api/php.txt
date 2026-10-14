@@ -1141,6 +1141,7 @@ Lathe\Field\Relations\RelationField::Closure|bool $peekable  [protected]
 Lathe\Field\Relations\RelationField::MODAL_SIZES
 Lathe\Field\Relations\RelationField::__construct(string $label, Closure|string|null $attribute = NULL, ?Closure $resolver = NULL)
 Lathe\Field\Relations\RelationField::allowsTrashed(): bool
+Lathe\Field\Relations\RelationField::array $guessedResources  [protected]
 Lathe\Field\Relations\RelationField::attaches(): bool
 Lathe\Field\Relations\RelationField::bool $reorderAssociatables  [protected]
 Lathe\Field\Relations\RelationField::collapsed(bool $collapsed = true): static

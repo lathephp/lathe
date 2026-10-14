@@ -35,6 +35,9 @@ abstract class RelationField extends Field implements PrimesForPage
     /** @var class-string<resource>|null */
     protected ?string $resourceClass = null;
 
+    /** @var array<string, class-string<resource>|null> The guessed related Resource, by owner. */
+    protected array $guessedResources = [];
+
     /** @var class-string<resource>|null The Resource whose fields() hold this field. */
     protected ?string $owner = null;
 
@@ -333,7 +336,18 @@ abstract class RelationField extends Field implements PrimesForPage
      */
     public function relatedResource(): ?string
     {
-        return $this->resourceClass ?? ResourceRelationshipGuesser::guessResource($this->label, $this->attribute, $this->owner);
+        if ($this->resourceClass !== null) {
+            return $this->resourceClass;
+        }
+
+        // The guess reads the owner's model and the registry; a page asks for it once per row.
+        $key = $this->owner ?? '';
+
+        if (! array_key_exists($key, $this->guessedResources)) {
+            $this->guessedResources[$key] = ResourceRelationshipGuesser::guessResource($this->label, $this->attribute, $this->owner);
+        }
+
+        return $this->guessedResources[$key];
     }
 
     /**
