@@ -85,7 +85,7 @@ class ActionEvent extends Model
      * @param  string  $relation
      * @return MorphTo<TRelatedModel, TDeclaringModel>
      */
-    protected function newMorphTo(Builder $query, Model $parent, $foreignKey, $ownerKey, $type, $relation)
+    protected function newMorphTo(Builder $query, Model $parent, $foreignKey, $ownerKey, $type, $relation): MorphTo
     {
         return new RecordMorphTo($query, $parent, $foreignKey, $ownerKey, $type, $relation);
     }

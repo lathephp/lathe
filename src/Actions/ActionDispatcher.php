@@ -34,7 +34,7 @@ use Throwable;
 class ActionDispatcher
 {
     /** The most failures a response lists. */
-    public const MAX_ERRORS = 50;
+    public const int MAX_ERRORS = 50;
 
     public function __construct(
         protected ActionEventRecorder $recorder,

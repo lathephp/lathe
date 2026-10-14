@@ -17,7 +17,7 @@ use Illuminate\Database\Eloquent\Relations\MorphTo;
  */
 class RecordMorphTo extends MorphTo
 {
-    public function getEager()
+    public function getEager(): Collection
     {
         foreach (array_keys($this->dictionary) as $type) {
             if (class_exists(Model::getActualClassNameForMorph((string) $type))) {

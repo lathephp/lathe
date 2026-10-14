@@ -9,9 +9,9 @@ use Illuminate\Support\Str;
  */
 class ColumnMapper
 {
-    protected const MAX_FUZZY_HEADER_LENGTH = 20;
+    protected const int MAX_FUZZY_HEADER_LENGTH = 20;
 
-    protected const MAX_DISTANCE = 2;
+    protected const int MAX_DISTANCE = 2;
 
     /**
      * @param  list<string>  $headers
