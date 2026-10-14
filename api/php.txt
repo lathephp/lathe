@@ -2418,6 +2418,25 @@ Lathe\Testing\InteractsWithLathe::latheRequest(string $uri = '/lathe/api', strin
 Lathe\Testing\InteractsWithLathe::registerResources(string ...$classes): void  [protected]
 Lathe\Testing\LatheTest::actingAs(Illuminate\Contracts\Auth\Authenticatable $user): void  [static]
 Lathe\Testing\LatheTest::resource(string $classOrKey): Lathe\Testing\ResourceTester  [static]
+Lathe\Testing\RelationTester::$defaultCookies  [protected]
+Lathe\Testing\RelationTester::$defaultHeaders  [protected]
+Lathe\Testing\RelationTester::$encryptCookies  [protected]
+Lathe\Testing\RelationTester::$followRedirects  [protected]
+Lathe\Testing\RelationTester::$serverVariables  [protected]
+Lathe\Testing\RelationTester::$unencryptedCookies  [protected]
+Lathe\Testing\RelationTester::$withCredentials  [protected]
+Lathe\Testing\RelationTester::Illuminate\Contracts\Foundation\Application $app  [protected]
+Lathe\Testing\RelationTester::__construct(string $uriKey, string|int $id, string $relationship)
+Lathe\Testing\RelationTester::attach(string|int $relatedId, array $pivot = array ( )): Illuminate\Testing\TestResponse
+Lathe\Testing\RelationTester::detach(string|int $relatedId): Illuminate\Testing\TestResponse
+Lathe\Testing\RelationTester::index(array $params = array ( )): Illuminate\Testing\TestResponse
+Lathe\Testing\RelationTester::pivotFieldValues(string|int $relatedId): Illuminate\Testing\TestResponse
+Lathe\Testing\RelationTester::pivotFields(): Illuminate\Testing\TestResponse
+Lathe\Testing\RelationTester::string $relationship  [protected]
+Lathe\Testing\RelationTester::string $uriKey  [protected]
+Lathe\Testing\RelationTester::string|int $id  [protected]
+Lathe\Testing\RelationTester::updatePivot(string|int $relatedId, array $pivot): Illuminate\Testing\TestResponse
+Lathe\Testing\RelationTester::uri(): string  [protected]
 Lathe\Testing\ResourceTester::$defaultCookies  [protected]
 Lathe\Testing\ResourceTester::$defaultHeaders  [protected]
 Lathe\Testing\ResourceTester::$encryptCookies  [protected]
@@ -2433,6 +2452,7 @@ Lathe\Testing\ResourceTester::forceDelete(string|int $id): Illuminate\Testing\Te
 Lathe\Testing\ResourceTester::index(array $query = array ( )): Illuminate\Testing\TestResponse
 Lathe\Testing\ResourceTester::peek(string|int $id): Illuminate\Testing\TestResponse
 Lathe\Testing\ResourceTester::preview(string|int $id): Illuminate\Testing\TestResponse
+Lathe\Testing\ResourceTester::relation(string $relationship, string|int $id): Lathe\Testing\RelationTester
 Lathe\Testing\ResourceTester::replicateFields(string|int $id): Illuminate\Testing\TestResponse
 Lathe\Testing\ResourceTester::restore(string|int $id): Illuminate\Testing\TestResponse
 Lathe\Testing\ResourceTester::store(array $data): Illuminate\Testing\TestResponse
@@ -2712,6 +2732,7 @@ class Lathe\Support\TranslationManager
 class Lathe\Support\Util
 class Lathe\Tabs\Tab
 class Lathe\Testing\LatheTest
+class Lathe\Testing\RelationTester
 class Lathe\Testing\ResourceTester
 class Lathe\Testing\TestCase
 class Lathe\Uploads\FieldAttachment

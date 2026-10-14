@@ -132,6 +132,14 @@ class ResourceTester
         return $this->putJson($this->uri().'/'.$id.'/restore');
     }
 
+    /**
+     * One record's relation: its panel rows, attach, detach and pivot forms.
+     */
+    public function relation(string $relationship, string|int $id): RelationTester
+    {
+        return new RelationTester($this->uriKey, $id, $relationship);
+    }
+
     protected function uri(): string
     {
         return rtrim(Lathe::path(), '/').'/api/resources/'.$this->uriKey;
