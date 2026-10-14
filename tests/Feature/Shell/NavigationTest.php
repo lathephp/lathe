@@ -46,7 +46,8 @@ function navigationFor(string $email): array
 {
     $props = test()->actingAs(User::where('email', $email)->firstOrFail())->get('/lathe')->assertOk()->viewData('page')['props'];
 
-    return $props['navigation'];
+    // The workbench's lathe/permission section is that plugin's to test.
+    return array_values(array_filter($props['navigation'], fn (array $section) => $section['label'] !== 'Access Control'));
 }
 
 it('orders the dashboards, the Navigation group, the sections, the plugin sections and the Resource groups', function () {
@@ -140,7 +141,7 @@ it('builds one Resource definition for the sidebar and the Orders index among 50
     Lathe::resources()->flush();
     Lathe::resourcePlugins()->flush();
     $this->get('/lathe/resources/orders')->assertOk()
-        ->assertInertia(fn (AssertableInertia $page) => $page->has('navigation.5.items', 9));
+        ->assertInertia(fn (AssertableInertia $page) => $page->where('navigation', fn ($navigation) => count(collect($navigation)->firstWhere('label', 'Resources')['items']) === 9));
 
     // Orders, and Customers for the titles its Customer column shows; never the 499 others.
     expect(Lathe::resources()->definitionsBuilt())->toBe(2)

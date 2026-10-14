@@ -68,6 +68,11 @@ class PermissionPlugin extends Plugin
      */
     public function policies(): array
     {
+        // Denied until the app opts in, and with nothing to map no Spatie config is read.
+        if ($this->rolePolicy === null && $this->permissionPolicy === null) {
+            return [];
+        }
+
         $registrar = app(PermissionRegistrar::class);
         /** @var class-string $role */
         $role = $registrar->getRoleClass();

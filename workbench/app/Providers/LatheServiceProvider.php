@@ -10,6 +10,7 @@ use Lathe\LatheApplicationServiceProvider;
 use Lathe\Menu\Menu;
 use Lathe\Menu\MenuItem;
 use Lathe\Menu\MenuSection;
+use Lathe\Permission\PermissionPlugin;
 use Workbench\App\Lathe\Dashboards\Sales;
 use Workbench\App\Lathe\Pages\SystemStatus;
 use Workbench\App\Lathe\Pages\UiGallery;
@@ -36,7 +37,7 @@ class LatheServiceProvider extends LatheApplicationServiceProvider
         Lathe::withPasswordResetRoutes();
         Lathe::registerPages(UiGallery::class, SystemStatus::class);
         Lathe::registerSearchProviders(new DemoKitPages);
-        Lathe::registerPlugins(HelloPlugin::make(), InsightsPlugin::make());
+        Lathe::registerPlugins(HelloPlugin::make(), InsightsPlugin::make(), PermissionPlugin::make()->withDefaultPolicies());
 
         Menu::mainMenu(fn (Request $request, Menu $menu) => $menu->add(MenuSection::section('Demo Kit', [
             MenuItem::link('UI Gallery', 'pages/ui-gallery'),

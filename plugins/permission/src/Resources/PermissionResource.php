@@ -24,7 +24,7 @@ class PermissionResource extends Resource
         /** @var class-string<Model> $model */
         $model = app(PermissionRegistrar::class)->getPermissionClass();
 
-        return $definition->model($model);
+        return $definition->model($model)->group('Access Control');
     }
 
     public function fields(LatheRequest $request): array
