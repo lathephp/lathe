@@ -73,6 +73,37 @@ export {
   WidgetCard,
   WidgetGrid,
 } from './components';
+export type {
+  ActionData,
+  ActionModalComponentProps,
+  BadgeData,
+  BadgeType,
+  CustomPageProps,
+  CustomWidgetComponentProps,
+  DetailFieldProps,
+  FieldData,
+  FilterComponentProps,
+  FilterData,
+  FormFieldProps,
+  GlobalSearchResult,
+  IndexFieldProps,
+  LayoutBlock,
+  NotificationData,
+  PaginatedResponse,
+  PluginMeta,
+  RenderHookContext,
+  RenderHookOptions,
+  ResourceDetailResponse,
+  ResourceIndexResponse,
+  ResourceMeta,
+  ResourcePluginLayout,
+  ResourceRow,
+  SectionLayout,
+  TabGroupLayout,
+  TabLayout,
+  WidgetComponentProps,
+  WidgetData,
+} from './types';
 export type { LatheContext } from './hooks';
 export type { SharedData } from './props';
 export type { SafeHtml } from './safe-html';

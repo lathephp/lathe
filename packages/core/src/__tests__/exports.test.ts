@@ -1,0 +1,142 @@
+import { describe, expect, expectTypeOf, it } from 'vitest';
+import * as core from '../index';
+import type {
+  ActionData,
+  ActionModalComponentProps,
+  BadgeData,
+  BadgeType,
+  CustomPageProps,
+  CustomWidgetComponentProps,
+  DetailFieldProps,
+  FieldData,
+  FilterComponentProps,
+  FilterData,
+  FormFieldProps,
+  GlobalSearchResult,
+  IndexFieldProps,
+  LayoutBlock,
+  NotificationData,
+  PaginatedResponse,
+  PluginMeta,
+  PluginPageProps,
+  RenderHookContext,
+  RenderHookName,
+  RenderHookOptions,
+  ResourceDetailResponse,
+  ResourceIndexResponse,
+  ResourceMeta,
+  ResourcePluginLayout,
+  ResourcePluginProps,
+  ResourceRow,
+  SectionLayout,
+  SharedData,
+  TabGroupLayout,
+  TabLayout,
+  WidgetComponentProps,
+  WidgetData,
+} from '../index';
+
+describe('the @lathephp/core exports', () => {
+  it('pins every value a plugin can import', () => {
+    expect(Object.keys(core).filter((name) => name !== '__panel').sort()).toEqual([
+      'ActionDropdown',
+      'ApiError',
+      'AppLayout',
+      'DetailFieldPanel',
+      'DetailHeader',
+      'Excerpt',
+      'FilterMenu',
+      'QueryClientProvider',
+      'ResourceTable',
+      'WidgetCard',
+      'WidgetGrid',
+      'actionModal',
+      'addShortcut',
+      'apiVersion',
+      'booting',
+      'config',
+      'csrfHeaders',
+      'disableShortcut',
+      'emit',
+      'enableShortcut',
+      'field',
+      'filter',
+      'formatCurrency',
+      'formatDate',
+      'formatDateTime',
+      'formatNumber',
+      'off',
+      'on',
+      'once',
+      'page',
+      'pauseShortcuts',
+      'plugin',
+      'queryClient',
+      'queryKeys',
+      'registry',
+      'renderHook',
+      'request',
+      'resourcePlugin',
+      'resumeShortcuts',
+      'router',
+      'shortcutsEnabled',
+      'toast',
+      'url',
+      'useDebounce',
+      'useExecuteAction',
+      'useInlineField',
+      'useLathe',
+      'useNavigationProgress',
+      'usePauseShortcuts',
+      'useQuery',
+      'useQueryClient',
+      'useResourceActions',
+      'useResourceDetail',
+      'useResourceIndex',
+      'useShortcut',
+      'useTranslation',
+      'useWidgetList',
+      'useWidgetValue',
+      'visit',
+      'widget',
+    ]);
+  });
+
+  // tsc compiles this file, so a missing type fails the build and an `any` fails toBeAny.
+  it('exports the plugin types, none of them any', () => {
+    expectTypeOf<FormFieldProps>().not.toBeAny();
+    expectTypeOf<IndexFieldProps>().not.toBeAny();
+    expectTypeOf<DetailFieldProps>().not.toBeAny();
+    expectTypeOf<FilterComponentProps>().not.toBeAny();
+    expectTypeOf<WidgetComponentProps>().not.toBeAny();
+    expectTypeOf<CustomWidgetComponentProps>().not.toBeAny();
+    expectTypeOf<ActionModalComponentProps>().not.toBeAny();
+    expectTypeOf<PluginPageProps>().not.toBeAny();
+    expectTypeOf<CustomPageProps>().not.toBeAny();
+    expectTypeOf<ResourcePluginProps>().not.toBeAny();
+    expectTypeOf<RenderHookName>().not.toBeAny();
+    expectTypeOf<RenderHookOptions>().not.toBeAny();
+    expectTypeOf<RenderHookContext>().not.toBeAny();
+    expectTypeOf<FieldData>().not.toBeAny();
+    expectTypeOf<FilterData>().not.toBeAny();
+    expectTypeOf<WidgetData>().not.toBeAny();
+    expectTypeOf<ActionData>().not.toBeAny();
+    expectTypeOf<ResourceRow>().not.toBeAny();
+    expectTypeOf<ResourceMeta>().not.toBeAny();
+    expectTypeOf<PluginMeta>().not.toBeAny();
+    expectTypeOf<ResourcePluginLayout>().not.toBeAny();
+    expectTypeOf<SectionLayout>().not.toBeAny();
+    expectTypeOf<TabGroupLayout>().not.toBeAny();
+    expectTypeOf<TabLayout>().not.toBeAny();
+    expectTypeOf<LayoutBlock>().not.toBeAny();
+    expectTypeOf<PaginatedResponse<ResourceRow>>().not.toBeAny();
+    expectTypeOf<ResourceIndexResponse>().not.toBeAny();
+    expectTypeOf<ResourceDetailResponse>().not.toBeAny();
+    expectTypeOf<GlobalSearchResult>().not.toBeAny();
+    expectTypeOf<NotificationData>().not.toBeAny();
+    expectTypeOf<BadgeType>().toEqualTypeOf<'info' | 'success' | 'warning' | 'danger'>();
+    expectTypeOf<BadgeData>().not.toBeAny();
+    expectTypeOf<SharedData>().not.toBeAny();
+    expectTypeOf<ResourceIndexResponse['table']['rows']>().toEqualTypeOf<ResourceRow[]>();
+  });
+});
