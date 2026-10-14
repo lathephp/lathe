@@ -1,6 +1,6 @@
 import { on, request, useTranslation } from '@lathephp/core';
 import { Button, Card } from '@lathephp/ui';
-import { useEffect, useEffectEvent, useRef, useState } from 'react';
+import { Suspense, useEffect, useEffectEvent, useRef, useState } from 'react';
 import { cn } from '../lib/cn';
 import { HelpTooltip } from './HelpTooltip';
 import { cellClass } from './layout';
@@ -138,6 +138,12 @@ export function WidgetCard({ widget, url, params, deferred, register }: WidgetCa
   const value = fetched ?? deferred?.value;
   const error = Renderer === undefined || (!pending && (failed || (fetched === undefined && deferred?.rescued === true)));
   const loading = !error && (held || pending || (fetches && value === undefined));
+  const skeleton = (
+    <div role="status" aria-label={__('Loading')} className="space-y-2">
+      <div className="h-8 w-24 animate-pulse rounded bg-muted" />
+      <div className="h-3 w-16 animate-pulse rounded bg-muted" />
+    </div>
+  );
 
   return (
     <Card data-lathe-widget={widget.uriKey} className={cn('flex flex-col gap-2 overflow-hidden p-4', cellClass(widget))}>
@@ -181,12 +187,12 @@ export function WidgetCard({ widget, url, params, deferred, register }: WidgetCa
             )}
           </div>
         ) : loading ? (
-          <div role="status" aria-label={__('Loading')} className="space-y-2">
-            <div className="h-8 w-24 animate-pulse rounded bg-muted" />
-            <div className="h-3 w-16 animate-pulse rounded bg-muted" />
-          </div>
+          skeleton
         ) : (
-          <Renderer widget={widget} value={value?.value ?? null} />
+          // A lazy renderer, such as a chart, keeps the skeleton up while its chunk loads.
+          <Suspense fallback={skeleton}>
+            <Renderer widget={widget} value={value?.value ?? null} />
+          </Suspense>
         )}
       </div>
     </Card>
