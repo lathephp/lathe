@@ -41,4 +41,22 @@ export default defineConfig([
     files: ['**/*.js', '**/*.mjs'],
     extends: [tseslint.configs.disableTypeChecked],
   },
+  {
+    // Base UI stays behind the wrappers in packages/ui/src, so a Base UI upgrade changes one folder.
+    files: ['**/*.{js,jsx,mjs,ts,tsx}'],
+    ignores: ['packages/ui/src/**'],
+    rules: {
+      'no-restricted-imports': [
+        'error',
+        {
+          patterns: [
+            {
+              group: ['@base-ui/react', '@base-ui/react/*'],
+              message: 'Import Base UI only inside packages/ui/src and use the wrapper from @lathephp/ui.',
+            },
+          ],
+        },
+      ],
+    },
+  },
 ]);

@@ -3,6 +3,7 @@
 // The 8 styles (resources/css/styles) only shape components and declare no colour, so
 // every style shares the tokens in app.css and one pass covers all of them.
 import { readFileSync } from 'node:fs';
+import process from 'node:process';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { modes, ratio, report } from './lib/colour.mjs';

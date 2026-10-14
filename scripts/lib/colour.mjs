@@ -1,4 +1,6 @@
 // Colour maths for the contrast checks: WCAG 2.x ratios of CSS colours.
+import process from 'node:process';
+
 const clamp = (n) => Math.min(1, Math.max(0, n));
 const linear = (c) => (c <= 0.04045 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4);
 
@@ -68,10 +70,10 @@ export function modes(css) {
 
 export function report(failures, checked) {
   if (failures.length === 0) {
-    console.log(`${checked} pairs readable`);
+    process.stdout.write(`${checked} pairs readable\n`);
     return 0;
   }
-  console.log(failures.join('\n'));
-  console.log(`${failures.length} of ${checked} pairs too faint`);
+  process.stdout.write(`${failures.join('\n')}\n`);
+  process.stdout.write(`${failures.length} of ${checked} pairs too faint\n`);
   return 1;
 }

@@ -1,6 +1,7 @@
 // Fails when a chart colour slot is hard to see on the card, in light and dark.
 // Usage: node scripts/check-chart-slots.mjs [app.css] [PartitionColors.php]
 import { readFileSync } from 'node:fs';
+import process from 'node:process';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { modes, ratio, report } from './lib/colour.mjs';
