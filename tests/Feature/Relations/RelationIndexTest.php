@@ -26,6 +26,10 @@ beforeEach(function () {
     $this->actingAs(User::where('email', 'admin@lathephp.com')->firstOrFail());
 });
 
+afterEach(function () {
+    Model::preventLazyLoading(false);
+});
+
 /** Orders whose Items panel offers 10 or 25 rows a page and lists RelationIndexItems. */
 class RelationIndexOrders extends Resource
 {
@@ -48,7 +52,7 @@ class RelationIndexOrders extends Resource
     }
 }
 
-/** Order items with a filterable Quantity. */
+/** Order items searched and filtered by Quantity. */
 class RelationIndexItems extends Resource
 {
     public static function uriKey(): string
@@ -58,7 +62,7 @@ class RelationIndexItems extends Resource
 
     protected function configure(ResourceDefinition $definition): ResourceDefinition
     {
-        return $definition->model(OrderItem::class)->canonical(false)->title('id')->allowAll();
+        return $definition->model(OrderItem::class)->canonical(false)->title('id')->searchable(['quantity'])->allowAll();
     }
 
     public function fields(LatheRequest $request): array
@@ -161,10 +165,9 @@ it('takes the search, page, page size and filters of the related Resource', func
         ->and($json['perPage'])->toBe(10)
         ->and($json['count']['value'])->toBe(26);
 
-    $id = OrderItem::where('order_id', 12)->where('quantity', 7)->value('id');
-    $found = $this->getJson("/lathe/api/resources/orders/12/items?q={$id}")->assertOk()->json('rows');
+    $found = $this->getJson('/lathe/api/resources/relation-index-orders/12/items?q=7')->assertOk()->json('rows');
 
-    expect(array_column($found, 'related_id'))->toContain($id);
+    expect(array_column(array_column(array_column($found, 'cells'), 'quantity'), 'value'))->toBe([7]);
 });
 
 it('answers 404 for a parent outside the scope and for an unknown relationship', function () {
@@ -218,7 +221,6 @@ it('runs the same queries for 10 and 100 rows, reads orders once and asks for ab
 
     $ten = $run(10);
     $hundred = $run(100);
-    Model::preventLazyLoading(false);
 
     $onOrders = array_values(array_filter($hundred, fn (string $sql) => preg_match('/["`\s]orders["`\s]/', $sql) === 1));
 
