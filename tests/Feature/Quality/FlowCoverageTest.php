@@ -10,7 +10,7 @@ it('lists the flows of the panel, the index and the records', function () {
         'login', 'auth-screens', 'access-control', 'orders-index', 'heartbeat', 'sidebar', 'forbidden', 'not-found', 'stale-assets', 'plugin-load-failure', 'index-search-sort', 'search-palette', 'index-filters', 'lens', 'index-rows', 'index-tabs', 'narrow-screen',
         'record-show-path', 'record-forms', 'record-layout', 'inline-edit', 'record-actions', 'uploads', 'stale-edit', 'record-a11y-csp', 'import',
         'actions-show-path', 'export', 'delete-menu', 'audit-log',
-        'dashboards', 'insights', 'hello-plugin', 'theme', 'dark-mode', 'font', 'rtl', 'show-path', 'generators-show-path',
+        'dashboards', 'insights', 'hello-plugin', 'theme', 'dark-mode', 'font', 'rtl', 'show-path', 'generators-show-path', 'security',
     ]);
 });
 

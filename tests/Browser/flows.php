@@ -45,4 +45,5 @@ return [
     'rtl' => 'RtlTest.php',
     'show-path' => 'ShowPathTest.php',
     'generators-show-path' => 'GeneratorsShowPathTest.php',
+    'security' => 'SecurityTest.php',
 ];
