@@ -154,6 +154,7 @@
     "Loading preview…": "Loading preview…",
     "Loading…": "Loading…",
     "Log out": "Log out",
+    "Lower is better": "Lower is better",
     "Main": "Main",
     "Map every required column: :columns.": "Map every required column: :columns.",
     "Mark all read": "Mark all read",
@@ -357,5 +358,6 @@
     "Your import failed.": "Your import failed.",
     "Your import has completed.": "Your import has completed.",
     "Your session expired": "Your session expired",
-    "Your session has expired": "Your session has expired"
+    "Your session has expired": "Your session has expired",
+    "of target": "of target"
 }

@@ -3675,6 +3675,9 @@ Lathe\Widgets\Concerns\RoundingPrecision::int $roundingMode  [protected]
 Lathe\Widgets\Concerns\RoundingPrecision::int $roundingPrecision  [protected]
 Lathe\Widgets\Concerns\RoundingPrecision::precision(int $precision = 0, int $mode = Lathe\Widgets\Concerns\PHP_ROUND_HALF_UP): static
 Lathe\Widgets\Concerns\RoundingPrecision::roundNumber(int|float $value): int|float
+Lathe\Widgets\ProgressWidget::?string $component  [protected]
+Lathe\Widgets\ProgressWidget::count(Lathe\Http\Requests\LatheRequest $request, Illuminate\Database\Eloquent\Builder|Illuminate\Database\Eloquent\Model|string $model, callable $progress, Illuminate\Contracts\Database\Query\Expression|string|null $column = NULL, int|float|null $target = NULL): Lathe\Widgets\Results\ProgressResult  [protected]
+Lathe\Widgets\ProgressWidget::sum(Lathe\Http\Requests\LatheRequest $request, Illuminate\Database\Eloquent\Builder|Illuminate\Database\Eloquent\Model|string $model, callable $progress, Illuminate\Contracts\Database\Query\Expression|string $column, int|float|null $target = NULL): Lathe\Widgets\Results\ProgressResult  [protected]
 Lathe\Widgets\Results\BarResult::__construct(array $data, array $colors = array ( ))
 Lathe\Widgets\Results\BarResult::array $colors
 Lathe\Widgets\Results\BarResult::array $data
@@ -3683,14 +3686,88 @@ Lathe\Widgets\Results\PartitionResult::__construct(array $data, array $colors = 
 Lathe\Widgets\Results\PartitionResult::array $colors
 Lathe\Widgets\Results\PartitionResult::array $data
 Lathe\Widgets\Results\PartitionResult::jsonSerialize(): array
+Lathe\Widgets\Results\ProgressResult::?Closure $transformCallback  [protected]
+Lathe\Widgets\Results\ProgressResult::?string $prefix
+Lathe\Widgets\Results\ProgressResult::?string $suffix
+Lathe\Widgets\Results\ProgressResult::__construct(int|float $value, int|float $target = 100)
+Lathe\Widgets\Results\ProgressResult::array|string|null $format
+Lathe\Widgets\Results\ProgressResult::avoid(): static
+Lathe\Widgets\Results\ProgressResult::bool $avoid  [protected]
+Lathe\Widgets\Results\ProgressResult::bool $suffixInflection
+Lathe\Widgets\Results\ProgressResult::caption(): string
+Lathe\Widgets\Results\ProgressResult::color(): string
+Lathe\Widgets\Results\ProgressResult::dollars(string $symbol = '$'): static
+Lathe\Widgets\Results\ProgressResult::euros(string $symbol = '€'): static
+Lathe\Widgets\Results\ProgressResult::format(array|string $format): static
+Lathe\Widgets\Results\ProgressResult::int|float $target
+Lathe\Widgets\Results\ProgressResult::int|float $value
+Lathe\Widgets\Results\ProgressResult::jsonSerialize(): array
+Lathe\Widgets\Results\ProgressResult::percentage(): float
+Lathe\Widgets\Results\ProgressResult::prefix(string $prefix): static
+Lathe\Widgets\Results\ProgressResult::suffix(string $suffix): static
+Lathe\Widgets\Results\ProgressResult::transform(callable $callback): static
+Lathe\Widgets\Results\ProgressResult::withoutSuffixInflection(): static
+Lathe\Widgets\Results\TrendResult::?Closure $roundCallback  [protected]
+Lathe\Widgets\Results\TrendResult::?Closure $transformCallback  [protected]
+Lathe\Widgets\Results\TrendResult::?array $labels
+Lathe\Widgets\Results\TrendResult::?array $series
+Lathe\Widgets\Results\TrendResult::?int $roundedBy  [protected]
+Lathe\Widgets\Results\TrendResult::?int $roundedTo  [protected]
+Lathe\Widgets\Results\TrendResult::?string $prefix
+Lathe\Widgets\Results\TrendResult::?string $suffix
 Lathe\Widgets\Results\TrendResult::__construct(array $data)
 Lathe\Widgets\Results\TrendResult::array $data
+Lathe\Widgets\Results\TrendResult::array|string|null $format
+Lathe\Widgets\Results\TrendResult::bool $suffixInflection
+Lathe\Widgets\Results\TrendResult::dollars(string $symbol = '$'): static
+Lathe\Widgets\Results\TrendResult::euros(string $symbol = '€'): static
+Lathe\Widgets\Results\TrendResult::format(array|string $format): static
+Lathe\Widgets\Results\TrendResult::int|float|null $headline
 Lathe\Widgets\Results\TrendResult::jsonSerialize(): array
+Lathe\Widgets\Results\TrendResult::labels(array $labels): static
+Lathe\Widgets\Results\TrendResult::latest(): int|float|null
+Lathe\Widgets\Results\TrendResult::payload(): array
+Lathe\Widgets\Results\TrendResult::prefix(string $prefix): static
+Lathe\Widgets\Results\TrendResult::result(int|float|null $value): static
+Lathe\Widgets\Results\TrendResult::rounded(Closure $round, int $precision, int $mode): static
+Lathe\Widgets\Results\TrendResult::showLatestValue(): static
+Lathe\Widgets\Results\TrendResult::showSumValue(): static
+Lathe\Widgets\Results\TrendResult::string $headlineFrom  [protected]
+Lathe\Widgets\Results\TrendResult::suffix(string $suffix): static
+Lathe\Widgets\Results\TrendResult::transform(callable $callback): static
+Lathe\Widgets\Results\TrendResult::trend(array $trend): static
+Lathe\Widgets\Results\TrendResult::withSeries(array $series): static
+Lathe\Widgets\Results\TrendResult::withoutSuffixInflection(): static
+Lathe\Widgets\Results\ValueResult::?Closure $roundCallback  [protected]
+Lathe\Widgets\Results\ValueResult::?Closure $transformCallback  [protected]
+Lathe\Widgets\Results\ValueResult::?int $roundedBy  [protected]
+Lathe\Widgets\Results\ValueResult::?int $roundedTo  [protected]
+Lathe\Widgets\Results\ValueResult::?string $prefix
+Lathe\Widgets\Results\ValueResult::?string $previousLabel
+Lathe\Widgets\Results\ValueResult::?string $suffix
+Lathe\Widgets\Results\ValueResult::?string $tooltipFormat
 Lathe\Widgets\Results\ValueResult::__construct(int|float|null $value, int|float|null $previous = NULL)
+Lathe\Widgets\Results\ValueResult::allowZeroResult(bool $allow = true): static
+Lathe\Widgets\Results\ValueResult::array|string|null $format
+Lathe\Widgets\Results\ValueResult::bool $copyable
+Lathe\Widgets\Results\ValueResult::bool $suffixInflection
+Lathe\Widgets\Results\ValueResult::bool $zeroAllowed
 Lathe\Widgets\Results\ValueResult::change(): ?float
+Lathe\Widgets\Results\ValueResult::copyable(): static
+Lathe\Widgets\Results\ValueResult::currency(string $symbol = '$'): static
+Lathe\Widgets\Results\ValueResult::dollars(string $symbol = '$'): static
+Lathe\Widgets\Results\ValueResult::euros(string $symbol = '€'): static
+Lathe\Widgets\Results\ValueResult::format(array|string $format): static
 Lathe\Widgets\Results\ValueResult::int|float|null $previous
 Lathe\Widgets\Results\ValueResult::int|float|null $value
 Lathe\Widgets\Results\ValueResult::jsonSerialize(): array
+Lathe\Widgets\Results\ValueResult::prefix(string $prefix): static
+Lathe\Widgets\Results\ValueResult::previous(int|float|null $previous, ?string $label = NULL): static
+Lathe\Widgets\Results\ValueResult::rounded(Closure $round, int $precision, int $mode): static
+Lathe\Widgets\Results\ValueResult::suffix(string $suffix): static
+Lathe\Widgets\Results\ValueResult::tooltipFormat(string $format): static
+Lathe\Widgets\Results\ValueResult::transform(callable $callback): static
+Lathe\Widgets\Results\ValueResult::withoutSuffixInflection(): static
 Lathe\Widgets\TrendUnit::Day
 Lathe\Widgets\TrendUnit::Hour
 Lathe\Widgets\TrendUnit::Minute
@@ -3703,11 +3780,80 @@ Lathe\Widgets\TrendUnit::shift(Carbon\CarbonImmutable $start, int $count): Carbo
 Lathe\Widgets\TrendUnit::startOf(Carbon\CarbonImmutable $moment): Carbon\CarbonImmutable
 Lathe\Widgets\TrendUnit::string $name
 Lathe\Widgets\TrendUnit::string $value
+Lathe\Widgets\TrendWidget::?string $component  [protected]
+Lathe\Widgets\TrendWidget::?string $curveType  [protected]
+Lathe\Widgets\TrendWidget::?string $dotStyle  [protected]
+Lathe\Widgets\TrendWidget::?string $labelKey  [protected]
+Lathe\Widgets\TrendWidget::averageByDays(Lathe\Http\Requests\LatheRequest $request, Illuminate\Database\Eloquent\Builder|Illuminate\Database\Eloquent\Model|string $model, Illuminate\Contracts\Database\Query\Expression|string $column, ?string $dateColumn = NULL): Lathe\Widgets\Results\TrendResult  [protected]
+Lathe\Widgets\TrendWidget::averageByHours(Lathe\Http\Requests\LatheRequest $request, Illuminate\Database\Eloquent\Builder|Illuminate\Database\Eloquent\Model|string $model, Illuminate\Contracts\Database\Query\Expression|string $column, ?string $dateColumn = NULL): Lathe\Widgets\Results\TrendResult  [protected]
+Lathe\Widgets\TrendWidget::averageByMinutes(Lathe\Http\Requests\LatheRequest $request, Illuminate\Database\Eloquent\Builder|Illuminate\Database\Eloquent\Model|string $model, Illuminate\Contracts\Database\Query\Expression|string $column, ?string $dateColumn = NULL): Lathe\Widgets\Results\TrendResult  [protected]
+Lathe\Widgets\TrendWidget::averageByMonths(Lathe\Http\Requests\LatheRequest $request, Illuminate\Database\Eloquent\Builder|Illuminate\Database\Eloquent\Model|string $model, Illuminate\Contracts\Database\Query\Expression|string $column, ?string $dateColumn = NULL): Lathe\Widgets\Results\TrendResult  [protected]
+Lathe\Widgets\TrendWidget::averageByWeeks(Lathe\Http\Requests\LatheRequest $request, Illuminate\Database\Eloquent\Builder|Illuminate\Database\Eloquent\Model|string $model, Illuminate\Contracts\Database\Query\Expression|string $column, ?string $dateColumn = NULL): Lathe\Widgets\Results\TrendResult  [protected]
+Lathe\Widgets\TrendWidget::bool $dotColors  [protected]
+Lathe\Widgets\TrendWidget::bool $lineOnly  [protected]
+Lathe\Widgets\TrendWidget::bool $showAxes  [protected]
+Lathe\Widgets\TrendWidget::bool $showDots  [protected]
+Lathe\Widgets\TrendWidget::bool $showLabels  [protected]
+Lathe\Widgets\TrendWidget::bool $stacked  [protected]
+Lathe\Widgets\TrendWidget::bool $stackedExpand  [protected]
+Lathe\Widgets\TrendWidget::bool $twelveHourTime  [protected]
+Lathe\Widgets\TrendWidget::countByDays(Lathe\Http\Requests\LatheRequest $request, Illuminate\Database\Eloquent\Builder|Illuminate\Database\Eloquent\Model|string $model, Illuminate\Contracts\Database\Query\Expression|string|null $column = NULL, ?string $dateColumn = NULL): Lathe\Widgets\Results\TrendResult  [protected]
+Lathe\Widgets\TrendWidget::countByHours(Lathe\Http\Requests\LatheRequest $request, Illuminate\Database\Eloquent\Builder|Illuminate\Database\Eloquent\Model|string $model, Illuminate\Contracts\Database\Query\Expression|string|null $column = NULL, ?string $dateColumn = NULL): Lathe\Widgets\Results\TrendResult  [protected]
+Lathe\Widgets\TrendWidget::countByMinutes(Lathe\Http\Requests\LatheRequest $request, Illuminate\Database\Eloquent\Builder|Illuminate\Database\Eloquent\Model|string $model, Illuminate\Contracts\Database\Query\Expression|string|null $column = NULL, ?string $dateColumn = NULL): Lathe\Widgets\Results\TrendResult  [protected]
+Lathe\Widgets\TrendWidget::countByMonths(Lathe\Http\Requests\LatheRequest $request, Illuminate\Database\Eloquent\Builder|Illuminate\Database\Eloquent\Model|string $model, Illuminate\Contracts\Database\Query\Expression|string|null $column = NULL, ?string $dateColumn = NULL): Lathe\Widgets\Results\TrendResult  [protected]
+Lathe\Widgets\TrendWidget::countByWeeks(Lathe\Http\Requests\LatheRequest $request, Illuminate\Database\Eloquent\Builder|Illuminate\Database\Eloquent\Model|string $model, Illuminate\Contracts\Database\Query\Expression|string|null $column = NULL, ?string $dateColumn = NULL): Lathe\Widgets\Results\TrendResult  [protected]
+Lathe\Widgets\TrendWidget::curveType(string $type): static
+Lathe\Widgets\TrendWidget::defaultRange(string|int $key): static
+Lathe\Widgets\TrendWidget::descriptor(): array
+Lathe\Widgets\TrendWidget::dotColors(bool $on = true): static
+Lathe\Widgets\TrendWidget::dotStyle(string $style): static
+Lathe\Widgets\TrendWidget::labelKey(string $key): static
+Lathe\Widgets\TrendWidget::lineOnly(bool $on = true): static
+Lathe\Widgets\TrendWidget::maxByDays(Lathe\Http\Requests\LatheRequest $request, Illuminate\Database\Eloquent\Builder|Illuminate\Database\Eloquent\Model|string $model, Illuminate\Contracts\Database\Query\Expression|string $column, ?string $dateColumn = NULL): Lathe\Widgets\Results\TrendResult  [protected]
+Lathe\Widgets\TrendWidget::maxByHours(Lathe\Http\Requests\LatheRequest $request, Illuminate\Database\Eloquent\Builder|Illuminate\Database\Eloquent\Model|string $model, Illuminate\Contracts\Database\Query\Expression|string $column, ?string $dateColumn = NULL): Lathe\Widgets\Results\TrendResult  [protected]
+Lathe\Widgets\TrendWidget::maxByMinutes(Lathe\Http\Requests\LatheRequest $request, Illuminate\Database\Eloquent\Builder|Illuminate\Database\Eloquent\Model|string $model, Illuminate\Contracts\Database\Query\Expression|string $column, ?string $dateColumn = NULL): Lathe\Widgets\Results\TrendResult  [protected]
+Lathe\Widgets\TrendWidget::maxByMonths(Lathe\Http\Requests\LatheRequest $request, Illuminate\Database\Eloquent\Builder|Illuminate\Database\Eloquent\Model|string $model, Illuminate\Contracts\Database\Query\Expression|string $column, ?string $dateColumn = NULL): Lathe\Widgets\Results\TrendResult  [protected]
+Lathe\Widgets\TrendWidget::maxByWeeks(Lathe\Http\Requests\LatheRequest $request, Illuminate\Database\Eloquent\Builder|Illuminate\Database\Eloquent\Model|string $model, Illuminate\Contracts\Database\Query\Expression|string $column, ?string $dateColumn = NULL): Lathe\Widgets\Results\TrendResult  [protected]
+Lathe\Widgets\TrendWidget::minByDays(Lathe\Http\Requests\LatheRequest $request, Illuminate\Database\Eloquent\Builder|Illuminate\Database\Eloquent\Model|string $model, Illuminate\Contracts\Database\Query\Expression|string $column, ?string $dateColumn = NULL): Lathe\Widgets\Results\TrendResult  [protected]
+Lathe\Widgets\TrendWidget::minByHours(Lathe\Http\Requests\LatheRequest $request, Illuminate\Database\Eloquent\Builder|Illuminate\Database\Eloquent\Model|string $model, Illuminate\Contracts\Database\Query\Expression|string $column, ?string $dateColumn = NULL): Lathe\Widgets\Results\TrendResult  [protected]
+Lathe\Widgets\TrendWidget::minByMinutes(Lathe\Http\Requests\LatheRequest $request, Illuminate\Database\Eloquent\Builder|Illuminate\Database\Eloquent\Model|string $model, Illuminate\Contracts\Database\Query\Expression|string $column, ?string $dateColumn = NULL): Lathe\Widgets\Results\TrendResult  [protected]
+Lathe\Widgets\TrendWidget::minByMonths(Lathe\Http\Requests\LatheRequest $request, Illuminate\Database\Eloquent\Builder|Illuminate\Database\Eloquent\Model|string $model, Illuminate\Contracts\Database\Query\Expression|string $column, ?string $dateColumn = NULL): Lathe\Widgets\Results\TrendResult  [protected]
+Lathe\Widgets\TrendWidget::minByWeeks(Lathe\Http\Requests\LatheRequest $request, Illuminate\Database\Eloquent\Builder|Illuminate\Database\Eloquent\Model|string $model, Illuminate\Contracts\Database\Query\Expression|string $column, ?string $dateColumn = NULL): Lathe\Widgets\Results\TrendResult  [protected]
+Lathe\Widgets\TrendWidget::ranges(): array
+Lathe\Widgets\TrendWidget::resolve(Lathe\Http\Requests\LatheRequest $request): mixed
+Lathe\Widgets\TrendWidget::showAxes(bool $on = true): static
+Lathe\Widgets\TrendWidget::showDots(bool $on = true): static
+Lathe\Widgets\TrendWidget::showLabels(bool $on = true): static
+Lathe\Widgets\TrendWidget::stacked(bool $on = true): static
+Lathe\Widgets\TrendWidget::stackedExpand(bool $on = true): static
+Lathe\Widgets\TrendWidget::string|int|null $defaultRange  [protected]
+Lathe\Widgets\TrendWidget::sumByDays(Lathe\Http\Requests\LatheRequest $request, Illuminate\Database\Eloquent\Builder|Illuminate\Database\Eloquent\Model|string $model, Illuminate\Contracts\Database\Query\Expression|string $column, ?string $dateColumn = NULL): Lathe\Widgets\Results\TrendResult  [protected]
+Lathe\Widgets\TrendWidget::sumByHours(Lathe\Http\Requests\LatheRequest $request, Illuminate\Database\Eloquent\Builder|Illuminate\Database\Eloquent\Model|string $model, Illuminate\Contracts\Database\Query\Expression|string $column, ?string $dateColumn = NULL): Lathe\Widgets\Results\TrendResult  [protected]
+Lathe\Widgets\TrendWidget::sumByMinutes(Lathe\Http\Requests\LatheRequest $request, Illuminate\Database\Eloquent\Builder|Illuminate\Database\Eloquent\Model|string $model, Illuminate\Contracts\Database\Query\Expression|string $column, ?string $dateColumn = NULL): Lathe\Widgets\Results\TrendResult  [protected]
+Lathe\Widgets\TrendWidget::sumByMonths(Lathe\Http\Requests\LatheRequest $request, Illuminate\Database\Eloquent\Builder|Illuminate\Database\Eloquent\Model|string $model, Illuminate\Contracts\Database\Query\Expression|string $column, ?string $dateColumn = NULL): Lathe\Widgets\Results\TrendResult  [protected]
+Lathe\Widgets\TrendWidget::sumByWeeks(Lathe\Http\Requests\LatheRequest $request, Illuminate\Database\Eloquent\Builder|Illuminate\Database\Eloquent\Model|string $model, Illuminate\Contracts\Database\Query\Expression|string $column, ?string $dateColumn = NULL): Lathe\Widgets\Results\TrendResult  [protected]
+Lathe\Widgets\TrendWidget::twelveHourTime(bool $on = true): static
+Lathe\Widgets\ValueWidget::?string $component  [protected]
+Lathe\Widgets\ValueWidget::ALL
+Lathe\Widgets\ValueWidget::MTD
+Lathe\Widgets\ValueWidget::QTD
+Lathe\Widgets\ValueWidget::THIS_WEEK
+Lathe\Widgets\ValueWidget::TODAY
+Lathe\Widgets\ValueWidget::YESTERDAY
+Lathe\Widgets\ValueWidget::YTD
+Lathe\Widgets\ValueWidget::average(Lathe\Http\Requests\LatheRequest $request, Illuminate\Database\Eloquent\Builder|Illuminate\Database\Eloquent\Model|string $model, Illuminate\Contracts\Database\Query\Expression|string $column, ?string $dateColumn = NULL): Lathe\Widgets\Results\ValueResult  [protected]
+Lathe\Widgets\ValueWidget::count(Lathe\Http\Requests\LatheRequest $request, Illuminate\Database\Eloquent\Builder|Illuminate\Database\Eloquent\Model|string $model, Illuminate\Contracts\Database\Query\Expression|string|null $column = NULL, ?string $dateColumn = NULL): Lathe\Widgets\Results\ValueResult  [protected]
+Lathe\Widgets\ValueWidget::max(Lathe\Http\Requests\LatheRequest $request, Illuminate\Database\Eloquent\Builder|Illuminate\Database\Eloquent\Model|string $model, Illuminate\Contracts\Database\Query\Expression|string $column, ?string $dateColumn = NULL): Lathe\Widgets\Results\ValueResult  [protected]
+Lathe\Widgets\ValueWidget::min(Lathe\Http\Requests\LatheRequest $request, Illuminate\Database\Eloquent\Builder|Illuminate\Database\Eloquent\Model|string $model, Illuminate\Contracts\Database\Query\Expression|string $column, ?string $dateColumn = NULL): Lathe\Widgets\Results\ValueResult  [protected]
+Lathe\Widgets\ValueWidget::ranges(): array
+Lathe\Widgets\ValueWidget::resolve(Lathe\Http\Requests\LatheRequest $request): mixed
+Lathe\Widgets\ValueWidget::sum(Lathe\Http\Requests\LatheRequest $request, Illuminate\Database\Eloquent\Builder|Illuminate\Database\Eloquent\Model|string $model, Illuminate\Contracts\Database\Query\Expression|string $column, ?string $dateColumn = NULL): Lathe\Widgets\Results\ValueResult  [protected]
 Lathe\Widgets\Widget::?Closure $seeCallback  [protected]
 Lathe\Widgets\Widget::?string $component  [protected]
 Lathe\Widgets\Widget::?string $helpText  [protected]
 Lathe\Widgets\Widget::Lathe\Enums\CardWidth $width  [protected]
 Lathe\Widgets\Widget::__construct()
+Lathe\Widgets\Widget::aggregateQuery(Illuminate\Database\Eloquent\Builder|Illuminate\Database\Eloquent\Model|string $model): Lathe\Widgets\AggregateQuery  [protected]
 Lathe\Widgets\Widget::applyAttributes(): void  [protected]
 Lathe\Widgets\Widget::array $meta  [protected]
 Lathe\Widgets\Widget::attribute(string $attribute): ?object  [protected]
@@ -4096,10 +4242,14 @@ class Lathe\Uploads\FieldAttachment
 class Lathe\Uploads\PendingUpload
 class Lathe\Uploads\UploadHandler
 class Lathe\Widgets\AggregateQuery
+class Lathe\Widgets\ProgressWidget
 class Lathe\Widgets\Results\BarResult
 class Lathe\Widgets\Results\PartitionResult
+class Lathe\Widgets\Results\ProgressResult
 class Lathe\Widgets\Results\TrendResult
 class Lathe\Widgets\Results\ValueResult
+class Lathe\Widgets\TrendWidget
+class Lathe\Widgets\ValueWidget
 class Lathe\Widgets\Widget
 class Lathe\Widgets\WidgetList
 class Lathe\Widgets\WidgetPresenter

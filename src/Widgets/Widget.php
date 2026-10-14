@@ -5,6 +5,8 @@ namespace Lathe\Widgets;
 use Closure;
 use DateInterval;
 use DateTimeInterface;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Str;
@@ -322,5 +324,15 @@ abstract class Widget
         }
 
         return null;
+    }
+
+    /**
+     * An aggregate over the model, for the helpers of the metric widgets.
+     *
+     * @param  Builder<Model>|Model|class-string<Model>  $model
+     */
+    protected function aggregateQuery(Builder|Model|string $model): AggregateQuery
+    {
+        return AggregateQuery::for($model);
     }
 }
