@@ -10,7 +10,7 @@ import type { SharedProps } from '../types';
 import { GroupHeaderRow } from './GroupHeaderRow';
 import { GroupSummaryRow } from './GroupSummaryRow';
 import { InlineCell } from './InlineCell';
-import { menuActions, RowMenu } from './RowMenu';
+import { hasRowMenu, RowMenu } from './RowMenu';
 import { TableSummaryRow } from './TableSummaryRow';
 import type { IndexProps, Row } from './types';
 import type { RowSelection } from './useRowSelection';
@@ -83,7 +83,7 @@ export function ResourceTable({ resource, table, state, loading, selection, sort
   );
   const border = showColumnBorders && 'border-e border-border last:border-e-0';
   const previews = resource.preview === true;
-  const withMenu = previews || table.rows.some((row) => menuActions(row).length > 0);
+  const withMenu = previews || table.rows.some((row) => hasRowMenu(row));
   // The row whose preview modal is open.
   const [previewing, setPreviewing] = useState<Row['id'] | null>(null);
   // Cells and tokens an inline save sent back, by row, over the rows the page loaded.
@@ -296,7 +296,7 @@ export function ResourceTable({ resource, table, state, loading, selection, sort
                                   <Eye aria-hidden="true" className="size-4" />
                                 </button>
                               )}
-                              {menuActions(row).length > 0 && <RowMenu uriKey={resource.uriKey} row={row} />}
+                              {hasRowMenu(row) && <RowMenu uriKey={resource.uriKey} row={row} />}
                             </div>
                           </td>
                         )}

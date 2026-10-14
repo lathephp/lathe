@@ -1,21 +1,15 @@
-import { router, usePage } from '@inertiajs/react';
-import { ApiError, toast, useLathe, useTranslation, visit } from '@lathephp/core';
+import { router } from '@inertiajs/react';
+import { useLathe, useTranslation } from '@lathephp/core';
 import { Button } from '@lathephp/ui';
 import { ChevronDown } from 'lucide-react';
-import { Fragment, useCallback, useId, useState } from 'react';
+import { Fragment, useId, useState } from 'react';
 import { NavIcon } from '../components/NavIcon';
 import type { Row } from '../index/types';
 import type { IndexUrlState } from '../index/useIndexState';
 import type { RowSelection } from '../index/useRowSelection';
 import { cn } from '../lib/cn';
-import { ReauthModal } from '../records/ReauthModal';
-import type { SharedProps } from '../types';
-import { ActionModal } from './ActionModal';
-import { ResponseModal } from './ResponseModal';
-import { applyActionResult } from './result';
-import { runAction } from './runAction';
 import type { ActionList, ActionMeta } from './types';
-
+import { useActionRunner } from './useActionRunner';
 interface ActionBarProps {
   uriKey: string;
   /** The lens the index shows, whose routes the run goes through. */
@@ -39,27 +33,31 @@ const itemClass =
 export function ActionBar({ uriKey, lens, list, selection, rows, total, state }: ActionBarProps) {
   const { __ } = useTranslation();
   const { apiPath } = useLathe();
-  const { auth } = usePage<SharedProps>().props;
   const menuId = useId();
   const [open, setOpen] = useState(false);
-  const [running, setRunning] = useState<ActionMeta | null>(null);
-  const [response, setResponse] = useState<{ component: string; data: Record<string, unknown> } | null>(null);
-  const [reauth, setReauth] = useState<(() => void) | null>(null);
   const base = lens === null ? `${apiPath}/resources/${uriKey}` : `${apiPath}/resources/${uriKey}/lenses/${lens}`;
   const ticked = selection.all ? (total ?? Number.POSITIVE_INFINITY) : selection.selected.size;
   const tickedRows = rows.filter((row) => selection.isSelected(row.id));
-  const closeRunning = useCallback(() => {
-    setRunning(null);
-  }, []);
-  const closeResponse = useCallback(() => {
-    setResponse(null);
-  }, []);
+  const runner = useActionRunner({
+    base,
+    onDone: (action) => {
+      if (!action.standalone) {
+        selection.clear();
+      }
+
+      router.reload({ only: ['table', 'count'] });
+    },
+  });
 
   if (list.actions.length === 0) {
     return null;
   }
 
   function enabled(action: ActionMeta): boolean {
+    if (action.authorizedToRun === false) {
+      return false;
+    }
+
     if (action.standalone) {
       return true;
     }
@@ -72,66 +70,9 @@ export function ActionBar({ uriKey, lens, list, selection, rows, total, state }:
     return tickedRows.every((row) => row.actions === undefined || row.actions.includes(action.uriKey));
   }
 
-  async function execute(action: ActionMeta, fields: Record<string, unknown>): Promise<void> {
-    try {
-      const run = await runAction(`${base}/action`, action.uriKey, selection.descriptor(state, lens), fields);
-      setRunning(null);
-      applyActionResult(run.result, {
-        openModal: (component, data) => {
-          setResponse({ component, data });
-        },
-        refresh: () => undefined,
-        visit: (path, options) => {
-          visit(path, options);
-        },
-      });
-
-      if (run.bulk_run !== undefined) {
-        window.dispatchEvent(new CustomEvent('lathe:bulk-run-started', { detail: run.bulk_run }));
-      }
-
-      if (!action.standalone) {
-        selection.clear();
-      }
-
-      if (run.result.effect?.type !== 'redirect' && run.result.effect?.type !== 'visit') {
-        router.reload({ only: ['table', 'count'] });
-      }
-    } catch (error) {
-      if (error instanceof ApiError && (error.status === 401 || error.status === 419)) {
-        setReauth(() => () => {
-          void execute(action, fields);
-        });
-      } else if (error instanceof ApiError && error.status === 422) {
-        const message = firstMessage(error.data);
-
-        // A modal shows the messages under its fields; with none open, the first one toasts.
-        if (running === null && message !== null) {
-          toast.error(message);
-        }
-
-        throw error;
-      } else {
-        toast.error(__('Something went wrong. Please try again.'), {
-          action: {
-            label: __('Retry'),
-            onClick: () => {
-              void execute(action, fields);
-            },
-          },
-        });
-      }
-    }
-  }
-
   function choose(action: ActionMeta) {
     setOpen(false);
-
-    if (action.withoutConfirmation) {
-      void execute(action, {}).catch(() => undefined);
-    } else {
-      setRunning(action);
-    }
+    runner.start(action, selection.descriptor(state, lens), Number.isFinite(ticked) ? ticked : 0);
   }
 
   const pinned = ticked > 0 ? list.actions.filter((action) => action.pinned) : [];
@@ -212,40 +153,7 @@ export function ActionBar({ uriKey, lens, list, selection, rows, total, state }:
           </div>
         )}
       </div>
-      {running !== null && (
-        <ActionModal
-          base={base}
-          action={running}
-          count={Number.isFinite(ticked) ? ticked : 0}
-          onClose={closeRunning}
-          onRun={(fields) => execute(running, fields)}
-        />
-      )}
-      {response !== null && <ResponseModal component={response.component} data={response.data} onClose={closeResponse} />}
-      {reauth !== null && (
-        <ReauthModal
-          email={auth.user?.email ?? ''}
-          onSignedIn={() => {
-            const retry = reauth;
-            setReauth(null);
-            retry();
-          }}
-          onOtherUser={() => {
-            setReauth(null);
-            router.reload();
-          }}
-          onClose={() => {
-            setReauth(null);
-          }}
-        />
-      )}
+      {runner.element}
     </div>
   );
-}
-
-function firstMessage(data: unknown): string | null {
-  const errors = (data as { errors?: Record<string, string[] | undefined> } | null)?.errors;
-  const first = errors === undefined ? undefined : Object.values(errors)[0]?.[0];
-
-  return first ?? null;
 }

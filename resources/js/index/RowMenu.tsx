@@ -1,8 +1,11 @@
 import { Link, router, usePage } from '@inertiajs/react';
-import { request, toast, useTranslation } from '@lathephp/core';
+import { request, toast, useLathe, useTranslation } from '@lathephp/core';
 import { Button } from '@lathephp/ui';
 import { EllipsisVertical } from 'lucide-react';
 import { useId, useState } from 'react';
+import { recordSelection } from '../actions/RecordActionMenu';
+import type { ActionList, ActionMeta } from '../actions/types';
+import { useActionRunner } from '../actions/useActionRunner';
 import type { SharedProps } from '../types';
 import type { Row } from './types';
 
@@ -16,6 +19,11 @@ export function menuActions(row: Row): MenuAction[] {
   return actions.filter((action) => row.abilities[action] === true);
 }
 
+/** Whether a row has a menu: a delete family entry, or an action it may run inline. */
+export function hasRowMenu(row: Row): boolean {
+  return menuActions(row).length > 0 || (row.actions?.length ?? 0) > 0;
+}
+
 const itemClass =
   'flex w-full items-center rounded-md px-2 py-1.5 text-start text-sm outline-none hover:bg-muted focus-visible:ring-2 focus-visible:ring-ring';
 
@@ -24,6 +32,15 @@ export function RowMenu({ uriKey, row }: { uriKey: string; row: Row }) {
   const { basePath } = usePage<SharedProps>().props;
   const [open, setOpen] = useState(false);
   const [confirming, setConfirming] = useState<'delete' | 'forceDelete' | null>(null);
+  // The actions shown on rows, loaded the first time a menu opens.
+  const [inline, setInline] = useState<ActionMeta[] | null>(null);
+  const { apiPath } = useLathe();
+  const runner = useActionRunner({
+    base: `${apiPath}/resources/${uriKey}`,
+    onDone: () => {
+      router.reload({ only: ['table', 'count'] });
+    },
+  });
   const menuId = useId();
   const titleId = useId();
   const url = `${basePath}/api/resources/${uriKey}/${String(row.id)}`;
@@ -89,6 +106,16 @@ export function RowMenu({ uriKey, row }: { uriKey: string; row: Row }) {
         className="grid size-7 place-items-center rounded-md outline-none hover:bg-muted focus-visible:ring-2 focus-visible:ring-ring"
         onClick={() => {
           setOpen(!open);
+
+          if (inline === null && (row.actions?.length ?? 0) > 0) {
+            request<ActionList>(`${apiPath}/resources/${uriKey}/actions?display=table-row`)
+              .then((list) => {
+                setInline(list?.actions ?? []);
+              })
+              .catch(() => {
+                setInline([]);
+              });
+          }
         }}
       >
         <EllipsisVertical aria-hidden="true" className="size-4" />
@@ -105,6 +132,22 @@ export function RowMenu({ uriKey, row }: { uriKey: string; row: Row }) {
             }
           }}
         >
+          {(inline ?? [])
+            .filter((action) => row.actions?.includes(action.uriKey) === true)
+            .map((action) => (
+              <button
+                key={action.uriKey}
+                type="button"
+                role="menuitem"
+                className={action.destructive ? `${itemClass} text-destructive` : itemClass}
+                onClick={() => {
+                  setOpen(false);
+                  runner.start(action, recordSelection(row.id), 1);
+                }}
+              >
+                {action.name}
+              </button>
+            ))}
           {menuActions(row).map((action) =>
             action === 'replicate' ? (
               <Link key={action} role="menuitem" href={`${basePath}/resources/${uriKey}/${String(row.id)}/replicate`} className={itemClass}>
@@ -162,6 +205,7 @@ export function RowMenu({ uriKey, row }: { uriKey: string; row: Row }) {
           </div>
         </div>
       )}
+      {runner.element}
     </div>
   );
 }

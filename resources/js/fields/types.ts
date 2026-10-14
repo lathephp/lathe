@@ -1,3 +1,4 @@
+import type { ActionList } from '../actions/types';
 import type { SafeHtml } from '@lathephp/core';
 import type { ConditionData } from './conditions';
 
@@ -144,6 +145,8 @@ export interface DetailProps {
   resource: RecordResource;
   record: DetailRecord;
   breadcrumbs: Breadcrumb[];
+  /** The actions shown on detail, each flagged for this record. */
+  actions?: ActionList;
 }
 
 export interface FormPayload {

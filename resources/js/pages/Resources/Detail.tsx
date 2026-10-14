@@ -1,5 +1,6 @@
 import { Head, Link, router, usePage } from '@inertiajs/react';
 import { shortcutsEnabled, useShortcut, useTranslation } from '@lathephp/core';
+import { RecordActionMenu } from '../../actions/RecordActionMenu';
 import { DetailField } from '../../fields/registry';
 import type { DetailFieldData, DetailProps } from '../../fields/types';
 import { cn } from '../../lib/cn';
@@ -9,7 +10,7 @@ import { RecordLayout } from '../../records/RecordLayout';
 import type { SharedProps } from '../../types';
 
 /** One record: its fields in the Resource's panels, grids and tabs. */
-export default function Detail({ resource, record, breadcrumbs }: DetailProps) {
+export default function Detail({ resource, record, breadcrumbs, actions }: DetailProps) {
   const { id, title, subtitle, fields, layout, abilities } = record;
   const { __ } = useTranslation();
   const { basePath } = usePage<SharedProps>().props;
@@ -34,6 +35,7 @@ export default function Detail({ resource, record, breadcrumbs }: DetailProps) {
           {subtitle === '' ? null : <p className="text-sm text-muted-foreground">{subtitle}</p>}
         </div>
         <div className="flex flex-wrap items-center gap-2">
+          {actions !== undefined && <RecordActionMenu uriKey={resource.uriKey} id={id} actions={actions.actions} />}
           <RecordActions uriKey={resource.uriKey} record={record} />
           {!record.trashed && abilities.replicate ? (
             <Link

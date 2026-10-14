@@ -3,6 +3,7 @@
 namespace Lathe\Http\Controllers\Resources;
 
 use Inertia\Inertia;
+use Lathe\Actions\ActionMenu;
 use Lathe\Auth\ResourceAuthorization;
 use Lathe\Http\Payloads\IndexPayload;
 use Lathe\Http\Payloads\RecordPayload;
@@ -15,7 +16,7 @@ class DetailPageController
 {
     use AuthorizesResources;
 
-    public function __invoke(LatheRequest $request, ResourceAuthorization $authorization, IndexPayload $index, RecordPayload $payload, string $resource, string $resourceId): Response
+    public function __invoke(LatheRequest $request, ResourceAuthorization $authorization, IndexPayload $index, RecordPayload $payload, ActionMenu $menu, string $resource, string $resourceId): Response
     {
         $class = $this->viewableResource($request, $authorization);
         $query = new ResourceQuery($class::make(), $request, QueryContext::Detail);
@@ -37,7 +38,8 @@ class DetailPageController
             'resource' => $index->resource($class),
             'record' => $payload->detail($class, $model),
             'breadcrumbs' => $breadcrumbs,
-            'actions' => [],
+            // The actions shown on detail, each flagged for this one record.
+            'actions' => $menu->build($class, 'detail', $model),
             'widgets' => [],
         ])->toResponse($request);
     }
