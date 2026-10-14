@@ -11,10 +11,13 @@ use Illuminate\Foundation\PackageManifest;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Router;
 use Illuminate\Support\Facades\Blade;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
 use Laravel\Fortify\Fortify;
 use Lathe\ActionEvents\ActionEventListener;
+use Lathe\ActionEvents\ActionEventPolicy;
 use Lathe\ActionEvents\ActionEventRecorder;
+use Lathe\ActionEvents\ActionEventResource;
 use Lathe\Assets\AssetManifest;
 use Lathe\Assets\AssetRegistry;
 use Lathe\Assets\RootTags;
@@ -78,6 +81,7 @@ class LatheServiceProvider extends ServiceProvider
         $this->loadMigrationsFrom(__DIR__.'/../database/migrations');
         $this->registerMiddleware();
         $this->app->make(Dispatcher::class)->subscribe(ActionEventListener::class);
+        $this->app->make(ResourceRegistry::class)->register(ActionEventResource::class);
 
         // The sidebar writes this cookie in the browser, so it is read unencrypted.
         EncryptCookies::except(['sidebar_state']);
@@ -89,6 +93,11 @@ class LatheServiceProvider extends ServiceProvider
         // After every provider has booted: hand-registered plugins first, then discovered
         // ones, then the routes, so package routes land before the plugin catch-all.
         $this->app->booted(function () {
+            // The log denies everyone until the host registers a policy of its own.
+            if (Gate::getPolicyFor(Lathe::actionEventModel()) === null) {
+                Gate::policy(Lathe::actionEventModel(), ActionEventPolicy::class);
+            }
+
             (new PluginDiscovery(PluginDiscovery::vendorPath($this->app->make(PackageManifest::class)->vendorPath)))
                 ->register($this->app->make(PluginRegistry::class));
 

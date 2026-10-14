@@ -3,9 +3,11 @@
 namespace Workbench\App\Providers;
 
 use Illuminate\Support\Facades\Gate;
+use Lathe\ActionEvents\ActionEvent;
 use Lathe\Lathe;
 use Lathe\LatheApplicationServiceProvider;
 use Workbench\App\Models\User;
+use Workbench\App\Policies\ActionEventPolicy;
 
 class LatheServiceProvider extends LatheApplicationServiceProvider
 {
@@ -26,6 +28,9 @@ class LatheServiceProvider extends LatheApplicationServiceProvider
             'admin@lathephp.com',
             'editor@lathephp.com',
         ], true));
+
+        // Whoever passes viewLathe may read the audit log.
+        Gate::policy(ActionEvent::class, ActionEventPolicy::class);
 
         // Every panel user may search across Resources.
         Gate::define('globalSearch', fn (User $user): bool => true);

@@ -171,7 +171,7 @@ it('leads the breadcrumbs of an event through its record', function () {
 
 it('keeps the plain breadcrumbs when the record or its Resource is gone', function () {
     $gone = auditEvent(['actionable_id' => '999999']);
-    $unlisted = auditEvent(['actionable_type' => 'Gone\\Missing\\Thing']);
+    $unlisted = auditEvent(['actionable_type' => AuditLogUnlistedThing::class, 'actionable_id' => '1']);
 
     foreach ([$gone, $unlisted] as $event) {
         $this->get("/lathe/resources/action-events/{$event->id}")
