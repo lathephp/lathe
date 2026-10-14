@@ -176,14 +176,16 @@ function PanelBody({ parent, field, bodyId, onToggle }: RelationPanelProps & { b
       </div>
       <Card id={bodyId} className="overflow-hidden">
         <div className="flex flex-wrap items-center gap-2 border-b border-border p-3">
-          <ToolbarSearch
-            label={field.label}
-            value={state.q ?? ''}
-            debounce={0.3}
-            onSearch={(q) => {
-              change({ q });
-            }}
-          />
+          {data?.searchable === true && (
+            <ToolbarSearch
+              label={field.label}
+              value={state.q ?? ''}
+              debounce={0.3}
+              onSearch={(q) => {
+                change({ q });
+              }}
+            />
+          )}
           {available.length > 0 && (
             <Button
               variant="outline"

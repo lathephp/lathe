@@ -18,6 +18,8 @@ export interface RelationIndex {
   perPage: number;
   perPageOptions: number[];
   hasMore: boolean;
+  /** Whether the related Resource has search columns or Scout; without them a term changes nothing. */
+  searchable: boolean;
 }
 
 export interface RelateFlags {

@@ -116,17 +116,18 @@ interface Reply {
   rows?: ReturnType<typeof row>[];
   count?: { value: number; exact: boolean; capped: boolean; estimated: boolean };
   add?: boolean;
+  searchable?: boolean;
 }
 
 /** Answers the panel's three endpoints and records every URL asked for. */
-function answer({ rows = items, count = { value: 7, exact: true, capped: false, estimated: false }, add = true }: Reply = {}) {
+function answer({ rows = items, count = { value: 7, exact: true, capped: false, estimated: false }, add = true, searchable = true }: Reply = {}) {
   return vi.spyOn(globalThis, 'fetch').mockImplementation((input) => {
     const url = typeof input === 'string' ? input : input instanceof URL ? input.href : input.url;
     const body = url.includes('/relate-authorization')
       ? { items: { add, attach: false, attachAny: false } }
       : url.includes('/filters')
         ? { filters: [] }
-        : { columns, sortKeys: ['quantity'], rows, count, page: 1, perPage: 25, perPageOptions: [25, 50, 100], hasMore: false };
+        : { columns, sortKeys: ['quantity'], rows, count, page: 1, perPage: 25, perPageOptions: [25, 50, 100], hasMore: false, searchable };
 
     return Promise.resolve(new Response(JSON.stringify(body), { status: 200 }));
   });
@@ -207,6 +208,14 @@ describe('relation panel', () => {
     await waitFor(() => {
       expect(listCalls(fetch).at(-1)).toBe('/lathe/api/resources/orders/12/items?q=ea');
     });
+  });
+
+  it('shows no search box when the related Resource has nothing to search', async () => {
+    answer({ searchable: false });
+    renderDetail([relationBlock()]);
+    await screen.findByText('Autem blanditiis');
+
+    expect(screen.queryByRole('searchbox', { name: 'Search items' })).toBeNull();
   });
 
   it('asks for another page size from the footer', async () => {
