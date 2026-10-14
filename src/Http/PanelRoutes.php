@@ -17,7 +17,7 @@ use Lathe\Http\Controllers\NotificationController;
 use Lathe\Http\Controllers\PageController;
 use Lathe\Http\Controllers\PageFallbackController;
 use Lathe\Http\Controllers\Plugins\ModuleController;
-use Lathe\Http\Controllers\Plugins\PluginApiController;
+use Lathe\Http\Controllers\Plugins\PluginController;
 use Lathe\Http\Controllers\Plugins\PluginPageController;
 use Lathe\Http\Controllers\Plugins\ResourcePluginController;
 use Lathe\Http\Controllers\Resources\ActionController;
@@ -177,7 +177,7 @@ class PanelRoutes
             $router->get('search', GlobalSearchController::class)->name('search');
 
             // Registered after every plugin's own routes, so those win.
-            $router->any('plugins/{plugin}/{path?}', PluginApiController::class)
+            $router->any('plugins/{plugin}/{path?}', PluginController::class)
                 ->where('path', '.*')
                 ->name('plugins');
 

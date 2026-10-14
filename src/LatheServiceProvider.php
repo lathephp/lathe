@@ -61,6 +61,7 @@ use Lathe\Pages\PageRegistry;
 use Lathe\Plugins\PluginDiscovery;
 use Lathe\Plugins\PluginRegistry;
 use Lathe\Plugins\ResourcePluginRegistry;
+use Lathe\Plugins\PluginSettings;
 use Lathe\Resources\ResourceRegistry;
 use Lathe\Support\ConfigStore;
 use Lathe\Support\ConfigValidator;
@@ -87,6 +88,7 @@ class LatheServiceProvider extends ServiceProvider
         $this->app->singleton(FortifyConfig::class);
         $this->app->singleton(NotificationChannelRegistry::class, fn () => new NotificationChannelRegistry(fn () => $this->app->isBooted()));
         $this->app->scoped(ActionEventRecorder::class);
+        $this->app->scoped(PluginSettings::class);
 
         // Lathe registers login and logout under its own path. Fortify's routes at the host root
         // stay off, unless the host published config/fortify.php and so uses Fortify itself.

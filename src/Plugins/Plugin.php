@@ -3,16 +3,24 @@
 namespace Lathe\Plugins;
 
 use Closure;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Router;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 use Lathe\Auth\FortifyConfig;
+use Lathe\Field\Field;
+use Lathe\Field\FieldCollection;
+use Lathe\Field\FieldContext;
+use Lathe\Http\Requests\LatheRequest;
+use Lathe\Layout\SectionPresenter;
 use Lathe\Menu\MenuSection;
 use Lathe\Resources\Resource;
 use Lathe\Resources\ResourceRegistry;
 use Lathe\Widgets\Widget;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Exception\MethodNotAllowedHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 /**
@@ -121,6 +129,74 @@ abstract class Plugin
     public function settings(): ?array
     {
         return null;
+    }
+
+    /**
+     * One saved setting, read from the store once per request.
+     */
+    public function setting(string $key, mixed $default = null): mixed
+    {
+        return app(PluginSettings::class)->for(static::uriKey())[$key] ?? $default;
+    }
+
+    /**
+     * Merge the values into the saved settings; a null value clears its key.
+     *
+     * @param  array<string, mixed>  $values
+     */
+    public function saveSettings(array $values): void
+    {
+        app(PluginSettings::class)->save(static::uriKey(), $values);
+    }
+
+    /**
+     * Answers GET and PUT on the settings path, without going through handleRequest(): GET
+     * returns the form and the saved values, PUT validates and saves the declared fields.
+     */
+    public function handleSettingsRequest(Request $request): Response
+    {
+        $items = $this->settings();
+
+        if ($items === null) {
+            throw new NotFoundHttpException;
+        }
+
+        $request = $request instanceof LatheRequest ? $request : LatheRequest::createFrom($request);
+        $fields = SectionPresenter::flattenFields($items, 'Details');
+
+        if ($request->isMethod('GET')) {
+            return new JsonResponse([
+                'fields' => array_map(fn (Field $field) => $field->schema(FieldContext::Update, $request), $fields),
+                'layout' => SectionPresenter::layout($items, new FieldCollection($fields), $request, FieldContext::Update),
+                'values' => (object) app(PluginSettings::class)->for(static::uriKey()),
+            ]);
+        }
+
+        if (! $request->isMethod('PUT')) {
+            throw new MethodNotAllowedHttpException(['GET', 'PUT']);
+        }
+
+        $rules = $messages = $attributes = [];
+
+        foreach ($fields as $field) {
+            $rules = [...$rules, ...$field->getRules(FieldContext::Update, $request)];
+            $messages = [...$messages, ...$field->getMessages()];
+            $attributes = [...$attributes, ...$field->getValidationAttributes()];
+        }
+
+        Validator::make($request->all(), $rules, $messages, $attributes)->validate();
+
+        $values = [];
+
+        foreach ($fields as $field) {
+            if ($request->has($field->attribute())) {
+                $values[$field->attribute()] = $request->input($field->attribute());
+            }
+        }
+
+        $this->saveSettings($values);
+
+        return new JsonResponse(['saved' => true]);
     }
 
     /**

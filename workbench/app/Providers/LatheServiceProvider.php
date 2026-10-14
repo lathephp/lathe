@@ -13,6 +13,7 @@ use Lathe\Menu\MenuSection;
 use Workbench\App\Lathe\Dashboards\Sales;
 use Workbench\App\Lathe\Pages\SystemStatus;
 use Workbench\App\Lathe\Pages\UiGallery;
+use Workbench\App\Lathe\Plugins\HelloPlugin;
 use Workbench\App\Lathe\Search\DemoKitPages;
 use Workbench\App\Models\User;
 use Workbench\App\Policies\ActionEventPolicy;
@@ -33,6 +34,7 @@ class LatheServiceProvider extends LatheApplicationServiceProvider
 
         Lathe::registerPages(UiGallery::class, SystemStatus::class);
         Lathe::registerSearchProviders(new DemoKitPages);
+        Lathe::registerPlugins(HelloPlugin::make());
 
         Menu::mainMenu(fn (Request $request, Menu $menu) => $menu->add(MenuSection::section('Demo Kit', [
             MenuItem::link('UI Gallery', 'pages/ui-gallery'),
