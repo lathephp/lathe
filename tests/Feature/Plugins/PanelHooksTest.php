@@ -17,7 +17,10 @@ function providedProps(?User $user = null): array
 {
     $test = $user === null ? test() : test()->actingAs($user);
 
-    return $test->get($user === null ? '/lathe/login' : '/lathe')->assertOk()->viewData('page')['props']['provided'];
+    $provided = $test->get($user === null ? '/lathe/login' : '/lathe')->assertOk()->viewData('page')['props']['provided'];
+
+    // The workbench Insights plugin provides these on every panel page; the tests check their own keys.
+    return array_diff_key($provided, array_flip(['insightsViewer', 'insightsServerTime']));
 }
 
 it('boots outside HTTP without binding a request, so the first real request answers 200', function () {
