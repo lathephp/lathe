@@ -1,9 +1,11 @@
+import { router } from '@inertiajs/react';
 import { __panel } from '@lathephp/core';
 import { act, fireEvent, render, screen } from '@testing-library/react';
 import { useState } from 'react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { FormField, IndexField } from '../fields/registry';
 import type { FieldSchema } from '../fields/types';
+import { renderPage } from './support';
 
 const tags = [
   { value: 5, display: 'sale' },
@@ -41,7 +43,7 @@ function schema(overrides: Partial<FieldSchema> = {}): FieldSchema {
     display: 'group',
     withPreview: false,
     preload: false,
-    searchable: true,
+    searchable: false,
     debounce: 500,
     ...overrides,
   };
@@ -116,6 +118,28 @@ describe('tag field', () => {
     expect(await screen.findByText('new-in')).toBeDefined();
     expect(screen.getByRole('dialog', { name: 'new' })).toBeDefined();
     expect(urls(fetch)).toEqual(['/lathe/api/resources/tags/6/preview']);
+  });
+
+  it('keeps a click inside the tag preview from opening the row behind it', async () => {
+    vi.spyOn(globalThis, 'fetch').mockImplementation(() => Promise.resolve(new Response(JSON.stringify({ id: 6, title: 'new', subtitle: '', fields: [{ key: 'slug', label: 'Slug', component: 'text-field', value: 'new-in', display: 'new-in' }] }), { status: 200 })));
+    const visit = vi.spyOn(router, 'visit');
+    const definition = { debounce: 0.5, paginationType: 'links', clickAction: 'detail', polling: null, showPollingToggle: false, tableStyle: 'default', showColumnBorders: false, softDeletes: false };
+    renderPage(
+      'Resources/Index',
+      {
+        resource: { uriKey: 'posts', label: 'Posts', singularLabel: 'Post', perPageOptions: [25], searchable: false, softDeletes: false, abilities: { create: false }, definition },
+        table: { columns: [schema({ withPreview: true })], rows: [{ id: 3, title: 'Hello', cells: { tags: { value: tags.slice(0, 2), display: 'sale, new' } }, abilities: { view: true } }], rowKey: 'id', sortKeys: [] },
+        state: { page: 1, perPage: 25, hasMorePages: false },
+        count: { value: 1, exact: true, capped: false, estimated: false },
+      },
+      { url: '/lathe/resources/posts' },
+    );
+
+    fireEvent.click(screen.getByRole('button', { name: 'new' }));
+    fireEvent.click(await screen.findByText('new-in'));
+
+    expect(screen.getByRole('dialog', { name: 'new' })).toBeDefined();
+    expect(visit).not.toHaveBeenCalled();
   });
 
   it('lists the preloaded tags without a request and toggles two into the value', () => {

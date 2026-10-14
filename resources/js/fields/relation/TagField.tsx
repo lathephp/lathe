@@ -46,13 +46,21 @@ function TagChips({ field, value }: { field: FieldSchema; value: unknown }) {
         ))}
       </ul>
       {preview !== null && previewing !== null && (
-        <PreviewModal
-          uriKey={preview}
-          id={previewing}
-          onClose={() => {
-            setPreviewing(null);
+        // The modal renders inside the index row, so its clicks would bubble to the row and open the record.
+        // eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions
+        <div
+          onClick={(event) => {
+            event.stopPropagation();
           }}
-        />
+        >
+          <PreviewModal
+            uriKey={preview}
+            id={previewing}
+            onClose={() => {
+              setPreviewing(null);
+            }}
+          />
+        </div>
       )}
     </>
   );
@@ -118,6 +126,8 @@ export function TagForm(props: FormFieldProps) {
       )}
       <BelongsToForm
         {...props}
+        // Tags not preloaded are too many to list, so they always use the searched picker.
+        field={{ ...field, searchable: true }}
         value={null}
         onChange={(picked) => {
           if (isBelongsToValue(picked) && !has(picked)) {
