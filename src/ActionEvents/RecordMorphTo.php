@@ -2,6 +2,7 @@
 
 namespace Lathe\ActionEvents;
 
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 
@@ -20,7 +21,7 @@ class RecordMorphTo extends MorphTo
     {
         foreach (array_keys($this->dictionary) as $type) {
             if (class_exists(Model::getActualClassNameForMorph((string) $type))) {
-                /** @var \Illuminate\Database\Eloquent\Collection<int, TRelatedModel> $results */
+                /** @var Collection<int, TRelatedModel> $results */
                 $results = $this->getResultsByType($type);
                 $this->matchToMorphParents($type, $results);
             }
