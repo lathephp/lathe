@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Log;
 use Lathe\Actions\ActionMenu;
+use Lathe\Auth\Impersonation;
 use Lathe\Auth\ResourceAuthorization;
 use Lathe\Exceptions\DuplicateRowKeyException;
 use Lathe\Field\Contracts\PrimesForPage;
@@ -71,6 +72,14 @@ class IndexPayload
             $rows,
             $softDeletes ? [...self::ROW_ABILITIES, 'restore', 'forceDelete'] : self::ROW_ABILITIES,
         );
+
+        // Not a policy ability: the user model's Impersonatable methods decide, from memory. The live
+        // request holds the session, which the LatheRequest copy lacks.
+        if (Impersonation::uses($class::newModel())) {
+            foreach ($rows as $model) {
+                $abilities[$this->key($model)]['impersonate'] = Impersonation::availableTo(request(), $model);
+            }
+        }
         $threshold = $resource->definition()->getFilterRemoteThreshold();
         $filters = $this->request->query('filter');
         $active = $query->activeGroup();

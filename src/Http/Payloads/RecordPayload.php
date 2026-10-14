@@ -4,6 +4,7 @@ namespace Lathe\Http\Payloads;
 
 use Illuminate\Database\Eloquent\Model;
 use Lathe\Assets\AssetRegistry;
+use Lathe\Auth\Impersonation;
 use Lathe\Auth\ResourceAuthorization;
 use Lathe\Field\Field;
 use Lathe\Field\FieldContext;
@@ -57,10 +58,14 @@ class RecordPayload
                 fn (ResourcePlugin $plugin) => $this->resourcePlugin($class, $plugin),
                 array_values(array_filter(ResourcePluginRegistry::placedIn($class, $this->request), fn (ResourcePlugin $plugin) => $plugin->authorize($this->request))),
             ),
-            'abilities' => array_combine(self::ABILITIES, array_map(
-                fn (string $ability) => $this->authorization->allows($user, $class, $ability, $model),
-                self::ABILITIES,
-            )),
+            'abilities' => [
+                ...array_combine(self::ABILITIES, array_map(
+                    fn (string $ability) => $this->authorization->allows($user, $class, $ability, $model),
+                    self::ABILITIES,
+                )),
+                // Not a policy ability: Impersonatable decides. The live request holds the session.
+                ...(Impersonation::uses($model) ? ['impersonate' => Impersonation::availableTo(request(), $model)] : []),
+            ],
             'trashed' => method_exists($model, 'trashed') && $model->trashed() === true,
         ];
     }
