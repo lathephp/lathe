@@ -317,8 +317,11 @@ if ((systemd)); then
     done
     systemctl daemon-reload
     systemctl restart php8.4-fpm.service
+    # A Caddy that already ran reloads the new Caddyfile; a first start reads it anyway.
+    caddy_was_active=0
+    systemctl is-active --quiet lathe-demo-caddy.service && caddy_was_active=1
     systemctl enable --now lathe-demo-caddy.service lathe-demo-queue.service lathe-demo-schedule.service lathe-demo-reset.timer
-    systemctl reload lathe-demo-caddy.service
+    if ((caddy_was_active)); then systemctl reload lathe-demo-caddy.service; fi
     # Workers that ran the old code stop after their job and systemd starts them again.
     artisan queue:restart
     systemctl restart lathe-demo-schedule.service
