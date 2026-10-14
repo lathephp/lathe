@@ -147,6 +147,36 @@ class ResourceTester
     }
 
     /**
+     * The same requests through a lens, as lens($key)->widgets() reads.
+     */
+    public function lens(string $lens): static
+    {
+        return $this->forLens($lens);
+    }
+
+    /**
+     * The widgets the user may see, without their values; with resourceId, a detail page's.
+     *
+     * @param  array<string, mixed>  $params
+     * @return TestResponse<Response>
+     */
+    public function widgets(array $params = []): TestResponse
+    {
+        return $this->getJson($this->base().'/widgets'.($params === [] ? '' : '?'.http_build_query($params)));
+    }
+
+    /**
+     * One card's value; the params go out as the query string: range, filters and resourceId.
+     *
+     * @param  array<string, mixed>  $params
+     * @return TestResponse<Response>
+     */
+    public function widget(string $widget, array $params = []): TestResponse
+    {
+        return $this->getJson($this->base().'/widgets/'.$widget.($params === [] ? '' : '?'.http_build_query($params)));
+    }
+
+    /**
      * The visible actions with their metadata, for display index, detail or table-row.
      *
      * @param  array<string, mixed>  $query
