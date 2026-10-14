@@ -161,7 +161,7 @@ export function useChunkedUpload(
 
     if (saved !== null) {
       try {
-        const status = await request<{ size: number; received: number[] }>(`${apiPath}/uploads/${saved.upload_id}`);
+        const status = await request<{ size: number; received: number[] }>(`${apiPath}/uploads/${saved.upload_id}`, { toastOnError: false });
 
         if (status !== null && status.size === blob.size) {
           return { id: saved.upload_id, chunkSize: saved.chunk_size, received: status.received };
@@ -175,6 +175,7 @@ export function useChunkedUpload(
     const id = page.mode === 'update' ? page.id : undefined;
     const started = await request<{ upload_id: string; chunk_size: number }>(`${apiPath}/resources/${resource}/uploads/${attribute}`, {
       method: 'POST',
+      toastOnError: false,
       body: { name: file.name, size: blob.size, mime: blob.type || file.type, ...(id === undefined || id === null ? {} : { resource_id: id }), ...startBody() },
     });
 
@@ -207,7 +208,7 @@ export function useChunkedUpload(
         setProgress(percent(sent));
       }
 
-      await request(`${apiPath}/uploads/${id}/complete`, { method: 'POST' });
+      await request(`${apiPath}/uploads/${id}/complete`, { method: 'POST', toastOnError: false });
       writeSaved(null, attribute);
       setProgress(100);
       onUploaded(id);

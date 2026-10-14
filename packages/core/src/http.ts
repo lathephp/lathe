@@ -1,3 +1,6 @@
+import { toast } from './toast';
+import { __ } from './translation';
+
 /** Every failed request becomes one ApiError, with the status and the parsed body. */
 export class ApiError extends Error {
   constructor(
@@ -15,6 +18,10 @@ export interface RequestOptions {
   body?: unknown;
   headers?: Record<string, string>;
   signal?: AbortSignal;
+  /** 'blob' answers a successful body as a Blob, for a file download. */
+  responseType?: 'json' | 'blob';
+  /** False for a caller that shows its own message when the server fails with a 5xx. */
+  toastOnError?: boolean;
 }
 
 function xsrfToken(): string | null {
@@ -73,6 +80,21 @@ export async function request<T = unknown>(input: string, options: RequestOption
 
   if (response.status === 204) {
     return null;
+  }
+
+  if (response.ok && options.responseType === 'blob') {
+    return (await response.blob()) as T;
+  }
+
+  if (response.status >= 500 && options.toastOnError !== false) {
+    toast.error(__('Something went wrong. Please try again.'), {
+      action: {
+        label: __('Retry'),
+        onClick: () => {
+          void request(input, options).catch(() => undefined);
+        },
+      },
+    });
   }
 
   const text = await response.text();

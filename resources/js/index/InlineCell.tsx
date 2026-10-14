@@ -60,6 +60,7 @@ export function InlineCell({ uriKey, rowId, column, cell, token, onRow }: Inline
     try {
       const reply = await request<InlineReply>(`${apiPath}/resources/${uriKey}/${String(rowId)}/field/${column.key}`, {
         method: 'PATCH',
+        toastOnError: false,
         body: { value, ...extra, _updated_at: token ?? undefined },
       });
 

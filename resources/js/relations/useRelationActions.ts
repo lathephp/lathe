@@ -11,7 +11,7 @@ export function useRelationActions(uriKey: string, id: string | number, relation
   const base = `${apiPath}/resources/${uriKey}/${String(id)}/${relationship}`;
 
   async function send(url: string, method: string, body?: unknown) {
-    await request(url, { method, body });
+    await request(url, { method, body, toastOnError: false });
     await queryClient.invalidateQueries({ queryKey: ['relation', uriKey, String(id), relationship] });
   }
 

@@ -9,7 +9,7 @@ const XLSX = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
  */
 export async function uploadImportFile(startUrl: string, apiPath: string, file: File): Promise<string> {
   const mime = file.name.toLowerCase().endsWith('.xlsx') ? XLSX : 'text/csv';
-  const started = await request<{ upload_id: string; chunk_size: number }>(startUrl, { method: 'POST', body: { name: file.name, size: file.size, mime } });
+  const started = await request<{ upload_id: string; chunk_size: number }>(startUrl, { method: 'POST', body: { name: file.name, size: file.size, mime }, toastOnError: false });
 
   if (started === null) {
     throw new ApiError(0, null);
@@ -30,7 +30,7 @@ export async function uploadImportFile(startUrl: string, apiPath: string, file: 
     }
   }
 
-  await request(`${apiPath}/uploads/${started.upload_id}/complete`, { method: 'POST' });
+  await request(`${apiPath}/uploads/${started.upload_id}/complete`, { method: 'POST', toastOnError: false });
 
   return started.upload_id;
 }

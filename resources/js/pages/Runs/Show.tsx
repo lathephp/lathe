@@ -54,7 +54,7 @@ export default function Show({ type, id }: RunPageProps) {
 
   async function resume() {
     try {
-      await request(`${url}/resume`, { method: 'POST' });
+      await request(`${url}/resume`, { method: 'POST', toastOnError: false });
       setStatus(null);
     } catch {
       toast.error(__('Something went wrong. Please try again.'));

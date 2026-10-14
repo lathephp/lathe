@@ -12,7 +12,7 @@ function hasFile(fields: Record<string, unknown>): boolean {
  */
 export async function runAction(url: string, action: string, selection: SelectionDescriptor, fields: Record<string, unknown>): Promise<ActionRun> {
   if (!hasFile(fields)) {
-    const run = await request<ActionRun>(url, { method: 'POST', body: { action, selection, fields } });
+    const run = await request<ActionRun>(url, { method: 'POST', body: { action, selection, fields }, toastOnError: false });
 
     if (run === null) {
       throw new ApiError(204, null, 'The action answered nothing.');

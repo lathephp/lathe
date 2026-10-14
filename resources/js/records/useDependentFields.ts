@@ -67,6 +67,7 @@ export function useDependentFields({ uriKey, mode, id, fields, values, dirty, ap
 
       request<LookupReply>(`${apiPath}/resources/${uriKey}/field-dependencies`, {
         method: 'POST',
+        toastOnError: false,
         body: { fields: targets, context: mode === 'update' ? 'update' : 'create', values, dirty: [...latest.current.dirty], id: mode === 'update' ? id : null },
       }).then(
         (reply) => {

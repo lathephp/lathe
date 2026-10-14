@@ -69,7 +69,7 @@ export function DeleteMenu({ uriKey, lens, softDeletes, selection, rows, total, 
     let result: BatchResult | null;
 
     try {
-      result = await request<BatchResult>(`${base}/${path}`, { method, body: { selection: descriptor } });
+      result = await request<BatchResult>(`${base}/${path}`, { method, body: { selection: descriptor }, toastOnError: false });
     } catch {
       toast.error(__('Operation failed. Please try again.'), {
         action: {

@@ -87,6 +87,7 @@ export function useRecordForm(
       try {
         const result = await request<WriteResult>(updating ? `${base}/${String(id)}` : via === null ? base : `${base}?via=${encodeURIComponent(via)}`, {
           method: updating ? 'PUT' : 'POST',
+          toastOnError: false,
           body: updating && token !== undefined ? { ...submittable(values, payload.fields, resource.uriKey), _updated_at: token } : submittable(values, payload.fields, resource.uriKey),
         });
 
@@ -96,7 +97,7 @@ export function useRecordForm(
           setValues(initialValues(form.fields));
           toast.success(__(':resource created.', { resource: resource.singularLabel }));
         } else if (intent === 'continue' && updating) {
-          const fresh = await request<FormPayload>(`${base}/${String(id)}/update-fields`);
+          const fresh = await request<FormPayload>(`${base}/${String(id)}/update-fields`, { toastOnError: false });
 
           if (fresh !== null) {
             setPayload(fresh);

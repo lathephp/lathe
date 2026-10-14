@@ -35,7 +35,7 @@ export function RecordActions({ uriKey, record }: RecordActionsProps) {
     const call = requests[action];
 
     try {
-      const reply = await request<{ redirect?: string }>(call.path, { method: call.method });
+      const reply = await request<{ redirect?: string }>(call.path, { method: call.method, toastOnError: false });
       toast.success(call.done);
 
       if (action === 'restore') {

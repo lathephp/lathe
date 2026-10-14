@@ -96,7 +96,7 @@ export function useAssociatable(field: FieldSchema, { open, term, withTrashed, t
       params.set('with_trashed', '1');
     }
 
-    request<AssociatablePage>(`${endpoint}${endpoint.includes('?') ? '&' : '?'}${params.toString()}`, { signal: controller.signal }).then(
+    request<AssociatablePage>(`${endpoint}${endpoint.includes('?') ? '&' : '?'}${params.toString()}`, { signal: controller.signal, toastOnError: false }).then(
       (reply) => {
         const items = reply?.items ?? [];
         setResult((current) => ({ items: page === 1 ? items : [...current.items, ...items], hasMore: reply?.has_more === true, loaded: true, error: null }));

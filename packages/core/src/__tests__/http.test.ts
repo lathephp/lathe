@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { ApiError, request } from '../index';
+import { __panel, ApiError, request } from '../index';
 
 function respond(status: number, body: string): void {
   vi.stubGlobal(
@@ -45,5 +45,53 @@ describe('request', () => {
 
     expect(error).toBeInstanceOf(ApiError);
     expect(error).not.toBeInstanceOf(SyntaxError);
+  });
+});
+
+describe('request on a server error', () => {
+  afterEach(() => {
+    __panel.toasts.set([]);
+  });
+
+  it('toasts a 5xx with a Retry that sends the request again', async () => {
+    respond(500, '{"message":"Server Error"}');
+
+    await request('/lathe/api/thing').catch(() => undefined);
+
+    const shown = __panel.toasts.get();
+    expect(shown.map(({ type, message, action }) => ({ type, message, label: action?.label }))).toEqual([
+      { type: 'error', message: 'Something went wrong. Please try again.', label: 'Retry' },
+    ]);
+
+    shown[0]?.action?.onClick();
+
+    expect(vi.mocked(fetch).mock.calls.map(([url]) => url)).toEqual(['/lathe/api/thing', '/lathe/api/thing']);
+  });
+
+  it('pins: shows no toast to a caller that asks for none', async () => {
+    respond(503, '');
+
+    await request('/x', { toastOnError: false }).catch(() => undefined);
+
+    expect(__panel.toasts.get()).toEqual([]);
+  });
+
+  it('pins: shows no toast for a 4xx', async () => {
+    respond(404, '{}');
+
+    await request('/x').catch(() => undefined);
+
+    expect(__panel.toasts.get()).toEqual([]);
+  });
+});
+
+describe('request for a file', () => {
+  it('answers the body as a Blob', async () => {
+    respond(200, 'id,name\n1,Ada\n');
+
+    const file = await request<Blob>('/lathe/api/export', { responseType: 'blob' });
+
+    expect(file).toBeInstanceOf(Blob);
+    expect(await file?.text()).toBe('id,name\n1,Ada\n');
   });
 });

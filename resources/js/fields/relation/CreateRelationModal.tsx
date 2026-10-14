@@ -42,7 +42,7 @@ export function CreateRelationModal({ field, record, onCreated, onClose }: Creat
   useEffect(() => {
     const abort = new AbortController();
 
-    request<FormPayload>(`${apiPath}/resources/${uriKey}/creation-fields`, { signal: abort.signal }).then(setForm, () => {
+    request<FormPayload>(`${apiPath}/resources/${uriKey}/creation-fields`, { signal: abort.signal, toastOnError: false }).then(setForm, () => {
       if (!abort.signal.aborted) {
         toast.error(__('Something went wrong. Please try again.'));
         onClose();
@@ -59,7 +59,7 @@ export function CreateRelationModal({ field, record, onCreated, onClose }: Creat
   /** The new record's picker value comes from the same route the picker lists. */
   async function select(id: string | number) {
     try {
-      const reply = await request<{ items: AssociatableItem[] }>(`${endpoint}?current=${encodeURIComponent(String(id))}`);
+      const reply = await request<{ items: AssociatableItem[] }>(`${endpoint}?current=${encodeURIComponent(String(id))}`, { toastOnError: false });
       const item = reply?.items[0];
 
       if (item !== undefined) {

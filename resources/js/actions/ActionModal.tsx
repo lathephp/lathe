@@ -52,7 +52,7 @@ export function ActionModal({ base, action, count, onClose, onRun }: ActionModal
   useEffect(() => {
     let live = true;
 
-    request<ActionForm>(`${base}/actions/${action.uriKey}/form?count=${String(count)}`)
+    request<ActionForm>(`${base}/actions/${action.uriKey}/form?count=${String(count)}`, { toastOnError: false })
       .then((loaded) => {
         if (live && loaded !== null) {
           setForm(loaded);

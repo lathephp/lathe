@@ -78,7 +78,7 @@ export function useLoadMore(uriKey: string, table: IndexProps['table'], state: I
     setLoading(true);
 
     try {
-      const next = await request<Pick<IndexProps, 'table' | 'state'>>(`${page.props.basePath}/api/resources/${uriKey}?${params.toString()}`);
+      const next = await request<Pick<IndexProps, 'table' | 'state'>>(`${page.props.basePath}/api/resources/${uriKey}?${params.toString()}`, { toastOnError: false });
 
       if (next !== null) {
         setMore({

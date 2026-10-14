@@ -55,7 +55,7 @@ export function useSavedTabs(uriKey: string, saved: SavedTab[], activeSaved: num
 
   async function send(path: string, method: string, body?: unknown): Promise<boolean> {
     try {
-      await request(`${url}${path}`, { method, body });
+      await request(`${url}${path}`, { method, body, toastOnError: false });
 
       return true;
     } catch (error) {

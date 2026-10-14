@@ -78,7 +78,7 @@ export function RowMenu({ uriKey, row }: { uriKey: string; row: Row }) {
     const { path, method, done, failed } = requests[action];
 
     try {
-      await request(path, { method });
+      await request(path, { method, toastOnError: false });
     } catch {
       toast.error(failed);
 
