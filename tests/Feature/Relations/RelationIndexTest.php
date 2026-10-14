@@ -2,6 +2,7 @@
 
 use Illuminate\Contracts\Auth\Access\Gate as GateContract;
 use Illuminate\Contracts\Auth\Authenticatable;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
@@ -13,6 +14,8 @@ use Lathe\Lathe;
 use Lathe\Resources\Resource;
 use Lathe\Resources\ResourceDefinition;
 use Lathe\Resources\ResourceRegistry;
+use Lathe\Tabs\Tab;
+use Workbench\App\Lathe\Resources\Customer;
 use Workbench\App\Models\Order;
 use Workbench\App\Models\OrderItem;
 use Workbench\App\Models\User;
@@ -253,3 +256,49 @@ it('lists the tags of product 2 with their pivot id and position', function () {
 
     $this->getJson('/lathe/api/resources/products/2/tags?sort=nope')->assertUnprocessable()->assertJsonValidationErrors('sort');
 });
+
+it('lists every related row whatever tabs and default group the related Resource declares', function () {
+    Lathe::registerResources(TabbedPanelCustomers::class, TabbedPanelOrders::class);
+    $customer = Order::findOrFail(12)->customer_id;
+    $expected = Order::where('customer_id', $customer)->count();
+
+    $json = $this->getJson("/lathe/api/resources/tabbed-panel-customers/{$customer}/orders?per_page=100")->assertOk()->json();
+
+    expect($json['rows'])->toHaveCount($expected);
+});
+
+class TabbedPanelOrders extends Workbench\App\Lathe\Resources\Order
+{
+    public static function uriKey(): string
+    {
+        return 'tabbed-panel-orders';
+    }
+
+    protected function configure(ResourceDefinition $definition): ResourceDefinition
+    {
+        return parent::configure($definition)->canonical(false)->defaultGroup('status');
+    }
+
+    public function tabs(LatheRequest $request): array
+    {
+        return [Tab::make('Paid')->modifyQueryUsing(fn (Builder $query) => $query->where($query->qualifyColumn('status'), 'paid'))];
+    }
+}
+
+class TabbedPanelCustomers extends Customer
+{
+    public static function uriKey(): string
+    {
+        return 'tabbed-panel-customers';
+    }
+
+    protected function configure(ResourceDefinition $definition): ResourceDefinition
+    {
+        return parent::configure($definition)->canonical(false);
+    }
+
+    public function fields(LatheRequest $request): array
+    {
+        return [Field::text('Name'), Field::hasMany('Orders', 'orders', TabbedPanelOrders::class)];
+    }
+}

@@ -169,7 +169,10 @@ class ResourceQuery
 
             // Tabs, filters and search are the index's view; a record lookup ignores them.
             $this->scoped = $this->lens !== null ? $this->applyLens($query) : match ($this->context) {
-                QueryContext::Index => $this->applyFilters($this->applySearch($this->applySavedTab($this->applyTab($query)))),
+                // A relation panel has no tabs of its own: the related index's tabs never narrow it.
+                QueryContext::Index => $this->relation !== null
+                    ? $this->applyFilters($this->applySearch($query))
+                    : $this->applyFilters($this->applySearch($this->applySavedTab($this->applyTab($query)))),
                 QueryContext::Search => $this->applySearch($query),
                 default => $query,
             };
@@ -982,7 +985,7 @@ class ResourceQuery
         $value = $this->request->query('group');
         $value = $value === null || $value === '' ? $this->resource->definition()->getDefaultGroup() : $value;
 
-        if ($this->lens !== null || $this->context !== QueryContext::Index || $value === null || $value === self::UNGROUPED) {
+        if ($this->lens !== null || $this->relation !== null || $this->context !== QueryContext::Index || $value === null || $value === self::UNGROUPED) {
             return null;
         }
 
