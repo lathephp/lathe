@@ -16,6 +16,8 @@ function releaseRepo(): string
     File::ensureDirectoryExists("{$repo}/packages/core");
     File::copy("{$root}/scripts/release.sh", "{$repo}/scripts/release.sh");
     File::copy("{$root}/scripts/third-party-licenses.mjs", "{$repo}/scripts/third-party-licenses.mjs");
+    File::copy("{$root}/scripts/upgrade-guide.mjs", "{$repo}/scripts/upgrade-guide.mjs");
+    File::ensureDirectoryExists("{$repo}/docs/getting-started");
     File::put("{$repo}/.gitignore", "/dist/\n");
     File::put("{$repo}/package.json", "{\"name\": \"lathe\", \"version\": \"1.0.0-dev\"}\n");
     File::put("{$repo}/packages/core/package.json", "{\"name\": \"@lathephp/core\", \"version\": \"1.0.0-dev\"}\n");

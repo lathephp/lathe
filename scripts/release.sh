@@ -2,7 +2,7 @@
 # Cuts a release on a local branch and tag, and pushes nothing.
 #   bash scripts/release.sh <version> <lane-result.json>
 # From a clean, green main it: creates release/<version>; sets every package.json version;
-# dates the CHANGELOG section; runs the build and force-adds dist/; writes
+# dates the CHANGELOG section; regenerates the upgrade guide; runs the build and force-adds dist/; writes
 # THIRD-PARTY-LICENSES.md; rewrites tests/Benchmark/baseline.json from the dedicated-lane
 # result file; commits; and tags the commit v<version>. main never gets dist/.
 # LATHE_RELEASE_BUILD replaces the build command and LATHE_RELEASE_LICENSES_JSON feeds the
@@ -40,6 +40,8 @@ done
 
 sed -i "s/^## \[$version\] - Unreleased$/## [$version] - $(date -u +%Y-%m-%d)/" CHANGELOG.md
 
+node scripts/upgrade-guide.mjs
+
 eval "${LATHE_RELEASE_BUILD:-pnpm build}"
 [[ -d dist ]] || fail "the build wrote no dist/"
 
@@ -63,7 +65,7 @@ node -e '
     fs.writeFileSync("tests/Benchmark/baseline.json", JSON.stringify(baseline, null, 2) + "\n");
 ' "$results" "$tag"
 
-git add package.json packages/*/package.json CHANGELOG.md THIRD-PARTY-LICENSES.md tests/Benchmark/baseline.json
+git add package.json packages/*/package.json CHANGELOG.md docs/getting-started/upgrade.md THIRD-PARTY-LICENSES.md tests/Benchmark/baseline.json
 git add -f dist
 git commit -q -m "Release $version"
 git tag -a "$tag" -m "Lathe $version"
