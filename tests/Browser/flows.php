@@ -8,6 +8,7 @@
 return [
     'login' => 'LoginTest.php',
     'auth-screens' => 'AuthScreensTest.php',
+    'access-control' => 'AccessControlTest.php',
     'orders-index' => 'OrdersIndexTest.php',
     'heartbeat' => 'HeartbeatTest.php',
     'sidebar' => 'SidebarTest.php',
