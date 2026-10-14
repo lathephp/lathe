@@ -1,9 +1,11 @@
 import { useTranslation } from '@lathephp/core';
 import { Button } from '@lathephp/ui';
+import { Plus } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import { inputClass } from '../choice/options';
 import type { FormFieldProps } from '../registry';
 import { isBelongsToValue } from './BelongsToField';
+import { CreateRelationModal } from './CreateRelationModal';
 import { useAssociatable, type AssociatableItem, type LookupRecord } from './useAssociatable';
 
 /** What a lookup needs beyond the field: a morphTo's chosen type, or the record of an index row. */
@@ -227,15 +229,18 @@ function RelationSelect({ field, value, onChange, id, describedBy, invalid, disa
 }
 
 export function BelongsToForm(props: FormFieldProps & LookupProps) {
-  const { field, value } = props;
+  const { __ } = useTranslation();
+  const { field, value, onChange, disabled } = props;
   const [searchable, setSearchable] = useState(field.searchable === true);
+  const [creating, setCreating] = useState(false);
+  const label = typeof field.singularLabel === 'string' ? field.singularLabel : field.label;
 
   // A field locked by the page, such as under a via, shows its record and no picker.
   if (field.readonly === true) {
     return <span id={props.id}>{isBelongsToValue(value) ? value.display : '—'}</span>;
   }
 
-  return searchable ? (
+  const control = searchable ? (
     <RelationPicker {...props} />
   ) : (
     <RelationSelect
@@ -244,5 +249,36 @@ export function BelongsToForm(props: FormFieldProps & LookupProps) {
         setSearchable(true);
       }}
     />
+  );
+
+  if (field.creatable !== true) {
+    return control;
+  }
+
+  return (
+    <div className="flex items-start gap-2">
+      <div className="min-w-0 flex-1">{control}</div>
+      <Button
+        variant="outline"
+        size="icon"
+        aria-label={__('Create :resource', { resource: label })}
+        disabled={disabled}
+        onClick={() => {
+          setCreating(true);
+        }}
+      >
+        <Plus aria-hidden="true" className="size-4" />
+      </Button>
+      {creating && (
+        <CreateRelationModal
+          field={field}
+          record={props.record}
+          onCreated={onChange}
+          onClose={() => {
+            setCreating(false);
+          }}
+        />
+      )}
+    </div>
   );
 }
