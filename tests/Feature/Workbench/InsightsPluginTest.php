@@ -53,6 +53,15 @@ it('counts the open orders for the Overview badge once within 60 seconds', funct
     expect($counts)->toBe(1);
 });
 
+it('gives the page script the viewer name and the server time', function () {
+    $this->travelTo('2026-03-04 05:06:07');
+
+    expect($this->get('/lathe')->viewData('page')['props']['provided'])->toMatchArray([
+        'insightsViewer' => 'Admin User',
+        'insightsServerTime' => '2026-03-04T05:06:07+00:00',
+    ]);
+});
+
 it('answers summary with the order counts and 404 for any other path', function () {
     Order::where('id', '>', 0)->update(['status' => 'cancelled']);
     Order::whereIn('id', [1, 2])->update(['status' => 'pending']);
