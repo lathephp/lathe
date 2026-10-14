@@ -12,7 +12,7 @@ class LatheServiceProvider extends LatheApplicationServiceProvider
      */
     protected function gate(): void
     {
-        Gate::define('viewLathe', fn ($user) => in_array($user->email, [
+        Gate::define('viewLathe', fn (object $user): bool => in_array(data_get($user, 'email'), [
             //
         ]));
     }

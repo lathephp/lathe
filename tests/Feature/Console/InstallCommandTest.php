@@ -100,7 +100,7 @@ it('installs into a fresh Laravel app and changes only app, bootstrap, config an
         ->and("{$app}/app/Lathe/Resources/User.php")->toBeFile()
         ->and("{$app}/app/Policies/UserPolicy.php")->toBeFile()
         ->and("{$app}/app/Lathe/Dashboards/Main.php")->toBeFile()
-        ->and(File::get("{$app}/app/Providers/LatheServiceProvider.php"))->toContain("Gate::define('viewLathe', fn (\$user) => in_array(\$user->email, [");
+        ->and(File::get("{$app}/app/Providers/LatheServiceProvider.php"))->toContain("Gate::define('viewLathe', fn (object \$user): bool => in_array(data_get(\$user, 'email'), [");
 
     $tables = (new PDO("sqlite:{$app}/database/database.sqlite"))
         ->query("select name from sqlite_master where type = 'table' and name like 'lathe_%' order by name")
