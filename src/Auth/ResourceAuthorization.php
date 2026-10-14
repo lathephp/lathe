@@ -190,6 +190,29 @@ class ResourceAuthorization
     }
 
     /**
+     * Whether the user may see a widget mounted on the Resource: viewWidget(User, widgetKey)
+     * on the policy. A policy without a viewWidget method denies every widget.
+     *
+     * @param  class-string<\Lathe\Resources\Resource>  $resource
+     */
+    public function allowsWidget(?Authenticatable $user, string $resource, string $widgetKey): bool
+    {
+        if ($this->resources->definition($resource)->allowsAll()) {
+            return true;
+        }
+
+        $policy = $this->policyFor($resource);
+
+        if ($user === null || $policy === null || ! method_exists($policy, 'viewWidget')) {
+            return false;
+        }
+
+        return $resource::$policy !== null
+            ? $policy->viewWidget($user, $widgetKey) === true
+            : $this->gate->forUser($user)->allows('viewWidget', [$this->resources->definition($resource)->getModel(), $widgetKey]);
+    }
+
+    /**
      * viewAny for a sidebar entry, read from the manifest and the model's policy, so
      * no Resource definition is built unless the Resource declares canSee.
      *

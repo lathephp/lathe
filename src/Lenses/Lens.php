@@ -15,6 +15,7 @@ use Lathe\Filters\Filter;
 use Lathe\Http\Requests\LatheRequest;
 use Lathe\Query\ResourceQuery;
 use Lathe\Search\SearchableColumn;
+use Lathe\Widgets\Widget;
 use ReflectionClass;
 
 /**
@@ -66,6 +67,16 @@ abstract class Lens
     public function availableFilters(LatheRequest $request): array
     {
         return array_values(array_filter($this->filters($request), fn (Filter $filter) => $filter->authorizedToSee($request)));
+    }
+
+    /**
+     * The cards above the lens table.
+     *
+     * @return list<Widget>
+     */
+    public function widgets(LatheRequest $request): array
+    {
+        return [];
     }
 
     public function name(): string

@@ -38,6 +38,11 @@ class OrderPolicy
         return $user->email === 'admin@lathephp.com';
     }
 
+    public function viewWidget(User $user, string $widget): bool
+    {
+        return true;
+    }
+
     public function viewLens(User $user, string $lens): bool
     {
         return true;

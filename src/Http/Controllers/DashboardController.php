@@ -8,6 +8,10 @@ use Inertia\Inertia;
 use Inertia\Response;
 use Lathe\Dashboards\Dashboard;
 use Lathe\Dashboards\DashboardRegistry;
+use Lathe\Http\Requests\LatheRequest;
+use Lathe\Widgets\Widget;
+use Lathe\Widgets\WidgetList;
+use Lathe\Widgets\WidgetPresenter;
 
 class DashboardController
 {
@@ -19,18 +23,28 @@ class DashboardController
     /**
      * The panel home: the dashboard at the key main.
      */
-    public function __invoke(Request $request): Response
+    public function __invoke(LatheRequest $request): Response
     {
         return $this->page($request, 'main');
     }
 
-    public function page(Request $request, string $dashboard): Response
+    public function page(LatheRequest $request, string $dashboard): Response
     {
         $found = $this->find($request, $dashboard);
+        $widgets = (new WidgetList($found->widgets($request), $found::class))->visible($request);
+        $values = [];
+
+        // Each card's value is its own deferred group, so the cards fill in in parallel.
+        foreach ($widgets as $widget) {
+            if ($widget->requestsValue()) {
+                $values['widgetValue:'.$widget::uriKey()] = Inertia::defer(fn () => (new WidgetPresenter($widget))->toResponse($request), $widget::uriKey());
+            }
+        }
 
         return Inertia::render('Dashboard', [
             'dashboard' => $found->payload(),
-            'widgets' => [],
+            'widgets' => array_map(fn (Widget $widget) => $widget->descriptor(), $widgets),
+            ...$values,
         ]);
     }
 

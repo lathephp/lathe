@@ -721,6 +721,12 @@ Lathe\Attributes\Resource\TrafficCop::bool $enabled
 Lathe\Attributes\Resource\UseScout::?bool $use
 Lathe\Attributes\Resource\UseScout::__construct(?bool $use = true)
 Lathe\Attributes\Resource\UseScout::apply(Lathe\Resources\ResourceDefinition $definition): void
+Lathe\Attributes\Widget\CacheFor::__construct(int $seconds)
+Lathe\Attributes\Widget\CacheFor::int $seconds
+Lathe\Attributes\Widget\RefreshEvery::__construct(int $seconds)
+Lathe\Attributes\Widget\RefreshEvery::int $seconds
+Lathe\Attributes\Widget\Width::Lathe\Enums\CardWidth $width
+Lathe\Attributes\Widget\Width::__construct(Lathe\Enums\CardWidth $width)
 Lathe\Auth\FortifyConfig::Illuminate\Contracts\Config\Repository $config  [protected]
 Lathe\Auth\FortifyConfig::Lathe\Support\ConfigStore $lathe  [protected]
 Lathe\Auth\FortifyConfig::__construct(Lathe\Support\ConfigStore $lathe, Illuminate\Contracts\Config\Repository $config)
@@ -748,6 +754,7 @@ Lathe\Auth\ResourceAuthorization::allowedIds(?Illuminate\Contracts\Auth\Authenti
 Lathe\Auth\ResourceAuthorization::allows(?Illuminate\Contracts\Auth\Authenticatable $user, string $resource, string $ability, ?Illuminate\Database\Eloquent\Model $model = NULL, array $arguments = array ( )): bool
 Lathe\Auth\ResourceAuthorization::allowsLens(?Illuminate\Contracts\Auth\Authenticatable $user, string $resource, Lathe\Lenses\Lens $lens): bool
 Lathe\Auth\ResourceAuthorization::allowsViewAnyFromManifest(Illuminate\Http\Request $request, array $entry): bool
+Lathe\Auth\ResourceAuthorization::allowsWidget(?Illuminate\Contracts\Auth\Authenticatable $user, string $resource, string $widgetKey): bool
 Lathe\Auth\ResourceAuthorization::array $policies  [protected]
 Lathe\Auth\ResourceAuthorization::canSee(Illuminate\Http\Request $request, string $resource): bool
 Lathe\Auth\ResourceAuthorization::denialMessage(string $resource): string
@@ -898,6 +905,15 @@ Lathe\Enums\ActionEventType::UpdateAttached
 Lathe\Enums\ActionEventType::label(): string
 Lathe\Enums\ActionEventType::string $name
 Lathe\Enums\ActionEventType::string $value
+Lathe\Enums\CardWidth::Full
+Lathe\Enums\CardWidth::Half
+Lathe\Enums\CardWidth::Quarter
+Lathe\Enums\CardWidth::Third
+Lathe\Enums\CardWidth::ThreeQuarters
+Lathe\Enums\CardWidth::TwoThirds
+Lathe\Enums\CardWidth::columns(): int
+Lathe\Enums\CardWidth::string $name
+Lathe\Enums\CardWidth::string $value
 Lathe\Enums\ClickAction::Detail
 Lathe\Enums\ClickAction::Edit
 Lathe\Enums\ClickAction::Ignore
@@ -2203,10 +2219,10 @@ Lathe\Http\Controllers\BulkRunController::show(Lathe\Http\Requests\LatheRequest 
 Lathe\Http\Controllers\BulkRunController::status(Lathe\Actions\BulkRun $run): array  [protected]
 Lathe\Http\Controllers\DashboardController::Lathe\Dashboards\DashboardRegistry $dashboards  [protected]
 Lathe\Http\Controllers\DashboardController::__construct(Lathe\Dashboards\DashboardRegistry $dashboards)
-Lathe\Http\Controllers\DashboardController::__invoke(Illuminate\Http\Request $request): Inertia\Response
+Lathe\Http\Controllers\DashboardController::__invoke(Lathe\Http\Requests\LatheRequest $request): Inertia\Response
 Lathe\Http\Controllers\DashboardController::find(Illuminate\Http\Request $request, string $uriKey): Lathe\Dashboards\Dashboard  [protected]
 Lathe\Http\Controllers\DashboardController::index(Illuminate\Http\Request $request): Illuminate\Http\JsonResponse
-Lathe\Http\Controllers\DashboardController::page(Illuminate\Http\Request $request, string $dashboard): Inertia\Response
+Lathe\Http\Controllers\DashboardController::page(Lathe\Http\Requests\LatheRequest $request, string $dashboard): Inertia\Response
 Lathe\Http\Controllers\DashboardController::show(Illuminate\Http\Request $request, string $dashboard): Illuminate\Http\JsonResponse
 Lathe\Http\Controllers\ExportController::download(Lathe\Http\Requests\LatheRequest $request, string $export): Symfony\Component\HttpFoundation\StreamedResponse
 Lathe\Http\Controllers\ExportController::show(Lathe\Http\Requests\LatheRequest $request, string $export): Illuminate\Http\JsonResponse
@@ -2351,6 +2367,20 @@ Lathe\Http\Controllers\Uploads\UploadController::chunk(Lathe\Http\Requests\Lathe
 Lathe\Http\Controllers\Uploads\UploadController::complete(Lathe\Http\Requests\LatheRequest $request, string $upload): Illuminate\Http\JsonResponse
 Lathe\Http\Controllers\Uploads\UploadController::destroy(Lathe\Http\Requests\LatheRequest $request, string $upload): Illuminate\Http\Response
 Lathe\Http\Controllers\Uploads\UploadController::show(Lathe\Http\Requests\LatheRequest $request, string $upload): Illuminate\Http\JsonResponse
+Lathe\Http\Controllers\WidgetController::Lathe\Auth\ResourceAuthorization $authorization  [protected]
+Lathe\Http\Controllers\WidgetController::Lathe\Dashboards\DashboardRegistry $dashboards  [protected]
+Lathe\Http\Controllers\WidgetController::__construct(Lathe\Dashboards\DashboardRegistry $dashboards, Lathe\Auth\ResourceAuthorization $authorization)
+Lathe\Http\Controllers\WidgetController::dashboardIndex(Lathe\Http\Requests\LatheRequest $request, string $dashboard): Illuminate\Http\JsonResponse
+Lathe\Http\Controllers\WidgetController::dashboardShow(Lathe\Http\Requests\LatheRequest $request, string $dashboard, string $widget): Illuminate\Http\JsonResponse
+Lathe\Http\Controllers\WidgetController::dashboardWidgets(Lathe\Http\Requests\LatheRequest $request, string $uriKey): Lathe\Widgets\WidgetList  [protected]
+Lathe\Http\Controllers\WidgetController::lensIndex(Lathe\Http\Requests\LatheRequest $request): Illuminate\Http\JsonResponse
+Lathe\Http\Controllers\WidgetController::lensShow(Lathe\Http\Requests\LatheRequest $request, string $resource, string $lens, string $widget): Illuminate\Http\JsonResponse
+Lathe\Http\Controllers\WidgetController::list(Lathe\Http\Requests\LatheRequest $request, Lathe\Widgets\WidgetList $list, bool $detail = false, ?callable $allows = NULL): Illuminate\Http\JsonResponse  [protected]
+Lathe\Http\Controllers\WidgetController::resourceIndex(Lathe\Http\Requests\LatheRequest $request): Illuminate\Http\JsonResponse
+Lathe\Http\Controllers\WidgetController::resourceShow(Lathe\Http\Requests\LatheRequest $request, string $resource, string $widget): Illuminate\Http\JsonResponse
+Lathe\Http\Controllers\WidgetController::resourceWidgets(Lathe\Http\Requests\LatheRequest $request): array  [protected]
+Lathe\Http\Controllers\WidgetController::value(Lathe\Http\Requests\LatheRequest $request, Lathe\Widgets\WidgetList $list, string $uriKey, bool $detail = false, ?callable $allows = NULL): Illuminate\Http\JsonResponse  [protected]
+Lathe\Http\Controllers\WidgetController::viewableLens(Lathe\Http\Requests\LatheRequest $request): array  [protected]
 Lathe\Http\ErrorPages::Lathe\Auth\FortifyConfig $fortify  [protected]
 Lathe\Http\ErrorPages::STATUSES
 Lathe\Http\ErrorPages::__construct(Lathe\Auth\FortifyConfig $fortify)
@@ -2621,6 +2651,7 @@ Lathe\Lenses\Lens::searchableColumns(): array
 Lathe\Lenses\Lens::showPollingToggle(): bool
 Lathe\Lenses\Lens::singularLabel(): string  [static]
 Lathe\Lenses\Lens::uriKey(): string
+Lathe\Lenses\Lens::widgets(Lathe\Http\Requests\LatheRequest $request): array
 Lathe\Lenses\Lens::withFilters(Lathe\Http\Requests\LatheRequest $request, Illuminate\Database\Eloquent\Builder $query): Illuminate\Database\Eloquent\Builder  [static]
 Lathe\Lenses\Lens::withOrdering(Lathe\Http\Requests\LatheRequest $request, Illuminate\Database\Eloquent\Builder $query, ?Closure $default = NULL): Illuminate\Database\Eloquent\Builder  [static]
 Lathe\Menu\Badge::?string $tooltip  [protected]
@@ -2703,7 +2734,7 @@ Lathe\Menu\MenuItem::jsonSerialize(): array
 Lathe\Menu\MenuItem::lens(string $resource, string $lens, ?string $name = NULL): static  [static]
 Lathe\Menu\MenuItem::link(string $label, string $path): static  [static]
 Lathe\Menu\MenuItem::openInNewTab(): static
-Lathe\Menu\MenuItem::plugin(string $plugin, ?string $label = NULL, ?string $subPath = NULL): static  [static]
+Lathe\Menu\MenuItem::plugin(string $plugin, ?string $subPath = NULL): static  [static]
 Lathe\Menu\MenuItem::resource(string $resource): static  [static]
 Lathe\Menu\MenuItem::string $label  [protected]
 Lathe\Menu\MenuItem::string $path  [protected]
@@ -3025,6 +3056,7 @@ Lathe\Resources\Resource::updateButtonLabel(): string  [static]
 Lathe\Resources\Resource::uriKey(): string  [static]
 Lathe\Resources\Resource::usesScout(): bool
 Lathe\Resources\Resource::widgetQuery(Lathe\Http\Requests\LatheRequest $request, Illuminate\Database\Eloquent\Builder $query): Illuminate\Database\Eloquent\Builder  [static]
+Lathe\Resources\Resource::widgets(Lathe\Http\Requests\LatheRequest $request): array
 Lathe\Resources\Resource::with(): array
 Lathe\Resources\ResourceDefinition::?Closure $seeCallback  [protected]
 Lathe\Resources\ResourceDefinition::?Lathe\Enums\PaginationType $paginationType  [protected]
@@ -3583,6 +3615,11 @@ Lathe\Widgets\AggregateQuery::value(): Lathe\Widgets\Results\ValueResult
 Lathe\Widgets\AggregateQuery::valueBetween(DateTimeInterface $start, DateTimeInterface $end, ?DateTimeInterface $previousStart = NULL, ?DateTimeInterface $previousEnd = NULL): Lathe\Widgets\Results\ValueResult
 Lathe\Widgets\AggregateQuery::wrapped(Illuminate\Contracts\Database\Query\Expression|string $column): string  [protected]
 Lathe\Widgets\AggregateQuery::zone(): string  [protected]
+Lathe\Widgets\Concerns\RoundingPrecision::bool $roundingSet  [protected]
+Lathe\Widgets\Concerns\RoundingPrecision::int $roundingMode  [protected]
+Lathe\Widgets\Concerns\RoundingPrecision::int $roundingPrecision  [protected]
+Lathe\Widgets\Concerns\RoundingPrecision::precision(int $precision = 0, int $mode = Lathe\Widgets\Concerns\PHP_ROUND_HALF_UP): static
+Lathe\Widgets\Concerns\RoundingPrecision::roundNumber(int|float $value): int|float
 Lathe\Widgets\Results\BarResult::__construct(array $data, array $colors = array ( ))
 Lathe\Widgets\Results\BarResult::array $colors
 Lathe\Widgets\Results\BarResult::array $data
@@ -3611,6 +3648,56 @@ Lathe\Widgets\TrendUnit::shift(Carbon\CarbonImmutable $start, int $count): Carbo
 Lathe\Widgets\TrendUnit::startOf(Carbon\CarbonImmutable $moment): Carbon\CarbonImmutable
 Lathe\Widgets\TrendUnit::string $name
 Lathe\Widgets\TrendUnit::string $value
+Lathe\Widgets\Widget::?Closure $seeCallback  [protected]
+Lathe\Widgets\Widget::?string $component  [protected]
+Lathe\Widgets\Widget::?string $helpText  [protected]
+Lathe\Widgets\Widget::Lathe\Enums\CardWidth $width  [protected]
+Lathe\Widgets\Widget::__construct()
+Lathe\Widgets\Widget::applyAttributes(): void  [protected]
+Lathe\Widgets\Widget::array $meta  [protected]
+Lathe\Widgets\Widget::attribute(string $attribute): ?object  [protected]
+Lathe\Widgets\Widget::authorize(Illuminate\Http\Request $request): bool
+Lathe\Widgets\Widget::bool $onlyOnDetail  [protected]
+Lathe\Widgets\Widget::bool $refreshWhenActionsRun  [protected]
+Lathe\Widgets\Widget::bool $refreshWhenFiltersChange  [protected]
+Lathe\Widgets\Widget::bool $roundingSet  [protected]
+Lathe\Widgets\Widget::cacheFor(): DateTimeInterface|DateInterval|int|null
+Lathe\Widgets\Widget::calculate(Lathe\Http\Requests\LatheRequest $request): mixed
+Lathe\Widgets\Widget::canSee(Closure $callback): static
+Lathe\Widgets\Widget::canSeeWhen(string $ability, mixed $arguments = array ( )): static
+Lathe\Widgets\Widget::component(): string
+Lathe\Widgets\Widget::descriptor(): array
+Lathe\Widgets\Widget::doubleHeight(): static
+Lathe\Widgets\Widget::fullWidth(): static
+Lathe\Widgets\Widget::halfWidth(): static
+Lathe\Widgets\Widget::help(string $text): static
+Lathe\Widgets\Widget::helpWidth(string|int $width = 250): static
+Lathe\Widgets\Widget::int $refreshInterval  [protected]
+Lathe\Widgets\Widget::int $roundingMode  [protected]
+Lathe\Widgets\Widget::int $roundingPrecision  [protected]
+Lathe\Widgets\Widget::isOnlyOnDetail(): bool
+Lathe\Widgets\Widget::make(): static  [static]
+Lathe\Widgets\Widget::name(): string
+Lathe\Widgets\Widget::onlyOnDetail(): static
+Lathe\Widgets\Widget::rangeOptions(): array  [protected]
+Lathe\Widgets\Widget::ranges(): array
+Lathe\Widgets\Widget::refreshEvery(int $seconds): static
+Lathe\Widgets\Widget::refreshWhenActionsRun(bool $on = true): static
+Lathe\Widgets\Widget::refreshWhenFiltersChange(bool $on = true): static
+Lathe\Widgets\Widget::requestsValue(): bool
+Lathe\Widgets\Widget::resolve(Lathe\Http\Requests\LatheRequest $request): mixed
+Lathe\Widgets\Widget::string $height  [protected]
+Lathe\Widgets\Widget::string|int $helpWidth  [protected]
+Lathe\Widgets\Widget::uriKey(): string  [static]
+Lathe\Widgets\Widget::width(Lathe\Enums\CardWidth $width): static
+Lathe\Widgets\Widget::withMeta(array $meta): static
+Lathe\Widgets\WidgetList::__construct(array $widgets, string $owner)
+Lathe\Widgets\WidgetList::array $widgets  [protected]
+Lathe\Widgets\WidgetList::descriptors(Illuminate\Http\Request $request, bool $detail = false): array
+Lathe\Widgets\WidgetList::find(string $uriKey): ?Lathe\Widgets\Widget
+Lathe\Widgets\WidgetList::visible(Illuminate\Http\Request $request, bool $detail = false): array
+Lathe\Widgets\WidgetPresenter::__construct(Lathe\Widgets\Widget $widget)
+Lathe\Widgets\WidgetPresenter::toResponse(Lathe\Http\Requests\LatheRequest $request): array
 class Lathe\ActionEvents\ActionEvent
 class Lathe\ActionEvents\ActionEventListener
 class Lathe\ActionEvents\ActionEventPolicy
@@ -3694,6 +3781,12 @@ class Lathe\Attributes\Resource\TableStyle
 class Lathe\Attributes\Resource\Title
 class Lathe\Attributes\Resource\TrafficCop
 class Lathe\Attributes\Resource\UseScout
+class Lathe\Attributes\Widget\CacheFor
+class Lathe\Attributes\Widget\OnlyOnDetail
+class Lathe\Attributes\Widget\RefreshEvery
+class Lathe\Attributes\Widget\RefreshWhenActionsRun
+class Lathe\Attributes\Widget\RefreshWhenFiltersChange
+class Lathe\Attributes\Widget\Width
 class Lathe\Auth\FortifyConfig
 class Lathe\Auth\PanelGate
 class Lathe\Auth\ResourceAuthorization
@@ -3850,6 +3943,7 @@ class Lathe\Http\Controllers\Resources\SavedTabController
 class Lathe\Http\Controllers\RunPageController
 class Lathe\Http\Controllers\Uploads\StartUploadController
 class Lathe\Http\Controllers\Uploads\UploadController
+class Lathe\Http\Controllers\WidgetController
 class Lathe\Http\ErrorPages
 class Lathe\Http\Middleware\Authenticate
 class Lathe\Http\Middleware\Authorize
@@ -3943,8 +4037,12 @@ class Lathe\Widgets\Results\BarResult
 class Lathe\Widgets\Results\PartitionResult
 class Lathe\Widgets\Results\TrendResult
 class Lathe\Widgets\Results\ValueResult
+class Lathe\Widgets\Widget
+class Lathe\Widgets\WidgetList
+class Lathe\Widgets\WidgetPresenter
 enum Lathe\Enums\ActionEventStatus
 enum Lathe\Enums\ActionEventType
+enum Lathe\Enums\CardWidth
 enum Lathe\Enums\ClickAction
 enum Lathe\Enums\Icon
 enum Lathe\Enums\PaginationType
@@ -3980,3 +4078,4 @@ trait Lathe\Http\Controllers\Resources\AuthorizesResources
 trait Lathe\Menu\HasNavigationBadge
 trait Lathe\Menu\MenuEntry
 trait Lathe\Testing\InteractsWithLathe
+trait Lathe\Widgets\Concerns\RoundingPrecision

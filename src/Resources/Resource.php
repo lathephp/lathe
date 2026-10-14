@@ -36,6 +36,7 @@ use Lathe\Lenses\Lens;
 use Lathe\Search\SearchableColumn;
 use Lathe\Support\SafeHtml;
 use Lathe\Tabs\Tab;
+use Lathe\Widgets\Widget;
 
 /**
  * One block of the layout tree.
@@ -216,6 +217,16 @@ abstract class Resource
      * @return list<Filter>
      */
     public function filters(LatheRequest $request): array
+    {
+        return [];
+    }
+
+    /**
+     * The cards above the index; onlyOnDetail() ones show on the detail page instead.
+     *
+     * @return list<Widget>
+     */
+    public function widgets(LatheRequest $request): array
     {
         return [];
     }

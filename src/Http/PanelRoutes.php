@@ -47,6 +47,7 @@ use Lathe\Http\Controllers\Resources\SavedTabController;
 use Lathe\Http\Controllers\RunPageController;
 use Lathe\Http\Controllers\Uploads\StartUploadController;
 use Lathe\Http\Controllers\Uploads\UploadController;
+use Lathe\Http\Controllers\WidgetController;
 use Lathe\Http\Middleware\Authenticate;
 use Lathe\Http\Middleware\AuthorizePlugin;
 use Lathe\Http\Middleware\EnsureJson;
@@ -245,6 +246,12 @@ class PanelRoutes
     {
         $router->get('dashboards', [DashboardController::class, 'index'])->name('dashboards.index');
         $router->get('dashboards/{dashboard}', [DashboardController::class, 'show'])->name('dashboards.show');
+        $router->get('dashboards/{dashboard}/widgets', [WidgetController::class, 'dashboardIndex'])->name('dashboards.widgets.index');
+        $router->get('dashboards/{dashboard}/widgets/{widget}', [WidgetController::class, 'dashboardShow'])->name('dashboards.widgets.show');
+        $router->get('resources/{resource}/widgets', [WidgetController::class, 'resourceIndex'])->name('resources.widgets.index');
+        $router->get('resources/{resource}/widgets/{widget}', [WidgetController::class, 'resourceShow'])->name('resources.widgets.show');
+        $router->get('resources/{resource}/lenses/{lens}/widgets', [WidgetController::class, 'lensIndex'])->name('resources.lenses.widgets.index');
+        $router->get('resources/{resource}/lenses/{lens}/widgets/{widget}', [WidgetController::class, 'lensShow'])->name('resources.lenses.widgets.show');
     }
 
     protected function notificationRoutes(Router $router): void
