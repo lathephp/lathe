@@ -21,7 +21,7 @@ Every Lathe command starts with `lathe:`. Run `php artisan list lathe` to see th
 
 ## Generate classes
 
-Each generator writes from a stub. `lathe:stubs` publishes the stubs to `stubs/lathe` so you can edit them; the generators then use your copies. `--force` overwrites an existing class. `--plugin=<vendor/package>` writes the class into a plugin package instead of the app.
+Each generator writes from a stub. `lathe:stubs` publishes the stubs to `stubs/lathe` so you can edit them; the class generators below then use your copies (`lathe:install` and the `lathe:plugin` package skeleton always use Lathe's own). `--force` overwrites an existing class. `--plugin=<vendor/package>` writes the class into a plugin package instead of the app.
 
 | Command | What it writes |
 |---|---|
