@@ -133,3 +133,11 @@ test('lens_action_uses_the_same_dispatcher', function () {
         ->and($lens['skipped'])->toBe(1)
         ->and(Order::whereKey($pending)->where('status', 'shipped')->count())->toBe(3);
 })->group('regression');
+
+it('serves the lookups of an action through a lens the same way', function () {
+    $index = LatheTest::resource('orders')->actionAssociatable('mark-shipped', 'nope');
+    $lens = LatheTest::resource('orders')->forLens('pending-orders')->actionAssociatable('mark-shipped', 'nope');
+
+    expect($lens->status())->toBe($index->status())->toBe(404);
+    LatheTest::resource('orders')->forLens('nope')->actionAssociatable('mark-shipped', 'nope')->assertNotFound();
+});

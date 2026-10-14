@@ -193,6 +193,8 @@ class PanelRoutes
         $router->get('resources/{resource}/lenses/{lens}/actions', [LensActionController::class, 'actions'])->name('resources.lenses.actions.index');
         $router->get('resources/{resource}/lenses/{lens}/actions/{action}/form', [LensActionController::class, 'form'])->name('resources.lenses.actions.form');
         $router->post('resources/{resource}/lenses/{lens}/action', [LensActionController::class, 'run'])->name('resources.lenses.action.run');
+        $router->patch('resources/{resource}/lenses/{lens}/action', [LensActionController::class, 'dependencies'])->name('resources.lenses.action.dependencies');
+        $router->get('resources/{resource}/lenses/{lens}/action/associatable', [LensActionController::class, 'associatable'])->name('resources.lenses.action.associatable');
         $router->get('resources/{resource}/actions/{action}/form', [ActionController::class, 'form'])->name('resources.actions.form');
         $router->post('resources/{resource}/action', ActionRunController::class)->name('resources.action.run');
         $router->post('resources/{resource}/actions/{action}/uploads/{field}', [StartUploadController::class, 'action'])->name('resources.actions.uploads.start');

@@ -30,6 +30,20 @@ class LensActionController
         return $this->call(ActionController::class, 'form', ['resource' => $resource, 'action' => $action]);
     }
 
+    public function dependencies(LatheRequest $request, ResourceAuthorization $authorization): JsonResponse
+    {
+        $this->viewableLens($request, $authorization);
+
+        return $this->call(ActionLookupController::class, 'dependencies');
+    }
+
+    public function associatable(LatheRequest $request, ResourceAuthorization $authorization): JsonResponse
+    {
+        $this->viewableLens($request, $authorization);
+
+        return $this->call(ActionLookupController::class, 'associatable');
+    }
+
     public function run(LatheRequest $request, ResourceAuthorization $authorization): JsonResponse
     {
         $this->throughLens($request, $authorization);

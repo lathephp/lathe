@@ -2221,10 +2221,12 @@ Lathe\Http\Controllers\Resources\IndexPageController::__invoke(Lathe\Http\Reques
 Lathe\Http\Controllers\Resources\InlineUpdateController::__invoke(Lathe\Http\Requests\LatheRequest $request, Lathe\Auth\ResourceAuthorization $authorization, string $resource, string $resourceId, string $field): Illuminate\Http\JsonResponse
 Lathe\Http\Controllers\Resources\InlineUpdateController::save(Lathe\Http\Requests\LatheRequest $request, string $class, Illuminate\Database\Eloquent\Model $model, Lathe\Field\Field $field): void  [protected]
 Lathe\Http\Controllers\Resources\LensActionController::actions(Lathe\Http\Requests\LatheRequest $request, Lathe\Auth\ResourceAuthorization $authorization): Illuminate\Http\JsonResponse
+Lathe\Http\Controllers\Resources\LensActionController::associatable(Lathe\Http\Requests\LatheRequest $request, Lathe\Auth\ResourceAuthorization $authorization): Illuminate\Http\JsonResponse
 Lathe\Http\Controllers\Resources\LensActionController::batchDelete(Lathe\Http\Requests\LatheRequest $request, Lathe\Auth\ResourceAuthorization $authorization): Illuminate\Http\JsonResponse
 Lathe\Http\Controllers\Resources\LensActionController::batchForceDelete(Lathe\Http\Requests\LatheRequest $request, Lathe\Auth\ResourceAuthorization $authorization): Illuminate\Http\JsonResponse
 Lathe\Http\Controllers\Resources\LensActionController::batchRestore(Lathe\Http\Requests\LatheRequest $request, Lathe\Auth\ResourceAuthorization $authorization): Illuminate\Http\JsonResponse
 Lathe\Http\Controllers\Resources\LensActionController::call(string $controller, string $method, array $parameters = array ( )): Illuminate\Http\JsonResponse  [protected]
+Lathe\Http\Controllers\Resources\LensActionController::dependencies(Lathe\Http\Requests\LatheRequest $request, Lathe\Auth\ResourceAuthorization $authorization): Illuminate\Http\JsonResponse
 Lathe\Http\Controllers\Resources\LensActionController::form(Lathe\Http\Requests\LatheRequest $request, Lathe\Auth\ResourceAuthorization $authorization, string $resource, string $lens, string $action): Illuminate\Http\JsonResponse
 Lathe\Http\Controllers\Resources\LensActionController::run(Lathe\Http\Requests\LatheRequest $request, Lathe\Auth\ResourceAuthorization $authorization): Illuminate\Http\JsonResponse
 Lathe\Http\Controllers\Resources\LensActionController::throughLens(Lathe\Http\Requests\LatheRequest $request, Lathe\Auth\ResourceAuthorization $authorization): void  [protected]
