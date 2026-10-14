@@ -241,8 +241,8 @@ class CustomActionEvent extends ActionEvent
 it('records impersonation start and stop against the impersonated user', function () {
     $editor = User::where('email', 'editor@lathephp.com')->firstOrFail();
 
-    event(new ImpersonationStarted($this->admin, $editor));
-    event(new ImpersonationStopped($this->admin, $editor));
+    event(new ImpersonationStarted($this->admin, $editor, '/lathe'));
+    event(new ImpersonationStopped($this->admin, $editor, '/'));
 
     $rows = ActionEvent::orderBy('id')->get();
 

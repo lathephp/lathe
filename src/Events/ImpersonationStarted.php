@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\Model;
  */
 class ImpersonationStarted
 {
-    public function __construct(public Model $impersonator, public Model $impersonated)
+    public function __construct(public Model $impersonator, public Model $impersonated, public string $redirectTo)
     {
         //
     }
