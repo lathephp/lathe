@@ -4,6 +4,7 @@ namespace Lathe\Tests\Feature\Plugins;
 
 use BadMethodCallException;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
@@ -17,6 +18,7 @@ use Lathe\Plugins\ResourcePlugin;
 use Lathe\Resources\Resource;
 use Lathe\Resources\ResourceDefinition;
 use Lathe\Testing\LatheTest;
+use Lathe\Tests\Fixtures\Plugins\Beacon;
 use Symfony\Component\HttpFoundation\Response;
 use Workbench\App\Models\Order as OrderModel;
 use Workbench\App\Models\User;
@@ -120,6 +122,31 @@ class ProbeDouble extends Resource
     }
 }
 
+/** Counts each time a request builds it or reads its fields. */
+class ProbeCounted extends Resource
+{
+    public static int $built = 0;
+
+    public static function make(?Model $model = null): static
+    {
+        static::$built++;
+
+        return parent::make($model);
+    }
+
+    protected function configure(ResourceDefinition $definition): ResourceDefinition
+    {
+        return $definition->model(OrderModel::class)->title('number')->canonical(false);
+    }
+
+    public function fields(LatheRequest $request): array
+    {
+        static::$built++;
+
+        return [Field::text('Number'), ProbePanel::make()];
+    }
+}
+
 beforeEach(function () {
     $this->artisan('migrate')->assertSuccessful();
     $this->seed(DemoSeeder::class);
@@ -135,7 +162,52 @@ it('leaves a resource plugin off the create form and shows it on the detail page
         ->assertOk()
         ->assertInertia(fn (AssertableInertia $page) => $page
             ->where('record.fields', fn ($fields) => collect($fields)->pluck('key')->all() === ['number', 'actions'])
-            ->where('record.resourcePlugins', [['component' => 'probe-panel', 'name' => 'Probe Panel', 'heading' => 'Probe heading']]));
+            ->where('record.resourcePlugins', [['component' => 'probe-panel', 'name' => 'Probe Panel', 'heading' => 'Probe heading', 'scripts' => ['/lathe/modules/probe-panel-6ade060b.js?resource=probe-orders']]]));
+});
+
+it('serves a resource plugin script by building only the Resource its URL names', function () {
+    Lathe::registerResources(ProbeCounted::class);
+    ProbeCounted::$built = 0;
+
+    $this->get('/lathe/modules/probe-panel-6ade060b.js?resource=probe-orders')
+        ->assertOk()
+        ->assertHeader('Content-Type', 'text/javascript; charset=utf-8');
+
+    expect(ProbeCounted::$built)->toBe(0);
+});
+
+it('answers 404 for a resource plugin script without its Resource and builds no other Resource', function (string $url) {
+    Lathe::registerResources(ProbeCounted::class);
+    ProbeCounted::$built = 0;
+
+    $this->get($url)->assertNotFound();
+
+    expect(ProbeCounted::$built)->toBe(0);
+})->with([
+    'no key' => '/lathe/modules/probe-panel-6ade060b.js',
+    'an unknown key' => '/lathe/modules/probe-panel-6ade060b.js?resource=nope',
+    'a Resource without the plugin' => '/lathe/modules/probe-panel-6ade060b.js?resource=orders',
+    'a wrong hash' => '/lathe/modules/probe-panel-00000000.js?resource=probe-orders',
+]);
+
+it('builds no Resource for a page or module request that does not show it', function () {
+    Lathe::registerResources(ProbeCounted::class);
+    Lathe::registerPlugins(Beacon::make());
+    $hash = substr((string) hash_file('sha256', dirname(__DIR__, 2).'/Fixtures/assets/beacon.js'), 0, 8);
+    $built = [];
+
+    foreach (['/lathe', '/lathe/resources/orders', "/lathe/modules/beacon-{$hash}.js", '/lathe/login'] as $url) {
+        if ($url === '/lathe/login') {
+            auth()->guard('web')->logout();
+        }
+
+        Lathe::resourcePlugins()->flush();
+        ProbeCounted::$built = 0;
+        $this->get($url)->assertOk();
+        $built[$url] = ProbeCounted::$built;
+    }
+
+    expect($built)->toBe(['/lathe' => 0, '/lathe/resources/orders' => 0, "/lathe/modules/beacon-{$hash}.js" => 0, '/lathe/login' => 0]);
 });
 
 it('names a plugin and its component from the class name', function () {

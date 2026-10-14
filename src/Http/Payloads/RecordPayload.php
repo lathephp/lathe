@@ -3,6 +3,7 @@
 namespace Lathe\Http\Payloads;
 
 use Illuminate\Database\Eloquent\Model;
+use Lathe\Assets\AssetRegistry;
 use Lathe\Auth\ResourceAuthorization;
 use Lathe\Field\Field;
 use Lathe\Field\FieldContext;
@@ -53,7 +54,7 @@ class RecordPayload
             ),
             'layout' => $resource->layoutFor(FieldContext::Detail, $this->request, $model),
             'resourcePlugins' => array_map(
-                fn (ResourcePlugin $plugin) => $plugin->jsonSerialize(),
+                fn (ResourcePlugin $plugin) => $this->resourcePlugin($class, $plugin),
                 array_values(array_filter(ResourcePluginRegistry::placedIn($class, $this->request), fn (ResourcePlugin $plugin) => $plugin->authorize($this->request))),
             ),
             'abilities' => array_combine(self::ABILITIES, array_map(
@@ -62,6 +63,26 @@ class RecordPayload
             )),
             'trashed' => method_exists($model, 'trashed') && $model->trashed() === true,
         ];
+    }
+
+    /**
+     * A resource plugin for the client, with the URLs of its scripts when it has any, so the
+     * detail page loads them itself: no page load scans the Resources for them.
+     *
+     * @param  class-string<\Lathe\Resources\Resource>  $class
+     * @return array<string, mixed>
+     */
+    protected function resourcePlugin(string $class, ResourcePlugin $plugin): array
+    {
+        $prefix = '/'.trim($this->config->string('path'), '/');
+        $assets = app(AssetRegistry::class);
+        $scripts = [];
+
+        foreach ($plugin->assets()['scripts'] ?? [] as $name => $path) {
+            $scripts[] = $assets->resourceScriptUrl($prefix, $name, $path, $class::uriKey());
+        }
+
+        return $scripts === [] ? $plugin->jsonSerialize() : [...$plugin->jsonSerialize(), 'scripts' => $scripts];
     }
 
     /**

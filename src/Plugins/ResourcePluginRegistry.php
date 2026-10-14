@@ -9,8 +9,9 @@ use Lathe\Resources\Resource;
 use Lathe\Resources\ResourceRegistry;
 
 /**
- * The resource plugins placed in Resource::fields(), indexed by component key. The scan
- * runs once per process, registers each plugin's assets and refuses a key two plugins share.
+ * The resource plugins placed in Resource::fields(). A request looks them up on the one
+ * Resource it names; boot() scans every Resource, registers each plugin's assets and
+ * refuses a key two plugins share.
  */
 class ResourcePluginRegistry
 {
@@ -38,6 +39,7 @@ class ResourcePluginRegistry
 
     /**
      * Scan every Resource, register the assets and index the components. A later call does nothing.
+     * No request runs it: a request builds only the Resource it names.
      */
     public function boot(?LatheRequest $request = null): void
     {
@@ -45,19 +47,42 @@ class ResourcePluginRegistry
     }
 
     /**
-     * The Resource with this URI key that places the plugin with this component key.
+     * The Resource with this URI key, if it places the plugin with this component key.
      *
      * @return class-string<resource>|null
      */
-    public function resourceFor(string $component, string $uriKey): ?string
+    public function resourceFor(string $component, string $uriKey, ?LatheRequest $request = null): ?string
     {
-        foreach ($this->index()[$component]['resources'] ?? [] as $class) {
-            if ($class::uriKey() === $uriKey) {
+        $class = $this->resources->forKey($uriKey);
+
+        foreach ($class === null ? [] : static::placedIn($class, $request ?? app(LatheRequest::class)) as $plugin) {
+            if ($plugin->component() === $component) {
                 return $class;
             }
         }
 
         return null;
+    }
+
+    /**
+     * The script file a module request such as timeline-3f9a1c2e.js stands for among the
+     * plugins of the Resource with this URI key. Only that Resource is built.
+     */
+    public function script(string $uriKey, string $file, ?LatheRequest $request = null): ?string
+    {
+        $class = $this->resources->forKey($uriKey);
+
+        if ($class === null) {
+            return null;
+        }
+
+        $scripts = [];
+
+        foreach (static::placedIn($class, $request ?? app(LatheRequest::class)) as $plugin) {
+            $scripts = [...$scripts, ...$plugin->assets()['scripts'] ?? []];
+        }
+
+        return $this->assets->resolve('scripts', $file, $scripts);
     }
 
     public function flush(): void

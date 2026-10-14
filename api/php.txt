@@ -615,10 +615,12 @@ Lathe\Assets\AssetRegistry::remoteOrigins(): array
 Lathe\Assets\AssetRegistry::remoteScript(string $name, string $url): void
 Lathe\Assets\AssetRegistry::remoteStyle(string $name, string $url): void
 Lathe\Assets\AssetRegistry::requestBag(): array  [protected]
-Lathe\Assets\AssetRegistry::resolve(string $type, string $file): ?string
+Lathe\Assets\AssetRegistry::resolve(string $type, string $file, ?array $entries = NULL): ?string
+Lathe\Assets\AssetRegistry::resourceScriptUrl(string $prefix, string $name, string $path, string $resource): string
 Lathe\Assets\AssetRegistry::script(string $name, string $path): void
 Lathe\Assets\AssetRegistry::scriptUrl(string $prefix, string $name): ?string
 Lathe\Assets\AssetRegistry::scripts(): array
+Lathe\Assets\AssetRegistry::sourceUrl(string $type, string $prefix, string $name, string $source): string  [protected]
 Lathe\Assets\AssetRegistry::style(string $name, string $path): void
 Lathe\Assets\AssetRegistry::styleUrl(string $prefix, string $name): ?string
 Lathe\Assets\AssetRegistry::styleUrls(string $prefix): array
@@ -2364,7 +2366,7 @@ Lathe\Http\Controllers\NotificationController::tableExists(): bool  [protected]
 Lathe\Http\Controllers\NotificationController::unread(Lathe\Http\Requests\LatheRequest $request, string $id): Illuminate\Http\Response
 Lathe\Http\Controllers\PageController::__invoke(Illuminate\Http\Request $request, Lathe\Pages\PageRegistry $pages, Lathe\Support\ConfigStore $config, string $page, string $path = ''): Inertia\Response
 Lathe\Http\Controllers\PageFallbackController::__invoke(Illuminate\Http\Request $request, Illuminate\Routing\Router $router): never
-Lathe\Http\Controllers\Plugins\ModuleController::__invoke(Lathe\Assets\AssetRegistry $assets, string $file, string $type = 'scripts'): Symfony\Component\HttpFoundation\BinaryFileResponse
+Lathe\Http\Controllers\Plugins\ModuleController::__invoke(Lathe\Http\Requests\LatheRequest $request, Lathe\Assets\AssetRegistry $assets, Lathe\Plugins\ResourcePluginRegistry $plugins, string $file, string $type = 'scripts'): Symfony\Component\HttpFoundation\BinaryFileResponse
 Lathe\Http\Controllers\Plugins\PluginController::__invoke(Illuminate\Http\Request $request, Lathe\Plugins\PluginRegistry $plugins, string $plugin, string $path = ''): Symfony\Component\HttpFoundation\Response
 Lathe\Http\Controllers\Plugins\PluginPageController::__invoke(Illuminate\Http\Request $request, Lathe\Plugins\PluginRegistry $plugins, string $plugin, string $path = ''): Inertia\Response
 Lathe\Http\Controllers\Plugins\ResourcePluginController::__invoke(Lathe\Http\Requests\LatheRequest $request, Lathe\Plugins\ResourcePluginRegistry $plugins, Lathe\Auth\ResourceAuthorization $authorization, string $component, string $path = ''): Symfony\Component\HttpFoundation\Response
@@ -2574,6 +2576,7 @@ Lathe\Http\Payloads\RecordPayload::detail(string $class, Illuminate\Database\Elo
 Lathe\Http\Payloads\RecordPayload::fields(string $class, Lathe\Field\FieldContext $context, ?Illuminate\Database\Eloquent\Model $model = NULL): array  [protected]
 Lathe\Http\Payloads\RecordPayload::href(string $path): string
 Lathe\Http\Payloads\RecordPayload::replicateFields(string $class, Illuminate\Database\Eloquent\Model $model): array
+Lathe\Http\Payloads\RecordPayload::resourcePlugin(string $class, Lathe\Plugins\ResourcePlugin $plugin): array  [protected]
 Lathe\Http\Payloads\RecordPayload::summary(string $class, Illuminate\Database\Eloquent\Model $model, Lathe\Field\FieldContext $context): array
 Lathe\Http\Payloads\RecordPayload::updateFields(string $class, Illuminate\Database\Eloquent\Model $model): array
 Lathe\Http\Payloads\RelationIndexPayload::Lathe\Auth\ResourceAuthorization $authorization  [protected]
@@ -3056,7 +3059,8 @@ Lathe\Plugins\ResourcePluginRegistry::boot(?Lathe\Http\Requests\LatheRequest $re
 Lathe\Plugins\ResourcePluginRegistry::flush(): void
 Lathe\Plugins\ResourcePluginRegistry::index(?Lathe\Http\Requests\LatheRequest $request = NULL): array  [protected]
 Lathe\Plugins\ResourcePluginRegistry::placedIn(string $class, Lathe\Http\Requests\LatheRequest $request): array  [static]
-Lathe\Plugins\ResourcePluginRegistry::resourceFor(string $component, string $uriKey): ?string
+Lathe\Plugins\ResourcePluginRegistry::resourceFor(string $component, string $uriKey, ?Lathe\Http\Requests\LatheRequest $request = NULL): ?string
+Lathe\Plugins\ResourcePluginRegistry::script(string $uriKey, string $file, ?Lathe\Http\Requests\LatheRequest $request = NULL): ?string
 Lathe\Query\Count::__construct(int $value, bool $capped, bool $exact = false, bool $estimated = false)
 Lathe\Query\Count::bool $capped
 Lathe\Query\Count::bool $estimated

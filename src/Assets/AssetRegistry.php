@@ -80,9 +80,12 @@ class AssetRegistry
     }
 
     /**
-     * The file a request name such as heartbeat-3f9a1c2e.js stands for, if it is registered.
+     * The file a request name such as heartbeat-3f9a1c2e.js stands for, if it is registered,
+     * or, when given, if it is one of the entries.
+     *
+     * @param  array<string, string>|null  $entries
      */
-    public function resolve(string $type, string $file): ?string
+    public function resolve(string $type, string $file, ?array $entries = null): ?string
     {
         $extension = $type === 'styles' ? 'css' : 'js';
 
@@ -90,7 +93,7 @@ class AssetRegistry
             return null;
         }
 
-        $path = $this->entries($type === 'styles' ? 'styles' : 'scripts')[$match['name']] ?? null;
+        $path = ($entries ?? $this->entries($type === 'styles' ? 'styles' : 'scripts'))[$match['name']] ?? null;
 
         return $path !== null && ! $this->isRemote($path) && is_file($path) && $this->hash($path) === $match['hash'] ? $path : null;
     }
@@ -106,6 +109,17 @@ class AssetRegistry
     public function styleUrl(string $prefix, string $name): ?string
     {
         return $this->url('styles', $prefix, $name);
+    }
+
+    /**
+     * The URL of a resource plugin script, which is not registered. The panel URL names the
+     * Resource, so the module route builds only that Resource to find the file.
+     */
+    public function resourceScriptUrl(string $prefix, string $name, string $path, string $resource): string
+    {
+        $url = $this->sourceUrl('scripts', $prefix, $name, $path);
+
+        return str_starts_with($url, "{$prefix}/modules/") ? $url.'?resource='.rawurlencode($resource) : $url;
     }
 
     /**
@@ -241,10 +255,11 @@ class AssetRegistry
     {
         $source = $this->entries($type)[$name] ?? null;
 
-        if ($source === null) {
-            return null;
-        }
+        return $source === null ? null : $this->sourceUrl($type, $prefix, $name, $source);
+    }
 
+    protected function sourceUrl(string $type, string $prefix, string $name, string $source): string
+    {
         if ($this->isRemote($source)) {
             return $source;
         }

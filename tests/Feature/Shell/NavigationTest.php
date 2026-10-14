@@ -36,6 +36,12 @@ class NavigationTestCountingPolicy
     }
 }
 
+/** How often a generated Resource was built or asked for its fields. */
+class NavigationTestBuilds
+{
+    public static int $count = 0;
+}
+
 function navigationFor(string $email): array
 {
     $props = test()->actingAs(User::where('email', $email)->firstOrFail())->get('/lathe')->assertOk()->viewData('page')['props'];
@@ -104,11 +110,17 @@ it('builds one Resource definition for the sidebar and the Orders index among 50
     $directory = sys_get_temp_dir().'/lathe-nav-'.$namespace;
     File::ensureDirectoryExists($directory);
     foreach (range(1, 499) as $i) {
-        File::put("{$directory}/Thing{$i}.php", "<?php\nnamespace {$namespace};\nclass Thing{$i} extends \\Lathe\\Resources\\Resource {\n    protected function configure(\\Lathe\\Resources\\ResourceDefinition \$d): \\Lathe\\Resources\\ResourceDefinition { return \$d->model(\\".Invoice::class."::class)->canonical(false); }\n    public function fields(\\Lathe\\Http\\Requests\\LatheRequest \$r): array { return []; }\n}\n");
+        File::put("{$directory}/Thing{$i}.php", "<?php\nnamespace {$namespace};\nclass Thing{$i} extends \\Lathe\\Resources\\Resource {\n    public static function make(?\\Illuminate\\Database\\Eloquent\\Model \$m = null): static { \\NavigationTestBuilds::\$count++; return parent::make(\$m); }\n    protected function configure(\\Lathe\\Resources\\ResourceDefinition \$d): \\Lathe\\Resources\\ResourceDefinition { return \$d->model(\\".Invoice::class."::class)->canonical(false); }\n    public function fields(\\Lathe\\Http\\Requests\\LatheRequest \$r): array { \\NavigationTestBuilds::\$count++; return []; }\n}\n");
     }
     Lathe::discoverResources($directory, $namespace);
     $this->artisan('lathe:cache')->assertSuccessful();
+    // A failed expectation must not leave the 499 cached Resources to the tests after this one.
+    $this->beforeApplicationDestroyed(function () use ($directory) {
+        Lathe::resources()->clearCache();
+        File::deleteDirectory($directory);
+    });
     Lathe::resources()->flush();
+    NavigationTestBuilds::$count = 0;
     Gate::policy(Invoice::class, NavigationTestCountingPolicy::class);
 
     $queries = [];
@@ -121,19 +133,19 @@ it('builds one Resource definition for the sidebar and the Orders index among 50
     $this->get('/lathe')->assertOk();
 
     expect(Lathe::resources()->definitionsBuilt())->toBe(0)
+        ->and(NavigationTestBuilds::$count)->toBe(0)
         ->and(NavigationTestCountingPolicy::$checks)->toBe(499)
         ->and(collect($queries)->filter(fn ($sql) => str_contains($sql, 'invoices'))->all())->toBe([]);
 
     Lathe::resources()->flush();
+    Lathe::resourcePlugins()->flush();
     $this->get('/lathe/resources/orders')->assertOk()
         ->assertInertia(fn (AssertableInertia $page) => $page->has('navigation.5.items', 9));
 
     // Orders, and Customers for the titles its Customer column shows; never the 499 others.
     expect(Lathe::resources()->definitionsBuilt())->toBe(2)
+        ->and(NavigationTestBuilds::$count)->toBe(0)
         ->and(collect($queries)->filter(fn ($sql) => str_contains($sql, 'invoices'))->all())->toBe([]);
-
-    Lathe::resources()->clearCache();
-    File::deleteDirectory($directory);
 });
 
 it('sends no navigation to a user who fails viewLathe', function () {
