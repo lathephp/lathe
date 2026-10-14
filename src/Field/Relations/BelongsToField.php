@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Relations\HasOneOrMany;
 use Illuminate\Database\Eloquent\Relations\MorphOneOrMany;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Str;
 use Lathe\Auth\ResourceAuthorization;
 use Lathe\Field\Contracts\FilterableField;
 use Lathe\Field\Contracts\PrimesForPage;
@@ -94,7 +95,32 @@ class BelongsToField extends RelationField implements FilterableField, PrimesFor
 
     public function jsonSerialize(): array
     {
-        return [...parent::jsonSerialize(), 'peekable' => $this->opensPeek(Evaluator::currentRequest())];
+        $request = Evaluator::currentRequest();
+
+        return [
+            ...parent::jsonSerialize(),
+            'peekable' => $this->opensPeek($request),
+            'creatable' => $this->allowsInlineCreate($request),
+        ];
+    }
+
+    /**
+     * creatable() shows the "+" only when the user may create the related record and add
+     * it to this relation.
+     */
+    public function allowsInlineCreate(?LatheRequest $request): bool
+    {
+        $related = $this->relatedResource();
+        $owner = $this->owner;
+
+        if ($this->options['creatable'] !== true || $request === null || $related === null || $owner === null) {
+            return false;
+        }
+
+        $authorization = Container::getInstance()->make(ResourceAuthorization::class);
+
+        return $authorization->allows($request->user(), $related, 'create')
+            && $authorization->allows($request->user(), $owner, 'add'.Str::studly($this->attribute), $owner::newModel());
     }
 
     /**

@@ -16,6 +16,7 @@ use Lathe\Resources\ResourceDefinition;
 use Workbench\App\Models\Customer;
 use Workbench\App\Models\Order;
 use Workbench\App\Models\User;
+use Workbench\App\Policies\OrderPolicy;
 use Workbench\Database\Seeders\DemoSeeder;
 
 class SaveLog
@@ -213,3 +214,26 @@ it('starts the orders create form with an empty items list, so an untouched repe
 
     expect($field['value'])->toBe([]);
 });
+
+it('offers the inline create with create on customers and addCustomer on orders', function () {
+    $field = collect($this->getJson('/lathe/api/resources/orders/creation-fields')->assertOk()->json('fields'))->firstWhere('key', 'customer');
+
+    expect($field['creatable'])->toBeTrue()
+        ->and($field['modalSize'])->toBe('lg');
+});
+
+it('hides the inline create without addCustomer on orders', function () {
+    Gate::policy(Order::class, NoAddCustomerOrderPolicy::class);
+
+    $field = collect($this->getJson('/lathe/api/resources/orders/creation-fields')->assertOk()->json('fields'))->firstWhere('key', 'customer');
+
+    expect($field['creatable'])->toBeFalse();
+});
+
+class NoAddCustomerOrderPolicy extends OrderPolicy
+{
+    public function addCustomer(User $user, Order $order): bool
+    {
+        return false;
+    }
+}
