@@ -81,7 +81,10 @@
             "bash scripts/pnpm.sh translations"
         ],
         "format": "pint",
-        "analyse": "phpstan analyse --memory-limit=1G",
+        "analyse": [
+            "phpstan clear-result-cache",
+            "phpstan analyse --memory-limit=1G"
+        ],
         "test": [
             "@php vendor/bin/pest --parallel --exclude-group=browser --exclude-group=benchmark --exclude-group=budget --exclude-group=scaffold",
             "bash scripts/pnpm.sh -r test"

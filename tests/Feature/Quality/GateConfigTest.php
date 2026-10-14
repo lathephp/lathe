@@ -30,6 +30,14 @@ it('names every gate script', function () {
     expect($scripts)->toHaveKeys(['lint', 'analyse', 'types', 'mutate', 'test', 'qa']);
 });
 
+// A cached run can print nothing over errors a Pint rewrite of a trait's docblocks
+// brought in, so the gate clears the result cache before it analyses.
+it('clears the PHPStan result cache before it analyses', function () {
+    $scripts = json_decode(File::get(repoFile('composer.json')), true)['scripts'];
+
+    expect($scripts['analyse'])->toBe(['phpstan clear-result-cache', 'phpstan analyse --memory-limit=1G']);
+});
+
 it('keeps the timing budgets out of the fast suite and the matrix', function () {
     $scripts = json_decode(File::get(repoFile('composer.json')), true)['scripts'];
 
