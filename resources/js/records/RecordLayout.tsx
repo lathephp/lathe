@@ -3,9 +3,10 @@ import { Card } from '@lathephp/ui';
 import { ChevronDown } from 'lucide-react';
 import { useState, type ReactNode } from 'react';
 import { SafeHtml } from '../components/SafeHtml';
-import type { LayoutBlock, PanelBlock, RelationFieldSchema, TabData, TabGroupBlock } from '../fields/types';
+import type { DetailFieldData, LayoutBlock, PanelBlock, RelationFieldSchema, TabData, TabGroupBlock } from '../fields/types';
 import { cn } from '../lib/cn';
 import { RelationPanel } from '../relations/RelationPanel';
+import { SingularRelationPanel } from './SingularRelationPanel';
 
 const columnClass: Record<number, string> = {
   1: 'md:grid-cols-1',
@@ -38,6 +39,8 @@ export interface RecordLayoutProps {
   detail?: boolean;
   /** The record of a detail page, whose relation panels list its related rows. */
   parent?: { uriKey: string; id: string | number };
+  /** The detail page's fields by key, which the hasOne blocks draw from. */
+  detailFields?: ReadonlyMap<string, DetailFieldData>;
 }
 
 /** The panels, grids and tab groups of a detail page or a form. Below 768 px every grid is one column. */
@@ -97,9 +100,13 @@ function Block({ block, ...props }: RecordLayoutProps & { block: LayoutBlock }) 
 
   const field = block.field as RelationFieldSchema;
 
-  return block.type === 'relation-field' && props.parent !== undefined && panelKinds.includes(field.kind) ? (
-    <RelationPanel parent={props.parent} field={field} />
-  ) : null;
+  if (block.type === 'relation-field') {
+    return props.parent !== undefined && panelKinds.includes(field.kind) ? <RelationPanel parent={props.parent} field={field} /> : null;
+  }
+
+  const detailField = props.detailFields?.get(block.key);
+
+  return detailField === undefined ? null : <SingularRelationPanel field={detailField} />;
 }
 
 function Panel({ panel, renderField, borderless, detail }: RecordLayoutProps & { panel: PanelBlock }) {

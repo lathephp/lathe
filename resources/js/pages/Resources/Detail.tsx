@@ -66,6 +66,7 @@ export default function Detail({ resource, record, breadcrumbs }: DetailProps) {
         detail
         parent={{ uriKey: resource.uriKey, id }}
         blocks={layout}
+        detailFields={byKey}
         renderField={(key) => {
           const field = byKey.get(key);
 
