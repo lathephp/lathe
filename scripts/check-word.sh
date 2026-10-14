@@ -34,6 +34,11 @@ while IFS= read -r file; do
     hits+=("ticket id: $file")
 done < <(git ls-files -z -- tests src packages docs | xargs -0 -r grep -IlP "$tickets" -- 2>/dev/null)
 
+# 6. The product is never named as if it were part of Laravel.
+while IFS= read -r file; do
+    hits+=("branding: $file")
+done < <(git ls-files -z | xargs -0 -r grep -IlE 'Laravel[[:space:]]+Lathe' -- 2>/dev/null)
+
 if [ ${#hits[@]} -eq 0 ]; then
     echo '0 hits'
     exit 0

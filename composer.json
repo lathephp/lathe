@@ -1,6 +1,6 @@
 {
     "name": "lathe/lathe",
-    "description": "An admin panel for Laravel, built with React and Inertia.",
+    "description": "Admin panel builder for Laravel on Inertia, React and shadcn/ui.",
     "keywords": [
         "laravel",
         "admin",
