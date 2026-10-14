@@ -98,6 +98,20 @@ export interface RelationBlock {
   field: FieldSchema;
 }
 
+/** The schema of a relation field, as a relation block carries it. */
+export interface RelationFieldSchema extends FieldSchema {
+  kind: string;
+  relationship: string;
+  /** The related Resource's uriKey. */
+  resource: string;
+  singularLabel: string;
+  pluralLabel: string;
+  collapsible: boolean;
+  collapsed: boolean;
+  withCount: boolean;
+  perPageOptions: number[] | null;
+}
+
 export type LayoutBlock = PanelBlock | GridBlock | TabGroupBlock | RelationBlock;
 
 export interface Breadcrumb {

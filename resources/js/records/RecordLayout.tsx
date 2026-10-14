@@ -3,8 +3,9 @@ import { Card } from '@lathephp/ui';
 import { ChevronDown } from 'lucide-react';
 import { useState, type ReactNode } from 'react';
 import { SafeHtml } from '../components/SafeHtml';
-import type { LayoutBlock, PanelBlock, TabData, TabGroupBlock } from '../fields/types';
+import type { LayoutBlock, PanelBlock, RelationFieldSchema, TabData, TabGroupBlock } from '../fields/types';
 import { cn } from '../lib/cn';
+import { RelationPanel } from '../relations/RelationPanel';
 
 const columnClass: Record<number, string> = {
   1: 'md:grid-cols-1',
@@ -14,6 +15,9 @@ const columnClass: Record<number, string> = {
   5: 'md:grid-cols-5',
   6: 'md:grid-cols-6',
 };
+
+// The relation kinds drawn as a RelationPanel; a has-one block is drawn elsewhere.
+const panelKinds = ['hasMany', 'morphMany', 'belongsToMany', 'morphToMany', 'morphedByMany', 'hasManyThrough', 'hasOneThrough'];
 
 const badgeClass: Record<string, string> = {
   info: 'bg-sky-100 text-sky-800',
@@ -32,6 +36,8 @@ export interface RecordLayoutProps {
   borderless?: boolean;
   /** Detail pages cut a panel at its limit(); forms show every field. */
   detail?: boolean;
+  /** The record of a detail page, whose relation panels list its related rows. */
+  parent?: { uriKey: string; id: string | number };
 }
 
 /** The panels, grids and tab groups of a detail page or a form. Below 768 px every grid is one column. */
@@ -89,8 +95,11 @@ function Block({ block, ...props }: RecordLayoutProps & { block: LayoutBlock }) 
     return <TabGroup group={block} {...props} />;
   }
 
-  // Relation panels are mounted here by a later change.
-  return null;
+  const field = block.field as RelationFieldSchema;
+
+  return block.type === 'relation-field' && props.parent !== undefined && panelKinds.includes(field.kind) ? (
+    <RelationPanel parent={props.parent} field={field} />
+  ) : null;
 }
 
 function Panel({ panel, renderField, borderless, detail }: RecordLayoutProps & { panel: PanelBlock }) {
@@ -155,6 +164,8 @@ function initialTab(group: TabGroupBlock): number {
 function TabGroup({ group, ...props }: RecordLayoutProps & { group: TabGroupBlock }) {
   const { __ } = useTranslation();
   const [active, setActive] = useState(() => initialTab(group));
+  // A detail page mounts a tab when it first opens, so its relation panels load then (PERF-7).
+  const [opened, setOpened] = useState<ReadonlySet<number>>(() => new Set([active]));
   const { errorKeys } = props;
 
   const [seenErrors, setSeenErrors] = useState(errorKeys);
@@ -171,6 +182,7 @@ function TabGroup({ group, ...props }: RecordLayoutProps & { group: TabGroupBloc
 
   function select(index: number) {
     setActive(index);
+    setOpened(new Set(opened).add(index));
     const url = new URL(window.location.href);
     url.searchParams.set(group.queryKey, group.tabs[index]?.attribute ?? '');
     window.history.replaceState(window.history.state, '', url);
@@ -212,7 +224,9 @@ function TabGroup({ group, ...props }: RecordLayoutProps & { group: TabGroupBloc
           hidden={index !== active}
           className={cn(group.vertical && 'md:flex-1')}
         >
-          <RecordLayout {...props} blocks={tab.items} borderless={props.borderless === true || tab.borderless} />
+          {props.detail === true && !opened.has(index) ? null : (
+            <RecordLayout {...props} blocks={tab.items} borderless={props.borderless === true || tab.borderless} />
+          )}
         </div>
       ))}
     </section>

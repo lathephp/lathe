@@ -14,7 +14,7 @@ interface IndexFooterProps extends Pick<IndexProps, 'resource' | 'state' | 'coun
 }
 
 // An estimate is the database's guess for the table, so it reads as a rounded figure.
-function countText(count: Count): string {
+export function countText(count: Count): string {
   if (count.estimated) {
     return `~${formatNumber(count.value, { notation: 'compact', maximumFractionDigits: 1 })}`;
   }

@@ -37,13 +37,13 @@ interface ResourceTableProps extends Pick<IndexProps, 'resource' | 'table' | 'st
  * only sort; with append the other columns stay and a new one goes last.
  */
 /** The text alignment of a column; the index sends each column as the field's full payload, `textAlign` included. */
-function alignClass(column: object): string {
+export function alignClass(column: object): string {
   const align = 'textAlign' in column ? column.textAlign : undefined;
 
   return align === 'right' ? 'text-end' : align === 'center' ? 'text-center' : 'text-start';
 }
 
-function nextSort(sort: string | undefined, key: string, append: boolean): string {
+export function nextSort(sort: string | undefined, key: string, append: boolean): string {
   const tokens = (sort ?? '').split(',').filter((token) => token !== '');
   const index = tokens.findIndex((token) => token.replace(/^-/, '') === key);
   const current = tokens[index];
@@ -60,7 +60,7 @@ function nextSort(sort: string | undefined, key: string, append: boolean): strin
   return tokens.flatMap((token, position) => (position !== index ? [token] : next === null ? [] : [next])).join(',');
 }
 
-function direction(sort: string | undefined, key: string): 'ascending' | 'descending' | 'none' {
+export function direction(sort: string | undefined, key: string): 'ascending' | 'descending' | 'none' {
   const tokens = (sort ?? '').split(',');
 
   return tokens.includes(key) ? 'ascending' : tokens.includes(`-${key}`) ? 'descending' : 'none';
