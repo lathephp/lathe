@@ -24,6 +24,8 @@ export default defineConfig({
         resolve: {
           alias: {
             '@lathephp/core': fileURLToPath(new URL('packages/core/src/index.ts', import.meta.url)),
+            // Before '@lathephp/ui', which would match the subpath as a prefix.
+            '@lathephp/ui/chart': fileURLToPath(new URL('packages/ui/src/chart.tsx', import.meta.url)),
             '@lathephp/ui': fileURLToPath(new URL('packages/ui/src/index.ts', import.meta.url)),
           },
         },

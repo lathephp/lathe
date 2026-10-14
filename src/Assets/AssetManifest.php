@@ -10,7 +10,7 @@ class AssetManifest
     /** The bare specifiers the import map serves, one build entry each. */
     public const array SPECIFIERS = [
         'react', 'react/jsx-runtime', 'react/compiler-runtime', 'react-dom', 'react-dom/client',
-        '@lathephp/core', '@lathephp/ui',
+        '@lathephp/core', '@lathephp/ui', '@lathephp/ui/chart',
     ];
 
     public const string ENTRY = 'resources/js/app.tsx';

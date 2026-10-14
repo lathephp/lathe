@@ -15,11 +15,13 @@ const importMapSpecifiers = [
   'react-dom/client',
   '@lathephp/core',
   '@lathephp/ui',
+  '@lathephp/ui/chart',
 ];
 
 const packageSources: Record<string, string> = {
   '@lathephp/core': 'packages/core/src/index.ts',
   '@lathephp/ui': 'packages/ui/src/index.ts',
+  '@lathephp/ui/chart': 'packages/ui/src/chart.tsx',
 };
 
 const themeStyles = ['nova', 'vega', 'lyra', 'maia', 'mira', 'luma', 'rhea', 'sera'];

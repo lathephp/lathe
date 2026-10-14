@@ -4,7 +4,7 @@ import { defineConfig } from 'vite';
 // throws on load, so a plugin that bundles it by mistake fails at once.
 export default defineConfig({
   build: {
-    lib: { entry: 'src/index.ts', formats: ['es'], fileName: 'index' },
+    lib: { entry: { index: 'src/index.ts', chart: 'src/chart.tsx' }, formats: ['es'], fileName: (_format, name) => `${name}.js` },
     emptyOutDir: false,
     rolldownOptions: {
       external: [/^react($|\/)/, /^react-dom($|\/)/, /^@lathephp\//],
