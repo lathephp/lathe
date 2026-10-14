@@ -8,6 +8,7 @@ use Lathe\Lathe;
 use Lathe\Resources\ResourceDefinition;
 use Lathe\Tests\Fixtures\Policies\EmptyPolicy;
 use Workbench\App\Lathe\Resources\Order as OrderResource;
+use Workbench\App\Lathe\Resources\OrderItem;
 use Workbench\App\Models\Customer;
 use Workbench\App\Models\Order;
 use Workbench\App\Models\User;
@@ -93,4 +94,21 @@ it('runs the same number of queries for 25 and for 100 orders', function () {
     };
 
     expect($count(25))->toBe($count(100));
+});
+
+it('peeks at the customer only while peeking is on and the customer has peek fields', function () {
+    $column = collect($this->getJson('/lathe/api/resources/orders?per_page=25')->assertOk()->json('table.columns'))->firstWhere('key', 'customer');
+
+    expect($column['peekable'])->toBeTrue()
+        ->and(Field::belongsTo('Customer')->noPeeking()->ownedBy(OrderResource::class)->opensPeek(LatheRequest::createFrom(request())))->toBeFalse()
+        ->and(Field::belongsTo('Order')->ownedBy(OrderItem::class)->opensPeek(LatheRequest::createFrom(request())))->toBeFalse();
+});
+
+it('answers the peek of a customer with its title and peek fields, and 404 for a missing one', function () {
+    $json = $this->getJson('/lathe/api/resources/customers/12/peek')->assertOk()->json();
+
+    expect($json['title'])->toBe(Customer::findOrFail(12)->name)
+        ->and(array_column($json['fields'], 'key'))->toBe(['email']);
+
+    $this->getJson('/lathe/api/resources/customers/99999999/peek')->assertNotFound();
 });

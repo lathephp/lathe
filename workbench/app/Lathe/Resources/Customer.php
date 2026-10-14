@@ -28,7 +28,7 @@ class Customer extends Resource
 
         return [
             Field::text('Name')->required()->inline(),
-            Field::email('Email')->required()->rules('email', 'max:255', 'unique:customers,email,{{resourceId}}'),
+            Field::email('Email')->showWhenPeeking()->required()->rules('email', 'max:255', 'unique:customers,email,{{resourceId}}'),
             Field::country()->default('US')->displayUsingLabels(false),
             Field::select('State')->nullable()->hideFromIndex()->optionsFrom('country', [
                 'US' => ['California', 'New York', 'Texas'],

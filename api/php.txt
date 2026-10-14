@@ -1000,9 +1000,11 @@ Lathe\Field\Relations\BelongsToField::filled(?Closure $callback): static
 Lathe\Field\Relations\BelongsToField::getFilledCallback(): ?Closure
 Lathe\Field\Relations\BelongsToField::getSortableUriKey(): string
 Lathe\Field\Relations\BelongsToField::isViewable(): bool
+Lathe\Field\Relations\BelongsToField::jsonSerialize(): array
 Lathe\Field\Relations\BelongsToField::kind(): string
 Lathe\Field\Relations\BelongsToField::loadsWithRecord(): bool
 Lathe\Field\Relations\BelongsToField::mayView(Illuminate\Database\Eloquent\Model $related): bool  [protected]
+Lathe\Field\Relations\BelongsToField::opensPeek(?Lathe\Http\Requests\LatheRequest $request): bool
 Lathe\Field\Relations\BelongsToField::primeForPage(Illuminate\Support\Collection $records): void
 Lathe\Field\Relations\BelongsToField::resolve(object $record, ?string $attribute = NULL): mixed
 Lathe\Field\Relations\BelongsToField::string $component  [protected]
@@ -1813,6 +1815,7 @@ Lathe\Query\ResourceQuery::applyFilters(Illuminate\Database\Eloquent\Builder $qu
 Lathe\Query\ResourceQuery::applyHook(Illuminate\Database\Eloquent\Builder $query): Illuminate\Database\Eloquent\Builder  [protected]
 Lathe\Query\ResourceQuery::applyLens(Illuminate\Database\Eloquent\Builder $query): Illuminate\Database\Eloquent\Builder  [protected]
 Lathe\Query\ResourceQuery::applyLensSearch(Illuminate\Database\Eloquent\Builder $query): Illuminate\Database\Eloquent\Builder  [protected]
+Lathe\Query\ResourceQuery::applyPickerSearch(Illuminate\Database\Eloquent\Builder $query, mixed $title): Illuminate\Database\Eloquent\Builder  [protected]
 Lathe\Query\ResourceQuery::applySavedTab(Illuminate\Database\Eloquent\Builder $query): Illuminate\Database\Eloquent\Builder  [protected]
 Lathe\Query\ResourceQuery::applySearch(Illuminate\Database\Eloquent\Builder $query): Illuminate\Database\Eloquent\Builder  [protected]
 Lathe\Query\ResourceQuery::applySort(Illuminate\Database\Eloquent\Builder $query): Illuminate\Database\Eloquent\Builder  [protected]
