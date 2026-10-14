@@ -138,6 +138,7 @@ Lathe\Auth\ResourceAuthorization::Illuminate\Contracts\Auth\Access\Gate $gate  [
 Lathe\Auth\ResourceAuthorization::Lathe\Resources\ResourceRegistry $resources  [protected]
 Lathe\Auth\ResourceAuthorization::__construct(Illuminate\Contracts\Auth\Access\Gate $gate, Lathe\Resources\ResourceRegistry $resources)
 Lathe\Auth\ResourceAuthorization::abilitiesFor(?Illuminate\Contracts\Auth\Authenticatable $user, string $resource, Illuminate\Support\Collection $models, array $abilities): array
+Lathe\Auth\ResourceAuthorization::allowedIds(?Illuminate\Contracts\Auth\Authenticatable $user, string $resource, string $ability, Illuminate\Database\Eloquent\Model $model, array $ids): array
 Lathe\Auth\ResourceAuthorization::allows(?Illuminate\Contracts\Auth\Authenticatable $user, string $resource, string $ability, ?Illuminate\Database\Eloquent\Model $model = NULL, array $arguments = array ( )): bool
 Lathe\Auth\ResourceAuthorization::allowsLens(?Illuminate\Contracts\Auth\Authenticatable $user, string $resource, Lathe\Lenses\Lens $lens): bool
 Lathe\Auth\ResourceAuthorization::allowsViewAnyFromManifest(Illuminate\Http\Request $request, array $entry): bool
@@ -1466,7 +1467,7 @@ Lathe\Http\Controllers\Plugins\ModuleController::__invoke(Lathe\Assets\AssetRegi
 Lathe\Http\Controllers\Plugins\PluginApiController::__invoke(Illuminate\Http\Request $request, Lathe\Plugins\PluginRegistry $plugins, string $plugin, string $path = ''): Symfony\Component\HttpFoundation\Response
 Lathe\Http\Controllers\Plugins\PluginPageController::__invoke(Illuminate\Http\Request $request, Lathe\Plugins\PluginRegistry $plugins, string $plugin, string $path = ''): Inertia\Response
 Lathe\Http\Controllers\Resources\AssociatableController::create(Lathe\Http\Requests\LatheRequest $request, Lathe\Auth\ResourceAuthorization $authorization, string $resource, string $field): Illuminate\Http\JsonResponse
-Lathe\Http\Controllers\Resources\AssociatableController::options(Lathe\Http\Requests\LatheRequest $request, string $parent, Lathe\Field\Relations\RelationField $field): Illuminate\Http\JsonResponse  [protected]
+Lathe\Http\Controllers\Resources\AssociatableController::options(Lathe\Http\Requests\LatheRequest $request, string $parent, Lathe\Field\Relations\RelationField $field, ?Illuminate\Database\Eloquent\Model $record = NULL): Illuminate\Http\JsonResponse  [protected]
 Lathe\Http\Controllers\Resources\AssociatableController::record(Lathe\Http\Requests\LatheRequest $request, Lathe\Auth\ResourceAuthorization $authorization, string $resource, string $resourceId, string $field): Illuminate\Http\JsonResponse
 Lathe\Http\Controllers\Resources\AssociatableController::relationField(Lathe\Http\Requests\LatheRequest $request, Lathe\Field\FieldCollection $fields, string $attribute): Lathe\Field\Relations\RelationField  [protected]
 Lathe\Http\Controllers\Resources\AuthorizesResources::viewableResource(Lathe\Http\Requests\LatheRequest $request, Lathe\Auth\ResourceAuthorization $authorization): string  [protected]
@@ -1524,7 +1525,9 @@ Lathe\Http\Controllers\Resources\RelationAttachController::attach(Lathe\Http\Req
 Lathe\Http\Controllers\Resources\RelationAttachController::attachedRow(Lathe\Http\Requests\LatheRequest $request, Illuminate\Database\Eloquent\Relations\BelongsToMany $relation, string $relatedId): array  [protected]
 Lathe\Http\Controllers\Resources\RelationAttachController::authorizeIds(Lathe\Http\Requests\LatheRequest $request, Lathe\Auth\ResourceAuthorization $authorization, string $class, Illuminate\Database\Eloquent\Model $parent, string $ability, array $ids): void  [protected]
 Lathe\Http\Controllers\Resources\RelationAttachController::detach(Lathe\Http\Requests\LatheRequest $request, Lathe\Auth\ResourceAuthorization $authorization, string $resource, string $resourceId, string $relationship, string $relatedId): Illuminate\Http\JsonResponse
+Lathe\Http\Controllers\Resources\RelationAttachController::pivotFieldValues(Lathe\Http\Requests\LatheRequest $request, Lathe\Auth\ResourceAuthorization $authorization, string $resource, string $resourceId, string $relationship, string $relatedId): Illuminate\Http\JsonResponse
 Lathe\Http\Controllers\Resources\RelationAttachController::pivotFields(Lathe\Http\Requests\LatheRequest $request, Lathe\Field\Relations\BelongsToManyField $field, ?Illuminate\Database\Eloquent\Model $related): array  [protected]
+Lathe\Http\Controllers\Resources\RelationAttachController::pivotFieldsForAttach(Lathe\Http\Requests\LatheRequest $request, Lathe\Auth\ResourceAuthorization $authorization, string $resource, string $resourceId, string $relationship): Illuminate\Http\JsonResponse
 Lathe\Http\Controllers\Resources\RelationAttachController::pivotValues(Lathe\Http\Requests\LatheRequest $request, array $fields): array  [protected]
 Lathe\Http\Controllers\Resources\RelationAttachController::relatedRecord(Lathe\Http\Requests\LatheRequest $request, string $class, Lathe\Field\Relations\BelongsToManyField $field): array  [protected]
 Lathe\Http\Controllers\Resources\RelationAttachController::resolve(Lathe\Http\Requests\LatheRequest $request, Lathe\Auth\ResourceAuthorization $authorization, string $resourceId, string $relationship): array  [protected]

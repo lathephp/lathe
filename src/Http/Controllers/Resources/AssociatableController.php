@@ -5,6 +5,7 @@ namespace Lathe\Http\Controllers\Resources;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Str;
 use Lathe\Auth\ResourceAuthorization;
 use Lathe\Field\Field;
 use Lathe\Field\FieldCollection;
@@ -53,7 +54,7 @@ class AssociatableController
             $fields = $parent->fieldsFor(FieldContext::Detail, $request);
         }
 
-        return $this->options($request, $class, $this->relationField($request, $fields, $field));
+        return $this->options($request, $class, $this->relationField($request, $fields, $field), $model);
     }
 
     /**
@@ -72,7 +73,7 @@ class AssociatableController
     /**
      * @param  class-string<resource>  $parent
      */
-    protected function options(LatheRequest $request, string $parent, RelationField $field): JsonResponse
+    protected function options(LatheRequest $request, string $parent, RelationField $field, ?Model $record = null): JsonResponse
     {
         $type = $request->query('type');
         // A morphTo picker reads the type as a uriKey among its types(); anything else is 404.
@@ -99,6 +100,13 @@ class AssociatableController
             $rows = new Collection([$row]);
         } else {
             $rows = $query->options($resource->definition()->getPickerResults(), $field->reordersAssociatables());
+        }
+
+        // The attach modal offers only the records the policy lets the user attach: one call with the page's ids.
+        if ($field->attaches() && $record !== null) {
+            $keys = array_values(array_filter($rows->map(fn (Model $row) => $row->getKey())->all(), fn (mixed $key) => is_int($key) || is_string($key)));
+            $allowed = app(ResourceAuthorization::class)->allowedIds($request->user(), $parent, 'attach'.Str::studly($field->attribute()), $record, $keys);
+            $rows = $rows->filter(fn (Model $row) => in_array($row->getKey(), $allowed, true))->values();
         }
 
         // In debug, a display() Closure reading a column the lookup did not select names it.

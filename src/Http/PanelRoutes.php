@@ -123,6 +123,8 @@ class PanelRoutes
             $router->post('resources/{resource}/{resourceId}/field/{field}/preview', [FieldPreviewController::class, 'update'])->name('resources.record.field.preview');
             $router->get('resources/{resource}/{resourceId}/replicate-fields', [FormFieldsController::class, 'replicate'])->name('resources.replicateFields');
             $router->get('resources/{resource}/{resourceId}/{field}/associatable', [AssociatableController::class, 'record'])->name('resources.record.associatable');
+            $router->get('resources/{resource}/{resourceId}/{relationship}/pivot-fields', [RelationAttachController::class, 'pivotFieldsForAttach'])->name('resources.relation.pivotFields');
+            $router->get('resources/{resource}/{resourceId}/{relationship}/{relatedId}/pivot-fields', [RelationAttachController::class, 'pivotFieldValues'])->name('resources.relation.pivotFieldValues');
             $router->get('resources/{resource}/{resourceId}/peek', [PeekController::class, 'peek'])->name('resources.peek');
             $router->get('resources/{resource}/{resourceId}/preview', [PeekController::class, 'preview'])->name('resources.preview');
             $router->put('resources/{resource}/{resourceId}', [RecordController::class, 'update'])->name('resources.update');

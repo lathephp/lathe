@@ -92,6 +92,39 @@ class RelationAttachController
     }
 
     /**
+     * The attach modal's pivot form: the pivot fields with their defaults. Needs view.
+     */
+    public function pivotFieldsForAttach(LatheRequest $request, ResourceAuthorization $authorization, string $resource, string $resourceId, string $relationship): JsonResponse
+    {
+        [$class, $parent, $field] = $this->resolve($request, $authorization, $resourceId, $relationship);
+
+        abort_unless($authorization->allows($request->user(), $class, 'view', $parent), 403, $authorization->denialMessage($class));
+
+        return new JsonResponse(['fields' => array_map(
+            fn (Field $pivot) => [...$pivot->schema(FieldContext::Create, $request), 'value' => $pivot->resolveDefaultValue($request)],
+            $this->pivotFields($request, $field, null),
+        )]);
+    }
+
+    /**
+     * The pivot update form of one attached row: the pivot fields with the row's values. Needs view.
+     */
+    public function pivotFieldValues(LatheRequest $request, ResourceAuthorization $authorization, string $resource, string $resourceId, string $relationship, string $relatedId): JsonResponse
+    {
+        [$class, $parent, $field, $relation] = $this->resolve($request, $authorization, $resourceId, $relationship);
+
+        abort_unless($authorization->allows($request->user(), $class, 'view', $parent), 403, $authorization->denialMessage($class));
+
+        [$key, $row] = $this->attachedRow($request, $relation, $relatedId);
+        $related = (new Associatable($request, $class, $field))->query()?->option((string) $key);
+
+        return new JsonResponse(['fields' => array_map(
+            fn (Field $pivot) => [...$pivot->schema(FieldContext::Update, $request), 'value' => $row[$pivot->attribute()] ?? null],
+            $this->pivotFields($request, $field, $related),
+        )]);
+    }
+
+    /**
      * The parent Resource, its record (404 outside the scope), and the attaching relation field
      * the route names (404 when unknown or not a pivot relation, 403 when hidden).
      *

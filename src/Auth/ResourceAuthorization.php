@@ -76,6 +76,37 @@ class ResourceAuthorization
     }
 
     /**
+     * The ids the policy lets the user act on, from one call with all of them: an array answer
+     * keeps the ids it lists, true keeps every id, anything else none. A missing method denies.
+     *
+     * @param  class-string<\Lathe\Resources\Resource>  $resource
+     * @param  list<int|string>  $ids
+     * @return list<int|string>
+     */
+    public function allowedIds(?Authenticatable $user, string $resource, string $ability, Model $model, array $ids): array
+    {
+        if ($ids === [] || $this->resources->definition($resource)->allowsAll()) {
+            return $ids;
+        }
+
+        $policy = $this->policyFor($resource);
+
+        if ($user === null || $policy === null || ! method_exists($policy, $ability)) {
+            return [];
+        }
+
+        $answer = $resource::$policy !== null
+            ? $policy->{$ability}($user, $model, $ids)
+            : $this->gate->forUser($user)->raw($ability, [$model, $ids]);
+
+        if (is_array($answer)) {
+            return array_values(array_filter($ids, fn (int|string $id) => in_array($id, $answer, false)));
+        }
+
+        return $answer === true ? $ids : [];
+    }
+
+    /**
      * Whether the user may open the lens: viewLens(User, lensKey) on the policy.
      * Unlike other abilities, a policy without a viewLens method allows every lens.
      *
