@@ -197,6 +197,25 @@ describe('the action modal', () => {
     expect(screen.getByRole('dialog')).toBeTruthy();
   });
 
+  it("loads a relation field's options from the action lookup route", async () => {
+    const fetch = vi
+      .spyOn(globalThis, 'fetch')
+      .mockResolvedValueOnce(
+        json({
+          fields: [{ key: 'target', attribute: 'target', label: 'Target', component: 'belongs-to-field', resource: 'tags', value: null, stacked: false, compact: false, help: null, required: true }],
+          confirmText: null,
+        }),
+      )
+      .mockResolvedValueOnce(json({ items: [{ value: 1, display: 'sale' }], has_more: false }));
+    renderOrders([meta('merge-tags', 'Merge Tags')], rows(1, ['merge-tags']));
+    tick(1);
+    fireEvent.click(within(await openMenu()).getByRole('menuitem', { name: 'Merge Tags' }));
+    fireEvent.focus(await within(await screen.findByRole('dialog')).findByRole('combobox'));
+
+    expect(await screen.findByRole('option', { name: 'sale' })).toBeTruthy();
+    expect(fetch.mock.calls[1]?.[0]).toBe('/lathe/api/resources/orders/action/associatable?action=merge-tags&field=target&q=&page=1');
+  });
+
   it('starts the progress toast of a queued export', async () => {
     vi.spyOn(router, 'reload').mockImplementation(() => undefined);
     vi.spyOn(globalThis, 'fetch')

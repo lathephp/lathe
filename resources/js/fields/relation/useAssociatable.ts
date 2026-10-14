@@ -1,5 +1,5 @@
 import { __panel, ApiError, request, toast, useLathe, useTranslation } from '@lathephp/core';
-import { useEffect, useState, useSyncExternalStore } from 'react';
+import { createContext, useContext, useEffect, useState, useSyncExternalStore } from 'react';
 import type { FieldSchema } from '../types';
 
 /** One record a relation picker offers. */
@@ -33,16 +33,24 @@ interface Options {
   endpoint?: string;
 }
 
+/** The lookup URL of each relation field in a form that belongs to no Resource, such as an action modal. */
+export const AssociatableEndpoint = createContext<((attribute: string) => string) | null>(null);
+
 /**
- * Where a relation field's options come from: the edit form's route when the page is an edit
- * form or names a record, the create form's route otherwise.
+ * Where a relation field's options come from: the form's own lookup when it gives one, else the
+ * edit form's route when the page is an edit form or names a record, the create form's route otherwise.
  */
 export function useAssociatableEndpoint(field: FieldSchema, record?: LookupRecord): string {
   const { apiPath } = useLathe();
   const shared = useSyncExternalStore(__panel.sharedProps.subscribe, __panel.sharedProps.get);
+  const scoped = useContext(AssociatableEndpoint);
   const uriKey = record?.uriKey ?? (shared.resource as { uriKey?: string } | undefined)?.uriKey ?? '';
   const attribute = typeof field.relationship === 'string' ? field.relationship : field.attribute;
   const id = record?.id ?? (shared.mode === 'update' ? String(shared.id) : undefined);
+
+  if (scoped !== null) {
+    return scoped(attribute);
+  }
 
   return id !== undefined ? `${apiPath}/resources/${uriKey}/${String(id)}/${attribute}/associatable` : `${apiPath}/resources/${uriKey}/associatable/${attribute}`;
 }
@@ -88,7 +96,7 @@ export function useAssociatable(field: FieldSchema, { open, term, withTrashed, t
       params.set('with_trashed', '1');
     }
 
-    request<AssociatablePage>(`${endpoint}?${params.toString()}`, { signal: controller.signal }).then(
+    request<AssociatablePage>(`${endpoint}${endpoint.includes('?') ? '&' : '?'}${params.toString()}`, { signal: controller.signal }).then(
       (reply) => {
         const items = reply?.items ?? [];
         setResult((current) => ({ items: page === 1 ? items : [...current.items, ...items], hasMore: reply?.has_more === true, loaded: true, error: null }));

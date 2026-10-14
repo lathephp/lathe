@@ -2,6 +2,7 @@ import { ApiError, request, toast, useTranslation } from '@lathephp/core';
 import { Button } from '@lathephp/ui';
 import { useEffect, useId, useState } from 'react';
 import { Modal } from '../components/Modal';
+import { AssociatableEndpoint } from '../fields/relation/useAssociatable';
 import type { FormFieldData } from '../fields/types';
 import { cn } from '../lib/cn';
 import { FormRow } from '../records/FormFields';
@@ -113,21 +114,24 @@ export function ActionModal({ base, action, count, onClose, onRun }: ActionModal
           </p>
         )}
         {form !== null && form.fields.length > 0 && (
-          <div className="-mx-4 divide-y divide-border">
-            {form.fields.map((field) => (
-              <FormRow
-                key={field.attribute}
-                field={field}
-                idPrefix={`action-${action.uriKey}`}
-                value={values[field.attribute]}
-                values={values}
-                error={errors[field.attribute]}
-                onChange={(value) => {
-                  setValues((current) => ({ ...current, [field.attribute]: value }));
-                }}
-              />
-            ))}
-          </div>
+          // A relation field looks its options up through the action, which declares it.
+          <AssociatableEndpoint value={(attribute) => `${base}/action/associatable?${new URLSearchParams({ action: action.uriKey, field: attribute }).toString()}`}>
+            <div className="-mx-4 divide-y divide-border">
+              {form.fields.map((field) => (
+                <FormRow
+                  key={field.attribute}
+                  field={field}
+                  idPrefix={`action-${action.uriKey}`}
+                  value={values[field.attribute]}
+                  values={values}
+                  error={errors[field.attribute]}
+                  onChange={(value) => {
+                    setValues((current) => ({ ...current, [field.attribute]: value }));
+                  }}
+                />
+              ))}
+            </div>
+          </AssociatableEndpoint>
         )}
         <div className="flex justify-end gap-2">
           <Button type="button" variant="outline" size="sm" onClick={onClose}>
