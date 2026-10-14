@@ -30,4 +30,21 @@ describe('loadModules', () => {
 
     expect(failed).toEqual(['slow']);
   });
+
+  it('pins: abandons a module that never answers after 10 seconds', async () => {
+    vi.useFakeTimers();
+    vi.spyOn(console, 'error').mockImplementation(() => undefined);
+    let settled: string[] | null = null;
+
+    void __panel.loadModules(['/lathe/modules/slow-33333333.js'], { importer: () => new Promise<never>(() => undefined) }).then((failed) => {
+      settled = failed;
+    });
+
+    await vi.advanceTimersByTimeAsync(9_999);
+    expect(settled).toBeNull();
+
+    await vi.advanceTimersByTimeAsync(1);
+    expect(settled).toEqual(['slow']);
+    vi.useRealTimers();
+  });
 });
