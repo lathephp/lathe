@@ -7,6 +7,7 @@ import { StaleAssetScreen } from './components/StaleAssetScreen';
 import { registerBuiltinFields } from './fields/builtin';
 import { AppLayout } from './layout/AppLayout';
 import { RunToastsHost } from './actions/RunToastsHost';
+import { PasswordConfirmHost } from './components/PasswordConfirmHost';
 import { Toaster } from './components/Toaster';
 import { panelLayout } from './layout/panelLayout';
 import { assetHashFromUrl, markBuildStale, setEntryHash } from './lib/assets';
@@ -95,6 +96,7 @@ void createInertiaApp({
           <App {...props} />
           <Toaster />
           <RunToastsHost />
+          <PasswordConfirmHost />
           <StaleAssetScreen />
         </DirectionProvider>
       </QueryClientProvider>,
