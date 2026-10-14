@@ -50,7 +50,7 @@
         "test": "vendor/bin/pest",
         "analyse": "vendor/bin/phpstan analyse --memory-limit=1G",
         "lint": "vendor/bin/pint --test",
-        "types": "vendor/bin/pest --type-coverage --min=100"
+        "types": "php -d memory_limit=1G vendor/bin/pest --type-coverage --min=100"
     },
     "extra": {
         "laravel": {
