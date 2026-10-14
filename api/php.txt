@@ -9,7 +9,7 @@ Lathe\ActionEvents\ActionEvent::markAsFinished(string $batchId, Illuminate\Datab
 Lathe\ActionEvents\ActionEvent::markBatchAsFailed(string $batchId, ?Throwable $exception = NULL): void  [static]
 Lathe\ActionEvents\ActionEvent::markBatchAsFinished(string $batchId): void  [static]
 Lathe\ActionEvents\ActionEvent::markBatchAsRunning(string $batchId): void  [static]
-Lathe\ActionEvents\ActionEvent::newMorphTo(Illuminate\Database\Eloquent\Builder $query, Illuminate\Database\Eloquent\Model $parent, $foreignKey, $ownerKey, $type, $relation)  [protected]
+Lathe\ActionEvents\ActionEvent::newMorphTo(Illuminate\Database\Eloquent\Builder $query, Illuminate\Database\Eloquent\Model $parent, $foreignKey, $ownerKey, $type, $relation): Illuminate\Database\Eloquent\Relations\MorphTo  [protected]
 Lathe\ActionEvents\ActionEvent::open(string $batchId): Illuminate\Database\Eloquent\Builder  [protected static]
 Lathe\ActionEvents\ActionEvent::prunable(): Illuminate\Database\Eloquent\Builder
 Lathe\ActionEvents\ActionEvent::scopeByUser(Illuminate\Database\Eloquent\Builder $query, Illuminate\Contracts\Auth\Authenticatable|string|int $user): void
@@ -80,7 +80,7 @@ Lathe\ActionEvents\ActionEventResource::recordsActionEvents(): bool  [static]
 Lathe\ActionEvents\ActionEventResource::singularLabel(): string  [static]
 Lathe\ActionEvents\ActionEventResource::uriKey(): string  [static]
 Lathe\ActionEvents\Actionable::actions(): Illuminate\Database\Eloquent\Relations\MorphMany
-Lathe\ActionEvents\RecordMorphTo::getEager()
+Lathe\ActionEvents\RecordMorphTo::getEager(): Illuminate\Database\Eloquent\Collection
 Lathe\Actions\Action::?Closure $handleCallback  [protected]
 Lathe\Actions\Action::?Closure $runCallback  [protected]
 Lathe\Actions\Action::?Closure $runWhenCallback  [protected]
@@ -797,6 +797,7 @@ Lathe\Doctor\Doctor::Lathe\Support\ConfigStore $config  [protected]
 Lathe\Doctor\Doctor::Lathe\Support\ConfigValidator $validator  [protected]
 Lathe\Doctor\Doctor::TABLES
 Lathe\Doctor\Doctor::__construct(Illuminate\Contracts\Foundation\Application $app, Lathe\Support\ConfigStore $config, Lathe\Support\ConfigValidator $validator, Lathe\Resources\ResourceRegistry $resources, Lathe\Plugins\PluginRegistry $plugins, Illuminate\Contracts\Auth\Access\Gate $gate)
+Lathe\Doctor\Doctor::actionChecks(string $class): array  [protected]
 Lathe\Doctor\Doctor::assets(): array  [protected]
 Lathe\Doctor\Doctor::config(string $key): mixed  [protected]
 Lathe\Doctor\Doctor::configuration(): array  [protected]
