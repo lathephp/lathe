@@ -304,6 +304,7 @@ Lathe\Actions\Export\ExportWriter::__construct(string $type)
 Lathe\Actions\Export\ExportWriter::addRow(array $values): void
 Lathe\Actions\Export\ExportWriter::bool $open  [protected]
 Lathe\Actions\Export\ExportWriter::close(): string
+Lathe\Actions\Export\ExportWriter::csvSafe(string $value): string  [static]
 Lathe\Actions\Export\ExportWriter::delete(): void
 Lathe\Actions\Export\ExportWriter::string $path  [protected]
 Lathe\Actions\Export\ProcessExport::$afterCommit
@@ -469,6 +470,7 @@ Lathe\Actions\Import\ProcessImport::cast(array $columns, array $row, Lathe\Actio
 Lathe\Actions\Import\ProcessImport::cell(mixed $value): string|int|float|bool|null  [protected]
 Lathe\Actions\Import\ProcessImport::columnMap(Lathe\Actions\Import\Import $import): array  [protected]
 Lathe\Actions\Import\ProcessImport::columns(): array  [protected]
+Lathe\Actions\Import\ProcessImport::failed(?Throwable $exception): void
 Lathe\Actions\Import\ProcessImport::findKeys(array $rows): array  [protected]
 Lathe\Actions\Import\ProcessImport::handle(): void
 Lathe\Actions\Import\ProcessImport::hooked(string $hook, array $row, int $number): array  [protected]
