@@ -4,11 +4,9 @@ use Inertia\Testing\AssertableInertia;
 use Lathe\Lathe;
 
 beforeEach(function () {
+    // An array store keeps the app down in this process only, not in parallel test workers.
+    config(['app.maintenance.driver' => 'cache', 'app.maintenance.store' => 'array']);
     $this->app->maintenanceMode()->activate([]);
-});
-
-afterEach(function () {
-    $this->app->maintenanceMode()->deactivate();
 });
 
 it('serves the built files while the app is down', function () {
