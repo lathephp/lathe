@@ -379,12 +379,30 @@ Lathe\Enums\TableStyle::Default
 Lathe\Enums\TableStyle::Tight
 Lathe\Enums\TableStyle::string $name
 Lathe\Enums\TableStyle::string $value
+Lathe\Events\ResourceAttached::Illuminate\Database\Eloquent\Model $parent
+Lathe\Events\ResourceAttached::__construct(Illuminate\Database\Eloquent\Model $parent, string $resource, string $relationship, array $ids, array $pivot = array ( ))
+Lathe\Events\ResourceAttached::array $ids
+Lathe\Events\ResourceAttached::array $pivot
+Lathe\Events\ResourceAttached::string $relationship
+Lathe\Events\ResourceAttached::string $resource
+Lathe\Events\ResourceAttachmentUpdated::Illuminate\Database\Eloquent\Model $parent
+Lathe\Events\ResourceAttachmentUpdated::__construct(Illuminate\Database\Eloquent\Model $parent, string $resource, string $relationship, array $ids, array $original = array ( ), array $changes = array ( ))
+Lathe\Events\ResourceAttachmentUpdated::array $changes
+Lathe\Events\ResourceAttachmentUpdated::array $ids
+Lathe\Events\ResourceAttachmentUpdated::array $original
+Lathe\Events\ResourceAttachmentUpdated::string $relationship
+Lathe\Events\ResourceAttachmentUpdated::string $resource
 Lathe\Events\ResourceCreated::Illuminate\Database\Eloquent\Model $model
 Lathe\Events\ResourceCreated::__construct(Illuminate\Database\Eloquent\Model $model, string $resource)
 Lathe\Events\ResourceCreated::string $resource
 Lathe\Events\ResourceDeleted::Illuminate\Database\Eloquent\Model $model
 Lathe\Events\ResourceDeleted::__construct(Illuminate\Database\Eloquent\Model $model, string $resource)
 Lathe\Events\ResourceDeleted::string $resource
+Lathe\Events\ResourceDetached::Illuminate\Database\Eloquent\Model $parent
+Lathe\Events\ResourceDetached::__construct(Illuminate\Database\Eloquent\Model $parent, string $resource, string $relationship, array $ids)
+Lathe\Events\ResourceDetached::array $ids
+Lathe\Events\ResourceDetached::string $relationship
+Lathe\Events\ResourceDetached::string $resource
 Lathe\Events\ResourceForceDeleted::Illuminate\Database\Eloquent\Model $model
 Lathe\Events\ResourceForceDeleted::__construct(Illuminate\Database\Eloquent\Model $model, string $resource)
 Lathe\Events\ResourceForceDeleted::string $resource
@@ -1502,6 +1520,16 @@ Lathe\Http\Controllers\Resources\PeekController::respond(Lathe\Http\Requests\Lat
 Lathe\Http\Controllers\Resources\RecordController::fillAndSave(Lathe\Http\Requests\LatheRequest $request, Illuminate\Database\Eloquent\Model $model, array $fields): void  [protected]
 Lathe\Http\Controllers\Resources\RecordController::store(Lathe\Http\Requests\LatheRequest $request, Lathe\Auth\ResourceAuthorization $authorization, string $resource): Illuminate\Http\JsonResponse
 Lathe\Http\Controllers\Resources\RecordController::update(Lathe\Http\Requests\LatheRequest $request, Lathe\Auth\ResourceAuthorization $authorization, string $resource, string $resourceId): Illuminate\Http\JsonResponse
+Lathe\Http\Controllers\Resources\RelationAttachController::attach(Lathe\Http\Requests\LatheRequest $request, Lathe\Auth\ResourceAuthorization $authorization, string $resource, string $resourceId, string $relationship): Illuminate\Http\JsonResponse
+Lathe\Http\Controllers\Resources\RelationAttachController::attachedRow(Lathe\Http\Requests\LatheRequest $request, Illuminate\Database\Eloquent\Relations\BelongsToMany $relation, string $relatedId): array  [protected]
+Lathe\Http\Controllers\Resources\RelationAttachController::authorizeIds(Lathe\Http\Requests\LatheRequest $request, Lathe\Auth\ResourceAuthorization $authorization, string $class, Illuminate\Database\Eloquent\Model $parent, string $ability, array $ids): void  [protected]
+Lathe\Http\Controllers\Resources\RelationAttachController::detach(Lathe\Http\Requests\LatheRequest $request, Lathe\Auth\ResourceAuthorization $authorization, string $resource, string $resourceId, string $relationship, string $relatedId): Illuminate\Http\JsonResponse
+Lathe\Http\Controllers\Resources\RelationAttachController::pivotFields(Lathe\Http\Requests\LatheRequest $request, Lathe\Field\Relations\BelongsToManyField $field, ?Illuminate\Database\Eloquent\Model $related): array  [protected]
+Lathe\Http\Controllers\Resources\RelationAttachController::pivotValues(Lathe\Http\Requests\LatheRequest $request, array $fields): array  [protected]
+Lathe\Http\Controllers\Resources\RelationAttachController::relatedRecord(Lathe\Http\Requests\LatheRequest $request, string $class, Lathe\Field\Relations\BelongsToManyField $field): array  [protected]
+Lathe\Http\Controllers\Resources\RelationAttachController::resolve(Lathe\Http\Requests\LatheRequest $request, Lathe\Auth\ResourceAuthorization $authorization, string $resourceId, string $relationship): array  [protected]
+Lathe\Http\Controllers\Resources\RelationAttachController::updatePivot(Lathe\Http\Requests\LatheRequest $request, Lathe\Auth\ResourceAuthorization $authorization, string $resource, string $resourceId, string $relationship, string $relatedId): Illuminate\Http\JsonResponse
+Lathe\Http\Controllers\Resources\RelationAttachController::validatePivot(Lathe\Http\Requests\LatheRequest $request, array $fields, Lathe\Field\FieldContext $context, array $rules = array ( )): void  [protected]
 Lathe\Http\Controllers\Resources\RelationIndexController::PANEL_KINDS
 Lathe\Http\Controllers\Resources\RelationIndexController::__invoke(Lathe\Http\Requests\LatheRequest $request, Lathe\Auth\ResourceAuthorization $authorization, Lathe\Http\Payloads\RelationIndexPayload $payload, string $resource, string $resourceId, string $relationship): Illuminate\Http\JsonResponse
 Lathe\Http\Controllers\Resources\SavedTabController::attributes(Lathe\Http\Requests\LatheRequest $request, Lathe\Resources\Resource $resource, bool $creating): array  [protected]
@@ -2171,6 +2199,13 @@ Lathe\Resources\Via::match(string $child, Lathe\Http\Requests\LatheRequest $requ
 Lathe\Resources\Via::parentKey(): mixed
 Lathe\Resources\Via::string $parent
 Lathe\Resources\Via::value(): ?array
+Lathe\Rules\NotAttached::Illuminate\Database\Eloquent\Relations\BelongsToMany $relation  [protected]
+Lathe\Rules\NotAttached::__construct(Illuminate\Database\Eloquent\Relations\BelongsToMany $relation)
+Lathe\Rules\NotAttached::validate(string $attribute, mixed $value, Closure $fail): void
+Lathe\Rules\NotExactlyAttached::Illuminate\Database\Eloquent\Relations\BelongsToMany $relation  [protected]
+Lathe\Rules\NotExactlyAttached::__construct(Illuminate\Database\Eloquent\Relations\BelongsToMany $relation, array $pivot)
+Lathe\Rules\NotExactlyAttached::array $pivot  [protected]
+Lathe\Rules\NotExactlyAttached::validate(string $attribute, mixed $value, Closure $fail): void
 Lathe\Rules\Relatable::?Illuminate\Database\Eloquent\Model $parent  [protected]
 Lathe\Rules\Relatable::Lathe\Field\Relations\Associatable $associatable  [protected]
 Lathe\Rules\Relatable::Lathe\Field\Relations\RelationField $field  [protected]
@@ -2487,8 +2522,11 @@ class Lathe\Dashboards\DashboardRegistry
 class Lathe\Dashboards\Main
 class Lathe\Doctor\CheckResult
 class Lathe\Doctor\Doctor
+class Lathe\Events\ResourceAttached
+class Lathe\Events\ResourceAttachmentUpdated
 class Lathe\Events\ResourceCreated
 class Lathe\Events\ResourceDeleted
+class Lathe\Events\ResourceDetached
 class Lathe\Events\ResourceForceDeleted
 class Lathe\Events\ResourceRestored
 class Lathe\Events\ResourceUpdated
@@ -2598,6 +2636,7 @@ class Lathe\Http\Controllers\Resources\InlineUpdateController
 class Lathe\Http\Controllers\Resources\LensController
 class Lathe\Http\Controllers\Resources\PeekController
 class Lathe\Http\Controllers\Resources\RecordController
+class Lathe\Http\Controllers\Resources\RelationAttachController
 class Lathe\Http\Controllers\Resources\RelationIndexController
 class Lathe\Http\Controllers\Resources\SavedTabController
 class Lathe\Http\Controllers\Uploads\StartUploadController
@@ -2641,6 +2680,8 @@ class Lathe\Resources\ResourceRegistry
 class Lathe\Resources\TrafficCop
 class Lathe\Resources\ValidationPipeline
 class Lathe\Resources\Via
+class Lathe\Rules\NotAttached
+class Lathe\Rules\NotExactlyAttached
 class Lathe\Rules\Relatable
 class Lathe\SavedTabs\SavedTab
 class Lathe\SavedTabs\SavedTabQueryApplicator

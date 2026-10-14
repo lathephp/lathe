@@ -15,6 +15,7 @@ use Lathe\Events\ResourceDetached;
 use Lathe\Field\Field;
 use Lathe\Field\FieldCollection;
 use Lathe\Field\FieldContext;
+use Lathe\Field\Relations\Associatable;
 use Lathe\Field\Relations\BelongsToManyField;
 use Lathe\Http\Requests\LatheRequest;
 use Lathe\Lathe;
@@ -23,7 +24,6 @@ use Lathe\Query\ResourceQuery;
 use Lathe\Resources\Resource;
 use Lathe\Rules\NotAttached;
 use Lathe\Rules\NotExactlyAttached;
-use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 /**
  * Attach, detach and edit the pivot rows of a parent's belongsToMany, morphToMany or
@@ -36,7 +36,7 @@ class RelationAttachController
     public function attach(LatheRequest $request, ResourceAuthorization $authorization, string $resource, string $resourceId, string $relationship): JsonResponse
     {
         [$class, $parent, $field, $relation] = $this->resolve($request, $authorization, $resourceId, $relationship);
-        [$related, $key] = $this->relatedRecord($request, $field);
+        [$related, $key] = $this->relatedRecord($request, $class, $field);
 
         $this->authorizeIds($request, $authorization, $class, $parent, 'attach'.Str::studly($relationship), [$key]);
 
@@ -77,7 +77,7 @@ class RelationAttachController
 
         $this->authorizeIds($request, $authorization, $class, $parent, 'attach'.Str::studly($relationship), [$key]);
 
-        $fields = $this->pivotFields($request, $field, $relation->getRelated()->newQuery()->find($key));
+        $fields = $this->pivotFields($request, $field, (new Associatable($request, $class, $field))->query()?->option((string) $key));
         $this->validatePivot($request, $fields, FieldContext::Update);
 
         $changes = $this->pivotValues($request, $fields);
@@ -120,24 +120,21 @@ class RelationAttachController
      * The submitted related_id's record and its key, from the related Resource's relatable query;
      * 422 outside it.
      *
+     * @param  class-string<\Lathe\Resources\Resource>  $class
      * @return array{Model, int|string}
      */
-    protected function relatedRecord(LatheRequest $request, BelongsToManyField $field): array
+    protected function relatedRecord(LatheRequest $request, string $class, BelongsToManyField $field): array
     {
         Validator::make($request->all(), ['related_id' => ['required']])->validate();
 
         $id = $request->input('related_id');
-        $related = $field->relatedResource();
+        // The picker's own query: the related scopes, the field's relatableQuery and the parent's hook.
+        $record = is_int($id) || is_string($id) ? (new Associatable($request, $class, $field))->query()?->option((string) $id) : null;
 
-        try {
-            if ($related !== null && (is_int($id) || is_string($id))) {
-                $record = (new ResourceQuery($related::make(), $request, QueryContext::Relatable))->find($id);
-                $key = $record->getKey();
+        if ($record !== null) {
+            $key = $record->getKey();
 
-                return [$record, is_int($key) || is_string($key) ? $key : $id];
-            }
-        } catch (NotFoundHttpException) {
-            //
+            return [$record, is_int($key) || is_string($key) ? $key : $id];
         }
 
         throw ValidationException::withMessages([
