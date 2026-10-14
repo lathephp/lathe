@@ -83,6 +83,9 @@ These methods are on the tester that `LatheTest::resource()` returns.
 | Method | What it sends |
 |---|---|
 | `index(array $query = [])` | The index. The query takes `q` for search, `sort`, `per_page`, `filter` and the other URL state. |
+| `count(array $params = [])` | The total rows of the index, under `value`. |
+| `filters()` | The filters of the index. |
+| `show(string\|int $id)` | The detail page of a record, as Inertia JSON. The record is under `props.record`. |
 | `store(array $data)` | A create. |
 | `update(string\|int $id, array $data)` | An update. |
 | `delete(string\|int $id)` | A delete. |
@@ -96,6 +99,15 @@ These methods are on the tester that `LatheTest::resource()` returns.
 
 ```php
 LatheTest::resource('posts')->index(['q' => 'hello', 'per_page' => 50])->assertOk();
+```
+
+`show()` reads the page the panel draws, so assert on the page props:
+
+```php
+LatheTest::resource('posts')
+    ->show($post->getKey())
+    ->assertOk()
+    ->assertJsonPath('props.record.title', 'Hello');
 ```
 
 To test the rows a user is allowed to see, sign in as that user and read the index. A row that `indexQuery()` hides is missing from `table.rows`.
@@ -117,6 +129,29 @@ LatheTest::resource('posts')->batchDelete(['mode' => 'ids', 'ids' => $ids])->ass
 | `batchRestore(array $selection)` | Restores the selection. |
 
 > Note: A selection in mode `ids` needs at least one key. An empty list is refused with a 422, so a test cannot pass by acting on nothing.
+
+### Saved tabs
+
+A saved tab belongs to the signed-in user. The Resource must turn saved tabs on with `savedTabs()` in its definition.
+
+| Method | What it sends |
+|---|---|
+| `savedTabs()` | The user's saved tabs, under `tabs`. |
+| `createSavedTab(array $data)` | A new tab. `$data` takes `name`, `filters`, `q`, `sort`, `trashed`, `show_count` and `badge_type`. |
+| `updateSavedTab(string\|int $id, array $data)` | A change of a tab. Only the keys you send change. |
+| `deleteSavedTab(string\|int $id)` | A delete of a tab. |
+| `reorderSavedTabs(array $order)` | The new order, as a list of every one of the user's tab ids. |
+
+```php
+$posts = LatheTest::resource('posts');
+
+$id = $posts->createSavedTab(['name' => 'Drafts', 'filters' => ['status' => 'draft']])
+    ->assertCreated()
+    ->json('id');
+
+$posts->updateSavedTab($id, ['name' => 'My drafts'])->assertOk();
+$posts->deleteSavedTab($id)->assertNoContent();
+```
 
 ## Test actions
 
@@ -180,12 +215,22 @@ $tags->detach($tag->getKey())->assertOk();
 
 ## Test lenses and widgets
 
-`forLens()` returns a tester that sends its actions and batch calls, and reads its widgets, through a lens. `lens()` is another name for the same call.
+`forLens()` returns a tester that sends its index, count, filters, actions and batch calls, and reads its widgets, through a lens. `lens()` is another name for the same call.
 
 ```php
 $pending = LatheTest::resource('orders')->forLens('pending-orders');
 
+$pending->index()->assertOk()->assertJsonPath('lens.uriKey', 'pending-orders');
+$pending->count()->assertOk();
 $pending->actions()->assertOk();
+```
+
+`lenses()` lists the lenses the user may open. It reads them from the index page, as the panel does, so they are under `props.lenses`:
+
+```php
+LatheTest::resource('orders')
+    ->lenses()
+    ->assertJsonPath('props.lenses.0.uriKey', 'pending-orders');
 ```
 
 A resource tester also reads widgets. A widget is computed by its own request, so assert on the computed value and not on the list. The params go out as the query string. Widgets read `range`, `timezone`, `filters` and `resourceId`.
@@ -215,6 +260,16 @@ $main->widget('revenue', ['range' => 90])->assertOk();
 
 `LatheTest::dashboards()` lists the dashboards the user may see. `LatheTest::dashboard($uriKey)` returns a tester with `show()`, `widgets()` and `widget()`.
 
+## Test the global search
+
+`LatheTest::search($term)` sends the search of the command palette. The results are under `groups`, one group for each Resource:
+
+```php
+$groups = LatheTest::search('hello')->assertOk()->json('groups');
+
+expect(collect($groups)->firstWhere('resourceName', 'posts'))->not->toBeNull();
+```
+
 ## Helpers for your test class
 
 The `InteractsWithLathe` trait adds helpers to a test class. In Pest, add it with `uses()`:
@@ -228,6 +283,8 @@ uses(InteractsWithLathe::class);
 | Helper | What it does |
 |---|---|
 | `registerResources(string ...$classes)` | Registers Resources for the test without a provider. |
+| `registerDashboards(Dashboard\|string ...$dashboards)` | Registers dashboards for the test without a provider. |
+| `registerPlugins(Plugin ...$plugins)` | Registers plugins for the test without a provider. |
 | `flushLathe()` | Forgets every registered Resource and the cached list. Call it in `afterEach()`. |
 | `latheRequest(string $uri = '/lathe/api', string $method = 'GET', array $parameters = [])` | Builds a `LatheRequest` without sending it, for unit tests of code that takes one. |
 | `assertQueryCount(int $expected, Closure $request)` | Fails unless the closure runs exactly that many queries. The failure lists the SQL. |
@@ -251,9 +308,36 @@ The number 5 is an example. Run the test once, read the real count in the failur
 $this->assertScoped(PostModel::class, fn () => LatheTest::resource(Post::class)->index());
 ```
 
+## Assertions on Resources and actions
+
+Two more traits check a Resource or an action class without a request. Add them with `uses()`:
+
+```php
+use Lathe\Testing\ActionAssertions;
+use Lathe\Testing\ResourceAssertions;
+
+uses(ResourceAssertions::class, ActionAssertions::class);
+```
+
+| Assertion | What it checks |
+|---|---|
+| `assertResourceExists(string $class)` | The class is a Lathe Resource. |
+| `assertResourceFieldCount(string $class, int $expected)` | The Resource has that many fields. Fields inside sections and tabs count, the sections and tabs do not. |
+| `assertResourceHasField(string $class, string $attribute)` | The Resource has a field for that attribute. |
+| `assertResourceSearchable(string $class, array $columns)` | The Resource's searchable columns are exactly these. |
+| `assertActionExists(string $class)` | The class is a Lathe action. |
+| `assertActionResultType(ActionResult $result, string $type)` | The result is of that type: `message`, `danger`, `redirect`, `visit`, `download`, `modal`, `emit` or `deleted`. |
+| `assertActionSuccess(ActionResult $result)` | The result is a message that is not a danger message. |
+
+The action assertions take the `ActionResult` that the action's `handle()` returns:
+
+```php
+$this->assertActionResultType(ActionResult::redirect('/lathe/resources/posts'), 'redirect');
+```
+
 ## Test a plugin
 
-If you write a plugin and test it alone, extend `Lathe\Testing\TestCase`. It builds on Orchestra Testbench and registers the Inertia, Fortify and Lathe providers. It defines the `viewLathe` gate to admit every signed-in user, turns on `Model::preventLazyLoading()`, and calls `flushLathe()` after each test. It already uses `InteractsWithLathe`.
+If you write a plugin and test it alone, extend `Lathe\Testing\TestCase`. It builds on Orchestra Testbench and registers the Inertia, Fortify and Lathe providers. It defines the `viewLathe` gate to admit every signed-in user, turns on `Model::preventLazyLoading()`, and calls `flushLathe()` after each test. It already uses `InteractsWithLathe`, `ResourceAssertions` and `ActionAssertions`.
 
 ```php
 use Lathe\Testing\TestCase;
