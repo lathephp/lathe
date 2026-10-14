@@ -7,7 +7,8 @@ it('signs the admin in from the login page', function (string $project) {
         ->assertSee('Password')
         ->assertSee('Remember me')
         ->assertSee('Sign in')
-        ->assertDontSee('Forgot your password?')
+        ->assertSee('Forgot your password?')
+        ->assertAttribute('a[href$="/lathe/forgot-password"]', 'href', '/lathe/forgot-password')
         ->assertNoAccessibilityIssues();
 
     signInThroughForm($page, 'admin@lathephp.com');
