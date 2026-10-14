@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
+use Lathe\ActionEvents\Actionable;
 
 /**
  * @property int $id
@@ -18,6 +19,8 @@ use Illuminate\Database\Eloquent\Relations\MorphToMany;
 #[Fillable(['category_id', 'name', 'sku', 'price_cents'])]
 class Product extends Model
 {
+    use Actionable;
+
     /**
      * @return array<string, string>
      */

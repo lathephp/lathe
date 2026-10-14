@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Carbon;
+use Lathe\ActionEvents\Actionable;
 
 /**
  * @property int $id
@@ -20,6 +21,8 @@ use Illuminate\Support\Carbon;
 #[Fillable(['customer_id', 'number', 'status', 'total_cents', 'placed_at'])]
 class Order extends Model
 {
+    use Actionable;
+
     /**
      * @return array<string, string>
      */

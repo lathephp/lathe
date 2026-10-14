@@ -6,6 +6,8 @@ use Closure;
 use Composer\InstalledVersions;
 use Illuminate\Contracts\Container\Container;
 use Illuminate\Http\Request;
+use Lathe\ActionEvents\ActionEvent;
+use Lathe\ActionEvents\ActionEventRecorder;
 use Lathe\Assets\AssetManifest;
 use Lathe\Auth\FortifyConfig;
 use Lathe\Auth\PanelGate;
@@ -42,6 +44,9 @@ class LatheManager
 
     /** @var list<Closure(array<string, mixed>): void> */
     protected array $jobContextRestores = [];
+
+    /** @var class-string<ActionEvent> */
+    protected string $actionEventModel = ActionEvent::class;
 
     public function __construct(protected Container $container)
     {
@@ -141,6 +146,54 @@ class LatheManager
         $timezone = $this->userTimezone === null ? null : ($this->userTimezone)($request);
 
         return is_string($timezone) && in_array($timezone, \DateTimeZone::listIdentifiers(), true) ? $timezone : null;
+    }
+
+    /**
+     * Turn action event recording off for the callback, or for the rest of the current request
+     * or job when there is none.
+     *
+     * @template TReturn
+     *
+     * @param  (Closure(): TReturn)|null  $callback
+     * @return TReturn|null
+     */
+    public function withoutActionEvents(?Closure $callback = null): mixed
+    {
+        $recorder = $this->container->make(ActionEventRecorder::class);
+        $wasEnabled = $recorder->isEnabled();
+        $recorder->disable();
+
+        if ($callback === null) {
+            return null;
+        }
+
+        try {
+            return $callback();
+        } finally {
+            if ($wasEnabled) {
+                $recorder->enable();
+            }
+        }
+    }
+
+    /**
+     * Write action events through this model instead of ActionEvent.
+     *
+     * @param  class-string<ActionEvent>  $class
+     */
+    public function usingActionEvent(string $class): static
+    {
+        $this->actionEventModel = $class;
+
+        return $this;
+    }
+
+    /**
+     * @return class-string<ActionEvent>
+     */
+    public function actionEventModel(): string
+    {
+        return $this->actionEventModel;
     }
 
     /**

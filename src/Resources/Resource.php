@@ -521,6 +521,14 @@ abstract class Resource
     }
 
     /**
+     * Whether writes to this Resource leave action event rows.
+     */
+    public static function recordsActionEvents(): bool
+    {
+        return true;
+    }
+
+    /**
      * Where the panel goes after a create: the new record's detail page.
      */
     public static function redirectAfterCreate(LatheRequest $request, self $resource): string

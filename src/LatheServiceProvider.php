@@ -3,6 +3,7 @@
 namespace Lathe;
 
 use Illuminate\Contracts\Debug\ExceptionHandler;
+use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Contracts\Http\Kernel;
 use Illuminate\Cookie\Middleware\EncryptCookies;
 use Illuminate\Foundation\Console\AboutCommand;
@@ -12,6 +13,8 @@ use Illuminate\Routing\Router;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\ServiceProvider;
 use Laravel\Fortify\Fortify;
+use Lathe\ActionEvents\ActionEventListener;
+use Lathe\ActionEvents\ActionEventRecorder;
 use Lathe\Assets\AssetManifest;
 use Lathe\Assets\AssetRegistry;
 use Lathe\Assets\RootTags;
@@ -54,6 +57,7 @@ class LatheServiceProvider extends ServiceProvider
         $this->app->singleton(AssetRegistry::class);
         $this->app->singleton(FortifyConfig::class);
         $this->app->singleton(NotificationChannelRegistry::class, fn ($app) => new NotificationChannelRegistry(fn () => $app->isBooted()));
+        $this->app->scoped(ActionEventRecorder::class);
 
         // Lathe registers login and logout under its own path. Fortify's routes at the host root
         // stay off, unless the host published config/fortify.php and so uses Fortify itself.
@@ -73,6 +77,7 @@ class LatheServiceProvider extends ServiceProvider
         Blade::directive('latheScripts', fn () => '<?php echo app('.RootTags::class.'::class)->scripts(); ?>');
         $this->loadMigrationsFrom(__DIR__.'/../database/migrations');
         $this->registerMiddleware();
+        $this->app->make(Dispatcher::class)->subscribe(ActionEventListener::class);
 
         // The sidebar writes this cookie in the browser, so it is read unencrypted.
         EncryptCookies::except(['sidebar_state']);
