@@ -17,6 +17,13 @@ it('runs PHPStan at level 10 with no baseline', function () {
         ->and(glob(repoFile('*baseline*')))->toBe([]);
 });
 
+it('ignores vendor and node_modules links too, so landing a worktree never commits one', function () {
+    $patterns = array_map('trim', file(repoFile('.gitignore')) ?: []);
+
+    // A trailing slash matches folders only, and a worktree's vendor and node_modules are links.
+    expect($patterns)->toContain('/vendor', 'node_modules')->not->toContain('/vendor/', '/node_modules/');
+});
+
 it('keeps the PHPStan cache inside the checkout, out of the shared /tmp', function () {
     expect(File::get(repoFile('phpstan.neon')))->toMatch('/^\s*tmpDir:\s*\.phpstan-cache\s*$/m')
         ->and(File::get(repoFile('.gitignore')))->toContain('/.phpstan-cache/');
