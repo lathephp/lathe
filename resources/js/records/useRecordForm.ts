@@ -50,8 +50,12 @@ export function firstErrors(data: unknown): Record<string, string> {
 /**
  * The state and submit of a create or edit form. A failed submit keeps every typed value:
  * a 422 shows the messages under their fields, any other failure toasts with Retry.
+ * A create under a `via` sends it back, so the server forces the parent it names.
  */
-export function useRecordForm({ resource, mode, id, form }: Pick<FormProps, 'resource' | 'mode' | 'id' | 'form'>, onDone: (redirect: string) => void) {
+export function useRecordForm(
+  { resource, mode, id, form, via = null }: Pick<FormProps, 'resource' | 'mode' | 'id' | 'form'> & { via?: string | null },
+  onDone: (redirect: string) => void,
+) {
   const { __ } = useTranslation();
   const { apiPath } = useLathe();
   const [payload, setPayload] = useState<FormPayload>(form);
@@ -78,7 +82,7 @@ export function useRecordForm({ resource, mode, id, form }: Pick<FormProps, 'res
       setErrors({});
 
       try {
-        const result = await request<WriteResult>(updating ? `${base}/${String(id)}` : base, {
+        const result = await request<WriteResult>(updating ? `${base}/${String(id)}` : via === null ? base : `${base}?via=${encodeURIComponent(via)}`, {
           method: updating ? 'PUT' : 'POST',
           body: updating && token !== undefined ? { ...submittable(values, payload.fields, resource.uriKey), _updated_at: token } : submittable(values, payload.fields, resource.uriKey),
         });
