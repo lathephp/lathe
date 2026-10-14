@@ -25,6 +25,15 @@ abstract class TestCase extends Orchestra
      */
     protected static ?string $serverDatabase = null;
 
+    /**
+     * Spatie's Gate::before reads the permissions table on every check, and most tests sign in
+     * a user that was never saved. A test that grants through Spatie registers the hook itself.
+     */
+    protected function defineEnvironment($app): void
+    {
+        $app['config']->set('permission.register_permission_check_method', false);
+    }
+
     protected function setUp(): void
     {
         parent::setUp();
