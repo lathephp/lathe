@@ -121,6 +121,8 @@ it('serves a registered module by its content hash, and nothing else', function 
 });
 
 it('renders the plugin page for an authorized plugin', function () {
+    // The page's sidebar runs the workbench Insights badge, which counts orders.
+    $this->artisan('migrate')->assertSuccessful();
     registerBeacon();
     signIn();
 

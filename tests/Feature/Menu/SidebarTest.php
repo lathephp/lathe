@@ -93,7 +93,7 @@ it('runs a lazy badge once within its TTL, per user', function () {
 
     $this->freezeTime();
 
-    expect(sidebarProps()['navigationBadges'])->toBe(['/lathe/resources/orders' => ['value' => '7', 'type' => 'warning']]);
+    expect(sidebarProps()['navigationBadges']['/lathe/resources/orders'])->toBe(['value' => '7', 'type' => 'warning']);
 
     $this->travel(59)->seconds();
     sidebarProps();
@@ -117,7 +117,7 @@ it('runs a lazy badge with a TTL of 0 on every view', function () {
 
     sidebarProps();
 
-    expect(sidebarProps()['navigationBadges'])->toBe(['/lathe/resources/orders' => ['value' => '2', 'type' => 'info']])
+    expect(sidebarProps()['navigationBadges']['/lathe/resources/orders'])->toBe(['value' => '2', 'type' => 'info'])
         ->and($runs)->toBe(2);
 });
 
@@ -157,7 +157,7 @@ it('keeps an explicit menu item where the app put it and drops the automatic ent
 
     expect(array_count_values(sidebarHrefs($navigation)))->toMatchArray(['/lathe/resources/orders' => 1, '/lathe/dashboards/sales' => 1])
         ->and(sidebarHrefs($navigation[0]['items']))->toBe(['/lathe'])
-        ->and(sidebarHrefs($navigation[1]['items']))->toBe(['/lathe/resources/orders', '/lathe/dashboards/sales']);
+        ->and(sidebarHrefs($navigation[2]['items']))->toBe(['/lathe/resources/orders', '/lathe/dashboards/sales']);
 });
 
 it('replaces a Resource default entry with its own menu() item', function () {
