@@ -100,3 +100,43 @@ describe('the row menu Impersonate entry', () => {
     expect(JSON.parse(call?.[1].body as string)).toEqual({ resource: 'users', resourceId: 2 });
   });
 });
+
+describe('the detail page Impersonate button', () => {
+  function renderUser(impersonate: boolean) {
+    return renderPage('Resources/Detail', {
+      resource: { uriKey: 'users', label: 'Users', singularLabel: 'User', abilities: { create: false } },
+      record: {
+        id: 2,
+        title: 'Editor User',
+        subtitle: '',
+        avatar: null,
+        fields: [],
+        layout: [],
+        abilities: { view: true, update: false, delete: false, replicate: false, restore: false, forceDelete: false, impersonate },
+        trashed: false,
+      },
+      breadcrumbs: [],
+    });
+  }
+
+  it('is absent without the ability', () => {
+    renderUser(false);
+
+    expect(screen.queryByRole('button', { name: 'Impersonate' })).toBeNull();
+  });
+
+  it('posts the resource and record key, then visits the redirect', async () => {
+    const fetch = vi.spyOn(globalThis, 'fetch').mockResolvedValue(json({ redirect: '/lathe' }));
+    const visit = vi.spyOn(router, 'visit').mockImplementation(() => undefined);
+    renderUser(true);
+
+    fireEvent.click(screen.getByRole('button', { name: 'Impersonate' }));
+
+    await waitFor(() => {
+      expect(visit).toHaveBeenCalledWith('/lathe');
+    });
+    const [call] = impersonateCalls(fetch);
+    expect(call?.[1].method).toBe('POST');
+    expect(JSON.parse(call?.[1].body as string)).toEqual({ resource: 'users', resourceId: 2 });
+  });
+});

@@ -31,6 +31,11 @@ function isLink(action: MenuAction): action is LinkAction {
   return action === 'view' || action === 'edit' || action === 'replicate';
 }
 
+// The helper loads on the click, so the index's first load leaves it out. It sits outside the
+// component because the React Compiler skips a component that holds an import().
+const startImpersonating = (basePath: string, resource: string, resourceId: string | number) =>
+  import('../layout/impersonate').then((module) => module.impersonate(basePath, { resource, resourceId }));
+
 const itemClass =
   'flex w-full items-center rounded-md px-2 py-1.5 text-start text-sm outline-none hover:bg-muted focus-visible:ring-2 focus-visible:ring-ring';
 
@@ -154,10 +159,7 @@ export function RowMenu({ uriKey, row }: { uriKey: string; row: Row }) {
               className={itemClass}
               onClick={() => {
                 setOpen(false);
-                // The helper loads on the click, so the index's first load leaves it out.
-                import('../layout/impersonate')
-                  .then((module) => module.impersonate(basePath, { resource: uriKey, resourceId: row.id }))
-                  .catch(() => undefined);
+                startImpersonating(basePath, uriKey, row.id).catch(() => undefined);
               }}
             >
               {__('Impersonate')}

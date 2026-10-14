@@ -6,6 +6,10 @@ import type { DetailRecord } from '../fields/types';
 
 type Action = 'delete' | 'restore' | 'forceDelete';
 
+// The helper loads on the click, so the detail page's first load leaves it out.
+const startImpersonating = (basePath: string, resource: string, resourceId: string | number) =>
+  import('../layout/impersonate').then((module) => module.impersonate(basePath, { resource, resourceId }));
+
 interface RecordActionsProps {
   uriKey: string;
   record: DetailRecord;
@@ -60,12 +64,9 @@ export function RecordActions({ uriKey, record }: RecordActionsProps) {
           className="inline-flex h-9 items-center rounded-md border border-input px-4 text-sm font-medium"
           onClick={() => {
             setBusy(true);
-            // The helper loads on the click, so the detail page's first load leaves it out.
-            import('../layout/impersonate')
-              .then((module) => module.impersonate(basePath, { resource: uriKey, resourceId: record.id }))
-              .catch(() => {
-                setBusy(false);
-              });
+            startImpersonating(basePath, uriKey, record.id).catch(() => {
+              setBusy(false);
+            });
           }}
         >
           {__('Impersonate')}
