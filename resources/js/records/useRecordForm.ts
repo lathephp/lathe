@@ -51,16 +51,18 @@ export function firstErrors(data: unknown): Record<string, string> {
  * The state and submit of a create or edit form. A failed submit keeps every typed value:
  * a 422 shows the messages under their fields, any other failure toasts with Retry.
  * A create under a `via` sends it back, so the server forces the parent it names.
+ * A form in a modal passes `drafts: false`: the draft key is the page's, and the modal
+ * must neither restore nor clear the draft of the form behind it.
  */
 export function useRecordForm(
-  { resource, mode, id, form, via = null }: Pick<FormProps, 'resource' | 'mode' | 'id' | 'form'> & { via?: string | null },
-  onDone: (redirect: string) => void,
+  { resource, mode, id, form, via = null, drafts = true }: Pick<FormProps, 'resource' | 'mode' | 'id' | 'form'> & { via?: string | null; drafts?: boolean },
+  onDone: (redirect: string, id: string | number) => void,
 ) {
   const { __ } = useTranslation();
   const { apiPath } = useLathe();
   const [payload, setPayload] = useState<FormPayload>(form);
   const attributes = persistable(form.fields);
-  const [saved] = useState(() => readDraft(attributes));
+  const [saved] = useState(() => (drafts ? readDraft(attributes) : null));
   const [values, setValues] = useState<Record<string, unknown>>(() => ({ ...initialValues(form.fields), ...saved }));
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [busy, setBusy] = useState(false);
@@ -68,7 +70,8 @@ export function useRecordForm(
   const [reauth, setReauth] = useState<SubmitIntent | null>(null);
   /** A 409: someone saved the record since this form loaded. */
   const [conflict, setConflict] = useState<{ intent: SubmitIntent; updatedAt: string | null } | null>(null);
-  const draft = useFormDraft(values, attributes, saved !== null);
+  const stored = useFormDraft(values, attributes, saved !== null);
+  const draft = drafts ? stored : { restored: false, touch: () => undefined, clear: () => undefined };
   const base = `${apiPath}/resources/${resource.uriKey}`;
   const updating = mode === 'update';
 
@@ -102,7 +105,7 @@ export function useRecordForm(
 
           toast.success(__(':resource updated.', { resource: resource.singularLabel }));
         } else if (result !== null) {
-          onDone(result.redirect);
+          onDone(result.redirect, result.id);
         }
       } catch (error) {
         if (error instanceof ApiError && error.status === 409) {

@@ -1,17 +1,11 @@
 import { Head, Link, router, usePage } from '@inertiajs/react';
 import { useTranslation } from '@lathephp/core';
-import { useEffect, useMemo, useRef, useState } from 'react';
-import { FieldError } from '../../components/FieldError';
-import { passes } from '../../fields/conditions';
-import { FormField, stringValue } from '../../fields/registry';
-import { RepeaterErrorsContext } from '../../fields/repeater/errors';
-import type { FormFieldData, FormProps } from '../../fields/types';
-import { cn } from '../../lib/cn';
+import { useEffect, useRef } from 'react';
+import type { FormProps } from '../../fields/types';
 import { Breadcrumbs } from '../../records/Breadcrumbs';
 import { ConflictDialog } from '../../records/ConflictDialog';
+import { FormFields } from '../../records/FormFields';
 import { ReauthModal } from '../../records/ReauthModal';
-import { useDependentFields } from '../../records/useDependentFields';
-import { RecordLayout } from '../../records/RecordLayout';
 import { useRecordForm, type SubmitIntent } from '../../records/useRecordForm';
 import type { SharedProps } from '../../types';
 
@@ -29,20 +23,6 @@ export default function Form({ resource, mode, id, title, breadcrumbs, form, sub
 
     router.visit(`${basePath}/resources/${parent ?? redirect}`);
   });
-  const byKey = new Map(record.payload.fields.map((field) => [field.key, field]));
-  // The attributes the user typed in: a dependsOn patch never overwrites them.
-  const [dirty, setDirty] = useState<ReadonlySet<string>>(() => new Set());
-  const patches = useDependentFields({
-    uriKey: resource.uriKey,
-    mode,
-    id,
-    fields: record.payload.fields,
-    values: record.values,
-    dirty,
-    apply: record.applyValues,
-  });
-  // One Set per failed submit, so the layout opens the marked tab once.
-  const errorKeys = useMemo(() => new Set(Object.keys(record.errors).map((key) => key.split('.')[0] ?? key)), [record.errors]);
   const updating = mode === 'update';
   const cancelHref = updating ? `${basePath}/resources/${resource.uriKey}/${String(id)}` : `${basePath}/resources/${resource.uriKey}`;
 
@@ -71,44 +51,7 @@ export default function Form({ resource, mode, id, title, breadcrumbs, form, sub
           submit('default');
         }}
       >
-        <RepeaterErrorsContext value={record.errors}>
-          <RecordLayout
-            blocks={record.payload.layout}
-            borderless={record.payload.borderless === true}
-            errorKeys={errorKeys}
-            renderField={(key) => {
-              const field = byKey.get(key);
-
-              const patch = patches[key] ?? {};
-
-              if (field === undefined || patch.visible === false || (patch.visible !== true && field.visibleWhen != null && !passes(field.visibleWhen, record.values))) {
-                return null;
-              }
-
-              const from = field.optionsFrom as { field: string; map: Record<string, unknown> } | null | undefined;
-              const decided = {
-                ...field,
-                ...(from == null ? {} : { options: from.map[stringValue(record.values[from.field])] ?? [] }),
-                ...(patch.options === undefined ? {} : { options: patch.options }),
-                required: patch.required ?? (field.required === true || (field.requiredWhen != null && passes(field.requiredWhen, record.values))),
-                readonly: patch.readonly ?? (field.readonly === true || (field.readonlyWhen != null && passes(field.readonlyWhen, record.values))),
-              };
-
-              return (
-                <FormRow
-                  field={decided}
-                  value={record.values[field.attribute]}
-                  values={record.values}
-                  error={record.errors[field.attribute]}
-                  onChange={(value) => {
-                    setDirty((current) => new Set(current).add(field.attribute));
-                    record.setValue(field.attribute, value);
-                  }}
-                />
-              );
-            }}
-          />
-        </RepeaterErrorsContext>
+        <FormFields uriKey={resource.uriKey} mode={mode} id={id} record={record} />
         <div className="flex flex-wrap items-center justify-end gap-2">
           {record.draft.restored ? (
             <button type="button" className="me-auto h-9 rounded-md px-4 text-sm" onClick={record.draft.discard}>
@@ -157,46 +100,6 @@ export default function Form({ resource, mode, id, title, breadcrumbs, form, sub
           onClose={record.cancelReauth}
         />
       )}
-    </div>
-  );
-}
-
-function FormRow({ field, value, values, error, onChange }: { field: FormFieldData; value: unknown; values: Record<string, unknown>; error: string | undefined; onChange: (value: unknown) => void }) {
-  const id = `field-${field.attribute}`;
-  const helpId = field.help === null ? undefined : `${id}-help`;
-  const errorId = error === undefined ? undefined : `${id}-error`;
-  const describedBy = [helpId, errorId].filter((part) => part !== undefined).join(' ') || undefined;
-
-  return (
-    <div className={cn('gap-2 px-4 py-3 text-sm', field.stacked ? 'flex flex-col' : 'grid md:grid-cols-[minmax(0,1fr)_minmax(0,3fr)]')}>
-      {field.compact ? null : (
-        <label htmlFor={id} className="pt-2 font-medium">
-          {field.label}
-          {field.required === true ? (
-            <span aria-hidden="true" className="ms-0.5 text-destructive">
-              *
-            </span>
-          ) : null}
-        </label>
-      )}
-      <div className="min-w-0 space-y-1">
-        <FormField
-          field={field}
-          value={value}
-          values={values}
-          onChange={onChange}
-          id={id}
-          describedBy={describedBy}
-          invalid={error !== undefined}
-          disabled={field.readonly === true}
-        />
-        {helpId === undefined ? null : (
-          <p id={helpId} className="text-xs text-muted-foreground">
-            {field.help}
-          </p>
-        )}
-        {errorId === undefined ? null : <FieldError id={errorId} message={error} />}
-      </div>
     </div>
   );
 }

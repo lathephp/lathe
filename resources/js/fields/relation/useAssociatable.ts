@@ -32,13 +32,25 @@ interface Options {
 }
 
 /**
+ * Where a relation field's options come from: the edit form's route when the page is an edit
+ * form or names a record, the create form's route otherwise.
+ */
+export function useAssociatableEndpoint(field: FieldSchema, record?: LookupRecord): string {
+  const { apiPath } = useLathe();
+  const shared = useSyncExternalStore(__panel.sharedProps.subscribe, __panel.sharedProps.get);
+  const uriKey = record?.uriKey ?? (shared.resource as { uriKey?: string } | undefined)?.uriKey ?? '';
+  const attribute = typeof field.relationship === 'string' ? field.relationship : field.attribute;
+  const id = record?.id ?? (shared.mode === 'update' ? String(shared.id) : undefined);
+
+  return id !== undefined ? `${apiPath}/resources/${uriKey}/${String(id)}/${attribute}/associatable` : `${apiPath}/resources/${uriKey}/associatable/${attribute}`;
+}
+
+/**
  * The options of a relation field, one server page at a time. Opening asks at once, a typed
  * term waits the field's debounce (500 ms by default), and a failure toasts with Retry.
  */
 export function useAssociatable(field: FieldSchema, { open, term, withTrashed, type, record }: Options) {
   const { __ } = useTranslation();
-  const { apiPath } = useLathe();
-  const shared = useSyncExternalStore(__panel.sharedProps.subscribe, __panel.sharedProps.get);
   const [query, setQuery] = useState(term.trim());
   // A new term or With Trashed starts again at page 1.
   const key = `${query}|${String(withTrashed)}`;
@@ -48,10 +60,7 @@ export function useAssociatable(field: FieldSchema, { open, term, withTrashed, t
   const [result, setResult] = useState<{ items: AssociatableItem[]; hasMore: boolean; loaded: boolean }>({ items: [], hasMore: false, loaded: false });
   const debounce = typeof field.debounce === 'number' ? field.debounce : 500;
 
-  const uriKey = record?.uriKey ?? (shared.resource as { uriKey?: string } | undefined)?.uriKey ?? '';
-  const attribute = typeof field.relationship === 'string' ? field.relationship : field.attribute;
-  const id = record?.id ?? (shared.mode === 'update' ? String(shared.id) : undefined);
-  const endpoint = id !== undefined ? `${apiPath}/resources/${uriKey}/${String(id)}/${attribute}/associatable` : `${apiPath}/resources/${uriKey}/associatable/${attribute}`;
+  const endpoint = useAssociatableEndpoint(field, record);
 
   useEffect(() => {
     const timer = setTimeout(() => {
