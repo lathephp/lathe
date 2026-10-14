@@ -9,7 +9,10 @@ The demo server is separate from the benchmark server: 2 dedicated vCPUs, 8 GB R
 No secret is written here or in the repository. `deploy.sh` generates the database password
 and Laravel's `APP_KEY` on the server and keeps both in `/srv/lathe-demo/.env`
 (mode 640, group www-data). The demo's sign-in, admin@lathephp.com with the password
-`password`, is public on purpose: the login screen prints it.
+`password`, is public on purpose: the login screen prints it. So that no visitor can lock
+the others out, the demo refuses to change or delete the seeded accounts admin@, editor@
+and guest@lathephp.com, and turns on no account screen that changes a password or turns on
+two-factor.
 
 ## What runs where
 

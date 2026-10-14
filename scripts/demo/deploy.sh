@@ -255,7 +255,9 @@ set_env CACHE_STORE file
 set_env AUTH_MODEL 'Workbench\App\Models\User'
 set_env LATHE_DEMO true
 set_env LATHE_IMPERSONATION_STARTED /lathe
-set_env LATHE_FORTIFY_FEATURES update-passwords,two-factor-authentication,email-verification
+# Every visitor shares the printed sign-in, so no account screen may change a password or
+# turn on two-factor and lock the others out.
+set_env LATHE_FORTIFY_FEATURES email-verification
 [[ -n $(env_value APP_KEY) ]] || php artisan key:generate --force -q
 
 php artisan vendor:publish --tag=lathe-config --force -q

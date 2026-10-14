@@ -80,6 +80,18 @@ total=$(api "$base/lathe/api/resources/orders/count" | json '$p["value"] ?? 0')
 echo "      Orders: Showing 1 to $rows of $(php -r "echo number_format($total);") (perPage $per_page)"
 check "Orders shows 25 rows of 1,000" test "$rows/$per_page/$total" = 25/25/1000
 
+admin=$(mysql -N lathe_demo -e "select id from users where email = 'admin@lathephp.com'")
+code=$(api -o /root/password.json -w '%{http_code}' -X PUT -H 'Content-Type: application/json' \
+    -d '{"name":"Admin User","email":"admin@lathephp.com","password":"taken-over","password_confirmation":"taken-over"}' \
+    "$base/lathe/api/resources/users/$admin")
+echo "      PUT a new password on admin@lathephp.com (id $admin) through the Users API: $code $(cat /root/password.json)"
+check "changing admin's password through the API is refused with 403" test "$code" = 403
+account=$(api -o /dev/null -w '%{http_code}' -X PUT -H 'Content-Type: application/json' \
+    -d '{"current_password":"password","password":"taken-over","password_confirmation":"taken-over"}' "$base/lathe/user-security/password")
+account+=" $(api -o /dev/null -w '%{http_code}' -X POST "$base/lathe/user/two-factor-authentication")"
+echo "      PUT /lathe/user-security/password, POST /lathe/user/two-factor-authentication: $account"
+check "the account screens can neither change a password nor turn on two-factor" test "$account" = "404 404"
+
 cd /srv/lathe-demo || exit 1
 settings=$(runuser -u www-data -- env HOME=/tmp php artisan tinker --execute 'echo implode(" ", [config("mail.default"), config("lathe.uploads.max_file_size_mb"), config("lathe.uploads.max_image_size_mb"), config("lathe.imports.max_file_size_mb"), config("lathe.exports.prune_after_hours")]);')
 echo "      mail, file MB, image MB, import MB, export prune hours: $settings"
