@@ -126,7 +126,7 @@ describe('useExecuteAction', () => {
     expect(answer).toEqual(run);
     expect(fetch.mock.calls[0]?.[0]).toBe('/lathe/api/resources/orders/action');
     expect(JSON.parse(fetch.mock.calls[0]?.[1]?.body as string)).toEqual({ fields: {}, action: 'mark-paid', selection: { mode: 'ids', ids: [1, 2] } });
-    expect(heard).toHaveBeenCalledWith({ resource: 'orders' });
+    expect(heard).toHaveBeenCalledWith({ action: 'mark-paid' });
     expect(queryClient.getQueryState(queryKeys.resourceIndex('orders', {}))?.isInvalidated).toBe(true);
   });
 });

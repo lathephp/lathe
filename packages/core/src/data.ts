@@ -133,7 +133,7 @@ export function useExecuteAction(resource: string) {
   const { run, data, error, isPending } = useWrite(
     async (input: { action: string; selection: { mode: 'ids'; ids: (string | number)[] } | { mode: 'all'; [key: string]: unknown }; fields?: Record<string, unknown> }) => {
       const answer = await body<ActionRun>(`${apiPath}/resources/${resource}/action`, { method: 'POST', body: { fields: {}, ...input }, toastOnError: false });
-      emit('actions:ran', { resource });
+      emit('actions:ran', { action: input.action });
       await client.invalidateQueries({ queryKey: ['resource', resource] });
 
       return answer;
