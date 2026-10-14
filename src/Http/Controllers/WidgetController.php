@@ -2,6 +2,7 @@
 
 namespace Lathe\Http\Controllers;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\JsonResponse;
 use Lathe\Auth\ResourceAuthorization;
 use Lathe\Dashboards\DashboardRegistry;
@@ -13,7 +14,6 @@ use Lathe\Query\ResourceQuery;
 use Lathe\Resources\Resource;
 use Lathe\Widgets\Widget;
 use Lathe\Widgets\WidgetList;
-use Lathe\Widgets\WidgetPresenter;
 
 /**
  * Widget lists and values of dashboards, Resource pages and lenses. An unknown key
@@ -35,7 +35,7 @@ class WidgetController
 
     public function dashboardShow(LatheRequest $request, string $dashboard, string $widget): JsonResponse
     {
-        return $this->value($request, $this->dashboardWidgets($request, $dashboard), $widget);
+        return $this->value($request, $this->dashboardWidgets($request, $dashboard), $widget, owner: 'dashboard:'.$dashboard);
     }
 
     public function resourceIndex(LatheRequest $request): JsonResponse
@@ -49,7 +49,14 @@ class WidgetController
     {
         [$class, $list, $detail] = $this->resourceWidgets($request);
 
-        return $this->value($request, $list, $widget, $detail, fn (Widget $found) => $this->authorization->allowsWidget($request->user(), $class, $found::uriKey()));
+        $resourceId = $detail ? $request->query('resourceId') : '';
+
+        return $this->value(
+            $request, $list, $widget, $detail,
+            fn (Widget $found) => $this->authorization->allowsWidget($request->user(), $class, $found::uriKey()),
+            'resource:'.$class::uriKey().':'.(is_string($resourceId) ? $resourceId : ''),
+            fn (Widget $found) => $found->withResourceScope($class::newModel()::class, fn (Builder $query) => $class::widgetQuery($request, $query)),
+        );
     }
 
     public function lensIndex(LatheRequest $request): JsonResponse
@@ -63,7 +70,12 @@ class WidgetController
     {
         [$class, $found] = $this->viewableLens($request);
 
-        return $this->value($request, new WidgetList($found->widgets($request), $found::class), $widget, false, fn (Widget $w) => $this->authorization->allowsWidget($request->user(), $class, $w::uriKey()));
+        return $this->value(
+            $request, new WidgetList($found->widgets($request), $found::class), $widget, false,
+            fn (Widget $w) => $this->authorization->allowsWidget($request->user(), $class, $w::uriKey()),
+            'lens:'.$class::uriKey().':'.$found->uriKey(),
+            fn (Widget $w) => $w->withResourceScope($class::newModel()::class, fn (Builder $query) => $found::query($request, $class::widgetQuery($request, $query))),
+        );
     }
 
     /**
@@ -78,15 +90,21 @@ class WidgetController
 
     /**
      * @param  (callable(Widget): bool)|null  $allows
+     * @param  string  $owner  where the card is mounted, for its cache key
+     * @param  (callable(Widget): mixed)|null  $scope  binds the host Resource's row scope
      */
-    protected function value(LatheRequest $request, WidgetList $list, string $uriKey, bool $detail = false, ?callable $allows = null): JsonResponse
+    protected function value(LatheRequest $request, WidgetList $list, string $uriKey, bool $detail = false, ?callable $allows = null, string $owner = '', ?callable $scope = null): JsonResponse
     {
         $widget = $list->find($uriKey);
 
         abort_if($widget === null || ! $widget->requestsValue() || ($widget->isOnlyOnDetail() && ! $detail), 404);
         abort_unless($widget->authorize($request) && ($allows === null || $allows($widget)), 403);
 
-        return new JsonResponse((new WidgetPresenter($widget))->toResponse($request));
+        if ($scope !== null) {
+            $scope($widget);
+        }
+
+        return new JsonResponse($widget->withCacheOwner($owner)->cachedResponse($request));
     }
 
     protected function dashboardWidgets(LatheRequest $request, string $uriKey): WidgetList

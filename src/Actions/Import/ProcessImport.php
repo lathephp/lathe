@@ -18,6 +18,7 @@ use Lathe\Actions\Export\ExportWriter;
 use Lathe\Lathe;
 use Lathe\Support\ConfigStore;
 use Lathe\Support\JobContext;
+use Lathe\Widgets\WidgetCache;
 use LogicException;
 use OpenSpout\Common\Entity\Row;
 use OpenSpout\Writer\CSV\Writer;
@@ -120,6 +121,8 @@ class ProcessImport implements ShouldQueue
         if ($chunk !== []) {
             $this->processChunk($import, $chunk);
         }
+
+        app(WidgetCache::class)->flushTables([$this->newModel()->getTable()]);
 
         if ($import->failed_rows > 0) {
             $import->error_file = $this->writeErrorFile($import);

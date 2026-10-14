@@ -17,6 +17,7 @@ use Lathe\Query\ResourceQuery;
 use Lathe\Resources\TrafficCop;
 use Lathe\Resources\ValidationPipeline;
 use Lathe\Resources\Via;
+use Lathe\Widgets\WidgetCache;
 
 /**
  * Create and update one record. Validation runs first; the before hook, the fill, the save,
@@ -48,6 +49,7 @@ class RecordController
             event(new ResourceCreated($model, $class));
         });
 
+        app(WidgetCache::class)->flushTables([$model->getTable()]);
         $class::afterCreate($request, $model);
 
         return new JsonResponse([
@@ -82,6 +84,7 @@ class RecordController
             event(new ResourceUpdated($model, $class, array_intersect_key($original, $changes), $changes));
         });
 
+        app(WidgetCache::class)->flushTables([$model->getTable()]);
         $class::afterUpdate($request, $model);
 
         return new JsonResponse([

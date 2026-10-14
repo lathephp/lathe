@@ -23,6 +23,7 @@ use Lathe\Query\Selection;
 use Lathe\Query\SelectionResolver;
 use Lathe\Resources\Resource;
 use Lathe\Support\JobContext;
+use Lathe\Widgets\WidgetCache;
 use Throwable;
 
 /**
@@ -113,6 +114,7 @@ class ActionDispatcher
 
         $action->withActionBatchId($this->record($request, $action, $permitted, $class, $fields));
         $run = $this->runChunk($action, $fields, $permitted);
+        app(WidgetCache::class)->flushTables([$permitted->firstOrFail()->getTable()]);
         $failed = count($run['errors']);
         $succeeded = $permitted->count() - $failed;
 
@@ -241,6 +243,7 @@ class ActionDispatcher
                 ->update(['status' => ActionEventStatus::Finished->value, 'updated_at' => now()]);
         }
 
+        app(WidgetCache::class)->flushTables([$first->getTable()]);
         event(new ActionExecuted($action, $models));
     }
 
@@ -335,6 +338,7 @@ class ActionDispatcher
             Lathe::actionEventModel()::markBatchAsFinished($batchId);
         }
 
+        app(WidgetCache::class)->flushTables([$class::newModel()->getTable()]);
         event(new ActionExecuted($action, $models));
         $action->runThen($models);
 

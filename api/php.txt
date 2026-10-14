@@ -2444,7 +2444,7 @@ Lathe\Http\Controllers\WidgetController::list(Lathe\Http\Requests\LatheRequest $
 Lathe\Http\Controllers\WidgetController::resourceIndex(Lathe\Http\Requests\LatheRequest $request): Illuminate\Http\JsonResponse
 Lathe\Http\Controllers\WidgetController::resourceShow(Lathe\Http\Requests\LatheRequest $request, string $resource, string $widget): Illuminate\Http\JsonResponse
 Lathe\Http\Controllers\WidgetController::resourceWidgets(Lathe\Http\Requests\LatheRequest $request): array  [protected]
-Lathe\Http\Controllers\WidgetController::value(Lathe\Http\Requests\LatheRequest $request, Lathe\Widgets\WidgetList $list, string $uriKey, bool $detail = false, ?callable $allows = NULL): Illuminate\Http\JsonResponse  [protected]
+Lathe\Http\Controllers\WidgetController::value(Lathe\Http\Requests\LatheRequest $request, Lathe\Widgets\WidgetList $list, string $uriKey, bool $detail = false, ?callable $allows = NULL, string $owner = '', ?callable $scope = NULL): Illuminate\Http\JsonResponse  [protected]
 Lathe\Http\Controllers\WidgetController::viewableLens(Lathe\Http\Requests\LatheRequest $request): array  [protected]
 Lathe\Http\ErrorPages::Lathe\Auth\FortifyConfig $fortify  [protected]
 Lathe\Http\ErrorPages::STATUSES
@@ -4112,28 +4112,39 @@ Lathe\Widgets\ValueWidget::min(Lathe\Http\Requests\LatheRequest $request, Illumi
 Lathe\Widgets\ValueWidget::ranges(): array
 Lathe\Widgets\ValueWidget::resolve(Lathe\Http\Requests\LatheRequest $request): mixed
 Lathe\Widgets\ValueWidget::sum(Lathe\Http\Requests\LatheRequest $request, Illuminate\Database\Eloquent\Builder|Illuminate\Database\Eloquent\Model|string $model, Illuminate\Contracts\Database\Query\Expression|string $column, ?string $dateColumn = NULL): Lathe\Widgets\Results\ValueResult  [protected]
+Lathe\Widgets\Widget::?Closure $resourceScope  [protected]
 Lathe\Widgets\Widget::?Closure $seeCallback  [protected]
 Lathe\Widgets\Widget::?Lathe\Widgets\Tooltip $tooltip  [protected]
 Lathe\Widgets\Widget::?string $component  [protected]
 Lathe\Widgets\Widget::?string $helpText  [protected]
+Lathe\Widgets\Widget::?string $resourceScopeModel  [protected]
 Lathe\Widgets\Widget::Lathe\Enums\CardWidth $width  [protected]
 Lathe\Widgets\Widget::__construct()
 Lathe\Widgets\Widget::aggregateQuery(Illuminate\Database\Eloquent\Builder|Illuminate\Database\Eloquent\Model|string $model): Lathe\Widgets\AggregateQuery  [protected]
 Lathe\Widgets\Widget::applyAttributes(): void  [protected]
+Lathe\Widgets\Widget::applyResourceScope(Illuminate\Database\Eloquent\Builder $query): Illuminate\Database\Eloquent\Builder
+Lathe\Widgets\Widget::array $aggregates  [protected]
+Lathe\Widgets\Widget::array $cacheTags  [protected]
 Lathe\Widgets\Widget::array $meta  [protected]
 Lathe\Widgets\Widget::attribute(string $attribute): ?object  [protected]
 Lathe\Widgets\Widget::authorize(Illuminate\Http\Request $request): bool
+Lathe\Widgets\Widget::bool $cacheAcrossUsers  [protected]
 Lathe\Widgets\Widget::bool $onlyOnDetail  [protected]
 Lathe\Widgets\Widget::bool $refreshWhenActionsRun  [protected]
 Lathe\Widgets\Widget::bool $refreshWhenFiltersChange  [protected]
 Lathe\Widgets\Widget::bool $roundingSet  [protected]
+Lathe\Widgets\Widget::cacheAcrossUsers(bool $on = true): static
 Lathe\Widgets\Widget::cacheFor(): DateTimeInterface|DateInterval|int|null
+Lathe\Widgets\Widget::cacheKey(Lathe\Http\Requests\LatheRequest $request): string  [protected]
+Lathe\Widgets\Widget::cacheTags(array $tags): static
+Lathe\Widgets\Widget::cachedResponse(Lathe\Http\Requests\LatheRequest $request): array
 Lathe\Widgets\Widget::calculate(Lathe\Http\Requests\LatheRequest $request): mixed
 Lathe\Widgets\Widget::canSee(Closure $callback): static
 Lathe\Widgets\Widget::canSeeWhen(string $ability, mixed $arguments = array ( )): static
 Lathe\Widgets\Widget::component(): string
 Lathe\Widgets\Widget::descriptor(): array
 Lathe\Widgets\Widget::doubleHeight(): static
+Lathe\Widgets\Widget::freshResponse(Lathe\Http\Requests\LatheRequest $request): array  [protected]
 Lathe\Widgets\Widget::fullWidth(): static
 Lathe\Widgets\Widget::halfWidth(): static
 Lathe\Widgets\Widget::help(string $text): static
@@ -4151,13 +4162,20 @@ Lathe\Widgets\Widget::refreshEvery(int $seconds): static
 Lathe\Widgets\Widget::refreshWhenActionsRun(bool $on = true): static
 Lathe\Widgets\Widget::refreshWhenFiltersChange(bool $on = true): static
 Lathe\Widgets\Widget::requestsValue(): bool
+Lathe\Widgets\Widget::requireResourceScope(Illuminate\Database\Eloquent\Builder $query): Illuminate\Database\Eloquent\Builder
 Lathe\Widgets\Widget::resolve(Lathe\Http\Requests\LatheRequest $request): mixed
+Lathe\Widgets\Widget::string $cacheOwner  [protected]
 Lathe\Widgets\Widget::string $height  [protected]
 Lathe\Widgets\Widget::string|int $helpWidth  [protected]
 Lathe\Widgets\Widget::tooltip(Lathe\Widgets\Tooltip $tooltip): static
 Lathe\Widgets\Widget::uriKey(): string  [static]
 Lathe\Widgets\Widget::width(Lathe\Enums\CardWidth $width): static
+Lathe\Widgets\Widget::withCacheOwner(string $owner): static
 Lathe\Widgets\Widget::withMeta(array $meta): static
+Lathe\Widgets\Widget::withResourceScope(string $model, callable $scope): static
+Lathe\Widgets\WidgetCache::TAG
+Lathe\Widgets\WidgetCache::flushTables(array $tables): void
+Lathe\Widgets\WidgetCache::remember(string $key, DateTimeInterface|DateInterval|int $ttl, Closure $compute): array
 Lathe\Widgets\WidgetList::__construct(array $widgets, string $owner)
 Lathe\Widgets\WidgetList::array $widgets  [protected]
 Lathe\Widgets\WidgetList::descriptors(Illuminate\Http\Request $request, bool $detail = false): array
@@ -4537,6 +4555,7 @@ class Lathe\Widgets\Tooltip
 class Lathe\Widgets\TrendWidget
 class Lathe\Widgets\ValueWidget
 class Lathe\Widgets\Widget
+class Lathe\Widgets\WidgetCache
 class Lathe\Widgets\WidgetList
 class Lathe\Widgets\WidgetPresenter
 enum Lathe\Enums\ActionEventStatus

@@ -1,0 +1,19 @@
+<?php
+
+namespace Lathe\Tests\Fixtures\Widgets;
+
+use Lathe\Http\Requests\LatheRequest;
+use Lathe\Widgets\Results\ValueResult;
+use Lathe\Widgets\ValueWidget;
+use Workbench\App\Models\Post;
+
+/**
+ * Counts the posts of the requested range.
+ */
+class ValuePosts extends ValueWidget
+{
+    public function calculate(LatheRequest $request): ValueResult
+    {
+        return $this->count($request, Post::class);
+    }
+}

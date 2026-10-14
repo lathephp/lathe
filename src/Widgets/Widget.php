@@ -19,6 +19,8 @@ use Lathe\Attributes\Widget\Width;
 use Lathe\Auth\FortifyConfig;
 use Lathe\Enums\CardWidth;
 use Lathe\Http\Requests\LatheRequest;
+use Lathe\Support\ConfigStore;
+use Lathe\Support\Timezone;
 use Lathe\Widgets\Concerns\RoundingPrecision;
 use LogicException;
 use ReflectionClass;
@@ -58,6 +60,23 @@ abstract class Widget
 
     /** @var array<string, mixed> */
     protected array $meta = [];
+
+    protected bool $cacheAcrossUsers = false;
+
+    /** @var list<string> */
+    protected array $cacheTags = [];
+
+    /** Where the card is mounted: a dashboard, a Resource page or a lens. */
+    protected string $cacheOwner = '';
+
+    /** @var list<AggregateQuery> the aggregates the current value read, for its cache tags */
+    protected array $aggregates = [];
+
+    /** @var (Closure(Builder<Model>): Builder<Model>)|null */
+    protected ?Closure $resourceScope = null;
+
+    /** @var class-string<Model>|null */
+    protected ?string $resourceScopeModel = null;
 
     public function __construct()
     {
@@ -99,6 +118,91 @@ abstract class Widget
     public function cacheFor(): DateTimeInterface|DateInterval|int|null
     {
         return $this->attribute(CacheFor::class)?->seconds;
+    }
+
+    /**
+     * Share one cached value between all users, for a card that shows every user the same number.
+     */
+    public function cacheAcrossUsers(bool $on = true): static
+    {
+        $this->cacheAcrossUsers = $on;
+
+        return $this;
+    }
+
+    /**
+     * More tags for the cached value, for a calculate() that reads tables without an
+     * aggregate helper. A panel write that flushes one of them flushes the card.
+     *
+     * @param  list<string>  $tags
+     */
+    public function cacheTags(array $tags): static
+    {
+        $this->cacheTags = array_values(array_unique([...$this->cacheTags, ...$tags]));
+
+        return $this;
+    }
+
+    /**
+     * Name the place the card is mounted, which the cache key holds.
+     */
+    public function withCacheOwner(string $owner): static
+    {
+        $this->cacheOwner = $owner;
+
+        return $this;
+    }
+
+    /**
+     * Bind the host Resource's row scope. The Resource and lens widget endpoints call this;
+     * a dashboard has no host, so its widgets stay unscoped.
+     *
+     * @param  class-string<Model>  $model  the host Resource's model
+     * @param  callable(Builder<Model>): Builder<Model>  $scope
+     */
+    public function withResourceScope(string $model, callable $scope): static
+    {
+        $this->resourceScopeModel = $model;
+        $this->resourceScope = $scope(...);
+
+        return $this;
+    }
+
+    /**
+     * The host Resource's row scope applied to a query over its own model. The aggregate
+     * helpers call it; a calculate() that builds its own query calls it too. It changes
+     * nothing on a dashboard, or for a query over another model, whose columns the scope
+     * does not know.
+     *
+     * @param  Builder<Model>  $query
+     * @return Builder<Model>
+     */
+    public function applyResourceScope(Builder $query): Builder
+    {
+        if ($this->resourceScope === null || $query->getModel()::class !== $this->resourceScopeModel) {
+            return $query;
+        }
+
+        return ($this->resourceScope)($query);
+    }
+
+    /**
+     * Like applyResourceScope(), but throws when the card has no host Resource, as on a
+     * dashboard: a card over rows some users may not see then fails instead of counting all.
+     *
+     * @param  Builder<Model>  $query
+     * @return Builder<Model>
+     */
+    public function requireResourceScope(Builder $query): Builder
+    {
+        if ($this->resourceScope === null) {
+            throw new LogicException(sprintf(
+                '[%s] has no host Resource to scope by, so it is likely mounted on a dashboard. Use applyResourceScope() for a card that counts every row there, or hide it from the dashboard with canSee().',
+                static::class,
+            ));
+        }
+
+        return $this->applyResourceScope($query);
     }
 
     /**
@@ -246,6 +350,56 @@ abstract class Widget
     }
 
     /**
+     * The value response for this request, from the cache while it holds one.
+     *
+     * @return array<string, mixed>
+     */
+    public function cachedResponse(LatheRequest $request): array
+    {
+        $ttl = $this->cacheFor() ?? app(ConfigStore::class)->integer('limits.metrics_ttl');
+
+        if ($ttl === 0) {
+            return $this->freshResponse($request)[0];
+        }
+
+        return app(WidgetCache::class)->remember($this->cacheKey($request), $ttl, fn () => $this->freshResponse($request));
+    }
+
+    /**
+     * The value response, with the tables it read and the card's own tags.
+     *
+     * @return array{0: array<string, mixed>, 1: list<string>}
+     */
+    protected function freshResponse(LatheRequest $request): array
+    {
+        $this->aggregates = [];
+        $response = (new WidgetPresenter($this))->toResponse($request);
+        $tables = array_merge(...array_map(fn (AggregateQuery $query) => $query->tables(), $this->aggregates));
+
+        return [$response, array_values(array_unique([...$tables, ...$this->cacheTags]))];
+    }
+
+    /**
+     * The card, where it is mounted, the range, the user's zone, the filters and the user.
+     */
+    protected function cacheKey(LatheRequest $request): string
+    {
+        $guard = app(FortifyConfig::class)->guard();
+        $user = $request->user($guard);
+        $id = $user?->getAuthIdentifier();
+
+        return 'lathe:widget:'.sha1((string) json_encode([
+            static::class,
+            static::uriKey(),
+            $this->cacheOwner,
+            $request->query('range'),
+            app(Timezone::class)->forRequest($request),
+            md5((string) json_encode($request->query('filters'))),
+            $this->cacheAcrossUsers ? null : $guard.':'.(is_scalar($id) ? $id : ''),
+        ]));
+    }
+
+    /**
      * Whether the card asks the server for a value at all.
      */
     public function requestsValue(): bool
@@ -346,6 +500,6 @@ abstract class Widget
      */
     protected function aggregateQuery(Builder|Model|string $model): AggregateQuery
     {
-        return AggregateQuery::for($model);
+        return $this->aggregates[] = AggregateQuery::for($this->applyResourceScope(AggregateQuery::builderFor($model)));
     }
 }

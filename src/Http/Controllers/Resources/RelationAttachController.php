@@ -24,6 +24,7 @@ use Lathe\Query\ResourceQuery;
 use Lathe\Resources\Resource;
 use Lathe\Rules\NotAttached;
 use Lathe\Rules\NotExactlyAttached;
+use Lathe\Widgets\WidgetCache;
 
 /**
  * Attach, detach and edit the pivot rows of a parent's belongsToMany, morphToMany or
@@ -51,6 +52,7 @@ class RelationAttachController
             $relation->attach($key, $pivot);
             event(new ResourceAttached($parent, $class, $relationship, [$key], $pivot));
         });
+        app(WidgetCache::class)->flushTables([$relation->getTable()]);
 
         return new JsonResponse(['attached' => true], 201);
     }
@@ -66,6 +68,7 @@ class RelationAttachController
             $relation->detach($key);
             event(new ResourceDetached($parent, $class, $relationship, [$key], [$key => $row]));
         });
+        app(WidgetCache::class)->flushTables([$relation->getTable()]);
 
         return new JsonResponse(['detached' => true]);
     }

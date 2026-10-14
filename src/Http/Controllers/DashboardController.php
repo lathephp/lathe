@@ -11,7 +11,6 @@ use Lathe\Dashboards\DashboardRegistry;
 use Lathe\Http\Requests\LatheRequest;
 use Lathe\Widgets\Widget;
 use Lathe\Widgets\WidgetList;
-use Lathe\Widgets\WidgetPresenter;
 
 class DashboardController
 {
@@ -37,7 +36,7 @@ class DashboardController
         // Each card's value is its own deferred group, so the cards fill in in parallel.
         foreach ($widgets as $widget) {
             if ($widget->requestsValue()) {
-                $values['widgetValue:'.$widget::uriKey()] = Inertia::defer(fn () => (new WidgetPresenter($widget))->toResponse($request), $widget::uriKey());
+                $values['widgetValue:'.$widget::uriKey()] = Inertia::defer(fn () => $widget->withCacheOwner('dashboard:'.$dashboard)->cachedResponse($request), $widget::uriKey());
             }
         }
 

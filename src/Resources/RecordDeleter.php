@@ -13,6 +13,7 @@ use Lathe\Field\FieldContext;
 use Lathe\Field\FileField;
 use Lathe\Http\Requests\LatheRequest;
 use Lathe\Uploads\FieldAttachment;
+use Lathe\Widgets\WidgetCache;
 use Throwable;
 
 /**
@@ -101,6 +102,7 @@ class RecordDeleter
             event(new $event($model, $class));
         });
 
+        app(WidgetCache::class)->flushTables([$model->getTable()]);
         $class::{'after'.$hook}($request, $model);
 
         // Files cannot roll back with the transaction, so they go only once the delete has committed.
