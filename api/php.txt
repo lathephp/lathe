@@ -859,6 +859,9 @@ Lathe\Console\PluginsCommand::failingClasses(Lathe\Doctor\Doctor $doctor): array
 Lathe\Console\PluginsCommand::handle(Lathe\Plugins\PluginRegistry $plugins, Lathe\Doctor\Doctor $doctor): int
 Lathe\Console\PluginsCommand::joined(array $names): string  [protected]
 Lathe\Console\PluginsCommand::menuLabels(Lathe\Plugins\PluginRegistry $plugins, Lathe\Plugins\Plugin $plugin): string  [protected]
+Lathe\Console\PresetCommand::$description  [protected]
+Lathe\Console\PresetCommand::$signature  [protected]
+Lathe\Console\PresetCommand::handle(): int
 Lathe\Console\PruneActionEventsCommand::$description  [protected]
 Lathe\Console\PruneActionEventsCommand::$signature  [protected]
 Lathe\Console\PruneActionEventsCommand::CHUNK
@@ -4338,6 +4341,7 @@ class Lathe\Console\MakeResourceCommand
 class Lathe\Console\MakeResourcePluginCommand
 class Lathe\Console\MakeWidgetCommand
 class Lathe\Console\PluginsCommand
+class Lathe\Console\PresetCommand
 class Lathe\Console\PruneActionEventsCommand
 class Lathe\Console\PruneCommand
 class Lathe\Console\StubsCommand

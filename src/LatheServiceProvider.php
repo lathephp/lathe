@@ -39,6 +39,7 @@ use Lathe\Console\MakeResourceCommand;
 use Lathe\Console\MakeResourcePluginCommand;
 use Lathe\Console\MakeWidgetCommand;
 use Lathe\Console\PluginsCommand;
+use Lathe\Console\PresetCommand;
 use Lathe\Console\PruneActionEventsCommand;
 use Lathe\Console\PruneCommand;
 use Lathe\Console\StubsCommand;
@@ -133,7 +134,7 @@ class LatheServiceProvider extends ServiceProvider
         });
 
         if ($this->app->runningInConsole()) {
-            $this->commands([ApiCheckCommand::class, CacheCommand::class, ClearCommand::class, DoctorCommand::class, InstallCommand::class, MakeActionCommand::class, MakeDashboardCommand::class, MakeFieldCommand::class, MakeFilterCommand::class, MakeLensCommand::class, MakePageCommand::class, MakePluginCommand::class, MakeResourceCommand::class, MakeResourcePluginCommand::class, MakeWidgetCommand::class, PluginsCommand::class, PruneActionEventsCommand::class, PruneCommand::class, StubsCommand::class, TranslateCommand::class, UninstallCommand::class, UserCommand::class]);
+            $this->commands([ApiCheckCommand::class, CacheCommand::class, ClearCommand::class, DoctorCommand::class, InstallCommand::class, MakeActionCommand::class, MakeDashboardCommand::class, MakeFieldCommand::class, MakeFilterCommand::class, MakeLensCommand::class, MakePageCommand::class, MakePluginCommand::class, MakeResourceCommand::class, MakeResourcePluginCommand::class, MakeWidgetCommand::class, PluginsCommand::class, PresetCommand::class, PruneActionEventsCommand::class, PruneCommand::class, StubsCommand::class, TranslateCommand::class, UninstallCommand::class, UserCommand::class]);
             $this->optimizes(optimize: 'lathe:cache', clear: 'lathe:clear', key: 'lathe');
 
             $this->publishes([
