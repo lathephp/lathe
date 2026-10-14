@@ -11,6 +11,7 @@ import type { ActionMeta } from './types';
 // The modals load on first use, so the field components stay out of the index's first load.
 const ActionModal = lazy(() => import('./ActionModal').then((module) => ({ default: module.ActionModal })));
 const ResponseModal = lazy(() => import('./ResponseModal').then((module) => ({ default: module.ResponseModal })));
+const ImportModal = lazy(() => import('./ImportModal').then((module) => ({ default: module.ImportModal })));
 
 interface Running {
   action: ActionMeta;
@@ -107,9 +108,13 @@ export function useActionRunner({ base, onDone }: ActionRunnerOptions): { start:
     }
   }
 
+  // An import action's metadata carries import: true; it opens the import's own steps.
+  const importing = running !== null && 'import' in running.action && running.action.import === true;
+
   const element = (
     <Suspense fallback={null}>
-      {running !== null && (
+      {running !== null && importing && <ImportModal base={base} action={running.action} selection={running.selection} onClose={closeRunning} />}
+      {running !== null && !importing && (
         <ActionModal
           base={base}
           action={running.action}
