@@ -55,13 +55,22 @@
 @lathephp/core type Translator
 @lathephp/core type WidgetProps
 @lathephp/core url
+@lathephp/core useDebounce
+@lathephp/core useExecuteAction
+@lathephp/core useInlineField
 @lathephp/core useLathe
+@lathephp/core useNavigationProgress
 @lathephp/core usePauseShortcuts
 @lathephp/core useQuery
 @lathephp/core useQueryClient
+@lathephp/core useResourceActions
+@lathephp/core useResourceDetail
+@lathephp/core useResourceIndex
 @lathephp/core useShortcut
 @lathephp/core useTheme
 @lathephp/core useTranslation
+@lathephp/core useWidgetList
+@lathephp/core useWidgetValue
 @lathephp/core visit
 @lathephp/core widget
 @lathephp/ui Badge

@@ -49,6 +49,17 @@ export { formatCurrency, formatDate, formatDateTime, formatNumber } from './form
 export { useLathe,useTranslation } from './hooks';
 export { useTheme } from './theme';
 export type { Appearance } from './theme';
+export {
+  useDebounce,
+  useExecuteAction,
+  useInlineField,
+  useNavigationProgress,
+  useResourceActions,
+  useResourceDetail,
+  useResourceIndex,
+  useWidgetList,
+  useWidgetValue,
+} from './data';
 export type { LatheContext } from './hooks';
 export type { SharedData } from './props';
 export type { SafeHtml } from './safe-html';
