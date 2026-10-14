@@ -8,6 +8,8 @@ use Lathe\Field\Field;
 use Lathe\Field\FieldContext;
 use Lathe\Http\Requests\LatheRequest;
 use Lathe\Lathe;
+use Lathe\Plugins\ResourcePlugin;
+use Lathe\Plugins\ResourcePluginRegistry;
 use Lathe\Resources\Resource;
 use Lathe\Resources\TrafficCop;
 use Lathe\Resources\Via;
@@ -33,7 +35,7 @@ class RecordPayload
      * The detail page's record: its fields with their values, the layout and the abilities.
      *
      * @param  class-string<\Lathe\Resources\Resource>  $class
-     * @return array{id: mixed, title: string, subtitle: string, avatar: array{url: string|null, initials: string|null, style: array<string, mixed>, rounded: bool}|null, fields: list<array<string, mixed>>, layout: list<array<string, mixed>>, abilities: array<string, bool>, trashed: bool}
+     * @return array{id: mixed, title: string, subtitle: string, avatar: array{url: string|null, initials: string|null, style: array<string, mixed>, rounded: bool}|null, fields: list<array<string, mixed>>, layout: list<array<string, mixed>>, resourcePlugins: list<array<string, mixed>>, abilities: array<string, bool>, trashed: bool}
      */
     public function detail(string $class, Model $model): array
     {
@@ -50,6 +52,10 @@ class RecordPayload
                 $this->fields($class, FieldContext::Detail, $model),
             ),
             'layout' => $resource->layoutFor(FieldContext::Detail, $this->request, $model),
+            'resourcePlugins' => array_map(
+                fn (ResourcePlugin $plugin) => $plugin->jsonSerialize(),
+                array_values(array_filter(ResourcePluginRegistry::placedIn($class, $this->request), fn (ResourcePlugin $plugin) => $plugin->authorize($this->request))),
+            ),
             'abilities' => array_combine(self::ABILITIES, array_map(
                 fn (string $ability) => $this->authorization->allows($user, $class, $ability, $model),
                 self::ABILITIES,

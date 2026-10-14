@@ -19,6 +19,7 @@ use Lathe\Http\Controllers\PageFallbackController;
 use Lathe\Http\Controllers\Plugins\ModuleController;
 use Lathe\Http\Controllers\Plugins\PluginApiController;
 use Lathe\Http\Controllers\Plugins\PluginPageController;
+use Lathe\Http\Controllers\Plugins\ResourcePluginController;
 use Lathe\Http\Controllers\Resources\ActionController;
 use Lathe\Http\Controllers\Resources\ActionLookupController;
 use Lathe\Http\Controllers\Resources\ActionRunController;
@@ -123,6 +124,7 @@ class PanelRoutes
             $this->importRoutes($router);
             $this->notificationRoutes($router);
             $this->dashboardRoutes($router);
+            $this->resourcePluginRoutes($router);
             $router->get('resources/{resource}', IndexController::class)->name('resources.index');
             $router->get('resources/{resource}/count', CountController::class)->name('resources.count');
             $router->get('resources/{resource}/filters', [FilterController::class, 'index'])->name('resources.filters');
@@ -244,6 +246,13 @@ class PanelRoutes
         $router->get('imports/{import}', [$controller, 'show'])->name('imports.show');
         $router->post('imports/{import}/resume', [$controller, 'resume'])->name('imports.resume');
         $router->get('imports/{import}/download-errors', [$controller, 'downloadErrors'])->middleware('signed')->name('imports.downloadErrors');
+    }
+
+    protected function resourcePluginRoutes(Router $router): void
+    {
+        $router->any('resource-plugins/{component}/{path?}', ResourcePluginController::class)
+            ->where('path', '.*')
+            ->name('resourcePlugins');
     }
 
     protected function dashboardRoutes(Router $router): void

@@ -48,6 +48,7 @@ use Lathe\Console\TranslateCommand;
 use Lathe\Console\UninstallCommand;
 use Lathe\Console\UserCommand;
 use Lathe\Dashboards\DashboardRegistry;
+use Lathe\Events\ServingLathe;
 use Lathe\Exceptions\InvalidConfigurationException;
 use Lathe\Http\ErrorPages;
 use Lathe\Http\Middleware\RedirectIfAuthenticated;
@@ -59,6 +60,7 @@ use Lathe\Notifications\NotificationChannelRegistry;
 use Lathe\Pages\PageRegistry;
 use Lathe\Plugins\PluginDiscovery;
 use Lathe\Plugins\PluginRegistry;
+use Lathe\Plugins\ResourcePluginRegistry;
 use Lathe\Resources\ResourceRegistry;
 use Lathe\Support\ConfigStore;
 use Lathe\Support\ConfigValidator;
@@ -76,6 +78,7 @@ class LatheServiceProvider extends ServiceProvider
         $this->app->singleton(TranslationManager::class, fn () => new TranslationManager(__DIR__.'/../lang'));
         $this->app->singleton(ResourceRegistry::class);
         $this->app->singleton(PluginRegistry::class);
+        $this->app->singleton(ResourcePluginRegistry::class);
         $this->app->singleton(MenuRegistry::class);
         $this->app->singleton(DashboardRegistry::class);
         $this->app->singleton(PageRegistry::class);
@@ -104,6 +107,12 @@ class LatheServiceProvider extends ServiceProvider
         $this->loadMigrationsFrom(__DIR__.'/../database/migrations');
         $this->registerMiddleware();
         $this->app->make(Dispatcher::class)->subscribe(ActionEventListener::class);
+        // Resource plugin scripts must be in the page's tags, so a full page load scans for them.
+        $this->app->make(Dispatcher::class)->listen(ServingLathe::class, function (ServingLathe $event) {
+            if (! $event->request->headers->has('X-Inertia') && ! $event->request->expectsJson()) {
+                $this->app->make(ResourcePluginRegistry::class)->boot();
+            }
+        });
         $this->app->make(ResourceRegistry::class)->register(ActionEventResource::class);
 
         // The sidebar writes this cookie in the browser, so it is read unencrypted.

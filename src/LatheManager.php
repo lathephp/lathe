@@ -25,6 +25,7 @@ use Lathe\Pages\Page;
 use Lathe\Pages\PageRegistry;
 use Lathe\Plugins\Plugin;
 use Lathe\Plugins\PluginRegistry;
+use Lathe\Plugins\ResourcePluginRegistry;
 use Lathe\Resources\ResourceRegistry;
 use Lathe\Search\GlobalSearch;
 use Lathe\Search\SearchProvider;
@@ -82,6 +83,11 @@ class LatheManager
     public function plugins(): PluginRegistry
     {
         return $this->container->make(PluginRegistry::class);
+    }
+
+    public function resourcePlugins(): ResourcePluginRegistry
+    {
+        return $this->container->make(ResourcePluginRegistry::class);
     }
 
     public function dashboards(): DashboardRegistry

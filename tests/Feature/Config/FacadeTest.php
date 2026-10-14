@@ -8,6 +8,7 @@ use Lathe\Dashboards\DashboardRegistry;
 use Lathe\Lathe;
 use Lathe\Pages\PageRegistry;
 use Lathe\Plugins\PluginRegistry;
+use Lathe\Plugins\ResourcePluginRegistry;
 use Lathe\Resources\ResourceRegistry;
 use Lathe\Support\ConfigStore;
 
@@ -33,6 +34,7 @@ it('resolves each accessor to one binding', function (string $accessor, string $
     ['config', ConfigStore::class],
     ['resources', ResourceRegistry::class],
     ['plugins', PluginRegistry::class],
+    ['resourcePlugins', ResourcePluginRegistry::class],
     ['dashboards', DashboardRegistry::class],
     ['pages', PageRegistry::class],
     ['assets', AssetManifest::class],

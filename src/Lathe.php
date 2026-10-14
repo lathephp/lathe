@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Facade;
  * @method static \Lathe\Support\ConfigStore config()
  * @method static \Lathe\Resources\ResourceRegistry resources()
  * @method static \Lathe\Plugins\PluginRegistry plugins()
+ * @method static \Lathe\Plugins\ResourcePluginRegistry resourcePlugins()
  * @method static \Lathe\Dashboards\DashboardRegistry dashboards()
  * @method static \Lathe\Assets\AssetManifest assets()
  * @method static \Lathe\Auth\FortifyConfig fortify()
