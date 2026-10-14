@@ -227,7 +227,8 @@ it('runs the same queries for 10 and 100 rows, reads orders once and asks for ab
     expect(count($hundred))->toBe(count($ten))
         ->and($onOrders)->toHaveCount(1)
         ->and($onOrders[0])->toContain('where')
-        ->and($authorization->batches)->toBe(2);
+        // Per request: one batch for the rows' abilities, one for the Product column's view links.
+        ->and($authorization->batches)->toBe(4);
 });
 
 it('falls back to the first page size and defaults to the field\'s first option', function () {
