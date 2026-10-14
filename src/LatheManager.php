@@ -11,6 +11,7 @@ use Lathe\ActionEvents\ActionEventRecorder;
 use Lathe\Assets\AssetManifest;
 use Lathe\Auth\FortifyConfig;
 use Lathe\Auth\PanelGate;
+use Lathe\Dashboards\Dashboard;
 use Lathe\Dashboards\DashboardRegistry;
 use Lathe\Field\Field;
 use Lathe\Field\FieldContext;
@@ -89,6 +90,14 @@ class LatheManager
     public function registerResources(string ...$classes): void
     {
         $this->resources()->register(...$classes);
+    }
+
+    /**
+     * @param  Dashboard|class-string<Dashboard>  ...$dashboards
+     */
+    public function registerDashboards(Dashboard|string ...$dashboards): void
+    {
+        $this->dashboards()->register(...$dashboards);
     }
 
     public function registerPlugins(Plugin ...$plugins): void

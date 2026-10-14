@@ -88,6 +88,7 @@ class PanelRoutes
 
         $this->group()->middleware('lathe.api')->group(function (Router $router) {
             $router->get('/', DashboardController::class)->name('lathe.dashboard');
+            $router->get('dashboards/{dashboard}', [DashboardController::class, 'page'])->name('lathe.dashboards.show');
             $router->get('resources/{resource}', IndexPageController::class)->name('lathe.resources.index');
             $router->get('resources/{resource}/lens/{lens}', [LensController::class, 'page'])->name('lathe.resources.lens');
             // Before {resourceId}, so "new" never reads as a record id.
@@ -116,6 +117,7 @@ class PanelRoutes
             $this->exportRoutes($router);
             $this->importRoutes($router);
             $this->notificationRoutes($router);
+            $this->dashboardRoutes($router);
             $router->get('resources/{resource}', IndexController::class)->name('resources.index');
             $router->get('resources/{resource}/count', CountController::class)->name('resources.count');
             $router->get('resources/{resource}/filters', [FilterController::class, 'index'])->name('resources.filters');
@@ -237,6 +239,12 @@ class PanelRoutes
         $router->get('imports/{import}', [$controller, 'show'])->name('imports.show');
         $router->post('imports/{import}/resume', [$controller, 'resume'])->name('imports.resume');
         $router->get('imports/{import}/download-errors', [$controller, 'downloadErrors'])->middleware('signed')->name('imports.downloadErrors');
+    }
+
+    protected function dashboardRoutes(Router $router): void
+    {
+        $router->get('dashboards', [DashboardController::class, 'index'])->name('dashboards.index');
+        $router->get('dashboards/{dashboard}', [DashboardController::class, 'show'])->name('dashboards.show');
     }
 
     protected function notificationRoutes(Router $router): void

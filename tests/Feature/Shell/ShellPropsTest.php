@@ -80,9 +80,10 @@ it('turns the palette off for a user without the globalSearch ability', function
     expect(shellProps()['globalSearch']['enabled'])->toBeFalse();
 });
 
-it('renders the Main dashboard', function () {
+it('renders the dashboard at the key main', function () {
     $this->actingAs($this->admin)->get('/lathe')->assertInertia(fn (AssertableInertia $page) => $page
         ->component('Dashboard', false)
-        ->where('dashboard', ['uriKey' => 'main', 'title' => 'Dashboard'])
+        ->where('dashboard.uriKey', 'main')
+        ->where('dashboard.name', 'Sales')
         ->where('widgets', []));
 });

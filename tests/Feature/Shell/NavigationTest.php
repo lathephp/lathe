@@ -26,7 +26,7 @@ function navigationFor(string $email): array
 
 it('lists the dashboard and the Resources', function () {
     expect(navigationFor('admin@lathephp.com'))->toBe([
-        ['label' => null, 'icon' => null, 'items' => [['label' => 'Dashboard', 'href' => '/lathe', 'icon' => 'LayoutDashboard']]],
+        ['label' => null, 'icon' => null, 'items' => [['label' => 'Sales', 'href' => '/lathe', 'icon' => 'LayoutDashboard']]],
         ['label' => 'Heartbeat', 'icon' => null, 'items' => [['label' => 'Heartbeat', 'href' => '/lathe/plugins/heartbeat', 'icon' => 'Activity']]],
         ['label' => 'Resources', 'icon' => null, 'items' => [
             ['label' => 'Categories', 'href' => '/lathe/resources/categories', 'icon' => 'Folder'],

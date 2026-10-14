@@ -8,7 +8,7 @@ import { assetHashFromUrl, markBuildStale, resetBuildStale, setEntryHash } from 
 import { showFlash } from '../lib/visits';
 import { bracketed, renderPage, visibleStrings } from './support';
 
-const dashboard = { dashboard: { uriKey: 'main', title: 'Dashboard' }, widgets: [] };
+const dashboard = { dashboard: { uriKey: 'main', name: 'Dashboard', description: null, icon: null, showRefreshButton: false }, widgets: [] };
 
 afterEach(() => {
   vi.restoreAllMocks();
@@ -26,6 +26,13 @@ describe('dashboard', () => {
 
     expect(screen.getByRole('heading', { level: 1 }).textContent).toBe('Dashboard');
     expect(screen.getByText('No widgets yet')).toBeTruthy();
+  });
+
+  it('points an empty dashboard at the widget generator and its docs', () => {
+    renderPage('Dashboard', dashboard);
+
+    expect(screen.getByText('php artisan lathe:widget TotalUsers --type=value').tagName).toBe('CODE');
+    expect(screen.getByRole('link', { name: 'Read the widget docs' }).getAttribute('href')).toBe('https://lathephp.com/docs/widgets');
   });
 });
 
@@ -298,6 +305,7 @@ describe('translation', () => {
       'Ada Lovelace',
       'ada@example.com',
       'Powered by Lathe',
+      'php artisan lathe:widget TotalUsers --type=value',
     ]);
     const strings = visibleStrings();
 

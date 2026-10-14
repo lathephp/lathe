@@ -5,6 +5,8 @@ namespace Lathe\Menu;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Lathe\Auth\ResourceAuthorization;
+use Lathe\Dashboards\Dashboard;
+use Lathe\Dashboards\DashboardRegistry;
 use Lathe\Enums\Icon;
 use Lathe\Plugins\PluginRegistry;
 use Lathe\Resources\ResourceRegistry;
@@ -19,6 +21,7 @@ class Navigation
         protected ResourceRegistry $resources,
         protected PluginRegistry $plugins,
         protected ResourceAuthorization $authorization,
+        protected DashboardRegistry $dashboards,
     ) {
         //
     }
@@ -28,7 +31,10 @@ class Navigation
      */
     public function build(Request $request): array
     {
-        $sections = [MenuSection::section(null, [MenuItem::link('Dashboard', '')->icon(Icon::LayoutDashboard)])];
+        $sections = [MenuSection::section(null, array_map(
+            fn (Dashboard $dashboard) => MenuItem::link($dashboard->name(), $dashboard->path())->icon($dashboard->iconName() ?? Icon::LayoutDashboard),
+            $this->dashboards->authorized($request),
+        ))];
 
         foreach ($this->plugins->menus($request) as $section) {
             $sections[] = $section;

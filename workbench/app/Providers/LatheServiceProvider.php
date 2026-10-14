@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\Gate;
 use Lathe\ActionEvents\ActionEvent;
 use Lathe\Lathe;
 use Lathe\LatheApplicationServiceProvider;
+use Workbench\App\Lathe\Dashboards\Sales;
 use Workbench\App\Models\User;
 use Workbench\App\Policies\ActionEventPolicy;
 
@@ -17,6 +18,11 @@ class LatheServiceProvider extends LatheApplicationServiceProvider
     protected function registerResources(): void
     {
         Lathe::discoverResources(dirname(__DIR__).'/Lathe/Resources', 'Workbench\\App\\Lathe\\Resources');
+    }
+
+    protected function registerDashboards(): void
+    {
+        Lathe::registerDashboards(Sales::class);
     }
 
     /**

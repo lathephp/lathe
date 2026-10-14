@@ -630,6 +630,10 @@ Lathe\Attributes\Action\ShowOnIndex::bool $show
 Lathe\Attributes\Action\Sole::apply(Lathe\Actions\Action $action): void
 Lathe\Attributes\Action\Standalone::apply(Lathe\Actions\Action $action): void
 Lathe\Attributes\Action\WithoutActionEvents::apply(Lathe\Actions\Action $action): void
+Lathe\Attributes\Dashboard\Description::__construct(string $text)
+Lathe\Attributes\Dashboard\Description::string $text
+Lathe\Attributes\Dashboard\Icon::Lathe\Enums\Icon $icon
+Lathe\Attributes\Dashboard\Icon::__construct(Lathe\Enums\Icon $icon)
 Lathe\Attributes\Lens\PerPage::__construct(array $options)
 Lathe\Attributes\Lens\PerPage::array $options
 Lathe\Attributes\Lens\Polling::__construct(int $seconds = 15)
@@ -774,9 +778,32 @@ Lathe\Console\TranslateCommand::$description  [protected]
 Lathe\Console\TranslateCommand::$signature  [protected]
 Lathe\Console\TranslateCommand::handle(Illuminate\Filesystem\Filesystem $files): int
 Lathe\Console\TranslateCommand::stringArgument(string $name): string  [protected]
+Lathe\Dashboards\Dashboard::?Closure $seeCallback  [protected]
+Lathe\Dashboards\Dashboard::?Lathe\Enums\Icon $icon  [protected]
+Lathe\Dashboards\Dashboard::?string $description  [protected]
+Lathe\Dashboards\Dashboard::attribute(string $attribute): ?object  [protected]
+Lathe\Dashboards\Dashboard::authorize(Illuminate\Http\Request $request): bool
+Lathe\Dashboards\Dashboard::bool $refreshButton  [protected]
+Lathe\Dashboards\Dashboard::canSee(Closure $callback): static
+Lathe\Dashboards\Dashboard::canSeeWhen(string $ability, mixed $arguments = array ( )): static
+Lathe\Dashboards\Dashboard::description(string $text): static
+Lathe\Dashboards\Dashboard::icon(Lathe\Enums\Icon $icon): static
+Lathe\Dashboards\Dashboard::iconName(): ?Lathe\Enums\Icon
+Lathe\Dashboards\Dashboard::label(): string  [static]
+Lathe\Dashboards\Dashboard::make(): static  [static]
 Lathe\Dashboards\Dashboard::name(): string
+Lathe\Dashboards\Dashboard::path(): string
+Lathe\Dashboards\Dashboard::payload(): array
+Lathe\Dashboards\Dashboard::showRefreshButton(): static
 Lathe\Dashboards\Dashboard::uriKey(): string  [static]
 Lathe\Dashboards\Dashboard::widgets(Lathe\Http\Requests\LatheRequest $request): array
+Lathe\Dashboards\DashboardRegistry::all(): array
+Lathe\Dashboards\DashboardRegistry::array $dashboards  [protected]
+Lathe\Dashboards\DashboardRegistry::authorized(Illuminate\Http\Request $request): array
+Lathe\Dashboards\DashboardRegistry::flush(): void
+Lathe\Dashboards\DashboardRegistry::forKey(string $uriKey): ?Lathe\Dashboards\Dashboard
+Lathe\Dashboards\DashboardRegistry::main(): Lathe\Dashboards\Dashboard
+Lathe\Dashboards\DashboardRegistry::register(Lathe\Dashboards\Dashboard|string ...$dashboards): void
 Lathe\Dashboards\Main::name(): string
 Lathe\Dashboards\Main::widgets(Lathe\Http\Requests\LatheRequest $request): array
 Lathe\Doctor\CheckResult::FAIL
@@ -2140,7 +2167,13 @@ Lathe\Http\Controllers\BulkRunController::destroy(Lathe\Http\Requests\LatheReque
 Lathe\Http\Controllers\BulkRunController::owned(Lathe\Http\Requests\LatheRequest $request, string $id): Lathe\Actions\BulkRun  [protected]
 Lathe\Http\Controllers\BulkRunController::show(Lathe\Http\Requests\LatheRequest $request, string $id): Illuminate\Http\JsonResponse
 Lathe\Http\Controllers\BulkRunController::status(Lathe\Actions\BulkRun $run): array  [protected]
-Lathe\Http\Controllers\DashboardController::__invoke(): Inertia\Response
+Lathe\Http\Controllers\DashboardController::Lathe\Dashboards\DashboardRegistry $dashboards  [protected]
+Lathe\Http\Controllers\DashboardController::__construct(Lathe\Dashboards\DashboardRegistry $dashboards)
+Lathe\Http\Controllers\DashboardController::__invoke(Illuminate\Http\Request $request): Inertia\Response
+Lathe\Http\Controllers\DashboardController::find(Illuminate\Http\Request $request, string $uriKey): Lathe\Dashboards\Dashboard  [protected]
+Lathe\Http\Controllers\DashboardController::index(Illuminate\Http\Request $request): Illuminate\Http\JsonResponse
+Lathe\Http\Controllers\DashboardController::page(Illuminate\Http\Request $request, string $dashboard): Inertia\Response
+Lathe\Http\Controllers\DashboardController::show(Illuminate\Http\Request $request, string $dashboard): Illuminate\Http\JsonResponse
 Lathe\Http\Controllers\ExportController::download(Lathe\Http\Requests\LatheRequest $request, string $export): Symfony\Component\HttpFoundation\StreamedResponse
 Lathe\Http\Controllers\ExportController::show(Lathe\Http\Requests\LatheRequest $request, string $export): Illuminate\Http\JsonResponse
 Lathe\Http\Controllers\ExportController::userId(Lathe\Http\Requests\LatheRequest $request): string|int|null  [protected]
@@ -2320,6 +2353,7 @@ Lathe\Http\PanelRoutes::api(): Illuminate\Routing\RouteRegistrar  [protected]
 Lathe\Http\PanelRoutes::apiPrefix(): string  [protected]
 Lathe\Http\PanelRoutes::batchRoutes(Illuminate\Routing\Router $router): void  [protected]
 Lathe\Http\PanelRoutes::bulkRunRoutes(Illuminate\Routing\Router $router): void  [protected]
+Lathe\Http\PanelRoutes::dashboardRoutes(Illuminate\Routing\Router $router): void  [protected]
 Lathe\Http\PanelRoutes::exportRoutes(Illuminate\Routing\Router $router): void  [protected]
 Lathe\Http\PanelRoutes::group(): Illuminate\Routing\RouteRegistrar  [protected]
 Lathe\Http\PanelRoutes::importRoutes(Illuminate\Routing\Router $router): void  [protected]
@@ -2410,6 +2444,7 @@ Lathe\LatheManager::name(): string
 Lathe\LatheManager::notificationChannels(string ...$channels): void
 Lathe\LatheManager::path(): string
 Lathe\LatheManager::plugins(): Lathe\Plugins\PluginRegistry
+Lathe\LatheManager::registerDashboards(Lathe\Dashboards\Dashboard|string ...$dashboards): void
 Lathe\LatheManager::registerPlugins(Lathe\Plugins\Plugin ...$plugins): void
 Lathe\LatheManager::registerResources(string ...$classes): void
 Lathe\LatheManager::registerSearchProviders(Lathe\Search\SearchProvider ...$providers): void
@@ -2572,9 +2607,10 @@ Lathe\Menu\MenuSection::item(Lathe\Menu\MenuItem $item): static
 Lathe\Menu\MenuSection::jsonSerialize(): array
 Lathe\Menu\MenuSection::section(?string $label, array $items = array ( )): static  [static]
 Lathe\Menu\Navigation::Lathe\Auth\ResourceAuthorization $authorization  [protected]
+Lathe\Menu\Navigation::Lathe\Dashboards\DashboardRegistry $dashboards  [protected]
 Lathe\Menu\Navigation::Lathe\Plugins\PluginRegistry $plugins  [protected]
 Lathe\Menu\Navigation::Lathe\Resources\ResourceRegistry $resources  [protected]
-Lathe\Menu\Navigation::__construct(Lathe\Resources\ResourceRegistry $resources, Lathe\Plugins\PluginRegistry $plugins, Lathe\Auth\ResourceAuthorization $authorization)
+Lathe\Menu\Navigation::__construct(Lathe\Resources\ResourceRegistry $resources, Lathe\Plugins\PluginRegistry $plugins, Lathe\Auth\ResourceAuthorization $authorization, Lathe\Dashboards\DashboardRegistry $dashboards)
 Lathe\Menu\Navigation::build(Illuminate\Http\Request $request): array
 Lathe\Notifications\LatheNotification::?int $duration  [protected]
 Lathe\Notifications\LatheNotification::?string $body  [protected]
@@ -3419,6 +3455,9 @@ class Lathe\Attributes\Action\ShowOnIndex
 class Lathe\Attributes\Action\Sole
 class Lathe\Attributes\Action\Standalone
 class Lathe\Attributes\Action\WithoutActionEvents
+class Lathe\Attributes\Dashboard\Description
+class Lathe\Attributes\Dashboard\Icon
+class Lathe\Attributes\Dashboard\ShowRefreshButton
 class Lathe\Attributes\Filter\Searchable
 class Lathe\Attributes\Lens\PerPage
 class Lathe\Attributes\Lens\Polling
