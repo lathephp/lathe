@@ -157,6 +157,11 @@ check "reset.sh brings it back with 1,000 orders" test "$status/$total" = 0/1000
 # Caddy counts each address apart; ::1 has made no request yet, so its window starts empty.
 host='[::1]'
 [[ -s /proc/net/if_inet6 ]] || { host=127.0.0.1; sleep 61; }
+# A first visit fetches many built files at once; they must not use up the address's 60.
+asset=$(curl -s "http://$address/lathe/login" | grep -o '/lathe/assets/[^"]*\.js' | head -1)
+assets=$(for _ in $(seq 80); do curl -s -o /dev/null -w '%{http_code}\n' "http://$host$asset"; done | sort | uniq -c | tr -s ' ' | tr '\n' ',')
+echo "      80 requests for $asset from $host:$assets"
+check "built files do not count toward the limit" test "$assets" = " 80 200,"
 codes=()
 for _ in $(seq 61); do codes+=("$(curl -s -o /dev/null -w '%{http_code}' "http://$host/up")"); done
 first=$(printf '%s\n' "${codes[@]:0:60}" | sort | uniq -c | tr -s ' ' | tr '\n' ',')

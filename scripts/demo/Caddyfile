@@ -8,8 +8,11 @@
 @SITE@ {
 	root * /srv/lathe-demo/public
 
-	# 60 requests a minute from one address; the 61st gets 429.
-	rate_limit {
+	# The panel's built files are fetched many at a time on a first visit and cached after it.
+	@dynamic not path /lathe/assets/* /lathe/modules/* /lathe/styles/* /vendor/*
+
+	# 60 page and API requests a minute from one address; the 61st gets 429. Built files do not count.
+	rate_limit @dynamic {
 		zone per_address {
 			key {remote_host}
 			events 60

@@ -130,9 +130,10 @@ Run these on the server unless they say "from your machine".
 | Reset scheduled | `systemctl list-timers lathe-demo-reset.timer` | next run at 03:00 UTC |
 | No analytics, no outbound call | `grep -ciE 'analytics\|gtag\|plausible' /srv/lathe-demo/.env` and view the login page source | `0`, and no script or font from another host |
 
-The rate limit counts every request from one address, the panel's scripts and API calls
-included, so one page view uses several of the 60. Each check in the table uses some too:
-wait a minute before the rate-limit check.
+The rate limit counts the page and API requests from one address; the panel's built files
+(`/lathe/assets`, `/lathe/modules`, `/lathe/styles`, `/vendor`) do not count. A dashboard view
+still uses one request per widget. Each check in the table uses some too: wait a minute before
+the rate-limit check.
 
 ## 5. The nightly reset
 
