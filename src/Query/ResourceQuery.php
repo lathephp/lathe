@@ -183,6 +183,18 @@ class ResourceQuery
     }
 
     /**
+     * Whether the scoped query holds more than $count rows, read through a subquery that
+     * stops one row past it, so a large table is never counted in full.
+     */
+    public function holdsMoreThan(int $count): bool
+    {
+        $scoped = $this->scoped();
+        $capped = $scoped->toBase()->select($scoped->getModel()->getQualifiedKeyName())->limit($count + 1);
+
+        return $capped->newQuery()->fromSub($capped, 'capped')->count() > $count;
+    }
+
+    /**
      * One page of a relation picker: the key and the option columns of the rows the term
      * matches, by title then key unless $reorder is off, always ending on the key so pages
      * never overlap. One row past the page tells hasMorePages() without a count.

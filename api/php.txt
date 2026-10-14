@@ -1850,6 +1850,7 @@ Lathe\Query\ResourceQuery::forLens(Lathe\Lenses\Lens $lens): static
 Lathe\Query\ResourceQuery::forRelation(Illuminate\Database\Eloquent\Relations\Relation $relation): static
 Lathe\Query\ResourceQuery::hasMorePages(): bool
 Lathe\Query\ResourceQuery::holdsKey(Illuminate\Database\Eloquent\Model $model, string|int $id): bool  [static]
+Lathe\Query\ResourceQuery::holdsMoreThan(int $count): bool
 Lathe\Query\ResourceQuery::onlyTrashed(): static
 Lathe\Query\ResourceQuery::options(int $limit, bool $reorder = true): Illuminate\Database\Eloquent\Collection
 Lathe\Query\ResourceQuery::page(): array

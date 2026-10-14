@@ -90,11 +90,7 @@ class RelationFilter extends Filter
             return true;
         }
 
-        $scoped = $query->scoped();
-        // Counting a subquery capped one past the threshold reads at most that many keys.
-        $capped = $scoped->toBase()->select($scoped->getModel()->getQualifiedKeyName())->limit($threshold + 1);
-
-        return $capped->newQuery()->fromSub($capped, 'capped')->count() > $threshold;
+        return $query->holdsMoreThan($threshold);
     }
 
     protected function acceptsRemoteValue(string $value): bool
