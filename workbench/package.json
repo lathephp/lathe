@@ -1,0 +1,9 @@
+{
+  "name": "lathe-workbench",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "lathe:build": "vite build --config vite.lathe.config.ts",
+    "lathe:dev": "vite --config vite.lathe.config.ts"
+  }
+}

@@ -1,0 +1,1 @@
+import{widget as e}from"@lathephp/core";import{Card as t}from"@lathephp/ui";import{jsx as n,jsxs as r}from"react/jsx-runtime";function i({widget:e,value:i}){return r(t,{className:`p-6`,children:[n(`h3`,{className:`font-semibold leading-none tracking-tight`,children:e.name}),n(`time`,{className:`mt-2 block text-2xl tabular-nums`,children:String(i)})]})}e(`workbench-clock`,i);
