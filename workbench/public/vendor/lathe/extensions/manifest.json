@@ -1,5 +1,5 @@
 {
-  "entry": "boot-D8xDSqI3.js",
+  "entry": "boot-BfwmOwDk.js",
   "components": {
     "widget": [
       "workbench-clock"
@@ -7,6 +7,9 @@
     "page": [
       "ui-gallery",
       "system-status"
+    ],
+    "plugin": [
+      "insights"
     ]
   }
 }
