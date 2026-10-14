@@ -18,6 +18,7 @@ env:
   - MAIL_MAILER=log
   # Starting an impersonation lands in the panel, so the banner shows at once.
   - LATHE_IMPERSONATION_STARTED=/lathe
+  - LATHE_FORTIFY_FEATURES=update-passwords,two-factor-authentication,email-verification
 
 workbench:
   start: '/lathe'

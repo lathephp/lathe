@@ -5,6 +5,7 @@ namespace Workbench\App\Providers;
 use Illuminate\Contracts\Http\Kernel;
 use Illuminate\Http\Request;
 use Illuminate\Support\ServiceProvider;
+use Laravel\Fortify\Features;
 use Lathe\Lathe;
 use Workbench\App\Console\Commands\DemoSeedCommand;
 use Workbench\App\Http\Middleware\ArabicContext;
@@ -32,6 +33,12 @@ class WorkbenchServiceProvider extends ServiceProvider
 
         // The served workbench runs under the strict policy; feature tests check tags without a nonce, so they opt out.
         config(['workbench.strict_csp' => config('workbench.strict_csp', ! $this->app->runningUnitTests())]);
+
+        // The served workbench confirms two-factor with a code and asks for the password first;
+        // tests choose these options themselves.
+        if (! $this->app->runningUnitTests()) {
+            Features::twoFactorAuthentication(['confirm' => true, 'confirmPassword' => true]);
+        }
         $kernel = $this->app->make(Kernel::class)
             ->pushMiddleware(StrictContentSecurityPolicy::class)
             ->pushMiddleware(ServerTiming::class)

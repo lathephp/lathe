@@ -114,7 +114,9 @@ return [
     */
 
     'fortify' => [
-        'features' => [],
+        // Fortify feature keys, such as update-passwords,two-factor-authentication,email-verification,
+        // or Features::...() calls in place of the env list.
+        'features' => array_values(array_filter(array_map(trim(...), explode(',', (string) env('LATHE_FORTIFY_FEATURES', ''))))),
         'username' => null,
         'email' => null,
     ],
