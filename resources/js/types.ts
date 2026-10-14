@@ -17,6 +17,8 @@ export interface SharedProps {
   };
   /** Absent means off. The server sends it once the config and the user's ability allow the palette. */
   globalSearch?: { enabled: boolean; debounce: number };
+  /** Absent means off. The server sends the notifications config. */
+  notifications?: { enabled: boolean; pollingInterval: number; showUnreadCount: boolean };
   tableStyle: { density: 'compact' | 'comfortable' | 'spacious'; striped: boolean };
   [key: string]: unknown;
 }

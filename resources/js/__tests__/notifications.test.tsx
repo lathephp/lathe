@@ -231,12 +231,12 @@ describe('panel', () => {
     mount();
     await openPanel();
 
-    expect((screen.getByRole('button', { name: 'Mark all read' }) as HTMLButtonElement).disabled).toBe(true);
+    expect(screen.getByRole<HTMLButtonElement>('button', { name: 'Mark all read' }).disabled).toBe(true);
     fireEvent.keyDown(document.body, { key: 'n' });
 
     list = [item('a', 'Unread one')];
     await openPanel();
-    const markAll = screen.getByRole('button', { name: 'Mark all read' }) as HTMLButtonElement;
+    const markAll = screen.getByRole<HTMLButtonElement>('button', { name: 'Mark all read' });
     expect(markAll.disabled).toBe(false);
     fireEvent.click(markAll);
     await settle();

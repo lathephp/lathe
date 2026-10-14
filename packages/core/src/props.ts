@@ -10,6 +10,7 @@ export interface SharedData {
   assetHash?: string;
   auth?: { user: { name: string; email: string } | null };
   flash?: { success?: string | null; error?: string | null };
+  notifications?: { enabled: boolean; pollingInterval: number; showUnreadCount: boolean };
   config?: Record<string, unknown>;
   [key: string]: unknown;
 }

@@ -4,6 +4,7 @@ import { Button } from '@lathephp/ui';
 import { Menu, PanelLeft, Search } from 'lucide-react';
 import { useEffect, useState, type CSSProperties, type ReactNode } from 'react';
 import { cn } from '../lib/cn';
+import { NotificationCenter } from '../notifications/NotificationCenter';
 import { SearchPalette } from '../palette/SearchPalette';
 import type { SharedProps } from '../types';
 import { Sidebar } from './Sidebar';
@@ -22,6 +23,7 @@ export function AppLayout({ children }: { children: ReactNode }) {
   const mobileOpen = sheetUrl === url;
   const expanded = collapsible === 'none' || open;
   const search = props.globalSearch;
+  const notifications = props.notifications;
   const searchOn = search?.enabled === true;
   const [searching, setSearching] = useState(false);
 
@@ -99,25 +101,33 @@ export function AppLayout({ children }: { children: ReactNode }) {
               <PanelLeft aria-hidden="true" className="size-4" />
             </Button>
           )}
-          {searchOn && (
-            <Button
-              variant="outline"
-              size="sm"
-              className="ms-auto"
-              aria-label={__('Search')}
-              aria-keyshortcuts="Control+K Meta+K"
-              onClick={() => {
-                setSearching(true);
-              }}
-            >
-              <Search aria-hidden="true" className="size-4" />
-              {shortcutsEnabled() && (
-                <kbd aria-hidden="true" className="text-xs text-muted-foreground max-md:hidden">
-                  {/mac/i.test(navigator.platform) ? '⌘K' : 'Ctrl K'}
-                </kbd>
-              )}
-            </Button>
-          )}
+          <div className="ms-auto flex items-center gap-2">
+            {searchOn && (
+              <Button
+                variant="outline"
+                size="sm"
+                aria-label={__('Search')}
+                aria-keyshortcuts="Control+K Meta+K"
+                onClick={() => {
+                  setSearching(true);
+                }}
+              >
+                <Search aria-hidden="true" className="size-4" />
+                {shortcutsEnabled() && (
+                  <kbd aria-hidden="true" className="text-xs text-muted-foreground max-md:hidden">
+                    {/mac/i.test(navigator.platform) ? '⌘K' : 'Ctrl K'}
+                  </kbd>
+                )}
+              </Button>
+            )}
+            {notifications?.enabled === true && (
+              <NotificationCenter
+                basePath={props.basePath}
+                pollingInterval={notifications.pollingInterval}
+                showUnreadCount={notifications.showUnreadCount}
+              />
+            )}
+          </div>
         </header>
         <main id="content" tabIndex={-1} className="flex-1 p-6 outline-none">
           <div className={cn(layout.content.width === 'contained' && 'mx-auto max-w-384')}>{children}</div>
