@@ -16,6 +16,8 @@ env:
   - SESSION_DRIVER=file
   - QUEUE_CONNECTION=database
   - MAIL_MAILER=log
+  # Starting an impersonation lands in the panel, so the banner shows at once.
+  - LATHE_IMPERSONATION_STARTED=/lathe
 
 workbench:
   start: '/lathe'

@@ -34,9 +34,6 @@ class LatheServiceProvider extends LatheApplicationServiceProvider
         parent::boot();
 
         Lathe::withPasswordResetRoutes();
-        // Starting an impersonation lands in the panel, so the banner shows at once.
-        config(['lathe.impersonation.started' => '/lathe']);
-
         Lathe::registerPages(UiGallery::class, SystemStatus::class);
         Lathe::registerSearchProviders(new DemoKitPages);
         Lathe::registerPlugins(HelloPlugin::make(), InsightsPlugin::make());

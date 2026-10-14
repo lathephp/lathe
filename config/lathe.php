@@ -120,8 +120,8 @@ return [
     ],
 
     'impersonation' => [
-        'started' => '/',
-        'stopped' => '/',
+        'started' => env('LATHE_IMPERSONATION_STARTED', '/'),
+        'stopped' => env('LATHE_IMPERSONATION_STOPPED', '/'),
     ],
 
     /*

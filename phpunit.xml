@@ -34,6 +34,7 @@
         <env name="SESSION_DRIVER" value="array"/>
         <env name="QUEUE_CONNECTION" value="sync"/>
         <env name="CACHE_STORE" value="array"/>
+        <env name="LATHE_IMPERSONATION_STARTED" value="/lathe"/>
         <env name="MAIL_MAILER" value="array"/>
     </php>
 </phpunit>
