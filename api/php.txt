@@ -2379,6 +2379,9 @@ Lathe\Http\Controllers\Assets\AssetController::__invoke(Illuminate\Http\Request 
 Lathe\Http\Controllers\Auth\AuthenticatedSessionController::destroy(Illuminate\Http\Request $request): Symfony\Component\HttpFoundation\Response
 Lathe\Http\Controllers\Auth\AuthenticatedSessionController::store(Illuminate\Http\Request $request): Symfony\Component\HttpFoundation\Response
 Lathe\Http\Controllers\Auth\CallsFortify::callFortify(Illuminate\Http\Request $request, string $controller, string $method): Symfony\Component\HttpFoundation\Response  [protected]
+Lathe\Http\Controllers\Auth\ConfirmablePasswordController::show(Illuminate\Http\Request $request): Symfony\Component\HttpFoundation\Response
+Lathe\Http\Controllers\Auth\ConfirmablePasswordController::status(Illuminate\Http\Request $request): Symfony\Component\HttpFoundation\Response
+Lathe\Http\Controllers\Auth\ConfirmablePasswordController::store(Illuminate\Http\Request $request): Symfony\Component\HttpFoundation\Response
 Lathe\Http\Controllers\Auth\EmailVerificationController::notice(Illuminate\Http\Request $request, Lathe\Auth\FortifyConfig $fortify): Symfony\Component\HttpFoundation\Response
 Lathe\Http\Controllers\Auth\EmailVerificationController::send(Illuminate\Http\Request $request): Symfony\Component\HttpFoundation\Response
 Lathe\Http\Controllers\Auth\EmailVerificationController::verify(Illuminate\Http\Request $request): Symfony\Component\HttpFoundation\Response
@@ -4705,6 +4708,7 @@ class Lathe\Filters\RelationFilter
 class Lathe\Groups\Group
 class Lathe\Http\Controllers\Assets\AssetController
 class Lathe\Http\Controllers\Auth\AuthenticatedSessionController
+class Lathe\Http\Controllers\Auth\ConfirmablePasswordController
 class Lathe\Http\Controllers\Auth\EmailVerificationController
 class Lathe\Http\Controllers\Auth\LoginPageController
 class Lathe\Http\Controllers\Auth\NewPasswordController
