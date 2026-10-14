@@ -11,6 +11,7 @@ use Lathe\Http\Controllers\Auth\LoginPageController;
 use Lathe\Http\Controllers\BulkRunController;
 use Lathe\Http\Controllers\DashboardController;
 use Lathe\Http\Controllers\GlobalSearchController;
+use Lathe\Http\Controllers\ImportController;
 use Lathe\Http\Controllers\NotificationController;
 use Lathe\Http\Controllers\PageFallbackController;
 use Lathe\Http\Controllers\Plugins\ModuleController;
@@ -216,7 +217,11 @@ class PanelRoutes
 
     protected function importRoutes(Router $router): void
     {
-        //
+        $controller = ImportController::class;
+
+        $router->get('imports/{import}', [$controller, 'show'])->name('imports.show');
+        $router->post('imports/{import}/resume', [$controller, 'resume'])->name('imports.resume');
+        $router->get('imports/{import}/download-errors', [$controller, 'downloadErrors'])->middleware('signed')->name('imports.downloadErrors');
     }
 
     protected function notificationRoutes(Router $router): void

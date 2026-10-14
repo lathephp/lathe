@@ -6,6 +6,7 @@ use Lathe\Field\Field;
 use Lathe\Http\Requests\LatheRequest;
 use Lathe\Resources\Resource;
 use Lathe\Resources\ResourceDefinition;
+use Workbench\App\Lathe\Actions\ImportProducts;
 use Workbench\App\Lathe\Actions\MoveToFirst;
 use Workbench\App\Models\Product as ProductModel;
 
@@ -36,5 +37,10 @@ class Product extends Resource
             Field::morphToMany('Tags')->pivotFields([Field::number('Position')->min(0)->max(1000)->step(1)->rules('integer')->required()])->pivotActions(fn () => [MoveToFirst::make()]),
             Field::morphMany('Comments'),
         ];
+    }
+
+    public function actions(LatheRequest $request): array
+    {
+        return [ImportProducts::make()->forResource(static::class)];
     }
 }
