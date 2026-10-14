@@ -20,12 +20,21 @@ use Lathe\Attributes\Action\ShowOnIndex;
 use Lathe\Attributes\Action\Sole;
 use Lathe\Attributes\Action\Standalone;
 use Lathe\Attributes\Action\WithoutActionEvents;
+use Lathe\Field\Field;
 use Lathe\Http\Requests\LatheRequest;
 use Workbench\App\Models\Order;
 
 class MarkShipped extends Action
 {
     //
+}
+
+class MergeIntoTarget extends Action
+{
+    public function fields(LatheRequest $request): array
+    {
+        return [Field::text('Target')];
+    }
 }
 
 #[Confirmable('Ship :count orders?')]
@@ -132,6 +141,10 @@ it('serializes an action with no modifiers to the default metadata', function ()
         ->and($action->shownOnDetail())->toBeTrue()
         ->and($action->shownOnTableRow())->toBeFalse()
         ->and($action->recordsActionEvents())->toBeTrue();
+});
+
+it('opens the modal for an action that declares fields without confirmable', function () {
+    expect(MergeIntoTarget::make()->jsonSerialize()['withoutConfirmation'])->toBeFalse();
 });
 
 it('gives the same metadata for an attribute and its fluent twin', function (string $class, Closure $fluent, array $changed) {

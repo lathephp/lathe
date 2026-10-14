@@ -16,6 +16,7 @@ use Lathe\Lathe;
 use Lathe\Query\Selection;
 use ReflectionAttribute;
 use ReflectionClass;
+use ReflectionMethod;
 use Throwable;
 
 /**
@@ -699,7 +700,9 @@ class Action implements JsonSerializable
             'standalone' => $this->isStandalone(),
             'sole' => $this->isSole(),
             'pinned' => $this->isPinned(),
-            'withoutConfirmation' => ! $this->isConfirmable(),
+            // A class that declares fields gets the modal even when it is not confirmable:
+            // run without it, the fields would get no values.
+            'withoutConfirmation' => ! $this->isConfirmable() && (new ReflectionMethod($this, 'fields'))->class === self::class,
             'confirmText' => is_string($this->confirmText) ? $this->confirmText : null,
             'confirmButtonText' => $this->confirmButtonText ?? Lathe::__('Run Action'),
             'cancelButtonText' => $this->cancelButtonText ?? Lathe::__('Cancel'),
