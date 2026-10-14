@@ -3,13 +3,19 @@
 namespace Lathe\Auth;
 
 use Closure;
+use Illuminate\Auth\Notifications\ResetPassword;
 use Illuminate\Container\Container;
+use Illuminate\Contracts\Auth\CanResetPassword;
+use Laravel\Fortify\Contracts\FailedPasswordResetLinkRequestResponse;
 use Laravel\Fortify\Contracts\LoginResponse as LoginResponseContract;
 use Laravel\Fortify\Contracts\LogoutResponse as LogoutResponseContract;
+use Laravel\Fortify\Contracts\SuccessfulPasswordResetLinkRequestResponse;
 use Laravel\Fortify\Features;
 use Laravel\Fortify\Fortify;
 use Lathe\Auth\Responses\LoginResponse;
 use Lathe\Auth\Responses\LogoutResponse;
+use Lathe\Auth\Responses\PasswordResetLinkSentResponse;
+use Lathe\Lathe;
 
 /**
  * The panel's Fortify: its settings, the hooks a host gives it, and the responses it binds.
@@ -85,6 +91,8 @@ class FortifyBootstrap extends FortifyConfig
         return [
             LoginResponseContract::class => LoginResponse::class,
             LogoutResponseContract::class => LogoutResponse::class,
+            SuccessfulPasswordResetLinkRequestResponse::class => PasswordResetLinkSentResponse::class,
+            FailedPasswordResetLinkRequestResponse::class => PasswordResetLinkSentResponse::class,
         ];
     }
 
@@ -101,16 +109,20 @@ class FortifyBootstrap extends FortifyConfig
      */
     protected function withHooks(Closure $callback): mixed
     {
-        $host = [Fortify::$authenticateThroughCallback, Fortify::$authenticateUsingCallback, Fortify::$confirmPasswordsUsingCallback];
+        $host = [Fortify::$authenticateThroughCallback, Fortify::$authenticateUsingCallback, Fortify::$confirmPasswordsUsingCallback, ResetPassword::$createUrlCallback];
 
         Fortify::$authenticateThroughCallback = $this->authenticateThrough;
         Fortify::$authenticateUsingCallback = $this->authenticateUsing;
         Fortify::$confirmPasswordsUsingCallback = $this->confirmPasswordsUsing;
+        // The reset mail links to the panel's screen, not to a password.reset route the host may lack.
+        ResetPassword::$createUrlCallback = fn (mixed $user, string $token): string => url(Lathe::authPaths()['resetPassword'].'/'.$token).'?'.http_build_query([
+            'email' => $user instanceof CanResetPassword ? $user->getEmailForPasswordReset() : null,
+        ]);
 
         try {
             return $callback();
         } finally {
-            [Fortify::$authenticateThroughCallback, Fortify::$authenticateUsingCallback, Fortify::$confirmPasswordsUsingCallback] = $host;
+            [Fortify::$authenticateThroughCallback, Fortify::$authenticateUsingCallback, Fortify::$confirmPasswordsUsingCallback, ResetPassword::$createUrlCallback] = $host;
         }
     }
 

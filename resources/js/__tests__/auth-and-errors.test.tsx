@@ -38,6 +38,15 @@ describe('login', () => {
     expect(screen.queryByRole('complementary')).toBeNull();
   });
 
+  it('links to Forgot password when reset routes are on', () => {
+    renderPage('Auth/Login', { username: 'email', errors: {} }, {
+      shared: { ...signedOut, authPaths: { login: '/lathe/login', logout: '/lathe/logout', forgotPassword: '/forgot', resetPassword: '/reset' } },
+      url: '/lathe/login',
+    });
+
+    expect(screen.getByRole('link', { name: 'Forgot your password?' }).getAttribute('href')).toBe('/forgot');
+  });
+
   it('shows a validation error under its field', () => {
     renderLogin({ email: 'These credentials do not match our records.' });
 
@@ -178,5 +187,30 @@ describe('error page without the panel props', () => {
 
     expect(screen.getByRole('heading', { name: 'Your session expired' })).toBeTruthy();
     expect(screen.getByRole('link', { name: 'Back to dashboard' }).getAttribute('href')).toBe('/lathe');
+  });
+});
+
+describe('forgot password', () => {
+  function renderForgot(props: { status?: string | null; errors?: Record<string, string> } = {}) {
+    return renderPage('Auth/ForgotPassword', { status: props.status ?? null, errors: props.errors ?? {} }, { shared: signedOut, url: '/lathe/forgot-password' });
+  }
+
+  it('asks for the email in the auth card and posts it', () => {
+    const visit = vi.spyOn(router, 'visit').mockImplementation(() => undefined);
+    renderForgot();
+
+    expect(screen.getByRole('heading', { level: 1 }).textContent).toBe('Acme');
+    fireEvent.change(screen.getByLabelText('Email'), { target: { value: 'ada@example.com' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Email password reset link' }));
+
+    expect(visit).toHaveBeenCalledWith('/lathe/forgot-password', expect.objectContaining({ method: 'post', data: { email: 'ada@example.com' } }));
+    expect(screen.getByRole('link', { name: 'Back to sign in' }).getAttribute('href')).toBe('/lathe/login');
+  });
+
+  it('shows the answer as a status and an error under the field', () => {
+    renderForgot({ status: 'We have emailed your password reset link.', errors: { email: 'The email field must be a valid email address.' } });
+
+    expect(screen.getByRole('status').textContent).toBe('We have emailed your password reset link.');
+    expect(screen.getByLabelText('Email').getAttribute('aria-describedby')).toBe(screen.getByText('The email field must be a valid email address.').id);
   });
 });

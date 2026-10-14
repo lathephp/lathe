@@ -6,6 +6,7 @@ use Inertia\ServiceProvider as InertiaServiceProvider;
 use Inertia\Testing\AssertableInertia;
 use Laravel\Fortify\FortifyServiceProvider;
 use Lathe\Lathe;
+use Lathe\LatheManager;
 use Workbench\App\Models\User;
 use Workbench\App\Providers\LatheServiceProvider as WorkbenchLatheServiceProvider;
 
@@ -19,10 +20,13 @@ beforeEach(function () {
 });
 
 it('keeps reset routes off and authentication routes on by default', function () {
-    expect(Lathe::hasPasswordResetRoutes())->toBeFalse()
-        ->and(Lathe::hasAuthenticationRoutes())->toBeTrue()
-        ->and(Lathe::customLoginPath())->toBeNull()
-        ->and(Lathe::customForgotPasswordPath())->toBeNull();
+    // The workbench turns reset routes on, so the defaults are read from a fresh manager.
+    $manager = new LatheManager(app());
+
+    expect($manager->hasPasswordResetRoutes())->toBeFalse()
+        ->and($manager->hasAuthenticationRoutes())->toBeTrue()
+        ->and($manager->customLoginPath())->toBeNull()
+        ->and($manager->customForgotPasswordPath())->toBeNull();
 });
 
 it('turns the reset routes on and off, with custom paths for the client', function () {
@@ -41,6 +45,8 @@ it('turns the reset routes on and off, with custom paths for the client', functi
 });
 
 it('shares the panel auth paths, and no forgot link while reset routes are off', function () {
+    Lathe::withoutPasswordResetRoutes();
+
     $this->get('/lathe/login')->assertInertia(fn (AssertableInertia $page) => $page
         ->where('authPaths', [
             'login' => '/lathe/login',

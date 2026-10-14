@@ -33,6 +33,7 @@ class LatheServiceProvider extends LatheApplicationServiceProvider
     {
         parent::boot();
 
+        Lathe::withPasswordResetRoutes();
         Lathe::registerPages(UiGallery::class, SystemStatus::class);
         Lathe::registerSearchProviders(new DemoKitPages);
         Lathe::registerPlugins(HelloPlugin::make(), InsightsPlugin::make());

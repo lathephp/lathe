@@ -1,8 +1,9 @@
-import { Head, useForm, usePage } from '@inertiajs/react';
+import { useForm, usePage } from '@inertiajs/react';
 import { __panel, useTranslation } from '@lathephp/core';
-import { Button, Card } from '@lathephp/ui';
+import { Button } from '@lathephp/ui';
 import type { SubmitEvent } from 'react';
 import { FieldError } from '../../components/FieldError';
+import { AuthLayout, authInputClass as inputClass } from '../../layout/AuthLayout';
 import type { SharedProps } from '../../types';
 
 interface LoginProps {
@@ -10,14 +11,11 @@ interface LoginProps {
   errors: Partial<Record<'email' | 'password', string>>;
 }
 
-const { RenderHook, Slot } = __panel;
-
-const inputClass =
-  'h-9 w-full rounded-md border border-border bg-background px-3 text-sm outline-none focus-visible:ring-2 focus-visible:ring-ring aria-invalid:border-destructive';
+const { Slot } = __panel;
 
 export default function Login({ username, errors }: LoginProps) {
   const { __ } = useTranslation();
-  const { appName, basePath } = usePage<SharedProps>().props;
+  const { basePath, authPaths } = usePage<SharedProps>().props;
   const form = useForm({ email: '', password: '', remember: false });
   const byEmail = username === 'email';
 
@@ -33,12 +31,7 @@ export default function Login({ username, errors }: LoginProps) {
 
   return (
     <Slot name="auth.login" username={username} errors={errors}>
-      <main className="grid min-h-svh place-items-center bg-muted p-6 text-foreground">
-        <div className="w-full max-w-sm space-y-6">
-          <Head title={__('Sign in')} />
-          <RenderHook position="head" />
-          <h1 className="text-center text-xl font-semibold">{appName}</h1>
-          <Card className="p-6">
+      <AuthLayout title={__('Sign in')}>
             <form className="space-y-4" noValidate onSubmit={submit}>
               <div className="space-y-1.5">
                 <label htmlFor="email" className="text-sm font-medium">
@@ -99,10 +92,12 @@ export default function Login({ username, errors }: LoginProps) {
                 {__('Sign in')}
               </Button>
             </form>
-          </Card>
-          <RenderHook position="auth:after-form" className="block" />
-        </div>
-      </main>
+        {authPaths.forgotPassword !== null && (
+          <a href={authPaths.forgotPassword} className="block text-center text-sm underline-offset-4 hover:underline">
+            {__('Forgot your password?')}
+          </a>
+        )}
+      </AuthLayout>
     </Slot>
   );
 }

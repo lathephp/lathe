@@ -8,6 +8,7 @@ use Lathe\Auth\FortifyConfig;
 use Lathe\Http\Controllers\Assets\AssetController;
 use Lathe\Http\Controllers\Auth\AuthenticatedSessionController;
 use Lathe\Http\Controllers\Auth\LoginPageController;
+use Lathe\Http\Controllers\Auth\PasswordResetLinkController;
 use Lathe\Http\Controllers\BulkRunController;
 use Lathe\Http\Controllers\DashboardController;
 use Lathe\Http\Controllers\ExportController;
@@ -89,6 +90,11 @@ class PanelRoutes
                 $router->post('login', [AuthenticatedSessionController::class, 'store'])->middleware($guest)->name('login.store');
                 // POST only: a GET would let any image tag sign the user out.
                 $router->post('logout', [AuthenticatedSessionController::class, 'destroy'])->middleware(Authenticate::class)->name('logout');
+            }
+
+            if (Lathe::hasPasswordResetRoutes()) {
+                $router->get('forgot-password', [PasswordResetLinkController::class, 'create'])->middleware($guest)->name('password.request');
+                $router->post('forgot-password', [PasswordResetLinkController::class, 'store'])->middleware($guest)->name('password.email');
             }
         });
 
