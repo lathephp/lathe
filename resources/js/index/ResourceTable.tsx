@@ -1,8 +1,9 @@
 import { useTranslation } from '@lathephp/core';
 import { router, usePage } from '@inertiajs/react';
 import { ArrowDown, ArrowUp, Eye } from 'lucide-react';
-import { Fragment, lazy, Suspense, useState, type MouseEvent } from 'react';
+import { Fragment, Suspense, useState, type MouseEvent } from 'react';
 import type { FieldSchema } from '../fields/types';
+import { PreviewModal } from '../fields/relation/lazy';
 import { cn } from '../lib/cn';
 import { TableCell } from '../table/cells';
 import type { SharedProps } from '../types';
@@ -15,8 +16,6 @@ import { TableSummaryRow } from './TableSummaryRow';
 import type { IndexProps, Row } from './types';
 import type { RowSelection } from './useRowSelection';
 
-// The preview opens on demand, so it loads after first paint.
-const PreviewModal = lazy(() => import('../records/PreviewModal').then((module) => ({ default: module.PreviewModal })));
 
 const rowHeights = { compact: 'h-8', comfortable: 'h-10', spacious: 'h-12' };
 

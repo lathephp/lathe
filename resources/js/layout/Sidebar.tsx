@@ -1,8 +1,10 @@
-import { useTranslation } from '@lathephp/core';
+import { __panel, useTranslation } from '@lathephp/core';
 import { cn } from '../lib/cn';
 import type { SharedProps } from '../types';
 import { NavSection, type NavBadge, type NavBlock } from './NavSection';
 import { UserMenu } from './UserMenu';
+
+const { RenderHook } = __panel;
 
 interface SidebarProps {
   props: SharedProps;
@@ -46,13 +48,13 @@ export function Sidebar({ props, url, expanded, mobileOpen }: SidebarProps) {
           {versionLabel !== null && <p className="truncate text-xs text-muted-foreground">{versionLabel}</p>}
         </div>
       </div>
-      <div data-lathe-hook="sidebar:before" />
+      <RenderHook position="sidebar:before" />
       <nav aria-label={__('Main')} className="flex-1 overflow-y-auto p-2">
         {sections.map((section, index) => (
           <NavSection key={section.label ?? index} block={section} context={context} />
         ))}
       </nav>
-      <div data-lathe-hook="sidebar:after" />
+      <RenderHook position="sidebar:after" />
       {auth.user !== null && <UserMenu user={auth.user} basePath={basePath} collapsed={collapsed} />}
     </aside>
   );

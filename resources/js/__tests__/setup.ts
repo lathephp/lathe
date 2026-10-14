@@ -1,9 +1,15 @@
 import { __panel } from '@lathephp/core';
 import { cleanup } from '@testing-library/react';
-import { afterEach } from 'vitest';
+import { afterEach, beforeAll } from 'vitest';
 import { registerBuiltinFields } from '../fields/builtin';
+import { preloadRelationForms } from '../fields/relation/lazy';
 
 registerBuiltinFields();
+
+// The relation pickers are lazy chunks; loaded up front, a test renders them at once.
+beforeAll(async () => {
+  await preloadRelationForms();
+});
 
 // jsdom has no layout for ranges, and ProseMirror measures one when a Tiptap update
 // scrolls the selection into view, sometimes after its test has finished.

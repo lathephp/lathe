@@ -1,4 +1,5 @@
 import { fireEvent, screen, within } from '@testing-library/react';
+import { renderHook } from '@lathephp/core';
 import { describe, expect, it } from 'vitest';
 import type { SharedProps } from '../types';
 import { renderPage } from './support';
@@ -68,12 +69,17 @@ describe('sidebar sections', () => {
     expect(nav.getByRole('link', { name: 'Orders' }).getAttribute('data-active')).toBe('true');
   });
 
-  it('places the render hook slots around the navigation', () => {
+  it('renders the sidebar render hooks around the navigation', async () => {
+    renderHook('sidebar:before', () => <span>before the menu</span>);
+    renderHook('sidebar:after', () => <span>after the menu</span>);
     show('/lathe');
     const nav = screen.getByRole('navigation', { name: 'Main' });
 
+    await screen.findByText('before the menu');
     expect(nav.previousElementSibling?.getAttribute('data-lathe-hook')).toBe('sidebar:before');
+    expect(nav.previousElementSibling?.textContent).toBe('before the menu');
     expect(nav.nextElementSibling?.getAttribute('data-lathe-hook')).toBe('sidebar:after');
+    expect(nav.nextElementSibling?.textContent).toBe('after the menu');
   });
 });
 

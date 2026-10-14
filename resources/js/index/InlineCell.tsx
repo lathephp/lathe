@@ -1,13 +1,13 @@
 import { ApiError, request, toast, useLathe, useTranslation } from '@lathephp/core';
-import { useId, useState, type KeyboardEvent } from 'react';
+import { Suspense, useId, useState, type KeyboardEvent } from 'react';
 import type { Cell, FieldSchema } from '../fields/types';
 import { stringValue } from '../fields/registry';
 import { isBelongsToValue } from '../fields/relation/BelongsToField';
-import { BelongsToForm } from '../fields/relation/BelongsToForm';
+import { BelongsToForm, MorphToForm } from '../fields/relation/lazy';
 import { isMorphToValue } from '../fields/relation/MorphToField';
-import { MorphToForm } from '../fields/relation/MorphToForm';
 import { cn } from '../lib/cn';
 import { TableCell } from '../table/cells';
+
 
 interface InlineReply {
   fields: Record<string, Cell>;
@@ -163,6 +163,7 @@ export function InlineCell({ uriKey, rowId, column, cell, token, onRow }: Inline
         <label htmlFor={pickerId} className="sr-only">
           {column.label}
         </label>
+        <Suspense fallback={<div className="h-8" aria-hidden="true" />}>
         {column.component === 'belongs-to-field' ? (
           <BelongsToForm
             {...common}
@@ -188,6 +189,7 @@ export function InlineCell({ uriKey, rowId, column, cell, token, onRow }: Inline
             }}
           />
         )}
+        </Suspense>
       </>
     );
   } else if (editing !== null) {

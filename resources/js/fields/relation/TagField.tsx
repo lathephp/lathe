@@ -1,11 +1,10 @@
 import { useTranslation } from '@lathephp/core';
-import { useState } from 'react';
+import { Suspense, useState } from 'react';
 import { cn } from '../../lib/cn';
-import { PreviewModal } from '../../records/PreviewModal';
 import type { DetailFieldProps, FormFieldProps, IndexFieldProps } from '../registry';
 import type { FieldSchema } from '../types';
 import { isBelongsToValue } from './BelongsToField';
-import { BelongsToForm } from './BelongsToForm';
+import { BelongsToForm, PreviewModal } from './lazy';
 import type { AssociatableItem } from './useAssociatable';
 
 const chip = 'rounded-full bg-muted px-2 py-0.5 text-xs font-medium';
@@ -53,13 +52,15 @@ function TagChips({ field, value }: { field: FieldSchema; value: unknown }) {
             event.stopPropagation();
           }}
         >
-          <PreviewModal
-            uriKey={preview}
-            id={previewing}
-            onClose={() => {
-              setPreviewing(null);
-            }}
-          />
+          <Suspense fallback={null}>
+            <PreviewModal
+              uriKey={preview}
+              id={previewing}
+              onClose={() => {
+                setPreviewing(null);
+              }}
+            />
+          </Suspense>
         </div>
       )}
     </>
@@ -124,17 +125,19 @@ export function TagForm(props: FormFieldProps) {
           ))}
         </ul>
       )}
-      <BelongsToForm
-        {...props}
-        // Tags not preloaded are too many to list, so they always use the searched picker.
-        field={{ ...field, searchable: true }}
-        value={null}
-        onChange={(picked) => {
-          if (isBelongsToValue(picked) && !has(picked)) {
-            onChange([...chosen, { value: picked.value, display: picked.display }]);
-          }
-        }}
-      />
+      <Suspense fallback={<div className="h-9" aria-hidden="true" />}>
+        <BelongsToForm
+          {...props}
+          // Tags not preloaded are too many to list, so they always use the searched picker.
+          field={{ ...field, searchable: true }}
+          value={null}
+          onChange={(picked) => {
+            if (isBelongsToValue(picked) && !has(picked)) {
+              onChange([...chosen, { value: picked.value, display: picked.display }]);
+            }
+          }}
+        />
+      </Suspense>
     </div>
   );
 }
