@@ -1,3 +1,11 @@
 # Changelog
 
 ## Unreleased
+
+- [api] Dashboards and widgets: `Dashboard` options and attributes, `DashboardRegistry`, the `Widget` base class with `CardWidth`, the widget attributes, `RoundingPrecision`, the eleven widget types (`ValueWidget`, `TrendWidget`, `ProgressWidget`, `TableWidget`, `HelpWidget`, `CustomWidget`, `BarWidget`, `PieWidget`, `PartitionWidget`, `RadarWidget`, `RadialWidget`), their result classes, `AggregateQuery`, `TrendUnit`, `PartitionColors`, `Tooltip`, `WidgetPresenter` and `WidgetCache`, and `Resource::widgets()` / `Lens::widgets()`.
+- [api] Menus and pages: `Menu`, `MenuGroup`, `Badge` and the new `MenuItem` and `MenuSection` targets; `Page` and `PageRegistry` with `Lathe::registerPages()`.
+- [api] Theming: `Color`, `ThemeStyleGenerator`, `Contrast`, `Lathe::enableRTL()` and `Lathe::isRTL()`, `theme.font` as `{family, fallback, files}`.
+- [api] Plugins: `Plugin::resources()`, `widgets()`, `middleware()`, `settings()`, `setting()`, `saveSettings()` and `handleSettingsRequest()`, `PluginSetting`, `ResourcePlugin` and `ResourcePluginRegistry`, `Lathe::script()`, `style()`, `provideToScript()`, `serving()`, `booted()`, `isServing()`, `whenServing()`, `servePlugins()` and `ensureBooted()`, remote assets.
+- [api] Commands: `lathe:resource`, `lathe:action`, `lathe:filter`, `lathe:lens`, `lathe:widget`, `lathe:field`, `lathe:dashboard`, `lathe:page`, `lathe:plugin`, `lathe:resource-plugin`, `lathe:stubs`, `lathe:plugins`, `lathe:assets`, `lathe:preset`, `lathe:user`, `lathe:uninstall` and `lathe:prune`.
+- [api] Browser: `@lathephp/core` gains `field`, `filter`, `widget`, `page`, `resourcePlugin`, `renderHook`, `registry.replace`, the data hooks, `useTheme`, the lent components, the plugin types and `@lathephp/core/testing`; `@lathephp/ui` becomes the shadcn kit on Base UI (27 components plus 22 subpaths); `@lathephp/vite-plugin` gains `mode: 'app'`.
+- [api] Changed: `MenuItem::plugin($plugin, $subPath)` takes the sub path second (the label is the plugin's name), `MenuItem::lens()` takes an optional name, `MenuSection::item()` also takes a `MenuGroup`, and `Doctor::pluginChecks()` and `pluginPackages()` are public. The plugin API controller is now `PluginController`; controller and service constructors changed with their new dependencies.
