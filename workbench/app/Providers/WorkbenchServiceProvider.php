@@ -55,6 +55,12 @@ class WorkbenchServiceProvider extends ServiceProvider
         // The Octane lane's Kiritimati context names its timezone in a header.
         Lathe::userTimezone(fn (Request $request): ?string => $request->header('X-Bench-Timezone'));
 
+        // The live demo prints its sign-in under the login form; resources/js/lathe/demoLogin.tsx draws it.
+        // The flag is read from the environment, so the demo app runs without config:cache.
+        if (getenv('LATHE_DEMO') === 'true') {
+            Lathe::provideToScript(['demoLogin' => ['email' => 'admin@lathephp.com', 'password' => 'password']]);
+        }
+
         $this->registerExtensions();
     }
 

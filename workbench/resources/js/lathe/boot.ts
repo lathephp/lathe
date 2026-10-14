@@ -1,5 +1,6 @@
 import './lathe.css';
 import './renderHooks';
+import './demoLogin';
 import './fields/StarRating';
 import './filters/PriceTier';
 import { page, plugin, widget } from '@lathephp/core';
