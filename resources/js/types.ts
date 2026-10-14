@@ -3,6 +3,8 @@ import type { SafeHtml } from '@lathephp/core';
 /** The props the server shares with every panel page. */
 export interface SharedProps {
   auth: { user: { name: string; email: string } | null };
+  /** Who the signed-in admin is impersonating, or null when no impersonation runs. */
+  impersonating: { name: string } | null;
   /** The panel's sign-in routes, or the host's paths when the panel's are off. */
   authPaths: { login: string | null; logout: string | null; forgotPassword: string | null; resetPassword: string | null };
   flash: { success: string | null; error: string | null };

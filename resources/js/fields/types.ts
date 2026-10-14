@@ -144,7 +144,7 @@ export interface DetailRecord {
   fields: DetailFieldData[];
   layout: LayoutBlock[];
   resourcePlugins?: ResourcePluginEntry[];
-  abilities: { view: boolean; update: boolean; delete: boolean; replicate: boolean; restore: boolean; forceDelete: boolean };
+  abilities: { view: boolean; update: boolean; delete: boolean; replicate: boolean; restore: boolean; forceDelete: boolean; impersonate?: boolean };
   trashed: boolean;
 }
 

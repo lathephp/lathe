@@ -12,6 +12,7 @@ const pages = import.meta.glob<{ default: ComponentType }>('../pages/**/*.tsx', 
 export function sharedProps(overrides: Partial<SharedProps> = {}): SharedProps {
   return {
     auth: { user: { name: 'Ada Lovelace', email: 'ada@example.com' } },
+    impersonating: null,
     authPaths: { login: '/lathe/login', logout: '/lathe/logout', forgotPassword: null, resetPassword: null },
     flash: { success: null, error: null },
     latheVersion: '1.0.0',

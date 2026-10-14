@@ -20,9 +20,9 @@ export function menuActions(row: Row): MenuAction[] {
   return actions.filter((action) => row.abilities[action === 'edit' ? 'update' : action] === true);
 }
 
-/** Whether a row has a menu: a delete family entry, or an action it may run inline. */
+/** Whether a row has a menu: a delete family entry, Impersonate, or an action it may run inline. */
 export function hasRowMenu(row: Row): boolean {
-  return menuActions(row).length > 0 || (row.actions?.length ?? 0) > 0;
+  return menuActions(row).length > 0 || row.abilities.impersonate === true || (row.actions?.length ?? 0) > 0;
 }
 
 const links: Record<LinkAction, string> = { view: '', edit: '/edit', replicate: '/replicate' };
@@ -146,6 +146,22 @@ export function RowMenu({ uriKey, row }: { uriKey: string; row: Row }) {
                 {labels[action]}
               </button>
             ),
+          )}
+          {row.abilities.impersonate === true && (
+            <button
+              type="button"
+              role="menuitem"
+              className={itemClass}
+              onClick={() => {
+                setOpen(false);
+                // The helper loads on the click, so the index's first load leaves it out.
+                import('../layout/impersonate')
+                  .then((module) => module.impersonate(basePath, { resource: uriKey, resourceId: row.id }))
+                  .catch(() => undefined);
+              }}
+            >
+              {__('Impersonate')}
+            </button>
           )}
         </div>
       )}

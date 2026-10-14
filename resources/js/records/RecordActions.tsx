@@ -53,6 +53,24 @@ export function RecordActions({ uriKey, record }: RecordActionsProps) {
 
   return (
     <>
+      {!trashed && abilities.impersonate === true ? (
+        <button
+          type="button"
+          disabled={busy}
+          className="inline-flex h-9 items-center rounded-md border border-input px-4 text-sm font-medium"
+          onClick={() => {
+            setBusy(true);
+            // The helper loads on the click, so the detail page's first load leaves it out.
+            import('../layout/impersonate')
+              .then((module) => module.impersonate(basePath, { resource: uriKey, resourceId: record.id }))
+              .catch(() => {
+                setBusy(false);
+              });
+          }}
+        >
+          {__('Impersonate')}
+        </button>
+      ) : null}
       {!trashed && abilities.delete ? (
         <button
           type="button"

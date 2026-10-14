@@ -61,7 +61,7 @@ it('shows the panel as the editor sees it while impersonating', function () {
 
     // OrderPolicy denies the editor delete.
     $page->navigate('/lathe/resources/orders')
-        ->click('table tbody tr [aria-label^="Actions for "]')
+        ->click('table tbody tr:first-child [aria-label^="Actions for "]')
         ->assertPresent('[role="menuitem"]:text-is("View")')
         ->assertNotPresent('[role="menuitem"]:text-is("Delete")')
         ->assertVisible(BANNER);

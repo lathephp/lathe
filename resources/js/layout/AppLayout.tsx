@@ -11,6 +11,9 @@ import { Sidebar } from './Sidebar';
 // The palette opens on demand, so it loads after first paint.
 const SearchPalette = lazy(() => import('../palette/SearchPalette').then((module) => ({ default: module.SearchPalette })));
 
+// Only an impersonating admin sees the banner, so no first load carries it.
+const ImpersonationBanner = lazy(() => import('./ImpersonationBanner').then((module) => ({ default: module.ImpersonationBanner })));
+
 const oneYear = 60 * 60 * 24 * 365;
 const { RenderHook, Slot } = __panel;
 
@@ -76,6 +79,12 @@ export function AppLayout({ children }: { children: ReactNode }) {
       )}
       <Sidebar props={props} url={url} expanded={expanded} mobileOpen={mobileOpen} />
       <div className="flex min-w-0 flex-1 flex-col">
+        {props.impersonating !== null && (
+          // The placeholder holds the banner's height, so the page does not jump when it loads.
+          <Suspense fallback={<div className="h-10" />}>
+            <ImpersonationBanner name={props.impersonating.name} basePath={props.basePath} />
+          </Suspense>
+        )}
         <Slot name="shell.header">
           <header
             data-lathe-header
