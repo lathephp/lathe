@@ -6,6 +6,7 @@ use Illuminate\Contracts\Http\Kernel;
 use Illuminate\Http\Request;
 use Illuminate\Support\ServiceProvider;
 use Laravel\Fortify\Features;
+use Lathe\Assets\ExtensionManifest;
 use Lathe\Lathe;
 use Workbench\App\Console\Commands\DemoSeedCommand;
 use Workbench\App\Http\Middleware\ArabicContext;
@@ -58,7 +59,8 @@ class WorkbenchServiceProvider extends ServiceProvider
         // The live demo prints its sign-in under the login form; resources/js/lathe/demoLogin.tsx draws it.
         // The flag is read from the environment, so the demo app runs without config:cache.
         if (getenv('LATHE_DEMO') === 'true') {
-            Lathe::provideToScript(['demoLogin' => ['email' => 'admin@lathephp.com', 'password' => 'password']]);
+            // The demo flag also silences the render hook badges in resources/js/lathe/renderHooks.tsx.
+            Lathe::provideToScript(['demo' => true, 'demoLogin' => ['email' => 'admin@lathephp.com', 'password' => 'password']]);
         }
 
         $this->registerExtensions();
@@ -67,10 +69,15 @@ class WorkbenchServiceProvider extends ServiceProvider
     /**
      * Testbench's public path sits inside vendor, so the workbench commits its lathe:build output
      * under workbench/public and serves the entry through the panel's module route. lathe:doctor
-     * reads the manifest.json next to it for the keys the build registers.
+     * reads the manifest.json next to it for the keys the build registers. A deployed app holds a copy
+     * under its own public path, which Lathe already serves, so registering it again loads the boot script twice.
      */
     protected function registerExtensions(): void
     {
+        if (is_file(public_path(ExtensionManifest::PUBLIC_DIRECTORY.'/manifest.json'))) {
+            return;
+        }
+
         $folder = dirname(__DIR__, 2).'/public/vendor/lathe/extensions';
         $manifest = is_file("{$folder}/manifest.json") ? json_decode((string) file_get_contents("{$folder}/manifest.json"), true) : null;
         $entry = is_array($manifest) ? ($manifest['entry'] ?? null) : null;
