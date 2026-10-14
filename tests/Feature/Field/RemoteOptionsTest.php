@@ -112,14 +112,14 @@ it('searches the column for the term, ordered by it, 25 at most', function (stri
 })->with(['multi-select' => 'roles', 'select' => 'role']);
 
 it('says there is no more when fewer than a page match', function (string $field) {
-    remoteTags(['Order 3', 'item 01', 'record 2', 'item 02', 'cordial']);
+    remoteTags(['order 3', 'item 01', 'record 2', 'item 02', 'cordial']);
 
     $json = $this->getJson("/lathe/api/resources/remote-parents/associatable/{$field}?q=ORD")->assertOk()->json();
 
     expect($json)->toBe([
         'items' => [
             ['value' => 'cordial', 'display' => 'cordial'],
-            ['value' => 'Order 3', 'display' => 'Order 3'],
+            ['value' => 'order 3', 'display' => 'order 3'],
             ['value' => 'record 2', 'display' => 'record 2'],
         ],
         'has_more' => false,

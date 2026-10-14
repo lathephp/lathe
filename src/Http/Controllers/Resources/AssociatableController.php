@@ -10,16 +10,19 @@ use Lathe\Auth\ResourceAuthorization;
 use Lathe\Field\Field;
 use Lathe\Field\FieldCollection;
 use Lathe\Field\FieldContext;
+use Lathe\Field\MultiSelectField;
 use Lathe\Field\Relations\Associatable;
 use Lathe\Field\Relations\RelationField;
+use Lathe\Field\SelectField;
 use Lathe\Http\Requests\LatheRequest;
 use Lathe\Query\QueryContext;
 use Lathe\Query\ResourceQuery;
 use Lathe\Resources\Resource;
 
 /**
- * One page of a relation picker's options, read from the related Resource's scoped query.
- * The parent's fields are built to find the relation field but never resolved.
+ * One page of a relation picker's options, read from the related Resource's scoped query,
+ * or of a select's remote options. The parent's fields are built to find the field but never
+ * resolved.
  */
 class AssociatableController
 {
@@ -34,7 +37,7 @@ class AssociatableController
 
         abort_unless($authorization->allows($request->user(), $class, 'create'), 403, $authorization->denialMessage($class));
 
-        return $this->options($request, $class, $this->relationField($request, $class::make()->fieldsFor(FieldContext::Create, $request), $field));
+        return $this->answer($request, $class, $this->pickerField($request, $class::make()->fieldsFor(FieldContext::Create, $request), $field));
     }
 
     /**
@@ -50,11 +53,11 @@ class AssociatableController
         $parent = $class::make($model);
         $fields = $parent->fieldsFor(FieldContext::Update, $request);
 
-        if (! $fields->contains(fn (Field $candidate) => $candidate instanceof RelationField && $candidate->attribute() === $field)) {
+        if (! $fields->contains(fn (Field $candidate) => $this->isPicker($candidate, $field))) {
             $fields = $parent->fieldsFor(FieldContext::Detail, $request);
         }
 
-        return $this->options($request, $class, $this->relationField($request, $fields, $field), $model);
+        return $this->answer($request, $class, $this->pickerField($request, $fields, $field), $model);
     }
 
     /**
@@ -68,6 +71,66 @@ class AssociatableController
         abort_unless($field->authorizedToSee($request), 403);
 
         return $field;
+    }
+
+    /**
+     * The picker field the route names: 404 when unknown or no picker, 403 when hidden.
+     */
+    protected function pickerField(LatheRequest $request, FieldCollection $fields, string $attribute): RelationField|SelectField|MultiSelectField
+    {
+        $field = $fields->first(fn (Field $candidate) => $this->isPicker($candidate, $attribute));
+
+        abort_unless($field instanceof RelationField || $field instanceof SelectField || $field instanceof MultiSelectField, 404);
+        abort_unless($field->authorizedToSee($request), 403);
+
+        return $field;
+    }
+
+    /**
+     * A relation field, or a select whose options the server searches.
+     */
+    protected function isPicker(Field $field, string $attribute): bool
+    {
+        $picker = $field instanceof RelationField || (($field instanceof SelectField || $field instanceof MultiSelectField) && $field->remoteSource() !== null);
+
+        return $picker && $field->attribute() === $attribute;
+    }
+
+    /**
+     * @param  class-string<resource>  $parent
+     */
+    protected function answer(LatheRequest $request, string $parent, RelationField|SelectField|MultiSelectField $field, ?Model $record = null): JsonResponse
+    {
+        return $field instanceof RelationField ? $this->options($request, $parent, $field, $record) : $this->remoteOptions($request, $parent, $field);
+    }
+
+    /**
+     * One page of the values that contain q, ordered, or the one saved value `current` names.
+     *
+     * @param  class-string<resource>  $parent
+     */
+    protected function remoteOptions(LatheRequest $request, string $parent, SelectField|MultiSelectField $field): JsonResponse
+    {
+        $remote = $field->remoteSource();
+
+        abort_if($remote === null, 404);
+
+        $query = $field->remoteQuery($request);
+        $current = $request->query('current');
+
+        if ($current !== null) {
+            abort_unless(is_string($current) && $current !== '', 404);
+
+            $items = $remote->find($query, $current);
+
+            abort_if($items === null, 404);
+
+            return new JsonResponse(['items' => $items, 'has_more' => false]);
+        }
+
+        $term = $request->query('q');
+
+        return new JsonResponse($remote->search($query, is_string($term) ? trim($term) : '', $parent::make()->definition()->getPickerResults()));
     }
 
     /**
