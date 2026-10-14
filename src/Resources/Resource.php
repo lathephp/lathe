@@ -3,12 +3,17 @@
 namespace Lathe\Resources;
 
 use Closure;
+use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasOneOrMany;
 use Illuminate\Support\Str;
 use InvalidArgumentException;
+use Lathe\Actions\Action;
+use Lathe\Actions\ActionCollection;
+use Lathe\Exceptions\ActionUriKeyCollisionException;
+use Lathe\Exceptions\InvalidActionException;
 use Lathe\Field\Avatar;
 use Lathe\Field\Contracts\Cover;
 use Lathe\Field\Contracts\Deletable;
@@ -192,6 +197,47 @@ abstract class Resource
     public function lenses(LatheRequest $request): array
     {
         return [];
+    }
+
+    /**
+     * The actions staff run from the index, the detail page and the row menu.
+     *
+     * @return list<Action>
+     */
+    public function actions(LatheRequest $request): array
+    {
+        return [];
+    }
+
+    /**
+     * Every declared action, hidden ones included so a run of one answers 403, not 404.
+     * Two actions sharing a uriKey, or a queued action with a file field, are refused.
+     */
+    public function availableActions(LatheRequest $request): ActionCollection
+    {
+        $actions = new ActionCollection($this->actions($request));
+        $seen = [];
+
+        foreach ($actions as $action) {
+            $uriKey = $action->uriKey();
+
+            if (isset($seen[$uriKey])) {
+                throw new ActionUriKeyCollisionException(
+                    static::class." declares actions {$seen[$uriKey]} and ".$action::class." with the uriKey \"{$uriKey}\". Give one of them a distinct withUriKey().",
+                );
+            }
+
+            $seen[$uriKey] = $action::class;
+
+            // A queued job cannot carry an uploaded file, so the class is refused here.
+            if ($action instanceof ShouldQueue && $action->hasFileField($request)) {
+                throw new InvalidActionException(
+                    $action::class.' implements ShouldQueue and has a file field. Remove ShouldQueue or the file field.',
+                );
+            }
+        }
+
+        return $actions;
     }
 
     /**
