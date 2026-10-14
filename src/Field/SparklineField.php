@@ -6,6 +6,8 @@ use Closure;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Lathe\Field\Contracts\PrimesForPage;
+use Lathe\Http\Requests\LatheRequest;
+use Lathe\Widgets\TrendWidget;
 use Traversable;
 use WeakMap;
 
@@ -13,8 +15,9 @@ use WeakMap;
  * A small inline chart, 100 px wide and 50 px high unless told otherwise.
  *
  * data() takes one of three sources:
- *  - an iterable of numbers, or an object with a `series(): array` method (a TrendWidget is
- *    one): that one series is drawn on every row;
+ *  - an iterable of numbers, or an object with a `series(): array` method: that one series
+ *    is drawn on every row;
+ *  - a TrendWidget: its points are drawn on every row. It runs once per request, not per row;
  *  - a Closure `(Collection $records)` that returns a series per record key, as
  *    `[12 => [1, 3, 2], 13 => [4, 4, 5]]`, or a single flat series for every row. The index
  *    hands it the whole page through primeForPage(), so it runs once and no query runs per row.
@@ -117,11 +120,38 @@ class SparklineField extends Field implements PrimesForPage
             return $page[1][is_int($key) || is_string($key) ? $key : ''] ?? $page[0] ?? [];
         }
 
+        if ($source instanceof TrendWidget) {
+            return $this->trendSeries($source);
+        }
+
         if (is_object($source) && method_exists($source, 'series')) {
             return self::numbers($source->series());
         }
 
         return self::numbers($source);
+    }
+
+    /**
+     * The trend's points, kept on the request so every row of a page reads the same answer.
+     *
+     * @return list<int|float>
+     */
+    private function trendSeries(TrendWidget $widget): array
+    {
+        $request = Evaluator::currentRequest() ?? LatheRequest::createFrom(request());
+        $memo = $request->attributes->get('lathe.sparklines');
+
+        if (! $memo instanceof WeakMap) {
+            $request->attributes->set('lathe.sparklines', $memo = new WeakMap);
+        }
+
+        /** @var WeakMap<object, array{0: list<int|float>|null, 1: array<array-key, list<int|float>>}> $memo */
+        if (! isset($memo[$widget])) {
+            $payload = $widget->resolve($request);
+            $memo[$widget] = [self::numbers(is_array($payload) ? ($payload['trend'] ?? []) : []), []];
+        }
+
+        return $memo[$widget][0] ?? [];
     }
 
     /**
