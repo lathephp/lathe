@@ -223,7 +223,7 @@ abstract class Widget
      */
     public function withFilters(Collection $filters, Resource $resource): static
     {
-        $this->filters = $filters->values()->all();
+        $this->filters = array_values($filters->all());
         $this->filterHost = $resource;
 
         return $this;

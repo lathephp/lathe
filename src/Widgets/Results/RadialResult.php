@@ -5,6 +5,7 @@ namespace Lathe\Widgets\Results;
 use Closure;
 use JsonSerializable;
 use Lathe\Lathe;
+use Lathe\Widgets\Concerns\FormatsNumbers;
 use Lathe\Widgets\Concerns\RoundingPrecision;
 use Lathe\Widgets\PartitionColors;
 
@@ -15,6 +16,7 @@ use Lathe\Widgets\PartitionColors;
  */
 class RadialResult implements JsonSerializable
 {
+    use FormatsNumbers;
     use RoundingPrecision;
 
     protected int $startAngle = 0;
@@ -187,6 +189,7 @@ class RadialResult implements JsonSerializable
             ...($this->label === null ? [] : ['label' => $this->label]),
             ...($this->segments === null ? [] : ['segments' => $this->segmentList($this->segments)]),
             ...($this->stacked === null ? [] : ['stacked' => $this->stacked]),
+            ...$this->numberOptions(),
         ];
     }
 

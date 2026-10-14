@@ -4,6 +4,7 @@ namespace Lathe\Widgets\Results;
 
 use Closure;
 use JsonSerializable;
+use Lathe\Widgets\Concerns\FormatsNumbers;
 use Lathe\Widgets\Concerns\RoundingPrecision;
 use Lathe\Widgets\PartitionColors;
 
@@ -13,6 +14,7 @@ use Lathe\Widgets\PartitionColors;
  */
 class PartitionResult implements JsonSerializable
 {
+    use FormatsNumbers;
     use RoundingPrecision;
 
     /** @var (Closure(string): string)|null */
@@ -58,7 +60,7 @@ class PartitionResult implements JsonSerializable
     }
 
     /**
-     * @return array{value: list<array{label: string, value: int|float, percentage: int|float, color: string}>}
+     * @return array<string, mixed>
      */
     public function payload(): array
     {
@@ -75,6 +77,6 @@ class PartitionResult implements JsonSerializable
             ];
         }
 
-        return ['value' => $segments];
+        return ['value' => $segments, ...$this->numberOptions()];
     }
 }

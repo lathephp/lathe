@@ -4,22 +4,16 @@ namespace Lathe\Widgets\Results;
 
 use Closure;
 use JsonSerializable;
+use Lathe\Widgets\Concerns\FormatsNumbers;
 
 /**
  * One number, with the number for the period before it and how the client shows both.
  */
 class ValueResult implements JsonSerializable
 {
+    use FormatsNumbers;
+
     public ?string $previousLabel = null;
-
-    public ?string $prefix = null;
-
-    public ?string $suffix = null;
-
-    public bool $suffixInflection = true;
-
-    /** @var string|array<string, mixed>|null */
-    public string|array|null $format = null;
 
     public ?string $tooltipFormat = null;
 
@@ -51,62 +45,11 @@ class ValueResult implements JsonSerializable
         return $this;
     }
 
-    public function prefix(string $prefix): static
-    {
-        $this->prefix = $prefix;
-
-        return $this;
-    }
-
-    /**
-     * The client adds an s to it unless the value is 1 or -1, see withoutSuffixInflection().
-     */
-    public function suffix(string $suffix): static
-    {
-        $this->suffix = $suffix;
-
-        return $this;
-    }
-
-    public function withoutSuffixInflection(): static
-    {
-        $this->suffixInflection = false;
-
-        return $this;
-    }
-
-    /**
-     * A compact or fraction digits string ('a', '.2'), or Intl.NumberFormat options.
-     *
-     * @param  string|array<string, mixed>  $format
-     */
-    public function format(string|array $format): static
-    {
-        $this->format = $format;
-
-        return $this;
-    }
-
     public function tooltipFormat(string $format): static
     {
         $this->tooltipFormat = $format;
 
         return $this;
-    }
-
-    public function dollars(string $symbol = '$'): static
-    {
-        return $this->prefix($symbol);
-    }
-
-    public function euros(string $symbol = '€'): static
-    {
-        return $this->prefix($symbol);
-    }
-
-    public function currency(string $symbol = '$'): static
-    {
-        return $this->prefix($symbol);
     }
 
     /**

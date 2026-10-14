@@ -4,6 +4,7 @@ namespace Lathe\Widgets\Results;
 
 use Closure;
 use JsonSerializable;
+use Lathe\Widgets\Concerns\FormatsNumbers;
 use Lathe\Widgets\Concerns\RoundingPrecision;
 use Lathe\Widgets\PartitionColors;
 
@@ -12,6 +13,7 @@ use Lathe\Widgets\PartitionColors;
  */
 class PieResult implements JsonSerializable
 {
+    use FormatsNumbers;
     use RoundingPrecision;
 
     protected float $innerRadius = 0;
@@ -103,6 +105,7 @@ class PieResult implements JsonSerializable
             'innerRadius' => $this->innerRadius,
             ...($this->showLabels ? ['showLabels' => true] : []),
             ...($this->series === null ? [] : ['series' => $series]),
+            ...$this->numberOptions(),
         ];
     }
 

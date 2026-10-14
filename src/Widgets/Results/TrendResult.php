@@ -4,12 +4,15 @@ namespace Lathe\Widgets\Results;
 
 use Closure;
 use JsonSerializable;
+use Lathe\Widgets\Concerns\FormatsNumbers;
 
 /**
  * A number per bucket, keyed by the bucket's label and in time order.
  */
 class TrendResult implements JsonSerializable
 {
+    use FormatsNumbers;
+
     public int|float|null $headline = null;
 
     /** 'latest' or 'sum' when no result() set the headline */
@@ -20,15 +23,6 @@ class TrendResult implements JsonSerializable
 
     /** @var array<string, string>|null */
     public ?array $labels = null;
-
-    public ?string $prefix = null;
-
-    public ?string $suffix = null;
-
-    public bool $suffixInflection = true;
-
-    /** @var string|array<string, mixed>|null */
-    public string|array|null $format = null;
 
     protected ?Closure $transformCallback = null;
 
@@ -105,47 +99,6 @@ class TrendResult implements JsonSerializable
         $this->labels = $labels;
 
         return $this;
-    }
-
-    public function prefix(string $prefix): static
-    {
-        $this->prefix = $prefix;
-
-        return $this;
-    }
-
-    public function suffix(string $suffix): static
-    {
-        $this->suffix = $suffix;
-
-        return $this;
-    }
-
-    public function withoutSuffixInflection(): static
-    {
-        $this->suffixInflection = false;
-
-        return $this;
-    }
-
-    /**
-     * @param  string|array<string, mixed>  $format
-     */
-    public function format(string|array $format): static
-    {
-        $this->format = $format;
-
-        return $this;
-    }
-
-    public function dollars(string $symbol = '$'): static
-    {
-        return $this->prefix($symbol);
-    }
-
-    public function euros(string $symbol = '€'): static
-    {
-        return $this->prefix($symbol);
     }
 
     /**

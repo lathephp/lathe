@@ -4,6 +4,7 @@ namespace Lathe\Widgets\Results;
 
 use Closure;
 use JsonSerializable;
+use Lathe\Widgets\Concerns\FormatsNumbers;
 use Lathe\Widgets\Concerns\RoundingPrecision;
 use Lathe\Widgets\PartitionColors;
 
@@ -13,6 +14,7 @@ use Lathe\Widgets\PartitionColors;
  */
 class BarResult implements JsonSerializable
 {
+    use FormatsNumbers;
     use RoundingPrecision;
 
     protected bool $horizontal = false;
@@ -155,6 +157,7 @@ class BarResult implements JsonSerializable
             ...($this->stacked ? ['stacked' => true] : []),
             ...($this->series === null ? [] : ['series' => $this->series]),
             ...($this->negativeColor === null ? [] : ['negativeColor' => $this->negativeColor]),
+            ...$this->numberOptions(),
         ];
     }
 }
