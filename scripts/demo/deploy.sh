@@ -88,7 +88,7 @@ start_worker() {
 
 step "install PHP 8.4, zstd and the tools"
 apt-get update -qq
-apt-get install -y -qq --no-install-recommends ca-certificates curl gnupg unzip xz-utils zstd openssl libaio1t64 libnuma1 >/dev/null
+apt-get install -y -qq --no-install-recommends ca-certificates curl gnupg unzip xz-utils zstd openssl libaio1t64 libnuma1 libncurses6 >/dev/null
 if [[ ! -f /etc/apt/sources.list.d/ondrej-php.list ]]; then
     # Ubuntu 24.04 ships PHP 8.3; Lathe needs 8.4, which the ondrej/php archive builds for amd64 and arm64.
     curl -fsSL 'https://keyserver.ubuntu.com/pks/lookup?op=get&search=0x14AA40EC0831756756D7F66C4F4EA0AAE5267A6C' \
@@ -129,8 +129,8 @@ if [[ ! -x /opt/$name/bin/mysqld ]]; then
     step "install MySQL $mysql_version"
     # MySQL's APT repository has no arm64 build for Ubuntu 24.04, so every server takes the generic build.
     if [[ ! -s $cache/$name.tar.xz ]]; then
-        curl -fL --progress-bar -o "$cache/$name.tar.xz.partial" "https://cdn.mysql.com/Downloads/MySQL-8.4/$name.tar.xz" \
-            || curl -fL --progress-bar -o "$cache/$name.tar.xz.partial" "https://downloads.mysql.com/archives/get/p/23/file/$name.tar.xz"
+        curl -fsSL -o "$cache/$name.tar.xz.partial" "https://cdn.mysql.com/Downloads/MySQL-8.4/$name.tar.xz" \
+            || curl -fsSL -o "$cache/$name.tar.xz.partial" "https://downloads.mysql.com/archives/get/p/23/file/$name.tar.xz"
         mv "$cache/$name.tar.xz.partial" "$cache/$name.tar.xz"
     fi
     tar -xJf "$cache/$name.tar.xz" -C /opt --exclude="$name/bin/mysqld-debug" --exclude="$name/lib/plugin/debug" \
@@ -141,8 +141,8 @@ for tool in mysql mysqld mysqldump mysqladmin; do ln -sf "/opt/mysql/bin/$tool" 
 # Ubuntu 24.04 renamed libaio.so.1 to libaio.so.1t64; the generic build asks for the old name.
 libaio=$(find /usr/lib -name libaio.so.1t64 -print -quit)
 [[ -n $libaio ]] && ln -sf "$libaio" "$(dirname "$libaio")/libaio.so.1"
-missing=$(ldd /opt/mysql/bin/mysqld | grep 'not found' || true)
-[[ -z $missing ]] || fail "mysqld is missing libraries: $missing"
+missing=$(ldd /opt/mysql/bin/mysqld /opt/mysql/bin/mysql /opt/mysql/bin/mysqldump | grep 'not found' || true)
+[[ -z $missing ]] || fail "MySQL is missing libraries: $missing"
 
 step "configure and start MySQL"
 id mysql >/dev/null 2>&1 || useradd --system --no-create-home --shell /usr/sbin/nologin mysql
@@ -175,11 +175,11 @@ if ((systemd)); then
     install -m 0644 "$demo/systemd/lathe-demo-mysql.service" /etc/systemd/system/
     systemctl daemon-reload
     systemctl enable --now lathe-demo-mysql.service
-elif ! mysqladmin ping --silent 2>/dev/null; then
+elif ! mysqladmin ping --silent >/dev/null 2>&1; then
     mysqld --defaults-file=/etc/mysql/my.cnf --daemonize >/dev/null
 fi
-for _ in $(seq 60); do mysqladmin ping --silent 2>/dev/null && break; sleep 1; done
-mysqladmin ping --silent || fail "MySQL did not start; see /var/log/mysql/error.log"
+for _ in $(seq 60); do mysqladmin ping --silent >/dev/null 2>&1 && break; sleep 1; done
+mysqladmin ping --silent >/dev/null || fail "MySQL did not start; see /var/log/mysql/error.log"
 # root signs in through its Unix account only, so root has no password to keep.
 mysql -uroot -e "ALTER USER 'root'@'localhost' IDENTIFIED WITH auth_socket"
 mysql --version

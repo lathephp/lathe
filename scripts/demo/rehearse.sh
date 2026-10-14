@@ -112,7 +112,7 @@ echo "      Orders: Showing 1 to $rows of $(php -r "echo number_format($total);"
 check "Orders shows 25 rows of 1,000" test "$rows/$per_page/$total" = 25/25/1000
 
 cd /srv/lathe-demo || exit 1
-settings=$(runuser -u www-data -- php artisan tinker --execute 'echo implode(" ", [config("mail.default"), config("lathe.uploads.max_file_size_mb"), config("lathe.uploads.max_image_size_mb"), config("lathe.imports.max_file_size_mb"), config("lathe.exports.prune_after_hours")]);')
+settings=$(runuser -u www-data -- env HOME=/tmp php artisan tinker --execute 'echo implode(" ", [config("mail.default"), config("lathe.uploads.max_file_size_mb"), config("lathe.uploads.max_image_size_mb"), config("lathe.imports.max_file_size_mb"), config("lathe.exports.prune_after_hours")]);')
 echo "      mail, file MB, image MB, import MB, export prune hours: $settings"
 check "mail is logged, uploads are capped at 1 MB and exports pruned after 1 hour" test "$settings" = "log 1 1 1 1"
 ini=$(php-fpm8.4 -i | grep -E '^(memory_limit|max_execution_time|upload_max_filesize|post_max_size) ' | sed 's/ => .* => / /' | sort | tr '\n' ' ')
@@ -141,13 +141,15 @@ reset=$!
 during=
 while kill -0 "$reset" 2>/dev/null; do
     code=$(curl -s -o /root/during.html -w '%{http_code}' "http://$address/lathe/login")
-    if [[ $code == 503 ]]; then during=$(grep -o 'Service Unavailable' /root/during.html | head -n 1); fi
+    # Under /lathe the maintenance screen is the panel's error page for status 503.
+    if [[ $code == 503 ]] && grep -q '"component":"Error","props":{"status":503' /root/during.html; then during=503; fi
     sleep 0.2
 done
 wait "$reset"
 status=$?
 sed 's/^/      /' /root/reset.log
-check "the app answers 503 with the maintenance screen during the reset" test "$during" = "Service Unavailable"
+echo "      /lathe/login during the reset: ${during:-never 503}"
+check "the app answers 503 with the maintenance screen during the reset" test "$during" = 503
 total=$(api "$base/lathe/api/resources/orders/count" | json '$p["value"] ?? 0')
 echo "      orders after the reset: $total"
 check "reset.sh brings it back with 1,000 orders" test "$status/$total" = 0/1000
