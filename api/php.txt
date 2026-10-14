@@ -259,8 +259,51 @@ Lathe\Actions\Import\FailedImportRow::import(): Illuminate\Database\Eloquent\Rel
 Lathe\Actions\Import\Import::$fillable  [protected]
 Lathe\Actions\Import\Import::$table  [protected]
 Lathe\Actions\Import\Import::casts(): array  [protected]
+Lathe\Actions\Import\Import::errorsUrl(): ?string
 Lathe\Actions\Import\Import::failedRows(): Illuminate\Database\Eloquent\Relations\HasMany
 Lathe\Actions\Import\Import::ownedBy(string|int|null $userId): bool
+Lathe\Actions\Import\Import::prunable(): Illuminate\Database\Eloquent\Builder
+Lathe\Actions\Import\Import::pruning(): void  [protected]
+Lathe\Actions\Import\Import::toStatusArray(): array
+Lathe\Actions\Import\ImportAction::?Closure $afterRow  [protected]
+Lathe\Actions\Import\ImportAction::?Closure $afterSave  [protected]
+Lathe\Actions\Import\ImportAction::?Closure $afterValidate  [protected]
+Lathe\Actions\Import\ImportAction::?Closure $beforeRow  [protected]
+Lathe\Actions\Import\ImportAction::?Closure $beforeSave  [protected]
+Lathe\Actions\Import\ImportAction::?Closure $beforeValidate  [protected]
+Lathe\Actions\Import\ImportAction::?Closure $fieldsCallback  [protected]
+Lathe\Actions\Import\ImportAction::?int $chunkSize  [protected]
+Lathe\Actions\Import\ImportAction::?string $model  [protected]
+Lathe\Actions\Import\ImportAction::?string $resourceClass  [protected]
+Lathe\Actions\Import\ImportAction::?string $skipDuplicates  [protected]
+Lathe\Actions\Import\ImportAction::?string $upsertBy  [protected]
+Lathe\Actions\Import\ImportAction::__construct()
+Lathe\Actions\Import\ImportAction::__serialize(): array
+Lathe\Actions\Import\ImportAction::__unserialize(array $data): void
+Lathe\Actions\Import\ImportAction::ability(): string
+Lathe\Actions\Import\ImportAction::afterRow(Closure $callback): static
+Lathe\Actions\Import\ImportAction::afterSave(Closure $callback): static
+Lathe\Actions\Import\ImportAction::afterValidate(Closure $callback): static
+Lathe\Actions\Import\ImportAction::array $columns  [protected]
+Lathe\Actions\Import\ImportAction::beforeRow(Closure $callback): static
+Lathe\Actions\Import\ImportAction::beforeSave(Closure $callback): static
+Lathe\Actions\Import\ImportAction::beforeValidate(Closure $callback): static
+Lathe\Actions\Import\ImportAction::callHook(string $hook, array $row, int $rowNumber): mixed
+Lathe\Actions\Import\ImportAction::fields(Lathe\Http\Requests\LatheRequest $request): array
+Lathe\Actions\Import\ImportAction::forResource(string $resourceClass): static
+Lathe\Actions\Import\ImportAction::getChunkSize(): ?int
+Lathe\Actions\Import\ImportAction::getColumns(): array
+Lathe\Actions\Import\ImportAction::getModel(): string
+Lathe\Actions\Import\ImportAction::getResourceClass(): ?string
+Lathe\Actions\Import\ImportAction::getSkipDuplicates(): ?string
+Lathe\Actions\Import\ImportAction::getUpsertBy(): ?string
+Lathe\Actions\Import\ImportAction::queueable(?string $connection = NULL, ?string $queue = NULL, ?int $tries = NULL, ?int $timeout = NULL, ?int $chunkSize = NULL): static
+Lathe\Actions\Import\ImportAction::skipDuplicates(string $column): static
+Lathe\Actions\Import\ImportAction::start(Lathe\Actions\Import\Import $import, string $mode, Lathe\Support\JobContext $context): void
+Lathe\Actions\Import\ImportAction::upsertBy(string $column): static
+Lathe\Actions\Import\ImportAction::withColumns(Lathe\Actions\Import\ImportColumn|array $columns, Lathe\Actions\Import\ImportColumn ...$more): static
+Lathe\Actions\Import\ImportAction::withFields(Closure $callback): static
+Lathe\Actions\Import\ImportAction::withModel(string $class): static
 Lathe\Actions\Import\ImportColumn::?Closure $castUsing  [protected]
 Lathe\Actions\Import\ImportColumn::?array $relationship  [protected]
 Lathe\Actions\Import\ImportColumn::?int $decimalPlaces  [protected]
@@ -297,6 +340,56 @@ Lathe\Actions\Import\ImportColumn::numeric(?int $decimalPlaces = NULL): static
 Lathe\Actions\Import\ImportColumn::relationship(string $name, string $resolveBy = 'id'): static
 Lathe\Actions\Import\ImportColumn::rules(string ...$rules): static
 Lathe\Actions\Import\ImportColumn::string $name  [protected]
+Lathe\Actions\Import\ImportComplete::__construct(Lathe\Actions\Import\Import $import)
+Lathe\Actions\Import\ImportReader::__construct(string $path)
+Lathe\Actions\Import\ImportReader::count(): int
+Lathe\Actions\Import\ImportReader::rows(): Generator
+Lathe\Actions\Import\ImportReader::string $path  [protected]
+Lathe\Actions\Import\ProcessImport::$afterCommit
+Lathe\Actions\Import\ProcessImport::$chainCatchCallbacks
+Lathe\Actions\Import\ProcessImport::$chainConnection
+Lathe\Actions\Import\ProcessImport::$chainQueue
+Lathe\Actions\Import\ProcessImport::$chained
+Lathe\Actions\Import\ProcessImport::$connection
+Lathe\Actions\Import\ProcessImport::$debounceOwner
+Lathe\Actions\Import\ProcessImport::$deduplicator
+Lathe\Actions\Import\ProcessImport::$delay
+Lathe\Actions\Import\ProcessImport::$job
+Lathe\Actions\Import\ProcessImport::$messageGroup
+Lathe\Actions\Import\ProcessImport::$middleware
+Lathe\Actions\Import\ProcessImport::$queue
+Lathe\Actions\Import\ProcessImport::$uniqueLockOwner
+Lathe\Actions\Import\ProcessImport::?int $timeout
+Lathe\Actions\Import\ProcessImport::?int $tries
+Lathe\Actions\Import\ProcessImport::Lathe\Actions\Import\Import $import
+Lathe\Actions\Import\ProcessImport::Lathe\Actions\Import\ImportAction $action
+Lathe\Actions\Import\ProcessImport::Lathe\Support\JobContext $context
+Lathe\Actions\Import\ProcessImport::__construct(Lathe\Actions\Import\Import $import, Lathe\Actions\Import\ImportAction $action, Lathe\Support\JobContext $context)
+Lathe\Actions\Import\ProcessImport::array $seen  [protected]
+Lathe\Actions\Import\ProcessImport::asTyped(array $row, array $typed): array  [protected]
+Lathe\Actions\Import\ProcessImport::cast(array $columns, array $row, Lathe\Actions\Import\RowCaster $caster): array  [protected]
+Lathe\Actions\Import\ProcessImport::cell(mixed $value): string|int|float|bool|null  [protected]
+Lathe\Actions\Import\ProcessImport::columnMap(Lathe\Actions\Import\Import $import): array  [protected]
+Lathe\Actions\Import\ProcessImport::columns(): array  [protected]
+Lathe\Actions\Import\ProcessImport::findKeys(array $rows): array  [protected]
+Lathe\Actions\Import\ProcessImport::handle(): void
+Lathe\Actions\Import\ProcessImport::hooked(string $hook, array $row, int $number): array  [protected]
+Lathe\Actions\Import\ProcessImport::keyString(mixed $value): string  [protected]
+Lathe\Actions\Import\ProcessImport::known(array $found, string $key, array $row): Illuminate\Database\Eloquent\Model|true|null  [protected]
+Lathe\Actions\Import\ProcessImport::map(Lathe\Actions\Import\Import $import, array $cells): array  [protected]
+Lathe\Actions\Import\ProcessImport::messages(array $columns): array  [protected]
+Lathe\Actions\Import\ProcessImport::newModel(): Illuminate\Database\Eloquent\Model  [protected]
+Lathe\Actions\Import\ProcessImport::notify(Lathe\Actions\Import\Import $import): void  [protected]
+Lathe\Actions\Import\ProcessImport::processChunk(Lathe\Actions\Import\Import $import, array $chunk): void  [protected]
+Lathe\Actions\Import\ProcessImport::recordFailures(Lathe\Actions\Import\Import $import, array $failed, array $mapped): void  [protected]
+Lathe\Actions\Import\ProcessImport::remember(array $found, array $row, Illuminate\Database\Eloquent\Model|true $model): void  [protected]
+Lathe\Actions\Import\ProcessImport::resolveRelationships(array $columns, array $rows): array  [protected]
+Lathe\Actions\Import\ProcessImport::row(array $result): array  [protected]
+Lathe\Actions\Import\ProcessImport::rules(array $columns): array  [protected]
+Lathe\Actions\Import\ProcessImport::run(Lathe\Actions\Import\Import $import): void  [protected]
+Lathe\Actions\Import\ProcessImport::saveRow(Lathe\Actions\Import\Import $import, array $row, int $number, array $found): void  [protected]
+Lathe\Actions\Import\ProcessImport::values(array $rows, string $column): array  [protected]
+Lathe\Actions\Import\ProcessImport::writeErrorFile(Lathe\Actions\Import\Import $import): string  [protected]
 Lathe\Actions\Import\RowCaster::__construct(string $timezone)
 Lathe\Actions\Import\RowCaster::cast(Lathe\Actions\Import\ImportColumn $column, mixed $value): mixed
 Lathe\Actions\Import\RowCaster::castRow(array $columns, array $row): array
@@ -1868,6 +1961,10 @@ Lathe\Http\Controllers\BulkRunController::show(Lathe\Http\Requests\LatheRequest 
 Lathe\Http\Controllers\BulkRunController::status(Lathe\Actions\BulkRun $run): array  [protected]
 Lathe\Http\Controllers\DashboardController::__invoke(): Inertia\Response
 Lathe\Http\Controllers\GlobalSearchController::__invoke(Lathe\Http\Requests\LatheRequest $request, Lathe\Support\ConfigStore $config, Illuminate\Contracts\Auth\Access\Gate $gate, Lathe\Search\GlobalSearch $search, Lathe\Auth\ResourceAuthorization $authorization): Illuminate\Http\JsonResponse
+Lathe\Http\Controllers\ImportController::downloadErrors(Lathe\Http\Requests\LatheRequest $request, string $import): Symfony\Component\HttpFoundation\StreamedResponse
+Lathe\Http\Controllers\ImportController::owned(Lathe\Http\Requests\LatheRequest $request, string $id): Lathe\Actions\Import\Import  [protected]
+Lathe\Http\Controllers\ImportController::resume(Lathe\Http\Requests\LatheRequest $request, Lathe\Resources\ResourceRegistry $resources, string $import): Illuminate\Http\JsonResponse
+Lathe\Http\Controllers\ImportController::show(Lathe\Http\Requests\LatheRequest $request, string $import): Illuminate\Http\JsonResponse
 Lathe\Http\Controllers\NotificationController::LIMIT
 Lathe\Http\Controllers\NotificationController::Lathe\Support\ConfigStore $config  [protected]
 Lathe\Http\Controllers\NotificationController::__construct(Lathe\Support\ConfigStore $config)
@@ -3087,7 +3184,11 @@ class Lathe\Actions\Export\Export
 class Lathe\Actions\Import\ColumnMapper
 class Lathe\Actions\Import\FailedImportRow
 class Lathe\Actions\Import\Import
+class Lathe\Actions\Import\ImportAction
 class Lathe\Actions\Import\ImportColumn
+class Lathe\Actions\Import\ImportComplete
+class Lathe\Actions\Import\ImportReader
+class Lathe\Actions\Import\ProcessImport
 class Lathe\Actions\Import\RowCastException
 class Lathe\Actions\Import\RowCaster
 class Lathe\Assets\AssetManifest
@@ -3249,6 +3350,7 @@ class Lathe\Http\Controllers\Auth\LoginPageController
 class Lathe\Http\Controllers\BulkRunController
 class Lathe\Http\Controllers\DashboardController
 class Lathe\Http\Controllers\GlobalSearchController
+class Lathe\Http\Controllers\ImportController
 class Lathe\Http\Controllers\NotificationController
 class Lathe\Http\Controllers\PageFallbackController
 class Lathe\Http\Controllers\Plugins\ModuleController
