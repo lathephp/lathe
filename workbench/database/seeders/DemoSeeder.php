@@ -157,14 +157,18 @@ class DemoSeeder extends Seeder
     protected function orders(): void
     {
         $first = now()->startOfDay()->subDays(364)->getTimestamp();
-        $step = max(1, intdiv(364 * 86400 - 60, $this->orders));
+        $span = 364 * 86400 - 60;
+        $step = max(1, intdiv($span, $this->orders));
         $customers = $this->customerCount();
         $chunk = $this->chunk(7);
         $rows = [];
         $items = [];
 
         for ($i = 0; $i < $this->orders; $i++) {
-            $placed = date('Y-m-d H:i:s', $first + $i * $step + mt_rand(0, $step - 1));
+            // The square root spaces the orders closer toward today, so each period holds more
+            // orders than the one before it; the jitter stays inside the order's own slot.
+            $slot = ($i + mt_rand(0, $step - 1) / $step) / $this->orders;
+            $placed = date('Y-m-d H:i:s', $first + (int) ($span * sqrt($slot)));
 
             // 7919 shares no factor with 10^8, so every order gets its own 8 digits.
             $rows[] = [

@@ -11,6 +11,7 @@ use Lathe\Menu\Menu;
 use Lathe\Menu\MenuItem;
 use Lathe\Menu\MenuSection;
 use Workbench\App\Lathe\Dashboards\Sales;
+use Workbench\App\Lathe\Dashboards\WidgetGallery;
 use Workbench\App\Lathe\Pages\SystemStatus;
 use Workbench\App\Lathe\Pages\UiGallery;
 use Workbench\App\Lathe\Plugins\HelloPlugin;
@@ -45,6 +46,7 @@ class LatheServiceProvider extends LatheApplicationServiceProvider
     protected function registerDashboards(): void
     {
         Lathe::registerDashboards(Sales::class);
+        Lathe::registerDashboards(WidgetGallery::class);
     }
 
     /**
