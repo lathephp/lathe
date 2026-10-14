@@ -34,4 +34,13 @@ return [
     'export' => 'ExportTest.php',
     'delete-menu' => 'DeleteMenuTest.php',
     'audit-log' => 'AuditLogTest.php',
+    'dashboards' => 'DashboardsTest.php',
+    'insights' => 'InsightsTest.php',
+    'hello-plugin' => 'HelloPluginTest.php',
+    'theme' => 'ThemeTest.php',
+    'dark-mode' => 'DarkModeTest.php',
+    'font' => 'FontTest.php',
+    'rtl' => 'RtlTest.php',
+    'show-path' => 'ShowPathTest.php',
+    'generators-show-path' => 'GeneratorsShowPathTest.php',
 ];

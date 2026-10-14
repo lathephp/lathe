@@ -70,7 +70,8 @@ it('writes the plugin class, a search provider, routes and config', function () 
         ->toContain('Lathe::registerSearchProviders(new PriceTrackerSearch($this))')
         ->and($search)->toContain('class PriceTrackerSearch extends SearchProvider')
         ->toContain('GlobalSearchResult::make(')
-        ->toContain('->url(')
+        // The palette prefixes the panel path, so a row URL starts with a slash.
+        ->toContain("->url('/plugins/'.PriceTracker::uriKey())")
         ->toContain('$this->plugin->authorize($request)')
         ->and(File::exists("{$this->generatorBase}/lathe-components/PriceTracker/routes/api.php"))->toBeTrue()
         ->and($this->generated('lathe-components/PriceTracker/config/price-tracker.php'))->toContain('return [');

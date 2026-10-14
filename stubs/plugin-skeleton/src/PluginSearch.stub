@@ -40,6 +40,6 @@ class {{ class }}Search extends SearchProvider
             return [];
         }
 
-        return [GlobalSearchResult::make($this->plugin->name())->url('plugins/'.{{ class }}::uriKey())];
+        return [GlobalSearchResult::make($this->plugin->name())->url('/plugins/'.{{ class }}::uriKey())];
     }
 }
