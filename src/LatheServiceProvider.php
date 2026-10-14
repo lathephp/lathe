@@ -156,7 +156,40 @@ class LatheServiceProvider extends ServiceProvider
             $this->publishes([
                 __DIR__.'/../database/migrations' => database_path('migrations'),
             ], 'lathe-migrations');
+
+            $this->publishes([
+                __DIR__.'/../lang/en.json' => lang_path('vendor/lathe/en.json'),
+            ], 'lathe-translations');
+
+            $this->publishes([
+                $this->renderedUserResource() => app_path('Lathe/Resources/User.php'),
+            ], 'lathe-resource');
         }
+    }
+
+    /**
+     * The User Resource stub with its placeholders filled the way lathe:install fills them, with
+     * Laravel's default App\ namespace: asking the app for its namespace here would cache it at
+     * boot. A publish copies a file as is, so the rendered text sits in a temp file named by its hash.
+     */
+    protected function renderedUserResource(): string
+    {
+        $model = config('auth.providers.users.model');
+
+        $contents = str_replace(
+            ['{{ namespace }}', '{{ model }}'],
+            ['App\\', is_string($model) ? $model : 'App\Models\User'],
+            (string) file_get_contents(__DIR__.'/../stubs/user-resource.stub'),
+        );
+
+        $path = sys_get_temp_dir().'/lathe-publish-'.md5($contents).'/User.php';
+
+        if (! is_file($path)) {
+            @mkdir(dirname($path), 0777, true);
+            file_put_contents($path, $contents);
+        }
+
+        return $path;
     }
 
     protected function registerMiddleware(): void

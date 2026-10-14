@@ -177,14 +177,14 @@ it('publishes the English strings under lang/vendor/lathe', function () {
     expect(File::get("{$base}/lang/vendor/lathe/en.json"))->toBe(File::get(dirname(__DIR__, 3).'/lang/en.json'));
 });
 
-it('publishes the User Resource with the app namespace and the auth model', function () {
+it('publishes the User Resource with the App namespace and the auth model', function () {
     $base = isolatedApp();
 
     $this->artisan('vendor:publish', ['--tag' => 'lathe-resource'])->assertSuccessful();
 
     $published = File::get("{$base}/app/Lathe/Resources/User.php");
 
-    expect($published)->toContain('namespace '.app()->getNamespace().'Lathe\\Resources;')
+    expect($published)->toContain('namespace App\\Lathe\\Resources;')
         ->and($published)->toContain('use '.config('auth.providers.users.model').' as UserModel;')
         ->and($published)->not->toContain('{{');
 });

@@ -31,6 +31,8 @@ php artisan lathe:translate es
 
 This writes `lang/vendor/lathe/es.json`. Translate the values and leave the keys. Lathe finds the file on the next request. There is nothing to register. Pass `--force` to replace a file that exists.
 
+To publish only the English file, run `php artisan vendor:publish --tag=lathe-translations`. It writes `lang/vendor/lathe/en.json`.
+
 A locale can be a language (`es`) or a language with a region (`fr-CA`; `fr_CA` reads the same). Lathe builds the catalogue in layers: English first, then the language, then the full locale. For `fr-CA` it reads `en`, then `fr`, then `fr-CA`, and in each step the app's `lang/vendor/lathe/` file overrides the package's file. A region file only needs the strings that differ from its language.
 
 ```json
@@ -64,14 +66,14 @@ public function boot(): void
 
 Translations loaded at boot apply to every request and every locale. Loaded while a panel request is served, for example in a plugin's `serving()`, they apply to that request only.
 
-To work with the catalogue directly, resolve `Lathe\Support\TranslationManager` from the container. Its `set($key, $value)`, `has($key)`, `get($key)` and `all()` methods read and change the catalogue:
+To work with the catalogue directly, call `Lathe::translations()`. It returns the `Lathe\Support\TranslationManager`, whose `set($key, $value)`, `has($key)`, `get($key)` and `all()` methods read and change the catalogue:
 
 ```php
-use Lathe\Support\TranslationManager;
+use Lathe\Lathe;
 
-app(TranslationManager::class)->set('Custom label', 'Etiqueta personalizada');
+Lathe::translations()->set('Custom label', 'Etiqueta personalizada');
 
-app(TranslationManager::class)->has('Custom label'); // true
+Lathe::translations()->has('Custom label'); // true
 ```
 
 ## Placeholders

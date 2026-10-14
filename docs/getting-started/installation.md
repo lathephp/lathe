@@ -34,6 +34,8 @@ During the beta, require the beta explicitly: `composer require lathe/lathe:^1.0
 5. Writes the Main dashboard in `app/Lathe/Dashboards/Main.php`.
 6. Runs the migrations.
 
+`lathe:install` publishes through two tags you can also run on their own: `lathe-config` and `lathe-migrations`. Two more tags copy a file into your app when you want it alone. `lathe-translations` writes `lang/vendor/lathe/en.json`, and `lathe-resource` writes the User Resource to `app/Lathe/Resources/User.php`, in the `App` namespace and with the model of your `auth.providers.users` provider already filled in. Change the namespace by hand if your app uses another.
+
 ## Create a user
 
 ```bash
