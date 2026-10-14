@@ -4,6 +4,7 @@ namespace Lathe\Support;
 
 use Closure;
 use Illuminate\Support\Arr;
+use Lathe\Theme\ThemeStyleGenerator;
 
 /**
  * Checks the lathe config: boot throws on the first error, lathe:doctor lists them all.
@@ -177,18 +178,20 @@ class ConfigValidator
                 }
 
                 foreach ($v as $token => $colour) {
-                    $valid = $colour === null || is_string($colour)
-                        || (is_array($colour) && array_keys($colour) === ['light', 'dark'] && is_string($colour['light']) && is_string($colour['dark']));
+                    $valid = $colour === null || (is_string($colour) && ThemeStyleGenerator::isColor($colour))
+                        || (is_array($colour) && array_keys($colour) === ['light', 'dark'] && is_string($colour['light']) && is_string($colour['dark'])
+                            && ThemeStyleGenerator::isColor($colour['light']) && ThemeStyleGenerator::isColor($colour['dark']));
 
                     if (! $valid) {
-                        return "{$token} must be a CSS colour string or ['light' => ..., 'dark' => ...]; got ".$this->show($colour).'. Set a colour such as oklch(0.6 0.2 250).';
+                        return "{$token} must be a CSS colour (oklch(), hsl(), rgb(), hex or a colour name) or ['light' => ..., 'dark' => ...]; got ".$this->show($colour).'. Set a colour such as oklch(0.6 0.2 250).';
                     }
                 }
 
                 return null;
             },
             'theme.appearance' => $this->oneOf(['light', 'dark', 'system']),
-            'theme.radius' => $string,
+            'theme.radius' => fn (mixed $v) => is_string($v) && ThemeStyleGenerator::isLength($v)
+                ? null : 'must be a CSS length such as 0.625rem; got '.$this->show($v).'. Set it to a length such as 0.625rem.',
             'theme.style' => $this->oneOf(['nova', 'vega', 'lyra', 'maia', 'mira', 'luma', 'rhea', 'sera']),
             // A font is {family, fallback, files}: files are woff2 the host serves itself.
             'theme.font' => fn (mixed $v) => $v === null || (is_array($v) && is_string($v['family'] ?? null) && $v['family'] !== ''

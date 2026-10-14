@@ -78,3 +78,35 @@ it('rejects a theme font without a family', function () {
 
     expect(app(ConfigValidator::class)->errors(config('lathe')))->toHaveCount(1);
 });
+
+it('rejects a theme colour or radius that is not a CSS value, naming the key', function () {
+    config([
+        'lathe.theme.radius' => '1rem}</style><script>alert(1)</script>',
+        'lathe.theme.colors.primary' => 'red}</style><script>alert(1)</script>',
+    ]);
+
+    expect(app(ConfigValidator::class)->errors(config('lathe')))->toBe([
+        "config/lathe.php: theme.colors: primary must be a CSS colour (oklch(), hsl(), rgb(), hex or a colour name) or ['light' => ..., 'dark' => ...]; got 'red}</style><script>alert(1)</script>'. Set a colour such as oklch(0.6 0.2 250).",
+        "config/lathe.php: theme.radius: must be a CSS length such as 0.625rem; got '1rem}</style><script>alert(1)</script>'. Set it to a length such as 0.625rem.",
+    ]);
+
+    config(['lathe.theme.colors.primary' => null, 'lathe.theme.radius' => '0.5rem', 'lathe.theme.colors.ring' => ['light' => '#000000', 'dark' => 'blue;color:red']]);
+
+    expect(app(ConfigValidator::class)->errors(config('lathe')))->toBe([
+        "config/lathe.php: theme.colors: ring must be a CSS colour (oklch(), hsl(), rgb(), hex or a colour name) or ['light' => ..., 'dark' => ...]; got {\"light\":\"#000000\",\"dark\":\"blue;color:red\"}. Set a colour such as oklch(0.6 0.2 250).",
+    ]);
+});
+
+it('keeps accepting theme colours in every CSS form the panel writes', function () {
+    config([
+        'lathe.theme.radius' => '0',
+        'lathe.theme.colors.primary' => 'oklch(0.62 0.19 259)',
+        'lathe.theme.colors.border' => 'oklch(1 0 0 / 10%)',
+        'lathe.theme.colors.ring' => ['light' => 'hsl(210 40% 50%)', 'dark' => 'hsla(210, 40%, 50%, 0.5)'],
+        'lathe.theme.colors.accent' => ['light' => 'rgb(10 20 30)', 'dark' => 'rgba(10, 20, 30, 0.5)'],
+        'lathe.theme.colors.muted' => '#f5f5f5',
+        'lathe.theme.colors.input' => 'RebeccaPurple',
+    ]);
+
+    expect(app(ConfigValidator::class)->errors(config('lathe')))->toBe([]);
+});

@@ -316,6 +316,7 @@
     "The panel is down for maintenance. Try again soon.": "The panel is down for maintenance. Try again soon.",
     "The preload strategy must be auto, metadata or none.": "The preload strategy must be auto, metadata or none.",
     "The preset response has no light and dark colours.": "The preset response has no light and dark colours.",
+    "The preset sets :token to a value that is not a CSS colour. Nothing was written.": "The preset sets :token to a value that is not a CSS colour. Nothing was written.",
     "The preview could not be loaded.": "The preview could not be loaded.",
     "The resource was deleted.": "The resource was deleted.",
     "The selection keys must be numbers or text.": "The selection keys must be numbers or text.",

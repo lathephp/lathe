@@ -3806,7 +3806,10 @@ Lathe\Theme\Color::utility(): string
 Lathe\Theme\Color::variable(): string
 Lathe\Theme\Contrast::ratio(string $first, string $second): ?float  [static]
 Lathe\Theme\Contrast::weakPairs(array $colors): array  [static]
+Lathe\Theme\ThemeStyleGenerator::KEYWORDS
 Lathe\Theme\ThemeStyleGenerator::generate(string $radius, array $colors): string
+Lathe\Theme\ThemeStyleGenerator::isColor(string $value): bool  [static]
+Lathe\Theme\ThemeStyleGenerator::isLength(string $value): bool  [static]
 Lathe\Uploads\FieldAttachment::$fillable  [protected]
 Lathe\Uploads\FieldAttachment::$table  [protected]
 Lathe\Uploads\FieldAttachment::keyOf(Illuminate\Database\Eloquent\Model $model): string  [static]

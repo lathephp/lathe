@@ -128,6 +128,20 @@ it('fails on a code the API refuses', function () {
     expect(file_get_contents($this->configPath))->toBe($before);
 });
 
+it('refuses a preset whose colour is not a CSS colour and leaves the config alone', function () {
+    $poisoned = presetFixture('preset-a5ONTE');
+    $poisoned['cssVars']['dark']['primary'] = 'red}</style><script>alert(1)</script>';
+    Http::fake(['ui.shadcn.com/init*' => Http::response($poisoned)]);
+
+    $before = file_get_contents($this->configPath);
+
+    $this->artisan('lathe:preset', ['preset' => 'a5ONTE'])
+        ->expectsOutputToContain('primary')
+        ->assertExitCode(1);
+
+    expect(file_get_contents($this->configPath))->toBe($before);
+});
+
 it('fails on a code that does not decode without a request', function () {
     $this->artisan('lathe:preset', ['preset' => 'not a code'])->assertExitCode(1);
 

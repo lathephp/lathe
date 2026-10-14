@@ -6,6 +6,7 @@ use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Http;
 use Lathe\Lathe;
 use Lathe\Theme\Color;
+use Lathe\Theme\ThemeStyleGenerator;
 use Symfony\Component\Console\Attribute\AsCommand;
 
 use function Laravel\Prompts\select;
@@ -107,7 +108,20 @@ class PresetCommand extends Command
         $radius = $this->radius($decoded, $style);
         $font = $this->font($data);
 
-        $theme = $this->withColors($theme, $this->colors($cssVars['light'], $cssVars['dark']));
+        $colors = $this->colors($cssVars['light'], $cssVars['dark']);
+
+        // The values come from a remote server and end up in a <style> tag, so each one must be a colour.
+        foreach ($colors as $token => $value) {
+            $halves = is_array($value) ? [$value['light'], $value['dark']] : [$value];
+
+            if (array_filter($halves, fn (string $half) => ! ThemeStyleGenerator::isColor($half)) !== []) {
+                $this->components->error(Lathe::__('The preset sets :token to a value that is not a CSS colour. Nothing was written.', ['token' => $token]));
+
+                return self::FAILURE;
+            }
+        }
+
+        $theme = $this->withColors($theme, $colors);
         $theme['style'] = $style;
         $theme['radius'] = $radius;
         $theme['font'] = $font;
