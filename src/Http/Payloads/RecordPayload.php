@@ -164,7 +164,7 @@ class RecordPayload
     }
 
     /**
-     * Dashboard / Resource, then the given tail.
+     * Dashboard / Resource, then the given tail; none when breadcrumbs.enabled is false.
      *
      * @param  class-string<\Lathe\Resources\Resource>  $class
      * @param  list<array{label: string, href: string|null}>  $tail
@@ -172,6 +172,10 @@ class RecordPayload
      */
     public function breadcrumbs(string $class, array $tail): array
     {
+        if (! $this->config->boolean('breadcrumbs.enabled')) {
+            return [];
+        }
+
         return [
             ['label' => Lathe::__('Dashboard'), 'href' => $this->href('')],
             ['label' => $class::label(), 'href' => $this->href('resources/'.$class::uriKey())],
