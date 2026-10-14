@@ -26,7 +26,7 @@ function lazyChartsSource(string $file): string
 
 const LAZY_CHARTS_SUBPATH_IMPORT = '/(?:from|import)\s*["\']@lathephp\/ui\/[^"\']+["\']/';
 
-it('keeps every @lathephp/ui subpath out of the static imports of first-paint chunks', function () {
+it('still keeps every @lathephp/ui subpath out of the static imports of first-paint chunks', function () {
     $manifest = lazyChartsManifest();
     $keys = ['resources/js/app.tsx', 'resources/js/pages/Dashboard.tsx', 'resources/js/pages/Resources/Index.tsx', 'resources/js/pages/Resources/Form.tsx'];
     $seen = [];
