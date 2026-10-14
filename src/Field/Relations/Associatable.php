@@ -27,6 +27,20 @@ class Associatable
         //
     }
 
+    /** The morph type a morphTo picker asks for: a related Resource's uriKey. */
+    protected ?string $type = null;
+
+    /**
+     * The same picker for one morph type.
+     */
+    public function forType(?string $type): static
+    {
+        $copy = clone $this;
+        $copy->type = $type;
+
+        return $copy;
+    }
+
     /**
      * The related Resource's query: its scopes, the field's relatableQuery, then the
      * parent's relatable{Model}s when it defines one, which replaces the related generic hook.
@@ -64,8 +78,8 @@ class Associatable
      *
      * @return class-string<resource>|null
      */
-    protected function relatedResource(): ?string
+    public function relatedResource(): ?string
     {
-        return $this->field->relatedResource();
+        return $this->field instanceof MorphToField ? $this->field->resourceForType($this->type) : $this->field->relatedResource();
     }
 }

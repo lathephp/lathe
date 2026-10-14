@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
 use Lathe\Auth\ResourceAuthorization;
 use Lathe\Field\Relations\Associatable;
+use Lathe\Field\Relations\MorphToField;
 use Lathe\Field\Relations\RelationField;
 use Lathe\Http\Requests\LatheRequest;
 use Lathe\Lathe;
@@ -29,14 +30,17 @@ class Relatable implements ValidationRule
 
     public function validate(string $attribute, mixed $value, Closure $fail): void
     {
-        $key = is_array($value) ? ($value['value'] ?? null) : $value;
+        $key = is_array($value) ? ($value['value'] ?? $value['id'] ?? null) : $value;
+        $type = is_array($value) ? ($value['type'] ?? null) : null;
 
         // {value: ''} is not an empty value to the validator, so the nullable skip is made here.
         if (($key === null || $key === '') && $this->field->isNullable()) {
             return;
         }
 
-        $query = $this->associatable->query();
+        $query = $this->field instanceof MorphToField
+            ? $this->associatable->forType(is_string($type) ? $type : null)->query()
+            : $this->associatable->query();
 
         if (! is_string($key) && ! is_int($key) || $query === null || $query->option((string) $key) === null) {
             $fail(Lathe::__('The :attribute must be a valid relation.'));

@@ -74,12 +74,15 @@ class AssociatableController
      */
     protected function options(LatheRequest $request, string $parent, RelationField $field): JsonResponse
     {
-        $related = $field->relatedResource();
+        $type = $request->query('type');
+        // A morphTo picker reads the type as a uriKey among its types(); anything else is 404.
+        $associatable = (new Associatable($request, $parent, $field))->forType(is_string($type) ? $type : null);
+        $related = $associatable->relatedResource();
 
         abort_if($related === null, 404);
 
         $resource = $related::make();
-        $query = (new Associatable($request, $parent, $field))->query();
+        $query = $associatable->query();
 
         abort_if($query === null, 404);
 
