@@ -10,8 +10,10 @@ use Illuminate\Database\Events\QueryExecuted;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Lathe\Dashboards\Dashboard;
 use Lathe\Http\Requests\LatheRequest;
 use Lathe\Lathe;
+use Lathe\Plugins\Plugin;
 use Lathe\Resources\Resource;
 use PHPUnit\Framework\Assert;
 
@@ -38,6 +40,24 @@ trait InteractsWithLathe
     protected function registerResources(string ...$classes): void
     {
         Lathe::registerResources(...$classes);
+    }
+
+    /**
+     * Register dashboards for this test without a provider.
+     *
+     * @param  Dashboard|class-string<Dashboard>  ...$dashboards
+     */
+    protected function registerDashboards(Dashboard|string ...$dashboards): void
+    {
+        Lathe::registerDashboards(...$dashboards);
+    }
+
+    /**
+     * Register plugins for this test without a provider.
+     */
+    protected function registerPlugins(Plugin ...$plugins): void
+    {
+        Lathe::registerPlugins(...$plugins);
     }
 
     /**
