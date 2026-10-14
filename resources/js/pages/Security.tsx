@@ -3,9 +3,9 @@ import { ApiError, QueryClientProvider, queryClient, request, useQuery, useTrans
 import { Button, Card, CardContent, CardDescription, CardHeader, CardTitle } from '@lathephp/ui';
 import { useState, type SubmitEvent } from 'react';
 import { FieldError } from '../components/FieldError';
+import { TotpInput } from '../components/TotpInput';
 import { authInputClass } from '../layout/AuthLayout';
 import type { SharedProps } from '../types';
-import { TotpInput } from './Auth/TwoFactorChallenge';
 
 type TwoFactorState = 'off' | 'pending' | 'on';
 
