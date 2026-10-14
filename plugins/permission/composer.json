@@ -11,15 +11,46 @@
     "homepage": "https://lathephp.com",
     "license": "MIT",
     "type": "library",
+    "repositories": [
+        {
+            "type": "path",
+            "url": "../..",
+            "options": {
+                "symlink": true,
+                "versions": {
+                    "lathe/lathe": "1.0.x-dev"
+                }
+            }
+        }
+    ],
     "require": {
         "php": "^8.4",
         "lathe/lathe": "^1.0",
         "spatie/laravel-permission": "^7.0 || ^8.0"
     },
+    "require-dev": {
+        "larastan/larastan": "^3.13",
+        "laravel/pint": "^1.25",
+        "orchestra/testbench": "^11.3",
+        "pestphp/pest": "^5.3",
+        "pestphp/pest-plugin-laravel": "^5.0",
+        "pestphp/pest-plugin-type-coverage": "^5.0"
+    },
     "autoload": {
         "psr-4": {
             "Lathe\\Permission\\": "src/"
         }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Lathe\\Permission\\Tests\\": "tests/"
+        }
+    },
+    "scripts": {
+        "test": "vendor/bin/pest",
+        "analyse": "vendor/bin/phpstan analyse --memory-limit=1G",
+        "lint": "vendor/bin/pint --test",
+        "types": "vendor/bin/pest --type-coverage --min=100"
     },
     "extra": {
         "laravel": {
@@ -31,5 +62,12 @@
             "plugin": "Lathe\\Permission\\PermissionPlugin"
         }
     },
-    "minimum-stability": "stable"
+    "config": {
+        "sort-packages": true,
+        "allow-plugins": {
+            "pestphp/pest-plugin": true
+        }
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true
 }
