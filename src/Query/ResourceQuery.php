@@ -262,6 +262,18 @@ class ResourceQuery
     }
 
     /**
+     * Whether every key is a row of the scoped query, in one query.
+     *
+     * @param  list<int|string>  $keys
+     */
+    public function holdsAll(array $keys): bool
+    {
+        $scoped = $this->scoped();
+
+        return $scoped->whereKey($keys)->count() === count(array_unique($keys));
+    }
+
+    /**
      * Whether the scoped query holds more than $count rows, read through a subquery that
      * stops one row past it, so a large table is never counted in full.
      */

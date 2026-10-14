@@ -1152,11 +1152,19 @@ Lathe\Field\Relations\RelationField::writesRelation(Illuminate\Database\Eloquent
 Lathe\Field\Relations\ResourceRelationshipGuesser::conventionalResource(string $label): string  [static]
 Lathe\Field\Relations\ResourceRelationshipGuesser::guessRelation(string $label): string  [static]
 Lathe\Field\Relations\ResourceRelationshipGuesser::guessResource(string $label, string $relation, ?string $owner): ?string  [static]
+Lathe\Field\Relations\TagField::PRELOAD_LIMIT
 Lathe\Field\Relations\TagField::__construct(string $label, Closure|string|null $attribute = NULL, ?Closure $resolver = NULL)
+Lathe\Field\Relations\TagField::cell(Illuminate\Database\Eloquent\Model $model): array
 Lathe\Field\Relations\TagField::displayAsGroup(): static
 Lathe\Field\Relations\TagField::displayAsList(): static
+Lathe\Field\Relations\TagField::fill(Lathe\Http\Requests\LatheRequest $request, object $model, ?string $requestAttribute = NULL): ?Closure
+Lathe\Field\Relations\TagField::getRules(Lathe\Field\FieldContext $context, ?Lathe\Http\Requests\LatheRequest $request = NULL, ?Illuminate\Database\Eloquent\Model $model = NULL): array
+Lathe\Field\Relations\TagField::ids(mixed $value): array  [static]
+Lathe\Field\Relations\TagField::jsonSerialize(): array
 Lathe\Field\Relations\TagField::kind(): string
+Lathe\Field\Relations\TagField::loadsWithRecord(): bool
 Lathe\Field\Relations\TagField::preload(bool $preload = true): static
+Lathe\Field\Relations\TagField::resolve(object $record, ?string $attribute = NULL): mixed
 Lathe\Field\Relations\TagField::string $component  [protected]
 Lathe\Field\Relations\TagField::withPreview(bool $preview = true): static
 Lathe\Field\RepeaterField::?Closure $beforeFill  [protected]
@@ -1886,6 +1894,7 @@ Lathe\Query\ResourceQuery::find(string|int $id): Illuminate\Database\Eloquent\Mo
 Lathe\Query\ResourceQuery::forLens(Lathe\Lenses\Lens $lens): static
 Lathe\Query\ResourceQuery::forRelation(Illuminate\Database\Eloquent\Relations\Relation $relation, ?Lathe\Field\Relations\RelationField $field = NULL): static
 Lathe\Query\ResourceQuery::hasMorePages(): bool
+Lathe\Query\ResourceQuery::holdsAll(array $keys): bool
 Lathe\Query\ResourceQuery::holdsKey(Illuminate\Database\Eloquent\Model $model, string|int $id): bool  [static]
 Lathe\Query\ResourceQuery::holdsMoreThan(int $count): bool
 Lathe\Query\ResourceQuery::onlyTrashed(): static

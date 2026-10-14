@@ -47,4 +47,12 @@ class PostPolicy
     {
         return true;
     }
+
+    /**
+     * @param  array<int, int|string>  $ids
+     */
+    public function attachTags(User $user, Post $post, array $ids): bool
+    {
+        return true;
+    }
 }

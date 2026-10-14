@@ -199,7 +199,8 @@ it('stores the per-kind options', function () {
         ->and(Field::hasOne('Latest Order')->ofMany()->isOfMany())->toBeTrue();
 
     $tag = Field::tag('Tags')->displayAsList()->preload()->withPreview();
-    expect($tag->jsonSerialize())->toMatchArray(['display' => 'list', 'preload' => true, 'withPreview' => true])
+    // preload is true on the wire only once a small related table is known; see TagFieldTest.
+    expect($tag->jsonSerialize())->toMatchArray(['display' => 'list', 'withPreview' => true])
         ->and(Field::tag('Tags')->jsonSerialize())->toMatchArray(['display' => 'group', 'preload' => false, 'withPreview' => false]);
 });
 

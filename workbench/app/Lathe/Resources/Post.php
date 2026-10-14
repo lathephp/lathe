@@ -37,6 +37,7 @@ class Post extends Resource
             Field::image('Cover', 'cover')->hideFromIndex(),
             Field::tiptap('Body')->required()->withFiles(),
             Field::markdown('Markdown body', 'markdown_body')->nullable()->withFiles(),
+            Field::tag('Tags')->preload()->withPreview()->hideFromIndex(),
             Field::morphMany('Comments'),
         ];
     }
