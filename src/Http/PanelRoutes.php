@@ -111,8 +111,9 @@ class PanelRoutes
         foreach ($this->plugins->all() as $plugin) {
             $this->api()
                 ->prefix($this->apiPrefix().'/plugins/'.$plugin::uriKey())
-                ->middleware(AuthorizePlugin::class.':'.$plugin::uriKey())
-                ->group(fn (Router $router) => $plugin->routes($router));
+                // A nested group, because a second middleware() on one registrar replaces the API middleware.
+                ->group(fn (Router $router) => $router->middleware(AuthorizePlugin::class.':'.$plugin::uriKey())
+                    ->group(fn (Router $router) => $plugin->routes($router)));
         }
 
         $this->api()->prefix($this->apiPrefix())->name('lathe.api.')->group(function (Router $router) {
