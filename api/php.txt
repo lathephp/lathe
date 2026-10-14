@@ -32,6 +32,7 @@ Lathe\ActionEvents\ActionEventListener::request(): ?Lathe\Http\Requests\LatheReq
 Lathe\ActionEvents\ActionEventListener::restored(Lathe\Events\ResourceRestored $event): void
 Lathe\ActionEvents\ActionEventListener::subscribe(Illuminate\Events\Dispatcher $events): array
 Lathe\ActionEvents\ActionEventListener::updated(Lathe\Events\ResourceUpdated $event): void
+Lathe\ActionEvents\ActionEventRecorder::?string $batchId  [protected]
 Lathe\ActionEvents\ActionEventRecorder::array $secrets  [protected]
 Lathe\ActionEvents\ActionEventRecorder::bool $disabled  [protected]
 Lathe\ActionEvents\ActionEventRecorder::clean(array $attributes, ?Illuminate\Database\Eloquent\Model $model, ?string $resourceClass): array  [protected]
@@ -48,6 +49,7 @@ Lathe\ActionEvents\ActionEventRecorder::forResourceForceDelete(?Lathe\Http\Reque
 Lathe\ActionEvents\ActionEventRecorder::forResourceRestore(?Lathe\Http\Requests\LatheRequest $request, Illuminate\Database\Eloquent\Model $model, string $resourceClass, array $original = array ( ), array $changes = array ( )): void
 Lathe\ActionEvents\ActionEventRecorder::forResourceUpdate(?Lathe\Http\Requests\LatheRequest $request, Illuminate\Database\Eloquent\Model $model, string $resourceClass, array $original = array ( ), array $changes = array ( )): void
 Lathe\ActionEvents\ActionEventRecorder::forUpdateAttached(?Lathe\Http\Requests\LatheRequest $request, Illuminate\Database\Eloquent\Model $parent, Illuminate\Database\Eloquent\Model $related, string $resourceClass, array $original, array $changes, ?string $batchId = NULL): void
+Lathe\ActionEvents\ActionEventRecorder::inBatch(Closure $callback): mixed
 Lathe\ActionEvents\ActionEventRecorder::isEnabled(): bool
 Lathe\ActionEvents\ActionEventRecorder::model(): string  [protected]
 Lathe\ActionEvents\ActionEventRecorder::modelState(Illuminate\Database\Eloquent\Model $model, ?string $resourceClass = NULL): array
@@ -411,6 +413,8 @@ Lathe\Auth\ResourceAuthorization::allowsViewAnyFromManifest(Illuminate\Http\Requ
 Lathe\Auth\ResourceAuthorization::array $policies  [protected]
 Lathe\Auth\ResourceAuthorization::canSee(Illuminate\Http\Request $request, string $resource): bool
 Lathe\Auth\ResourceAuthorization::denialMessage(string $resource): string
+Lathe\Auth\ResourceAuthorization::narrowBulk(?Illuminate\Contracts\Auth\Authenticatable $user, string $resource, string $ability, Illuminate\Database\Eloquent\Builder $query): Illuminate\Database\Eloquent\Builder
+Lathe\Auth\ResourceAuthorization::narrowsBulk(string $resource, string $ability): bool
 Lathe\Auth\ResourceAuthorization::policyFor(string $resource): ?object  [protected]
 Lathe\Console\CacheCommand::$description  [protected]
 Lathe\Console\CacheCommand::$signature  [protected]
@@ -1808,13 +1812,16 @@ Lathe\Http\Controllers\Resources\AssociatableController::options(Lathe\Http\Requ
 Lathe\Http\Controllers\Resources\AssociatableController::record(Lathe\Http\Requests\LatheRequest $request, Lathe\Auth\ResourceAuthorization $authorization, string $resource, string $resourceId, string $field): Illuminate\Http\JsonResponse
 Lathe\Http\Controllers\Resources\AssociatableController::relationField(Lathe\Http\Requests\LatheRequest $request, Lathe\Field\FieldCollection $fields, string $attribute): Lathe\Field\Relations\RelationField  [protected]
 Lathe\Http\Controllers\Resources\AuthorizesResources::viewableResource(Lathe\Http\Requests\LatheRequest $request, Lathe\Auth\ResourceAuthorization $authorization): string  [protected]
+Lathe\Http\Controllers\Resources\BatchDeleteController::delete(Lathe\Http\Requests\LatheRequest $request, Lathe\Auth\ResourceAuthorization $authorization, Lathe\Resources\RecordDeleter $deleter, Lathe\ActionEvents\ActionEventRecorder $recorder): Illuminate\Http\JsonResponse
+Lathe\Http\Controllers\Resources\BatchDeleteController::forceDelete(Lathe\Http\Requests\LatheRequest $request, Lathe\Auth\ResourceAuthorization $authorization, Lathe\Resources\RecordDeleter $deleter, Lathe\ActionEvents\ActionEventRecorder $recorder): Illuminate\Http\JsonResponse
+Lathe\Http\Controllers\Resources\BatchDeleteController::handle(Lathe\Http\Requests\LatheRequest $request, Lathe\Auth\ResourceAuthorization $authorization, Lathe\Resources\RecordDeleter $deleter, Lathe\ActionEvents\ActionEventRecorder $recorder, string $ability, string $key): Illuminate\Http\JsonResponse  [protected]
+Lathe\Http\Controllers\Resources\BatchDeleteController::restore(Lathe\Http\Requests\LatheRequest $request, Lathe\Auth\ResourceAuthorization $authorization, Lathe\Resources\RecordDeleter $deleter, Lathe\ActionEvents\ActionEventRecorder $recorder): Illuminate\Http\JsonResponse
 Lathe\Http\Controllers\Resources\CountController::__invoke(Lathe\Http\Requests\LatheRequest $request, Lathe\Auth\ResourceAuthorization $authorization, Lathe\Http\Payloads\IndexPayload $payload): Illuminate\Http\JsonResponse
 Lathe\Http\Controllers\Resources\DeleteController::authorizedModel(Lathe\Http\Requests\LatheRequest $request, Lathe\Auth\ResourceAuthorization $authorization, string $class, string $id, string $ability, bool $withTrashed): Illuminate\Database\Eloquent\Model  [protected]
-Lathe\Http\Controllers\Resources\DeleteController::delete(Lathe\Http\Requests\LatheRequest $request, Lathe\Auth\ResourceAuthorization $authorization, string $resource, string $resourceId): Illuminate\Http\JsonResponse
-Lathe\Http\Controllers\Resources\DeleteController::forceDelete(Lathe\Http\Requests\LatheRequest $request, Lathe\Auth\ResourceAuthorization $authorization, string $resource, string $resourceId): Illuminate\Http\JsonResponse
-Lathe\Http\Controllers\Resources\DeleteController::purgeAttachments(Illuminate\Database\Eloquent\Model $model): void  [protected]
-Lathe\Http\Controllers\Resources\DeleteController::restore(Lathe\Http\Requests\LatheRequest $request, Lathe\Auth\ResourceAuthorization $authorization, string $resource, string $resourceId): Illuminate\Http\JsonResponse
-Lathe\Http\Controllers\Resources\DeleteController::run(Lathe\Http\Requests\LatheRequest $request, string $class, Illuminate\Database\Eloquent\Model $model, string $hook, Closure $write, string $event, bool $purge = false): Illuminate\Http\JsonResponse  [protected]
+Lathe\Http\Controllers\Resources\DeleteController::delete(Lathe\Http\Requests\LatheRequest $request, Lathe\Auth\ResourceAuthorization $authorization, Lathe\Resources\RecordDeleter $deleter, string $resource, string $resourceId): Illuminate\Http\JsonResponse
+Lathe\Http\Controllers\Resources\DeleteController::done(Lathe\Http\Requests\LatheRequest $request, string $class): Illuminate\Http\JsonResponse  [protected]
+Lathe\Http\Controllers\Resources\DeleteController::forceDelete(Lathe\Http\Requests\LatheRequest $request, Lathe\Auth\ResourceAuthorization $authorization, Lathe\Resources\RecordDeleter $deleter, string $resource, string $resourceId): Illuminate\Http\JsonResponse
+Lathe\Http\Controllers\Resources\DeleteController::restore(Lathe\Http\Requests\LatheRequest $request, Lathe\Auth\ResourceAuthorization $authorization, Lathe\Resources\RecordDeleter $deleter, string $resource, string $resourceId): Illuminate\Http\JsonResponse
 Lathe\Http\Controllers\Resources\DependencyController::MAX_DEPTH
 Lathe\Http\Controllers\Resources\DependencyController::__invoke(Lathe\Http\Requests\LatheRequest $request, Lathe\Auth\ResourceAuthorization $authorization, string $resource): Illuminate\Http\JsonResponse
 Lathe\Http\Controllers\Resources\DependencyController::call(Lathe\Field\Dependency $dependency, Lathe\Field\FieldPatch $patch, Lathe\Http\Requests\LatheRequest $request, Lathe\Field\FormData $data): void  [protected]
@@ -2384,6 +2391,14 @@ Lathe\Query\SelectionResolver::lazy(int $chunk = 200): Illuminate\Support\LazyCo
 Lathe\Query\SelectionResolver::narrow(Illuminate\Database\Eloquent\Builder $query): Illuminate\Database\Eloquent\Builder  [protected]
 Lathe\Query\SelectionResolver::query(): Illuminate\Database\Eloquent\Builder
 Lathe\Query\SelectionResolver::selectionLens(): ?Lathe\Lenses\Lens  [protected]
+Lathe\Resources\RecordDeleter::chunk(Lathe\Http\Requests\LatheRequest $request, string $class, string $ability, Illuminate\Support\Collection $models, bool $authorized = false): array
+Lathe\Resources\RecordDeleter::delete(Lathe\Http\Requests\LatheRequest $request, string $class, Illuminate\Database\Eloquent\Model $model): void
+Lathe\Resources\RecordDeleter::forceDelete(Lathe\Http\Requests\LatheRequest $request, string $class, Illuminate\Database\Eloquent\Model $model): void
+Lathe\Resources\RecordDeleter::keyOf(Illuminate\Database\Eloquent\Model $model): string|int  [protected]
+Lathe\Resources\RecordDeleter::purgeAttachments(Lathe\Http\Requests\LatheRequest $request, Illuminate\Database\Eloquent\Model $model): void  [protected]
+Lathe\Resources\RecordDeleter::restore(Lathe\Http\Requests\LatheRequest $request, string $class, Illuminate\Database\Eloquent\Model $model): void
+Lathe\Resources\RecordDeleter::run(Lathe\Http\Requests\LatheRequest $request, string $class, Illuminate\Database\Eloquent\Model $model, string $hook, Closure $write, string $event, bool $purge = false): void  [protected]
+Lathe\Resources\RecordDeleter::trashed(Illuminate\Database\Eloquent\Model $model): bool  [protected]
 Lathe\Resources\Resource::?Illuminate\Database\Eloquent\Model $model  [protected]
 Lathe\Resources\Resource::?string $policy
 Lathe\Resources\Resource::__construct(?Illuminate\Database\Eloquent\Model $model = NULL)
@@ -2896,17 +2911,27 @@ Lathe\Testing\ResourceTester::$followRedirects  [protected]
 Lathe\Testing\ResourceTester::$serverVariables  [protected]
 Lathe\Testing\ResourceTester::$unencryptedCookies  [protected]
 Lathe\Testing\ResourceTester::$withCredentials  [protected]
+Lathe\Testing\ResourceTester::?string $lens  [protected]
 Lathe\Testing\ResourceTester::Illuminate\Contracts\Foundation\Application $app  [protected]
 Lathe\Testing\ResourceTester::__construct(string $uriKey)
+Lathe\Testing\ResourceTester::actionForm(string $action, array $query = array ( )): Illuminate\Testing\TestResponse
+Lathe\Testing\ResourceTester::actions(string $display = 'index', array $query = array ( )): Illuminate\Testing\TestResponse
+Lathe\Testing\ResourceTester::base(): string  [protected]
+Lathe\Testing\ResourceTester::batchDelete(array $selection): Illuminate\Testing\TestResponse
+Lathe\Testing\ResourceTester::batchForceDelete(array $selection): Illuminate\Testing\TestResponse
+Lathe\Testing\ResourceTester::batchRestore(array $selection): Illuminate\Testing\TestResponse
 Lathe\Testing\ResourceTester::creationFields(array $query = array ( )): Illuminate\Testing\TestResponse
 Lathe\Testing\ResourceTester::delete(string|int $id): Illuminate\Testing\TestResponse
+Lathe\Testing\ResourceTester::forLens(string $lens): static
 Lathe\Testing\ResourceTester::forceDelete(string|int $id): Illuminate\Testing\TestResponse
 Lathe\Testing\ResourceTester::index(array $query = array ( )): Illuminate\Testing\TestResponse
 Lathe\Testing\ResourceTester::peek(string|int $id): Illuminate\Testing\TestResponse
+Lathe\Testing\ResourceTester::postAction(string $action, array $selection, array $fields = array ( )): Illuminate\Testing\TestResponse
 Lathe\Testing\ResourceTester::preview(string|int $id): Illuminate\Testing\TestResponse
 Lathe\Testing\ResourceTester::relation(string $relationship, string|int $id): Lathe\Testing\RelationTester
 Lathe\Testing\ResourceTester::replicateFields(string|int $id): Illuminate\Testing\TestResponse
 Lathe\Testing\ResourceTester::restore(string|int $id): Illuminate\Testing\TestResponse
+Lathe\Testing\ResourceTester::runAction(string $action, array $selection, array $fields = array ( )): Illuminate\Testing\TestResponse
 Lathe\Testing\ResourceTester::store(array $data): Illuminate\Testing\TestResponse
 Lathe\Testing\ResourceTester::string $uriKey  [protected]
 Lathe\Testing\ResourceTester::update(string|int $id, array $data): Illuminate\Testing\TestResponse
@@ -3125,6 +3150,7 @@ class Lathe\Http\Controllers\Plugins\ModuleController
 class Lathe\Http\Controllers\Plugins\PluginApiController
 class Lathe\Http\Controllers\Plugins\PluginPageController
 class Lathe\Http\Controllers\Resources\AssociatableController
+class Lathe\Http\Controllers\Resources\BatchDeleteController
 class Lathe\Http\Controllers\Resources\CountController
 class Lathe\Http\Controllers\Resources\DeleteController
 class Lathe\Http\Controllers\Resources\DependencyController
@@ -3186,6 +3212,7 @@ class Lathe\Query\DateBucket
 class Lathe\Query\ResourceQuery
 class Lathe\Query\Selection
 class Lathe\Query\SelectionResolver
+class Lathe\Resources\RecordDeleter
 class Lathe\Resources\Resource
 class Lathe\Resources\ResourceDefinition
 class Lathe\Resources\ResourceRegistry
