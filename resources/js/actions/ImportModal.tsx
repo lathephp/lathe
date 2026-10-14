@@ -217,7 +217,7 @@ export function ImportModal({ base, action, selection, onClose }: ImportModalPro
           <>
             <table className="w-full text-sm">
               <thead>
-                <tr className="text-left text-muted-foreground">
+                <tr className="text-start text-muted-foreground">
                   <th className="py-1 font-medium">{__('Column in file')}</th>
                   <th className="py-1 font-medium">{__('Import as')}</th>
                 </tr>
@@ -255,9 +255,9 @@ export function ImportModal({ base, action, selection, onClose }: ImportModalPro
               <p className="text-sm font-medium">{__('Preview')}</p>
               <table className="w-full text-sm">
                 <thead>
-                  <tr className="text-left text-muted-foreground">
+                  <tr className="text-start text-muted-foreground">
                     {detected.headers.map((header, index) => (
-                      <th key={index} className="py-1 pr-2 font-medium">
+                      <th key={index} className="py-1 pe-2 font-medium">
                         {header}
                       </th>
                     ))}
@@ -267,7 +267,7 @@ export function ImportModal({ base, action, selection, onClose }: ImportModalPro
                   {detected.preview.map((row, index) => (
                     <tr key={index}>
                       {row.map((value, column) => (
-                        <td key={column} className="py-1 pr-2">
+                        <td key={column} className="py-1 pe-2">
                           {cell(value)}
                         </td>
                       ))}
@@ -292,7 +292,7 @@ export function ImportModal({ base, action, selection, onClose }: ImportModalPro
                 <p>{__(':created will be created, :updated will be updated, :failed failed', { created: report.created_rows, updated: report.updated_rows, failed: report.failed_rows })}</p>
                 {report.skipped_rows > 0 && <p>{__(':skipped will be skipped', { skipped: report.skipped_rows })}</p>}
                 {report.first_errors.length > 0 && (
-                  <ul className="list-disc pl-5 text-destructive">
+                  <ul className="list-disc ps-5 text-destructive">
                     {report.first_errors.map((row) => (
                       <li key={row.row_number}>
                         {__('Row :row: :errors', {

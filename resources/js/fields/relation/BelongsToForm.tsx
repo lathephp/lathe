@@ -98,7 +98,7 @@ export function RelationPicker({ field, value, onChange, id, describedBy, invali
           setActive(-1);
           setOpen(!open);
         }}
-        className={`${inputClass} text-left`}
+        className={`${inputClass} text-start`}
       >
         {isBelongsToValue(value) ? value.display : <span className="text-muted-foreground">{field.placeholder ?? __('Select :title', { title: label })}</span>}
       </button>

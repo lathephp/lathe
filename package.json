@@ -14,6 +14,9 @@
     "test": "vitest run --coverage",
     "translations": "node scripts/check-translations.mjs",
     "size": "node scripts/size.mjs",
+    "contrast": "node scripts/check-contrast.mjs",
+    "chart-slots": "node scripts/check-chart-slots.mjs",
+    "logical-css": "bash scripts/check-logical-css.sh",
     "bench:browser": "node scripts/bench-browser.mjs"
   },
   "dependencies": {

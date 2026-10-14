@@ -70,7 +70,7 @@ export default function CodeEditor({ field, value, onChange, id, describedBy, in
         ref={gutter}
         data-testid="code-lines"
         aria-hidden="true"
-        className="select-none overflow-hidden border-r border-input bg-muted px-2 py-2 text-right leading-6 text-muted-foreground"
+        className="select-none overflow-hidden border-r border-input bg-muted px-2 py-2 text-end leading-6 text-muted-foreground"
       >
         {Array.from({ length: lines }, (_, index) => (
           <div key={index}>{index + 1}</div>
