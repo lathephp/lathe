@@ -5,6 +5,7 @@ import type { ComponentType } from 'react';
 import { createRoot } from 'react-dom/client';
 import { StaleAssetScreen } from './components/StaleAssetScreen';
 import { registerBuiltinFields } from './fields/builtin';
+import { RunToasts } from './actions/RunToasts';
 import { Toaster } from './components/Toaster';
 import { panelLayout } from './layout/panelLayout';
 import { assetHashFromUrl, markBuildStale, setEntryHash } from './lib/assets';
@@ -65,6 +66,7 @@ void createInertiaApp({
       <QueryClientProvider client={queryClient}>
         <App {...props} />
         <Toaster />
+        <RunToasts />
         <StaleAssetScreen />
       </QueryClientProvider>,
     );

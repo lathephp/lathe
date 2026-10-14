@@ -111,7 +111,7 @@ export function DeleteMenu({ uriKey, lens, softDeletes, selection, rows, total, 
     selection.clear();
 
     if (result?.bulk_run !== undefined) {
-      window.dispatchEvent(new CustomEvent('lathe:bulk-run-started', { detail: result.bulk_run }));
+      window.dispatchEvent(new CustomEvent('lathe:bulk-run-started', { detail: { ...result.bulk_run, verb: operation } }));
 
       return;
     }
