@@ -14,6 +14,7 @@ concurrency:
 jobs:
   php:
     name: php ${{ matrix.php }} ${{ matrix.database }}
+    if: github.event_name != 'schedule'
     runs-on: ubuntu-latest
     timeout-minutes: 30
     strategy:
@@ -21,19 +22,78 @@ jobs:
       matrix:
         php: ['8.4', '8.5']
         database: ['sqlite', 'mysql:8.4', 'mariadb:10.11', 'postgres:15']
+        # Each cell's connection settings. The tests read DB_*, and with --parallel each
+        # process creates lathe_test_<n>, so MySQL and MariaDB connect as root and
+        # PostgreSQL as the superuser its image creates.
+        include:
+          - &sqlite-cell
+            database: sqlite
+            connection: sqlite
+            dbname: ':memory:'
+          - &mysql-cell
+            database: 'mysql:8.4'
+            connection: mysql
+            port: 3306
+            dbname: lathe_test
+            user: root
+            health: --health-cmd "mysqladmin ping -h 127.0.0.1 -uroot -plathe_secret" --health-interval 5s --health-timeout 5s --health-retries 30
+          - &mariadb-cell
+            database: 'mariadb:10.11'
+            connection: mariadb
+            port: 3306
+            dbname: lathe_test
+            user: root
+            health: --health-cmd "healthcheck.sh --connect --innodb_initialized" --health-interval 5s --health-timeout 5s --health-retries 30
+          - &postgres-cell
+            database: 'postgres:15'
+            connection: pgsql
+            port: 5432
+            dbname: lathe_test
+            user: lathe
+            health: --health-cmd "pg_isready -h 127.0.0.1 -U lathe -d lathe_test" --health-interval 5s --health-timeout 5s --health-retries 30
+    # An empty image starts no container, so the SQLite cell runs without one.
+    services:
+      database: &database-service
+        image: ${{ matrix.database != 'sqlite' && matrix.database || '' }}
+        env:
+          MYSQL_ROOT_PASSWORD: lathe_secret
+          MYSQL_DATABASE: lathe_test
+          MARIADB_ROOT_PASSWORD: lathe_secret
+          MARIADB_DATABASE: lathe_test
+          POSTGRES_USER: lathe
+          POSTGRES_PASSWORD: lathe_secret
+          POSTGRES_DB: lathe_test
+        ports:
+          - ${{ matrix.port }}:${{ matrix.port }}
+        options: ${{ matrix.health }}
+    env: &database-env
+      DB_CONNECTION: ${{ matrix.connection }}
+      DB_HOST: 127.0.0.1
+      DB_PORT: ${{ matrix.port }}
+      DB_DATABASE: ${{ matrix.dbname }}
+      DB_USERNAME: ${{ matrix.user }}
+      DB_PASSWORD: lathe_secret
     steps:
       - uses: actions/checkout@v4
       - uses: shivammathur/setup-php@v2
         with:
           php-version: ${{ matrix.php }}
+          extensions: pdo_mysql, pdo_pgsql, pdo_sqlite, intl
           coverage: none
+      # composer test also runs the frontend tests, which build the bundle.
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
       - run: composer install --no-interaction --prefer-dist
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm build
       - run: composer test
-        env:
-          LATHE_DATABASE: ${{ matrix.database }}
 
   php-lowest:
     name: php-lowest ${{ matrix.php }} ${{ matrix.database }}
+    if: github.event_name != 'schedule'
     runs-on: ubuntu-latest
     timeout-minutes: 30
     strategy:
@@ -41,18 +101,61 @@ jobs:
       matrix:
         php: ['8.4']
         database: ['sqlite', 'mysql:8.4']
+        include:
+          - *sqlite-cell
+          - *mysql-cell
+    services:
+      database: *database-service
+    env: *database-env
     steps:
       - uses: actions/checkout@v4
       - uses: shivammathur/setup-php@v2
         with:
           php-version: ${{ matrix.php }}
+          extensions: pdo_mysql, pdo_pgsql, pdo_sqlite, intl
           coverage: none
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
       - run: composer update --prefer-lowest --prefer-stable --no-interaction --prefer-dist
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm build
       - run: composer test
-        env:
-          LATHE_DATABASE: ${{ matrix.database }}
+
+  bench-guards:
+    name: bench-guards ${{ matrix.php }} ${{ matrix.database }}
+    if: github.event_name != 'schedule'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        php: ['8.5']
+        database: ['sqlite', 'mysql:8.4', 'mariadb:10.11', 'postgres:15']
+        include:
+          - *sqlite-cell
+          - *mysql-cell
+          - *mariadb-cell
+          - *postgres-cell
+    services:
+      database: *database-service
+    env: *database-env
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          extensions: pdo_mysql, pdo_pgsql, pdo_sqlite, intl
+          coverage: none
+      - run: composer install --no-interaction --prefer-dist
+      # The cell's database is fresh, so the group runs in it directly, unlike
+      # scripts/bench-lanes.sh, which keeps clear of the local timing data.
+      - run: php vendor/bin/pest --group=benchmark --colors=never tests/Benchmark/QueryCountTest.php
 
   scaffold:
+    if: github.event_name != 'schedule'
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
@@ -70,7 +173,22 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - run: composer test:scaffold
 
+  octane:
+    if: github.event_name != 'schedule'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.5'
+          coverage: none
+      - run: composer install --no-interaction --prefer-dist
+      # The lane starts its own MySQL 8.4 and FrankenPHP containers with podman.
+      - run: bash scripts/octane-lane.sh
+
   quality:
+    if: github.event_name != 'schedule'
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
@@ -90,6 +208,7 @@ jobs:
       - run: composer audit --locked
 
   frontend:
+    if: github.event_name != 'schedule'
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
@@ -104,10 +223,14 @@ jobs:
       - run: pnpm lint
       - run: pnpm -r test
       - run: pnpm build
+      - run: pnpm size
+      - run: node scripts/check-translations.mjs
+      - run: node scripts/check-contrast.mjs
       - run: pnpm audit --prod --audit-level=high
       - run: node scripts/third-party-licenses.mjs --output "$RUNNER_TEMP/THIRD-PARTY-LICENSES.md"
 
   browser:
+    if: github.event_name != 'schedule'
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
@@ -135,3 +258,82 @@ jobs:
       - run: LATHE_BROWSER_PROJECT=desktop-safari composer test:browser -- --browser safari
       - run: LATHE_BROWSER_PROJECT=phone-android composer test:browser
       - run: LATHE_BROWSER_PROJECT=phone-ios composer test:browser -- --browser safari
+
+  # Weekly: the php matrix against the next Laravel 13 release and Laravel's master branch.
+  # A failure opens or updates one issue labelled upstream and blocks no pull request.
+  upstream:
+    name: upstream ${{ matrix.laravel }} ${{ matrix.php }} ${{ matrix.database }}
+    if: github.event_name == 'schedule'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: read
+      issues: write
+    strategy:
+      fail-fast: false
+      matrix:
+        laravel: ['13.x-dev', 'dev-master']
+        php: ['8.4', '8.5']
+        database: ['sqlite', 'mysql:8.4', 'mariadb:10.11', 'postgres:15']
+        include:
+          - *sqlite-cell
+          - *mysql-cell
+          - *mariadb-cell
+          - *postgres-cell
+    services:
+      database: *database-service
+    env: *database-env
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          extensions: pdo_mysql, pdo_pgsql, pdo_sqlite, intl
+          coverage: none
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+      # The upstream branch is what this job tests, so it leaves the lock file here.
+      - run: composer require "laravel/framework:$LARAVEL" --with-all-dependencies --no-interaction --prefer-dist
+        env:
+          LARAVEL: ${{ matrix.laravel }}
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm build
+      - run: composer test
+      - if: failure()
+        env:
+          GH_TOKEN: ${{ github.token }}
+          CELL: laravel/framework ${{ matrix.laravel }}, PHP ${{ matrix.php }}, ${{ matrix.database }}
+        run: >-
+          bash scripts/ci/open-issue.sh upstream "The weekly run against upstream Laravel failed"
+          "$CELL failed: $GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
+
+  # Weekly on main, because advisories appear without a commit. A hit fails the run and opens an issue.
+  audit:
+    if: github.event_name == 'schedule'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: read
+      issues: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          coverage: none
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - run: composer audit --locked
+      - if: ${{ !cancelled() }}
+        run: pnpm audit --prod --audit-level=high
+      - if: failure()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: >-
+          bash scripts/ci/open-issue.sh audit "The weekly dependency audit found an advisory"
+          "See $GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
