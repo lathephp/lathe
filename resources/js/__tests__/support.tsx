@@ -20,6 +20,7 @@ export function sharedProps(overrides: Partial<SharedProps> = {}): SharedProps {
       { label: 'Resources', icon: null, items: [{ label: 'Orders', href: '/lathe/resources/orders', icon: 'ShoppingCart' }] },
       { label: 'Heartbeat', icon: null, items: [{ label: 'Heartbeat', href: '/lathe/plugins/heartbeat', icon: 'Activity' }] },
     ],
+    userMenu: [],
     sidebarOpen: true,
     appName: 'Acme',
     basePath: '/lathe',

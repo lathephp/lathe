@@ -1,3 +1,5 @@
+import type { SafeHtml } from '@lathephp/core';
+
 /** The props the server shares with every panel page. */
 export interface SharedProps {
   auth: { user: { name: string; email: string } | null };
@@ -9,7 +11,10 @@ export interface SharedProps {
   appName: string;
   basePath: string;
   versionLabel: string | null;
-  footer: { text: string; href: string | null } | null;
+  /** The default is a text and a link; a callback's HTML arrives sanitized. */
+  footer: { text: string; href: string | null } | { html: SafeHtml } | null;
+  /** The Menu::userMenu() items, then Security when the user has something to change. */
+  userMenu: NavigationItem[];
   layout: {
     sidebar: { collapsible: 'icon' | 'offcanvas' | 'none'; width: string; widthIcon: string };
     header: { sticky: boolean };

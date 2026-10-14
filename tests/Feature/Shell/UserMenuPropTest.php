@@ -21,7 +21,7 @@ it('lists the Menu::userMenu() items and a Security entry when passwords can be 
 
     expect(userMenuProp())->toBe([
         ['label' => 'Profile', 'href' => '/lathe/profile', 'icon' => null],
-        ['label' => 'Security', 'href' => '/lathe/security', 'icon' => 'Shield'],
+        ['label' => 'Security', 'href' => '/lathe/security', 'icon' => null],
     ]);
 });
 

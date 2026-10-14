@@ -120,7 +120,7 @@ class HandleInertiaRequests extends Middleware
         $fortify = Lathe::fortify();
 
         if ($fortify->featureEnabled('updatePasswords') || $fortify->featureEnabled('twoFactorAuthentication')) {
-            $items[] = ['label' => Lathe::__('Security'), 'href' => '/'.trim(Lathe::path(), '/').'/security', 'icon' => 'Shield'];
+            $items[] = ['label' => Lathe::__('Security'), 'href' => '/'.trim(Lathe::path(), '/').'/security', 'icon' => null];
         }
 
         return $items;

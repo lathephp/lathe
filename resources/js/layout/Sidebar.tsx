@@ -56,7 +56,7 @@ export function Sidebar({ props, url, expanded, mobileOpen }: SidebarProps) {
         ))}
       </nav>
       <RenderHook position="sidebar:after" />
-      {auth.user !== null && <UserMenu user={auth.user} basePath={basePath} collapsed={collapsed} />}
+      {auth.user !== null && <UserMenu user={auth.user} items={props.userMenu} basePath={basePath} collapsed={collapsed} />}
     </aside>
   );
 }

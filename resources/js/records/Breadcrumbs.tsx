@@ -6,6 +6,10 @@ import type { Breadcrumb } from '../fields/types';
 export function Breadcrumbs({ items }: { items: Breadcrumb[] }) {
   const { __ } = useTranslation();
 
+  if (items.length === 0) {
+    return null;
+  }
+
   return (
     <nav aria-label={__('Breadcrumb')} className="text-sm text-muted-foreground">
       <ol className="flex flex-wrap items-center gap-1.5">

@@ -1,14 +1,18 @@
-import { router } from '@inertiajs/react';
+import { Link, router } from '@inertiajs/react';
 import { useTranslation } from '@lathephp/core';
 import { LogOut } from 'lucide-react';
 import { useState } from 'react';
 import { cn } from '../lib/cn';
+import type { NavigationItem } from '../types';
 
 interface UserMenuProps {
   user: { name: string; email: string };
+  items: NavigationItem[];
   basePath: string;
   collapsed: boolean;
 }
+
+const rowClass = 'flex items-center gap-2 rounded-md px-2 py-1.5 text-sm outline-none hover:bg-muted focus-visible:ring-2 focus-visible:ring-ring';
 
 function initials(name: string): string {
   return name
@@ -20,7 +24,7 @@ function initials(name: string): string {
 }
 
 /** The signed-in user at the foot of the sidebar, with the Log out entry. */
-export function UserMenu({ user, basePath, collapsed }: UserMenuProps) {
+export function UserMenu({ user, items, basePath, collapsed }: UserMenuProps) {
   const { __ } = useTranslation();
   const [open, setOpen] = useState(false);
 
@@ -43,10 +47,17 @@ export function UserMenu({ user, basePath, collapsed }: UserMenuProps) {
             <p className="font-medium">{user.name}</p>
             <p className="text-muted-foreground">{user.email}</p>
           </div>
+          {items.map((item) => (
+            <Link key={item.href} href={item.href} role="menuitem" className={rowClass}>
+              {item.label}
+            </Link>
+          ))}
+          {/* The appearance switcher mounts here. */}
+          <div data-lathe-appearance-slot />
           <button
             type="button"
             role="menuitem"
-            className="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-sm outline-none hover:bg-muted focus-visible:ring-2 focus-visible:ring-ring"
+            className={cn('w-full', rowClass)}
             onClick={() => {
               router.post(`${basePath}/logout`);
             }}

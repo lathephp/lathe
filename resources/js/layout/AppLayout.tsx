@@ -5,6 +5,7 @@ import { Menu, PanelLeft, Search } from 'lucide-react';
 import { lazy, Suspense, useEffect, useState, type CSSProperties, type ReactNode } from 'react';
 import { cn } from '../lib/cn';
 import type { SharedProps } from '../types';
+import { SafeHtml } from '../components/SafeHtml';
 import { Sidebar } from './Sidebar';
 
 // The palette opens on demand, so it loads after first paint.
@@ -152,7 +153,9 @@ export function AppLayout({ children }: { children: ReactNode }) {
         <Slot name="shell.footer" footer={footer}>
           {footer !== null && (
             <footer data-lathe-footer className="border-t border-border px-6 py-3 text-xs text-muted-foreground">
-              {footer.href === null ? (
+              {'html' in footer ? (
+                <SafeHtml html={footer.html} />
+              ) : footer.href === null ? (
                 footer.text
               ) : (
                 <a href={footer.href} className="hover:underline">
