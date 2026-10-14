@@ -11,10 +11,10 @@ use Lathe\Menu\Menu;
 use Lathe\Menu\MenuItem;
 use Lathe\Menu\MenuSection;
 use Workbench\App\Lathe\Dashboards\Sales;
-use Workbench\App\Lathe\Dashboards\WidgetGallery;
 use Workbench\App\Lathe\Pages\SystemStatus;
 use Workbench\App\Lathe\Pages\UiGallery;
 use Workbench\App\Lathe\Plugins\HelloPlugin;
+use Workbench\App\Lathe\Plugins\InsightsPlugin;
 use Workbench\App\Lathe\Search\DemoKitPages;
 use Workbench\App\Models\User;
 use Workbench\App\Policies\ActionEventPolicy;
@@ -35,7 +35,7 @@ class LatheServiceProvider extends LatheApplicationServiceProvider
 
         Lathe::registerPages(UiGallery::class, SystemStatus::class);
         Lathe::registerSearchProviders(new DemoKitPages);
-        Lathe::registerPlugins(HelloPlugin::make());
+        Lathe::registerPlugins(HelloPlugin::make(), InsightsPlugin::make());
 
         Menu::mainMenu(fn (Request $request, Menu $menu) => $menu->add(MenuSection::section('Demo Kit', [
             MenuItem::link('UI Gallery', 'pages/ui-gallery'),
@@ -45,8 +45,8 @@ class LatheServiceProvider extends LatheApplicationServiceProvider
 
     protected function registerDashboards(): void
     {
+        // The Widget Gallery comes with InsightsPlugin::boot().
         Lathe::registerDashboards(Sales::class);
-        Lathe::registerDashboards(WidgetGallery::class);
     }
 
     /**
