@@ -1,4 +1,4 @@
-import { toast } from '@lathephp/core';
+import { emit, toast } from '@lathephp/core';
 
 /** What POST /action answers in `result`: one optional message and at most one effect. */
 export interface ActionResult {
@@ -58,6 +58,8 @@ export function applyActionResult(result: ActionResult, on: ActionResultHandlers
       on.openModal(effect.component, effect.data);
       break;
     case 'emit':
+      // Plugins listen with on() from @lathephp/core; the panel's own screens with a window listener.
+      emit(effect.event, effect.data);
       window.dispatchEvent(new CustomEvent(`lathe:${effect.event}`, { detail: effect.data }));
       break;
     case 'deleted':

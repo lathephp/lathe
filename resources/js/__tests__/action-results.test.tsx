@@ -1,4 +1,4 @@
-import { __panel, actionModal, type ActionModalProps } from '@lathephp/core';
+import { __panel, actionModal, on, type ActionModalProps } from '@lathephp/core';
 import { render, screen } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { ResponseModal } from '../actions/ResponseModal';
@@ -62,6 +62,16 @@ describe('action results', () => {
 
     expect((listener.mock.calls[0]?.[0] as CustomEvent).detail).toEqual({ import_id: 3 });
     window.removeEventListener('lathe:import:headers-detected', listener);
+  });
+
+  it('sends an emit to the panel event bus too, so plugins hear it with on()', () => {
+    const listener = vi.fn();
+    const off = on('invoice:sent', listener);
+
+    applyActionResult(result({ type: 'emit', event: 'invoice:sent', data: { id: 7 } }), handlers());
+
+    expect(listener).toHaveBeenCalledWith({ id: 7 });
+    off();
   });
 
   it('refreshes the list on deleted and opens a modal on modal', () => {
