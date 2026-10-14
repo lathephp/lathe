@@ -134,7 +134,7 @@ class ActionDispatcher
 
     /**
      * The rows of one chunk the action may run on. canRunWhen or canRun decide when the
-     * action sets one; otherwise the Resource ability runAction, or runDestructiveAction for
+     * action sets one; otherwise the Resource ability runAction, and runDestructiveAction as well for
      * a destructive action, asked through the Gate with the action as its argument.
      *
      * @param  class-string<\Lathe\Resources\Resource>  $class
@@ -143,11 +143,12 @@ class ActionDispatcher
      */
     public function filterForExecution(LatheRequest $request, Action $action, string $class, SupportCollection $models): SupportCollection
     {
-        $ability = $action->isDestructive() ? 'runDestructiveAction' : 'runAction';
         $user = $request->user();
 
+        // A destructive action needs runDestructiveAction as well as runAction.
         return $models->filter(fn (Model $model) => $action->authorizedToRunOn($request, $model)
-            ?? $this->authorization->allows($user, $class, $ability, $model, [$action]))->values();
+            ?? ($this->authorization->allows($user, $class, 'runAction', $model, [$action])
+                && (! $action->isDestructive() || $this->authorization->allows($user, $class, 'runDestructiveAction', $model, [$action]))))->values();
     }
 
     /**

@@ -71,6 +71,19 @@ class RunOrderPolicy
     }
 }
 
+class RunDestructiveOnlyPolicy extends RunOrderPolicy
+{
+    public function runAction(User $user, Order $order, Action $action): bool
+    {
+        return false;
+    }
+
+    public function runDestructiveAction(User $user, Order $order, Action $action): bool
+    {
+        return true;
+    }
+}
+
 class RunGuardedOrders extends RunOrders
 {
     public static ?string $policy = RunOrderPolicy::class;
@@ -332,6 +345,21 @@ it('refuses a user the policy denies runAction or runDestructiveAction', functio
 
     expect(RunDeclared::$calls)->toBe(['handle:1'])
         ->and(Order::whereKey([1, 2])->orderBy('id')->pluck('status')->all())->toBe(['shipped', 'pending']);
+});
+
+it('asks runAction as well as runDestructiveAction for a destructive action', function () {
+    $cancel = Action::make()->withName('Cancel Order')->withUriKey('cancel-order')->handleUsing(fn () => RunDeclared::$calls[] = 'cancel');
+    $cancel->destructive = true;
+    RunDeclared::$actions = [$cancel];
+    RunGuardedOrders::$policy = RunDestructiveOnlyPolicy::class;
+
+    try {
+        $this->postJson('/lathe/api/resources/run-guarded-orders/action', runBody('cancel-order', [1]))->assertForbidden();
+    } finally {
+        RunGuardedOrders::$policy = RunOrderPolicy::class;
+    }
+
+    expect(RunDeclared::$calls)->toBe([]);
 });
 
 it('picks the handler and the failed handler for the model class', function (string $action, array $calls) {

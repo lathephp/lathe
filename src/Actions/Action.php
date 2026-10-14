@@ -513,6 +513,24 @@ class Action implements JsonSerializable
         return $this;
     }
 
+    /**
+     * The confirmation text for a run on $count rows: ":count" replaced, a closure called with it.
+     */
+    public function confirmTextFor(int $count): ?string
+    {
+        $text = $this->confirmText instanceof Closure ? ($this->confirmText)($count) : $this->confirmText;
+
+        return is_string($text) ? str_replace(':count', (string) $count, $text) : null;
+    }
+
+    /**
+     * The modal's values, checked by the fields' rules: 422 per field key on failure.
+     */
+    public function validateFields(LatheRequest $request): ActionFields
+    {
+        return app(ActionFieldValidator::class)->validate($request, $this);
+    }
+
     public function confirmButtonText(string $text): static
     {
         $this->confirmButtonText = $text;

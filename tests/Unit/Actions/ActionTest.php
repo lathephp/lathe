@@ -246,3 +246,9 @@ it('reads its run callbacks', function () {
         ->and(MarkShipped::make()->canSee(fn () => false)->authorizedToSee($request))->toBeFalse()
         ->and(MarkShipped::make()->authorizedToSee($request))->toBeTrue();
 });
+
+it('fills the confirm text for a count, a closure called with it', function () {
+    expect(Action::make()->confirmable('Ship :count orders?')->confirmTextFor(3))->toBe('Ship 3 orders?')
+        ->and(Action::make()->confirmable(fn (int $count) => $count === 1 ? 'Ship this order?' : "Ship {$count} orders?")->confirmTextFor(1))->toBe('Ship this order?')
+        ->and(Action::make()->confirmTextFor(2))->toBeNull();
+});

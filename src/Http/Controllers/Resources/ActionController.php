@@ -59,9 +59,7 @@ class ActionController
                 ...$field->schema(FieldContext::Create, $request),
                 'value' => $field->resolveDefaultValue($request),
             ])->all()),
-            'confirmText' => is_string($metadata['confirmText']) && is_numeric($count)
-                ? str_replace(':count', (string) (int) $count, $metadata['confirmText'])
-                : $metadata['confirmText'],
+            'confirmText' => is_numeric($count) ? $found->confirmTextFor((int) $count) : $metadata['confirmText'],
             'action' => $metadata,
         ]);
     }
