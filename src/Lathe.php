@@ -32,6 +32,8 @@ use Illuminate\Support\Facades\Facade;
  * @method static class-string<\Lathe\ActionEvents\ActionEvent> actionEventModel()
  * @method static \Lathe\LatheManager userLocale(\Closure $callback)
  * @method static string resolveUserLocale(\Illuminate\Http\Request $request)
+ * @method static \Lathe\LatheManager enableRTL(bool|\Closure $callback = true)
+ * @method static bool isRTL(?\Illuminate\Http\Request $request = null)
  * @method static \Lathe\LatheManager captureJobContext(\Closure $callback)
  * @method static \Lathe\LatheManager restoreJobContext(\Closure $callback)
  * @method static array<string, mixed> capturedJobContext()

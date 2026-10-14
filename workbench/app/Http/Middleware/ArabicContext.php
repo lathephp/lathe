@@ -7,7 +7,7 @@ use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
- * Serves one request that sends `X-Bench-Locale: ar` in Arabic and right-to-left, so the
+ * Serves one request that sends `X-Bench-Locale: ar` in Arabic (the provider turns that locale right to left), so the
  * Octane lane can check that the locale and direction do not reach the next request.
  */
 class ArabicContext
@@ -23,7 +23,6 @@ class ArabicContext
 
         $before = app()->getLocale();
         app()->setLocale('ar');
-        $request->attributes->set('lathe.rtl', true);
 
         try {
             return $next($request);

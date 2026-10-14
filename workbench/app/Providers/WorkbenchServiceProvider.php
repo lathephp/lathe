@@ -42,6 +42,9 @@ class WorkbenchServiceProvider extends ServiceProvider
             $kernel->pushMiddleware(WorkerMemory::class);
         }
 
+        // The Octane lane's Arabic context reads right to left.
+        Lathe::enableRTL(fn (Request $request): bool => Lathe::resolveUserLocale($request) === 'ar');
+
         // The Octane lane's Kiritimati context names its timezone in a header.
         Lathe::userTimezone(fn (Request $request): ?string => $request->header('X-Bench-Timezone'));
     }

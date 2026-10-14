@@ -56,6 +56,9 @@ class LatheManager
     /** @var (Closure(Request): ?string)|null */
     protected ?Closure $userLocale = null;
 
+    /** @var bool|(Closure(Request): bool) */
+    protected bool|Closure $rtl = false;
+
     /** @var list<Closure(): array<string, mixed>> */
     protected array $jobContextCaptures = [];
 
@@ -261,6 +264,32 @@ class LatheManager
         $locale = $this->userLocale === null ? null : ($this->userLocale)($request);
 
         return TranslationManager::normalize(is_string($locale) && $locale !== '' ? $locale : app()->getLocale());
+    }
+
+    /**
+     * Turn the panel right to left for everyone, or for the requests the closure approves.
+     *
+     * @param  bool|(Closure(Request): bool)  $callback
+     */
+    public function enableRTL(bool|Closure $callback = true): static
+    {
+        $this->rtl = $callback;
+
+        return $this;
+    }
+
+    /**
+     * Whether this request is right to left. A closure runs once per request: its answer waits on the request.
+     */
+    public function isRTL(?Request $request = null): bool
+    {
+        $request ??= $this->container->make('request');
+
+        if (! $request->attributes->has('lathe.rtl')) {
+            $request->attributes->set('lathe.rtl', $this->rtl instanceof Closure ? ($this->rtl)($request) : $this->rtl);
+        }
+
+        return $request->attributes->getBoolean('lathe.rtl');
     }
 
     /**

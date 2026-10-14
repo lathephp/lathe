@@ -48,8 +48,8 @@ class HandleInertiaRequests extends Middleware
                 'success' => $request->hasSession() ? $request->session()->get('success') : null,
                 'error' => $request->hasSession() ? $request->session()->get('error') : null,
             ],
-            // Read by the page root for `dir`. Nothing public sets it yet: a request attribute is the hook.
-            'rtl' => $request->attributes->getBoolean('lathe.rtl'),
+            // Read by the page root for `dir`; Lathe::enableRTL() decides.
+            'rtl' => Lathe::isRTL($request),
             'latheVersion' => Lathe::version(),
             // What Lathe::provideToScript() gave: global values plus this request's own.
             'provided' => Lathe::provided($request),

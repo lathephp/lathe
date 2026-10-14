@@ -2587,6 +2587,7 @@ Lathe\LatheApplicationServiceProvider::registerResources(): void  [protected]
 Lathe\LatheManager::?Closure $footer  [protected]
 Lathe\LatheManager::?Closure $userLocale  [protected]
 Lathe\LatheManager::?Closure $userTimezone  [protected]
+Lathe\LatheManager::Closure|bool $rtl  [protected]
 Lathe\LatheManager::Illuminate\Contracts\Container\Container $container  [protected]
 Lathe\LatheManager::PROVIDED_BAG
 Lathe\LatheManager::__(string $key, array $replace = array ( ), ?string $default = NULL): string
@@ -2607,10 +2608,12 @@ Lathe\LatheManager::config(): Lathe\Support\ConfigStore
 Lathe\LatheManager::cspImageSources(): array
 Lathe\LatheManager::dashboards(): Lathe\Dashboards\DashboardRegistry
 Lathe\LatheManager::discoverResources(string $directory, ?string $namespace = NULL): void
+Lathe\LatheManager::enableRTL(Closure|bool $callback = true): static
 Lathe\LatheManager::ensureBooted(): void
 Lathe\LatheManager::footer(Closure $callback): static
 Lathe\LatheManager::footerFor(Illuminate\Http\Request $request): ?array
 Lathe\LatheManager::fortify(): Lathe\Auth\FortifyConfig
+Lathe\LatheManager::isRTL(?Illuminate\Http\Request $request = NULL): bool
 Lathe\LatheManager::isServing(): bool
 Lathe\LatheManager::loadTranslations(array|string $translations): static
 Lathe\LatheManager::loginPath(): string
