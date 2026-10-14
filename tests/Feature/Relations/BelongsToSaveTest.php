@@ -207,3 +207,9 @@ it('replicates an order with its customer', function () {
 
     expect(Order::query()->where('number', 'SAVE-0004')->value('customer_id'))->toBe($customer->id);
 });
+
+it('starts the orders create form with an empty items list, so an untouched repeater saves', function () {
+    $field = collect($this->getJson('/lathe/api/resources/orders/creation-fields')->assertOk()->json('fields'))->firstWhere('key', 'items');
+
+    expect($field['value'])->toBe([]);
+});

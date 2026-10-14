@@ -507,8 +507,13 @@ class RepeaterField extends Field
      */
     public function resolveDefaultValue(?LatheRequest $request = null): mixed
     {
-        if ($this->default !== null || $this->defaultRows === 0) {
+        if ($this->default !== null) {
             return parent::resolveDefaultValue($request);
+        }
+
+        // A create form starts with no rows, so an untouched repeater posts a list.
+        if ($this->defaultRows === 0) {
+            return [];
         }
 
         $first = $this->blocks[0] ?? null;
