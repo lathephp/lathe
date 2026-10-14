@@ -10,7 +10,13 @@ class AssetManifest
     /** The bare specifiers the import map serves, one build entry each. */
     public const array SPECIFIERS = [
         'react', 'react/jsx-runtime', 'react/compiler-runtime', 'react-dom', 'react-dom/client',
-        '@lathephp/core', '@lathephp/ui', '@lathephp/ui/chart',
+        '@lathephp/core', '@lathephp/ui',
+        '@lathephp/ui/breadcrumb', '@lathephp/ui/button-group', '@lathephp/ui/calendar', '@lathephp/ui/chart',
+        '@lathephp/ui/code-editor', '@lathephp/ui/collapsible', '@lathephp/ui/combobox', '@lathephp/ui/command',
+        '@lathephp/ui/direction', '@lathephp/ui/empty', '@lathephp/ui/field', '@lathephp/ui/hover-card',
+        '@lathephp/ui/input-group', '@lathephp/ui/item', '@lathephp/ui/otp-field', '@lathephp/ui/pagination',
+        '@lathephp/ui/scroll-area', '@lathephp/ui/shimmer-bar', '@lathephp/ui/sidebar', '@lathephp/ui/sonner',
+        '@lathephp/ui/toggle', '@lathephp/ui/toggle-group',
     ];
 
     public const string ENTRY = 'resources/js/app.tsx';
