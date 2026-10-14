@@ -1043,21 +1043,18 @@ Lathe\Field\Relations\BelongsToField::writesRelation(Illuminate\Database\Eloquen
 Lathe\Field\Relations\BelongsToManyField::Closure|array $pivotActions  [protected]
 Lathe\Field\Relations\BelongsToManyField::Closure|array $pivotFields  [protected]
 Lathe\Field\Relations\BelongsToManyField::__construct(string $label, Closure|string|null $attribute = NULL, ?Closure $resolver = NULL)
+Lathe\Field\Relations\BelongsToManyField::allowDuplicateRelations(bool $allow = true): static
+Lathe\Field\Relations\BelongsToManyField::allowsDuplicateRelations(): bool
+Lathe\Field\Relations\BelongsToManyField::attaches(): bool
 Lathe\Field\Relations\BelongsToManyField::bool $allowDuplicateRelations  [protected]
+Lathe\Field\Relations\BelongsToManyField::getPivotActions(): Closure|array
+Lathe\Field\Relations\BelongsToManyField::getPivotFields(): Closure|array
 Lathe\Field\Relations\BelongsToManyField::kind(): string
+Lathe\Field\Relations\BelongsToManyField::noDuplicateRelations(): static
+Lathe\Field\Relations\BelongsToManyField::pivotActions(Closure|array $actions): static
+Lathe\Field\Relations\BelongsToManyField::pivotFields(Closure|array $fields): static
+Lathe\Field\Relations\BelongsToManyField::pivotFieldsFor(Lathe\Http\Requests\LatheRequest $request, ?Illuminate\Database\Eloquent\Model $related = NULL): array
 Lathe\Field\Relations\BelongsToManyField::string $component  [protected]
-Lathe\Field\Relations\Concerns\HasPivotFields::Closure|array $pivotActions  [protected]
-Lathe\Field\Relations\Concerns\HasPivotFields::Closure|array $pivotFields  [protected]
-Lathe\Field\Relations\Concerns\HasPivotFields::allowDuplicateRelations(bool $allow = true): static
-Lathe\Field\Relations\Concerns\HasPivotFields::allowsDuplicateRelations(): bool
-Lathe\Field\Relations\Concerns\HasPivotFields::attaches(): bool
-Lathe\Field\Relations\Concerns\HasPivotFields::bool $allowDuplicateRelations  [protected]
-Lathe\Field\Relations\Concerns\HasPivotFields::getPivotActions(): Closure|array
-Lathe\Field\Relations\Concerns\HasPivotFields::getPivotFields(): Closure|array
-Lathe\Field\Relations\Concerns\HasPivotFields::noDuplicateRelations(): static
-Lathe\Field\Relations\Concerns\HasPivotFields::pivotActions(Closure|array $actions): static
-Lathe\Field\Relations\Concerns\HasPivotFields::pivotFields(Closure|array $fields): static
-Lathe\Field\Relations\Concerns\HasPivotFields::pivotFieldsFor(Lathe\Http\Requests\LatheRequest $request, ?Illuminate\Database\Eloquent\Model $related = NULL): array
 Lathe\Field\Relations\HasManyField::__construct(string $label, Closure|string|null $attribute = NULL, ?Closure $resolver = NULL)
 Lathe\Field\Relations\HasManyField::createsThroughPanel(): bool
 Lathe\Field\Relations\HasManyField::kind(): string
@@ -1521,6 +1518,7 @@ Lathe\Http\Controllers\Resources\PeekController::respond(Lathe\Http\Requests\Lat
 Lathe\Http\Controllers\Resources\RecordController::fillAndSave(Lathe\Http\Requests\LatheRequest $request, Illuminate\Database\Eloquent\Model $model, array $fields): void  [protected]
 Lathe\Http\Controllers\Resources\RecordController::store(Lathe\Http\Requests\LatheRequest $request, Lathe\Auth\ResourceAuthorization $authorization, string $resource): Illuminate\Http\JsonResponse
 Lathe\Http\Controllers\Resources\RecordController::update(Lathe\Http\Requests\LatheRequest $request, Lathe\Auth\ResourceAuthorization $authorization, string $resource, string $resourceId): Illuminate\Http\JsonResponse
+Lathe\Http\Controllers\Resources\RelatableAuthorizationController::__invoke(Lathe\Http\Requests\LatheRequest $request, Lathe\Auth\ResourceAuthorization $authorization): Illuminate\Http\JsonResponse
 Lathe\Http\Controllers\Resources\RelationAttachController::attach(Lathe\Http\Requests\LatheRequest $request, Lathe\Auth\ResourceAuthorization $authorization, string $resource, string $resourceId, string $relationship): Illuminate\Http\JsonResponse
 Lathe\Http\Controllers\Resources\RelationAttachController::attachedRow(Lathe\Http\Requests\LatheRequest $request, Illuminate\Database\Eloquent\Relations\BelongsToMany $relation, string $relatedId): array  [protected]
 Lathe\Http\Controllers\Resources\RelationAttachController::authorizeIds(Lathe\Http\Requests\LatheRequest $request, Lathe\Auth\ResourceAuthorization $authorization, string $class, Illuminate\Database\Eloquent\Model $parent, string $ability, array $ids): void  [protected]
@@ -2659,6 +2657,7 @@ class Lathe\Http\Controllers\Resources\InlineUpdateController
 class Lathe\Http\Controllers\Resources\LensController
 class Lathe\Http\Controllers\Resources\PeekController
 class Lathe\Http\Controllers\Resources\RecordController
+class Lathe\Http\Controllers\Resources\RelatableAuthorizationController
 class Lathe\Http\Controllers\Resources\RelationAttachController
 class Lathe\Http\Controllers\Resources\RelationIndexController
 class Lathe\Http\Controllers\Resources\SavedTabController
@@ -2765,6 +2764,5 @@ trait Lathe\Field\Concerns\RichFactories
 trait Lathe\Field\Concerns\TextFactories
 trait Lathe\Field\Concerns\UploadFactories
 trait Lathe\Field\HasOptions
-trait Lathe\Field\Relations\Concerns\HasPivotFields
 trait Lathe\Http\Controllers\Resources\AuthorizesResources
 trait Lathe\Testing\InteractsWithLathe
