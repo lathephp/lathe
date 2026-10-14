@@ -43,6 +43,8 @@ abstract class Widget
 
     protected int|string $helpWidth = 250;
 
+    protected ?Tooltip $tooltip = null;
+
     protected int $refreshInterval = 0;
 
     protected bool $refreshWhenActionsRun = false;
@@ -129,6 +131,16 @@ abstract class Widget
     public function doubleHeight(): static
     {
         $this->height = 'double';
+
+        return $this;
+    }
+
+    /**
+     * How the hover tooltip of a chart card looks.
+     */
+    public function tooltip(Tooltip $tooltip): static
+    {
+        $this->tooltip = $tooltip;
 
         return $this;
     }
@@ -263,6 +275,7 @@ abstract class Widget
             'onlyOnDetail' => $this->onlyOnDetail,
             'requestsValue' => $this->requestsValue(),
             'ranges' => $this->rangeOptions(),
+            ...($this->tooltip === null ? [] : ['tooltip' => $this->tooltip->jsonSerialize()]),
             ...$this->meta,
         ];
     }
