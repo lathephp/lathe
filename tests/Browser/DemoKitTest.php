@@ -35,3 +35,16 @@ it('renders every @lathephp/ui component on the UI Gallery and toasts on g then 
     expect($page->script('window.__lathe.csp'))->toBe(array_fill(0, 4, 'style-src-elem blocked inline'))
         ->and($page->script('window.__lathe.errors'))->toBe([]);
 });
+
+it('opens System Status from the Demo Kit section of the sidebar', function () {
+    $page = signedInAt('/lathe');
+
+    $page->click('#lathe-sidebar div:has(> h2:text-is("Demo Kit")) a[href$="/pages/system-status"]')
+        ->assertPathIs('/lathe/pages/system-status')
+        ->assertSee('Page key')
+        ->assertSeeIn('main section > h1', 'System Status');
+
+    expect($page->script("Object.fromEntries([...document.querySelectorAll('main dl > div')].map((row) => [row.querySelector('dt').textContent, row.querySelector('dd').textContent]))"))
+        ->toBe(['Page key' => 'system-status', 'Base path' => '/lathe/pages/system-status', 'Sub-path' => '—']);
+    assertCleanPage($page);
+});
