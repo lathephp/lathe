@@ -21,7 +21,7 @@ class OrderItem extends Resource
     public function fields(LatheRequest $request): array
     {
         return [
-            Field::belongsTo('Order'),
+            Field::belongsTo('Order')->searchable(),
             Field::belongsTo('Product')->searchable(),
             Field::number('Quantity')->min(1)->required()->sortable(),
             Field::currency('Price', 'price_cents')->asMinorUnits()->required()->hideFromIndex(),

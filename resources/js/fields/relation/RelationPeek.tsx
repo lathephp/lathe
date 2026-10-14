@@ -12,6 +12,8 @@ interface PeekPayload {
   fields: DetailFieldData[];
 }
 
+const cardWidth = 288;
+
 // Long enough that a pointer passing over a row opens nothing.
 const hoverDelayMs = 300;
 
@@ -30,7 +32,7 @@ function PeekCard({ uriKey, id, top, left }: { uriKey: string; id: string | numb
 
   // The card goes to document.body, fixed, because a table cell's overflow would clip it.
   return createPortal(
-    <div role="tooltip" style={{ position: 'fixed', top: `${String(top)}px`, left: `${String(left)}px` }} className="bg-popover text-popover-foreground z-50 w-72 rounded-md border p-3 shadow-md">
+    <div role="tooltip" style={{ position: 'fixed', top: `${String(top)}px`, left: `${String(left)}px` }} className="z-50 w-72 max-w-[calc(100vw-1rem)] rounded-md border border-border bg-background p-3 text-foreground shadow-md">
       <div className="flex items-center gap-2">
         {typeof data.avatar?.url === 'string' ? (
           <img src={data.avatar.url} alt="" className="size-8 rounded-full object-cover" />
@@ -71,7 +73,8 @@ export function RelationPeek({ uriKey, id, children }: { uriKey: string; id: str
         const trigger = event.currentTarget;
         timer.current = setTimeout(() => {
           const rect = trigger.getBoundingClientRect();
-          setPosition({ top: rect.bottom + 4, left: rect.left });
+          // The card is 288 px wide; it stays inside a narrow viewport with an 8 px margin.
+          setPosition({ top: rect.bottom + 4, left: Math.max(8, Math.min(rect.left, window.innerWidth - cardWidth - 8)) });
         }, hoverDelayMs);
       }}
       onMouseLeave={() => {
