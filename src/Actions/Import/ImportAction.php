@@ -4,6 +4,7 @@ namespace Lathe\Actions\Import;
 
 use Closure;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Bus;
 use Illuminate\Support\Facades\Storage;
 use Laravel\SerializableClosure\SerializableClosure;
 use Lathe\Actions\Action;
@@ -79,7 +80,7 @@ class ImportAction extends Action
             'error_file' => null, 'exception' => null, 'completed_at' => null,
         ]);
 
-        dispatch(new ProcessImport($import, $this, $context));
+        Bus::dispatch(new ProcessImport($import, $this, $context));
     }
 
     /**
