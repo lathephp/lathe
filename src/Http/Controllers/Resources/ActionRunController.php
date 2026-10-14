@@ -5,6 +5,7 @@ namespace Lathe\Http\Controllers\Resources;
 use Illuminate\Http\JsonResponse;
 use Lathe\Auth\ResourceAuthorization;
 use Lathe\Http\Requests\LatheRequest;
+use Lathe\Query\PivotVia;
 use Lathe\Query\Selection;
 
 /**
@@ -19,7 +20,13 @@ class ActionRunController
     {
         $class = $this->viewableResource($request, $authorization);
         $key = $request->input('action');
-        $action = $class::make()->availableActions($request)->findByUriKey(is_string($key) ? $key : '');
+        $key = is_string($key) ? $key : '';
+        $action = $class::make()->availableActions($request)->findByUriKey($key);
+
+        // A pivot action belongs to the parent's relation field the selection's via names.
+        if ($action === null && $request->has('selection') && $request->selection()->via !== null) {
+            $action = PivotVia::resolve($request, $class, (string) $request->selection()->via)->actions($request)->findByUriKey($key);
+        }
 
         abort_if($action === null, 404);
         abort_unless($action->authorizedToSee($request), 403);

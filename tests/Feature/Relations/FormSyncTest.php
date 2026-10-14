@@ -73,6 +73,6 @@ it('leaves the pivot unchanged when the save rolls back', function () {
 });
 
 it('lists the declared pivot actions on the panel and adds no pivot-action route', function () {
-    expect($this->getJson('/lathe/api/resources/products/2/tags')->assertOk()->json('pivotActions'))->toBe(['Tag Actions'])
+    expect($this->getJson('/lathe/api/resources/products/2/tags')->assertOk()->json('pivotActions.*.uriKey'))->toBe(['move-to-first'])
         ->and(collect(Route::getRoutes()->getRoutes())->filter(fn ($route) => str_contains($route->uri(), 'pivot-action'))->all())->toBe([]);
 });

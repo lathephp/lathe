@@ -5,6 +5,8 @@ namespace Lathe\Http\Payloads;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\Relation;
+use Lathe\Actions\Action;
+use Lathe\Actions\ActionMenu;
 use Lathe\Auth\ResourceAuthorization;
 use Lathe\Field\Contracts\PrimesForPage;
 use Lathe\Field\Field;
@@ -36,7 +38,7 @@ class RelationIndexPayload
      *
      * @param  class-string<\Lathe\Resources\Resource>  $class  The related Resource.
      * @param  Relation<Model, Model, mixed>  $relation
-     * @return array{columns: list<Field>, sortKeys: list<string>, rows: list<array<string, mixed>>, count: array{value: int, exact: bool, capped: bool, estimated: bool}|null, page: int, perPage: int, perPageOptions: non-empty-list<int>, hasMore: bool, searchable: bool, pivotActions: list<string>}
+     * @return array{columns: list<Field>, sortKeys: list<string>, rows: list<array<string, mixed>>, count: array{value: int, exact: bool, capped: bool, estimated: bool}|null, page: int, perPage: int, perPageOptions: non-empty-list<int>, hasMore: bool, searchable: bool, pivotActions: list<array<string, mixed>>}
      */
     public function build(string $class, Model $parent, RelationField $field, Relation $relation): array
     {
@@ -84,7 +86,10 @@ class RelationIndexPayload
             'hasMore' => $query->hasMorePages(),
             // The panel offers a search box only when the related Resource searches something.
             'searchable' => $resource->searchableColumns() !== [] || $resource->usesScout(),
-            'pivotActions' => $field instanceof BelongsToManyField ? $field->pivotActionNames($this->request) : [],
+            // The metadata of the pivot actions the panel's ticked rows can run, through the parent's via.
+            'pivotActions' => $field instanceof BelongsToManyField
+                ? array_map(fn (Action $action) => $action->jsonSerialize(), app(ActionMenu::class)->fieldPivotActions($field))
+                : [],
         ];
     }
 

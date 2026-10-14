@@ -4,6 +4,7 @@ namespace Lathe\Actions;
 
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Support\Collection as SupportCollection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
@@ -77,6 +78,24 @@ class ActionDispatcher
         }
 
         $permitted = new Collection($allowed);
+        $via = $resolver->pivotVia();
+
+        // Through a via, each model carries its pivot row, read again through the parent's relation.
+        if ($via !== null && $permitted->isNotEmpty()) {
+            /** @var BelongsToMany<Model, Model> $relation */
+            $relation = $via->parent->{$via->field->attribute()}();
+            $pivoted = $relation->whereKey($permitted->modelKeys())->get();
+            $permitted = new Collection($permitted->map(function (Model $model) use ($pivoted): Model {
+                $found = $pivoted->find($model->getKey());
+
+                return $found instanceof Model ? $found : $model;
+            })->all());
+        }
+
+        // A requested key the selection does not hold, such as a tag the parent lacks, counts as skipped.
+        if (! $selection->isAll()) {
+            $total = max($total, count(array_unique($selection->ids)));
+        }
 
         // No row of the selection may run, so nothing runs.
         abort_if($permitted->isEmpty(), 403, $this->authorization->denialMessage($class));

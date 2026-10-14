@@ -4,7 +4,10 @@ namespace Lathe\Actions;
 
 use Illuminate\Database\Eloquent\Model;
 use Lathe\Auth\ResourceAuthorization;
+use Lathe\Field\FieldContext;
+use Lathe\Field\Relations\BelongsToManyField;
 use Lathe\Http\Requests\LatheRequest;
+use Lathe\Lathe;
 use Lathe\Resources\Resource;
 
 /**
@@ -35,7 +38,7 @@ class ActionMenu
                 ...$action->jsonSerialize(),
                 ...($model !== null ? ['authorizedToRun' => $this->authorizedToRun($class, $action, $model)] : []),
             ], array_values($actions->all())),
-            'pivotActions' => [],
+            'pivotActions' => $this->pivotActions($class),
             'counts' => $actions->counts(),
         ];
     }
@@ -86,6 +89,52 @@ class ActionMenu
 
         return $this->authorization->allows($user, $class, 'runAction', $model, [$action])
             && (! $action->isDestructive() || $this->authorization->allows($user, $class, 'runDestructiveAction', $model, [$action]));
+    }
+
+    /**
+     * The pivot actions of the Resource's belongsToMany and morphToMany fields, one group per
+     * field named after its related Resource: "Tag Actions".
+     *
+     * @param  class-string<\Lathe\Resources\Resource>  $class
+     * @return list<array{name: string, actions: list<array<string, mixed>>}>
+     */
+    public function pivotActions(string $class): array
+    {
+        $groups = [];
+
+        foreach ($class::make()->fieldsFor(FieldContext::Detail, $this->request) as $field) {
+            if (! $field instanceof BelongsToManyField || ! $field->authorizedToSee($this->request)) {
+                continue;
+            }
+
+            $actions = $this->fieldPivotActions($field);
+            $related = $field->relatedResource();
+
+            if ($actions !== [] && $related !== null) {
+                $groups[] = [
+                    'name' => Lathe::__(':resource Actions', ['resource' => $related::singularLabel()]),
+                    'actions' => array_map(fn (Action $action) => $action->jsonSerialize(), $actions),
+                ];
+            }
+        }
+
+        return $groups;
+    }
+
+    /**
+     * The actions a pivot field declares that the user may see.
+     *
+     * @return list<Action>
+     */
+    public function fieldPivotActions(BelongsToManyField $field): array
+    {
+        $actions = $field->getPivotActions();
+        $actions = $actions instanceof \Closure ? $actions($this->request) : $actions;
+
+        return array_values(array_filter(
+            is_array($actions) ? $actions : [],
+            fn (mixed $action) => $action instanceof Action && $action->authorizedToSee($this->request),
+        ));
     }
 
     /**

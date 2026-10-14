@@ -206,7 +206,9 @@ Lathe\Actions\ActionMenu::Lathe\Http\Requests\LatheRequest $request  [protected]
 Lathe\Actions\ActionMenu::__construct(Lathe\Http\Requests\LatheRequest $request, Lathe\Auth\ResourceAuthorization $authorization)
 Lathe\Actions\ActionMenu::authorizedToRun(string $class, Lathe\Actions\Action $action, Illuminate\Database\Eloquent\Model $model): bool
 Lathe\Actions\ActionMenu::build(string $class, string $display, ?Illuminate\Database\Eloquent\Model $model = NULL): array
+Lathe\Actions\ActionMenu::fieldPivotActions(Lathe\Field\Relations\BelongsToManyField $field): array
 Lathe\Actions\ActionMenu::forRows(string $class): Lathe\Actions\ActionCollection
+Lathe\Actions\ActionMenu::pivotActions(string $class): array
 Lathe\Actions\ActionMenu::runnableOn(string $class, Lathe\Actions\ActionCollection $actions, Illuminate\Database\Eloquent\Model $model): array
 Lathe\Actions\ActionMenu::visible(string $class): Lathe\Actions\ActionCollection  [protected]
 Lathe\Actions\ActionMethodResolver::failedHandlerFor(Lathe\Actions\Action $action, string $modelClass): ?string  [static]
@@ -2369,6 +2371,13 @@ Lathe\Query\CountStrategy::string $name
 Lathe\Query\CountStrategy::string $value
 Lathe\Query\DateBucket::day(Illuminate\Database\Connection $connection, string $column): string  [static]
 Lathe\Query\DateBucket::month(Illuminate\Database\Connection $connection, string $column): string  [static]
+Lathe\Query\PivotVia::Illuminate\Database\Eloquent\Model $parent
+Lathe\Query\PivotVia::Illuminate\Database\Eloquent\Relations\BelongsToMany $relation
+Lathe\Query\PivotVia::Lathe\Field\Relations\BelongsToManyField $field
+Lathe\Query\PivotVia::__construct(Illuminate\Database\Eloquent\Model $parent, Lathe\Field\Relations\BelongsToManyField $field, Illuminate\Database\Eloquent\Relations\BelongsToMany $relation)
+Lathe\Query\PivotVia::actions(Lathe\Http\Requests\LatheRequest $request): Lathe\Actions\ActionCollection
+Lathe\Query\PivotVia::invalid(): Illuminate\Validation\ValidationException  [protected static]
+Lathe\Query\PivotVia::resolve(Lathe\Http\Requests\LatheRequest $request, string $related, string $via): Lathe\Query\PivotVia  [static]
 Lathe\Query\QueryContext::Detail
 Lathe\Query\QueryContext::Edit
 Lathe\Query\QueryContext::Index
@@ -2461,15 +2470,18 @@ Lathe\Query\Selection::string $mode
 Lathe\Query\Selection::toArray(): array
 Lathe\Query\SelectionResolver::?Illuminate\Database\Eloquent\Builder $query  [protected]
 Lathe\Query\SelectionResolver::?Lathe\Lenses\Lens $lens  [protected]
+Lathe\Query\SelectionResolver::?Lathe\Query\PivotVia $via  [protected]
 Lathe\Query\SelectionResolver::Lathe\Http\Requests\LatheRequest $request  [protected]
 Lathe\Query\SelectionResolver::Lathe\Query\Selection $selection  [protected]
 Lathe\Query\SelectionResolver::Lathe\Resources\Resource $resource  [protected]
 Lathe\Query\SelectionResolver::__construct(Lathe\Resources\Resource $resource, Lathe\Http\Requests\LatheRequest $request, Lathe\Query\Selection $selection, ?Lathe\Lenses\Lens $lens = NULL)
+Lathe\Query\SelectionResolver::bool $viaResolved  [protected]
 Lathe\Query\SelectionResolver::ensureNotEmpty(): void
 Lathe\Query\SelectionResolver::exceeds(int $max): bool
 Lathe\Query\SelectionResolver::indexQuery(): Lathe\Query\ResourceQuery  [protected]
 Lathe\Query\SelectionResolver::lazy(int $chunk = 200): Illuminate\Support\LazyCollection
 Lathe\Query\SelectionResolver::narrow(Illuminate\Database\Eloquent\Builder $query): Illuminate\Database\Eloquent\Builder  [protected]
+Lathe\Query\SelectionResolver::pivotVia(): ?Lathe\Query\PivotVia
 Lathe\Query\SelectionResolver::query(): Illuminate\Database\Eloquent\Builder
 Lathe\Query\SelectionResolver::selectionLens(): ?Lathe\Lenses\Lens  [protected]
 Lathe\Resources\RecordDeleter::chunk(Lathe\Http\Requests\LatheRequest $request, string $class, string $ability, Illuminate\Support\Collection $models, bool $authorized = false): array
@@ -3305,6 +3317,7 @@ class Lathe\Plugins\PluginDiscovery
 class Lathe\Plugins\PluginRegistry
 class Lathe\Query\Count
 class Lathe\Query\DateBucket
+class Lathe\Query\PivotVia
 class Lathe\Query\ResourceQuery
 class Lathe\Query\Selection
 class Lathe\Query\SelectionResolver

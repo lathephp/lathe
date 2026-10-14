@@ -33,6 +33,14 @@ class TagPolicy
     }
 
     /**
+     * Merge Tags, and the pivot actions of a product's Tags panel.
+     */
+    public function runAction(User $user, Tag $tag): bool
+    {
+        return $user->email === 'admin@lathephp.com';
+    }
+
+    /**
      * @param  array<int, int|string>  $ids
      */
     public function attachProducts(User $user, Tag $tag, array $ids): bool

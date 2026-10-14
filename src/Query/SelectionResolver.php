@@ -4,6 +4,7 @@ namespace Lathe\Query;
 
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Support\LazyCollection;
 use Illuminate\Validation\ValidationException;
 use Lathe\Auth\ResourceAuthorization;
@@ -20,6 +21,10 @@ class SelectionResolver
 {
     /** @var Builder<Model>|null */
     protected ?Builder $query = null;
+
+    protected ?PivotVia $via = null;
+
+    protected bool $viaResolved = false;
 
     public function __construct(
         protected Resource $resource,
@@ -96,9 +101,33 @@ class SelectionResolver
         ], fn (mixed $value) => $value !== null && $value !== '' && $value !== []);
 
         $query = new ResourceQuery($this->resource, $this->request->duplicate($state), QueryContext::Index);
+        $via = $this->pivotVia();
+
+        // A fresh relation off the parent, so reading through it never changes the via's own.
+        $relation = $via === null ? null : $via->parent->{$via->field->attribute()}();
+
+        if ($via !== null && $relation instanceof Relation) {
+            return $query->forRelation($relation, $via->field);
+        }
+
         $lens = $this->lens ?? $this->selectionLens();
 
         return $lens === null ? $query : $query->forLens($lens);
+    }
+
+    /**
+     * The parent pivot relation the selection's via names, or null without one; 422 for a via
+     * the user may not follow.
+     */
+    public function pivotVia(): ?PivotVia
+    {
+        if (! $this->viaResolved) {
+            $via = $this->selection->via;
+            $this->via = $via === null || $via === '' ? null : PivotVia::resolve($this->request, $this->resource::class, $via);
+            $this->viaResolved = true;
+        }
+
+        return $this->via;
     }
 
     /**

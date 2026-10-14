@@ -6,6 +6,7 @@ use Lathe\Field\Field;
 use Lathe\Http\Requests\LatheRequest;
 use Lathe\Resources\Resource;
 use Lathe\Resources\ResourceDefinition;
+use Workbench\App\Lathe\Actions\MoveToFirst;
 use Workbench\App\Models\Product as ProductModel;
 
 class Product extends Resource
@@ -32,7 +33,7 @@ class Product extends Resource
                 Field::text('Name')->required(),
                 Field::text('Value')->required(),
             ])->sortable()->confirmRemoval()->addButtonText('Add spec')->rowLabel('name', 'Spec #{{index}}'),
-            Field::morphToMany('Tags')->pivotFields([Field::number('Position')->min(0)->max(1000)->step(1)->rules('integer')->required()])->pivotActions(['Tag Actions']),
+            Field::morphToMany('Tags')->pivotFields([Field::number('Position')->min(0)->max(1000)->step(1)->rules('integer')->required()])->pivotActions(fn () => [MoveToFirst::make()]),
             Field::morphMany('Comments'),
         ];
     }
