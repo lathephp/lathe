@@ -1,11 +1,12 @@
 import { ApiError, request, useLathe, useTranslation } from '@lathephp/core';
-import { lazy, Suspense, useId, useState } from 'react';
+import { Suspense, useId, useState } from 'react';
 import { FieldError } from '../components/FieldError';
 import { Modal } from '../components/Modal';
+import { lazyNamed } from '../lib/lazy';
 import { firstErrors } from './useRecordForm';
 
 // The OTP field loads only when an account asks for its code, which keeps it out of every page's first load.
-const TotpInput = lazy(() => import('../components/TotpInput').then(({ TotpInput }) => ({ default: TotpInput })));
+const TotpInput = lazyNamed(() => import('../components/TotpInput').then((module) => module.TotpInput));
 
 interface ReauthModalProps {
   email: string;
