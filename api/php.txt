@@ -3637,6 +3637,7 @@ Lathe\Widgets\AggregateQuery::aggregateSql(): string  [protected]
 Lathe\Widgets\AggregateQuery::array $colors  [protected]
 Lathe\Widgets\AggregateQuery::average(Illuminate\Contracts\Database\Query\Expression|string $column): static
 Lathe\Widgets\AggregateQuery::bar(): Lathe\Widgets\Results\BarResult
+Lathe\Widgets\AggregateQuery::builderFor(Illuminate\Database\Eloquent\Builder|Illuminate\Database\Eloquent\Model|string $model): Illuminate\Database\Eloquent\Builder  [static]
 Lathe\Widgets\AggregateQuery::by(Lathe\Widgets\TrendUnit $unit, int $count): static
 Lathe\Widgets\AggregateQuery::byDays(int $count): static
 Lathe\Widgets\AggregateQuery::byHours(int $count): static

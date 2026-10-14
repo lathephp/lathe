@@ -64,11 +64,23 @@ class AggregateQuery
      */
     public static function for(Builder|Model|string $model): static
     {
+        return new static(static::builderFor($model));
+    }
+
+    /**
+     * A fresh query over the model, or a copy of the given one, for a widget that counts
+     * rows itself. Widget numbers open their model queries here and nowhere else.
+     *
+     * @param  Builder<Model>|Model|class-string<Model>  $model
+     * @return Builder<Model>
+     */
+    public static function builderFor(Builder|Model|string $model): Builder
+    {
         if ($model instanceof Builder) {
-            return new static(clone $model);
+            return clone $model;
         }
 
-        return new static(($model instanceof Model ? $model : new $model)->newQuery());
+        return ($model instanceof Model ? $model : new $model)->newQuery();
     }
 
     public function count(Expression|string|null $column = null): static

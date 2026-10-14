@@ -48,10 +48,6 @@ abstract class ProgressWidget extends Widget
      */
     private function builder(Builder|Model|string $model): Builder
     {
-        if ($model instanceof Builder) {
-            return clone $model;
-        }
-
-        return ($model instanceof Model ? $model : new $model)->newQuery();
+        return AggregateQuery::builderFor($model);
     }
 }
