@@ -72,6 +72,25 @@ class ActionEvent extends Model
     }
 
     /**
+     * Both morph relations skip a type whose class is gone; see RecordMorphTo.
+     *
+     * @template TRelatedModel of Model
+     * @template TDeclaringModel of Model
+     *
+     * @param  Builder<TRelatedModel>  $query
+     * @param  TDeclaringModel  $parent
+     * @param  string  $foreignKey
+     * @param  string|null  $ownerKey
+     * @param  string  $type
+     * @param  string  $relation
+     * @return MorphTo<TRelatedModel, TDeclaringModel>
+     */
+    protected function newMorphTo(Builder $query, Model $parent, $foreignKey, $ownerKey, $type, $relation)
+    {
+        return new RecordMorphTo($query, $parent, $foreignKey, $ownerKey, $type, $relation);
+    }
+
+    /**
      * @return MorphTo<Model, $this>
      */
     public function target(): MorphTo

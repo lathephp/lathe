@@ -94,6 +94,13 @@ it('stays read-only under a host policy that grants every write', function () {
         ->toBe(['view' => true, 'update' => false, 'delete' => false, 'replicate' => false]);
 });
 
+it('lists a row whose record class no longer exists', function () {
+    auditEvent(['actionable_type' => 'App\\Models\\Gone', 'actionable_id' => '7', 'target_type' => 'App\\Models\\Gone', 'target_id' => '7']);
+    auditEvent();
+
+    $this->getJson('/lathe/api/resources/action-events')->assertOk()->assertJsonCount(2, 'table.rows');
+});
+
 it('polls every 5 seconds and stays out of the sidebar', function () {
     $json = $this->getJson('/lathe/api/resources/action-events')->assertOk()->json();
 

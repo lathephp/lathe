@@ -9,6 +9,7 @@ Lathe\ActionEvents\ActionEvent::markAsFinished(string $batchId, Illuminate\Datab
 Lathe\ActionEvents\ActionEvent::markBatchAsFailed(string $batchId, ?Throwable $exception = NULL): void  [static]
 Lathe\ActionEvents\ActionEvent::markBatchAsFinished(string $batchId): void  [static]
 Lathe\ActionEvents\ActionEvent::markBatchAsRunning(string $batchId): void  [static]
+Lathe\ActionEvents\ActionEvent::newMorphTo(Illuminate\Database\Eloquent\Builder $query, Illuminate\Database\Eloquent\Model $parent, $foreignKey, $ownerKey, $type, $relation)  [protected]
 Lathe\ActionEvents\ActionEvent::open(string $batchId): Illuminate\Database\Eloquent\Builder  [protected static]
 Lathe\ActionEvents\ActionEvent::prunable(): Illuminate\Database\Eloquent\Builder
 Lathe\ActionEvents\ActionEvent::scopeByUser(Illuminate\Database\Eloquent\Builder $query, Illuminate\Contracts\Auth\Authenticatable|string|int $user): void
@@ -41,6 +42,7 @@ Lathe\ActionEvents\ActionEventPolicy::update(object $user, Lathe\ActionEvents\Ac
 Lathe\ActionEvents\ActionEventPolicy::view(object $user, Lathe\ActionEvents\ActionEvent $event): bool
 Lathe\ActionEvents\ActionEventPolicy::viewAny(object $user): bool
 Lathe\ActionEvents\ActionEventRecorder::?string $batchId  [protected]
+Lathe\ActionEvents\ActionEventRecorder::actionSecrets(Lathe\Actions\Action $action, ?Lathe\Http\Requests\LatheRequest $request): array  [protected]
 Lathe\ActionEvents\ActionEventRecorder::array $secrets  [protected]
 Lathe\ActionEvents\ActionEventRecorder::bool $disabled  [protected]
 Lathe\ActionEvents\ActionEventRecorder::clean(array $attributes, ?Illuminate\Database\Eloquent\Model $model, ?string $resourceClass): array  [protected]
@@ -69,6 +71,7 @@ Lathe\ActionEvents\ActionEventRecorder::safeValue(mixed $value): mixed  [protect
 Lathe\ActionEvents\ActionEventRecorder::secretAttributes(string $resourceClass): array  [protected]
 Lathe\ActionEvents\ActionEventRecorder::shouldRecord(?string $resourceClass): bool  [protected]
 Lathe\ActionEvents\ActionEventResource::configure(Lathe\Resources\ResourceDefinition $definition): Lathe\Resources\ResourceDefinition  [protected]
+Lathe\ActionEvents\ActionEventResource::deniedAbilities(): array  [static]
 Lathe\ActionEvents\ActionEventResource::detailBreadcrumbs(Lathe\Http\Requests\LatheRequest $request): ?array
 Lathe\ActionEvents\ActionEventResource::fields(Lathe\Http\Requests\LatheRequest $request): array
 Lathe\ActionEvents\ActionEventResource::initiator(Illuminate\Database\Eloquent\Model $event): string  [protected static]
@@ -77,6 +80,7 @@ Lathe\ActionEvents\ActionEventResource::recordsActionEvents(): bool  [static]
 Lathe\ActionEvents\ActionEventResource::singularLabel(): string  [static]
 Lathe\ActionEvents\ActionEventResource::uriKey(): string  [static]
 Lathe\ActionEvents\Actionable::actions(): Illuminate\Database\Eloquent\Relations\MorphMany
+Lathe\ActionEvents\RecordMorphTo::getEager()
 Lathe\Actions\Action::?Closure $handleCallback  [protected]
 Lathe\Actions\Action::?Closure $runCallback  [protected]
 Lathe\Actions\Action::?Closure $runWhenCallback  [protected]
@@ -2789,6 +2793,7 @@ Lathe\Resources\Resource::configure(Lathe\Resources\ResourceDefinition $definiti
 Lathe\Resources\Resource::createButtonLabel(): string  [static]
 Lathe\Resources\Resource::defaultAttributes(Lathe\Http\Requests\LatheRequest $request): array  [static]
 Lathe\Resources\Resource::definition(): Lathe\Resources\ResourceDefinition
+Lathe\Resources\Resource::deniedAbilities(): array  [static]
 Lathe\Resources\Resource::detailBreadcrumbs(Lathe\Http\Requests\LatheRequest $request): ?array
 Lathe\Resources\Resource::detailQuery(Lathe\Http\Requests\LatheRequest $request, Illuminate\Database\Eloquent\Builder $query): Illuminate\Database\Eloquent\Builder  [static]
 Lathe\Resources\Resource::editQuery(Lathe\Http\Requests\LatheRequest $request, Illuminate\Database\Eloquent\Builder $query): Illuminate\Database\Eloquent\Builder  [static]
@@ -3349,6 +3354,7 @@ class Lathe\ActionEvents\ActionEventListener
 class Lathe\ActionEvents\ActionEventPolicy
 class Lathe\ActionEvents\ActionEventRecorder
 class Lathe\ActionEvents\ActionEventResource
+class Lathe\ActionEvents\RecordMorphTo
 class Lathe\Actions\Action
 class Lathe\Actions\ActionCollection
 class Lathe\Actions\ActionDispatcher
