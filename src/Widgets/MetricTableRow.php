@@ -9,6 +9,8 @@ use Stringable;
 
 /**
  * One row of a TableWidget, with an icon, a title, a subtitle and row links.
+ *
+ * @phpstan-consistent-constructor
  */
 class MetricTableRow implements JsonSerializable
 {

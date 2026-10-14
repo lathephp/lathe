@@ -3,9 +3,9 @@
 namespace Lathe\Widgets;
 
 use Closure;
+use Illuminate\Contracts\Database\Query\Expression;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Query\Expression;
 use Lathe\Http\Requests\LatheRequest;
 use Lathe\Widgets\Results\RadialResult;
 

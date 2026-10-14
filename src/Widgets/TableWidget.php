@@ -20,7 +20,7 @@ abstract class TableWidget extends Widget
     protected ?string $emptyText = null;
 
     /**
-     * @return list<array{key: string, label: string, align?: 'left'|'center'|'right'}>
+     * @return list<array{key: string, label: string, align?: 'left'|'center'|'right', sortable?: bool}>
      */
     abstract public function columns(): array;
 
@@ -46,7 +46,7 @@ abstract class TableWidget extends Widget
             }, $this->columns()),
             'rows' => array_map(
                 fn (array|MetricTableRow $row) => $row instanceof MetricTableRow ? $row->jsonSerialize() : $row,
-                array_slice(array_values($this->rows($request)), 0, self::MAX_ROWS),
+                array_slice($this->rows($request), 0, self::MAX_ROWS),
             ),
             'emptyText' => $this->emptyText ?? Lathe::__('No Results Found...'),
         ];

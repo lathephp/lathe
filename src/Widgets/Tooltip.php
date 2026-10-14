@@ -6,6 +6,8 @@ use JsonSerializable;
 
 /**
  * How a chart card's hover tooltip looks. Attach it with Widget::tooltip().
+ *
+ * @phpstan-consistent-constructor
  */
 class Tooltip implements JsonSerializable
 {
