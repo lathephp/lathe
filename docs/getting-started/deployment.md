@@ -41,6 +41,10 @@ The panel's assets are served from the package with a content hash in their addr
 php artisan lathe:assets --force
 ```
 
+## Maintenance mode
+
+While the app is down (`php artisan down`), the panel shows its own maintenance screen, "Service unavailable", to a first visit and to a signed-in page that moves on. Its built files under `/lathe/assets`, `/lathe/modules` and `/lathe/styles` stay reachable during maintenance, so the screen can draw.
+
 ## A deploy script
 
 ```bash
