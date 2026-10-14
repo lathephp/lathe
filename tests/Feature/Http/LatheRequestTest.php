@@ -2,7 +2,10 @@
 
 use Illuminate\Foundation\Auth\User;
 use Illuminate\Http\Request;
+use Illuminate\Routing\Route;
 use Lathe\Http\Requests\LatheRequest;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use Workbench\App\Lathe\Resources\Order;
 
 function latheRequestFor(string $query): LatheRequest
 {
@@ -53,4 +56,29 @@ it('reads the user of the panel guard', function () {
     auth('panel')->setUser($user);
 
     expect(latheRequestFor('')->user())->toBe($user);
+});
+
+function resourceRouteRequest(string $resource): LatheRequest
+{
+    $request = LatheRequest::createFrom(Request::create("/lathe/api/resources/{$resource}"));
+    $route = new Route('GET', 'lathe/api/resources/{resource}', []);
+    $route->bind($request);
+    $request->setRouteResolver(fn () => $route);
+
+    return $request;
+}
+
+it('builds the Resource instance of the route', function () {
+    $request = resourceRouteRequest('orders');
+
+    expect($request->resourceInstance())->toBeInstanceOf(Order::class)
+        ->and($request->newResource())->toBeInstanceOf(Order::class)
+        ->and($request->newResource())->not->toBe($request->newResource());
+});
+
+it('answers null for an unknown Resource, and 404 to a new one', function () {
+    $request = resourceRouteRequest('nothing');
+
+    expect($request->resourceInstance())->toBeNull()
+        ->and(fn () => $request->newResource())->toThrow(NotFoundHttpException::class);
 });
