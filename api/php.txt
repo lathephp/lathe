@@ -2387,6 +2387,8 @@ Lathe\Http\Controllers\Auth\NewPasswordController::create(Illuminate\Http\Reques
 Lathe\Http\Controllers\Auth\NewPasswordController::store(Illuminate\Http\Request $request): Symfony\Component\HttpFoundation\Response
 Lathe\Http\Controllers\Auth\PasswordResetLinkController::create(Illuminate\Http\Request $request): Symfony\Component\HttpFoundation\Response
 Lathe\Http\Controllers\Auth\PasswordResetLinkController::store(Illuminate\Http\Request $request): Symfony\Component\HttpFoundation\Response
+Lathe\Http\Controllers\Auth\SecurityController::show(Illuminate\Http\Request $request): Symfony\Component\HttpFoundation\Response
+Lathe\Http\Controllers\Auth\SecurityController::updatePassword(Illuminate\Http\Request $request): Symfony\Component\HttpFoundation\Response
 Lathe\Http\Controllers\BulkRunController::destroy(Lathe\Http\Requests\LatheRequest $request, string $id): Illuminate\Http\JsonResponse
 Lathe\Http\Controllers\BulkRunController::owned(Lathe\Http\Requests\LatheRequest $request, string $id): Lathe\Actions\BulkRun  [protected]
 Lathe\Http\Controllers\BulkRunController::show(Lathe\Http\Requests\LatheRequest $request, string $id): Illuminate\Http\JsonResponse
@@ -4707,6 +4709,7 @@ class Lathe\Http\Controllers\Auth\EmailVerificationController
 class Lathe\Http\Controllers\Auth\LoginPageController
 class Lathe\Http\Controllers\Auth\NewPasswordController
 class Lathe\Http\Controllers\Auth\PasswordResetLinkController
+class Lathe\Http\Controllers\Auth\SecurityController
 class Lathe\Http\Controllers\BulkRunController
 class Lathe\Http\Controllers\DashboardController
 class Lathe\Http\Controllers\ExportController

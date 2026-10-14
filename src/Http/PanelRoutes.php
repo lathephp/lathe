@@ -11,6 +11,7 @@ use Lathe\Http\Controllers\Auth\EmailVerificationController;
 use Lathe\Http\Controllers\Auth\LoginPageController;
 use Lathe\Http\Controllers\Auth\NewPasswordController;
 use Lathe\Http\Controllers\Auth\PasswordResetLinkController;
+use Lathe\Http\Controllers\Auth\SecurityController;
 use Lathe\Http\Controllers\BulkRunController;
 use Lathe\Http\Controllers\DashboardController;
 use Lathe\Http\Controllers\ExportController;
@@ -121,6 +122,11 @@ class PanelRoutes
             $router->get('resources/{resource}/{resourceId}/edit', [FormPageController::class, 'edit'])->name('lathe.resources.edit');
             $router->get('resources/{resource}/{resourceId}/replicate', [FormPageController::class, 'replicate'])->name('lathe.resources.replicate');
             $this->runPageRoutes($router);
+            $router->get('security', [SecurityController::class, 'show'])->name('lathe.security');
+
+            if ($this->fortify->featureEnabled('updatePasswords')) {
+                $router->put('user-security/password', [SecurityController::class, 'updatePassword'])->name('lathe.user-password.update');
+            }
             $router->get('pages/{page}/{path?}', PageController::class)
                 ->where('path', '.*')
                 ->name('lathe.pages.show');
