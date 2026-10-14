@@ -9,7 +9,7 @@ it('keeps the panel up when the Heartbeat module is missing', function (string $
         signInThroughForm($page, 'admin@lathephp.com');
 
         $page->assertPathIs('/lathe')
-            ->assertSee('No widgets yet')
+            ->assertPresent('[data-lathe-widget="orders"]')
             ->assertSee('A plugin failed to load. The rest of the panel works.')
             ->assertCount('[role="alert"]', 1)
             ->assertNoJavaScriptErrors();

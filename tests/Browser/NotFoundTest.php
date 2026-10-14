@@ -11,7 +11,7 @@ it('shows a 404 in the shell with a link back to the dashboard', function (strin
         ->assertNoAccessibilityIssues()
         ->click('Back to dashboard')
         ->assertPathIs('/lathe')
-        ->assertSee('No widgets yet');
+        ->assertPresent('[data-lathe-widget="orders"]');
     assertCleanPage($page);
 })->with(browserProjects());
 

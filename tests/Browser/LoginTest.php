@@ -13,7 +13,7 @@ it('signs the admin in from the login page', function (string $project) {
     signInThroughForm($page, 'admin@lathephp.com');
 
     $page->assertPathIs('/lathe')
-        ->assertSee('No widgets yet')
+        ->assertPresent('[data-lathe-widget="orders"]')
         ->assertNoAccessibilityIssues();
     assertFitsViewport($page);
     assertCleanPage($page);

@@ -46,7 +46,7 @@ it('asks for a reload after the assets change, once', function (string $project)
         }
 
         $page->click('#lathe-sidebar a[href="/lathe"]')
-            ->assertSee('No widgets yet')
+            ->assertPresent('[data-lathe-widget="orders"]')
             ->assertDontSee('Lathe was updated');
         assertCleanPage($page);
     } finally {
