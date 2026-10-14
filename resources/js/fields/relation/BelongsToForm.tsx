@@ -82,7 +82,7 @@ export function RelationPicker({ field, value, onChange, id, describedBy, invali
 
   return (
     <div ref={root} className="relative">
-      {/* The form moves focus to the first [aria-invalid] control after a failed submit. */}
+      {/* The form moves focus to the first [aria-invalid] control after a failed submit; a button takes no aria-required, the label marks it. */}
       {/* eslint-disable-next-line jsx-a11y/role-supports-aria-props */}
       <button
         ref={button}
@@ -93,7 +93,6 @@ export function RelationPicker({ field, value, onChange, id, describedBy, invali
         aria-controls={open ? `${id}-listbox` : undefined}
         aria-describedby={describedBy}
         aria-invalid={invalid || undefined}
-        aria-required={field.required === true || undefined}
         disabled={disabled}
         onClick={() => {
           setActive(-1);
