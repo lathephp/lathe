@@ -36,6 +36,12 @@ class LatheManager
     /** @var (Closure(Request): ?string)|null */
     protected ?Closure $userLocale = null;
 
+    /** @var list<Closure(): array<string, mixed>> */
+    protected array $jobContextCaptures = [];
+
+    /** @var list<Closure(array<string, mixed>): void> */
+    protected array $jobContextRestores = [];
+
     public function __construct(protected Container $container)
     {
         //
@@ -156,6 +162,50 @@ class LatheManager
         $locale = $this->userLocale === null ? null : ($this->userLocale)($request);
 
         return TranslationManager::normalize(is_string($locale) && $locale !== '' ? $locale : app()->getLocale());
+    }
+
+    /**
+     * Add values to the context of every queued job the panel dispatches, such as a tenant id.
+     *
+     * @param  Closure(): array<string, mixed>  $callback
+     */
+    public function captureJobContext(Closure $callback): static
+    {
+        $this->jobContextCaptures[] = $callback;
+
+        return $this;
+    }
+
+    /**
+     * Put back, in the worker, what captureJobContext() added.
+     *
+     * @param  Closure(array<string, mixed>): void  $callback
+     */
+    public function restoreJobContext(Closure $callback): static
+    {
+        $this->jobContextRestores[] = $callback;
+
+        return $this;
+    }
+
+    /**
+     * The values every captureJobContext() callback adds, merged.
+     *
+     * @return array<string, mixed>
+     */
+    public function capturedJobContext(): array
+    {
+        return array_merge(...array_map(fn (Closure $capture) => $capture(), $this->jobContextCaptures));
+    }
+
+    /**
+     * @param  array<string, mixed>  $extra
+     */
+    public function restoreCapturedJobContext(array $extra): void
+    {
+        foreach ($this->jobContextRestores as $restore) {
+            $restore($extra);
+        }
     }
 
     /**
