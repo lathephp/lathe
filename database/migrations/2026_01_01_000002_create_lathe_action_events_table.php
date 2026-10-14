@@ -13,10 +13,10 @@ return new class extends Migration
             $table->uuid('batch_id');
             $table->string('user_id', 191)->nullable()->index();
             $table->string('type', 50)->index();
-            $table->string('actionable_type', 191);
-            $table->string('actionable_id', 191);
-            $table->string('target_type', 191);
-            $table->string('target_id', 191);
+            $table->string('actionable_type', 191)->nullable();
+            $table->string('actionable_id', 191)->nullable();
+            $table->string('target_type', 191)->nullable();
+            $table->string('target_id', 191)->nullable();
             $table->string('action_name')->nullable();
             $table->string('resource_class')->nullable();
             $table->json('original')->nullable();

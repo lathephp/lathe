@@ -100,6 +100,15 @@ it('keeps the named indexes', function () {
         ->and($names('lathe_saved_tabs'))->toContain('lathe_saved_tabs_user_resource_idx');
 });
 
+// A standalone action runs on no record, so its audit row has none.
+it('takes an action event with no record', function () {
+    migrateLathe();
+
+    DB::table('lathe_action_events')->insert(['batch_id' => (string) Str::uuid(), 'type' => 'action-ran', 'action_name' => 'Send Report']);
+
+    expect(DB::table('lathe_action_events')->whereNull('actionable_id')->whereNull('target_id')->count())->toBe(1);
+});
+
 it('leaves an existing notifications table untouched', function () {
     Schema::create('notifications', function ($table) {
         $table->id();
