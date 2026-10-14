@@ -85,6 +85,7 @@ class PanelRoutes
             $router->get('resources/{resource}/{resourceId}', DetailPageController::class)->name('lathe.resources.show');
             $router->get('resources/{resource}/{resourceId}/edit', [FormPageController::class, 'edit'])->name('lathe.resources.edit');
             $router->get('resources/{resource}/{resourceId}/replicate', [FormPageController::class, 'replicate'])->name('lathe.resources.replicate');
+            $this->runPageRoutes($router);
             $router->get('plugins/{plugin}/{path?}', PluginPageController::class)
                 ->where('path', '.*')
                 ->name('lathe.plugins.show');
@@ -98,6 +99,13 @@ class PanelRoutes
         }
 
         $this->api()->prefix($this->apiPrefix())->name('lathe.api.')->group(function (Router $router) {
+            // Before the {resourceId} routes, so actions, action and batch never read as a record id.
+            $this->actionRoutes($router);
+            $this->batchRoutes($router);
+            $this->bulkRunRoutes($router);
+            $this->exportRoutes($router);
+            $this->importRoutes($router);
+            $this->notificationRoutes($router);
             $router->get('resources/{resource}', IndexController::class)->name('resources.index');
             $router->get('resources/{resource}/count', CountController::class)->name('resources.count');
             $router->get('resources/{resource}/filters', [FilterController::class, 'index'])->name('resources.filters');
@@ -162,6 +170,53 @@ class PanelRoutes
         $this->group()->middleware('lathe')->group(function (Router $router) {
             $router->any('{any}', PageFallbackController::class)->where('any', '.*')->fallback()->name('lathe.fallback');
         });
+    }
+
+    /**
+     * The action list, form, run and lookup routes of a Resource and of its lenses.
+     */
+    protected function actionRoutes(Router $router): void
+    {
+        //
+    }
+
+    /**
+     * Delete, force delete and restore over a selection.
+     */
+    protected function batchRoutes(Router $router): void
+    {
+        //
+    }
+
+    /**
+     * Progress and cancel of a queued bulk run.
+     */
+    protected function bulkRunRoutes(Router $router): void
+    {
+        //
+    }
+
+    protected function exportRoutes(Router $router): void
+    {
+        //
+    }
+
+    protected function importRoutes(Router $router): void
+    {
+        //
+    }
+
+    protected function notificationRoutes(Router $router): void
+    {
+        //
+    }
+
+    /**
+     * The page of a queued export or import run.
+     */
+    protected function runPageRoutes(Router $router): void
+    {
+        //
     }
 
     protected function api(): RouteRegistrar
