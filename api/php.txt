@@ -2619,7 +2619,12 @@ Lathe\LatheApplicationServiceProvider::registerResources(): void  [protected]
 Lathe\LatheManager::?Closure $footer  [protected]
 Lathe\LatheManager::?Closure $userLocale  [protected]
 Lathe\LatheManager::?Closure $userTimezone  [protected]
+Lathe\LatheManager::?string $customForgotPasswordPath  [protected]
+Lathe\LatheManager::?string $customLoginPath  [protected]
+Lathe\LatheManager::?string $customLogoutPath  [protected]
+Lathe\LatheManager::?string $customResetPasswordPath  [protected]
 Lathe\LatheManager::Closure|bool $rtl  [protected]
+Lathe\LatheManager::Closure|string|null $initialPath  [protected]
 Lathe\LatheManager::Illuminate\Contracts\Container\Container $container  [protected]
 Lathe\LatheManager::PROVIDED_BAG
 Lathe\LatheManager::__(string $key, array $replace = array ( ), ?string $default = NULL): string
@@ -2632,13 +2637,20 @@ Lathe\LatheManager::array $warnedAllowAll  [protected]
 Lathe\LatheManager::assertNotBooted(string $setter): void  [protected]
 Lathe\LatheManager::assets(): Lathe\Assets\AssetManifest
 Lathe\LatheManager::auth(Closure $callback): static
+Lathe\LatheManager::authPaths(): array
+Lathe\LatheManager::bool $authenticationRoutes  [protected]
 Lathe\LatheManager::bool $ensured  [protected]
+Lathe\LatheManager::bool $passwordResetRoutes  [protected]
 Lathe\LatheManager::booted(Closure $callback): static
 Lathe\LatheManager::captureJobContext(Closure $callback): static
 Lathe\LatheManager::capturedJobContext(): array
 Lathe\LatheManager::check(Illuminate\Http\Request $request): bool
 Lathe\LatheManager::config(): Lathe\Support\ConfigStore
 Lathe\LatheManager::cspImageSources(): array
+Lathe\LatheManager::customForgotPasswordPath(): ?string
+Lathe\LatheManager::customLoginPath(): ?string
+Lathe\LatheManager::customLogoutPath(): ?string
+Lathe\LatheManager::customResetPasswordPath(): ?string
 Lathe\LatheManager::dashboards(): Lathe\Dashboards\DashboardRegistry
 Lathe\LatheManager::discoverResources(string $directory, ?string $namespace = NULL): void
 Lathe\LatheManager::enableRTL(Closure|bool $callback = true): static
@@ -2646,6 +2658,10 @@ Lathe\LatheManager::ensureBooted(): void
 Lathe\LatheManager::footer(Closure $callback): static
 Lathe\LatheManager::footerFor(Illuminate\Http\Request $request): ?array
 Lathe\LatheManager::fortify(): Lathe\Auth\FortifyBootstrap
+Lathe\LatheManager::hasAuthenticationRoutes(): bool
+Lathe\LatheManager::hasPasswordResetRoutes(): bool
+Lathe\LatheManager::initialPath(Closure|string|null $path): static
+Lathe\LatheManager::initialPathUrl(Illuminate\Http\Request $request): string
 Lathe\LatheManager::isRTL(?Illuminate\Http\Request $request = NULL): bool
 Lathe\LatheManager::isServing(): bool
 Lathe\LatheManager::loadTranslations(array|string $translations): static
@@ -2663,6 +2679,7 @@ Lathe\LatheManager::registerPages(Lathe\Pages\Page|string ...$pages): void
 Lathe\LatheManager::registerPlugins(Lathe\Plugins\Plugin ...$plugins): void
 Lathe\LatheManager::registerResources(string ...$classes): void
 Lathe\LatheManager::registerSearchProviders(Lathe\Search\SearchProvider ...$providers): void
+Lathe\LatheManager::resolveInitialPath(Illuminate\Http\Request $request): string
 Lathe\LatheManager::resolveSidebarDefaultOpen(Illuminate\Http\Request $request): bool
 Lathe\LatheManager::resolveUserLocale(Illuminate\Http\Request $request): string
 Lathe\LatheManager::resolveUserTimezone(Illuminate\Http\Request $request): ?string
@@ -2682,7 +2699,11 @@ Lathe\LatheManager::version(): string
 Lathe\LatheManager::versionLabel(): ?string
 Lathe\LatheManager::warnAllowAll(string $policyClass): void
 Lathe\LatheManager::whenServing(Closure $callback, ?Closure $default = NULL): mixed
+Lathe\LatheManager::withAuthenticationRoutes(): static
+Lathe\LatheManager::withPasswordResetRoutes(): static
 Lathe\LatheManager::withoutActionEvents(?Closure $callback = NULL): mixed
+Lathe\LatheManager::withoutAuthenticationRoutes(?string $login = NULL, ?string $logout = NULL): static
+Lathe\LatheManager::withoutPasswordResetRoutes(?string $forgot = NULL, ?string $reset = NULL): static
 Lathe\LatheServiceProvider::boot(): void
 Lathe\LatheServiceProvider::register(): void
 Lathe\LatheServiceProvider::registerMiddleware(): void  [protected]

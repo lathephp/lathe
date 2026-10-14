@@ -44,6 +44,7 @@ class HandleInertiaRequests extends Middleware
                     'email' => $user->getAttribute('email'),
                 ],
             ],
+            'authPaths' => Lathe::authPaths(),
             'flash' => [
                 'success' => $request->hasSession() ? $request->session()->get('success') : null,
                 'error' => $request->hasSession() ? $request->session()->get('error') : null,

@@ -68,6 +68,21 @@ class LatheManager
     /** @var class-string<ActionEvent> */
     protected string $actionEventModel = ActionEvent::class;
 
+    protected bool $authenticationRoutes = true;
+
+    protected bool $passwordResetRoutes = false;
+
+    protected ?string $customLoginPath = null;
+
+    protected ?string $customLogoutPath = null;
+
+    protected ?string $customForgotPasswordPath = null;
+
+    protected ?string $customResetPasswordPath = null;
+
+    /** @var (Closure(Request): ?string)|string|null */
+    protected Closure|string|null $initialPath = null;
+
     /**
      * Allow-all policy classes already warned about. The manager is a singleton, so this lasts the process.
      *
@@ -178,6 +193,126 @@ class LatheManager
     public function check(Request $request): bool
     {
         return $this->container->make(PanelGate::class)->check($request);
+    }
+
+    /**
+     * Serve the panel's own login and logout routes (the default).
+     */
+    public function withAuthenticationRoutes(): static
+    {
+        $this->authenticationRoutes = true;
+        $this->customLoginPath = $this->customLogoutPath = null;
+
+        return $this;
+    }
+
+    /**
+     * Leave sign-in to the host: the panel sends visitors to these paths instead.
+     */
+    public function withoutAuthenticationRoutes(?string $login = null, ?string $logout = null): static
+    {
+        $this->authenticationRoutes = false;
+        $this->customLoginPath = $login;
+        $this->customLogoutPath = $logout;
+
+        return $this;
+    }
+
+    /**
+     * Serve the forgot-password and reset-password screens (off by default).
+     */
+    public function withPasswordResetRoutes(): static
+    {
+        $this->passwordResetRoutes = true;
+        $this->customForgotPasswordPath = $this->customResetPasswordPath = null;
+
+        return $this;
+    }
+
+    /**
+     * No reset screens in the panel; the login page links to the host's paths when given.
+     */
+    public function withoutPasswordResetRoutes(?string $forgot = null, ?string $reset = null): static
+    {
+        $this->passwordResetRoutes = false;
+        $this->customForgotPasswordPath = $forgot;
+        $this->customResetPasswordPath = $reset;
+
+        return $this;
+    }
+
+    public function hasAuthenticationRoutes(): bool
+    {
+        return $this->authenticationRoutes;
+    }
+
+    public function hasPasswordResetRoutes(): bool
+    {
+        return $this->passwordResetRoutes;
+    }
+
+    public function customLoginPath(): ?string
+    {
+        return $this->customLoginPath;
+    }
+
+    public function customLogoutPath(): ?string
+    {
+        return $this->customLogoutPath;
+    }
+
+    public function customForgotPasswordPath(): ?string
+    {
+        return $this->customForgotPasswordPath;
+    }
+
+    public function customResetPasswordPath(): ?string
+    {
+        return $this->customResetPasswordPath;
+    }
+
+    /**
+     * Where a sign-in with no intended URL lands: a path, or fn (Request) returning one.
+     *
+     * @param  (Closure(Request): ?string)|string|null  $path
+     */
+    public function initialPath(Closure|string|null $path): static
+    {
+        $this->initialPath = $path;
+
+        return $this;
+    }
+
+    /**
+     * The initial path for this request, else the panel root.
+     */
+    public function resolveInitialPath(Request $request): string
+    {
+        $path = $this->initialPath instanceof Closure ? ($this->initialPath)($request) : $this->initialPath;
+
+        return is_string($path) && $path !== '' ? $path : '/'.trim($this->path(), '/');
+    }
+
+    public function initialPathUrl(Request $request): string
+    {
+        return url($this->resolveInitialPath($request));
+    }
+
+    /**
+     * The sign-in paths the client uses: the panel's own routes, else the host's paths.
+     *
+     * @return array{login: string|null, logout: string|null, forgotPassword: string|null, resetPassword: string|null}
+     */
+    public function authPaths(): array
+    {
+        $base = '/'.trim($this->path(), '/');
+
+        return [
+            'login' => $this->authenticationRoutes ? $base.'/login' : $this->customLoginPath,
+            'logout' => $this->authenticationRoutes ? $base.'/logout' : $this->customLogoutPath,
+            'forgotPassword' => $this->passwordResetRoutes ? $base.'/forgot-password' : $this->customForgotPasswordPath,
+            'resetPassword' => $this->passwordResetRoutes ? $base.'/reset-password' : $this->customResetPasswordPath,
+        ];
     }
 
     /**

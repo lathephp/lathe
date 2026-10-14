@@ -32,7 +32,7 @@ class Authenticate
             return response()->json(['message' => Lathe::__('Unauthenticated.')], 401);
         }
 
-        return redirect()->guest(route('lathe.login'));
+        return redirect()->guest(Lathe::authPaths()['login'] ?? '/login');
     }
 
     /**

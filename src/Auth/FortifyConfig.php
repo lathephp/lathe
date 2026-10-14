@@ -3,8 +3,10 @@
 namespace Lathe\Auth;
 
 use Closure;
+use Illuminate\Container\Container;
 use Illuminate\Contracts\Config\Repository;
 use Illuminate\Support\Str;
+use Lathe\Lathe;
 use Lathe\Support\ConfigStore;
 
 /**
@@ -95,8 +97,8 @@ class FortifyConfig
             // With no named limiter, Fortify's login pipeline throttles: 5 tries a minute per username and IP.
             'fortify.limiters.login' => null,
             'fortify.pipelines.login' => null,
-            'fortify.redirects.login' => $this->lathe->string('path'),
-            'fortify.redirects.logout' => route('lathe.login', absolute: false),
+            'fortify.redirects.login' => Lathe::resolveInitialPath(Container::getInstance()->make('request')),
+            'fortify.redirects.logout' => Lathe::authPaths()['login'] ?? '/',
         ]);
 
         try {

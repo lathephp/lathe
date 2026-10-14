@@ -10,7 +10,7 @@ const AppearanceSwitcher = lazy(() => import('./AppearanceSwitcher').then((modul
 interface UserMenuProps {
   user: { name: string; email: string };
   items: NavigationItem[];
-  basePath: string;
+  logoutPath: string;
   collapsed: boolean;
 }
 
@@ -26,7 +26,7 @@ function initials(name: string): string {
 }
 
 /** The signed-in user at the foot of the sidebar, with the Log out entry. */
-export function UserMenu({ user, items, basePath, collapsed }: UserMenuProps) {
+export function UserMenu({ user, items, logoutPath, collapsed }: UserMenuProps) {
   const { __ } = useTranslation();
   const [open, setOpen] = useState(false);
 
@@ -65,7 +65,7 @@ export function UserMenu({ user, items, basePath, collapsed }: UserMenuProps) {
             role="menuitem"
             className={cn('w-full', rowClass)}
             onClick={() => {
-              router.post(`${basePath}/logout`);
+              router.post(logoutPath);
             }}
           >
             <LogOut aria-hidden="true" className="size-4" />

@@ -47,7 +47,7 @@ export default function ErrorPage({ status, message, shell }: ErrorProps) {
           <Button
             variant="outline"
             onClick={() => {
-              router.post(`${basePath}/logout`);
+              router.post(shared.authPaths?.logout ?? `${basePath}/logout`);
             }}
           >
             {__('Sign out')}

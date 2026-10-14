@@ -54,6 +54,7 @@ use Lathe\Http\Middleware\Authenticate;
 use Lathe\Http\Middleware\AuthorizePlugin;
 use Lathe\Http\Middleware\EnsureJson;
 use Lathe\Http\Middleware\HandleInertiaRequests;
+use Lathe\Lathe;
 use Lathe\Plugins\PluginRegistry;
 use Lathe\Support\ConfigStore;
 
@@ -83,10 +84,12 @@ class PanelRoutes
         $this->group()->middleware('lathe')->name('lathe.')->group(function (Router $router) {
             $guest = 'lathe.guest:'.$this->fortify->guard();
 
-            $router->get('login', LoginPageController::class)->middleware($guest)->name('login');
-            $router->post('login', [AuthenticatedSessionController::class, 'store'])->middleware($guest)->name('login.store');
-            // POST only: a GET would let any image tag sign the user out.
-            $router->post('logout', [AuthenticatedSessionController::class, 'destroy'])->middleware(Authenticate::class)->name('logout');
+            if (Lathe::hasAuthenticationRoutes()) {
+                $router->get('login', LoginPageController::class)->middleware($guest)->name('login');
+                $router->post('login', [AuthenticatedSessionController::class, 'store'])->middleware($guest)->name('login.store');
+                // POST only: a GET would let any image tag sign the user out.
+                $router->post('logout', [AuthenticatedSessionController::class, 'destroy'])->middleware(Authenticate::class)->name('logout');
+            }
         });
 
         $this->group()->middleware('lathe.api')->group(function (Router $router) {
