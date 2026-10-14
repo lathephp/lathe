@@ -128,7 +128,7 @@ export function NavSection({ block, context }: { block: NavBlock; context: NavCo
               onClick={() => {
                 setOpen(!open);
               }}
-              className="ms-auto rounded-sm px-1 transition-transform aria-expanded:rotate-90"
+              className="ms-auto rounded-sm px-1 transition-transform aria-expanded:rotate-90 rtl:not-aria-expanded:rotate-180"
             >
               ›
             </button>

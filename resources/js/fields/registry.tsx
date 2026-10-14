@@ -1,4 +1,4 @@
-import { createElement, type ComponentType } from 'react';
+import { createElement, type ComponentType, type ReactElement } from 'react';
 import type { Cell, DetailFieldData, FieldSchema, FormFieldData } from './types';
 
 export interface IndexFieldProps {
@@ -87,12 +87,19 @@ export function FormFallbackField({ field, value, onChange, id, describedBy, inv
   );
 }
 
+// Emails, numbers and code read left to right even inside a right-to-left panel.
+const leftToRight = new Set(['email-field', 'number-field', 'currency-field', 'id-field', 'code-field']);
+
+function keepLeftToRight(component: string, node: ReactElement): ReactElement {
+  return leftToRight.has(component) ? <span dir="ltr">{node}</span> : node;
+}
+
 export function IndexField(props: IndexFieldProps) {
-  return createElement(registries.index.get(props.field.component) ?? FallbackField, props);
+  return keepLeftToRight(props.field.component, createElement(registries.index.get(props.field.component) ?? FallbackField, props));
 }
 
 export function DetailField(props: DetailFieldProps) {
-  return createElement(registries.detail.get(props.field.component) ?? DetailFallbackField, props);
+  return keepLeftToRight(props.field.component, createElement(registries.detail.get(props.field.component) ?? DetailFallbackField, props));
 }
 
 export function FormField(props: FormFieldProps) {

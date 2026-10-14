@@ -9,6 +9,7 @@ import { RunToastsHost } from './actions/RunToastsHost';
 import { Toaster } from './components/Toaster';
 import { panelLayout } from './layout/panelLayout';
 import { assetHashFromUrl, markBuildStale, setEntryHash } from './lib/assets';
+import { DirectionProvider } from './lib/direction';
 import { pageTitle } from './lib/title';
 import { showFlash } from './lib/visits';
 import type { SharedProps } from './types';
@@ -64,10 +65,12 @@ void createInertiaApp({
 
     createRoot(el).render(
       <QueryClientProvider client={queryClient}>
-        <App {...props} />
-        <Toaster />
-        <RunToastsHost />
-        <StaleAssetScreen />
+        <DirectionProvider direction={props.initialPage.props.rtl === true ? 'rtl' : 'ltr'}>
+          <App {...props} />
+          <Toaster />
+          <RunToastsHost />
+          <StaleAssetScreen />
+        </DirectionProvider>
       </QueryClientProvider>,
     );
   },

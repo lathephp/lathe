@@ -107,7 +107,7 @@ export function AppLayout({ children }: { children: ReactNode }) {
                 aria-expanded={expanded}
                 onClick={toggle}
               >
-                <PanelLeft aria-hidden="true" className="size-4" />
+                <PanelLeft aria-hidden="true" className="size-4 rtl:rotate-180" />
               </Button>
             )}
             <div className="ms-auto flex items-center gap-2">
