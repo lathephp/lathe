@@ -25,7 +25,7 @@ it('prepends to the start and adds to the end', function () {
         ->append(MenuItem::link('B', 'b'))
         ->prepend(MenuItem::link('C', 'c')));
 
-    expect(array_values(array_diff(builtLabels(), ['Heartbeat'])))->toBe(['C', 'A', 'B']);
+    expect(array_values(array_diff(builtLabels(), ['Hello Plugin', 'Heartbeat'])))->toBe(['C', 'A', 'B']);
 });
 
 it('registers the same callback through using and mainMenu', function () {
@@ -50,7 +50,7 @@ it('starts with the plugin menus and keeps the user menu apart', function () {
     Menu::userMenu(fn (Request $request, Menu $menu) => $menu->add(MenuItem::link('Profile', 'profile')));
     $request = Request::create('/');
 
-    expect(builtLabels($request))->toBe(['Heartbeat', 'Own'])
+    expect(builtLabels($request))->toBe(['Hello Plugin', 'Heartbeat', 'Own'])
         ->and(array_column(Menu::buildUserMenu($request)->jsonSerialize(), 'label'))->toBe(['Profile']);
 });
 
@@ -89,7 +89,7 @@ it('sorts ascending and keeps insertion order on ties', function (array $sorts, 
         }
     });
 
-    expect(array_values(array_diff(builtLabels(), ['Heartbeat'])))->toBe($expected);
+    expect(array_values(array_diff(builtLabels(), ['Hello Plugin', 'Heartbeat'])))->toBe($expected);
 })->with([
     'ties and defaults' => [['A' => 5, 'B' => null, 'C' => 5, 'D' => null], ['A', 'C', 'B', 'D']],
     'lower first' => [['A' => 20, 'B' => 10, 'C' => null], ['B', 'A', 'C']],
@@ -103,7 +103,7 @@ it('sorts groups and sections the same way', function () {
         MenuItem::link('I1', 'i1'),
     ));
 
-    expect(array_values(array_diff(builtLabels(), ['Heartbeat'])))->toBe(['S1', 'G2', 'G1', 'I1']);
+    expect(array_values(array_diff(builtLabels(), ['Hello Plugin', 'Heartbeat'])))->toBe(['S1', 'G2', 'G1', 'I1']);
 });
 
 it('sorts the items inside a section and a group', function () {
@@ -126,7 +126,7 @@ it('hides what canSee refuses', function () {
     ));
     $json = array_column(Menu::build(Request::create('/'))->jsonSerialize(), null, 'label');
 
-    expect(array_keys($json))->toBe(['Heartbeat', 'Shown'])
+    expect(array_keys($json))->toBe(['Hello Plugin', 'Heartbeat', 'Shown'])
         ->and(array_column($json['Shown']['items'], 'label'))->toBe(['Inner']);
 });
 
@@ -139,7 +139,7 @@ it('hides what a denied ability refuses', function () {
         MenuItem::link('Open', 'b'),
     ));
 
-    expect(builtLabels())->toBe(['Heartbeat', 'Open']);
+    expect(builtLabels())->toBe(['Hello Plugin', 'Heartbeat', 'Open']);
 });
 
 it('builds groups with their display options', function () {
