@@ -1,8 +1,7 @@
-import { Link } from '@inertiajs/react';
 import { useTranslation } from '@lathephp/core';
-import { NavIcon } from '../components/NavIcon';
 import { cn } from '../lib/cn';
 import type { SharedProps } from '../types';
+import { NavSection, type NavBadge, type NavBlock } from './NavSection';
 import { UserMenu } from './UserMenu';
 
 interface SidebarProps {
@@ -12,19 +11,14 @@ interface SidebarProps {
   mobileOpen: boolean;
 }
 
-/** The dashboard link is active on its own path only; any other link also on the paths below it. */
-function isActive(href: string, url: string, basePath: string): boolean {
-  const path = url.split(/[?#]/)[0] ?? url;
-
-  return href === basePath ? path === href : path === href || path.startsWith(`${href}/`);
-}
-
 export function Sidebar({ props, url, expanded, mobileOpen }: SidebarProps) {
   const { __ } = useTranslation();
   const { appName, versionLabel, navigation, basePath, layout, auth } = props;
   const collapsed = !expanded;
   // Labels hide from the rail but stay for screen readers and the mobile sheet.
   const railHidden = collapsed && 'md:sr-only';
+  const sections: NavBlock[] = navigation;
+  const context = { url, basePath, collapsed, badges: (props.navigationBadges ?? {}) as Record<string, NavBadge> };
 
   return (
     <aside
@@ -52,29 +46,13 @@ export function Sidebar({ props, url, expanded, mobileOpen }: SidebarProps) {
           {versionLabel !== null && <p className="truncate text-xs text-muted-foreground">{versionLabel}</p>}
         </div>
       </div>
+      <div data-lathe-hook="sidebar:before" />
       <nav aria-label={__('Main')} className="flex-1 overflow-y-auto p-2">
-        {navigation.map((section, index) => (
-          <div key={section.label ?? index} className="mb-4">
-            {section.label !== null && (
-              <h2 className={cn('px-2 pb-1 text-xs font-medium text-muted-foreground', railHidden)}>{section.label}</h2>
-            )}
-            <ul className="space-y-0.5">
-              {section.items.map((item) => (
-                <li key={item.href}>
-                  <Link
-                    href={item.href}
-                    aria-current={isActive(item.href, url, basePath) ? 'page' : undefined}
-                    className="flex h-8 items-center gap-2 rounded-md px-2 text-sm outline-none hover:bg-background focus-visible:ring-2 focus-visible:ring-ring aria-[current=page]:bg-background aria-[current=page]:font-medium"
-                  >
-                    <NavIcon name={item.icon} />
-                    <span className={cn('truncate', railHidden)}>{item.label}</span>
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
+        {sections.map((section, index) => (
+          <NavSection key={section.label ?? index} block={section} context={context} />
         ))}
       </nav>
+      <div data-lathe-hook="sidebar:after" />
       {auth.user !== null && <UserMenu user={auth.user} basePath={basePath} collapsed={collapsed} />}
     </aside>
   );
