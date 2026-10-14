@@ -29,6 +29,7 @@ use Lathe\Http\Middleware\RedirectIfAuthenticated;
 use Lathe\Http\Middleware\ServeLathe;
 use Lathe\Http\Middleware\ServePlugins;
 use Lathe\Http\PanelRoutes;
+use Lathe\Notifications\NotificationChannelRegistry;
 use Lathe\Plugins\PluginDiscovery;
 use Lathe\Plugins\PluginRegistry;
 use Lathe\Resources\ResourceRegistry;
@@ -52,6 +53,7 @@ class LatheServiceProvider extends ServiceProvider
         $this->app->singleton(AssetManifest::class);
         $this->app->singleton(AssetRegistry::class);
         $this->app->singleton(FortifyConfig::class);
+        $this->app->singleton(NotificationChannelRegistry::class, fn ($app) => new NotificationChannelRegistry(fn () => $app->isBooted()));
 
         // Lathe registers login and logout under its own path. Fortify's routes at the host root
         // stay off, unless the host published config/fortify.php and so uses Fortify itself.

@@ -14,6 +14,7 @@ use Lathe\Field\Field;
 use Lathe\Field\FieldContext;
 use Lathe\Field\GravatarField;
 use Lathe\Http\Requests\LatheRequest;
+use Lathe\Notifications\NotificationChannelRegistry;
 use Lathe\Plugins\Plugin;
 use Lathe\Plugins\PluginRegistry;
 use Lathe\Resources\ResourceRegistry;
@@ -320,6 +321,14 @@ class LatheManager
         return InstalledVersions::isInstalled('lathe/lathe')
             ? (InstalledVersions::getPrettyVersion('lathe/lathe') ?? 'dev')
             : 'dev';
+    }
+
+    /**
+     * Sends every LatheNotification through these channels too. Call it in a service provider's boot().
+     */
+    public function notificationChannels(string ...$channels): void
+    {
+        $this->container->make(NotificationChannelRegistry::class)->add(...$channels);
     }
 
     public function path(): string

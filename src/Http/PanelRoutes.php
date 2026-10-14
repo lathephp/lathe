@@ -208,7 +208,15 @@ class PanelRoutes
 
     protected function notificationRoutes(Router $router): void
     {
-        //
+        $controller = 'Lathe\Http\Controllers\NotificationController';
+
+        $router->get('notifications', [$controller, 'index'])->name('notifications.index');
+        $router->get('notifications/count', [$controller, 'count'])->name('notifications.count');
+        $router->post('notifications/mark-all-read', [$controller, 'markAllRead'])->name('notifications.markAllRead');
+        $router->put('notifications/{id}', [$controller, 'read'])->name('notifications.read');
+        $router->post('notifications/{id}/unread', [$controller, 'unread'])->name('notifications.unread');
+        $router->delete('notifications/{id}', [$controller, 'destroy'])->name('notifications.destroy');
+        $router->delete('notifications', [$controller, 'destroyAll'])->name('notifications.destroyAll');
     }
 
     /**
