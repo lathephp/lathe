@@ -24,6 +24,13 @@ export interface RequestOptions {
   toastOnError?: boolean;
 }
 
+let passwordConfirmer: (() => Promise<boolean>) | undefined;
+
+/** The panel's password dialog: resolves true once the password is confirmed, false when cancelled. */
+export function setPasswordConfirmer(confirmer: (() => Promise<boolean>) | undefined): void {
+  passwordConfirmer = confirmer;
+}
+
 function xsrfToken(): string | null {
   if (typeof document === 'undefined') {
     return null;
@@ -64,18 +71,21 @@ export async function request<T = unknown>(input: string, options: RequestOption
     body = JSON.stringify(options.body);
   }
 
-  let response: Response;
-
-  try {
-    response = await fetch(input, {
+  const send = () =>
+    fetch(input, {
       method: options.method ?? 'GET',
       headers,
       body,
       credentials: 'same-origin',
       signal: options.signal,
+    }).catch((error: unknown) => {
+      throw new ApiError(0, null, error instanceof Error ? error.message : 'Network error');
     });
-  } catch (error) {
-    throw new ApiError(0, null, error instanceof Error ? error.message : 'Network error');
+  let response = await send();
+
+  // 423: the server wants a recent password confirmation. Once confirmed, the request goes again, once.
+  if (response.status === 423 && (await passwordConfirmer?.())) {
+    response = await send();
   }
 
   if (response.status === 204) {

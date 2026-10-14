@@ -16,6 +16,7 @@ import { navigating } from './data';
 import { RenderHook } from './render-hooks';
 import { Slot } from './slots';
 import { dismissToast, toasts } from './toast';
+import { setPasswordConfirmer } from './http';
 import { loadModules } from './loader';
 import { shortcutPauseCount } from './shortcuts';
 import { setTranslator, translatorFor } from './translation';
@@ -130,6 +131,7 @@ export const __panel = {
   renderHooks,
   resourcePluginComponent,
   setRouter,
+  setPasswordConfirmer,
   setTranslator,
   sharedProps,
   shortcutPauseCount,
