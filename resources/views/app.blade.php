@@ -6,6 +6,7 @@
         <meta name="csrf-token" content="{{ csrf_token() }}">
         <title>{{ config('lathe.name') }}</title>
         @latheStyles
+        @latheFontLink
     </head>
     <body class="style-{{ config('lathe.theme.style') ?: 'nova' }}">
         {{-- Inertia's page data, written here so it carries the CSP nonce like every other tag. --}}

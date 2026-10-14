@@ -45,6 +45,60 @@ class RootTags
         return implode("\n", $tags);
     }
 
+    /**
+     * The font preload, and the rules for a font the host configures. The bundled font needs no rule here,
+     * the stylesheet declares it. A family set without files is a system stack, so it gets no preload.
+     */
+    public function fontLink(): string
+    {
+        $font = $this->config->get('theme.font');
+
+        if (! is_array($font)) {
+            $url = $this->assets->fontUrl($this->prefix());
+
+            return $url === null ? '' : $this->preload($url);
+        }
+
+        $family = $this->cssText($font['family'] ?? '');
+        $fallback = $this->cssText($font['fallback'] ?? '') ?: 'sans-serif';
+        $files = array_values(array_filter(is_array($font['files'] ?? null) ? $font['files'] : [], fn (mixed $file) => is_array($file) && is_string($file['url'] ?? null)));
+        $css = '';
+
+        foreach ($files as $file) {
+            $css .= '@font-face{font-family:"'.$family.'";font-style:'.$this->cssToken($file['style'] ?? null, 'normal')
+                .';font-weight:'.$this->cssToken($file['weight'] ?? null, '400').';font-display:swap;src:url("'.$this->cssText($file['url']).'") format("woff2")}';
+        }
+
+        // A name with a space or a symbol needs quotes, a keyword such as system-ui must not have them.
+        $stack = preg_match('/^[A-Za-z0-9_-]+$/', $family) === 1 ? $family : '"'.$family.'"';
+        $css .= ":root{--font-sans:{$stack}, {$fallback}}";
+
+        return implode("\n", [
+            ...($files === [] ? [] : [$this->preload($this->cssText($files[0]['url']))]),
+            '<style'.$this->nonce().'>'.$css.'</style>',
+        ]);
+    }
+
+    protected function preload(string $url): string
+    {
+        return '<link rel="preload" as="font" type="font/woff2" href="'.e($url).'" crossorigin'.$this->nonce().'>';
+    }
+
+    /**
+     * A config string safe to write inside a CSS rule: no character that ends a string, a rule or the style tag.
+     */
+    protected function cssText(mixed $value): string
+    {
+        return is_string($value) ? trim(preg_replace('/[\x00-\x1f"\'\\\\{};<>]/', '', $value) ?? '') : '';
+    }
+
+    protected function cssToken(mixed $value, string $default): string
+    {
+        $token = is_int($value) || is_string($value) ? trim((string) $value) : '';
+
+        return preg_match('/^[A-Za-z0-9 .]+$/', $token) === 1 ? $token : $default;
+    }
+
     public function scripts(): string
     {
         $tags = ['<script type="importmap"'.$this->nonce().'>'.json_encode(['imports' => $this->assets->importMap($this->prefix())], JSON_UNESCAPED_SLASHES).'</script>'];

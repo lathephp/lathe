@@ -11,6 +11,19 @@
 @source "../../packages/core/src";
 @source "../../packages/ui/src";
 
+/* Inter Variable, latin subset, served from the panel's own assets. theme.font replaces --font-sans. */
+@font-face {
+  font-family: "Inter Variable";
+  font-style: normal;
+  font-display: swap;
+  font-weight: 100 900;
+  src: url("../fonts/inter-latin-wght-normal.woff2") format("woff2-variations");
+}
+
+@theme {
+  --font-sans: "Inter Variable", ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+}
+
 /* dark: utilities follow the dark class on <html>. The styles use not-dark:,
    which Tailwind can only build from a single selector, so no media query here. */
 @custom-variant dark (&:where(.dark, .dark *));

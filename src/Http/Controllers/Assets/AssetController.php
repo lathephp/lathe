@@ -25,7 +25,11 @@ class AssetController
         }
 
         return new BinaryFileResponse($path, 200, [
-            'Content-Type' => str_ends_with($path, '.css') ? 'text/css; charset=utf-8' : 'text/javascript; charset=utf-8',
+            'Content-Type' => match (true) {
+                str_ends_with($path, '.css') => 'text/css; charset=utf-8',
+                str_ends_with($path, '.woff2') => 'font/woff2',
+                default => 'text/javascript; charset=utf-8',
+            },
             'Cache-Control' => 'public, max-age=31536000, immutable',
             'ETag' => $etag,
         ]);

@@ -585,6 +585,7 @@ Lathe\Assets\AssetManifest::SPECIFIERS
 Lathe\Assets\AssetManifest::distPath(): string
 Lathe\Assets\AssetManifest::entryUrl(string $prefix): ?string
 Lathe\Assets\AssetManifest::file(string $hash, string $name): ?string
+Lathe\Assets\AssetManifest::fontUrl(string $prefix): ?string
 Lathe\Assets\AssetManifest::hash(): string
 Lathe\Assets\AssetManifest::importMap(string $prefix): array
 Lathe\Assets\AssetManifest::listedFiles(): array  [protected]
@@ -630,8 +631,12 @@ Lathe\Assets\RootTags::Lathe\Support\ConfigStore $config  [protected]
 Lathe\Assets\RootTags::Lathe\Theme\ThemeStyleGenerator $theme  [protected]
 Lathe\Assets\RootTags::__construct(Lathe\Assets\AssetManifest $assets, Lathe\Assets\AssetRegistry $registry, Lathe\Plugins\PluginRegistry $plugins, Lathe\Support\ConfigStore $config, Lathe\Theme\ThemeStyleGenerator $theme)
 Lathe\Assets\RootTags::appearanceScript(): string  [protected]
+Lathe\Assets\RootTags::cssText(mixed $value): string  [protected]
+Lathe\Assets\RootTags::cssToken(mixed $value, string $default): string  [protected]
+Lathe\Assets\RootTags::fontLink(): string
 Lathe\Assets\RootTags::nonce(): string  [protected]
 Lathe\Assets\RootTags::prefix(): string  [protected]
+Lathe\Assets\RootTags::preload(string $url): string  [protected]
 Lathe\Assets\RootTags::scripts(): string
 Lathe\Assets\RootTags::styles(): string
 Lathe\Attributes\Action\ActionAttribute::apply(Lathe\Actions\Action $action): void
@@ -961,6 +966,7 @@ Lathe\Doctor\Doctor::Lathe\Plugins\PluginRegistry $plugins  [protected]
 Lathe\Doctor\Doctor::Lathe\Resources\ResourceRegistry $resources  [protected]
 Lathe\Doctor\Doctor::Lathe\Support\ConfigStore $config  [protected]
 Lathe\Doctor\Doctor::Lathe\Support\ConfigValidator $validator  [protected]
+Lathe\Doctor\Doctor::SYSTEM_FONTS
 Lathe\Doctor\Doctor::TABLES
 Lathe\Doctor\Doctor::__construct(Illuminate\Contracts\Foundation\Application $app, Lathe\Support\ConfigStore $config, Lathe\Support\ConfigValidator $validator, Lathe\Resources\ResourceRegistry $resources, Lathe\Plugins\PluginRegistry $plugins, Illuminate\Contracts\Auth\Access\Gate $gate)
 Lathe\Doctor\Doctor::actionChecks(string $class): array  [protected]

@@ -110,6 +110,16 @@ class AssetManifest
         return $file === null ? null : $this->url($prefix, $file);
     }
 
+    /**
+     * The bundled Inter Variable file, which the build hashes like any other asset.
+     */
+    public function fontUrl(string $prefix): ?string
+    {
+        $file = $this->manifest()['resources/fonts/inter-latin-wght-normal.woff2']['file'] ?? null;
+
+        return $file === null ? null : $this->url($prefix, $file);
+    }
+
     protected function url(string $prefix, string $file): string
     {
         return rtrim($prefix, '/').'/assets/'.$this->hash().'/'.basename($file);

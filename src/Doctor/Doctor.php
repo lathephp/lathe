@@ -47,6 +47,12 @@ class Doctor
      */
     public const int LARGE_TABLE_ROWS = 100_000;
 
+    /** @var list<string> Families a browser has without a download. */
+    protected const array SYSTEM_FONTS = [
+        'system-ui', 'ui-sans-serif', 'ui-serif', 'ui-monospace', 'ui-rounded', 'sans-serif', 'serif', 'monospace',
+        '-apple-system', 'blinkmacsystemfont', 'segoe ui', 'roboto', 'helvetica neue', 'helvetica', 'arial',
+    ];
+
     public function __construct(
         protected Application $app,
         protected ConfigStore $config,
@@ -121,6 +127,13 @@ class Doctor
             if (Color::tryFrom((string) $token) === null) {
                 $results[] = CheckResult::fail("config/lathe.php: theme.colors.{$token} is not a colour token. Remove it or use a token such as primary.");
             }
+        }
+
+        $font = $this->config->get('theme.font');
+        $family = is_array($font) && is_string($font['family'] ?? null) ? $font['family'] : '';
+
+        if ($family !== '' && empty($font['files']) && ! in_array(strtolower($family), self::SYSTEM_FONTS, true)) {
+            $results[] = CheckResult::warn("config/lathe.php: theme.font.family \"{$family}\" is not a system font and has no files. Add woff2 files to theme.font.files or use a system stack such as system-ui.");
         }
 
         foreach ($this->validator->unknownKeys($this->config->all()) as $key) {

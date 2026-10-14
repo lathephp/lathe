@@ -105,6 +105,7 @@ class LatheServiceProvider extends ServiceProvider
 
         $this->loadViewsFrom(__DIR__.'/../resources/views', 'lathe');
         Blade::directive('latheStyles', fn () => '<?php echo app('.RootTags::class.'::class)->styles(); ?>');
+        Blade::directive('latheFontLink', fn () => '<?php echo app('.RootTags::class.'::class)->fontLink(); ?>');
         Blade::directive('latheScripts', fn () => '<?php echo app('.RootTags::class.'::class)->scripts(); ?>');
         $this->loadMigrationsFrom(__DIR__.'/../database/migrations');
         $this->registerMiddleware();
