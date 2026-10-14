@@ -90,9 +90,12 @@ start_worker() {
 step "install PHP 8.4, zstd and the tools"
 apt-get update -qq
 apt-get install -y -qq --no-install-recommends ca-certificates curl gnupg unzip xz-utils zstd openssl libaio1t64 libnuma1 libncurses6 >/dev/null
+
+# Every download gives up instead of hanging: caddyserver.com builds Caddy on request and can stall.
+fetch() { curl -fsSL --connect-timeout 20 --max-time 3600 --retry 3 --retry-delay 5 "$@"; }
 if [[ ! -f /etc/apt/sources.list.d/ondrej-php.list ]]; then
     # Ubuntu 24.04 ships PHP 8.3; Lathe needs 8.4, which the ondrej/php archive builds for amd64 and arm64.
-    curl -fsSL 'https://keyserver.ubuntu.com/pks/lookup?op=get&search=0x14AA40EC0831756756D7F66C4F4EA0AAE5267A6C' \
+    fetch 'https://keyserver.ubuntu.com/pks/lookup?op=get&search=0x14AA40EC0831756756D7F66C4F4EA0AAE5267A6C' \
         | gpg --dearmor --yes -o /usr/share/keyrings/ondrej-php.gpg
     echo "deb [signed-by=/usr/share/keyrings/ondrej-php.gpg] https://ppa.launchpadcontent.net/ondrej/php/ubuntu noble main" \
         >/etc/apt/sources.list.d/ondrej-php.list
@@ -104,8 +107,8 @@ php -r 'echo "PHP ", PHP_VERSION, PHP_EOL;'
 
 if ! command -v composer >/dev/null; then
     step "install Composer"
-    curl -fsSL https://getcomposer.org/installer -o "$cache/composer-setup.php"
-    [[ $(curl -fsSL https://composer.github.io/installer.sig) == "$(php -r "echo hash_file('sha384', '$cache/composer-setup.php');")" ]] \
+    fetch https://getcomposer.org/installer -o "$cache/composer-setup.php"
+    [[ $(fetch https://composer.github.io/installer.sig) == "$(php -r "echo hash_file('sha384', '$cache/composer-setup.php');")" ]] \
         || fail "the Composer installer does not match its published checksum"
     php "$cache/composer-setup.php" --quiet --install-dir=/usr/local/bin --filename=composer
     rm "$cache/composer-setup.php"
@@ -117,7 +120,7 @@ if ! /usr/local/bin/caddy list-modules 2>/dev/null | grep -x http.handlers.rate_
     step "install Caddy with github.com/mholt/caddy-ratelimit"
     # caddyserver.com builds Caddy with the listed plugins on request; stock Caddy has no rate limiter.
     if [[ ! -s $cache/caddy-$arch ]]; then
-        curl -fsSL -o "$cache/caddy-$arch.partial" "https://caddyserver.com/api/download?os=linux&arch=$arch&p=github.com%2Fmholt%2Fcaddy-ratelimit"
+        fetch -o "$cache/caddy-$arch.partial" "https://caddyserver.com/api/download?os=linux&arch=$arch&p=github.com%2Fmholt%2Fcaddy-ratelimit"
         mv "$cache/caddy-$arch.partial" "$cache/caddy-$arch"
     fi
     install -m 0755 "$cache/caddy-$arch" /usr/local/bin/caddy
@@ -130,8 +133,8 @@ if [[ ! -x /opt/$name/bin/mysqld ]]; then
     step "install MySQL $mysql_version"
     # MySQL's APT repository has no arm64 build for Ubuntu 24.04, so every server takes the generic build.
     if [[ ! -s $cache/$name.tar.xz ]]; then
-        curl -fsSL -o "$cache/$name.tar.xz.partial" "https://cdn.mysql.com/Downloads/MySQL-8.4/$name.tar.xz" \
-            || curl -fsSL -o "$cache/$name.tar.xz.partial" "https://downloads.mysql.com/archives/get/p/23/file/$name.tar.xz"
+        fetch -o "$cache/$name.tar.xz.partial" "https://cdn.mysql.com/Downloads/MySQL-8.4/$name.tar.xz" \
+            || fetch -o "$cache/$name.tar.xz.partial" "https://downloads.mysql.com/archives/get/p/23/file/$name.tar.xz"
         mv "$cache/$name.tar.xz.partial" "$cache/$name.tar.xz"
     fi
     tar -xJf "$cache/$name.tar.xz" -C /opt --exclude="$name/bin/mysqld-debug" --exclude="$name/lib/plugin/debug" \
