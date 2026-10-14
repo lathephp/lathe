@@ -130,7 +130,7 @@ export function ImportModal({ base, action, selection, onClose }: ImportModalPro
 
   function follow(id: number) {
     poll.current = setTimeout(() => {
-      request<ImportStatus>(`${apiPath}/imports/${String(id)}`)
+      request<ImportStatus>(`${apiPath}/imports/${String(id)}`, { toastOnError: false })
         .then((status) => {
           if (status !== null && (status.status === 'completed' || status.status === 'failed')) {
             setBusy(false);

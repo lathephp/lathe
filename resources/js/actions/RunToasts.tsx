@@ -70,7 +70,7 @@ export function RunToasts() {
       for (const key of active.split(',')) {
         const [kind, id] = key.split(':') as [Run['kind'], string];
 
-        request<Status>(`${apiPath}/${paths[kind]}/${id}`)
+        request<Status>(`${apiPath}/${paths[kind]}/${id}`, { toastOnError: false })
           .then((status) => {
             setStatuses((current) => ({ ...current, [key]: status }));
           })

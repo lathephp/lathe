@@ -30,7 +30,7 @@ export default function Show({ type, id }: RunPageProps) {
     let live = true;
 
     function load() {
-      request<Status>(url)
+      request<Status>(url, { toastOnError: false })
         .then((next) => {
           if (live) {
             setStatus(next);

@@ -145,6 +145,15 @@ describe('polling', () => {
     ]);
   });
 
+  it('shows no toast when a count poll fails with a server error', async () => {
+    vi.mocked(fetch).mockImplementation(() => reply({ message: 'Server Error' }, 500));
+    mount();
+    await settle();
+    await tick(7);
+
+    expect(screen.queryByRole('button', { name: 'Retry' })).toBeNull();
+  });
+
   it('does not poll while the tab is hidden', async () => {
     const state = vi.spyOn(document, 'visibilityState', 'get').mockReturnValue('hidden');
     mount();

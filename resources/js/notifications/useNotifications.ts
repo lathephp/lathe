@@ -44,7 +44,7 @@ export function useNotifications(basePath: string, pollingInterval: number, open
   }, [open]);
 
   const load = useCallback(async (): Promise<NotificationData[]> => {
-    const data = await request<ListResponse>(url);
+    const data = await request<ListResponse>(url, { toastOnError: false });
 
     if (data === null) {
       return [];
@@ -65,7 +65,7 @@ export function useNotifications(basePath: string, pollingInterval: number, open
     polling.current = true;
 
     try {
-      const data = await request<{ count: number }>(`${url}/count`);
+      const data = await request<{ count: number }>(`${url}/count`, { toastOnError: false });
       const count = data?.count ?? 0;
       const before = baseline.current;
 
