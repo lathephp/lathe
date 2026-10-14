@@ -168,6 +168,14 @@ Lathe\Actions\ActionCollection::counts(): array
 Lathe\Actions\ActionCollection::findByUriKey(string $uriKey): ?Lathe\Actions\Action
 Lathe\Actions\ActionCollection::forDisplay(string $display): static
 Lathe\Actions\ActionCollection::menuOrder(): static
+Lathe\Actions\ActionMenu::Lathe\Auth\ResourceAuthorization $authorization  [protected]
+Lathe\Actions\ActionMenu::Lathe\Http\Requests\LatheRequest $request  [protected]
+Lathe\Actions\ActionMenu::__construct(Lathe\Http\Requests\LatheRequest $request, Lathe\Auth\ResourceAuthorization $authorization)
+Lathe\Actions\ActionMenu::authorizedToRun(string $class, Lathe\Actions\Action $action, Illuminate\Database\Eloquent\Model $model): bool
+Lathe\Actions\ActionMenu::build(string $class, string $display, ?Illuminate\Database\Eloquent\Model $model = NULL): array
+Lathe\Actions\ActionMenu::forRows(string $class): Lathe\Actions\ActionCollection
+Lathe\Actions\ActionMenu::runnableOn(string $class, Lathe\Actions\ActionCollection $actions, Illuminate\Database\Eloquent\Model $model): array
+Lathe\Actions\ActionMenu::visible(string $class): Lathe\Actions\ActionCollection  [protected]
 Lathe\Actions\ActionMethodResolver::failedHandlerFor(Lathe\Actions\Action $action, string $modelClass): ?string  [static]
 Lathe\Actions\ActionMethodResolver::firstDefined(Lathe\Actions\Action $action, string $prefix, string $modelClass): ?string  [protected static]
 Lathe\Actions\ActionMethodResolver::handlerFor(Lathe\Actions\Action $action, string $modelClass): string  [static]
@@ -1824,6 +1832,8 @@ Lathe\Http\Controllers\PageFallbackController::__invoke(Illuminate\Http\Request 
 Lathe\Http\Controllers\Plugins\ModuleController::__invoke(Lathe\Assets\AssetRegistry $assets, string $file, string $type = 'scripts'): Symfony\Component\HttpFoundation\BinaryFileResponse
 Lathe\Http\Controllers\Plugins\PluginApiController::__invoke(Illuminate\Http\Request $request, Lathe\Plugins\PluginRegistry $plugins, string $plugin, string $path = ''): Symfony\Component\HttpFoundation\Response
 Lathe\Http\Controllers\Plugins\PluginPageController::__invoke(Illuminate\Http\Request $request, Lathe\Plugins\PluginRegistry $plugins, string $plugin, string $path = ''): Inertia\Response
+Lathe\Http\Controllers\Resources\ActionController::form(Lathe\Http\Requests\LatheRequest $request, Lathe\Auth\ResourceAuthorization $authorization, string $resource, string $action): Illuminate\Http\JsonResponse
+Lathe\Http\Controllers\Resources\ActionController::index(Lathe\Http\Requests\LatheRequest $request, Lathe\Auth\ResourceAuthorization $authorization, Lathe\Actions\ActionMenu $menu): Illuminate\Http\JsonResponse
 Lathe\Http\Controllers\Resources\AssociatableController::create(Lathe\Http\Requests\LatheRequest $request, Lathe\Auth\ResourceAuthorization $authorization, string $resource, string $field): Illuminate\Http\JsonResponse
 Lathe\Http\Controllers\Resources\AssociatableController::options(Lathe\Http\Requests\LatheRequest $request, string $parent, Lathe\Field\Relations\RelationField $field, ?Illuminate\Database\Eloquent\Model $record = NULL): Illuminate\Http\JsonResponse  [protected]
 Lathe\Http\Controllers\Resources\AssociatableController::record(Lathe\Http\Requests\LatheRequest $request, Lathe\Auth\ResourceAuthorization $authorization, string $resource, string $resourceId, string $field): Illuminate\Http\JsonResponse
@@ -2999,6 +3009,7 @@ class Lathe\ActionEvents\ActionEventRecorder
 class Lathe\Actions\Action
 class Lathe\Actions\ActionCollection
 class Lathe\Actions\ActionFields
+class Lathe\Actions\ActionMenu
 class Lathe\Actions\ActionMethodResolver
 class Lathe\Actions\ActionResult
 class Lathe\Actions\BulkRun
@@ -3171,6 +3182,7 @@ class Lathe\Http\Controllers\PageFallbackController
 class Lathe\Http\Controllers\Plugins\ModuleController
 class Lathe\Http\Controllers\Plugins\PluginApiController
 class Lathe\Http\Controllers\Plugins\PluginPageController
+class Lathe\Http\Controllers\Resources\ActionController
 class Lathe\Http\Controllers\Resources\AssociatableController
 class Lathe\Http\Controllers\Resources\BatchDeleteController
 class Lathe\Http\Controllers\Resources\CountController
