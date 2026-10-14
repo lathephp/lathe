@@ -1,16 +1,19 @@
 # Changelog
 
-## Unreleased
+All notable changes to Lathe are listed here. The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and Lathe follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html). The Composer package `lathe/lathe` and the npm packages `@lathephp/core`, `@lathephp/ui` and `@lathephp/vite-plugin` share one version number. An entry marked `[api]` changes the public API; the [upgrade guide](docs/getting-started/upgrade.md) lists them between two releases.
 
-- [api] Accounts: `FortifyBootstrap` behind `Lathe::fortify()` with `authenticateThrough()`, `authenticateUsing()`, `confirmPasswordsUsing()`, `enabled()` and `hasSecurityFeatures()`; `Lathe::withAuthenticationRoutes()`, `withoutAuthenticationRoutes()`, `withPasswordResetRoutes()`, `withoutPasswordResetRoutes()`, `hasAuthenticationRoutes()`, `hasPasswordResetRoutes()`, the four `custom*Path()` getters, `authPaths()`, `initialPath()`, `resolveInitialPath()` and `initialPathUrl()`; `Lathe::warnAllowAll()`; `FortifyConfig::twoFactorOption()`; the Forgot password, Reset password, Verify email, Two-factor challenge, Confirm password and Security screens and their routes.
-- [api] Impersonation: the `Impersonatable` trait, the `ImpersonatesUsers` contract with `Impersonation` and `Lathe::impersonator()`, `ImpersonateController` (`POST|GET|DELETE {path}/api/impersonate`) and the `impersonate` row ability flag.
-- [api] Fields: `remoteOptions(Closure $query, string $column = 'name', ?int $inlineUpTo = null)` on select and multi-select fields, served by the associatable endpoint, with `RemoteOptions`; a remote value the source does not hold fails validation.
-- [api] Config: `lathe.fortify.features` reads `LATHE_FORTIFY_FEATURES` (a comma list), and `lathe.impersonation.started` and `stopped` read `LATHE_IMPERSONATION_STARTED` and `LATHE_IMPERSONATION_STOPPED`; `lathe.initial_path` is now the fallback of `Lathe::resolveInitialPath()`.
-- [api] Changed: `Lathe::fortify()` returns `FortifyBootstrap`, a `FortifyConfig`, so `->guard()` and the other getters keep working; `ImpersonationStarted` and `ImpersonationStopped` take a third argument, `redirectTo`; `Authenticate::handle()` takes options (`unverified` lets an unverified user through) and makes the panel guard the request's default; `AuthenticatedSessionController` lost its constructor for the `CallsFortify` trait and `LoginPageController::__invoke()` takes the request.
-- [api] Dashboards and widgets: `Dashboard` options and attributes, `DashboardRegistry`, the `Widget` base class with `CardWidth`, the widget attributes, `RoundingPrecision`, the eleven widget types (`ValueWidget`, `TrendWidget`, `ProgressWidget`, `TableWidget`, `HelpWidget`, `CustomWidget`, `BarWidget`, `PieWidget`, `PartitionWidget`, `RadarWidget`, `RadialWidget`), their result classes, `AggregateQuery`, `TrendUnit`, `PartitionColors`, `Tooltip`, `WidgetPresenter` and `WidgetCache`, and `Resource::widgets()` / `Lens::widgets()`.
-- [api] Menus and pages: `Menu`, `MenuGroup`, `Badge` and the new `MenuItem` and `MenuSection` targets; `Page` and `PageRegistry` with `Lathe::registerPages()`.
-- [api] Theming: `Color`, `ThemeStyleGenerator`, `Contrast`, `Lathe::enableRTL()` and `Lathe::isRTL()`, `theme.font` as `{family, fallback, files}`.
-- [api] Plugins: `Plugin::resources()`, `widgets()`, `middleware()`, `settings()`, `setting()`, `saveSettings()` and `handleSettingsRequest()`, `PluginSetting`, `ResourcePlugin` and `ResourcePluginRegistry`, `Lathe::script()`, `style()`, `provideToScript()`, `serving()`, `booted()`, `isServing()`, `whenServing()`, `servePlugins()` and `ensureBooted()`, remote assets.
-- [api] Commands: `lathe:resource`, `lathe:action`, `lathe:filter`, `lathe:lens`, `lathe:widget`, `lathe:field`, `lathe:dashboard`, `lathe:page`, `lathe:plugin`, `lathe:resource-plugin`, `lathe:stubs`, `lathe:plugins`, `lathe:assets`, `lathe:preset`, `lathe:user`, `lathe:uninstall` and `lathe:prune`.
-- [api] Browser: `@lathephp/core` gains `field`, `filter`, `widget`, `page`, `resourcePlugin`, `renderHook`, `registry.replace`, the data hooks, `useTheme`, the lent components, the plugin types and `@lathephp/core/testing`; `@lathephp/ui` becomes the shadcn kit on Base UI (27 components plus 22 subpaths); `@lathephp/vite-plugin` gains `mode: 'app'`.
-- [api] Changed: `MenuItem::plugin($plugin, $subPath)` takes the sub path second (the label is the plugin's name), `MenuItem::lens()` takes an optional name, `MenuSection::item()` also takes a `MenuGroup`, and `Doctor::pluginChecks()` and `pluginPackages()` are public. The plugin API controller is now `PluginController`; controller and service constructors changed with their new dependencies.
+## [Unreleased]
+
+## [1.0.0-beta.1] - Unreleased
+
+The first public release of Lathe, an admin panel builder for Laravel on Inertia, React and shadcn/ui. MIT licensed.
+
+### Added
+
+- Resources: discovery from `app/Lathe/Resources`, the index with search, filters, sorts, lenses, saved tabs, column summaries and row grouping, capped counts that stay fast on tables with millions of rows, detail and form pages, inline edits and peeks.
+- Fields: text, number, date, choice, file, image, rich text, Markdown, code and key-value fields and more, with validation, visibility rules, computed values and utility injection, relation fields with pickers, pivots and repeaters, and chunked uploads.
+- Actions: single, bulk and queued actions with progress, CSV and Excel export and import with a dry run, and an audit log of every run.
+- Dashboards: value, trend, progress, table, help, custom, bar, pie, partition, radar and radial widgets, on dashboards, Resources and lenses.
+- Customising: menus, standalone pages, plugins with settings, resource plugins, 8 theme styles with dark mode and right-to-left, keyboard shortcuts and a command palette.
+- Accounts: sign-in, password reset, email verification, two-factor authentication, password confirmation and impersonation through Laravel Fortify; policies that deny by default.
+- Tooling: `lathe:install`, `lathe:doctor`, the `lathe:*` generators, a testing kit, a Laravel Boost skill and the public API snapshot checked by `lathe:api-check`.
