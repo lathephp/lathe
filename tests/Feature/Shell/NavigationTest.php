@@ -29,10 +29,14 @@ it('lists the dashboard and the Resources', function () {
         ['label' => null, 'icon' => null, 'items' => [['label' => 'Dashboard', 'href' => '/lathe', 'icon' => 'LayoutDashboard']]],
         ['label' => 'Heartbeat', 'icon' => null, 'items' => [['label' => 'Heartbeat', 'href' => '/lathe/plugins/heartbeat', 'icon' => 'Activity']]],
         ['label' => 'Resources', 'icon' => null, 'items' => [
+            ['label' => 'Categories', 'href' => '/lathe/resources/categories', 'icon' => 'Folder'],
+            ['label' => 'Comments', 'href' => '/lathe/resources/comments', 'icon' => 'MessageSquare'],
             ['label' => 'Customers', 'href' => '/lathe/resources/customers', 'icon' => 'Users'],
+            ['label' => 'Order Items', 'href' => '/lathe/resources/order-items', 'icon' => 'Receipt'],
             ['label' => 'Orders', 'href' => '/lathe/resources/orders', 'icon' => 'ShoppingCart'],
             ['label' => 'Posts', 'href' => '/lathe/resources/posts', 'icon' => null],
             ['label' => 'Products', 'href' => '/lathe/resources/products', 'icon' => 'Package'],
+            ['label' => 'Tags', 'href' => '/lathe/resources/tags', 'icon' => 'Tag'],
             ['label' => 'Users', 'href' => '/lathe/resources/users', 'icon' => null],
         ]],
     ]);
@@ -69,7 +73,7 @@ it('builds one Resource definition for the sidebar and the Orders index among 50
     });
     $this->actingAs(User::where('email', 'admin@lathephp.com')->firstOrFail())
         ->get('/lathe/resources/orders')->assertOk()
-        ->assertInertia(fn (AssertableInertia $page) => $page->has('navigation.2.items', 5));
+        ->assertInertia(fn (AssertableInertia $page) => $page->has('navigation.2.items', 9));
 
     expect(Lathe::resources()->definitionsBuilt())->toBe(1)
         ->and(collect($queries)->filter(fn ($sql) => str_contains($sql, 'invoices'))->all())->toBe([]);

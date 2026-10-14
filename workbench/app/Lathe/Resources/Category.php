@@ -15,8 +15,7 @@ class Category extends Resource
         return $definition->model(CategoryModel::class)
             ->title('name')
             ->searchable(['name'])
-            ->icon('Folder')
-            ->allowAll();
+            ->icon('Folder');
     }
 
     public function fields(LatheRequest $request): array

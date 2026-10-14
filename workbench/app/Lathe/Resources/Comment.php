@@ -15,8 +15,7 @@ class Comment extends Resource
         return $definition->model(CommentModel::class)
             ->title('body')
             ->searchable(['body'])
-            ->icon('MessageSquare')
-            ->allowAll();
+            ->icon('MessageSquare');
     }
 
     public function fields(LatheRequest $request): array

@@ -13,7 +13,7 @@ class DemoSeedCommand extends Command
 {
     protected $signature = 'lathe:demo-seed {--orders=10000 : How many orders to seed}';
 
-    public const TABLES = ['comments', 'posts', 'order_items', 'orders', 'products', 'tags', 'categories', 'customers', 'users'];
+    public const TABLES = ['taggables', 'comments', 'posts', 'order_items', 'orders', 'products', 'tags', 'categories', 'customers', 'users'];
 
     public function handle(DemoSeeder $seeder): int
     {

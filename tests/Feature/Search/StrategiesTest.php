@@ -86,7 +86,7 @@ class StrategyPostComment extends StrategyResource
 {
     protected function configure(ResourceDefinition $definition): ResourceDefinition
     {
-        return $definition->model(Comment::class)->searchable([new SearchableMorphToRelation('commentable', 'title', types: [Post::class])])->allowAll();
+        return $definition->model(Comment::class)->canonical(false)->searchable([new SearchableMorphToRelation('commentable', 'title', types: [Post::class])])->allowAll();
     }
 }
 

@@ -108,7 +108,7 @@ it('returns the creation fields with defaults, layout and borderless', function 
 });
 
 it('refuses the creation fields without the create ability', function () {
-    $this->actingAs(User::where('email', 'admin@lathephp.com')->firstOrFail());
+    $this->actingAs(User::where('email', 'editor@lathephp.com')->firstOrFail());
 
     LatheTest::resource('orders')->creationFields()->assertForbidden();
 });

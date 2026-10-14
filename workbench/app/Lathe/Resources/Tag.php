@@ -15,8 +15,7 @@ class Tag extends Resource
         return $definition->model(TagModel::class)
             ->title('name')
             ->searchable(['name'])
-            ->icon('Tag')
-            ->allowAll();
+            ->icon('Tag');
     }
 
     public function fields(LatheRequest $request): array
