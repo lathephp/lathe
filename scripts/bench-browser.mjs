@@ -9,8 +9,10 @@
 // new rows in the DOM. 3 warm-up and 20 timed runs; the result is the 19th-ranked value.
 //
 // B6: Orders at 412 x 823 with 4x CPU slowdown, 1.6 Mbps down, 750 Kbps up and 150 ms
-// latency. Ten rounds of a Total header click, typing in the search box, opening and
-// closing Filters and ticking the first row's checkbox; INP is read with web-vitals' onINP.
+// latency. Ten rounds of six interactions: a Total header click, typing in the search box,
+// opening and closing Filters, ticking the first row's checkbox, opening the Actions menu
+// and opening the Mark Shipped modal (closed with Escape, then the row unticked); INP is
+// read with web-vitals' onINP.
 // The sign-in and the first Orders load run unthrottled.
 //
 // The browser context bypasses the panel's CSP, because the workbench sends a nonce policy
@@ -174,6 +176,12 @@ async function interactionToNextPaint(browser, url) {
     await page.waitForLoadState('networkidle');
     await filters.click();
 
+    await rows.first().click();
+
+    await page.getByRole('button', { name: 'Actions', exact: true }).click();
+    await page.getByRole('menuitem', { name: 'Mark Shipped' }).click();
+    await page.getByRole('dialog').getByRole('button', { name: 'Run Action' }).waitFor();
+    await page.keyboard.press('Escape');
     await rows.first().click();
   }
 
