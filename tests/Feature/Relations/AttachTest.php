@@ -257,7 +257,7 @@ it('needs a pivot_id to detach or update one of several rows of the same tag', f
 it('refuses a related id outside the related Resource\'s relatable scope', function () {
     $this->postJson('/lathe/api/resources/attach-scoped-products/1/tags', ['related_id' => 1, 'pivot' => ['position' => 1]])
         ->assertStatus(422)
-        ->assertJsonValidationErrors(['related_id']);
+        ->assertJsonValidationErrors(['related_id' => 'The related id must be a valid relation.']);
 
     $this->postJson('/lathe/api/resources/attach-scoped-products/1/tags', ['related_id' => 3, 'pivot' => ['position' => 1]])
         ->assertCreated();
