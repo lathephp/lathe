@@ -8,8 +8,10 @@ use DateTimeInterface;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Str;
+use Illuminate\Validation\ValidationException;
 use Lathe\Attributes\Widget\CacheFor;
 use Lathe\Attributes\Widget\OnlyOnDetail;
 use Lathe\Attributes\Widget\RefreshEvery;
@@ -18,7 +20,10 @@ use Lathe\Attributes\Widget\RefreshWhenFiltersChange;
 use Lathe\Attributes\Widget\Width;
 use Lathe\Auth\FortifyConfig;
 use Lathe\Enums\CardWidth;
+use Lathe\Filters\Filter;
+use Lathe\Filters\FilterApplicator;
 use Lathe\Http\Requests\LatheRequest;
+use Lathe\Resources\Resource;
 use Lathe\Support\ConfigStore;
 use Lathe\Support\Timezone;
 use Lathe\Widgets\Concerns\RoundingPrecision;
@@ -77,6 +82,11 @@ abstract class Widget
 
     /** @var class-string<Model>|null */
     protected ?string $resourceScopeModel = null;
+
+    /** @var list<Filter>|null */
+    protected ?array $filters = null;
+
+    protected ?Resource $filterHost = null;
 
     public function __construct()
     {
@@ -203,6 +213,43 @@ abstract class Widget
         }
 
         return $this->applyResourceScope($query);
+    }
+
+    /**
+     * Bind the filters of the host Resource or lens. The Resource and lens widget endpoints
+     * call this; a dashboard has no host, so its widgets never filter.
+     *
+     * @param  Collection<int, Filter>  $filters
+     */
+    public function withFilters(Collection $filters, Resource $resource): static
+    {
+        $this->filters = $filters->values()->all();
+        $this->filterHost = $resource;
+
+        return $this;
+    }
+
+    /**
+     * The request's filters, the same filter[key] values the index reads, applied to a query
+     * over the host's model. A calculate() that should follow the index filters calls it. It
+     * changes nothing on a dashboard, where no filters are bound.
+     *
+     * @param  Builder<Model>  $query
+     * @return Builder<Model>
+     */
+    public function applyFilters(LatheRequest $request, Builder $query): Builder
+    {
+        $filters = $request->query('filter');
+
+        if ($this->filterHost === null || $filters === null) {
+            return $query;
+        }
+
+        if (! is_array($filters)) {
+            throw ValidationException::withMessages(['filter' => 'The filter must be keyed by filter, as filter[status]=paid.']);
+        }
+
+        return (new FilterApplicator($this->filterHost, $this->filters))->apply($request, $query, $filters);
     }
 
     /**
@@ -394,7 +441,7 @@ abstract class Widget
             $this->cacheOwner,
             $request->query('range'),
             app(Timezone::class)->forRequest($request),
-            md5((string) json_encode($request->query('filters'))),
+            md5((string) json_encode($request->query('filter'))),
             $this->cacheAcrossUsers ? null : $guard.':'.(is_scalar($id) ? $id : ''),
         ]));
     }

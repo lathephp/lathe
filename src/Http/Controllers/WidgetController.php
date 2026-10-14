@@ -55,7 +55,9 @@ class WidgetController
             $request, $list, $widget, $detail,
             fn (Widget $found) => $this->authorization->allowsWidget($request->user(), $class, $found::uriKey()),
             'resource:'.$class::uriKey().':'.(is_string($resourceId) ? $resourceId : ''),
-            fn (Widget $found) => $found->withResourceScope($class::newModel()::class, fn (Builder $query) => $class::widgetQuery($request, $query)),
+            fn (Widget $found) => $found
+                ->withResourceScope($class::newModel()::class, fn (Builder $query) => $class::widgetQuery($request, $query))
+                ->withFilters(collect($class::make()->availableFilters($request)), $class::make()),
         );
     }
 
@@ -74,7 +76,9 @@ class WidgetController
             $request, new WidgetList($found->widgets($request), $found::class), $widget, false,
             fn (Widget $w) => $this->authorization->allowsWidget($request->user(), $class, $w::uriKey()),
             'lens:'.$class::uriKey().':'.$found->uriKey(),
-            fn (Widget $w) => $w->withResourceScope($class::newModel()::class, fn (Builder $query) => $found::query($request, $class::widgetQuery($request, $query))),
+            fn (Widget $w) => $w
+                ->withResourceScope($class::newModel()::class, fn (Builder $query) => $found::query($request, $class::widgetQuery($request, $query)))
+                ->withFilters(collect($found->availableFilters($request)), $class::make()),
         );
     }
 
