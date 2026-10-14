@@ -32,7 +32,9 @@ it('skips a remote asset', function () {
 
     $this->artisan('lathe:assets')->assertSuccessful();
 
-    expect(File::files("{$this->public}/vendor/lathe/plugins"))->toHaveCount(2)
+    $copied = collect(File::files("{$this->public}/vendor/lathe/plugins"))->map->getFilename()->all();
+
+    expect($copied)->toContain('tool.js', 'theme.css')->not->toContain('cdn.js', 'cdn.css')
         ->and(Lathe::plugins()->moduleUrls())->toContain('https://cdn.example.test/a.js');
 });
 
