@@ -40,6 +40,10 @@ jobs:
 
   required:
     needs: word-check
+    # A called workflow gets at most the caller's permissions; ci.yml's weekly jobs declare issues: write.
+    permissions:
+      contents: read
+      issues: write
     uses: ./.github/workflows/ci.yml
 
   smoke:

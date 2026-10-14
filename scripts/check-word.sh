@@ -32,15 +32,27 @@ if [ -f composer.json ] && command -v composer >/dev/null; then
         && mkdir -p "$packed/composer/x" && tar -xf "$packed/composer/package.tar" -C "$packed/composer/x"
     for manifest in packages/*/package.json; do
         [ -f "$manifest" ] || continue
+        if ! command -v pnpm >/dev/null; then
+            echo "note: no pnpm, so the npm packages were not packed and checked" >&2
+            break
+        fi
         name=$(basename "$(dirname "$manifest")")
         mkdir -p "$packed/npm/$name"
-        (cd "$(dirname "$manifest")" && pnpm pack --pack-destination "$packed/npm" >/dev/null 2>&1) \
-            && tar -xzf "$packed"/npm/*"$name"-*.tgz -C "$packed/npm/$name" 2>/dev/null
+        # A pack that fails is a hit: a scan that ran on nothing is not a pass.
+        if ! (cd "$(dirname "$manifest")" && pnpm pack --pack-destination "$packed/npm" >/dev/null 2>&1) \
+            || ! tar -xzf "$packed"/npm/*"$name"-*.tgz -C "$packed/npm/$name" 2>/dev/null; then
+            hits+=("archive: pnpm pack failed in $(dirname "$manifest")")
+        fi
     done
     while IFS= read -r file; do
         hits+=("archive: ${file#"$packed"/}")
     done < <({ grep -rIilE "$word" "$packed"/composer/x "$packed"/npm/*/ 2>/dev/null; find "$packed"/composer/x "$packed"/npm/*/ 2>/dev/null | grep -iE "$word"; } | sort -u)
     rm -rf "$packed"
+fi
+
+# 3c. A pull request's title and body, which CI passes in LATHE_PR_TEXT.
+if grep -qiE "$word" <<<"${LATHE_PR_TEXT:-}"; then
+    hits+=("pull request text")
 fi
 
 # 4. Commit messages.

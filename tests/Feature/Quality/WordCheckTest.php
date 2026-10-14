@@ -76,3 +76,14 @@ it('fails on a hit inside a packed npm package', function () {
 
     File::deleteDirectory($repo);
 })->group('frontend');
+
+it('fails on the word in a pull request title or body', function () {
+    $repo = plantRepo(fn () => null);
+
+    $result = Process::path($repo)->env(['LATHE_PR_TEXT' => 'Port the '.bannedWord().' table'])->run(['bash', dirname(__DIR__, 3).'/scripts/check-word.sh']);
+
+    expect($result->exitCode())->toBe(1)
+        ->and($result->output())->toContain('pull request text');
+
+    File::deleteDirectory($repo);
+});

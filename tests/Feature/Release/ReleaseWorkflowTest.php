@@ -56,3 +56,7 @@ it('holds no npm token, no token of the old release and no upload to another hos
             ->not->toMatch('/curl[^\n]*(-F|--upload-file|-T)\b/');
     }
 });
+
+it('grants the called CI workflow the permissions its jobs declare', function () {
+    expect(releaseWorkflow()['jobs']['required']['permissions'] ?? null)->toBe(['contents' => 'read', 'issues' => 'write']);
+});
