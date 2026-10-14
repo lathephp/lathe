@@ -7,6 +7,7 @@ use Illuminate\Routing\RouteRegistrar;
 use Lathe\Auth\FortifyConfig;
 use Lathe\Http\Controllers\Assets\AssetController;
 use Lathe\Http\Controllers\Auth\AuthenticatedSessionController;
+use Lathe\Http\Controllers\Auth\ConfirmablePasswordController;
 use Lathe\Http\Controllers\Auth\EmailVerificationController;
 use Lathe\Http\Controllers\Auth\LoginPageController;
 use Lathe\Http\Controllers\Auth\NewPasswordController;
@@ -94,6 +95,10 @@ class PanelRoutes
                 $router->post('login', [AuthenticatedSessionController::class, 'store'])->middleware($guest)->name('login.store');
                 // POST only: a GET would let any image tag sign the user out.
                 $router->post('logout', [AuthenticatedSessionController::class, 'destroy'])->middleware(Authenticate::class.':unverified')->name('logout');
+                // RequirePassword::using('lathe.password.confirm') sends a page visit here and answers 423 JSON.
+                $router->get('confirm-password', [ConfirmablePasswordController::class, 'show'])->middleware(Authenticate::class)->name('password.confirm');
+                $router->post('confirm-password', [ConfirmablePasswordController::class, 'store'])->middleware(Authenticate::class)->name('password.confirm.store');
+                $router->get('confirmed-password-status', [ConfirmablePasswordController::class, 'status'])->middleware(Authenticate::class)->name('password.confirmation');
             }
 
             if ($this->fortify->featureEnabled('emailVerification')) {

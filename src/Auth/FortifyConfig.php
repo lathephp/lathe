@@ -98,6 +98,8 @@ class FortifyConfig
             'fortify.limiters.login' => null,
             'fortify.pipelines.login' => null,
             'fortify.redirects.login' => Lathe::resolveInitialPath(Container::getInstance()->make('request')),
+            // A page confirmation with no intended URL goes to the panel, not to the host's fortify.home.
+            'fortify.redirects.password-confirmation' => Lathe::resolveInitialPath(Container::getInstance()->make('request')),
             'fortify.redirects.logout' => Lathe::authPaths()['login'] ?? '/',
         ]);
 
