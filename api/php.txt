@@ -766,6 +766,12 @@ Lathe\Attributes\Widget\RefreshEvery::__construct(int $seconds)
 Lathe\Attributes\Widget\RefreshEvery::int $seconds
 Lathe\Attributes\Widget\Width::Lathe\Enums\CardWidth $width
 Lathe\Attributes\Widget\Width::__construct(Lathe\Enums\CardWidth $width)
+Lathe\Auth\Contracts\ImpersonatesUsers::flushImpersonationData(Illuminate\Http\Request $request): void
+Lathe\Auth\Contracts\ImpersonatesUsers::impersonate(Illuminate\Http\Request $request, Illuminate\Contracts\Auth\StatefulGuard $guard, Illuminate\Contracts\Auth\Authenticatable $user): bool
+Lathe\Auth\Contracts\ImpersonatesUsers::impersonating(Illuminate\Http\Request $request): bool
+Lathe\Auth\Contracts\ImpersonatesUsers::redirectAfterStartingImpersonation(Illuminate\Http\Request $request): string
+Lathe\Auth\Contracts\ImpersonatesUsers::redirectAfterStoppingImpersonation(Illuminate\Http\Request $request): string
+Lathe\Auth\Contracts\ImpersonatesUsers::stopImpersonating(Illuminate\Http\Request $request, Illuminate\Contracts\Auth\StatefulGuard $guard, string $userModel): bool
 Lathe\Auth\FortifyBootstrap::$authenticateThrough  [protected]
 Lathe\Auth\FortifyBootstrap::$authenticateUsing  [protected]
 Lathe\Auth\FortifyBootstrap::$confirmPasswordsUsing  [protected]
@@ -790,6 +796,23 @@ Lathe\Auth\FortifyConfig::scoped(Closure $callback): mixed
 Lathe\Auth\FortifyConfig::string(string $key): string  [protected]
 Lathe\Auth\FortifyConfig::userModel(): ?string
 Lathe\Auth\FortifyConfig::username(): string
+Lathe\Auth\Impersonatable::canBeImpersonated(): bool
+Lathe\Auth\Impersonatable::canImpersonate(): bool
+Lathe\Auth\Impersonation::FROM
+Lathe\Auth\Impersonation::GUARD
+Lathe\Auth\Impersonation::IMPERSONATED_BY
+Lathe\Auth\Impersonation::REMEMBER
+Lathe\Auth\Impersonation::allows(mixed $user, Illuminate\Database\Eloquent\Model $target): bool  [static]
+Lathe\Auth\Impersonation::availableTo(Illuminate\Http\Request $request, Illuminate\Database\Eloquent\Model $target): bool  [static]
+Lathe\Auth\Impersonation::flushImpersonationData(Illuminate\Http\Request $request): void
+Lathe\Auth\Impersonation::impersonate(Illuminate\Http\Request $request, Illuminate\Contracts\Auth\StatefulGuard $guard, Illuminate\Contracts\Auth\Authenticatable $user): bool
+Lathe\Auth\Impersonation::impersonating(Illuminate\Http\Request $request): bool
+Lathe\Auth\Impersonation::redirectAfterStartingImpersonation(Illuminate\Http\Request $request): string
+Lathe\Auth\Impersonation::redirectAfterStoppingImpersonation(Illuminate\Http\Request $request): string
+Lathe\Auth\Impersonation::same(object $user, Illuminate\Database\Eloquent\Model $target): bool  [static]
+Lathe\Auth\Impersonation::sameOrigin(Illuminate\Http\Request $request, string $url): bool  [protected]
+Lathe\Auth\Impersonation::stopImpersonating(Illuminate\Http\Request $request, Illuminate\Contracts\Auth\StatefulGuard $guard, string $userModel): bool
+Lathe\Auth\Impersonation::uses(object|string $model): bool  [static]
 Lathe\Auth\PanelGate::?Closure $callback  [protected]
 Lathe\Auth\PanelGate::Illuminate\Contracts\Auth\Access\Gate $gate  [protected]
 Lathe\Auth\PanelGate::Illuminate\Contracts\Auth\Factory $auth  [protected]
@@ -1221,10 +1244,12 @@ Lathe\Events\ActionExecuted::__construct(object|string $action, Illuminate\Suppo
 Lathe\Events\ActionExecuted::object|string $action
 Lathe\Events\ImpersonationStarted::Illuminate\Database\Eloquent\Model $impersonated
 Lathe\Events\ImpersonationStarted::Illuminate\Database\Eloquent\Model $impersonator
-Lathe\Events\ImpersonationStarted::__construct(Illuminate\Database\Eloquent\Model $impersonator, Illuminate\Database\Eloquent\Model $impersonated)
+Lathe\Events\ImpersonationStarted::__construct(Illuminate\Database\Eloquent\Model $impersonator, Illuminate\Database\Eloquent\Model $impersonated, string $redirectTo)
+Lathe\Events\ImpersonationStarted::string $redirectTo
 Lathe\Events\ImpersonationStopped::Illuminate\Database\Eloquent\Model $impersonated
 Lathe\Events\ImpersonationStopped::Illuminate\Database\Eloquent\Model $impersonator
-Lathe\Events\ImpersonationStopped::__construct(Illuminate\Database\Eloquent\Model $impersonator, Illuminate\Database\Eloquent\Model $impersonated)
+Lathe\Events\ImpersonationStopped::__construct(Illuminate\Database\Eloquent\Model $impersonator, Illuminate\Database\Eloquent\Model $impersonated, string $redirectTo)
+Lathe\Events\ImpersonationStopped::string $redirectTo
 Lathe\Events\ResourceAttached::Illuminate\Database\Eloquent\Model $parent
 Lathe\Events\ResourceAttached::__construct(Illuminate\Database\Eloquent\Model $parent, string $resource, string $relationship, array $ids, array $pivot = array ( ))
 Lathe\Events\ResourceAttached::array $ids
@@ -2359,6 +2384,10 @@ Lathe\Http\Controllers\ExportController::download(Lathe\Http\Requests\LatheReque
 Lathe\Http\Controllers\ExportController::show(Lathe\Http\Requests\LatheRequest $request, string $export): Illuminate\Http\JsonResponse
 Lathe\Http\Controllers\ExportController::userId(Lathe\Http\Requests\LatheRequest $request): string|int|null  [protected]
 Lathe\Http\Controllers\GlobalSearchController::__invoke(Lathe\Http\Requests\LatheRequest $request, Lathe\Support\ConfigStore $config, Illuminate\Contracts\Auth\Access\Gate $gate, Lathe\Search\GlobalSearch $search, Lathe\Auth\ResourceAuthorization $authorization): Illuminate\Http\JsonResponse
+Lathe\Http\Controllers\ImpersonateController::destroy(Illuminate\Http\Request $request): Illuminate\Http\JsonResponse
+Lathe\Http\Controllers\ImpersonateController::guard(): Illuminate\Contracts\Auth\StatefulGuard  [protected]
+Lathe\Http\Controllers\ImpersonateController::show(Illuminate\Http\Request $request): Illuminate\Http\JsonResponse
+Lathe\Http\Controllers\ImpersonateController::store(Illuminate\Http\Request $request, Lathe\Http\Requests\LatheRequest $latheRequest): Illuminate\Http\JsonResponse
 Lathe\Http\Controllers\ImportController::downloadErrors(Lathe\Http\Requests\LatheRequest $request, string $import): Symfony\Component\HttpFoundation\StreamedResponse
 Lathe\Http\Controllers\ImportController::owned(Lathe\Http\Requests\LatheRequest $request, string $id): Lathe\Actions\Import\Import  [protected]
 Lathe\Http\Controllers\ImportController::resume(Lathe\Http\Requests\LatheRequest $request, Lathe\Resources\ResourceRegistry $resources, string $import): Illuminate\Http\JsonResponse
@@ -2661,6 +2690,7 @@ Lathe\LatheManager::footerFor(Illuminate\Http\Request $request): ?array
 Lathe\LatheManager::fortify(): Lathe\Auth\FortifyBootstrap
 Lathe\LatheManager::hasAuthenticationRoutes(): bool
 Lathe\LatheManager::hasPasswordResetRoutes(): bool
+Lathe\LatheManager::impersonator(): Lathe\Auth\Contracts\ImpersonatesUsers
 Lathe\LatheManager::initialPath(Closure|string|null $path): static
 Lathe\LatheManager::initialPathUrl(Illuminate\Http\Request $request): string
 Lathe\LatheManager::isRTL(?Illuminate\Http\Request $request = NULL): bool
@@ -4519,6 +4549,7 @@ class Lathe\Attributes\Widget\RefreshWhenFiltersChange
 class Lathe\Attributes\Widget\Width
 class Lathe\Auth\FortifyBootstrap
 class Lathe\Auth\FortifyConfig
+class Lathe\Auth\Impersonation
 class Lathe\Auth\PanelGate
 class Lathe\Auth\ResourceAuthorization
 class Lathe\Console\AssetsCommand
@@ -4654,6 +4685,7 @@ class Lathe\Http\Controllers\BulkRunController
 class Lathe\Http\Controllers\DashboardController
 class Lathe\Http\Controllers\ExportController
 class Lathe\Http\Controllers\GlobalSearchController
+class Lathe\Http\Controllers\ImpersonateController
 class Lathe\Http\Controllers\ImportController
 class Lathe\Http\Controllers\NotificationController
 class Lathe\Http\Controllers\PageController
@@ -4832,6 +4864,7 @@ enum Lathe\Widgets\TrendUnit
 interface Lathe\Actions\BatchableAction
 interface Lathe\Attributes\Action\ActionAttribute
 interface Lathe\Attributes\Resource\ResourceAttribute
+interface Lathe\Auth\Contracts\ImpersonatesUsers
 interface Lathe\Field\Contracts\Cover
 interface Lathe\Field\Contracts\Deletable
 interface Lathe\Field\Contracts\FilterableField
@@ -4841,6 +4874,7 @@ interface Lathe\Field\Contracts\Storable
 interface Lathe\Field\FieldLifecycle
 interface Lathe\Search\SearchableColumn
 trait Lathe\ActionEvents\Actionable
+trait Lathe\Auth\Impersonatable
 trait Lathe\Field\Concerns\ChoiceFactories
 trait Lathe\Field\Concerns\DateFactories
 trait Lathe\Field\Concerns\DisplayFactories
