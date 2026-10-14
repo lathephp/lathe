@@ -64,8 +64,10 @@ class LatheServiceProvider extends LatheApplicationServiceProvider
         // Whoever passes viewLathe may read the audit log.
         Gate::policy(ActionEvent::class, ActionEventPolicy::class);
 
-        // Only the admin may open the System Status page.
-        Gate::define('view system status', fn (User $user): bool => $user->getAttribute('email') === 'admin@lathephp.com');
+        // The admin, and whoever holds the permission through a role or directly. A user
+        // never saved has no grants, so it asks Spatie nothing.
+        Gate::define('view system status', fn (User $user): bool => $user->getAttribute('email') === 'admin@lathephp.com'
+            || ($user->exists && $user->checkPermissionTo('view system status')));
 
         // Every panel user may search across Resources.
         Gate::define('globalSearch', fn (User $user): bool => true);

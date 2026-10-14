@@ -5,6 +5,7 @@ namespace Workbench\App\Console\Commands;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
+use Spatie\Permission\PermissionRegistrar;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Workbench\Database\Seeders\DemoSeeder;
 
@@ -13,7 +14,7 @@ class DemoSeedCommand extends Command
 {
     protected $signature = 'lathe:demo-seed {--orders=10000 : How many orders to seed}';
 
-    public const TABLES = ['taggables', 'comments', 'posts', 'order_items', 'orders', 'products', 'tags', 'categories', 'customers', 'users'];
+    public const TABLES = ['model_has_permissions', 'model_has_roles', 'role_has_permissions', 'roles', 'permissions', 'taggables', 'comments', 'posts', 'order_items', 'orders', 'products', 'tags', 'categories', 'customers', 'users'];
 
     public function handle(DemoSeeder $seeder): int
     {
@@ -33,6 +34,9 @@ class DemoSeedCommand extends Command
                 DB::table($table)->truncate();
             }
         });
+
+        // Truncating skips Eloquent, so Spatie's cache still holds the old permissions.
+        app(PermissionRegistrar::class)->forgetCachedPermissions();
 
         $seeder->forOrders($orders)->setContainer($this->laravel)->setCommand($this)->__invoke();
 

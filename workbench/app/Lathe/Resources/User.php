@@ -4,6 +4,8 @@ namespace Workbench\App\Lathe\Resources;
 
 use Lathe\Field\Field;
 use Lathe\Http\Requests\LatheRequest;
+use Lathe\Permission\Fields\PermissionMultiSelectField;
+use Lathe\Permission\Fields\RoleMultiSelectField;
 use Lathe\Resources\Resource;
 use Lathe\Resources\ResourceDefinition;
 use Workbench\App\Models\User as UserModel;
@@ -27,6 +29,8 @@ class User extends Resource
             Field::email('Email')->required()->rules('email', 'max:255', 'unique:users,email,{{resourceId}}'),
             Field::password()->onlyOnForms()->creationRules('required', 'confirmed')->updateRules('nullable', 'confirmed'),
             Field::passwordConfirmation('Confirm password'),
+            new RoleMultiSelectField,
+            new PermissionMultiSelectField,
         ];
     }
 }

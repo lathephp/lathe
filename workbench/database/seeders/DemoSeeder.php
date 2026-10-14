@@ -7,6 +7,7 @@ use Faker\Generator;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
+use Spatie\Permission\Models\Permission;
 use Workbench\App\Models\Post;
 use Workbench\App\Models\Product;
 use Workbench\Database\Factories\UserFactory;
@@ -42,6 +43,7 @@ class DemoSeeder extends Seeder
         mt_srand(1);
 
         $this->users();
+        $this->permissions();
         $this->customers();
         $this->catalog();
         $this->orders();
@@ -74,6 +76,16 @@ class DemoSeeder extends Seeder
         }
 
         UserFactory::new()->count(6)->create();
+    }
+
+    /**
+     * The permissions a role can grant; no role, so the walk starts from nothing.
+     */
+    protected function permissions(): void
+    {
+        foreach (['view orders', 'edit orders', 'delete orders', 'view posts', 'view system status'] as $name) {
+            Permission::findOrCreate($name, 'web');
+        }
     }
 
     protected function customers(): void
