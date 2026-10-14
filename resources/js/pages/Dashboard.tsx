@@ -32,7 +32,7 @@ export default function Dashboard({ dashboard, widgets }: DashboardProps) {
         <Card className="space-y-3 p-12 text-center text-sm text-muted-foreground">
           <p>{__('No widgets yet')}</p>
           <p>
-            <code className="rounded bg-muted px-1.5 py-0.5 font-mono text-xs" dir="ltr">
+            <code className="rounded bg-muted px-1.5 py-0.5 font-mono text-xs text-foreground" dir="ltr">
               {widgetCommand}
             </code>
           </p>

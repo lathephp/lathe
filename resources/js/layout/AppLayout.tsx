@@ -4,9 +4,11 @@ import { Button } from '@lathephp/ui';
 import { Menu, PanelLeft, Search } from 'lucide-react';
 import { lazy, Suspense, useEffect, useState, type CSSProperties, type ReactNode } from 'react';
 import { cn } from '../lib/cn';
-import { SearchPalette } from '../palette/SearchPalette';
 import type { SharedProps } from '../types';
 import { Sidebar } from './Sidebar';
+
+// The palette opens on demand, so it loads after first paint.
+const SearchPalette = lazy(() => import('../palette/SearchPalette').then((module) => ({ default: module.SearchPalette })));
 
 const oneYear = 60 * 60 * 24 * 365;
 
@@ -151,13 +153,15 @@ export function AppLayout({ children }: { children: ReactNode }) {
       {searchOn && searching && (
         // The palette reads through the shared client even where no provider wraps the layout.
         <QueryClientProvider client={queryClient}>
-          <SearchPalette
-            basePath={props.basePath}
-            debounce={search.debounce}
-            onClose={() => {
-              setSearching(false);
-            }}
-          />
+          <Suspense fallback={null}>
+            <SearchPalette
+              basePath={props.basePath}
+              debounce={search.debounce}
+              onClose={() => {
+                setSearching(false);
+              }}
+            />
+          </Suspense>
         </QueryClientProvider>
       )}
     </div>

@@ -403,12 +403,17 @@ describe('recent searches', () => {
 describe('in the layout', () => {
   const enabled = { globalSearch: { enabled: true, debounce: 0.5 } };
 
-  it('opens from the header button, pauses single-key shortcuts and returns focus on close', () => {
+  it('opens from the header button, pauses single-key shortcuts and returns focus on close', async () => {
     renderPage('Dashboard', dashboard, { shared: enabled });
     const opener = screen.getByRole('button', { name: 'Search' });
 
     opener.focus();
     fireEvent.click(opener);
+
+    // The palette is a lazy chunk, so its first open waits for the import.
+    await act(async () => {
+      await vi.dynamicImportSettled();
+    });
 
     expect(screen.getByRole('dialog')).toBeTruthy();
     expect(document.activeElement).toBe(box());
