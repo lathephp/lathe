@@ -21,22 +21,25 @@ function onFileDatabase(): void
     // database the next test reuses as migrated and empty.
     DB::rollBack();
 
-    $connection = (string) config('database.default');
+    // A queued job names the connection of each model it carries, so the test and the
+    // worker use one the worker can point at the file: sqlite, which reads DB_DATABASE.
+    $testing = DB::getDefaultConnection();
     $file = database_path('lathe-browser-'.getmypid().'.sqlite');
     file_put_contents($file, '');
     config([
-        "database.connections.{$connection}.database" => $file,
+        'database.connections.sqlite' => ['driver' => 'sqlite', 'database' => $file, 'prefix' => '', 'foreign_key_constraints' => true],
         'queue.default' => 'database',
+        'queue.batching.database' => 'sqlite',
     ]);
-    DB::purge($connection);
+    DB::purge('sqlite');
+    DB::setDefaultConnection('sqlite');
 
     Artisan::call('migrate', ['--force' => true]);
     test()->seed(DemoSeeder::class);
 
-    // The app's own teardown may connect again after this, so it finds the database it had.
-    test()->beforeApplicationDestroyed(function () use ($connection, $file) {
-        config(["database.connections.{$connection}.database" => ':memory:']);
-        DB::purge($connection);
+    test()->beforeApplicationDestroyed(function () use ($testing, $file) {
+        DB::purge('sqlite');
+        DB::setDefaultConnection($testing);
         @unlink($file);
     });
 }
