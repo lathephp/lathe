@@ -2,6 +2,10 @@ import { ApiError, request, toast, useLathe, useTranslation } from '@lathephp/co
 import { useId, useState, type KeyboardEvent } from 'react';
 import type { Cell, FieldSchema } from '../fields/types';
 import { stringValue } from '../fields/registry';
+import { isBelongsToValue } from '../fields/relation/BelongsToField';
+import { BelongsToForm } from '../fields/relation/BelongsToForm';
+import { isMorphToValue } from '../fields/relation/MorphToField';
+import { MorphToForm } from '../fields/relation/MorphToForm';
 import { cn } from '../lib/cn';
 import { TableCell } from '../table/cells';
 
@@ -27,32 +31,36 @@ interface Option {
 
 /**
  * An index cell that saves in place: a boolean toggles at once, a select saves on choice,
- * a text or number input saves on Enter or blur and Escape reverts. One request at a time;
+ * a text or number input saves on Enter or blur and Escape reverts, a belongsTo or morphTo
+ * picker saves on the record picked. One request at a time;
  * a refused value shows its message on the cell and the old value comes back.
  */
 export function InlineCell({ uriKey, rowId, column, cell, token, onRow }: InlineCellProps) {
   const { __ } = useTranslation();
   const { apiPath } = useLathe();
   const errorId = useId();
+  const pickerId = useId();
   const [pending, setPending] = useState<Cell | null>(null);
   const [editing, setEditing] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  // A morphTo type chosen but no record picked yet; undefined while there is none.
+  const [morphDraft, setMorphDraft] = useState<unknown>(undefined);
   const shown = pending ?? cell;
   const busy = pending !== null;
   const options = (column.options as Option[] | undefined) ?? [];
 
-  async function commit(value: unknown) {
+  async function commit(value: unknown, shownWhilePending?: Cell, extra: Record<string, unknown> = {}) {
     if (busy) {
       return;
     }
 
     setError(null);
-    setPending({ value, display: displayOf(value) });
+    setPending(shownWhilePending ?? { value, display: displayOf(value) });
 
     try {
       const reply = await request<InlineReply>(`${apiPath}/resources/${uriKey}/${String(rowId)}/field/${column.key}`, {
         method: 'PATCH',
-        body: { value, _updated_at: token ?? undefined },
+        body: { value, ...extra, _updated_at: token ?? undefined },
       });
 
       if (reply !== null) {
@@ -145,6 +153,41 @@ export function InlineCell({ uriKey, rowId, column, cell, token, onRow }: Inline
           </option>
         ))}
       </select>
+    );
+  } else if (column.component === 'belongs-to-field' || column.component === 'morph-to-field') {
+    const common = { id: pickerId, describedBy, invalid: error !== null, disabled: busy, record: { uriKey, id: rowId } };
+
+    control = (
+      <>
+        <label htmlFor={pickerId} className="sr-only">
+          {column.label}
+        </label>
+        {column.component === 'belongs-to-field' ? (
+          <BelongsToForm
+            {...common}
+            field={{ ...column, value: shown.value }}
+            value={shown.value}
+            onChange={(picked) => {
+              void commit(isBelongsToValue(picked) ? picked.value : null, { value: picked, display: isBelongsToValue(picked) ? picked.display : '' });
+            }}
+          />
+        ) : (
+          <MorphToForm
+            {...common}
+            field={{ ...column, value: shown.value }}
+            value={morphDraft === undefined ? shown.value : morphDraft}
+            onChange={(picked) => {
+              // A new type alone saves nothing: the cell waits for a record of that type.
+              if (isMorphToValue(picked) && picked.id !== null) {
+                setMorphDraft(undefined);
+                void commit(picked.id, { value: picked, display: picked.display ?? '' }, { type: picked.type });
+              } else {
+                setMorphDraft(picked);
+              }
+            }}
+          />
+        )}
+      </>
     );
   } else if (editing !== null) {
     const numeric = column.component === 'number-field' || column.component === 'currency-field';
