@@ -73,6 +73,10 @@ class ActionDispatcher
         $fields = $this->validator->validate($request, $action);
 
         if ($this->shouldQueue($action, $resolver, $max)) {
+            // The worker checks every row; the first chunk answers 403 here when none of it may run.
+            $first = $resolver->lazy(200)->take(200)->collect();
+            abort_if($this->filterForExecution($request, $action, $class, $first)->isEmpty(), 403, $this->authorization->denialMessage($class));
+
             return $this->queue($request, $action, $class, $selection, $resolver, $fields);
         }
 

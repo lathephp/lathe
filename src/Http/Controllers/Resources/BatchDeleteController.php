@@ -68,6 +68,12 @@ class BatchDeleteController
         }
 
         if ($total > $resource->definition()->getBulkInlineMax()) {
+            // Without {ability}Any the worker asks per row; the first chunk answers 403 here when no row of it is permitted.
+            if (! $any) {
+                $abilities = $authorization->abilitiesFor($user, $class, $rows->take(200)->collect(), [$ability]);
+                abort_unless(in_array(true, array_column($abilities, $ability), true), 403, $authorization->denialMessage($class));
+            }
+
             $run = BulkRun::begin($request, $class, $ability, $total);
             $run->dispatchBatch(Bus::batch([new PlanBulkRun($run->id, JobContext::capture($request), $class, $selection->toArray(), ability: $ability)]));
 
