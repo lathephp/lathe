@@ -92,3 +92,11 @@ it('renders lang and dir from the shared rtl prop for the workbench ar context',
         ->and($next)->toContain('<html lang="en" dir="ltr">')
         ->and(app()->getLocale())->toBe('en');
 });
+
+it('sends the action menu to the lens page', function () {
+    $this->actingAs(User::forceCreate(['name' => 'Ada', 'email' => 'ada@example.test', 'password' => bcrypt('secret')]));
+
+    $this->get('/lathe/resources/orders/lenses/pending-orders')->assertOk();
+
+    expect($this->pageProps['Resources/Index'])->toContain('actions');
+});
