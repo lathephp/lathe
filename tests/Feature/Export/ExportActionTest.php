@@ -15,12 +15,12 @@ use Lathe\Field\Field;
 use Lathe\Http\Requests\LatheRequest;
 use Lathe\Lathe;
 use Lathe\Resources\ResourceDefinition;
-use OpenSpout\Common\Entity\Cell\StringCell;
 use OpenSpout\Reader\XLSX\Reader;
 use Workbench\App\Lathe\Resources\Order as OrderResource;
 use Workbench\App\Models\Order;
 use Workbench\App\Models\User;
 use Workbench\Database\Seeders\DemoSeeder;
+use ZipArchive;
 
 class ExportDeclared
 {
@@ -321,22 +321,28 @@ it('writes an xlsx file with every value as a text cell, so "=" never starts a f
 
     $this->postJson('/lathe/api/resources/orders/action', exportBody(['mode' => 'ids', 'ids' => [1]], ['filename' => 'orders', 'type' => 'xlsx']))->assertOk();
     $path = Storage::disk('local')->path((string) Export::firstOrFail()->file_name);
+    $zip = new ZipArchive;
+    $zip->open($path);
+    $sheet = (string) $zip->getFromName('xl/worksheets/sheet1.xml');
+    $zip->close();
     $reader = new Reader;
     $reader->open($path);
     $rows = [];
 
-    foreach ($reader->getSheetIterator() as $sheet) {
-        foreach ($sheet->getRowIterator() as $row) {
-            $rows[] = $row->getCells();
+    foreach ($reader->getSheetIterator() as $sheetRows) {
+        foreach ($sheetRows->getRowIterator() as $row) {
+            $rows[] = array_map(fn ($cell) => $cell->getValue(), $row->cells);
         }
     }
 
     $reader->close();
 
-    expect($rows)->toHaveCount(2)
-        ->and($rows[1][0])->toBeInstanceOf(StringCell::class)
-        ->and($rows[1][0]->getValue())->toBe('=1+1')
-        ->and($rows[1][3]->getValue())->toBe('1234.50');
+    // The reader turns any text starting with "=" into a formula cell, so the sheet XML says what was written.
+    expect($sheet)->not->toContain('<f>')
+        ->and($sheet)->toMatch('#<c r="A2"[^>]* t="(s|inlineStr)"#')
+        ->and($rows)->toHaveCount(2)
+        ->and($rows[1][0])->toBe('=1+1')
+        ->and($rows[1][3])->toBe('1234.50');
 });
 
 it('queues on the connection, queue, tries, timeout and chunk size queueable sets', function () {
@@ -388,4 +394,12 @@ it('updates processed_rows every exports.chunk_size rows, then at the end', func
 
     expect($seen)->toBe([100, 200, 300, 400, 500, 501])
         ->and(Export::firstOrFail()->only(['total_rows', 'successful_rows']))->toBe(['total_rows' => 501, 'successful_rows' => 501]);
+});
+
+it('offers Export on each row by the export ability, not runAction', function () {
+    $this->actingAs(User::where('email', 'editor@lathephp.com')->firstOrFail());
+
+    $json = $this->getJson('/lathe/api/resources/orders')->assertOk()->json();
+
+    expect($json['table']['rows'][0]['actions'])->toBe(['export']);
 });

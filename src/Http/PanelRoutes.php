@@ -10,6 +10,7 @@ use Lathe\Http\Controllers\Auth\AuthenticatedSessionController;
 use Lathe\Http\Controllers\Auth\LoginPageController;
 use Lathe\Http\Controllers\BulkRunController;
 use Lathe\Http\Controllers\DashboardController;
+use Lathe\Http\Controllers\ExportController;
 use Lathe\Http\Controllers\GlobalSearchController;
 use Lathe\Http\Controllers\ImportController;
 use Lathe\Http\Controllers\NotificationController;
@@ -222,7 +223,8 @@ class PanelRoutes
 
     protected function exportRoutes(Router $router): void
     {
-        //
+        $router->get('exports/{export}', [ExportController::class, 'show'])->name('exports.show');
+        $router->get('exports/{export}/download', [ExportController::class, 'download'])->middleware('signed')->name('exports.download');
     }
 
     protected function importRoutes(Router $router): void
