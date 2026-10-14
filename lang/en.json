@@ -179,6 +179,7 @@
     "The :attribute must be a valid relation.": "The :attribute must be a valid relation.",
     "The :attribute type is not one of its types.": "The :attribute type is not one of its types.",
     "The :field field has more than 1,000 options. Use a relation field instead.": "The :field field has more than 1,000 options. Use a relation field instead.",
+    "The :resource already has a :related.": "The :resource already has a :related.",
     "The file type is not one of: :types.": "The file type is not one of: :types.",
     "The next rows could not be loaded.": "The next rows could not be loaded.",
     "The page you are looking for does not exist.": "The page you are looking for does not exist.",

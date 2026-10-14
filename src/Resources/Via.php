@@ -12,9 +12,11 @@ use Lathe\Auth\ResourceAuthorization;
 use Lathe\Field\Field;
 use Lathe\Field\FieldContext;
 use Lathe\Field\Relations\BelongsToField;
+use Lathe\Field\Relations\HasOneField;
 use Lathe\Field\Relations\MorphToField;
 use Lathe\Field\Relations\RelationField;
 use Lathe\Http\Requests\LatheRequest;
+use Lathe\Lathe;
 use Lathe\Query\QueryContext;
 use Lathe\Query\ResourceQuery;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
@@ -85,6 +87,14 @@ class Via
         }
 
         abort_unless($authorization->allows($request->user(), $parent, 'add'.Str::studly($relationship), $model), 403, $authorization->denialMessage($parent));
+
+        // A hasOne or morphOne parent takes one child.
+        if ($relation instanceof HasOneField && $relation->alreadyFilled($request, $model)) {
+            throw ValidationException::withMessages(['already_filled' => Lathe::__('The :resource already has a :related.', [
+                'resource' => $parent::singularLabel(),
+                'related' => $relation->getSingularLabel(),
+            ])]);
+        }
 
         return new self($parent, $model, $relation, self::match($child, $request, $model, $relationship));
     }

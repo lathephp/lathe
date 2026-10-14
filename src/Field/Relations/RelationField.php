@@ -428,6 +428,17 @@ abstract class RelationField extends Field implements PrimesForPage
     }
 
     /**
+     * Whether this field links a child to the parent through the parent's $relationship:
+     * inverse() names it, or the field writes the relation's column.
+     *
+     * @param  Relation<*, *, *>  $relation
+     */
+    public function pointsBackThrough(Model $model, Relation $relation, string $relationship): bool
+    {
+        return $this->inverse === $relationship || $this->writesRelation($model, $relation);
+    }
+
+    /**
      * Whether this belongsTo or morphTo points back at the parent of a panel listing
      * $relationship, so the panel can leave it out: inverse() names the relation, or the
      * related Resource's model is the parent's class.
