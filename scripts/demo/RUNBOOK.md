@@ -46,7 +46,36 @@ dig +short demo.lathephp.com   # run on your own machine; prints the server's ad
 DNS must point at the server before step 3, because Caddy asks Let's Encrypt for the
 certificate when it starts.
 
-## 2. Get the release
+## 2. Get the code
+
+`deploy.sh` copies the workbench from a checkout on the server and installs `lathe/lathe`
+and `lathe/permission` with the constraint `^1.0@beta`. Before the release the packages
+are not on Packagist yet, so they come from archives you pack on your own machine. After
+the release they come from Packagist.
+
+**Before the release** (the demo goes up before the packages are published). On your own
+machine, in a checkout of the commit the demo shows, with `dist/` built:
+
+```sh
+pnpm build                                     # writes dist/
+bash scripts/demo/pack.sh /tmp/lathe-archives
+scp -r /tmp/lathe-archives root@<server>:/root/
+git rev-parse HEAD                             # the commit to check out on the server
+```
+
+`pack.sh` prints
+`pack: wrote lathe-lathe-1.0.0-beta.1.zip and lathe-permission-1.0.0-beta.1.zip to /tmp/lathe-archives`
+(the version is the first release heading in `CHANGELOG.md`), and the server now has them
+in `/root/lathe-archives`. Then, on the server:
+
+```sh
+apt-get update && apt-get install -y git tmux
+git clone https://github.com/lathephp/lathe.git /opt/lathe-src
+cd /opt/lathe-src
+git checkout <commit>          # the commit you packed
+```
+
+**After the release**, on the server:
 
 ```sh
 apt-get update && apt-get install -y git tmux
@@ -55,15 +84,20 @@ cd /opt/lathe-src
 git checkout v1.0.0-beta.1     # the tag of the release the demo shows
 ```
 
-`deploy.sh` copies the workbench from this checkout and installs `lathe/lathe` and
-`lathe/permission` from Packagist with the constraint `^1.0@beta`. Both packages must be on
-Packagist first. If `lathe/permission` gets a version outside `^1.0@beta`, change
-`permission=` at the top of `deploy.sh`.
+If `lathe/permission` gets a version outside `^1.0@beta`, change `permission=` at the top
+of `deploy.sh`.
 
 ## 3. Deploy
 
 The first deploy seeds 10,000,000 orders, so run it inside tmux to survive a dropped SSH
-session:
+session. Before the release:
+
+```sh
+tmux new -s demo
+bash scripts/demo/deploy.sh --archive /root/lathe-archives
+```
+
+After the release:
 
 ```sh
 tmux new -s demo
@@ -108,8 +142,8 @@ come on top of that.
 
 Options, for reference: `--orders N` seeds another count, `--site ADDRESS` serves another
 address (`:80` is plain HTTP with no certificate), `--buffer-pool SIZE` sets InnoDB's buffer
-pool (default 4G), `--archive DIR` installs the packages from local composer archives, and
-`--no-systemd` starts the services as plain processes (both for the rehearsal).
+pool (default 4G), `--archive DIR` installs the packages from `pack.sh`'s archives in that
+folder, and `--no-systemd` starts the services as plain processes (for the rehearsal).
 
 ## 4. Check the guard rails
 
@@ -175,6 +209,12 @@ cd /opt/lathe-src
 git fetch --tags && git checkout v1.0.0-beta.2   # the new tag
 bash scripts/demo/deploy.sh
 ```
+
+Without `--archive`, the deploy removes the archives' repository a deploy before the
+release added, so the packages come from Packagist again. Before the release, a redeploy is
+the same as the first: pack again on your machine, copy the archives over, check out the
+same commit on the server and run `deploy.sh --archive /root/lathe-archives`; it reinstalls
+the packages from the new archives even though their version number is the same.
 
 A redeploy updates `lathe/lathe` and `lathe/permission`, copies the workbench again, runs
 new migrations, restarts the queue worker and the scheduler, and keeps the database, the

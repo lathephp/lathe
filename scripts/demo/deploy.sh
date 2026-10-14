@@ -1,15 +1,16 @@
 #!/usr/bin/env bash
 # Builds the live demo on a fresh Ubuntu 24.04 server. Run it as root from a checkout of
-# lathe/lathe at the release tag the demo shows:
+# lathe/lathe at the release tag the demo shows, or before the release at the commit pack.sh packed:
 #   bash scripts/demo/deploy.sh [--orders N] [--site ADDRESS] [--archive DIR] [--buffer-pool SIZE] [--no-systemd]
 # It installs PHP 8.4 FPM, Caddy with the rate-limit module, MySQL 8.4 and zstd; creates a
-# Laravel 13 app in /srv/lathe-demo; requires lathe/lathe and lathe/permission; copies the
+# Laravel 13 app in /srv/lathe-demo; requires lathe/lathe and lathe/permission, from
+# Packagist or, before they are published there, from pack.sh's archives; copies the
 # workbench's app, database, routes and built extensions over it; and runs one queue worker,
 # the scheduler and the 03:00 UTC reset. The first run seeds --orders orders (default
 # 10,000,000) and writes the snapshot the reset restores. A later run updates the code and
 # keeps the database, the .env and the snapshot.
 #   --site         Caddy's site address (default demo.lathephp.com; :80 serves plain HTTP)
-#   --archive      a folder of composer archives to require the packages from, for the rehearsal
+#   --archive      a folder of composer archives from pack.sh to require the packages from
 #   --buffer-pool  MySQL's InnoDB buffer pool (default 4G, half of the server's 8 GB)
 #   --no-systemd   start the services as plain processes, for a container without systemd
 set -euo pipefail
@@ -193,6 +194,11 @@ cd "$app"
 step "require lathe/lathe:$lathe and lathe/permission:$permission"
 if [[ -n $archive ]]; then
     composer config repositories.lathe "{\"type\": \"artifact\", \"url\": \"$archive\"}"
+    # A new pack keeps the version number, and Composer keeps a version it has installed.
+    composer remove lathe/lathe lathe/permission --no-scripts -q
+else
+    # A deploy before the release left the archives' repository in place; Packagist takes over.
+    composer config --unset repositories.lathe
 fi
 # Without scripts, so package discovery runs once the workbench's providers are in place.
 composer require "lathe/lathe:$lathe" "lathe/permission:$permission" -W --no-scripts -q

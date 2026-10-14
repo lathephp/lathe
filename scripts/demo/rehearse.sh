@@ -1,19 +1,18 @@
 #!/usr/bin/env bash
 # Rehearses the live demo's deploy in a podman container at 1,000 orders.
 #   bash scripts/demo/rehearse.sh
-# It packs the current tree as composer archives of lathe/lathe and lathe/permission (dist/
-# comes from the main checkout when this tree has none), builds the Ubuntu 24.04 image in
-# scripts/demo/Containerfile, runs deploy.sh inside with --archive, --orders 1000 and
-# --no-systemd, then checks each guard rail through Caddy. Scratch files, the MySQL download
-# and the Composer cache stay in ~/.cache/lathe-demo; the container and image are removed at
-# the end. Prints each check and rc=, and exits non-zero when one fails.
+# It packs the current tree with pack.sh as composer archives of lathe/lathe and
+# lathe/permission, builds the Ubuntu 24.04 image in scripts/demo/Containerfile, runs
+# deploy.sh inside with --archive, --orders 1000 and --no-systemd, then checks each guard
+# rail through Caddy. Scratch files, the MySQL download and the Composer cache stay in
+# ~/.cache/lathe-demo; the container and image are removed at the end. Prints each check
+# and rc=, and exits non-zero when one fails.
 set -uo pipefail
 
 repo=$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)
 scratch=$HOME/.cache/lathe-demo
 name=lathe-demo-rehearsal
 image=localhost/lathe-demo-rehearsal
-version=$(grep -m1 -oP '^## \[\K[0-9][^\]]*(?=\])' "$repo/CHANGELOG.md")
 
 step() { echo "== $*"; }
 fail() { echo "rehearse: $*" >&2; echo "rc=1"; exit 1; }
@@ -24,46 +23,16 @@ cleanup() {
 }
 trap cleanup EXIT
 
-# Writes the version into an archive's composer.json, which an artifact repository reads,
-# and drops the path repositories that only resolve inside this checkout.
-stamp() {
-    # shellcheck disable=SC2016 # PHP code, not shell
-    php -r '
-        [$zip, $version] = array_slice($argv, 1);
-        $archive = new ZipArchive;
-        $archive->open($zip) === true || exit(1);
-        $json = json_decode($archive->getFromName("composer.json"), true);
-        $json["version"] = $version;
-        unset($json["repositories"]);
-        $archive->addFromString("composer.json", json_encode($json, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));
-        $archive->close() || exit(1);
-    ' "$1" "$version"
-}
-
-[[ -n $version ]] || fail "no release heading in CHANGELOG.md"
 cleanup
 
-step "pack lathe/lathe and lathe/permission $version from the current tree"
-rm -rf "$scratch/src" "$scratch/archives"
+step "pack lathe/lathe and lathe/permission from the current tree"
+rm -rf "$scratch/src"
 mkdir -p "$scratch/src" "$scratch/archives" "$scratch/cache" "$scratch/composer"
-# Tracked and new files as they stand, without what git ignores.
+bash "$repo/scripts/demo/pack.sh" "$scratch/archives" || fail "pack.sh failed"
+# deploy.sh copies the workbench from the tree it runs in, so the container gets the tree too.
 git -C "$repo" ls-files -z -co --exclude-standard \
     | tar -C "$repo" --null --ignore-failed-read -T - -cf - \
     | tar -C "$scratch/src" -xf - || fail "could not copy the tree"
-dist=$repo/dist
-if [[ ! -f $dist/manifest.json ]]; then
-    dist=$(dirname "$(git -C "$repo" rev-parse --path-format=absolute --git-common-dir)")/dist
-fi
-[[ -f $dist/manifest.json ]] || fail "dist/ is not built; run pnpm build in the main checkout"
-cp -r "$dist" "$scratch/src/dist"
-(cd "$scratch/src" && composer archive --format=zip --dir="$scratch/archives" --file="lathe-lathe-$version" -q) \
-    || fail "composer archive failed for lathe/lathe"
-(cd "$scratch/src/plugins/permission" && composer archive --format=zip --dir="$scratch/archives" --file="lathe-permission-$version" -q) \
-    || fail "composer archive failed for lathe/permission"
-for zip in "$scratch"/archives/*.zip; do
-    stamp "$zip" || fail "could not stamp $zip"
-done
-unzip -l "$scratch/archives/lathe-lathe-$version.zip" | grep dist/manifest.json >/dev/null || fail "the archive has no dist/manifest.json"
 
 step "build the image and start the container"
 podman build -q -t "$image" -f "$repo/scripts/demo/Containerfile" "$repo/scripts/demo" >/dev/null || fail "podman build failed"
