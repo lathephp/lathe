@@ -10,7 +10,7 @@ afterEach(() => {
 describe('security page', () => {
   it('changes the password with the current one', () => {
     const visit = vi.spyOn(router, 'visit').mockImplementation(() => undefined);
-    renderPage('Security', { features: { updatePasswords: true, twoFactorAuthentication: false } }, { url: '/lathe/security' });
+    renderPage('Security', { features: { updatePasswords: true, twoFactorAuthentication: false }, twoFactor: 'off' }, { url: '/lathe/security' });
 
     expect(screen.getByRole('heading', { level: 1, name: 'Security' })).toBeTruthy();
     fireEvent.change(screen.getByLabelText('Current password'), { target: { value: 'password' } });
@@ -25,7 +25,7 @@ describe('security page', () => {
   });
 
   it('shows no password card without the feature', () => {
-    renderPage('Security', { features: { updatePasswords: false, twoFactorAuthentication: true } }, { url: '/lathe/security' });
+    renderPage('Security', { features: { updatePasswords: false, twoFactorAuthentication: true }, twoFactor: 'off' }, { url: '/lathe/security' });
 
     expect(screen.queryByLabelText('Current password')).toBeNull();
   });
