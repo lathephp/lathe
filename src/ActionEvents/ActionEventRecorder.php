@@ -141,6 +141,14 @@ class ActionEventRecorder
         }
 
         $name = is_string($actionName) ? $actionName : $actionName->name();
+
+        // An action field declared as a password or a token is a secret whatever its name.
+        foreach (is_string($actionName) ? [] : $this->actionSecrets($actionName, $request) as $key) {
+            if (array_key_exists($key, $fields)) {
+                $fields[$key] = '[redacted]';
+            }
+        }
+
         $fields = $this->clean($fields, null, $resourceClass);
 
         $rows = ($models->isEmpty() ? collect([null]) : $models->values())->map(
@@ -323,6 +331,21 @@ class ActionEventRecorder
         }
 
         return is_array($value) ? $this->clean($value, null, null) : $value;
+    }
+
+    /**
+     * The attributes of the action's password and token fields.
+     *
+     * @return list<string>
+     */
+    protected function actionSecrets(Action $action, ?LatheRequest $request): array
+    {
+        $fields = $action->fields($request ?? new LatheRequest);
+
+        return array_values(array_map(
+            fn (PasswordField|TokenField $field) => $field->attribute(),
+            array_filter($fields, fn (mixed $field) => $field instanceof PasswordField || $field instanceof TokenField),
+        ));
     }
 
     /**

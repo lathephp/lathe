@@ -13,6 +13,7 @@ use Lathe\Actions\ActionFields;
 use Lathe\Enums\ActionEventStatus;
 use Lathe\Enums\ActionEventType;
 use Lathe\Events\ActionExecuted;
+use Lathe\Field\Field;
 use Lathe\Http\Requests\LatheRequest;
 use Lathe\Lathe;
 use Lathe\Resources\Resource;
@@ -52,7 +53,16 @@ class RunAuditOrders extends Resource
             Action::make()->withName('Rebuild Index')->withUriKey('rebuild-index')->standalone()->handleUsing(function (ActionFields $fields, Collection $models) {
                 static::$models[] = $models->count();
             }),
+            new RunAuditSigned,
         ];
+    }
+}
+
+class RunAuditSigned extends Action
+{
+    public function fields(LatheRequest $request): array
+    {
+        return [Field::password('Code', 'code'), Field::text('Note')];
     }
 }
 
@@ -117,6 +127,14 @@ it('inserts the event rows of 120 models in chunks of 50', function () {
 
     expect($inserts)->toHaveCount(3)
         ->and(ActionEvent::where('status', ActionEventStatus::Finished->value)->count())->toBe(120);
+});
+
+it('stores a password action field as redacted whatever its name', function () {
+    $this->postJson('/lathe/api/resources/run-audit-orders/action', [
+        'action' => 'run-audit-signed', 'selection' => ['mode' => 'ids', 'ids' => [12]], 'fields' => ['code' => '4711', 'note' => 'ok'],
+    ])->assertOk();
+
+    expect(ActionEvent::sole()->fields)->toBe(['code' => '[redacted]', 'note' => 'ok']);
 });
 
 it('fires ActionExecuted once for an inline run', function () {
