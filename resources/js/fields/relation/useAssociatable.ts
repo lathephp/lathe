@@ -14,18 +14,28 @@ interface AssociatablePage {
   has_more: boolean;
 }
 
+/** A record named by its Resource and key. */
+export interface LookupRecord {
+  uriKey: string;
+  id: string | number;
+}
+
 interface Options {
   /** Requests go out only while the control is open. */
   open: boolean;
   term: string;
   withTrashed: boolean;
+  /** The chosen type's uriKey, which a morphTo lookup needs. */
+  type?: string;
+  /** The record to look up for when the page is not its edit form, such as an index row. */
+  record?: LookupRecord;
 }
 
 /**
  * The options of a relation field, one server page at a time. Opening asks at once, a typed
  * term waits the field's debounce (500 ms by default), and a failure toasts with Retry.
  */
-export function useAssociatable(field: FieldSchema, { open, term, withTrashed }: Options) {
+export function useAssociatable(field: FieldSchema, { open, term, withTrashed, type, record }: Options) {
   const { __ } = useTranslation();
   const { apiPath } = useLathe();
   const shared = useSyncExternalStore(__panel.sharedProps.subscribe, __panel.sharedProps.get);
@@ -38,12 +48,10 @@ export function useAssociatable(field: FieldSchema, { open, term, withTrashed }:
   const [result, setResult] = useState<{ items: AssociatableItem[]; hasMore: boolean; loaded: boolean }>({ items: [], hasMore: false, loaded: false });
   const debounce = typeof field.debounce === 'number' ? field.debounce : 500;
 
-  const uriKey = (shared.resource as { uriKey?: string } | undefined)?.uriKey ?? '';
+  const uriKey = record?.uriKey ?? (shared.resource as { uriKey?: string } | undefined)?.uriKey ?? '';
   const attribute = typeof field.relationship === 'string' ? field.relationship : field.attribute;
-  const endpoint =
-    shared.mode === 'update'
-      ? `${apiPath}/resources/${uriKey}/${String(shared.id)}/${attribute}/associatable`
-      : `${apiPath}/resources/${uriKey}/associatable/${attribute}`;
+  const id = record?.id ?? (shared.mode === 'update' ? String(shared.id) : undefined);
+  const endpoint = id !== undefined ? `${apiPath}/resources/${uriKey}/${String(id)}/${attribute}/associatable` : `${apiPath}/resources/${uriKey}/associatable/${attribute}`;
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -61,7 +69,7 @@ export function useAssociatable(field: FieldSchema, { open, term, withTrashed }:
     }
 
     const controller = new AbortController();
-    const params = new URLSearchParams({ q: query, page: String(page) });
+    const params = new URLSearchParams({ ...(type === undefined ? {} : { type }), q: query, page: String(page) });
 
     if (withTrashed) {
       params.set('with_trashed', '1');
@@ -90,7 +98,7 @@ export function useAssociatable(field: FieldSchema, { open, term, withTrashed }:
     return () => {
       controller.abort();
     };
-  }, [open, endpoint, query, page, withTrashed, attempt, __]);
+  }, [open, endpoint, type, query, page, withTrashed, attempt, __]);
 
   return {
     ...result,

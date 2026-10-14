@@ -4,7 +4,13 @@ import { useEffect, useRef, useState } from 'react';
 import { inputClass } from '../choice/options';
 import type { FormFieldProps } from '../registry';
 import { isBelongsToValue } from './BelongsToField';
-import { useAssociatable, type AssociatableItem } from './useAssociatable';
+import { useAssociatable, type AssociatableItem, type LookupRecord } from './useAssociatable';
+
+/** What a lookup needs beyond the field: a morphTo's chosen type, or the record of an index row. */
+interface LookupProps {
+  type?: string;
+  record?: LookupRecord;
+}
 
 function picked(item: AssociatableItem) {
   return { value: item.value, display: item.display };
@@ -28,13 +34,13 @@ function WithTrashedBox({ checked, onChange }: { checked: boolean; onChange: (ch
 }
 
 /** A button that opens a searchable list of the related records, loaded from the server only once opened. */
-function RelationPicker({ field, value, onChange, id, describedBy, invalid, disabled }: FormFieldProps) {
+function RelationPicker({ field, value, onChange, id, describedBy, invalid, disabled, type, record }: FormFieldProps & LookupProps) {
   const { __ } = useTranslation();
   const [open, setOpen] = useState(false);
   const [term, setTerm] = useState('');
   const [withTrashed, setWithTrashed] = useState(false);
   const [active, setActive] = useState(-1);
-  const { items, hasMore, loaded, more } = useAssociatable(field, { open, term, withTrashed });
+  const { items, hasMore, loaded, more } = useAssociatable(field, { open, term, withTrashed, type, record });
   const root = useRef<HTMLDivElement>(null);
   const button = useRef<HTMLButtonElement>(null);
   const search = useRef<HTMLInputElement>(null);
@@ -166,11 +172,11 @@ function RelationPicker({ field, value, onChange, id, describedBy, invalid, disa
 }
 
 /** A native select whose options load on first focus; a first page with more turns it into the picker. */
-function RelationSelect({ field, value, onChange, id, describedBy, invalid, disabled, onTooMany }: FormFieldProps & { onTooMany: () => void }) {
+function RelationSelect({ field, value, onChange, id, describedBy, invalid, disabled, type, record, onTooMany }: FormFieldProps & LookupProps & { onTooMany: () => void }) {
   const { __ } = useTranslation();
   const [open, setOpen] = useState(false);
   const [withTrashed, setWithTrashed] = useState(false);
-  const { items, hasMore } = useAssociatable(field, { open, term: '', withTrashed });
+  const { items, hasMore } = useAssociatable(field, { open, term: '', withTrashed, type, record });
   const current = isBelongsToValue(value) ? String(value.value) : '';
   const label = typeof field.singularLabel === 'string' ? field.singularLabel : field.label;
 
@@ -220,7 +226,7 @@ function RelationSelect({ field, value, onChange, id, describedBy, invalid, disa
   );
 }
 
-export function BelongsToForm(props: FormFieldProps) {
+export function BelongsToForm(props: FormFieldProps & LookupProps) {
   const { field, value } = props;
   const [searchable, setSearchable] = useState(field.searchable === true);
 

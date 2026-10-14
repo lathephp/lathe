@@ -14,7 +14,7 @@ export function isBelongsToValue(value: unknown): value is BelongsToValue {
   return typeof value === 'object' && value !== null && 'value' in value && 'display' in value;
 }
 
-function RelatedName({ field, value }: { field: FieldSchema; value: unknown }) {
+export function RelatedName({ field, value }: { field: FieldSchema; value: unknown }) {
   if (!isBelongsToValue(value)) {
     return <span className="text-muted-foreground">—</span>;
   }
