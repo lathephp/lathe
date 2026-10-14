@@ -2,6 +2,7 @@
 
 namespace Lathe\Http;
 
+use Illuminate\Auth\Middleware\RequirePassword;
 use Illuminate\Routing\Router;
 use Illuminate\Routing\RouteRegistrar;
 use Lathe\Auth\FortifyConfig;
@@ -13,6 +14,8 @@ use Lathe\Http\Controllers\Auth\LoginPageController;
 use Lathe\Http\Controllers\Auth\NewPasswordController;
 use Lathe\Http\Controllers\Auth\PasswordResetLinkController;
 use Lathe\Http\Controllers\Auth\SecurityController;
+use Lathe\Http\Controllers\Auth\TwoFactorAuthenticationController;
+use Lathe\Http\Controllers\Auth\TwoFactorChallengeController;
 use Lathe\Http\Controllers\BulkRunController;
 use Lathe\Http\Controllers\DashboardController;
 use Lathe\Http\Controllers\ExportController;
@@ -99,6 +102,11 @@ class PanelRoutes
                 $router->get('confirm-password', [ConfirmablePasswordController::class, 'show'])->middleware(Authenticate::class)->name('password.confirm');
                 $router->post('confirm-password', [ConfirmablePasswordController::class, 'store'])->middleware(Authenticate::class)->name('password.confirm.store');
                 $router->get('confirmed-password-status', [ConfirmablePasswordController::class, 'status'])->middleware(Authenticate::class)->name('password.confirmation');
+
+                if ($this->fortify->featureEnabled('twoFactorAuthentication')) {
+                    $router->get('two-factor-challenge', [TwoFactorChallengeController::class, 'create'])->middleware($guest)->name('two-factor.login');
+                    $router->post('two-factor-challenge', [TwoFactorChallengeController::class, 'store'])->middleware($guest)->name('two-factor.login.store');
+                }
             }
 
             if ($this->fortify->featureEnabled('emailVerification')) {
@@ -131,6 +139,21 @@ class PanelRoutes
 
             if ($this->fortify->featureEnabled('updatePasswords')) {
                 $router->put('user-security/password', [SecurityController::class, 'updatePassword'])->name('lathe.user-password.update');
+            }
+
+            if ($this->fortify->featureEnabled('twoFactorAuthentication')) {
+                $twoFactor = TwoFactorAuthenticationController::class;
+                // With confirmPassword (not confirm) each answers 423 until the password is confirmed.
+                $router->middleware($this->fortify->twoFactorOption('confirmPassword') ? [RequirePassword::using('lathe.password.confirm')] : [])
+                    ->group(function (Router $router) use ($twoFactor) {
+                        $router->post('user/two-factor-authentication', [$twoFactor, 'store'])->name('lathe.two-factor.enable');
+                        $router->post('user/confirmed-two-factor-authentication', [$twoFactor, 'confirm'])->name('lathe.two-factor.confirm');
+                        $router->delete('user/two-factor-authentication', [$twoFactor, 'destroy'])->name('lathe.two-factor.disable');
+                        $router->get('user/two-factor-qr-code', [$twoFactor, 'qrCode'])->name('lathe.two-factor.qr-code');
+                        $router->get('user/two-factor-secret-key', [$twoFactor, 'secretKey'])->name('lathe.two-factor.secret-key');
+                        $router->get('user/two-factor-recovery-codes', [$twoFactor, 'recoveryCodes'])->name('lathe.two-factor.recovery-codes');
+                        $router->post('user/two-factor-recovery-codes', [$twoFactor, 'regenerateRecoveryCodes'])->name('lathe.two-factor.regenerate-recovery-codes');
+                    });
             }
             $router->get('pages/{page}/{path?}', PageController::class)
                 ->where('path', '.*')

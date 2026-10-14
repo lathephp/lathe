@@ -77,6 +77,17 @@ class FortifyConfig
     }
 
     /**
+     * Whether two-factor is on with an option (confirm, confirmPassword) set to true.
+     *
+     * Fortify's Features::optionEnabled() reads the host's fortify.features, so the panel checks its own list.
+     */
+    public function twoFactorOption(string $option): bool
+    {
+        return $this->featureEnabled('twoFactorAuthentication')
+            && $this->config->get("fortify-options.two-factor-authentication.{$option}") === true;
+    }
+
+    /**
      * Run the callback with fortify.* pointed at the panel, then put the host's values back.
      *
      * @template TReturn
