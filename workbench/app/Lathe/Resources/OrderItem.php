@@ -14,7 +14,8 @@ class OrderItem extends Resource
     {
         return $definition->model(OrderItemModel::class)
             ->title('id')
-            ->icon('Receipt');
+            ->icon('Receipt')
+            ->parent(Order::class, 'items');
     }
 
     public function fields(LatheRequest $request): array

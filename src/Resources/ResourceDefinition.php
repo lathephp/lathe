@@ -58,6 +58,9 @@ class ResourceDefinition
 
     protected bool $allowAll = false;
 
+    /** @var array{0: class-string<\Lathe\Resources\Resource>, 1: string}|null */
+    protected ?array $parent = null;
+
     /** @var (Closure(Request): bool)|null */
     protected ?Closure $seeCallback = null;
 
@@ -167,6 +170,17 @@ class ResourceDefinition
     public function canonical(bool $canonical = true): static
     {
         return $this->set(fn () => $this->canonical = $canonical);
+    }
+
+    /**
+     * Declare this Resource a child of the parent's relation, as Order's items: it sets the
+     * detail breadcrumbs and which relation a create under via may name.
+     *
+     * @param  class-string<\Lathe\Resources\Resource>  $parent
+     */
+    public function parent(string $parent, string $relationship): static
+    {
+        return $this->set(fn () => $this->parent = [$parent, $relationship]);
     }
 
     public function displayInNavigation(bool $display = true): static
@@ -464,6 +478,14 @@ class ResourceDefinition
     public function isCanonical(): bool
     {
         return $this->canonical;
+    }
+
+    /**
+     * @return array{0: class-string<\Lathe\Resources\Resource>, 1: string}|null
+     */
+    public function getParent(): ?array
+    {
+        return $this->parent;
     }
 
     public function shouldDisplayInNavigation(): bool

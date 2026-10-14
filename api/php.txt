@@ -1939,6 +1939,7 @@ Lathe\Resources\Resource::widgetQuery(Lathe\Http\Requests\LatheRequest $request,
 Lathe\Resources\Resource::with(): array
 Lathe\Resources\ResourceDefinition::?Closure $seeCallback  [protected]
 Lathe\Resources\ResourceDefinition::?Lathe\Enums\PaginationType $paginationType  [protected]
+Lathe\Resources\ResourceDefinition::?array $parent  [protected]
 Lathe\Resources\ResourceDefinition::?array $perPage  [protected]
 Lathe\Resources\ResourceDefinition::?bool $softDeletes  [protected]
 Lathe\Resources\ResourceDefinition::?bool $trafficCop  [protected]
@@ -1999,6 +2000,7 @@ Lathe\Resources\ResourceDefinition::getMaxPrimaryKeySize(): int
 Lathe\Resources\ResourceDefinition::getModel(): ?string
 Lathe\Resources\ResourceDefinition::getNavigationLabel(): ?string
 Lathe\Resources\ResourceDefinition::getPaginationType(): Lathe\Enums\PaginationType
+Lathe\Resources\ResourceDefinition::getParent(): ?array
 Lathe\Resources\ResourceDefinition::getPerPage(): ?array
 Lathe\Resources\ResourceDefinition::getPickerResults(): int
 Lathe\Resources\ResourceDefinition::getPolling(): ?int
@@ -2031,6 +2033,7 @@ Lathe\Resources\ResourceDefinition::modelKeepsUpdatedAt(): bool
 Lathe\Resources\ResourceDefinition::navigationLabel(?string $label): static
 Lathe\Resources\ResourceDefinition::options(): array
 Lathe\Resources\ResourceDefinition::paginationType(Lathe\Enums\PaginationType $type): static
+Lathe\Resources\ResourceDefinition::parent(string $parent, string $relationship): static
 Lathe\Resources\ResourceDefinition::perPage(array $options): static
 Lathe\Resources\ResourceDefinition::pickerResults(int $results): static
 Lathe\Resources\ResourceDefinition::polling(int $seconds): static

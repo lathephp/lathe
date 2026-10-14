@@ -6,6 +6,7 @@ use Closure;
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasOneOrMany;
 use Illuminate\Support\Str;
 use InvalidArgumentException;
 use Lathe\Field\Avatar;
@@ -19,6 +20,7 @@ use Lathe\Field\FieldContext;
 use Lathe\Field\Relations\RelationField;
 use Lathe\Filters\Filter;
 use Lathe\Groups\Group;
+use Lathe\Http\Payloads\RecordPayload;
 use Lathe\Http\Requests\LatheRequest;
 use Lathe\Lathe;
 use Lathe\Layout\SectionPresenter;
@@ -535,13 +537,35 @@ abstract class Resource
     }
 
     /**
-     * The detail page's breadcrumbs; null keeps Dashboard / Resource / #id.
+     * The detail page's breadcrumbs; null keeps Dashboard / Resource / #id. A child declared
+     * with parent() leads through its parent: Dashboard / Orders / #12 / Items / #3.
      *
      * @return list<array{label: string, href: string|null}>|null
      */
     public function detailBreadcrumbs(LatheRequest $request): ?array
     {
-        return null;
+        [$parent, $relationship] = $this->definition()->getParent() ?? [null, ''];
+        $relation = $parent !== null ? $parent::newModel()->{$relationship}() : null;
+
+        if ($parent === null || ! $relation instanceof HasOneOrMany || $this->model === null) {
+            return null;
+        }
+
+        // The parent's key is read from the child's foreign key, so no query runs.
+        $parentKey = $this->model->getAttribute($relation->getForeignKeyName());
+
+        if (! is_scalar($parentKey)) {
+            return null;
+        }
+
+        $field = $parent::make()->fieldsFor(FieldContext::Detail, $request)->first(fn (Field $field) => $field->attribute() === $relationship);
+        $payload = app(RecordPayload::class);
+
+        return $payload->breadcrumbs($parent, [
+            ['label' => '#'.$parentKey, 'href' => $payload->href('resources/'.$parent::uriKey().'/'.$parentKey)],
+            ['label' => $field instanceof Field ? $field->label() : static::label(), 'href' => null],
+            ['label' => '#'.static::keyOf($this), 'href' => null],
+        ]);
     }
 
     /**
