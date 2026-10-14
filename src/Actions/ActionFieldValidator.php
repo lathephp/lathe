@@ -6,8 +6,10 @@ use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Support\Facades\Validator as ValidatorFactory;
 use Lathe\Field\Field;
 use Lathe\Field\FieldContext;
+use Lathe\Field\Relations\Associatable;
 use Lathe\Field\Relations\BelongsToField;
 use Lathe\Http\Requests\LatheRequest;
+use Lathe\Rules\Relatable;
 
 /**
  * Validates the modal form of an action against the `fields` object of the request. A
@@ -27,6 +29,7 @@ class ActionFieldValidator
         $attributes = [];
         $keys = [];
         $relations = [];
+        $class = $request->resourceOrFail();
 
         foreach ($action->fields($request) as $field) {
             if (! $field instanceof Field) {
@@ -40,6 +43,8 @@ class ActionFieldValidator
 
             if ($field instanceof BelongsToField) {
                 $relations[] = $field->attribute();
+                // An action field has no owner, so the key is checked here against the query its picker reads.
+                $rules[$field->attribute()][] = new Relatable($request, new Associatable($request, $class, $field), $field);
             }
         }
 
