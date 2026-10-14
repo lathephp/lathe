@@ -28,3 +28,8 @@ it('keeps every secret out of the demo runbook', function () {
 
     expect($runbook)->not->toMatch('/APP_KEY=base64:|DB_PASSWORD=\S|MYSQL_PWD=\S|(ghp|gho|github_pat|npm|sk)_[A-Za-z0-9]{12,}|BEGIN [A-Z ]*PRIVATE KEY/');
 });
+
+it('lets the quickstart policy save the belongsTo field it adds', function () {
+    // A belongsTo field asks the policy for add{Relation}; the Author field reads the user relation.
+    expect(docsPage('getting-started/quickstart.md'))->toContain("Field::belongsTo('Author', 'user'", 'public function addUser(');
+});

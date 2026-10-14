@@ -119,9 +119,15 @@ public function delete(Authenticatable $user, Post $post): bool
 {
     return true;
 }
+
+// The Author field links a post to a user, which needs its own ability: add, then the relation name.
+public function addUser(Authenticatable $user, Post $post): bool
+{
+    return true;
+}
 ```
 
-Return your own rules here, such as `$post->user_id === $user->id`. See [Policies](../security/policies.md).
+Without `addUser()`, saving the form fails with "You are not authorized to relate this resource." Return your own rules here, such as `$post->user_id === $user->id`. See [Policies](../security/policies.md).
 
 ## Step 5: open the panel
 
