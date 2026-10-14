@@ -232,7 +232,7 @@ export function BelongsToForm(props: FormFieldProps & LookupProps) {
 
   // A field locked by the page, such as under a via, shows its record and no picker.
   if (field.readonly === true) {
-    return <span>{isBelongsToValue(value) ? value.display : '—'}</span>;
+    return <span id={props.id}>{isBelongsToValue(value) ? value.display : '—'}</span>;
   }
 
   return searchable ? (

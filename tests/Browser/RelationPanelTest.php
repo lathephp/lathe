@@ -1,5 +1,6 @@
 <?php
 
+use Workbench\App\Models\Customer;
 use Workbench\App\Models\Order;
 use Workbench\App\Models\Product;
 
@@ -42,9 +43,13 @@ it('creates an item from the Items panel with the order locked', function () {
     $page->assertCount(ITEM_ROWS, $before)
         ->click(ITEMS_PANEL.' a[href$="/new?via=orders/12/items"]')
         ->assertPathIs('/lathe/resources/order-items/new')
-        ->assertDisabled('#field-order')
-        // The Product picker of a belongsTo form field is not built yet; its fallback input takes the id.
-        ->type('#field-product', (string) $product->id)
+        ->assertSeeIn('#field-order', Order::findOrFail(12)->number)
+        ->assertNotPresent('button#field-order')
+        ->click('#field-product')
+        ->type('input[aria-controls="field-product-listbox"]', $product->name)
+        // The picker waits its 500 ms debounce before it asks again.
+        ->wait(1.5)
+        ->click('[role="option"]:first-child')
         ->type('#field-quantity', '2')
         ->type('#field-price_cents', '9.99')
         ->click('form button[type="submit"]')
@@ -61,7 +66,8 @@ it('creates an order from a customer with the customer locked, for an admin only
 
     $page->click('section[aria-label="Orders"] a[href$="/new?via=customers/12/orders"]')
         ->assertPathIs('/lathe/resources/orders/new')
-        ->assertDisabled('#field-customer');
+        ->assertSeeIn('#field-customer', Customer::findOrFail(12)->name)
+        ->assertNotPresent('button#field-customer');
     assertCleanPage($page);
 
     $editor = signedInAt('/lathe/resources/customers/12', email: 'editor@lathephp.com');
