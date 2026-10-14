@@ -6,6 +6,7 @@ use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Support\Facades\Validator as ValidatorFactory;
 use Lathe\Field\Field;
 use Lathe\Field\FieldContext;
+use Lathe\Field\Relations\BelongsToField;
 use Lathe\Http\Requests\LatheRequest;
 
 /**
@@ -25,6 +26,7 @@ class ActionFieldValidator
         $messages = [];
         $attributes = [];
         $keys = [];
+        $relations = [];
 
         foreach ($action->fields($request) as $field) {
             if (! $field instanceof Field) {
@@ -35,11 +37,22 @@ class ActionFieldValidator
             $messages = [...$messages, ...$field->getMessages()];
             $attributes = [...$attributes, ...$field->getValidationAttributes()];
             $keys[] = $field->attribute();
+
+            if ($field instanceof BelongsToField) {
+                $relations[] = $field->attribute();
+            }
         }
 
         $validator = ValidatorFactory::make($data, $rules, $messages, $attributes);
         $validator->after(fn (Validator $validator) => $action->afterValidation($request, $validator));
         $validator->validate();
+
+        // The modal's picker sends {value, display}, as on a record form; the handler gets the key.
+        foreach ($relations as $attribute) {
+            if (is_array($data[$attribute] ?? null)) {
+                $data[$attribute] = $data[$attribute]['value'] ?? null;
+            }
+        }
 
         // Keys no field owns never reach the handler.
         return new ActionFields(array_intersect_key($data, array_flip($keys)));

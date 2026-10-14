@@ -105,6 +105,17 @@ it('merges the selected tags into the target', function () {
         ->and(DB::table('taggables')->whereIn('tag_id', [$sale->id, $new->id])->exists())->toBeFalse();
 });
 
+it('merges into the target the modal picker sends as {value, display}', function () {
+    [$sale, $new, $target] = Tag::query()->orderBy('id')->limit(3)->get()->all();
+
+    LatheTest::resource('tags')->runAction('merge-tags', ['mode' => 'ids', 'ids' => [$sale->id, $new->id]], ['target' => ['value' => $target->id, 'display' => $target->name]])
+        ->assertOk()
+        ->assertJsonPath('result.message', 'Tags merged.');
+
+    expect(Tag::whereKey([$sale->id, $new->id])->count())->toBe(0)
+        ->and(Tag::whereKey($target->id)->exists())->toBeTrue();
+});
+
 test('lens_action_uses_the_same_dispatcher', function () {
     $pending = Order::where('status', 'pending')->orderBy('id')->limit(3)->pluck('id')->all();
     $other = Order::where('status', '!=', 'pending')->value('id');
