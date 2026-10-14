@@ -13,8 +13,10 @@ use Lathe\Attributes\Action\ActionAttribute;
 use Lathe\Field\FileField;
 use Lathe\Http\Requests\LatheRequest;
 use Lathe\Lathe;
+use Lathe\Query\Selection;
 use ReflectionAttribute;
 use ReflectionClass;
+use Throwable;
 
 /**
  * Something staff run on selected rows, on one row or on no rows, with an optional modal
@@ -94,6 +96,9 @@ class Action implements JsonSerializable
     protected ?Closure $handleCallback = null;
 
     protected ?Closure $thenCallback = null;
+
+    /** The batch id of the current run's action events, set by the dispatcher. */
+    protected ?string $actionBatchId = null;
 
     public function __construct()
     {
@@ -244,6 +249,43 @@ class Action implements JsonSerializable
     public function afterValidation(LatheRequest $request, Validator $validator): void
     {
         //
+    }
+
+    /**
+     * The whole run on a selection: authority, fields, handlers, audit rows and the response.
+     *
+     * @return array{result: ActionResult, permitted: int, skipped: int, failed: int, errors: list<array{id: int|string|null, message: string}>}
+     */
+    public function handleRequest(LatheRequest $request, Selection $selection): array
+    {
+        return app(ActionDispatcher::class)->dispatch($request, $this, $selection);
+    }
+
+    public function withActionBatchId(?string $batchId): static
+    {
+        $this->actionBatchId = $batchId;
+
+        return $this;
+    }
+
+    /**
+     * Marks the current run's event for the model finished; a row already finished or failed stays.
+     */
+    public function markAsFinished(Model $model): void
+    {
+        if ($this->actionBatchId !== null) {
+            Lathe::actionEventModel()::markAsFinished($this->actionBatchId, $model);
+        }
+    }
+
+    /**
+     * Marks the current run's event for the model failed, with the exception's message.
+     */
+    public function markAsFailed(Model $model, ?Throwable $exception = null): void
+    {
+        if ($this->actionBatchId !== null) {
+            Lathe::actionEventModel()::markAsFailed($this->actionBatchId, $model, $exception);
+        }
     }
 
     // Authorization

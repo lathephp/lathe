@@ -8,6 +8,7 @@ use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
+use Lathe\Actions\Action;
 use Lathe\Enums\ActionEventStatus;
 use Lathe\Enums\ActionEventType;
 use Lathe\Field\FieldContext;
@@ -125,13 +126,13 @@ class ActionEventRecorder
     /**
      * One row per model, in chunks of 50, or one row without a record for a standalone run.
      *
-     * @param  object|string  $actionName  the Action, or its name
+     * @param  Action|string  $actionName  the Action, or its name
      * @param  Collection<int, Model>  $models
      * @param  class-string<resource>  $resourceClass
      * @param  array<array-key, mixed>  $fields
      * @return string the batch id shared by the rows
      */
-    public function forActionRan(?LatheRequest $request, object|string $actionName, Collection $models, string $resourceClass, ActionEventStatus $status, array $fields = []): string
+    public function forActionRan(?LatheRequest $request, Action|string $actionName, Collection $models, string $resourceClass, ActionEventStatus $status, array $fields = []): string
     {
         $batchId = $this->newBatchId();
 
@@ -139,8 +140,7 @@ class ActionEventRecorder
             return $batchId;
         }
 
-        $named = is_object($actionName) && method_exists($actionName, 'name') ? $actionName->name() : null;
-        $name = is_string($actionName) ? $actionName : (is_string($named) ? $named : $actionName::class);
+        $name = is_string($actionName) ? $actionName : $actionName->name();
         $fields = $this->clean($fields, null, $resourceClass);
 
         $rows = ($models->isEmpty() ? collect([null]) : $models->values())->map(
