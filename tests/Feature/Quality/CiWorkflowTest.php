@@ -37,6 +37,10 @@ it('installs from the committed lock files', function () {
         ->and(ciSteps('frontend'))->toContain('pnpm install --frozen-lockfile');
 });
 
+it('fails the frontend job on a production licence that is not allowed', function () {
+    expect(ciSteps('frontend'))->toContain('node scripts/third-party-licenses.mjs');
+});
+
 it('runs the weekly schedule on Monday at 04:00 UTC', function () {
     expect(ciWorkflow()['on']['schedule'])->toBe([['cron' => '0 4 * * 1']]);
 });
