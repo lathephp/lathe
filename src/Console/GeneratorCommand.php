@@ -264,7 +264,8 @@ abstract class GeneratorCommand extends Command
     {
         $parts = explode('/', $slug);
 
-        if (count($parts) !== 2 || $parts[0] === '' || $parts[1] === '') {
+        // The rules lathe:plugin names a package by, so a slug such as acme/.. never leaves the plugin folders.
+        if (count($parts) !== 2 || preg_match('/^[a-z0-9]+(-[a-z0-9]+)*$/', $parts[0]) !== 1 || preg_match('/^[a-z][a-z0-9]*(-[a-z0-9]+)*$/', $parts[1]) !== 1) {
             $this->components->error("The plugin must be given as vendor/name, not [{$slug}].");
 
             return null;

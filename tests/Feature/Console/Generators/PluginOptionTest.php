@@ -56,3 +56,14 @@ it('exits 1 and prints both searched paths when no plugin has a src root', funct
 it('exits 1 for a plugin that is not given as vendor/name', function () {
     $this->artisan('lathe:action', ['name' => 'Refund', '--plugin' => 'billing'])->assertExitCode(1);
 });
+
+it('exits 1 naming a plugin slug that climbs out to the app root', function () {
+    ($this->plugin)('', 'App\\');
+    File::ensureDirectoryExists("{$this->generatorBase}/lathe-components");
+
+    $this->artisan('lathe:action', ['name' => 'Refund', '--plugin' => 'acme/..'])
+        ->expectsOutputToContain('[acme/..]')
+        ->assertExitCode(1);
+
+    expect(File::exists("{$this->generatorBase}/src/Actions/Refund.php"))->toBeFalse();
+});
