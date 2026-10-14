@@ -20,6 +20,8 @@
   --color-primary: var(--lathe-primary);
   --color-primary-foreground: var(--lathe-primary-foreground);
   --color-destructive: var(--lathe-destructive);
+  --color-warning: var(--lathe-warning);
+  --color-success: var(--lathe-success);
 }
 
 :root {
@@ -32,6 +34,8 @@
   --lathe-primary: var(--color-zinc-900);
   --lathe-primary-foreground: var(--color-zinc-50);
   --lathe-destructive: var(--color-red-600);
+  --lathe-warning: var(--color-amber-500);
+  --lathe-success: var(--color-emerald-600);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -45,6 +49,8 @@
     --lathe-primary: var(--color-zinc-50);
     --lathe-primary-foreground: var(--color-zinc-900);
     --lathe-destructive: var(--color-red-400);
+    --lathe-warning: var(--color-amber-400);
+    --lathe-success: var(--color-emerald-400);
   }
 }
 
