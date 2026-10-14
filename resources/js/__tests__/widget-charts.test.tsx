@@ -91,6 +91,8 @@ describe('a bar card', () => {
     const table = within(chart).getByRole('table');
 
     expect(table.closest('.sr-only')).not.toBeNull();
+    // Recharts makes its SVG focusable; nothing focusable may sit under aria-hidden.
+    expect(chart.querySelector('[aria-hidden="true"] [tabindex]')).toBeNull();
     expect([...table.querySelectorAll('tbody tr')].map((row) => [...row.children].map((cell) => cell.textContent))).toEqual([
       ['Paid', '42'],
       ['Refunded', '7'],

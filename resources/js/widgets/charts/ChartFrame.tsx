@@ -20,9 +20,7 @@ export interface ChartFrameProps {
 export function ChartFrame({ name, columns, rows, className, children }: ChartFrameProps) {
   return (
     <div role="figure" aria-label={name} className={cn('relative h-full w-full', className)}>
-      <div aria-hidden="true" className="h-full w-full">
-        {children}
-      </div>
+      <div className="h-full w-full">{children}</div>
       <div className="sr-only">
         <table>
           <thead>
