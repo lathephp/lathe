@@ -55,8 +55,9 @@ it('writes php blocks that lint', function () {
 
         foreach ($blocks[1] as $index => $block) {
             // A block that starts with <?php is linted as written. Any other block is
-            // a fragment (a method, a property, a constant), so it is linted inside a class body.
-            $source = str_starts_with(ltrim($block), '<?php') ? $block : "<?php\nclass SkillFragment\n{\n{$block}\n}\n";
+            // a fragment (a method, a property, a constant), so it is linted inside the body of a
+            // class that has a parent, which lets a method call parent::boot().
+            $source = str_starts_with(ltrim($block), '<?php') ? $block : "<?php\nclass SkillFragment extends SkillFragmentParent\n{\n{$block}\n}\n";
 
             $process = proc_open([PHP_BINARY, '-l'], [0 => ['pipe', 'r'], 1 => ['pipe', 'w'], 2 => ['pipe', 'w']], $pipes);
             fwrite($pipes[0], $source);
