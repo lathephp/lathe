@@ -521,7 +521,7 @@ class Action implements JsonSerializable
     {
         $text = $this->confirmText instanceof Closure ? ($this->confirmText)($count) : $this->confirmText;
 
-        return is_string($text) ? str_replace(':count', (string) $count, $text) : null;
+        return is_string($text) ? str_replace(':count', number_format($count), $text) : null;
     }
 
     /**

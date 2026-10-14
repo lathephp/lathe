@@ -200,6 +200,10 @@ describe('the action modal', () => {
 
     expect(await within(dialog).findByText('The note field is required.')).toBeTruthy();
     expect(screen.getByRole('dialog')).toBeTruthy();
+
+    // Filling the field drops its old message.
+    fireEvent.change(within(dialog).getByRole('textbox'), { target: { value: 'Fragile' } });
+    expect(within(dialog).queryByText('The note field is required.')).toBeNull();
   });
 
   it("loads a relation field's options from the action lookup route", async () => {

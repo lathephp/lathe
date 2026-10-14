@@ -127,6 +127,8 @@ export function ActionModal({ base, action, count, onClose, onRun }: ActionModal
                   error={errors[field.attribute]}
                   onChange={(value) => {
                     setValues((current) => ({ ...current, [field.attribute]: value }));
+                    // A changed field drops its old message; the next run checks it again.
+                    setErrors((current) => Object.fromEntries(Object.entries(current).filter(([key]) => key !== field.attribute)));
                   }}
                 />
               ))}

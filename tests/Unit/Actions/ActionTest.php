@@ -265,3 +265,7 @@ it('fills the confirm text for a count, a closure called with it', function () {
         ->and(Action::make()->confirmable(fn (int $count) => $count === 1 ? 'Ship this order?' : "Ship {$count} orders?")->confirmTextFor(1))->toBe('Ship this order?')
         ->and(Action::make()->confirmTextFor(2))->toBeNull();
 });
+
+it('writes the count in the confirm text with thousands separators', function () {
+    expect(Action::make()->confirmable('Mark :count orders as shipped?')->confirmTextFor(2424))->toBe('Mark 2,424 orders as shipped?');
+});
