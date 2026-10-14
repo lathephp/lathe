@@ -15,14 +15,14 @@ interface BulkStatus {
   skipped: number;
 }
 
-interface ExportStatus {
+export interface ExportStatus {
   status: 'waiting' | 'running' | 'finished' | 'failed';
   total_rows: number;
   processed_rows: number;
   download_url?: string | null;
 }
 
-interface ImportStatus {
+export interface ImportStatus {
   status: 'uploaded' | 'queued' | 'processing' | 'completed' | 'failed';
   mode: 'dry_run' | 'import';
   total_rows: number;

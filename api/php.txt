@@ -194,12 +194,29 @@ Lathe\Actions\ActionResult::withMessage(string $text): static
 Lathe\Actions\ActionResult::withModal(string $component, array $data = array ( )): static
 Lathe\Actions\ActionResult::withRedirect(string $url, bool $newTab = false): static
 Lathe\Actions\ActionResult::withVisitOptions(string $path, array $options = array ( )): static
+Lathe\Actions\BulkRun::$fillable  [protected]
+Lathe\Actions\BulkRun::$table  [protected]
+Lathe\Actions\BulkRun::casts(): array  [protected]
+Lathe\Actions\BulkRun::ownedBy(string|int|null $userId): bool
 Lathe\Actions\DestructiveAction::bool $confirmable  [protected]
 Lathe\Actions\DestructiveAction::bool $destructive
+Lathe\Actions\Export\Export::$fillable  [protected]
+Lathe\Actions\Export\Export::$table  [protected]
+Lathe\Actions\Export\Export::casts(): array  [protected]
+Lathe\Actions\Export\Export::ownedBy(string|int|null $userId): bool
 Lathe\Actions\Import\ColumnMapper::MAX_DISTANCE
 Lathe\Actions\Import\ColumnMapper::MAX_FUZZY_HEADER_LENGTH
 Lathe\Actions\Import\ColumnMapper::autoMap(array $headers, array $columns): array  [static]
 Lathe\Actions\Import\ColumnMapper::normalize(string $value): string  [protected static]
+Lathe\Actions\Import\FailedImportRow::$fillable  [protected]
+Lathe\Actions\Import\FailedImportRow::$table  [protected]
+Lathe\Actions\Import\FailedImportRow::casts(): array  [protected]
+Lathe\Actions\Import\FailedImportRow::import(): Illuminate\Database\Eloquent\Relations\BelongsTo
+Lathe\Actions\Import\Import::$fillable  [protected]
+Lathe\Actions\Import\Import::$table  [protected]
+Lathe\Actions\Import\Import::casts(): array  [protected]
+Lathe\Actions\Import\Import::failedRows(): Illuminate\Database\Eloquent\Relations\HasMany
+Lathe\Actions\Import\Import::ownedBy(string|int|null $userId): bool
 Lathe\Actions\Import\ImportColumn::?Closure $castUsing  [protected]
 Lathe\Actions\Import\ImportColumn::?array $relationship  [protected]
 Lathe\Actions\Import\ImportColumn::?int $decimalPlaces  [protected]
@@ -1890,6 +1907,7 @@ Lathe\Http\Controllers\Resources\SavedTabController::reorder(Lathe\Http\Requests
 Lathe\Http\Controllers\Resources\SavedTabController::store(Lathe\Http\Requests\LatheRequest $request, Lathe\Auth\ResourceAuthorization $authorization, Lathe\Support\ConfigStore $config): Illuminate\Http\JsonResponse
 Lathe\Http\Controllers\Resources\SavedTabController::update(Lathe\Http\Requests\LatheRequest $request, Lathe\Auth\ResourceAuthorization $authorization, Lathe\Support\ConfigStore $config): Illuminate\Http\JsonResponse
 Lathe\Http\Controllers\Resources\SavedTabController::userId(Lathe\Http\Requests\LatheRequest $request): string  [protected]
+Lathe\Http\Controllers\RunPageController::__invoke(Lathe\Http\Requests\LatheRequest $request, string $type, string $id): Symfony\Component\HttpFoundation\Response
 Lathe\Http\Controllers\Uploads\StartUploadController::Lathe\Support\ConfigStore $config  [protected]
 Lathe\Http\Controllers\Uploads\StartUploadController::Lathe\Uploads\UploadHandler $uploads  [protected]
 Lathe\Http\Controllers\Uploads\StartUploadController::__construct(Lathe\Uploads\UploadHandler $uploads, Lathe\Support\ConfigStore $config)
@@ -2983,8 +3001,12 @@ class Lathe\Actions\ActionCollection
 class Lathe\Actions\ActionFields
 class Lathe\Actions\ActionMethodResolver
 class Lathe\Actions\ActionResult
+class Lathe\Actions\BulkRun
 class Lathe\Actions\DestructiveAction
+class Lathe\Actions\Export\Export
 class Lathe\Actions\Import\ColumnMapper
+class Lathe\Actions\Import\FailedImportRow
+class Lathe\Actions\Import\Import
 class Lathe\Actions\Import\ImportColumn
 class Lathe\Actions\Import\RowCastException
 class Lathe\Actions\Import\RowCaster
@@ -3171,6 +3193,7 @@ class Lathe\Http\Controllers\Resources\RelatableAuthorizationController
 class Lathe\Http\Controllers\Resources\RelationAttachController
 class Lathe\Http\Controllers\Resources\RelationIndexController
 class Lathe\Http\Controllers\Resources\SavedTabController
+class Lathe\Http\Controllers\RunPageController
 class Lathe\Http\Controllers\Uploads\StartUploadController
 class Lathe\Http\Controllers\Uploads\UploadController
 class Lathe\Http\ErrorPages

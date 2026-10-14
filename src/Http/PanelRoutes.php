@@ -37,6 +37,7 @@ use Lathe\Http\Controllers\Resources\RelatableAuthorizationController;
 use Lathe\Http\Controllers\Resources\RelationAttachController;
 use Lathe\Http\Controllers\Resources\RelationIndexController;
 use Lathe\Http\Controllers\Resources\SavedTabController;
+use Lathe\Http\Controllers\RunPageController;
 use Lathe\Http\Controllers\Uploads\StartUploadController;
 use Lathe\Http\Controllers\Uploads\UploadController;
 use Lathe\Http\Middleware\Authenticate;
@@ -230,7 +231,7 @@ class PanelRoutes
      */
     protected function runPageRoutes(Router $router): void
     {
-        //
+        $router->get('runs/{type}/{id}', RunPageController::class)->where('type', 'export|import')->name('lathe.runs.show');
     }
 
     protected function api(): RouteRegistrar
