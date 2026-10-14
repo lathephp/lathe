@@ -24,6 +24,7 @@
         "laravel/fortify": "^1.41",
         "laravel/framework": "^13.32",
         "league/commonmark": "^2.10.3",
+        "openspout/openspout": "^5.12.2",
         "symfony/html-sanitizer": "^8.1"
     },
     "require-dev": {
