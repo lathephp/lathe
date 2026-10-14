@@ -47,16 +47,18 @@ class JobContext
      */
     public function restore(): void
     {
-        if ($this->actor !== null) {
-            $guard = Auth::guard($this->guard);
-            $provider = method_exists($guard, 'getProvider') ? $guard->getProvider() : null;
-            $user = $provider instanceof UserProvider ? $provider->retrieveById($this->actor) : null;
+        $guard = Auth::guard($this->guard);
+        $provider = method_exists($guard, 'getProvider') ? $guard->getProvider() : null;
+        $user = $this->actor !== null && $provider instanceof UserProvider ? $provider->retrieveById($this->actor) : null;
 
-            if ($user !== null) {
-                $guard->setUser($user);
-                Auth::shouldUse($this->guard);
-            }
+        // A long-lived worker still holds the last job's user; a job whose actor is gone runs as no one.
+        if ($user !== null) {
+            $guard->setUser($user);
+        } elseif (method_exists($guard, 'forgetUser')) {
+            $guard->forgetUser();
         }
+
+        Auth::shouldUse($this->guard);
 
         app()->setLocale($this->locale);
         Lathe::restoreCapturedJobContext($this->extra);

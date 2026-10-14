@@ -65,3 +65,13 @@ it('returns what a host captured through its restore callback', function () {
     expect($context->extra)->toBe(['tenant' => 42])
         ->and($restored)->toBe(42);
 });
+
+it('signs the previous job user out when the actor is gone', function () {
+    $context = JobContext::capture(jobContextRequest());
+    User::whereKey($context->actor)->delete();
+    Auth::guard($context->guard)->setUser(User::where('email', 'editor@lathephp.com')->firstOrFail());
+
+    $context->restore();
+
+    expect(Auth::guard($context->guard)->user())->toBeNull();
+});
