@@ -9,7 +9,6 @@ set -euo pipefail
 version=${1:?usage: split-permission.sh <version> <split-repo-dir>}
 target=${2:?usage: split-permission.sh <version> <split-repo-dir>}
 repo=$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)
-source="$repo/plugins/permission"
 
 [[ $version =~ ^[0-9]+\.[0-9]+\.[0-9]+(-(alpha|beta|rc)\.[0-9]+)?$ ]] || { echo "split-permission: $version is not a SemVer version" >&2; exit 1; }
 

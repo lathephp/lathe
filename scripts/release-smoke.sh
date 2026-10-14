@@ -9,7 +9,13 @@
 set -uo pipefail
 
 repo=$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)
-work=${1:-$(mktemp -d "${TMPDIR:-/tmp}/lathe-smoke.XXXXXX")}
+work=${1:-}
+if [[ -z $work ]]; then
+    # A folder the script made for itself is removed when it ends.
+    work=$(mktemp -d "${TMPDIR:-/tmp}/lathe-smoke.XXXXXX")
+    owned=$work
+    trap 'rm -rf "$owned"' EXIT
+fi
 laravel=13.35.0
 port=${LATHE_SMOKE_PORT:-8977}
 version=$(grep -m1 -oP '^## \[\K[0-9][^\]]*(?=\])' "$repo/CHANGELOG.md")
@@ -66,7 +72,7 @@ php artisan lathe:doctor || fail "lathe:doctor failed"
 step "GET /lathe/login"
 php artisan serve --port="$port" >"$work/serve.log" 2>&1 &
 server=$!
-trap 'kill $server 2>/dev/null' EXIT
+trap 'kill $server 2>/dev/null; [[ -n ${owned:-} ]] && rm -rf "$owned"' EXIT
 code=000
 for _ in $(seq 30); do
     code=$(curl -s -o /dev/null -w '%{http_code}' "http://127.0.0.1:$port/lathe/login") && [[ $code != 000 ]] && break
