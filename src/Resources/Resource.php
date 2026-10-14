@@ -34,6 +34,7 @@ use Lathe\Lathe;
 use Lathe\Layout\SectionPresenter;
 use Lathe\Lenses\Lens;
 use Lathe\Menu\MenuItem;
+use Lathe\Resources\Concerns\HasMeta;
 use Lathe\Search\SearchableColumn;
 use Lathe\Support\SafeHtml;
 use Lathe\Tabs\Tab;
@@ -52,6 +53,8 @@ use Lathe\Widgets\Widget;
  */
 abstract class Resource
 {
+    use HasMeta;
+
     /**
      * The policy class, when it is not the one the Gate resolves for the model.
      *
@@ -332,6 +335,16 @@ abstract class Resource
     public static function menu(LatheRequest $request): ?MenuItem
     {
         return null;
+    }
+
+    /**
+     * Values for a custom page or resource plugin, sent as `extra` in the Resource's payload.
+     *
+     * @return array<string, mixed>
+     */
+    public static function additionalInformation(LatheRequest $request): array
+    {
+        return [];
     }
 
     public static function make(?Model $model = null): static

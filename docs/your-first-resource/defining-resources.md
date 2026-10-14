@@ -96,6 +96,28 @@ return $definition
 
 Without a title, Lathe uses the `id` column.
 
+## Meta and additional information
+
+`withMeta()` attaches values to a Resource instance, and `meta()` reads them. Call `withMeta()` in the constructor to set them for every request. Override the static `additionalInformation()` to compute values from the request. Lathe sends both with the Resource's part of every page, as `resource.meta` and `resource.extra`, so a custom page or a Resource plugin can read them:
+
+```php
+use Lathe\Http\Requests\LatheRequest;
+
+public function __construct(?Model $model = null)
+{
+    parent::__construct($model);
+
+    $this->withMeta(['tier' => 'gold']);
+}
+
+public static function additionalInformation(LatheRequest $request): array
+{
+    return ['viewer' => $request->user()?->email];
+}
+```
+
+`additionalInformation()` returns `[]` by default. In a request handler, `$request->resourceInstance()` gives the Resource the route names, or `null`. `$request->newResource()` gives a new instance and answers 404 when there is none.
+
 ## Register Resources
 
 Lathe finds every Resource in `app/Lathe/Resources` the first time the panel needs one. Your `app/Providers/LatheServiceProvider.php`, which `lathe:install` writes, does this in its `registerResources()` method. To register classes by hand instead, call `Lathe::registerResources()`:

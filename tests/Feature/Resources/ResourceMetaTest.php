@@ -5,6 +5,7 @@ namespace Lathe\Tests\Feature\Resources;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Gate;
 use Inertia\Testing\AssertableInertia;
+use Lathe\Field\Field;
 use Lathe\Http\Requests\LatheRequest;
 use Lathe\Lathe;
 use Lathe\Resources\Resource;
@@ -29,7 +30,7 @@ class MetaOrders extends Resource
 
     public function fields(LatheRequest $request): array
     {
-        return [];
+        return [Field::make('Number')];
     }
 
     public static function additionalInformation(LatheRequest $request): array
@@ -64,7 +65,7 @@ it('puts meta and additional information in the Resource part of every page', fu
     'index' => ['/lathe/resources/meta-orders'],
     'detail' => ['/lathe/resources/meta-orders/{id}'],
     'edit' => ['/lathe/resources/meta-orders/{id}/edit'],
-    'create' => ['/lathe/resources/meta-orders/create'],
+    'create' => ['/lathe/resources/meta-orders/new'],
 ]);
 
 it('gives a Resource without meta or additional information empty lists', function () {

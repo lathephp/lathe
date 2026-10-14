@@ -147,7 +147,7 @@ class IndexPayload
      * The Resource's own part of the payload, which reads no rows, so a refused URL can still draw the page.
      *
      * @param  class-string<\Lathe\Resources\Resource>  $class
-     * @return array{uriKey: string, label: string, singularLabel: string, perPageOptions: non-empty-list<int>, searchable: bool, softDeletes: bool, abilities: array{create: bool}, preview: bool, definition: array<string, mixed>}
+     * @return array{uriKey: string, label: string, singularLabel: string, perPageOptions: non-empty-list<int>, searchable: bool, softDeletes: bool, abilities: array{create: bool}, preview: bool, definition: array<string, mixed>, meta: array<string, mixed>, extra: array<string, mixed>}
      */
     public function resource(string $class): array
     {
@@ -166,6 +166,8 @@ class IndexPayload
             // Rows get a preview button when some field shows in the Preview context.
             'preview' => $resource->fieldsFor(FieldContext::Preview, $this->request)->forContext(FieldContext::Preview, $this->request)->isNotEmpty(),
             'definition' => $definition->options(),
+            'meta' => $resource->meta(),
+            'extra' => $class::additionalInformation($this->request),
         ];
     }
 
