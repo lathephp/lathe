@@ -12,10 +12,12 @@
     "./testing": {
       "types": "./dist/testing/index.d.ts",
       "default": "./dist/testing.js"
-    }
+    },
+    "./tokens.css": "./tokens.css"
   },
   "files": [
     "dist",
+    "tokens.css",
     "!dist/*.tsbuildinfo"
   ],
   "scripts": {
