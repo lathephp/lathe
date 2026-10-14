@@ -108,7 +108,7 @@ it('answers the peek of a customer with its title and peek fields, and 404 for a
     $json = $this->getJson('/lathe/api/resources/customers/12/peek')->assertOk()->json();
 
     expect($json['title'])->toBe(Customer::findOrFail(12)->name)
-        ->and(array_column($json['fields'], 'key'))->toBe(['email']);
+        ->and(array_column($json['fields'], 'key'))->toBe(['country']);
 
     $this->getJson('/lathe/api/resources/customers/99999999/peek')->assertNotFound();
 });
