@@ -95,3 +95,69 @@ describe('request for a file', () => {
     expect(await file?.text()).toBe('id,name\n1,Ada\n');
   });
 });
+
+describe('request that needs a password confirmation', () => {
+  function respondInTurn(...answers: [number, string][]): void {
+    const queue = [...answers];
+
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(() => {
+        const [status, body] = queue.shift() ?? [500, ''];
+
+        return Promise.resolve(new Response(body, { status }));
+      }),
+    );
+  }
+
+  afterEach(() => {
+    __panel.setPasswordConfirmer(undefined);
+  });
+
+  it('asks for the password on a 423, then repeats the request once and answers its result', async () => {
+    respondInTurn([423, '{"message":"Password confirmation required."}'], [200, '{"ok":true}']);
+    const confirm = vi.fn(() => Promise.resolve(true));
+    __panel.setPasswordConfirmer(confirm);
+
+    const result = await request('/lathe/api/thing', { method: 'POST', body: { a: 1 } });
+
+    expect(result).toEqual({ ok: true });
+    expect(confirm).toHaveBeenCalledOnce();
+    expect(vi.mocked(fetch).mock.calls.map(([url, init]) => [url, init?.method, init?.body])).toEqual([
+      ['/lathe/api/thing', 'POST', '{"a":1}'],
+      ['/lathe/api/thing', 'POST', '{"a":1}'],
+    ]);
+  });
+
+  it('repeats only once, even when the repeat answers 423 again', async () => {
+    respondInTurn([423, '{}'], [423, '{"message":"Password confirmation required."}'], [200, '{}']);
+    const confirm = vi.fn(() => Promise.resolve(true));
+    __panel.setPasswordConfirmer(confirm);
+
+    const error = await request('/x').catch((e: unknown) => e);
+
+    expect(error).toMatchObject({ status: 423, data: { message: 'Password confirmation required.' } });
+    expect(confirm).toHaveBeenCalledOnce();
+    expect(vi.mocked(fetch)).toHaveBeenCalledTimes(2);
+  });
+
+  it('rejects with the 423 and sends nothing again when the person cancels', async () => {
+    respondInTurn([423, '{"message":"Password confirmation required."}'], [200, '{}']);
+    __panel.setPasswordConfirmer(() => Promise.resolve(false));
+
+    const error = await request('/x').catch((e: unknown) => e);
+
+    expect(error).toBeInstanceOf(ApiError);
+    expect(error).toMatchObject({ status: 423, data: { message: 'Password confirmation required.' } });
+    expect(vi.mocked(fetch)).toHaveBeenCalledOnce();
+  });
+
+  it('rejects a 423 at once while no confirmer is set', async () => {
+    respondInTurn([423, '{"message":"Password confirmation required."}'], [200, '{}']);
+
+    const error = await request('/x').catch((e: unknown) => e);
+
+    expect(error).toMatchObject({ status: 423 });
+    expect(vi.mocked(fetch)).toHaveBeenCalledOnce();
+  });
+});
