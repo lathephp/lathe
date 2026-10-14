@@ -87,6 +87,50 @@ it('has a kit method for every dashboard and widget route', function () {
     expect($found)->toBe($expected);
 });
 
+/**
+ * Each record, lens, saved tab and search route, by verb and the path after lathe/, with
+ * the kit class and method that sends it. The two page routes answer show() and lenses().
+ */
+const KIT_RECORD_ROUTES = [
+    'GET resources/{resource}' => [ResourceTester::class, 'lenses'],
+    'GET resources/{resource}/{resourceId}' => [ResourceTester::class, 'show'],
+    'GET api/resources/{resource}' => [ResourceTester::class, 'index'],
+    'POST api/resources/{resource}' => [ResourceTester::class, 'store'],
+    'GET api/resources/{resource}/count' => [ResourceTester::class, 'count'],
+    'GET api/resources/{resource}/filters' => [ResourceTester::class, 'filters'],
+    'GET api/resources/{resource}/lenses/{lens}' => [ResourceTester::class, 'index'],
+    'GET api/resources/{resource}/lenses/{lens}/count' => [ResourceTester::class, 'count'],
+    'GET api/resources/{resource}/lenses/{lens}/filters' => [ResourceTester::class, 'filters'],
+    'GET api/resources/{resource}/saved-tabs' => [ResourceTester::class, 'savedTabs'],
+    'POST api/resources/{resource}/saved-tabs' => [ResourceTester::class, 'createSavedTab'],
+    'PUT api/resources/{resource}/saved-tabs/reorder' => [ResourceTester::class, 'reorderSavedTabs'],
+    'PUT api/resources/{resource}/saved-tabs/{savedTab}' => [ResourceTester::class, 'updateSavedTab'],
+    'DELETE api/resources/{resource}/saved-tabs/{savedTab}' => [ResourceTester::class, 'deleteSavedTab'],
+    'GET api/search' => [LatheTest::class, 'search'],
+];
+
+it('has a kit method for every record, lens, saved tab and search route', function () {
+    $found = [];
+
+    foreach (Router::getRoutes()->getRoutes() as $route) {
+        /** @var Route $route */
+        if (preg_match('#^lathe/(resources/\{resource\}(?:/\{resourceId\})?|api/search|api/resources/\{resource\}(?:/lenses/\{lens\})?(?:/count|/filters)?|api/resources/\{resource\}/saved-tabs(?:/.*)?)$#', $route->uri(), $match) !== 1) {
+            continue;
+        }
+
+        foreach (array_diff($route->methods(), ['HEAD']) as $method) {
+            $kit = KIT_RECORD_ROUTES["{$method} {$match[1]}"] ?? null;
+            $found["{$method} {$match[1]}"] = $kit !== null && method_exists($kit[0], $kit[1]);
+        }
+    }
+
+    ksort($found);
+    $expected = array_fill_keys(array_keys(KIT_RECORD_ROUTES), true);
+    ksort($expected);
+
+    expect($found)->toBe($expected);
+});
+
 it('kit_calls_match_their_signatures', function () {
     $signature = fn (string $class, string $method) => array_map(
         fn (ReflectionParameter $parameter) => $parameter->getType().' $'.$parameter->getName().($parameter->isDefaultValueAvailable() ? ' = '.json_encode($parameter->getDefaultValue()) : ''),
