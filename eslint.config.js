@@ -8,7 +8,7 @@ import noUntranslatedLiteral from './eslint-rules/no-untranslated-literal.js';
 export default defineConfig([
   // A worktree under .claude carries its own copy of this config; vendor is the PHP side.
   // Stubs are templates: the scaffold quality test lints what they render to.
-  globalIgnores(['.claude/**', 'dist/**', 'packages/*/dist/**', 'vendor/**', 'workbench/**', 'stubs/**']),
+  globalIgnores(['.claude/**', 'dist/**', 'packages/*/dist/**', 'vendor/**', 'plugins/*/vendor/**', 'workbench/**', 'stubs/**']),
   js.configs.recommended,
   tseslint.configs.strictTypeChecked,
   {
