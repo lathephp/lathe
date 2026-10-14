@@ -1,0 +1,2 @@
+@reference "./app.css";
+@import "./styles/style-vega.css" layer(base);

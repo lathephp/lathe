@@ -1,0 +1,2 @@
+@reference "./app.css";
+@import "./styles/style-nova.css" layer(base);

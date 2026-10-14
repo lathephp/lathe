@@ -22,6 +22,8 @@ const packageSources: Record<string, string> = {
   '@lathephp/ui': 'packages/ui/src/index.ts',
 };
 
+const themeStyles = ['nova', 'vega', 'lyra', 'maia', 'mira', 'luma', 'rhea', 'sera'];
+
 const prefix = 'lathe-vendor:';
 const requireFromRoot = createRequire(import.meta.url);
 
@@ -87,6 +89,8 @@ export default defineConfig({
     rolldownOptions: {
       input: {
         app: 'resources/js/app.tsx',
+        // One stylesheet per style, so the panel links only the active one.
+        ...Object.fromEntries(themeStyles.map((style) => [`theme-${style}`, `resources/css/theme-${style}.css`])),
         ...Object.fromEntries(
           importMapSpecifiers.map((specifier) => [specifier.replace(/^@/, '').replaceAll('/', '-'), prefix + specifier]),
         ),

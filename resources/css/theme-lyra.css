@@ -1,0 +1,2 @@
+@reference "./app.css";
+@import "./styles/style-lyra.css" layer(base);
