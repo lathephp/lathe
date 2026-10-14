@@ -190,7 +190,11 @@ class ConfigValidator
             'theme.appearance' => $this->oneOf(['light', 'dark', 'system']),
             'theme.radius' => $string,
             'theme.style' => $this->oneOf(['nova', 'vega', 'lyra', 'maia', 'mira', 'luma', 'rhea', 'sera']),
-            'theme.font' => $nullableString,
+            // A font is {family, fallback, files}: files are woff2 the host serves itself.
+            'theme.font' => fn (mixed $v) => $v === null || (is_array($v) && is_string($v['family'] ?? null) && $v['family'] !== ''
+                && (! array_key_exists('fallback', $v) || $v['fallback'] === null || is_string($v['fallback']))
+                && (! array_key_exists('files', $v) || is_array($v['files'])))
+                ? null : 'must be null or an array of family (a string), fallback (a string) and files (a list); got '.$this->show($v).'. Set family to the font name.',
             'layout.sidebar.collapsible' => $this->oneOf(['icon', 'offcanvas', 'none']),
             'layout.sidebar.default_open' => $bool,
             'layout.sidebar.width' => $string,

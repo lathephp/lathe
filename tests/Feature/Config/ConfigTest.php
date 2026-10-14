@@ -64,3 +64,17 @@ it('reads the config of the app serving the request, as Octane clones it per req
         Container::setInstance($original);
     }
 });
+
+it('accepts a theme font of family, fallback and files, as lathe:preset writes it', function () {
+    config(['lathe.theme.font' => ['family' => 'Inter', 'fallback' => 'ui-sans-serif, system-ui, sans-serif', 'files' => [['url' => '/fonts/inter.woff2', 'weight' => '400', 'style' => 'normal']]]]);
+    $validator = app(ConfigValidator::class);
+
+    expect($validator->errors(config('lathe')))->toBe([])
+        ->and($validator->unknownKeys(config('lathe')))->toBe([]);
+});
+
+it('rejects a theme font without a family', function () {
+    config(['lathe.theme.font' => ['fallback' => 'sans-serif']]);
+
+    expect(app(ConfigValidator::class)->errors(config('lathe')))->toHaveCount(1);
+});
