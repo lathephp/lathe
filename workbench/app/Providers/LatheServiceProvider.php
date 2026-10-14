@@ -65,9 +65,9 @@ class LatheServiceProvider extends LatheApplicationServiceProvider
         Gate::policy(ActionEvent::class, ActionEventPolicy::class);
 
         // The admin, and whoever holds the permission through a role or directly. A user
-        // never saved has no grants, so it asks Spatie nothing.
+        // never saved has no grants, so it asks Spatie nothing; a test app without Spatie's tables grants nothing.
         Gate::define('view system status', fn (User $user): bool => $user->getAttribute('email') === 'admin@lathephp.com'
-            || ($user->exists && $user->checkPermissionTo('view system status')));
+            || ($user->exists && rescue(fn () => $user->checkPermissionTo('view system status'), false, report: false)));
 
         // Every panel user may search across Resources.
         Gate::define('globalSearch', fn (User $user): bool => true);
