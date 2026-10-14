@@ -23,6 +23,7 @@ use Workbench\App\Lathe\Actions\MarkShipped;
 use Workbench\App\Lathe\Filters\OrderCustomer;
 use Workbench\App\Lathe\Filters\OrderStatus;
 use Workbench\App\Lathe\Lenses\PendingOrders;
+use Workbench\App\Lathe\ResourcePlugins\ActivityTimeline;
 use Workbench\App\Models\Order as OrderModel;
 use Workbench\App\Models\User;
 
@@ -64,6 +65,7 @@ class Order extends Resource
                     ])->addable(false)->confirmRemoval()->rowLabel('quantity', 'Item #{{index}}'),
                 ]),
             ]),
+            ActivityTimeline::make()->heading('Activity timeline'),
         ];
     }
 
