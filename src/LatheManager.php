@@ -26,6 +26,7 @@ use Lathe\Resources\ResourceRegistry;
 use Lathe\Search\GlobalSearch;
 use Lathe\Search\SearchProvider;
 use Lathe\Support\ConfigStore;
+use Lathe\Support\SafeHtml;
 use Lathe\Support\TranslationManager;
 
 /**
@@ -325,9 +326,10 @@ class LatheManager
     }
 
     /**
-     * The footer for this request, or null when it is hidden.
+     * The footer for this request, or null when it is hidden. A callback's HTML goes through
+     * the sanitizer, so a script in it never reaches the page.
      *
-     * @return array{text: string, href: string|null}|null
+     * @return array{text: string, href: string|null}|array{html: SafeHtml}|null
      */
     public function footerFor(Request $request): ?array
     {
@@ -335,9 +337,9 @@ class LatheManager
             return ['text' => 'Powered by Lathe', 'href' => 'https://lathephp.com'];
         }
 
-        $text = ($this->footer)($request);
+        $html = SafeHtml::from(($this->footer)($request));
 
-        return $text === '' ? null : ['text' => $text, 'href' => null];
+        return $html->toHtml() === '' ? null : ['html' => $html];
     }
 
     /**

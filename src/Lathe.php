@@ -21,7 +21,7 @@ use Illuminate\Support\Facades\Facade;
  * @method static \Lathe\LatheManager auth(\Closure $callback)
  * @method static bool check(\Illuminate\Http\Request $request)
  * @method static \Lathe\LatheManager footer(\Closure $callback)
- * @method static array{text: string, href: string|null}|null footerFor(\Illuminate\Http\Request $request)
+ * @method static array{text: string, href: string|null}|array{html: \Lathe\Support\SafeHtml}|null footerFor(\Illuminate\Http\Request $request)
  * @method static string|null versionLabel()
  * @method static bool resolveSidebarDefaultOpen(\Illuminate\Http\Request $request)
  * @method static \Lathe\LatheManager userTimezone(\Closure $callback)

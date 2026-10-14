@@ -46,7 +46,7 @@ it('reads the footer from Lathe::footer(), and an empty string hides it', functi
     expect(shellProps()['footer'])->toBe(['text' => 'Powered by Lathe', 'href' => 'https://lathephp.com']);
 
     Lathe::footer(fn () => 'My footer');
-    expect(shellProps()['footer'])->toBe(['text' => 'My footer', 'href' => null]);
+    expect(shellProps()['footer'])->toBe(['html' => ['__html' => 'My footer']]);
 
     Lathe::footer(fn () => '');
     expect(shellProps()['footer'])->toBeNull();
