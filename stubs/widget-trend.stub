@@ -1,0 +1,15 @@
+<?php
+
+namespace {{ namespace }};
+
+use Lathe\Http\Requests\LatheRequest;
+use Lathe\Widgets\Results\TrendResult;
+use Lathe\Widgets\TrendWidget;
+
+class {{ class }} extends TrendWidget
+{
+    public function calculate(LatheRequest $request): TrendResult
+    {
+        return $this->countByDays($request, \App\Models\User::class);
+    }
+}

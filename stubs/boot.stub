@@ -1,0 +1,6 @@
+/**
+ * Lathe extensions boot file.
+ *
+ * Each component file registers itself with @lathephp/core when it is imported, and the
+ * generators append the import for it below. @lathephp/vite-plugin loads this file.
+ */

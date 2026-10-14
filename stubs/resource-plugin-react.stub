@@ -1,0 +1,18 @@
+import { resourcePlugin } from '@lathephp/core';
+import { Card } from '@lathephp/ui';
+
+interface {{ class }}Props {
+  resourceName: string;
+  resourceId: string;
+}
+
+function {{ class }}({ resourceName, resourceId }: {{ class }}Props) {
+  return (
+    <Card className="p-6">
+      <h3 className="font-semibold leading-none tracking-tight">{{ name }}</h3>
+      {/* Your resource plugin content for {resourceName} #{resourceId} */}
+    </Card>
+  );
+}
+
+resourcePlugin('{{ component }}', {{ class }});

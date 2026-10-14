@@ -1,0 +1,25 @@
+<?php
+
+namespace {{ namespace }};
+
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
+use Lathe\Filters\Filter;
+use Lathe\Http\Requests\LatheRequest;
+
+class {{ class }} extends Filter
+{
+    /**
+     * @param  Builder<Model>  $query
+     * @return Builder<Model>
+     */
+    public function apply(LatheRequest $request, Builder $query, mixed $value): Builder
+    {
+        return $query->where('column', $value);
+    }
+
+    public function component(): string
+    {
+        return '{{ component }}';
+    }
+}

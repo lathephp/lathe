@@ -1,0 +1,15 @@
+<?php
+
+namespace {{ namespace }};
+
+use Lathe\Http\Requests\LatheRequest;
+use Lathe\Widgets\Results\ValueResult;
+use Lathe\Widgets\ValueWidget;
+
+class {{ class }} extends ValueWidget
+{
+    public function calculate(LatheRequest $request): ValueResult
+    {
+        return $this->result(0);
+    }
+}

@@ -1,0 +1,13 @@
+<?php
+
+namespace {{ namespace }};
+
+use Lathe\Pages\Page;
+
+class {{ class }} extends Page
+{
+    public function name(): string
+    {
+        return '{{ name }}';
+    }
+}

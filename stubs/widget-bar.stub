@@ -1,0 +1,15 @@
+<?php
+
+namespace {{ namespace }};
+
+use Lathe\Http\Requests\LatheRequest;
+use Lathe\Widgets\Results\BarResult;
+use Lathe\Widgets\BarWidget;
+
+class {{ class }} extends BarWidget
+{
+    public function calculate(LatheRequest $request): BarResult
+    {
+        return $this->count($request, \App\Models\User::class, 'status');
+    }
+}

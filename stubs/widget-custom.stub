@@ -1,0 +1,10 @@
+<?php
+
+namespace {{ namespace }};
+
+use Lathe\Widgets\CustomWidget;
+
+class {{ class }} extends CustomWidget
+{
+    protected ?string $component = '{{ component }}';
+}

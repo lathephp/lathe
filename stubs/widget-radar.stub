@@ -1,0 +1,15 @@
+<?php
+
+namespace {{ namespace }};
+
+use Lathe\Http\Requests\LatheRequest;
+use Lathe\Widgets\Results\RadarResult;
+use Lathe\Widgets\RadarWidget;
+
+class {{ class }} extends RadarWidget
+{
+    public function calculate(LatheRequest $request): RadarResult
+    {
+        return $this->count($request, \App\Models\User::class, 'status');
+    }
+}

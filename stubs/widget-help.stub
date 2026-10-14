@@ -1,0 +1,15 @@
+<?php
+
+namespace {{ namespace }};
+
+use Lathe\Widgets\HelpWidget;
+
+class {{ class }} extends HelpWidget
+{
+    public function __construct()
+    {
+        parent::__construct();
+
+        $this->content('Write the help text here.');
+    }
+}

@@ -1,0 +1,21 @@
+<?php
+
+namespace {{ namespace }};
+
+use Lathe\Http\Requests\LatheRequest;
+use Lathe\Widgets\TableWidget;
+
+class {{ class }} extends TableWidget
+{
+    public function columns(): array
+    {
+        return [
+            ['key' => 'name', 'label' => 'Name'],
+        ];
+    }
+
+    public function rows(LatheRequest $request): array
+    {
+        return [];
+    }
+}

@@ -29,9 +29,13 @@ use Lathe\Console\DoctorCommand;
 use Lathe\Console\InstallCommand;
 use Lathe\Console\MakeActionCommand;
 use Lathe\Console\MakeDashboardCommand;
+use Lathe\Console\MakeFieldCommand;
 use Lathe\Console\MakeFilterCommand;
 use Lathe\Console\MakeLensCommand;
+use Lathe\Console\MakePageCommand;
 use Lathe\Console\MakeResourceCommand;
+use Lathe\Console\MakeResourcePluginCommand;
+use Lathe\Console\MakeWidgetCommand;
 use Lathe\Console\PruneActionEventsCommand;
 use Lathe\Console\TranslateCommand;
 use Lathe\Dashboards\DashboardRegistry;
@@ -116,7 +120,7 @@ class LatheServiceProvider extends ServiceProvider
         });
 
         if ($this->app->runningInConsole()) {
-            $this->commands([ApiCheckCommand::class, CacheCommand::class, ClearCommand::class, DoctorCommand::class, InstallCommand::class, MakeActionCommand::class, MakeDashboardCommand::class, MakeFilterCommand::class, MakeLensCommand::class, MakeResourceCommand::class, PruneActionEventsCommand::class, TranslateCommand::class]);
+            $this->commands([ApiCheckCommand::class, CacheCommand::class, ClearCommand::class, DoctorCommand::class, InstallCommand::class, MakeActionCommand::class, MakeDashboardCommand::class, MakeFieldCommand::class, MakeFilterCommand::class, MakeLensCommand::class, MakePageCommand::class, MakeResourceCommand::class, MakeResourcePluginCommand::class, MakeWidgetCommand::class, PruneActionEventsCommand::class, TranslateCommand::class]);
             $this->optimizes(optimize: 'lathe:cache', clear: 'lathe:clear', key: 'lathe');
 
             $this->publishes([

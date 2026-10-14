@@ -1,0 +1,15 @@
+<?php
+
+namespace {{ namespace }};
+
+use Lathe\Http\Requests\LatheRequest;
+use Lathe\Widgets\Results\ProgressResult;
+use Lathe\Widgets\ProgressWidget;
+
+class {{ class }} extends ProgressWidget
+{
+    public function calculate(LatheRequest $request): ProgressResult
+    {
+        return $this->result(0, 100);
+    }
+}

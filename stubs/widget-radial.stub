@@ -1,0 +1,19 @@
+<?php
+
+namespace {{ namespace }};
+
+use Lathe\Http\Requests\LatheRequest;
+use Lathe\Widgets\Results\RadialResult;
+use Lathe\Widgets\RadialWidget;
+
+class {{ class }} extends RadialWidget
+{
+    public function calculate(LatheRequest $request): RadialResult
+    {
+        return $this->count(
+            $request,
+            \App\Models\User::class,
+            fn ($query) => $query->whereNotNull('email_verified_at'),
+        );
+    }
+}

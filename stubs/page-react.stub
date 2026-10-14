@@ -1,0 +1,18 @@
+import { page } from '@lathephp/core';
+import { Card } from '@lathephp/ui';
+
+interface {{ class }}Props {
+  pageKey: string;
+  basePath: string;
+}
+
+function {{ class }}({ pageKey }: {{ class }}Props) {
+  return (
+    <Card className="p-6">
+      <h3 className="font-semibold leading-none tracking-tight">{{ name }}</h3>
+      {/* Your page content for {pageKey} */}
+    </Card>
+  );
+}
+
+page('{{ component }}', {{ class }});

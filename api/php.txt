@@ -771,14 +771,17 @@ Lathe\Console\DoctorCommand::$description  [protected]
 Lathe\Console\DoctorCommand::$signature  [protected]
 Lathe\Console\DoctorCommand::handle(Lathe\Doctor\Doctor $doctor): int
 Lathe\Console\GeneratorCommand::RESERVED
+Lathe\Console\GeneratorCommand::ensureFrontendSetup(Illuminate\Filesystem\Filesystem $files): void  [protected]
 Lathe\Console\GeneratorCommand::folder(): string  [protected]
 Lathe\Console\GeneratorCommand::handle(Illuminate\Filesystem\Filesystem $files): int
 Lathe\Console\GeneratorCommand::pluginRoot(string $slug): ?array  [protected]
 Lathe\Console\GeneratorCommand::replacements(string $class): array  [protected]
+Lathe\Console\GeneratorCommand::scaffoldReact(Illuminate\Filesystem\Filesystem $files, string $class): void  [protected]
 Lathe\Console\GeneratorCommand::stub(): string  [protected]
 Lathe\Console\GeneratorCommand::stubPath(string $stub): string  [protected]
 Lathe\Console\GeneratorCommand::target(): ?array  [protected]
 Lathe\Console\GeneratorCommand::writeClass(Illuminate\Filesystem\Filesystem $files, string $stub, string $path, array $replace): int  [protected]
+Lathe\Console\GeneratorCommand::writeComponent(Illuminate\Filesystem\Filesystem $files, string $stub, string $folder, string $class, array $replace = array ( )): void  [protected]
 Lathe\Console\InstallCommand::$description  [protected]
 Lathe\Console\InstallCommand::$signature  [protected]
 Lathe\Console\InstallCommand::handle(Illuminate\Filesystem\Filesystem $files): int
@@ -793,16 +796,31 @@ Lathe\Console\MakeDashboardCommand::$description  [protected]
 Lathe\Console\MakeDashboardCommand::$signature  [protected]
 Lathe\Console\MakeDashboardCommand::folder(): string  [protected]
 Lathe\Console\MakeDashboardCommand::stub(): string  [protected]
+Lathe\Console\MakeFieldCommand::$description  [protected]
+Lathe\Console\MakeFieldCommand::$signature  [protected]
+Lathe\Console\MakeFieldCommand::BASES
+Lathe\Console\MakeFieldCommand::folder(): string  [protected]
+Lathe\Console\MakeFieldCommand::handle(Illuminate\Filesystem\Filesystem $files): int
+Lathe\Console\MakeFieldCommand::replacements(string $class): array  [protected]
+Lathe\Console\MakeFieldCommand::scaffoldReact(Illuminate\Filesystem\Filesystem $files, string $class): void  [protected]
+Lathe\Console\MakeFieldCommand::stub(): string  [protected]
 Lathe\Console\MakeFilterCommand::$description  [protected]
 Lathe\Console\MakeFilterCommand::$signature  [protected]
 Lathe\Console\MakeFilterCommand::TYPES
 Lathe\Console\MakeFilterCommand::folder(): string  [protected]
 Lathe\Console\MakeFilterCommand::handle(Illuminate\Filesystem\Filesystem $files): int
+Lathe\Console\MakeFilterCommand::replacements(string $class): array  [protected]
+Lathe\Console\MakeFilterCommand::scaffoldReact(Illuminate\Filesystem\Filesystem $files, string $class): void  [protected]
 Lathe\Console\MakeFilterCommand::stub(): string  [protected]
 Lathe\Console\MakeLensCommand::$description  [protected]
 Lathe\Console\MakeLensCommand::$signature  [protected]
 Lathe\Console\MakeLensCommand::folder(): string  [protected]
 Lathe\Console\MakeLensCommand::stub(): string  [protected]
+Lathe\Console\MakePageCommand::$description  [protected]
+Lathe\Console\MakePageCommand::$signature  [protected]
+Lathe\Console\MakePageCommand::folder(): string  [protected]
+Lathe\Console\MakePageCommand::scaffoldReact(Illuminate\Filesystem\Filesystem $files, string $class): void  [protected]
+Lathe\Console\MakePageCommand::stub(): string  [protected]
 Lathe\Console\MakeResourceCommand::$description  [protected]
 Lathe\Console\MakeResourceCommand::$signature  [protected]
 Lathe\Console\MakeResourceCommand::folder(): string  [protected]
@@ -810,6 +828,19 @@ Lathe\Console\MakeResourceCommand::handle(Illuminate\Filesystem\Filesystem $file
 Lathe\Console\MakeResourceCommand::model(): string  [protected]
 Lathe\Console\MakeResourceCommand::replacements(string $class): array  [protected]
 Lathe\Console\MakeResourceCommand::stub(): string  [protected]
+Lathe\Console\MakeResourcePluginCommand::$description  [protected]
+Lathe\Console\MakeResourcePluginCommand::$signature  [protected]
+Lathe\Console\MakeResourcePluginCommand::folder(): string  [protected]
+Lathe\Console\MakeResourcePluginCommand::scaffoldReact(Illuminate\Filesystem\Filesystem $files, string $class): void  [protected]
+Lathe\Console\MakeResourcePluginCommand::stub(): string  [protected]
+Lathe\Console\MakeWidgetCommand::$description  [protected]
+Lathe\Console\MakeWidgetCommand::$signature  [protected]
+Lathe\Console\MakeWidgetCommand::TYPES
+Lathe\Console\MakeWidgetCommand::folder(): string  [protected]
+Lathe\Console\MakeWidgetCommand::handle(Illuminate\Filesystem\Filesystem $files): int
+Lathe\Console\MakeWidgetCommand::replacements(string $class): array  [protected]
+Lathe\Console\MakeWidgetCommand::scaffoldReact(Illuminate\Filesystem\Filesystem $files, string $class): void  [protected]
+Lathe\Console\MakeWidgetCommand::stub(): string  [protected]
 Lathe\Console\PruneActionEventsCommand::$description  [protected]
 Lathe\Console\PruneActionEventsCommand::$signature  [protected]
 Lathe\Console\PruneActionEventsCommand::CHUNK
@@ -3797,9 +3828,13 @@ class Lathe\Console\GeneratorCommand
 class Lathe\Console\InstallCommand
 class Lathe\Console\MakeActionCommand
 class Lathe\Console\MakeDashboardCommand
+class Lathe\Console\MakeFieldCommand
 class Lathe\Console\MakeFilterCommand
 class Lathe\Console\MakeLensCommand
+class Lathe\Console\MakePageCommand
 class Lathe\Console\MakeResourceCommand
+class Lathe\Console\MakeResourcePluginCommand
+class Lathe\Console\MakeWidgetCommand
 class Lathe\Console\PruneActionEventsCommand
 class Lathe\Console\TranslateCommand
 class Lathe\Dashboards\Dashboard

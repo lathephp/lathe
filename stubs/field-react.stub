@@ -1,0 +1,23 @@
+import { field } from '@lathephp/core';
+
+interface {{ class }}Props {
+  field: { attribute: string; placeholder?: string };
+  value: unknown;
+  onChange: (attribute: string, value: unknown) => void;
+}
+
+function {{ class }}({ field: definition, value, onChange }: {{ class }}Props) {
+  return (
+    <input
+      type="text"
+      value={typeof value === 'string' ? value : ''}
+      onChange={(event) => {
+        onChange(definition.attribute, event.target.value);
+      }}
+      placeholder={definition.placeholder}
+      className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm"
+    />
+  );
+}
+
+field('{{ component }}', {{ class }});

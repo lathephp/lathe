@@ -1,0 +1,10 @@
+<?php
+
+namespace {{ namespace }};
+
+use {{ baseImport }};
+
+class {{ class }} extends {{ baseClass }}
+{
+    protected string $component = '{{ component }}';
+}

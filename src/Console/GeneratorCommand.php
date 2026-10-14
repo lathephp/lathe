@@ -67,12 +67,24 @@ abstract class GeneratorCommand extends Command
         $subfolder = $segments === [] ? '' : '/'.implode('/', $segments);
         $namespace = implode('\\', [$target['namespace'], ...$segments]);
 
-        return $this->writeClass($files, $this->stub(), "{$target['path']}{$subfolder}/{$class}.php", [
+        $result = $this->writeClass($files, $this->stub(), "{$target['path']}{$subfolder}/{$class}.php", [
             'namespace' => $namespace,
             'class' => $class,
+            'name' => Str::headline($class),
             ...$this->replacements($class),
         ]);
+
+        if ($result === self::SUCCESS) {
+            $this->scaffoldReact($files, $class);
+        }
+
+        return $result;
     }
+
+    /**
+     * Hook for generators that also write a React component after the class.
+     */
+    protected function scaffoldReact(Filesystem $files, string $class): void {}
 
     /**
      * Placeholders a generator adds to namespace and class.
@@ -109,6 +121,103 @@ abstract class GeneratorCommand extends Command
         $this->components->info(Str::after($path, $this->laravel->basePath().'/').' created.');
 
         return self::SUCCESS;
+    }
+
+    /**
+     * Write a React component into resources/js/lathe/{folder}/ and register it in boot.ts,
+     * setting up the frontend first when this is the first one.
+     *
+     * @param  array<string, string>  $replace
+     */
+    protected function writeComponent(Filesystem $files, string $stub, string $folder, string $class, array $replace = []): void
+    {
+        $this->ensureFrontendSetup($files);
+
+        $this->writeClass($files, $stub, $this->laravel->basePath("resources/js/lathe/{$folder}/{$class}.tsx"), [
+            'class' => $class,
+            'name' => Str::headline($class),
+            ...$replace,
+        ]);
+
+        $import = "import './{$folder}/{$class}';";
+        $boot = $this->laravel->basePath('resources/js/lathe/boot.ts');
+
+        if (! str_contains($files->get($boot), $import)) {
+            $files->append($boot, "{$import}\n");
+        }
+    }
+
+    /**
+     * The first React component writes boot.ts, its folders, the dev dependencies and a Vite config
+     * of its own. The host's vite.config.* stays as it is.
+     */
+    protected function ensureFrontendSetup(Filesystem $files): void
+    {
+        $boot = $this->laravel->basePath('resources/js/lathe/boot.ts');
+
+        if ($files->exists($boot)) {
+            return;
+        }
+
+        foreach (['fields', 'filters', 'widgets', 'plugins'] as $folder) {
+            $files->ensureDirectoryExists($this->laravel->basePath("resources/js/lathe/{$folder}"));
+        }
+
+        $files->put($boot, $files->get($this->stubPath('boot')));
+
+        $config = $this->laravel->basePath('vite.lathe.config.ts');
+
+        if (! $files->exists($config)) {
+            $files->put($config, $files->get($this->stubPath('vite.lathe.config')));
+        }
+
+        $this->addDevDependencies($files);
+
+        $this->components->warn('Frontend set up in resources/js/lathe. Run: '.$this->installCommand());
+    }
+
+    /**
+     * Add the three Lathe packages to the host package.json at this package's own version.
+     */
+    private function addDevDependencies(Filesystem $files): void
+    {
+        $path = $this->laravel->basePath('package.json');
+
+        if (! $files->exists($path)) {
+            return;
+        }
+
+        $package = json_decode($files->get($path), true);
+        $core = json_decode($files->get(__DIR__.'/../../packages/core/package.json'), true);
+
+        if (! is_array($package) || ! is_array($core) || ! is_string($core['version'] ?? null)) {
+            return;
+        }
+
+        $dev = is_array($package['devDependencies'] ?? null) ? $package['devDependencies'] : [];
+
+        foreach (['@lathephp/core', '@lathephp/ui', '@lathephp/vite-plugin'] as $name) {
+            $dev[$name] = $core['version'];
+        }
+
+        ksort($dev);
+        $package['devDependencies'] = $dev;
+
+        $files->put($path, json_encode($package, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES)."\n");
+    }
+
+    /**
+     * The install command of the package manager whose lock file the app has, npm when none.
+     */
+    private function installCommand(): string
+    {
+        foreach (['pnpm-lock.yaml' => 'pnpm', 'yarn.lock' => 'yarn', 'bun.lock' => 'bun'] as $lock => $manager) {
+            if (file_exists($this->laravel->basePath($lock))) {
+                return "{$manager} install";
+            }
+        }
+
+        return 'npm install';
     }
 
     /**

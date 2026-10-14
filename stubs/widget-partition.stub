@@ -1,0 +1,15 @@
+<?php
+
+namespace {{ namespace }};
+
+use Lathe\Http\Requests\LatheRequest;
+use Lathe\Widgets\Results\PartitionResult;
+use Lathe\Widgets\PartitionWidget;
+
+class {{ class }} extends PartitionWidget
+{
+    public function calculate(LatheRequest $request): PartitionResult
+    {
+        return $this->count($request, \App\Models\User::class, 'status');
+    }
+}

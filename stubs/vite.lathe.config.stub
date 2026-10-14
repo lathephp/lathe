@@ -1,0 +1,6 @@
+import { lathe } from '@lathephp/vite-plugin';
+import { defineConfig } from 'vite';
+
+export default defineConfig({
+  plugins: [lathe({ mode: 'app' })],
+});

@@ -1,0 +1,25 @@
+import { filter } from '@lathephp/core';
+
+interface {{ class }}Props {
+  filter: { name: string };
+  value: unknown;
+  onChange: (value: unknown) => void;
+}
+
+function {{ class }}({ filter: definition, value, onChange }: {{ class }}Props) {
+  return (
+    <label className="block space-y-1.5 text-sm">
+      <span className="text-xs font-semibold uppercase tracking-wide">{definition.name}</span>
+      <input
+        type="text"
+        value={typeof value === 'string' ? value : ''}
+        onChange={(event) => {
+          onChange(event.target.value);
+        }}
+        className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1"
+      />
+    </label>
+  );
+}
+
+filter('{{ component }}', {{ class }});
