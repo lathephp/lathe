@@ -1,8 +1,9 @@
 import { __panel } from '@lathephp/core';
 import { act, fireEvent, render, screen } from '@testing-library/react';
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 import { FormField } from '../../registry';
 import type { FieldSchema } from '../../types';
+import { RemoteChoice } from '../SelectFields';
 
 function schema(component: string, attribute: string): FieldSchema {
   return {
@@ -59,6 +60,11 @@ function renderField(component: string, attribute: string, value: unknown) {
 
   return render(<FormField field={{ ...field, value }} value={value} onChange={vi.fn()} id={`field-${attribute}`} describedBy={undefined} invalid={false} disabled={false} />);
 }
+
+// The remote search is a lazy chunk; loaded up front, the field renders at once.
+beforeAll(async () => {
+  await RemoteChoice.preload();
+});
 
 beforeEach(() => {
   vi.useFakeTimers();

@@ -1,10 +1,31 @@
 import { useTranslation } from '@lathephp/core';
-import { useState } from 'react';
+import { Suspense, useState, type ComponentType } from 'react';
+import { lazyNamed } from '../../lib/lazy';
 import { stringValue, type DetailFieldProps, type FormFieldProps, type IndexFieldProps } from '../registry';
 import { filterOptions, groupRuns, inputClass, labelOf, optionsOf, stringsOf, type Option } from './options';
 
+/** The options a remote field found on the server, and the search that asks for them. */
+export interface RemoteSource {
+  options: Option[];
+  query: string;
+  onQuery: (query: string) => void;
+  onFocus: () => void;
+}
+
+// The server search loads with the first remote select a form draws, not with the index.
+export const RemoteChoice = lazyNamed(() => import('./RemoteChoice').then((module) => module.RemoteChoice));
+
+/** A remote field's form, holding an input's height while the search chunk loads. */
+export function DeferredRemote({ Form, ...props }: FormFieldProps & { Form: ComponentType<FormFieldProps & { remote?: RemoteSource }> }) {
+  return (
+    <Suspense fallback={<div className="h-9" aria-hidden="true" />}>
+      <RemoteChoice Form={Form} {...props} />
+    </Suspense>
+  );
+}
+
 /** The filter box above a searchable list. */
-export function SearchBox({ query, onQuery, disabled }: { query: string; onQuery: (query: string) => void; disabled: boolean }) {
+export function SearchBox({ query, onQuery, disabled, onFocus }: { query: string; onQuery: (query: string) => void; disabled: boolean; onFocus?: () => void }) {
   const { __ } = useTranslation();
 
   return (
@@ -14,6 +35,7 @@ export function SearchBox({ query, onQuery, disabled }: { query: string; onQuery
       placeholder={__('Search')}
       value={query}
       disabled={disabled}
+      onFocus={onFocus}
       onChange={(event) => {
         onQuery(event.target.value);
       }}
@@ -43,18 +65,29 @@ export function OptionElements({ options }: { options: Option[] }) {
   );
 }
 
-export function SelectForm({ field, value, onChange, id, describedBy, invalid, disabled }: FormFieldProps) {
+export function SelectForm(props: FormFieldProps & { remote?: RemoteSource }) {
+  const { field, value, onChange, id, describedBy, invalid, disabled, remote } = props;
   const [query, setQuery] = useState('');
+
+  if (field.remote === true && remote === undefined) {
+    return <DeferredRemote Form={SelectForm} {...props} />;
+  }
+
   const current = stringValue(value);
-  const visible = filterOptions(optionsOf(field), query, [current]);
+  const visible = remote?.options ?? filterOptions(optionsOf(field), query, [current]);
 
   return (
     <div>
-      {field.searchable === true && <SearchBox query={query} onQuery={setQuery} disabled={disabled} />}
+      {remote !== undefined ? (
+        <SearchBox query={remote.query} onQuery={remote.onQuery} disabled={disabled} onFocus={remote.onFocus} />
+      ) : (
+        field.searchable === true && <SearchBox query={query} onQuery={setQuery} disabled={disabled} />
+      )}
       <select
         id={id}
         name={field.attribute}
         value={current}
+        onFocus={remote?.onFocus}
         aria-describedby={describedBy}
         aria-invalid={invalid || undefined}
         aria-required={field.required === true || undefined}

@@ -3,24 +3,35 @@ import { X } from 'lucide-react';
 import { useState } from 'react';
 import type { DetailFieldProps, FormFieldProps, IndexFieldProps } from '../registry';
 import { filterOptions, inputClass, labelOf, optionsOf, stringsOf } from './options';
-import { OptionElements, SearchBox, Tags } from './SelectFields';
+import { DeferredRemote, OptionElements, SearchBox, Tags, type RemoteSource } from './SelectFields';
 
-export function MultiSelectForm({ field, value, onChange, id, describedBy, invalid, disabled }: FormFieldProps) {
+export function MultiSelectForm(props: FormFieldProps & { remote?: RemoteSource }) {
+  const { field, value, onChange, id, describedBy, invalid, disabled, remote } = props;
   const { __ } = useTranslation();
   const [query, setQuery] = useState('');
-  const options = optionsOf(field);
+
+  if (field.remote === true && remote === undefined) {
+    return <DeferredRemote Form={MultiSelectForm} {...props} />;
+  }
+
+  const options = remote?.options ?? optionsOf(field);
   const selected = stringsOf(value);
   // A selected option stays in the list while the search hides its neighbours, or the change event would drop it.
-  const visible = filterOptions(options, query, selected);
+  const visible = remote === undefined ? filterOptions(options, query, selected) : options;
 
   return (
     <div className="space-y-2">
-      {field.searchable === true && <SearchBox query={query} onQuery={setQuery} disabled={disabled} />}
+      {remote !== undefined ? (
+        <SearchBox query={remote.query} onQuery={remote.onQuery} disabled={disabled} onFocus={remote.onFocus} />
+      ) : (
+        field.searchable === true && <SearchBox query={query} onQuery={setQuery} disabled={disabled} />
+      )}
       <select
         id={id}
         name={field.attribute}
         multiple
         value={selected}
+        onFocus={remote?.onFocus}
         aria-describedby={describedBy}
         aria-invalid={invalid || undefined}
         aria-required={field.required === true || undefined}
