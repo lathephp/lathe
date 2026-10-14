@@ -19,10 +19,11 @@ class ResourcePluginController
 {
     public function __invoke(LatheRequest $request, ResourcePluginRegistry $plugins, ResourceAuthorization $authorization, string $component, string $path = ''): Response
     {
-        $class = $plugins->ownerOf($component);
+        $key = $request->query('resource');
         $id = $request->query('resourceId');
+        $class = is_string($key) ? $plugins->resourceFor($component, $key) : null;
 
-        abort_if($class === null || $request->query('resource') !== $class::uriKey() || ! is_string($id), 404);
+        abort_if($class === null || ! is_string($id), 404);
 
         $plugin = collect(ResourcePluginRegistry::placedIn($class, $request))->first(fn (ResourcePlugin $found) => $found->component() === $component);
 

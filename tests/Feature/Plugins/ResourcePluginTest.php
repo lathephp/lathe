@@ -40,6 +40,14 @@ class ProbePanel extends ResourcePlugin
     }
 }
 
+class ClashingPanel extends ResourcePlugin
+{
+    public function component(): string
+    {
+        return 'probe-panel';
+    }
+}
+
 class HiddenPanel extends ResourcePlugin
 {
     //
@@ -90,7 +98,25 @@ class ProbeTwin extends Resource
 
     public function fields(LatheRequest $request): array
     {
-        return [Field::text('Number'), ProbePanel::make()];
+        return [Field::text('Number'), ClashingPanel::make()];
+    }
+}
+
+class ProbeShop extends ProbeOrder
+{
+    //
+}
+
+class ProbeDouble extends Resource
+{
+    protected function configure(ResourceDefinition $definition): ResourceDefinition
+    {
+        return $definition->model(OrderModel::class)->title('number')->canonical(false);
+    }
+
+    public function fields(LatheRequest $request): array
+    {
+        return [Field::text('Number'), ProbePanel::make(), ProbePanel::make()];
     }
 }
 
@@ -130,16 +156,32 @@ it('registers the assets of a plugin once and indexes it by component', function
     Lathe::resourcePlugins()->boot();
 
     expect(app(AssetRegistry::class)->scripts())->toHaveKey('probe-panel', dirname(__DIR__, 2).'/Fixtures/assets/beacon.js')
-        ->and(Lathe::resourcePlugins()->ownerOf('probe-panel'))->toBe(ProbeOrder::class)
-        ->and(Lathe::resourcePlugins()->ownerOf('hidden-panel'))->toBe(ProbeOrder::class)
-        ->and(Lathe::resourcePlugins()->ownerOf('nope'))->toBeNull();
+        ->and(Lathe::resourcePlugins()->resourceFor('probe-panel', 'probe-orders'))->toBe(ProbeOrder::class)
+        ->and(Lathe::resourcePlugins()->resourceFor('hidden-panel', 'probe-orders'))->toBe(ProbeOrder::class)
+        ->and(Lathe::resourcePlugins()->resourceFor('probe-panel', 'orders'))->toBeNull()
+        ->and(Lathe::resourcePlugins()->resourceFor('nope', 'probe-orders'))->toBeNull();
 });
 
-it('throws at boot when two resources share a component key', function () {
+it('throws at boot when two plugin classes share a component key', function () {
     Lathe::registerResources(ProbeTwin::class);
 
     Lathe::resourcePlugins()->boot();
 })->throws(DuplicateResourcePluginException::class, 'probe-panel');
+
+it('throws at boot when a resource places a component twice', function () {
+    Lathe::registerResources(ProbeDouble::class);
+
+    Lathe::resourcePlugins()->boot();
+})->throws(DuplicateResourcePluginException::class, 'placed twice');
+
+it('lets a subclass resource inherit a plugin and answers for either resource', function () {
+    Lathe::registerResources(ProbeShop::class);
+
+    $this->getJson('/lathe/api/resource-plugins/probe-panel?resource=probe-shops&resourceId=12')
+        ->assertOk()
+        ->assertExactJson(['path' => '', 'id' => 12]);
+    $this->getJson('/lathe/api/resource-plugins/probe-panel?resource=probe-orders&resourceId=12')->assertOk();
+});
 
 it('forwards the api call into handleRequest with the route record', function () {
     $this->getJson('/lathe/api/resource-plugins/probe-panel/a/b?resource=probe-orders&resourceId=12')

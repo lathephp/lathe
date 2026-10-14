@@ -14,8 +14,8 @@ use Lathe\Resources\ResourceRegistry;
  */
 class ResourcePluginRegistry
 {
-    /** @var array<string, class-string<resource>>|null */
-    protected ?array $owners = null;
+    /** @var array<string, array{plugin: class-string<ResourcePlugin>, resources: list<class-string<resource>>}>|null */
+    protected ?array $index = null;
 
     public function __construct(protected ResourceRegistry $resources, protected AssetRegistry $assets)
     {
@@ -41,45 +41,59 @@ class ResourcePluginRegistry
      */
     public function boot(?LatheRequest $request = null): void
     {
-        $this->owners($request);
+        $this->index($request);
     }
 
     /**
-     * The Resource that places the plugin with this component key.
+     * The Resource with this URI key that places the plugin with this component key.
      *
      * @return class-string<resource>|null
      */
-    public function ownerOf(string $component): ?string
+    public function resourceFor(string $component, string $uriKey): ?string
     {
-        return $this->owners()[$component] ?? null;
+        foreach ($this->index()[$component]['resources'] ?? [] as $class) {
+            if ($class::uriKey() === $uriKey) {
+                return $class;
+            }
+        }
+
+        return null;
     }
 
     public function flush(): void
     {
-        $this->owners = null;
+        $this->index = null;
     }
 
     /**
-     * @return array<string, class-string<resource>>
+     * Each component with the plugin class that owns the key and the Resources that place it.
+     * A Resource may share a plugin class with another, but not a key with a different class.
+     *
+     * @return array<string, array{plugin: class-string<ResourcePlugin>, resources: list<class-string<resource>>}>
      */
-    protected function owners(?LatheRequest $request = null): array
+    protected function index(?LatheRequest $request = null): array
     {
-        if ($this->owners !== null) {
-            return $this->owners;
+        if ($this->index !== null) {
+            return $this->index;
         }
 
         $request ??= app(LatheRequest::class);
-        $owners = [];
+        $index = [];
 
         foreach ($this->resources->all() as $class) {
             foreach (static::placedIn($class, $request) as $plugin) {
                 $component = $plugin->component();
+                $known = $index[$component] ?? null;
 
-                if (isset($owners[$component])) {
-                    throw DuplicateResourcePluginException::forComponent($component, $owners[$component], $class);
+                if ($known !== null && $known['plugin'] !== $plugin::class) {
+                    throw DuplicateResourcePluginException::forComponent($component, $known['plugin'], $plugin::class);
                 }
 
-                $owners[$component] = $class;
+                if ($known !== null && in_array($class, $known['resources'], true)) {
+                    throw DuplicateResourcePluginException::twiceIn($component, $class);
+                }
+
+                $index[$component] = ['plugin' => $plugin::class, 'resources' => [...($known['resources'] ?? []), $class]];
 
                 foreach ($plugin->assets()['scripts'] ?? [] as $name => $path) {
                     $this->assets->script($name, $path);
@@ -91,6 +105,6 @@ class ResourcePluginRegistry
             }
         }
 
-        return $this->owners = $owners;
+        return $this->index = $index;
     }
 }
