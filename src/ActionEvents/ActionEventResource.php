@@ -41,6 +41,16 @@ class ActionEventResource extends Resource
     }
 
     /**
+     * The log is read-only: a host policy that grants a write still gets none.
+     *
+     * @return list<string>
+     */
+    public static function deniedAbilities(): array
+    {
+        return ['create', 'update', 'delete', 'forceDelete', 'restore', 'replicate', 'inlineEdit', 'runAction', 'runDestructiveAction', 'import'];
+    }
+
+    /**
      * The log never records itself.
      */
     public static function recordsActionEvents(): bool

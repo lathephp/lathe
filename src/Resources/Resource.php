@@ -459,6 +459,17 @@ abstract class Resource
     /**
      * Runs inside the delete's transaction, before the delete.
      */
+    /**
+     * Abilities this Resource never grants, whatever its policy says, such as every write of a
+     * read-only log.
+     *
+     * @return list<string>
+     */
+    public static function deniedAbilities(): array
+    {
+        return [];
+    }
+
     public static function beforeDelete(LatheRequest $request, Model $model): void
     {
         //

@@ -43,6 +43,11 @@ class ResourceAuthorization
      */
     public function allows(?Authenticatable $user, string $resource, string $ability, ?Model $model = null, array $arguments = []): bool
     {
+        // An ability the Resource never grants stays denied, whatever the policy says.
+        if (in_array($ability, $resource::deniedAbilities(), true)) {
+            return false;
+        }
+
         $definition = $this->resources->definition($resource);
 
         if ($definition->allowsAll()) {
@@ -130,6 +135,10 @@ class ResourceAuthorization
      */
     public function narrowBulk(?Authenticatable $user, string $resource, string $ability, Builder $query): Builder
     {
+        if (in_array($ability, $resource::deniedAbilities(), true)) {
+            return $query->whereRaw('0 = 1');
+        }
+
         if ($this->resources->definition($resource)->allowsAll()) {
             return $query;
         }
@@ -231,9 +240,9 @@ class ResourceAuthorization
             $row = is_array($batched) && is_array($batched[$key] ?? null) ? $batched[$key] : null;
 
             foreach ($abilities as $ability) {
-                $result[$key][$ability] = is_array($batched)
+                $result[$key][$ability] = ! in_array($ability, $resource::deniedAbilities(), true) && (is_array($batched)
                     ? ($row[$ability] ?? false) === true
-                    : $this->allows($user, $resource, $ability, $model);
+                    : $this->allows($user, $resource, $ability, $model));
             }
         }
 

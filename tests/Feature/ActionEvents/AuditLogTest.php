@@ -81,6 +81,19 @@ it('refuses every write to the log', function () {
     expect(ActionEvent::count())->toBe(1);
 });
 
+it('stays read-only under a host policy that grants every write', function () {
+    Gate::policy(ActionEvent::class, AuditLogGrantsEverything::class);
+    $event = auditEvent();
+
+    $this->postJson('/lathe/api/resources/action-events', [])->assertForbidden();
+    $this->putJson("/lathe/api/resources/action-events/{$event->id}", [])->assertForbidden();
+    $this->deleteJson("/lathe/api/resources/action-events/{$event->id}")->assertForbidden();
+
+    expect(ActionEvent::count())->toBe(1)
+        ->and($this->getJson('/lathe/api/resources/action-events')->assertOk()->json('table.rows.0.abilities'))
+        ->toBe(['view' => true, 'update' => false, 'delete' => false, 'replicate' => false]);
+});
+
 it('polls every 5 seconds and stays out of the sidebar', function () {
     $json = $this->getJson('/lathe/api/resources/action-events')->assertOk()->json();
 
@@ -184,3 +197,41 @@ it('keeps the plain breadcrumbs when the record or its Resource is gone', functi
                 ]));
     }
 });
+
+class AuditLogGrantsEverything
+{
+    public function __call(string $method, array $arguments): bool
+    {
+        return true;
+    }
+
+    public function viewAny(): bool
+    {
+        return true;
+    }
+
+    public function view(): bool
+    {
+        return true;
+    }
+
+    public function create(): bool
+    {
+        return true;
+    }
+
+    public function update(): bool
+    {
+        return true;
+    }
+
+    public function delete(): bool
+    {
+        return true;
+    }
+
+    public function replicate(): bool
+    {
+        return true;
+    }
+}
