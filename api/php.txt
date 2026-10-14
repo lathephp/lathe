@@ -1018,6 +1018,7 @@ Lathe\Field\Relations\BelongsToField::opensPeek(?Lathe\Http\Requests\LatheReques
 Lathe\Field\Relations\BelongsToField::primeForPage(Illuminate\Support\Collection $records): void
 Lathe\Field\Relations\BelongsToField::resolve(object $record, ?string $attribute = NULL): mixed
 Lathe\Field\Relations\BelongsToField::string $component  [protected]
+Lathe\Field\Relations\BelongsToField::supportsInline(): bool  [protected]
 Lathe\Field\Relations\BelongsToField::viewable(bool $viewable = true): static
 Lathe\Field\Relations\BelongsToField::writesRelation(Illuminate\Database\Eloquent\Model $model, Illuminate\Database\Eloquent\Relations\Relation $relation): bool
 Lathe\Field\Relations\BelongsToManyField::Closure|array $pivotActions  [protected]
@@ -1082,6 +1083,7 @@ Lathe\Field\Relations\MorphToField::relatedResourceFor(Illuminate\Database\Eloqu
 Lathe\Field\Relations\MorphToField::resolve(object $record, ?string $attribute = NULL): mixed
 Lathe\Field\Relations\MorphToField::resourceForType(?string $uriKey): ?string
 Lathe\Field\Relations\MorphToField::string $component  [protected]
+Lathe\Field\Relations\MorphToField::supportsInline(): bool  [protected]
 Lathe\Field\Relations\MorphToField::types(array $resources): static
 Lathe\Field\Relations\MorphToManyField::kind(): string
 Lathe\Field\Relations\MorphToManyField::string $component  [protected]

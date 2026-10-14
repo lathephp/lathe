@@ -39,6 +39,11 @@ class BelongsToField extends RelationField implements FilterableField, PrimesFor
         return 'belongsTo';
     }
 
+    protected function supportsInline(): bool
+    {
+        return true;
+    }
+
     public function loadsWithRecord(): bool
     {
         return true;
@@ -177,6 +182,8 @@ class BelongsToField extends RelationField implements FilterableField, PrimesFor
 
         if ($relation instanceof BelongsTo) {
             $model->setAttribute($relation->getForeignKeyName(), $value === '' ? null : $value);
+            // A relation loaded before the change would show the old parent in the reply.
+            $model->unsetRelation($this->attribute);
 
             // Right after the key is set, before the save, so the callback can adjust the model.
             $this->filledCallback?->__invoke($request, $model);

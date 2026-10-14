@@ -11,6 +11,7 @@ use Lathe\Field\Field;
 use Lathe\Field\FieldCollection;
 use Lathe\Field\FieldContext;
 use Lathe\Field\FieldResolver;
+use Lathe\Field\Relations\MorphToField;
 use Lathe\Http\Requests\LatheRequest;
 use Lathe\Lathe;
 use Lathe\Query\QueryContext;
@@ -44,7 +45,10 @@ class InlineUpdateController
 
         // Only the edited cell is the user's to write; its conditions read the rest from the record.
         $request->attributes->set('lathe.writable', [$target->attribute()]);
-        $request->merge([$target->attribute() => $request->input('value')]);
+        // A morphTo cell sends its type beside the record key.
+        $request->merge([$target->attribute() => $target instanceof MorphToField
+            ? ['type' => $request->input('type'), 'id' => $request->input('value')]
+            : $request->input('value')]);
         abort_if($target->isReadonly($request, $model) || ! $target->isVisibleFor($request, $model), 403, Lathe::__('This field cannot be edited inline.'));
 
         if ($class::make()->definition()->usesTrafficCop() && TrafficCop::isStale($model, $request->input('_updated_at'))) {

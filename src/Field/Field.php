@@ -269,7 +269,7 @@ class Field implements JsonSerializable
         $this->mutate();
 
         if ($inline && ! $this->supportsInline()) {
-            throw new LogicException("The field [{$this->label}] cannot be edited inline: only boolean, select, text, number and multi-select fields can.");
+            throw new LogicException("The field [{$this->label}] cannot be edited inline: only boolean, select, text, number, multi-select, belongsTo and morphTo fields can.");
         }
 
         $this->inline = $inline;

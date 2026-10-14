@@ -123,6 +123,11 @@ class MorphToField extends RelationField implements FilterableField
         return $this->resourceClass;
     }
 
+    protected function supportsInline(): bool
+    {
+        return true;
+    }
+
     public function loadsWithRecord(): bool
     {
         return true;
@@ -208,6 +213,7 @@ class MorphToField extends RelationField implements FilterableField
 
         $model->setAttribute($relation->getMorphType(), $type === null || $id === null || $id === '' ? null : $type::newModel()->getMorphClass());
         $model->setAttribute($relation->getForeignKeyName(), $type === null || $id === '' ? null : $id);
+        $model->unsetRelation($this->attribute);
 
         return null;
     }
