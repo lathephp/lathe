@@ -88,7 +88,12 @@ interface Call {
 }
 
 /** Answers the panel, the picker, the pivot forms and the writes, and records every call. */
-function server({ attachAny = true, attach = () => new Response(JSON.stringify({ attached: true }), { status: 201 }) }: { attachAny?: boolean; attach?: () => Response } = {}) {
+function server({
+  attachAny = true,
+  mayAttach = true,
+  mayDetach = true,
+  attach = () => new Response(JSON.stringify({ attached: true }), { status: 201 }),
+}: { attachAny?: boolean; mayAttach?: boolean; mayDetach?: boolean; attach?: () => Response } = {}) {
   const calls: Call[] = [];
 
   vi.spyOn(globalThis, 'fetch').mockImplementation((input, init) => {
@@ -110,7 +115,7 @@ function server({ attachAny = true, attach = () => new Response(JSON.stringify({
     }
 
     if (url.includes('/relate-authorization')) {
-      return json({ tags: { add: false, attach: true, attachAny } });
+      return json({ tags: { add: false, attach: mayAttach, attachAny, detach: mayDetach } });
     }
 
     if (url.includes('/filters')) {
@@ -245,6 +250,22 @@ describe('attaching to a pivot relation', () => {
 });
 
 describe('editing and detaching a pivot row', () => {
+  it.each([
+    { mayAttach: true, mayDetach: false, edits: 2, detaches: 0 },
+    { mayAttach: false, mayDetach: true, edits: 0, detaches: 2 },
+  ])('shows Edit pivot only with attach and Detach only with detach (attach $mayAttach, detach $mayDetach)', async ({ mayAttach, mayDetach, edits, detaches }) => {
+    const api = server({ attachAny: false, mayAttach, mayDetach });
+    renderProduct();
+    await screen.findByRole('cell', { name: 'new' });
+    await waitFor(() => {
+      expect(api.asked('/relate-authorization')).toHaveLength(1);
+    });
+    await settle();
+
+    expect(screen.queryAllByRole('button', { name: 'Edit pivot' })).toHaveLength(edits);
+    expect(screen.queryAllByRole('button', { name: 'Detach' })).toHaveLength(detaches);
+  });
+
   it('edits the pivot of a row with its pivot id and refetches', async () => {
     const api = server();
     renderProduct();

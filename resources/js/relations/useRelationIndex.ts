@@ -26,6 +26,7 @@ export interface RelateFlags {
   add: boolean;
   attach: boolean;
   attachAny: boolean;
+  detach: boolean;
 }
 
 /** The query string of the panel state; a filter value nests one level, `filter[quantity][min]=5`. */

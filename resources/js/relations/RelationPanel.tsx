@@ -113,6 +113,10 @@ function PanelBody({ parent, field, bodyId, onToggle }: RelationPanelProps & { b
   const canCreate = creatingKinds.includes(field.kind) && flags.data?.[field.relationship]?.add === true;
   const pivoted = pivotKinds.includes(field.kind);
   const canAttach = pivoted && flags.data?.[field.relationship]?.attachAny === true;
+  // Editing a pivot row is an attach ability on the server, so it shares the attach flag.
+  const canEditPivot = pivoted && flags.data?.[field.relationship]?.attach === true;
+  const canDetach = pivoted && flags.data?.[field.relationship]?.detach === true;
+  const rowActions = canEditPivot || canDetach;
   const createHref = `${basePath}/resources/${field.resource}/new?via=${parent.uriKey}/${String(parent.id)}/${field.relationship}`;
   const ids = rows.map((row) => row.id);
   const ticked = ids.filter((id) => selection.selected.has(id)).length;
@@ -262,7 +266,7 @@ function PanelBody({ parent, field, bodyId, onToggle }: RelationPanelProps & { b
                       </th>
                     );
                   })}
-                  {pivoted ? (
+                  {rowActions ? (
                     <th scope="col" className="px-3">
                       <span className="sr-only">{__('Actions')}</span>
                     </th>
@@ -298,27 +302,31 @@ function PanelBody({ parent, field, bodyId, onToggle }: RelationPanelProps & { b
                         </td>
                       );
                     })}
-                    {pivoted ? (
+                    {rowActions ? (
                       <td className="px-3 text-end whitespace-nowrap">
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => {
-                            setEditing(row);
-                          }}
-                        >
-                          {__('Edit pivot')}
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          className="text-destructive"
-                          onClick={() => {
-                            setDetaching(row);
-                          }}
-                        >
-                          {__('Detach')}
-                        </Button>
+                        {canEditPivot ? (
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => {
+                              setEditing(row);
+                            }}
+                          >
+                            {__('Edit pivot')}
+                          </Button>
+                        ) : null}
+                        {canDetach ? (
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="text-destructive"
+                            onClick={() => {
+                              setDetaching(row);
+                            }}
+                          >
+                            {__('Detach')}
+                          </Button>
+                        ) : null}
                       </td>
                     ) : null}
                   </tr>
