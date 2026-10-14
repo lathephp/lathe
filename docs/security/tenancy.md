@@ -91,6 +91,8 @@ With the multi-database setup, `stancl/tenancy` switches the database connection
 
 With a single database, give each model the package's `BelongsToTenant` trait. It adds a global scope on the tenant column. Lathe starts every query with global scopes on, so that scope already applies to the panel. You write no hooks.
 
+> Note: when no tenant is active, the trait does not scope at all, so every tenant's rows show. Run the panel only behind the tenancy middleware that identifies the tenant, or add the hooks below for a panel that may run without one.
+
 For a model without the trait, scope it by hand. Put the method in a trait the Resource uses, or in the Resource:
 
 ```php
