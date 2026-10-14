@@ -5,7 +5,8 @@
 # dates the CHANGELOG section; regenerates the upgrade guide; runs the build and force-adds dist/; writes
 # THIRD-PARTY-LICENSES.md; rewrites tests/Benchmark/baseline.json from the dedicated-lane
 # result file; commits; and tags the commit v<version>. main never gets dist/.
-# LATHE_RELEASE_BUILD replaces the build command and LATHE_RELEASE_LICENSES_JSON feeds the
+# Run `pnpm install --frozen-lockfile` and `composer install` first: the build and the licence
+# list need them. LATHE_RELEASE_BUILD replaces the build command and LATHE_RELEASE_LICENSES_JSON feeds the
 # licence list from a file instead of pnpm (both for the script's own test).
 set -euo pipefail
 
