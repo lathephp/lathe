@@ -1,4 +1,5 @@
-import { field, type FieldProps } from '@lathephp/core';
+import { field } from '@lathephp/core';
+import type { FieldProps } from '@lathephp/core';
 
 function {{ class }}({ field: definition, value, onChange, id, describedBy, invalid, disabled }: FieldProps) {
   return (
