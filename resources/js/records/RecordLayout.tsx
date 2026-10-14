@@ -132,7 +132,7 @@ function Panel({ panel, renderField, borderless, detail }: RecordLayoutProps & {
         setOpen(!open);
       }}
     >
-      <ChevronDown aria-hidden="true" className={cn('size-4 transition-transform', !open && '-rotate-90')} />
+      <ChevronDown aria-hidden="true" className={cn('size-4 transition-transform', !open && '-rotate-90 rtl:rotate-90')} />
       {panel.name}
     </button>
   ) : (

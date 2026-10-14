@@ -24,7 +24,7 @@ export function GroupHeaderRow({ group, colSpan, collapsible, expanded, onToggle
             className="-mx-1 inline-flex items-center gap-1 rounded px-1 font-medium outline-none focus-visible:ring-2 focus-visible:ring-ring"
             onClick={onToggle}
           >
-            <Chevron aria-hidden="true" className="size-4" />
+            <Chevron aria-hidden="true" className={expanded ? 'size-4' : 'size-4 rtl:rotate-180'} />
             {group.title}
           </button>
         ) : (

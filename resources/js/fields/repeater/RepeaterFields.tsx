@@ -284,7 +284,7 @@ export function RepeaterForm({ field, value, onChange, id, describedBy, disabled
                     }}
                     className={iconButton}
                   >
-                    {expanded ? <ChevronDown aria-hidden="true" className="size-4" /> : <ChevronRight aria-hidden="true" className="size-4" />}
+                    {expanded ? <ChevronDown aria-hidden="true" className="size-4" /> : <ChevronRight aria-hidden="true" className="size-4 rtl:rotate-180" />}
                   </button>
                 ) : null}
                 <span data-row-title className="min-w-0 flex-1 truncate text-sm font-medium">

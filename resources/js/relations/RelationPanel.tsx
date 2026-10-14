@@ -78,7 +78,7 @@ function Heading({ field, open, bodyId, count, onToggle }: { field: RelationFiel
             onToggle(!open);
           }}
         >
-          <ChevronDown aria-hidden="true" className={cn('size-4 transition-transform', !open && '-rotate-90')} />
+          <ChevronDown aria-hidden="true" className={cn('size-4 transition-transform', !open && '-rotate-90 rtl:rotate-90')} />
           {field.label}
         </button>
       ) : (
