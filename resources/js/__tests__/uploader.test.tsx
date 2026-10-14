@@ -199,8 +199,9 @@ describe('chunked uploader', () => {
     renderField(schema(), onChange);
 
     choose(sized(MB));
+    // The retries wait 1, 2 and 3 seconds; the toast then shows for 4.
     await act(async () => {
-      await vi.advanceTimersByTimeAsync(10_000);
+      await vi.advanceTimersByTimeAsync(7_000);
     });
 
     expect(chunks()).toHaveLength(4);

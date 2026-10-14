@@ -17,6 +17,8 @@ export interface ToastMessage {
 
 export interface ToastOptions {
   action?: ToastAction;
+  /** How long it stays, in milliseconds; 4,000 when not given. */
+  duration?: number;
 }
 
 let nextId = 1;
@@ -24,15 +26,19 @@ let nextId = 1;
 /** The toasts on screen; the panel's toaster renders them. */
 export const toasts = createStore<ToastMessage[]>([]);
 
-/** How long a toast stays, in milliseconds; errors stay longer so they can be read. */
-const lifetime: Record<ToastType, number> = { success: 5_000, info: 5_000, warning: 8_000, error: 8_000 };
+/** How long a toast stays, in milliseconds. */
+const lifetime = 4_000;
+
+/** At most this many show at once; a new one pushes out the oldest. */
+const visible = 3;
 
 function show(type: ToastType, message: string, options: ToastOptions = {}): void {
   const id = nextId++;
-  toasts.set([...toasts.get(), { id, type, message, ...(options.action === undefined ? {} : { action: options.action }) }]);
+  const next = { id, type, message, ...(options.action === undefined ? {} : { action: options.action }) };
+  toasts.set([...toasts.get(), next].slice(-visible));
   setTimeout(() => {
     dismissToast(id);
-  }, lifetime[type]);
+  }, options.duration ?? lifetime);
 }
 
 export function dismissToast(id: number): void {
