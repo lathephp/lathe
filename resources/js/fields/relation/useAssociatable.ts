@@ -29,6 +29,8 @@ interface Options {
   type?: string;
   /** The record to look up for when the page is not its edit form, such as an index row. */
   record?: LookupRecord;
+  /** The lookup URL when the page is no record form, such as a panel's attach modal. */
+  endpoint?: string;
 }
 
 /**
@@ -49,7 +51,7 @@ export function useAssociatableEndpoint(field: FieldSchema, record?: LookupRecor
  * The options of a relation field, one server page at a time. Opening asks at once, a typed
  * term waits the field's debounce (500 ms by default), and a failure toasts with Retry.
  */
-export function useAssociatable(field: FieldSchema, { open, term, withTrashed, type, record }: Options) {
+export function useAssociatable(field: FieldSchema, { open, term, withTrashed, type, record, endpoint: given }: Options) {
   const { __ } = useTranslation();
   const [query, setQuery] = useState(term.trim());
   // A new term or With Trashed starts again at page 1.
@@ -60,7 +62,8 @@ export function useAssociatable(field: FieldSchema, { open, term, withTrashed, t
   const [result, setResult] = useState<{ items: AssociatableItem[]; hasMore: boolean; loaded: boolean }>({ items: [], hasMore: false, loaded: false });
   const debounce = typeof field.debounce === 'number' ? field.debounce : 500;
 
-  const endpoint = useAssociatableEndpoint(field, record);
+  const derived = useAssociatableEndpoint(field, record);
+  const endpoint = given ?? derived;
 
   useEffect(() => {
     const timer = setTimeout(() => {

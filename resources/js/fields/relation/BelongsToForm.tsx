@@ -36,13 +36,13 @@ function WithTrashedBox({ checked, onChange }: { checked: boolean; onChange: (ch
 }
 
 /** A button that opens a searchable list of the related records, loaded from the server only once opened. */
-function RelationPicker({ field, value, onChange, id, describedBy, invalid, disabled, type, record }: FormFieldProps & LookupProps) {
+export function RelationPicker({ field, value, onChange, id, describedBy, invalid, disabled, type, record, endpoint }: FormFieldProps & LookupProps & { endpoint?: string }) {
   const { __ } = useTranslation();
   const [open, setOpen] = useState(false);
   const [term, setTerm] = useState('');
   const [withTrashed, setWithTrashed] = useState(false);
   const [active, setActive] = useState(-1);
-  const { items, hasMore, loaded, more } = useAssociatable(field, { open, term, withTrashed, type, record });
+  const { items, hasMore, loaded, more } = useAssociatable(field, { open, term, withTrashed, type, record, endpoint });
   const root = useRef<HTMLDivElement>(null);
   const button = useRef<HTMLButtonElement>(null);
   const search = useRef<HTMLInputElement>(null);
