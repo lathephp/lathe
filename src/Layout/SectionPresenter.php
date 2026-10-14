@@ -9,6 +9,11 @@ use Lathe\Field\Evaluator;
 use Lathe\Field\Field;
 use Lathe\Field\FieldCollection;
 use Lathe\Field\FieldContext;
+use Lathe\Field\Relations\BelongsToField;
+use Lathe\Field\Relations\HasOneField;
+use Lathe\Field\Relations\MorphToField;
+use Lathe\Field\Relations\RelationField;
+use Lathe\Field\Relations\TagField;
 use Lathe\Http\Requests\LatheRequest;
 use LogicException;
 
@@ -94,7 +99,7 @@ class SectionPresenter
     }
 
     /**
-     * Drop every panel, tab, tab group and grid that holds no field.
+     * Drop every relation block, and every panel, tab, tab group and grid that holds no field.
      *
      * @param  list<Block>  $layout
      * @return list<Block>
@@ -104,6 +109,10 @@ class SectionPresenter
         $kept = [];
 
         foreach ($layout as $block) {
+            if (! in_array($block['type'], ['panel', 'grid', 'tab-group'], true)) {
+                continue;
+            }
+
             if ($block['type'] === 'panel') {
                 if ($block['fields'] !== []) {
                     $kept[] = $block;
@@ -274,13 +283,18 @@ class SectionPresenter
     {
         $blocks = [];
 
-        if ($loose !== null && $loose->getFields() !== []) {
+        if ($loose !== null && array_filter($loose->getFields(), fn (Field $field) => ! $this->lifted($field)) !== []) {
             $blocks[] = $this->panel($loose);
         }
 
         foreach ($items as $item) {
-            if ($item instanceof Section) {
+            if ($item instanceof Field) {
+                if ($this->lifted($item) && isset($this->visible[spl_object_id($item)])) {
+                    $blocks[] = $this->relationBlock($item);
+                }
+            } elseif ($item instanceof Section) {
                 $blocks[] = $this->panel($item);
+                array_push($blocks, ...$this->relationBlocks($item->getFields()));
             } elseif ($item instanceof Grid) {
                 $blocks[] = ['type' => 'grid', 'columns' => $item->getColumns(), 'items' => $this->blocks($item->getItems(), null)];
             } elseif ($item instanceof TabGroup) {
@@ -298,8 +312,49 @@ class SectionPresenter
     {
         return $section->panel(array_values(array_map(
             fn (Field $field) => $field->key(),
-            array_filter($section->getFields(), fn (Field $field) => isset($this->visible[spl_object_id($field)])),
+            array_filter($section->getFields(), fn (Field $field) => isset($this->visible[spl_object_id($field)]) && ! $this->lifted($field)),
         )));
+    }
+
+    /**
+     * Whether a detail page draws the field as a block of its own: a relation panel, or a hasOne
+     * or morphOne that is not ofMany.
+     */
+    private function lifted(Field $field): bool
+    {
+        if ($this->context !== FieldContext::Detail || ! $field instanceof RelationField) {
+            return false;
+        }
+
+        if ($field instanceof HasOneField) {
+            return ! $field->isOfMany();
+        }
+
+        return ! $field instanceof BelongsToField && ! $field instanceof MorphToField && ! $field instanceof TagField;
+    }
+
+    /**
+     * The blocks of a section's lifted fields, which follow its panel.
+     *
+     * @param  list<Field>  $fields
+     * @return list<Block>
+     */
+    private function relationBlocks(array $fields): array
+    {
+        return array_values(array_map(
+            fn (Field $field) => $this->relationBlock($field),
+            array_filter($fields, fn (Field $field) => $this->lifted($field) && isset($this->visible[spl_object_id($field)])),
+        ));
+    }
+
+    /**
+     * @return Block
+     */
+    private function relationBlock(Field $field): array
+    {
+        $type = $field instanceof HasOneField ? 'has-one-'.$field->attribute() : 'relation-field';
+
+        return ['type' => $type, 'key' => $field->key(), 'field' => $field];
     }
 
     /**
