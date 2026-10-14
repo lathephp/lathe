@@ -11,6 +11,7 @@ use Lathe\Testing\ResourceTester;
 const KIT_ACTION_ROUTES = [
     'GET actions' => 'actions',
     'GET actions/{action}/form' => 'actionForm',
+    'POST actions/{action}/uploads/{field}' => 'startActionUpload',
     'POST action' => 'runAction',
     'PATCH action' => 'actionDependencies',
     'GET action/associatable' => 'actionAssociatable',

@@ -169,6 +169,17 @@ class ResourceTester
     }
 
     /**
+     * Open a chunked upload for an action's file field, such as the import's file.
+     *
+     * @param  array<string, mixed>  $body  name, size and mime of the file
+     * @return TestResponse<Response>
+     */
+    public function startActionUpload(string $action, string $field, array $body): TestResponse
+    {
+        return $this->postJson($this->uri().'/actions/'.$action.'/uploads/'.$field, $body);
+    }
+
+    /**
      * Run an action on a selection, as the modal does: multipart when a field holds an
      * UploadedFile, with the selection as a JSON string, else JSON.
      *
