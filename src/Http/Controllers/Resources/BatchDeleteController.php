@@ -3,16 +3,21 @@
 namespace Lathe\Http\Controllers\Resources;
 
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Bus;
 use Lathe\ActionEvents\ActionEventRecorder;
+use Lathe\Actions\BulkRun;
+use Lathe\Actions\Jobs\PlanBulkRun;
 use Lathe\Auth\ResourceAuthorization;
 use Lathe\Http\Requests\LatheRequest;
 use Lathe\Query\SelectionResolver;
 use Lathe\Resources\RecordDeleter;
+use Lathe\Support\JobContext;
 
 /**
  * Delete, force delete and restore every row of a selection, each row through the same
  * RecordDeleter as the single-row routes, and all the audit rows of the request under one batch id.
  * A row the write does not apply to, one the policy narrows out and one that throws count as skipped.
+ * A selection over the Resource's inline limit goes to the queue as a bulk run instead.
  */
 class BatchDeleteController
 {
@@ -45,7 +50,8 @@ class BatchDeleteController
         // A model without soft deletes has nothing to restore.
         abort_if($ability === 'restore' && ! $resource->definition()->usesSoftDeletes(), 404);
 
-        $resolver = new SelectionResolver($resource, $request, $request->selection());
+        $selection = $request->selection();
+        $resolver = new SelectionResolver($resource, $request, $selection);
         $resolver->ensureNotEmpty();
 
         $total = $resolver->query()->count();
@@ -59,6 +65,13 @@ class BatchDeleteController
 
             $model = $narrowed->getModel();
             $rows = $narrowed->lazyById(200, $model->getQualifiedKeyName(), $model->getKeyName());
+        }
+
+        if ($total > $resource->definition()->getBulkInlineMax()) {
+            $run = BulkRun::begin($request, $class, $ability, $total);
+            $run->dispatchBatch(Bus::batch([new PlanBulkRun($run->id, JobContext::capture($request), $class, $selection->toArray(), ability: $ability)]));
+
+            return new JsonResponse([$key => 0, 'skipped' => 0, 'bulk_run' => ['id' => $run->id, 'total' => $total]]);
         }
 
         $totals = ['done' => 0, 'attempted' => 0, 'denied' => 0];
