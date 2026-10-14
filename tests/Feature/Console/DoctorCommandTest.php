@@ -67,6 +67,32 @@ afterEach(function () {
 /**
  * @return array{0: int, 1: list<string>}
  */
+class DoctorQueuedUpload extends \Lathe\Actions\Action implements \Illuminate\Contracts\Queue\ShouldQueue
+{
+    public function fields(LatheRequest $request): array
+    {
+        return [\Lathe\Field\Field::file('Manifest')];
+    }
+}
+
+class DoctorQueuedUploadPosts extends Resource
+{
+    protected function configure(ResourceDefinition $definition): ResourceDefinition
+    {
+        return $definition->model(Post::class)->canonical(false);
+    }
+
+    public function fields(LatheRequest $request): array
+    {
+        return [];
+    }
+
+    public function actions(LatheRequest $request): array
+    {
+        return [DoctorQueuedUpload::make()];
+    }
+}
+
 function doctor(): array
 {
     $code = Artisan::call('lathe:doctor');
@@ -224,6 +250,15 @@ it('fails a full text search column the driver cannot run', function () {
     } else {
         expect(array_filter($lines, fn ($line) => str_starts_with($line, 'FAIL')))->toBe([]);
     }
+});
+
+it('fails a queued action with a file field', function () {
+    Lathe::registerResources(DoctorQueuedUploadPosts::class);
+
+    [$code, $lines] = doctor();
+
+    expect($code)->toBe(1)
+        ->and(array_values(array_filter($lines, fn (string $line) => str_starts_with($line, 'FAIL') && str_contains($line, DoctorQueuedUploadPosts::class))))->toHaveCount(1);
 });
 
 it('writes no file and makes no network call', function () {

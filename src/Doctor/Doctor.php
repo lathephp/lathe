@@ -12,7 +12,10 @@ use Illuminate\Foundation\PackageManifest;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 use Lathe\Assets\AssetManifest;
+use Lathe\Exceptions\ActionUriKeyCollisionException;
+use Lathe\Exceptions\InvalidActionException;
 use Lathe\Exceptions\LatheException;
+use Lathe\Http\Requests\LatheRequest;
 use Lathe\Plugins\Plugin;
 use Lathe\Plugins\PluginDiscovery;
 use Lathe\Plugins\PluginRegistry;
@@ -204,6 +207,7 @@ class Doctor
             }
 
             array_push($results, ...$this->searchChecks($entry['class'], $definition));
+            array_push($results, ...$this->actionChecks($entry['class']));
         }
 
         $results[] = file_exists($this->resources->cachePath())
@@ -211,6 +215,23 @@ class Doctor
             : CheckResult::warn('The Resource discovery cache is missing. Run php artisan optimize or lathe:cache.');
 
         return $results;
+    }
+
+    /**
+     * A FAIL when the Resource's actions cannot resolve, such as a queued action with a file field.
+     *
+     * @param  class-string<\Lathe\Resources\Resource>  $class
+     * @return list<CheckResult>
+     */
+    protected function actionChecks(string $class): array
+    {
+        try {
+            $class::make()->availableActions(new LatheRequest);
+        } catch (InvalidActionException|ActionUriKeyCollisionException $e) {
+            return [CheckResult::fail("{$class}: ".$e->getMessage())];
+        }
+
+        return [];
     }
 
     /**
