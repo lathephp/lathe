@@ -1,4 +1,7 @@
-import { useMutation, useQuery, useQueryClient, type UseQueryResult } from '@tanstack/react-query';
+// The compiler's memo cache would double these hooks on every route's first load, and they hold no costly render work.
+'use no memo';
+
+import { useQuery, useQueryClient, type UseQueryResult } from '@tanstack/react-query';
 import { useEffect, useState, useSyncExternalStore } from 'react';
 import { emit } from './events';
 import { useLathe } from './hooks';
@@ -99,20 +102,45 @@ export function useResourceActions(resource: string, params?: Params): QueryStat
   return useRead(queryKeys.resourceActions(resource, params ?? {}), `resources/${resource}/actions`, params);
 }
 
+/**
+ * A write the caller starts: its last answer, its error and whether it runs. Hand-rolled
+ * rather than TanStack's useMutation, which would add its observer to every first load.
+ */
+function useWrite<I, T>(write: (input: I) => Promise<T>) {
+  const [state, setState] = useState<{ data: T | undefined; error: Error | null; isPending: boolean }>({ data: undefined, error: null, isPending: false });
+
+  async function run(input: I): Promise<T> {
+    setState((current) => ({ ...current, error: null, isPending: true }));
+
+    try {
+      const data = await write(input);
+      setState({ data, error: null, isPending: false });
+
+      return data;
+    } catch (error) {
+      setState((current) => ({ ...current, error: error as Error, isPending: false }));
+      throw error;
+    }
+  }
+
+  return { ...state, run };
+}
+
 /** Runs an action on a selection, then marks the Resource's reads stale and emits actions:ran. */
 export function useExecuteAction(resource: string) {
   const { apiPath } = useLathe();
   const client = useQueryClient();
-  const { mutateAsync, data, error, isPending } = useMutation({
-    mutationFn: (input: { action: string; selection: { mode: 'ids'; ids: (string | number)[] } | { mode: 'all'; [key: string]: unknown }; fields?: Record<string, unknown> }) =>
-      body<ActionRun>(`${apiPath}/resources/${resource}/action`, { method: 'POST', body: { fields: {}, ...input }, toastOnError: false }),
-    onSuccess: async () => {
+  const { run, data, error, isPending } = useWrite(
+    async (input: { action: string; selection: { mode: 'ids'; ids: (string | number)[] } | { mode: 'all'; [key: string]: unknown }; fields?: Record<string, unknown> }) => {
+      const answer = await body<ActionRun>(`${apiPath}/resources/${resource}/action`, { method: 'POST', body: { fields: {}, ...input }, toastOnError: false });
       emit('actions:ran', { resource });
       await client.invalidateQueries({ queryKey: ['resource', resource] });
-    },
-  });
 
-  return { execute: mutateAsync, data, error, isPending };
+      return answer;
+    },
+  );
+
+  return { execute: run, data, error, isPending };
 }
 
 /**
@@ -123,43 +151,39 @@ export function useInlineField(resource: string, id: string | number, field: str
   const { apiPath } = useLathe();
   const client = useQueryClient();
   const [pending, setPending] = useState<{ value: unknown } | null>(null);
-  const { mutateAsync, error, isPending } = useMutation({
-    mutationFn: (value: unknown) => {
-      const key = ['resource', resource, 'index'];
-      const row = client
-        .getQueriesData<ResourceIndexResponse>({ queryKey: key })
-        .flatMap(([, page]) => page?.table.rows ?? [])
-        .find((candidate) => String(candidate.id) === String(id));
+  const key = ['resource', resource, 'index'];
+  const same = (row: { id: string | number }) => String(row.id) === String(id);
+  const { run, error, isPending } = useWrite(async (value: unknown) => {
+    const row = client
+      .getQueriesData<ResourceIndexResponse>({ queryKey: key })
+      .flatMap(([, page]) => page?.table.rows ?? [])
+      .find(same);
+    setPending({ value });
 
-      return body<{ fields: ResourceIndexResponse['table']['rows'][number]['cells']; updatedAt?: string | null }>(
+    try {
+      const reply = await body<{ fields: ResourceIndexResponse['table']['rows'][number]['cells']; updatedAt?: string | null }>(
         `${apiPath}/resources/${resource}/${String(id)}/field/${field}`,
         { method: 'PATCH', body: { value, _updated_at: row?.updatedAt ?? undefined }, toastOnError: false },
       );
-    },
-    onMutate: (value) => {
-      setPending({ value });
-    },
-    onSuccess: (reply) => {
-      client.setQueriesData<ResourceIndexResponse>({ queryKey: ['resource', resource, 'index'] }, (page) =>
+      client.setQueriesData<ResourceIndexResponse>({ queryKey: key }, (page) =>
         page === undefined
           ? page
           : {
               ...page,
               table: {
                 ...page.table,
-                rows: page.table.rows.map((row) =>
-                  String(row.id) === String(id) ? { ...row, cells: { ...row.cells, ...reply.fields }, updatedAt: reply.updatedAt ?? row.updatedAt } : row,
-                ),
+                rows: page.table.rows.map((each) => (same(each) ? { ...each, cells: { ...each.cells, ...reply.fields }, updatedAt: reply.updatedAt ?? each.updatedAt } : each)),
               },
             },
       );
-    },
-    onSettled: () => {
+
+      return reply;
+    } finally {
       setPending(null);
-    },
+    }
   });
 
-  return { save: mutateAsync, pending, error, isSaving: isPending };
+  return { save: run, pending, error, isSaving: isPending };
 }
 
 /** The cards of a dashboard, a Resource or a lens; pass resourceId for a detail page's cards. */
