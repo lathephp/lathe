@@ -114,6 +114,11 @@ export default defineConfig({
     outDir: 'dist',
     emptyOutDir: true,
     manifest: 'manifest.json',
+    modulePreload: {
+      // The icon set loads after first paint and fetches its own icons; listing them in the
+      // first-load NavIcon chunk would cost the 200 KB budget for nothing.
+      resolveDependencies: (url, deps) => (url.includes('icon-set') ? deps.filter((dep) => dep.includes('icon-set')) : deps),
+    },
     rolldownOptions: {
       input: {
         app: 'resources/js/app.tsx',

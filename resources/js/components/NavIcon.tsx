@@ -1,13 +1,27 @@
 import { Activity, Circle, LayoutDashboard, ShoppingCart, type LucideIcon } from 'lucide-react';
-import { createElement } from 'react';
+import { createElement, Suspense } from 'react';
+import { lazyNamed } from '../lib/lazy';
 
-// Only the icons named here ship; the full Lucide set would weigh several hundred KB.
+// The icons of the default navigation ship with the first load; the rest of the Icon enum
+// loads with the icon set after first paint.
 const icons: Record<string, LucideIcon | undefined> = { Activity, LayoutDashboard, ShoppingCart };
 
-/** A navigation icon by its Lucide name, or a plain circle for a name the panel does not ship. */
+const SetIcon = lazyNamed(() => import('./icon-set').then((module) => module.SetIcon));
+
+/** A navigation icon by its Lucide name; until the icon set loads, an empty box of the same size holds its place. */
 export function NavIcon({ name }: { name: string | null }) {
-  return createElement((name === null ? undefined : icons[name]) ?? Circle, {
-    'aria-hidden': true,
-    className: 'size-4 shrink-0',
-  });
+  // One element per render: the compiler's cache would only add first-load bytes.
+  'use no memo';
+
+  const eager = name === null ? Circle : icons[name];
+
+  if (eager !== undefined) {
+    return createElement(eager, { 'aria-hidden': true, className: 'size-4 shrink-0' });
+  }
+
+  return (
+    <Suspense fallback={<span aria-hidden="true" className="inline-block size-4 shrink-0" />}>
+      <SetIcon name={name ?? ''} />
+    </Suspense>
+  );
 }
