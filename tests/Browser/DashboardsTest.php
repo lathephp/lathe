@@ -48,6 +48,15 @@ it('fills every gallery card within a second, with named charts and their number
     assertCleanPage($page);
 })->with(browserProjects());
 
+it('shows the time on the Clock card, under its one title', function () {
+    $page = signedInAt('/lathe/dashboards/widget-gallery');
+    $page->script(CARDS_FILLED_AT);
+
+    $clock = '[data-lathe-widget="custom-widget"]';
+    $page->assertCount("{$clock} h2, {$clock} h3", 1)
+        ->assertScript("/^\\d{1,2}:\\d{2}/.test(document.querySelector('{$clock} time').textContent)", true);
+});
+
 it('has no accessibility issue on the gallery in light and in dark', function () {
     $page = signedInAt('/lathe/dashboards/widget-gallery');
     $page->script(CARDS_FILLED_AT);
