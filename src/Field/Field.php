@@ -1011,7 +1011,8 @@ class Field implements JsonSerializable
     // Validation
 
     /**
-     * Rules for every write. `{{resourceId}}` in a rule string becomes the record key on update.
+     * Rules for every write. `{{resourceId}}` in a rule string becomes the record key on update,
+     * and NULL on create, which a unique rule reads as no record to ignore.
      */
     public function rules(mixed ...$rules): static
     {
@@ -1079,9 +1080,10 @@ class Field implements JsonSerializable
 
         $rules = [...$rules, ...array_filter($this->impliedRules(), fn (mixed $rule) => ! is_string($rule) || ! self::hasRule($rules, $rule))];
         $key = $model?->getKey();
+        $key = is_scalar($key) ? (string) $key : 'NULL';
 
         return [$this->attribute => array_map(
-            fn (mixed $rule) => is_string($rule) && is_scalar($key) ? str_replace('{{resourceId}}', (string) $key, $rule) : $rule,
+            fn (mixed $rule) => is_string($rule) ? str_replace('{{resourceId}}', $key, $rule) : $rule,
             $rules,
         )];
     }

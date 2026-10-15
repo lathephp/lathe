@@ -275,6 +275,13 @@ it('replaces {{resourceId}} with the record key so a unique rule ignores the rec
     expect($field->getRules(FieldContext::Update, null, $post))->toBe(['title' => ["unique:posts,title,{$post->id}"]]);
 });
 
+it('replaces {{resourceId}} with NULL on create, which a unique rule reads as no record to ignore', function () {
+    $field = Field::make('Title')->rules('unique:posts,title,{{resourceId}}');
+
+    expect($field->getRules(FieldContext::Create, null, new Post))->toBe(['title' => ['unique:posts,title,NULL']])
+        ->and($field->getRules(FieldContext::Create))->toBe(['title' => ['unique:posts,title,NULL']]);
+});
+
 it('creates, updates and deletes a record whatever its key type', function (string $model, string $type) {
     Schema::create((new $model)->getTable(), function (Blueprint $table) use ($type) {
         $type === 'id' ? $table->id() : $table->{$type}('id')->primary();

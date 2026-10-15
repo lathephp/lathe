@@ -56,7 +56,7 @@ Field::password('Password')
     ->updateRules('nullable'),
 ```
 
-On update, the placeholder `{{resourceId}}` in a rule string becomes the record's key. Use it so a unique rule ignores the record being edited:
+On update, the placeholder `{{resourceId}}` in a rule string becomes the record's key. Use it so a unique rule ignores the record being edited. On create it becomes `NULL`, so the same rule in `rules()` ignores nothing:
 
 ```php
 Field::text('Email')
