@@ -12,7 +12,7 @@ return new class extends Migration
             $table->id();
             $table->string('user_id', 191)->index();
             $table->string('file_disk')->default('local');
-            $table->string('file_name')->nullable();
+            $table->text('file_name')->nullable();
             $table->unsignedInteger('total_rows')->default(0);
             $table->unsignedInteger('processed_rows')->default(0);
             $table->unsignedInteger('successful_rows')->default(0);
