@@ -31,6 +31,16 @@ function sent(): [unknown, unknown, unknown][] {
 
 const required: [number, string] = [423, '{"message":"Password confirmation required."}'];
 
+/** The open dialog, once the modal's effect has moved focus in, paused the shortcuts and started listening for Escape. */
+async function openDialog(): Promise<HTMLElement> {
+  const dialog = await screen.findByRole('dialog', { name: 'Confirm password' });
+  await waitFor(() => {
+    expect(dialog.contains(document.activeElement)).toBe(true);
+  });
+
+  return dialog;
+}
+
 describe('confirm password dialog', () => {
   it('opens on a 423, and the right password repeats the request once with its result', async () => {
     respondInTurn(required, [201, '""'], [200, '{"codes":["a1b2"]}']);
@@ -77,7 +87,7 @@ describe('confirm password dialog', () => {
     render(<PasswordConfirmHost />);
 
     const result = request('/lathe/api/thing').catch((e: unknown) => e);
-    await screen.findByRole('dialog', { name: 'Confirm password' });
+    await openDialog();
 
     fireEvent.keyDown(document, { key: 'Escape' });
 
@@ -95,11 +105,7 @@ describe('confirm password dialog', () => {
     render(<PasswordConfirmHost />);
 
     void request('/lathe/api/thing').catch(() => undefined);
-    const dialog = await screen.findByRole('dialog', { name: 'Confirm password' });
-    // The modal pauses shortcuts in the effect that also moves focus into it.
-    await waitFor(() => {
-      expect(dialog.contains(document.activeElement)).toBe(true);
-    });
+    await openDialog();
 
     fireEvent.keyDown(document.body, { key: 'c' });
 
