@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\File;
 use Symfony\Component\Process\Process;
 
 /**
- * The snake_case names of the Pest tests in the regression group, browser tests included.
+ * The snake_case names of the Pest tests in the regression group.
  *
  * @return list<string>
  */
@@ -12,15 +12,13 @@ function regressionTestNames(string $root): array
 {
     $names = [];
 
-    foreach ([[], ['tests/Browser']] as $paths) {
-        $process = new Process([PHP_BINARY, 'vendor/bin/pest', ...$paths, '--group=regression', '--list-tests'], $root, timeout: 120);
-        $process->mustRun();
+    $process = new Process([PHP_BINARY, 'vendor/bin/pest', '--group=regression', '--list-tests'], $root, timeout: 120);
+    $process->mustRun();
 
-        preg_match_all('/::__pest_evaluable_(?:it_|test_)?([a-z0-9_]+)/', $process->getOutput(), $matches);
+    preg_match_all('/::__pest_evaluable_(?:it_|test_)?([a-z0-9_]+)/', $process->getOutput(), $matches);
 
-        foreach ($matches[1] as $name) {
-            $names[] = str_replace('__', '_', (string) preg_replace('/_with_data_set.*$|"\(.*$/', '', $name));
-        }
+    foreach ($matches[1] as $name) {
+        $names[] = str_replace('__', '_', (string) preg_replace('/_with_data_set.*$|"\(.*$/', '', $name));
     }
 
     return array_values(array_unique($names));

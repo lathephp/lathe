@@ -1,31 +1,13 @@
 <?php
 
 use Illuminate\Contracts\Auth\Access\Gate;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Routing\RouteCollection;
 use Illuminate\Support\Facades\DB;
 use Lathe\Http\PanelRoutes;
 use Lathe\Tests\TestCase;
-use Pest\Browser\Api\AwaitableWebpage;
-use Pest\Browser\Api\PendingAwaitablePage;
-use Pest\Browser\Api\Webpage;
-use Pest\Browser\Playwright\InitScript;
-use Pest\Browser\Playwright\Page;
-use Pest\Browser\Playwright\Playwright;
-use Pest\Browser\Support\ComputeUrl;
 use Pest\Expectation;
-use Workbench\Database\Seeders\DemoSeeder;
 
 pest()->extend(TestCase::class)->in('Feature', 'Unit');
-
-pest()->extend(TestCase::class)
-    ->use(RefreshDatabase::class)
-    ->group('browser')
-    ->beforeEach(function () {
-        config(['workbench.strict_csp' => true]);
-        $this->seed(DemoSeeder::class);
-    })
-    ->in('Browser');
 
 /**
  * Register the panel routes again after a test changes lathe.path or lathe.domain.
@@ -58,175 +40,6 @@ function forgetGate(string $ability): void
     $abilities = (fn () => $this->abilities)->call($gate);
     unset($abilities[$ability]);
     (fn () => $this->abilities = $abilities)->call($gate);
-}
-
-/**
- * The browser projects one run covers: the one LATHE_BROWSER_PROJECT names, else
- * desktop Chrome and the Android phone.
- *
- * @return list<string>
- */
-function browserProjects(): array
-{
-    $project = getenv('LATHE_BROWSER_PROJECT');
-
-    return is_string($project) && $project !== '' ? [$project] : ['desktop-chrome', 'phone-android'];
-}
-
-/**
- * Open a panel URL in the project's device, with a hook that records CSP violations,
- * console.error calls and unhandled rejections from the first script on.
- */
-function latheVisit(string $url, string $project): AwaitableWebpage
-{
-    $pending = visit($url);
-
-    $on = match ($project) {
-        'phone-android' => $pending->on()->mobile(),
-        'phone-ios' => $pending->on()->iPhone14Pro(),
-        default => null,
-    };
-
-    // On opens a new page on every call, so the device is kept in one pending page.
-    if ($on !== null) {
-        $pending = (fn () => new PendingAwaitablePage($this->browserType, $this->device, $this->url, $this->options))->call($on);
-    }
-
-    // The plugin's own hook sees only console.log and window errors. Ours joins the plugin's
-    // init script on a context built the way the plugin builds one, so the page loads once
-    // with both: a second load raced the first in Firefox, which reports a load done early.
-    [$browserType, $device, $options] = (fn () => [$this->browserType, $this->device, $this->options])->call($pending);
-    $context = Playwright::browser($browserType)->launch()->newContext([
-        'locale' => 'en-US',
-        'timezoneId' => 'UTC',
-        'colorScheme' => Playwright::defaultColorScheme()->value,
-        ...$device->context(),
-        ...$options,
-    ]);
-    $context->addInitScript(InitScript::get());
-    $context->addInitScript(<<<'JS'
-        window.__lathe = { csp: [], errors: [] };
-        document.addEventListener('securitypolicyviolation', (event) => {
-            window.__lathe.csp.push(`${event.effectiveDirective} blocked ${event.blockedURI || 'inline'}`);
-        });
-        const consoleError = console.error;
-        console.error = (...args) => {
-            window.__lathe.errors.push(args.map(String).join(' '));
-            consoleError.apply(console, args);
-        };
-        window.addEventListener('unhandledrejection', (event) => {
-            window.__lathe.errors.push(`unhandled rejection: ${String(event.reason)}`);
-        });
-        JS);
-    $address = ComputeUrl::from($url);
-    $page = $context->newPage()->goto($address, $options);
-    waitForDocument($page);
-
-    return new AwaitableWebpage($page, $address);
-}
-
-/**
- * Firefox and WebKit return from goto, navigate and waitForFunction before the new document
- * is there, so this asks until it has parsed, the panel has drawn into #app, and its time
- * origin differs from $previous, the document the navigation left.
- */
-function waitForDocument(Page $page, ?float $previous = null): void
-{
-    $deadline = microtime(true) + 10;
-
-    do {
-        try {
-            $state = $page->evaluate("[location.href !== 'about:blank' && document.readyState !== 'loading' && (document.getElementById('app')?.childElementCount ?? 1) > 0, performance.timeOrigin]");
-
-            if (is_array($state) && $state[0] === true && $state[1] !== $previous) {
-                return;
-            }
-        } catch (Throwable) {
-            // The document changed under the question; ask again.
-        }
-
-        usleep(50_000);
-    } while (microtime(true) < $deadline);
-}
-
-/**
- * Open a URL in the page and wait for its document, as navigate alone does not.
- */
-function latheNavigate(AwaitableWebpage $page, string $url): AwaitableWebpage
-{
-    $raw = (fn () => $this->page)->call($page);
-    $previous = $raw->evaluate('performance.timeOrigin');
-    $page->navigate($url);
-    waitForDocument($raw, is_float($previous) || is_int($previous) ? (float) $previous : null);
-
-    return $page;
-}
-
-/**
- * A key combination with the modifier the panel listens for: Meta where navigator.platform
- * says Mac, as it does in Playwright's WebKit, else Control.
- */
-function modKey(AwaitableWebpage|Webpage $page, string $keys): string
-{
-    return ($page->script('/mac/i.test(navigator.platform)') === true ? 'Meta+' : 'Control+').$keys;
-}
-
-/**
- * A CSS value expression with its numbers rounded to three decimals: WebKit prints six
- * where Chromium and Firefox print what the stylesheet says.
- */
-function roundedCss(string $expression): string
-{
-    return "({$expression}).replace(/\\d+\\.\\d+/g, (number) => String(Math.round(number * 1000) / 1000))";
-}
-
-/**
- * Assert the page met no CSP violation, no JavaScript error and no console.error call.
- */
-function assertCleanPage(AwaitableWebpage|Webpage $page): void
-{
-    $page->assertNoJavaScriptErrors();
-
-    expect($page->script('window.__lathe.csp'))->toBe([], 'CSP violations')
-        ->and($page->script('window.__lathe.errors'))->toBe([], 'console errors');
-}
-
-/**
- * Assert the page fits its viewport with no horizontal page scroll.
- */
-function assertFitsViewport(AwaitableWebpage|Webpage $page): void
-{
-    expect($page->script('document.documentElement.scrollWidth <= window.innerWidth'))->toBeTrue('horizontal page scroll');
-}
-
-/**
- * A cookie the browser holds, as Playwright reports it (name, value, path, expires, sameSite).
- *
- * @return array<string, mixed>|null
- */
-function browserCookie(AwaitableWebpage $page, string $name): ?array
-{
-    $context = (fn () => $this->page)->call($page)->context();
-
-    foreach ((fn () => $this->sendMessage('cookies', ['urls' => []]))->call($context) as $message) {
-        foreach ($message['result']['cookies'] ?? [] as $cookie) {
-            if ($cookie['name'] === $name) {
-                return $cookie;
-            }
-        }
-    }
-
-    return null;
-}
-
-/**
- * Sign in through the login form the page shows.
- */
-function signInThroughForm(AwaitableWebpage|Webpage $page, string $email, string $password = 'password'): void
-{
-    $page->fill('email', $email)
-        ->fill('password', $password)
-        ->press('Sign in');
 }
 
 /**

@@ -7,5 +7,4 @@ node_modules
 /coverage/
 .env
 .DS_Store
-/tests/Browser/Screenshots/
 /.phpstan-cache/

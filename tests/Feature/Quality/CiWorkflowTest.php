@@ -12,15 +12,15 @@ function ciSteps(string $job): string
     return collect(ciWorkflow()['jobs'][$job]['steps'])->pluck('run')->filter()->implode("\n");
 }
 
-it('defines the eight required jobs and the two scheduled ones', function () {
+it('defines the seven required jobs and the two scheduled ones', function () {
     expect(array_keys(ciWorkflow()['jobs']))->toBe([
-        'php', 'php-lowest', 'bench-guards', 'scaffold', 'octane', 'quality', 'frontend', 'browser',
+        'php', 'php-lowest', 'bench-guards', 'scaffold', 'octane', 'quality', 'frontend',
         'upstream', 'audit',
     ]);
 });
 
 it('runs the required jobs on pull requests and pushes, not on the schedule', function () {
-    foreach (['php', 'php-lowest', 'bench-guards', 'scaffold', 'octane', 'quality', 'frontend', 'browser'] as $job) {
+    foreach (['php', 'php-lowest', 'bench-guards', 'scaffold', 'octane', 'quality', 'frontend'] as $job) {
         expect(ciWorkflow()['jobs'][$job]['if'] ?? null)->toBe("github.event_name != 'schedule'");
     }
 });
@@ -112,20 +112,6 @@ it('runs the weekly schedule on Monday at 04:00 UTC', function () {
     expect(ciWorkflow()['on']['schedule'])->toBe([['cron' => '0 4 * * 1']]);
 });
 
-it('runs each of the five browser projects in its own job', function () {
-    $job = ciWorkflow()['jobs']['browser'];
-
-    expect(ciSteps('browser'))->toContain('LATHE_BROWSER_PROJECT=${{ matrix.project }} composer test:browser -- --browser ${{ matrix.browser }}')
-        ->and($job['strategy']['fail-fast'])->toBeFalse()
-        ->and(array_column($job['strategy']['matrix']['include'], 'browser', 'project'))->toBe([
-            'desktop-chrome' => 'chrome',
-            'desktop-firefox' => 'firefox',
-            'desktop-safari' => 'safari',
-            'phone-android' => 'chrome',
-            'phone-ios' => 'safari',
-        ]);
-});
-
 it('pins the pnpm version that pnpm/action-setup installs', function () {
     $package = json_decode((string) file_get_contents(dirname(__DIR__, 3).'/package.json'), true);
 
@@ -140,22 +126,4 @@ it('gives the quality job Node, pnpm and the whole history the word check reads'
         ->and($steps->firstWhere('uses', 'actions/checkout@v4')['with']['fetch-depth'] ?? null)->toBe(0)
         ->and(strpos($runs, 'pnpm install --frozen-lockfile'))->toBeLessThan(strpos($runs, 'composer lint'))
         ->and($steps->firstWhere('run', 'bash scripts/check-word.sh')['env']['LATHE_PR_TEXT'] ?? null)->toContain('github.event.pull_request.title');
-});
-
-it('makes the screenshot baselines when none are committed and uploads them', function () {
-    $steps = collect(ciWorkflow()['jobs']['browser']['steps']);
-    $missing = "steps.baselines.outputs.missing == 'true'";
-    $upload = $steps->firstWhere('uses', 'actions/upload-artifact@v4');
-
-    expect($steps->firstWhere('id', 'baselines')['run'])->toContain('tests/.pest/snapshots/Browser/VisualTest')
-        ->and($steps->firstWhere('if', $missing)['run'])
-        ->toContain('pest tests/Browser/VisualTest.php --update-snapshots --browser ${{ matrix.browser }}')
-        ->and($upload['if'])->toBe("{$missing} && !cancelled()")
-        ->and($upload['with'])->toBe([
-            'name' => 'screenshot-baselines-${{ matrix.project }}',
-            'path' => 'tests/.pest/snapshots/Browser/VisualTest',
-            // The baselines sit under the hidden .pest folder, which the action skips by default.
-            'include-hidden-files' => true,
-            'if-no-files-found' => 'error',
-        ]);
 });

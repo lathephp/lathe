@@ -187,7 +187,7 @@ it('default_export_downloads_in_the_browser', function () {
         ->and($rows[0])->toBe(['Number', 'Customer', 'Status', 'Total', 'Placed'])
         ->and($rows[1])->toBe(['ORD-1', $customer, 'paid', '1234.50', '2026-03-08 23:30:00'])
         ->and(Lathe::actionEventModel()::count())->toBe(0);
-});
+})->group('regression');
 
 it('writes a file of 500 rows in the request', function () {
     Queue::fake();

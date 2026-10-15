@@ -41,7 +41,6 @@
         "lathe/permission": "@dev",
         "orchestra/testbench": "^11.3",
         "pestphp/pest": "^5.3",
-        "pestphp/pest-plugin-browser": "^5.1",
         "pestphp/pest-plugin-laravel": "^5.0",
         "pestphp/pest-plugin-type-coverage": "^5.0"
     },
@@ -93,7 +92,7 @@
             "phpstan analyse --memory-limit=1G"
         ],
         "test": [
-            "@php vendor/bin/pest --parallel --exclude-group=browser --exclude-group=benchmark --exclude-group=scaffold",
+            "@php vendor/bin/pest --parallel --exclude-group=benchmark --exclude-group=scaffold",
             "bash scripts/pnpm.sh -r test"
         ],
         "qa": [
@@ -114,10 +113,6 @@
         "test:matrix": [
             "Composer\\Config::disableProcessTimeout",
             "bash scripts/matrix.sh"
-        ],
-        "test:browser": [
-            "Composer\\Config::disableProcessTimeout",
-            "@php vendor/bin/pest tests/Browser"
         ],
         "types": "@php -d memory_limit=2G vendor/bin/pest --type-coverage --min=100",
         "mutate": [

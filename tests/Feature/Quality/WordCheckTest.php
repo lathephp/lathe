@@ -59,17 +59,6 @@ it('fails and lists a planted hit', function (Closure $plant, string $expected) 
     }, 'tests/SomeTest.php'],
 ]);
 
-it('skips the screenshot baselines, which are base64 images', function () {
-    $repo = plantRepo(function (string $repo) {
-        File::ensureDirectoryExists("$repo/tests/.pest/snapshots/Browser/VisualTest");
-        File::put("$repo/tests/.pest/snapshots/Browser/VisualTest/login.snap", 'iVBORw0KGgo'.strtolower(bannedWord()).'AAAA');
-    });
-
-    expect(runWordCheck($repo)->output())->toContain('0 hits');
-
-    File::deleteDirectory($repo);
-});
-
 // pnpm packs the npm packages, so this case needs Node.
 it('fails on a hit inside a packed npm package', function () {
     $repo = plantRepo(function (string $repo) {
