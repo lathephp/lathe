@@ -9,6 +9,9 @@ use Lathe\Tests\TestCase;
 use Pest\Browser\Api\AwaitableWebpage;
 use Pest\Browser\Api\PendingAwaitablePage;
 use Pest\Browser\Api\Webpage;
+use Pest\Browser\Playwright\InitScript;
+use Pest\Browser\Playwright\Playwright;
+use Pest\Browser\Support\ComputeUrl;
 use Pest\Expectation;
 use Workbench\Database\Seeders\DemoSeeder;
 
@@ -88,12 +91,19 @@ function latheVisit(string $url, string $project): AwaitableWebpage
         $pending = (fn () => new PendingAwaitablePage($this->browserType, $this->device, $this->url, $this->options))->call($on);
     }
 
-    // The plugin's own hook sees only console.log and window errors. Ours goes in through
-    // its Playwright context, and a second load runs it before the panel's first script.
-    $pending->url();
-    $awaitable = (fn () => $this->waitablePage)->call($pending);
-    $page = (fn () => $this->page)->call($awaitable);
-    $page->context()->addInitScript(<<<'JS'
+    // The plugin's own hook sees only console.log and window errors. Ours joins the plugin's
+    // init script on a context built the way the plugin builds one, so the page loads once
+    // with both: a second load raced the first in Firefox, which reports a load done early.
+    [$browserType, $device, $options] = (fn () => [$this->browserType, $this->device, $this->options])->call($pending);
+    $context = Playwright::browser($browserType)->launch()->newContext([
+        'locale' => 'en-US',
+        'timezoneId' => 'UTC',
+        'colorScheme' => Playwright::defaultColorScheme()->value,
+        ...$device->context(),
+        ...$options,
+    ]);
+    $context->addInitScript(InitScript::get());
+    $context->addInitScript(<<<'JS'
         window.__lathe = { csp: [], errors: [] };
         document.addEventListener('securitypolicyviolation', (event) => {
             window.__lathe.csp.push(`${event.effectiveDirective} blocked ${event.blockedURI || 'inline'}`);
@@ -107,9 +117,24 @@ function latheVisit(string $url, string $project): AwaitableWebpage
             window.__lathe.errors.push(`unhandled rejection: ${String(event.reason)}`);
         });
         JS);
-    $page->goto($page->url());
+    $address = ComputeUrl::from($url);
+    $page = $context->newPage()->goto($address, $options);
 
-    return $awaitable;
+    // Firefox returns from goto, and from waitForFunction, while the tab still shows
+    // about:blank, so this asks until the document has arrived and parsed.
+    $deadline = microtime(true) + 10;
+    do {
+        try {
+            if ($page->evaluate("location.href !== 'about:blank' && document.readyState !== 'loading'") === true) {
+                break;
+            }
+        } catch (Throwable) {
+            // The document changed under the question; ask again.
+        }
+        usleep(50_000);
+    } while (microtime(true) < $deadline);
+
+    return new AwaitableWebpage($page, $address);
 }
 
 /**

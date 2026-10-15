@@ -41,12 +41,12 @@ function currentAdminTotp(): string
     return (new Google2FA)->getCurrentOtp(decrypt(User::query()->where('email', 'admin@lathephp.com')->value('two_factor_secret')));
 }
 
-/** Fill a 6-digit code into the OTP field from its first slot, which spreads it over the six. */
+/** Type a 6-digit code key by key from the OTP field's first slot, which moves on after each digit. A fill lost a digit in Firefox. */
 function typeTotp(AwaitableWebpage $page, string $scope, string $code): AwaitableWebpage
 {
     $first = "{$scope} [data-slot=\"otp-field-slot\"] >> nth=0";
 
-    return $page->type($first, $code);
+    return $page->typeSlowly($first, $code, 20);
 }
 
 /**
