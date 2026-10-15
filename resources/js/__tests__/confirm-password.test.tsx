@@ -95,7 +95,11 @@ describe('confirm password dialog', () => {
     render(<PasswordConfirmHost />);
 
     void request('/lathe/api/thing').catch(() => undefined);
-    await screen.findByRole('dialog', { name: 'Confirm password' });
+    const dialog = await screen.findByRole('dialog', { name: 'Confirm password' });
+    // The modal pauses shortcuts in the effect that also moves focus into it.
+    await waitFor(() => {
+      expect(dialog.contains(document.activeElement)).toBe(true);
+    });
 
     fireEvent.keyDown(document.body, { key: 'c' });
 

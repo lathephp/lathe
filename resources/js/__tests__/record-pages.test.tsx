@@ -226,9 +226,9 @@ describe('record form', () => {
     const name = screen.getByLabelText(/Name/);
     await waitFor(() => {
       expect(screen.getByText('The name field is required.')).toBeDefined();
+      expect(document.activeElement).toBe(name);
     });
     expect(name.getAttribute('aria-invalid')).toBe('true');
-    expect(document.activeElement).toBe(name);
     expect(inputValue(/Country/)).toBe('BD');
     expect(__panel.toasts.get().map((toast) => toast.message)).toContain('Please fix the highlighted fields.');
   });
