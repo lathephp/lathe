@@ -47,24 +47,24 @@ start() {
 }
 
 ready() {
-    local name=$1 tries=90
+    local name=$1 tries=90 error=
 
     while ((tries-- > 0)); do
         case $name in
             lathe-pg15)
-                podman exec "$name" pg_isready -U $user -d $database >/dev/null 2>&1 && return 0
+                error=$(podman exec "$name" pg_isready -U $user -d $database 2>&1) && return 0
                 ;;
             lathe-mariadb1011)
-                podman exec "$name" mariadb -u$user -p$password -e 'select 1' $database >/dev/null 2>&1 && return 0
+                error=$(podman exec "$name" mariadb -u$user -p$password -e 'select 1' $database 2>&1) && return 0
                 ;;
             *)
-                podman exec "$name" mysql -u$user -p$password -e 'select 1' $database >/dev/null 2>&1 && return 0
+                error=$(podman exec "$name" mysql -u$user -p$password -e 'select 1' $database 2>&1) && return 0
                 ;;
         esac
         sleep 2
     done
 
-    echo "$name did not accept connections in time" >&2
+    echo "$name did not accept connections in time; the last check said: $error" >&2
     podman ps -a --filter "name=$name" --format '{{.Names}} {{.Status}}' >&2
     podman logs --tail 30 "$name" >&2
     return 1
