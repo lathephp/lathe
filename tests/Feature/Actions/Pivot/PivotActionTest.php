@@ -41,7 +41,7 @@ function moveToFirst(array $ids, string $via = 'products/1/tags'): TestResponse
  */
 function positions(): array
 {
-    return DB::table('taggables')->where('taggable_type', (new Product)->getMorphClass())->where('taggable_id', 1)->pluck('position', 'tag_id')->map(fn ($p) => (int) $p)->all();
+    return DB::table('taggables')->where('taggable_type', (new Product)->getMorphClass())->where('taggable_id', 1)->orderBy('tag_id')->pluck('position', 'tag_id')->map(fn ($p) => (int) $p)->all();
 }
 
 it('lists the pivot actions of the Tags field as Tag Actions', function () {
