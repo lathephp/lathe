@@ -65,6 +65,8 @@ ready() {
     done
 
     echo "$name did not accept connections in time" >&2
+    podman ps -a --filter "name=$name" --format '{{.Names}} {{.Status}}' >&2
+    podman logs --tail 30 "$name" >&2
     return 1
 }
 
