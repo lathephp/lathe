@@ -26,7 +26,8 @@ it('bulk_delete_all_runs_in_chunks_within_memory_cap', function () {
     expect($response->json())->toBe(['deleted' => 0, 'skipped' => 0, 'bulk_run' => ['id' => $run->id, 'total' => 1001]])
         ->and(Order::count())->toBe(1001);
 
-    $this->artisan('queue:work', ['connection' => 'database', '--stop-when-empty' => true, '--sleep' => 0])->assertSuccessful();
+    // The worker's --memory matches the test process, which coverage runs push past 128 MB.
+    $this->artisan('queue:work', ['connection' => 'database', '--stop-when-empty' => true, '--sleep' => 0, '--memory' => 2048])->assertSuccessful();
 
     $reads = array_filter($log, fn (string $sql) => str_starts_with($sql, 'select * from "orders"') || str_starts_with($sql, 'select * from `orders`'));
     expect(Order::count())->toBe(0)

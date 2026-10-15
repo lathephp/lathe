@@ -159,18 +159,19 @@ function seedOrders(int $count): void
 }
 
 /**
- * Runs the queued jobs on the database queue: all of them, or the next $jobs.
+ * Runs the queued jobs on the database queue: all of them, or the next $jobs. The worker's
+ * --memory matches the test process, which coverage runs push past the default 128 MB.
  */
 function drainQueue(?int $jobs = null): void
 {
     if ($jobs === null) {
-        test()->artisan('queue:work', ['connection' => 'database', '--stop-when-empty' => true, '--sleep' => 0])->assertSuccessful();
+        test()->artisan('queue:work', ['connection' => 'database', '--stop-when-empty' => true, '--sleep' => 0, '--memory' => 2048])->assertSuccessful();
 
         return;
     }
 
     foreach (range(1, $jobs) as $ignored) {
-        test()->artisan('queue:work', ['connection' => 'database', '--once' => true, '--sleep' => 0])->assertSuccessful();
+        test()->artisan('queue:work', ['connection' => 'database', '--once' => true, '--sleep' => 0, '--memory' => 2048])->assertSuccessful();
     }
 }
 
