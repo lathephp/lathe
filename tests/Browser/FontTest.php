@@ -32,7 +32,7 @@ it('draws the panel in the bundled Inter Variable from its own assets', function
     $page = signedInAt('/lathe/resources/orders');
 
     $page->assertSee('Showing 1 to 25')
-        ->assertScript('getComputedStyle(document.body).fontFamily.startsWith(\'"Inter Variable"\')', true)
+        ->assertScript('/^"?Inter Variable"?(,|$)/.test(getComputedStyle(document.body).fontFamily)', true)
         ->assertScript('('.FETCHED_FONTS.').length', 1)
         ->assertScript('('.FETCHED_FONTS.')[0].startsWith("/lathe/assets/")', true)
         ->assertScript('performance.getEntriesByType("resource").filter((entry) => entry.name.endsWith(".woff2"))[0].responseStatus', 200);

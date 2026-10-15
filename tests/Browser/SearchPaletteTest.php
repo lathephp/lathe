@@ -13,7 +13,7 @@ it('finds Ann in Customers and Orders, opens the customer and lists it first in 
     signInThroughForm($page, 'admin@lathephp.com');
 
     $page->assertPathIs('/lathe')
-        ->keys('#app', 'Control+k')
+        ->keys('#app', modKey($page, 'k'))
         ->assertPresent('[role="dialog"]')
         ->type(PALETTE_BOX, 'ann')
         ->assertPresent('[role="group"][aria-label="Customers"]')
@@ -25,7 +25,7 @@ it('finds Ann in Customers and Orders, opens the customer and lists it first in 
     $page->keys(PALETTE_BOX, 'Enter')
         ->assertScript('/^\/lathe\/resources\/customers\/\d+$/.test(location.pathname)')
         ->assertNotPresent('[role="dialog"]')
-        ->keys('#app', 'Control+k')
+        ->keys('#app', modKey($page, 'k'))
         ->assertSee('Recent searches');
 
     expect($page->script(FIRST_OPTION_TITLE))->toBe($title);

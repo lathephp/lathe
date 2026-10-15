@@ -17,10 +17,10 @@ it('selects every pending order with mod+a then mod+shift+a and ships them in th
 
     $page->assertSeeIn('[data-tab="pending"]', $badge)
         ->assertSee('Showing 1 to 25 of '.$badge)
-        ->keys('#app', 'Control+a')
+        ->keys('#app', modKey($page, 'a'))
         ->assertSee('All 25 rows on this page are selected.')
         ->assertSee("Select all matching rows ({$badge})")
-        ->keys('#app', 'Control+Shift+a')
+        ->keys('#app', modKey($page, 'Shift+a'))
         ->assertSee("All matching rows selected ({$badge})")
         ->click(ACTIONS_BUTTON)
         ->click('[role="menuitem"]:has-text("Mark Shipped")')

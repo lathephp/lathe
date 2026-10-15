@@ -104,7 +104,7 @@ it('shows the acme/maps plugin page in the sidebar and the palette after its bui
     assertCleanPage($page);
 
     $page->navigate('/lathe')
-        ->keys('#app', 'Control+k')
+        ->keys('#app', modKey($page, 'k'))
         ->type('[role="combobox"]', 'maps')
         ->assertCount('[role="group"][aria-label="Maps"] [role="option"]', 1)
         ->assertSeeIn('[role="group"][aria-label="Maps"] [role="option"]', 'Maps')

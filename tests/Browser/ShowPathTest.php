@@ -64,8 +64,8 @@ it('walks the Sales dashboard, the Widget Gallery, a theme preset and dark mode'
     $page->refresh()
         ->assertScript(SHOW_PATH_CARDS_FILLED, true)
         ->assertScript('document.body.className', 'style-lyra')
-        ->assertScript(SHOW_PATH_AREA_FILL, 'oklch(0.809 0.105 251.813)')
-        ->assertScript(SHOW_PATH_TRACK_FILL, 'oklch(0.967 0.001 286.375)');
+        ->assertScript(roundedCss(SHOW_PATH_AREA_FILL), 'oklch(0.809 0.105 251.813)')
+        ->assertScript(roundedCss(SHOW_PATH_TRACK_FILL), 'oklch(0.967 0.001 286.375)');
     assertCleanPage($page);
 
     // The gallery has no primary button, so the Mark Shipped modal on the Orders index shows one.
@@ -81,6 +81,6 @@ it('walks the Sales dashboard, the Widget Gallery, a theme preset and dark mode'
         ->click('[data-lathe-sidebar] button[aria-haspopup="menu"]')
         ->click('[role="menuitemradio"]:has-text("Dark")')
         ->assertScript('document.documentElement.classList.contains("dark")', true)
-        ->assertScript(SHOW_PATH_TRACK_FILL, 'oklch(0.274 0.006 286.033)');
+        ->assertScript(roundedCss(SHOW_PATH_TRACK_FILL), 'oklch(0.274 0.006 286.033)');
     assertCleanPage($page);
 });

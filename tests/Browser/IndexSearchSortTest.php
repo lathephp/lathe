@@ -58,7 +58,7 @@ it('shows a refused sort as a banner with status 422', function (string $project
     $page = signedInOrders($project, '/lathe/resources/orders?sort=password');
 
     $page->assertSeeIn('[role="alert"]', 'sort is invalid')
-        ->assertScript("performance.getEntriesByType('navigation')[0].responseStatus", 422)
+        ->assertScript('fetch(location.href).then((response) => response.status)', 422)
         ->assertCount('table', 0)
         ->click('Reset')
         ->assertQueryStringMissing('sort')
@@ -70,7 +70,7 @@ it('shows a page past the cap as a banner with no rows', function (string $proje
     $page = signedInOrders($project, '/lathe/resources/orders?page=401');
 
     $page->assertSeeIn('[role="alert"]', 'Narrow the filters')
-        ->assertScript("performance.getEntriesByType('navigation')[0].responseStatus", 422)
+        ->assertScript('fetch(location.href).then((response) => response.status)', 422)
         ->assertCount('table tbody > tr', 0)
         ->assertNoAccessibilityIssues();
     assertCleanPage($page);

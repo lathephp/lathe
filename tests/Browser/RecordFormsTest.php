@@ -197,7 +197,7 @@ it('lists the editor with the avatar image and the admin with the initials in th
 
     $page = signedInAt('/lathe');
 
-    $page->keys('#app', 'Control+k')
+    $page->keys('#app', modKey($page, 'k'))
         ->type('[role="combobox"]', 'editor')
         ->assertPresent('[role="group"][aria-label="Users"]')
         ->assertSeeIn('[role="group"][aria-label="Users"] [role="option"]', 'Editor User')

@@ -113,7 +113,7 @@ it('saves 4 from the StarRating field and shows 4 stars on the index and the det
     // text-amber-400 is in the workbench's own stylesheet only, so the color shows that stylesheet is linked.
     $page->navigate('/lathe/resources/products')
         ->assertCount("table tbody tr:first-child {$filled}", 4)
-        ->assertScript("getComputedStyle(document.querySelector('table tbody tr:first-child [data-filled]')).color", 'lab(80.1641 16.6016 99.2089)');
+        ->assertScript(roundedCss("getComputedStyle(document.querySelector('table tbody tr:first-child [data-filled]')).color"), 'lab(80.164 16.602 99.209)');
     assertCleanPage($page);
 });
 

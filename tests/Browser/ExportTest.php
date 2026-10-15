@@ -77,7 +77,7 @@ it('exports every order in the queue, then offers the file in the toast and the 
     $page = signedInAt('/lathe/resources/orders');
 
     $page->assertSee('Showing 1 to 25 of 10,000')
-        ->keys('#app', 'Control+Shift+a')
+        ->keys('#app', modKey($page, 'Shift+a'))
         ->assertSee('All matching rows selected (10,000)');
 
     runExport($page, 'all-orders')

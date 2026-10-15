@@ -138,6 +138,24 @@ function latheVisit(string $url, string $project): AwaitableWebpage
 }
 
 /**
+ * A key combination with the modifier the panel listens for: Meta where navigator.platform
+ * says Mac, as it does in Playwright's WebKit, else Control.
+ */
+function modKey(AwaitableWebpage|Webpage $page, string $keys): string
+{
+    return ($page->script('/mac/i.test(navigator.platform)') === true ? 'Meta+' : 'Control+').$keys;
+}
+
+/**
+ * A CSS value expression with its numbers rounded to three decimals: WebKit prints six
+ * where Chromium and Firefox print what the stylesheet says.
+ */
+function roundedCss(string $expression): string
+{
+    return "({$expression}).replace(/\\d+\\.\\d+/g, (number) => String(Math.round(number * 1000) / 1000))";
+}
+
+/**
  * Assert the page met no CSP violation, no JavaScript error and no console.error call.
  */
 function assertCleanPage(AwaitableWebpage|Webpage $page): void
