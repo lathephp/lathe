@@ -39,14 +39,15 @@ jobs:
             port: 3306
             dbname: lathe_test
             user: root
-            health: --health-cmd "mysqladmin ping -h 127.0.0.1 -uroot -plathe_secret" --health-interval 5s --health-timeout 5s --health-retries 30
+            # Every test drops and remigrates its tables, so the data folder lives in memory.
+            health: --tmpfs /var/lib/mysql --health-cmd "mysqladmin ping -h 127.0.0.1 -uroot -plathe_secret" --health-interval 5s --health-timeout 5s --health-retries 30
           - &mariadb-cell
             database: 'mariadb:10.11'
             connection: mariadb
             port: 3306
             dbname: lathe_test
             user: root
-            health: --health-cmd "healthcheck.sh --connect --innodb_initialized" --health-interval 5s --health-timeout 5s --health-retries 30
+            health: --tmpfs /var/lib/mysql --health-cmd "healthcheck.sh --connect --innodb_initialized" --health-interval 5s --health-timeout 5s --health-retries 30
           - &postgres-cell
             database: 'postgres:15'
             connection: pgsql
