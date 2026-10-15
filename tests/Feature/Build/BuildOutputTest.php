@@ -52,11 +52,59 @@ function buildOutputTwice(): array
     if ($trees === null) {
         buildOutputRun();
         $first = buildOutputTree();
+        // The first build's files, so a mismatch can show what changed.
+        (new Process(['cp', '-R', buildOutputRepo().'/dist', buildOutputFirstCopy()]))->mustRun();
         buildOutputRun();
         $trees = ['first' => $first, 'second' => buildOutputTree()];
     }
 
     return $trees;
+}
+
+function buildOutputFirstCopy(): string
+{
+    static $path = null;
+
+    if ($path === null) {
+        $path = sys_get_temp_dir().'/lathe-first-build-'.bin2hex(random_bytes(4));
+        register_shutdown_function(fn () => (new Process(['rm', '-rf', $path]))->run());
+    }
+
+    return $path;
+}
+
+/**
+ * The parts that differ between the two builds' copies of each changed file, paired by the
+ * name before the content hash; minified CSS and JS split at ; and } to make lines.
+ *
+ * @param  array<string, string>  $first
+ * @param  array<string, string>  $second
+ */
+function buildOutputDifference(array $first, array $second): string
+{
+    $stem = fn (string $path) => (string) preg_replace('/-[0-9a-z]{8}(\.\w+)$/', '$1', $path);
+    $seconds = [];
+
+    foreach (array_keys($second) as $path) {
+        $seconds[$stem($path)] = $path;
+    }
+
+    $report = [];
+
+    foreach ($first as $path => $hash) {
+        $other = $seconds[$stem($path)] ?? null;
+
+        if ($other === null || ($other === $path && $second[$other] === $hash) || $path === 'manifest.json') {
+            continue;
+        }
+
+        $split = fn (string $text) => preg_split('/(?<=[;}])/', $text) ?: [];
+        $before = $split((string) file_get_contents(buildOutputFirstCopy().'/'.$path));
+        $after = $split(buildOutputFile($other));
+        $report[] = "{$path} -> {$other}:\n- ".implode("\n- ", array_slice(array_diff($before, $after), 0, 10))."\n+ ".implode("\n+ ", array_slice(array_diff($after, $before), 0, 10));
+    }
+
+    return implode("\n", $report);
 }
 
 /** @return array<string, array{file: string, isEntry?: bool, css?: list<string>, imports?: list<string>, dynamicImports?: list<string>}> */
@@ -77,7 +125,7 @@ it('builds byte-identical output from one source', function () {
 
     expect($trees['first'])->not->toBeEmpty()
         ->and($trees['first'])->toHaveKey('manifest.json')
-        ->and($trees['second'])->toBe($trees['first']);
+        ->and($trees['second'])->toBe($trees['first'], buildOutputDifference($trees['first'], $trees['second']));
 });
 
 it('puts no timestamp in any built file name', function () {
