@@ -260,7 +260,7 @@ it('reads the rows in key order, exports.chunk_size at a time', function () {
     $this->postJson('/lathe/api/resources/orders/action', exportBody(['mode' => 'ids', 'ids' => array_reverse(range(1, 501))]))->assertOk();
     $selects = [];
     DB::listen(function ($query) use (&$selects) {
-        if (str_contains($query->sql, 'from "orders"') && str_contains($query->sql, 'limit 100')) {
+        if (str_contains($query->sql, quotedSql('from "orders"')) && str_contains($query->sql, 'limit 100')) {
             $selects[] = $query->sql;
         }
     });

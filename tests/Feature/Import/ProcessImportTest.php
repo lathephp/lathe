@@ -156,7 +156,7 @@ it('dry runs products-bad.csv into an error CSV naming row 4', function () use (
 
     expect(importCounts($import))->toBe(['created_rows' => 2, 'updated_rows' => 0, 'skipped_rows' => 0, 'failed_rows' => 1])
         ->and($import->error_file)->toBe("lathe-imports/errors-{$import->id}.csv")
-        ->and(FailedImportRow::where('import_id', $import->id)->get(['row_number', 'data', 'errors'])->toArray())->toBe([[
+        ->and(FailedImportRow::where('import_id', $import->id)->get(['row_number', 'data', 'errors'])->toArray())->toMatchStoredJson([[
             'row_number' => 4,
             'data' => ['name' => 'Broken Price', 'sku' => 'SKU-90013', 'price' => 'abc'],
             'errors' => ['price' => ['The price field must be a number.']],

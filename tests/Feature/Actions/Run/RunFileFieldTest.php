@@ -93,7 +93,7 @@ it('action_event_stores_file_metadata_not_the_file', function () {
     $this->post('/lathe/api/resources/run-label-orders/action', runLabelsBody(['mode' => 'ids', 'ids' => [1]], ['labels' => $file]), ['Accept' => 'application/json'])
         ->assertOk();
 
-    expect(ActionEvent::sole()->fields)->toBe(['labels' => ['name' => 'labels.csv', 'size' => 2048, 'mime' => 'text/csv']]);
+    expect(ActionEvent::sole()->fields)->toMatchStoredJson(['labels' => ['name' => 'labels.csv', 'size' => 2048, 'mime' => 'text/csv']]);
 })->group('regression');
 
 it('answers 422 on the field key when the required file is missing', function () {

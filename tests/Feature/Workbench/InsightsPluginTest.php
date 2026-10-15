@@ -39,7 +39,7 @@ it('counts the open orders for the Overview badge once within 60 seconds', funct
     Order::whereIn('id', [4, 5])->update(['status' => 'paid']);
     $counts = 0;
     DB::listen(function ($query) use (&$counts) {
-        if (str_contains($query->sql, 'count(*)') && str_contains($query->sql, '"status" in')) {
+        if (str_contains($query->sql, 'count(*)') && str_contains($query->sql, quotedSql('"status" in'))) {
             $counts++;
         }
     });

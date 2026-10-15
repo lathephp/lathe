@@ -46,7 +46,7 @@ it('keeps both keys when saveSettings runs twice with different keys', function 
     $plugin->saveSettings(['greeting' => 'Hi']);
     $plugin->saveSettings(['accent' => 'green']);
 
-    expect(PluginSetting::find('hello-plugin')?->data)->toBe(['greeting' => 'Hi', 'accent' => 'green'])
+    expect(PluginSetting::find('hello-plugin')?->data)->toMatchStoredJson(['greeting' => 'Hi', 'accent' => 'green'])
         ->and($plugin->setting('greeting'))->toBe('Hi')
         ->and($plugin->setting('max_items', 10))->toBe(10);
 });

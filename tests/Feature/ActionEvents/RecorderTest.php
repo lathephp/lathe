@@ -100,8 +100,8 @@ it('redacts the attributes a Resource declares as token fields', function () {
 
     $row = ActionEvent::sole();
 
-    expect($row->original)->toBe(['vault' => '[redacted]', 'name' => 'A'])
-        ->and($row->changes)->toBe(['vault' => '[redacted]', 'name' => 'B']);
+    expect($row->original)->toMatchStoredJson(['vault' => '[redacted]', 'name' => 'A'])
+        ->and($row->changes)->toMatchStoredJson(['vault' => '[redacted]', 'name' => 'B']);
 });
 
 it('records the request, with the user agent cut to 255 characters', function () {
