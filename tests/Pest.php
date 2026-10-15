@@ -10,6 +10,7 @@ use Pest\Browser\Api\AwaitableWebpage;
 use Pest\Browser\Api\PendingAwaitablePage;
 use Pest\Browser\Api\Webpage;
 use Pest\Browser\Playwright\InitScript;
+use Pest\Browser\Playwright\Page;
 use Pest\Browser\Playwright\Playwright;
 use Pest\Browser\Support\ComputeUrl;
 use Pest\Expectation;
@@ -119,22 +120,46 @@ function latheVisit(string $url, string $project): AwaitableWebpage
         JS);
     $address = ComputeUrl::from($url);
     $page = $context->newPage()->goto($address, $options);
+    waitForDocument($page);
 
-    // Firefox returns from goto, and from waitForFunction, while the tab still shows
-    // about:blank, so this asks until the document has arrived and parsed.
+    return new AwaitableWebpage($page, $address);
+}
+
+/**
+ * Firefox and WebKit return from goto, navigate and waitForFunction before the new document
+ * is there, so this asks until it has parsed, the panel has drawn into #app, and its time
+ * origin differs from $previous, the document the navigation left.
+ */
+function waitForDocument(Page $page, ?float $previous = null): void
+{
     $deadline = microtime(true) + 10;
+
     do {
         try {
-            if ($page->evaluate("location.href !== 'about:blank' && document.readyState !== 'loading'") === true) {
-                break;
+            $state = $page->evaluate("[location.href !== 'about:blank' && document.readyState !== 'loading' && (document.getElementById('app')?.childElementCount ?? 1) > 0, performance.timeOrigin]");
+
+            if (is_array($state) && $state[0] === true && $state[1] !== $previous) {
+                return;
             }
         } catch (Throwable) {
             // The document changed under the question; ask again.
         }
+
         usleep(50_000);
     } while (microtime(true) < $deadline);
+}
 
-    return new AwaitableWebpage($page, $address);
+/**
+ * Open a URL in the page and wait for its document, as navigate alone does not.
+ */
+function latheNavigate(AwaitableWebpage $page, string $url): AwaitableWebpage
+{
+    $raw = (fn () => $this->page)->call($page);
+    $previous = $raw->evaluate('performance.timeOrigin');
+    $page->navigate($url);
+    waitForDocument($raw, is_float($previous) || is_int($previous) ? (float) $previous : null);
+
+    return $page;
 }
 
 /**

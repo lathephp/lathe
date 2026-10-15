@@ -7,8 +7,11 @@ require_once __DIR__.'/records.php';
 // The origins of every resource the page fetched that are not the page's own.
 const FOREIGN_REQUESTS = 'performance.getEntriesByType("resource").map((entry) => new URL(entry.name).origin).filter((origin) => origin !== location.origin)';
 
-// The paths of the font files the page fetched.
+// The paths of the font files the page fetched. WebKit lists none it took from its cache.
 const FETCHED_FONTS = 'performance.getEntriesByType("resource").map((entry) => new URL(entry.name).pathname).filter((path) => path.endsWith(".woff2"))';
+
+// The paths the @font-face rules for Inter Variable load from.
+const INTER_SOURCES = '[...document.styleSheets].flatMap((sheet) => [...sheet.cssRules]).filter((rule) => rule instanceof CSSFontFaceRule && rule.style.getPropertyValue("font-family").replaceAll(\'"\', "") === "Inter Variable").map((rule) => new URL(rule.style.getPropertyValue("src").match(/url\\("?([^")]+)/)[1], rule.parentStyleSheet.href ?? location.href).pathname)';
 
 it('fetches nothing from another origin on the login, home and Orders pages', function () {
     $page = latheVisit('/lathe/login', 'desktop-chrome');
@@ -33,9 +36,12 @@ it('draws the panel in the bundled Inter Variable from its own assets', function
 
     $page->assertSee('Showing 1 to 25')
         ->assertScript('/^"?Inter Variable"?(,|$)/.test(getComputedStyle(document.body).fontFamily)', true)
-        ->assertScript('('.FETCHED_FONTS.').length', 1)
-        ->assertScript('('.FETCHED_FONTS.')[0].startsWith("/lathe/assets/")', true)
-        ->assertScript('performance.getEntriesByType("resource").filter((entry) => entry.name.endsWith(".woff2"))[0].responseStatus', 200);
+        ->assertScript('('.FETCHED_FONTS.').length <= 1', true)
+        ->assertScript('('.INTER_SOURCES.').length', 1)
+        ->assertScript('('.INTER_SOURCES.')[0].startsWith("/lathe/assets/")', true)
+        // Not document.fonts: the plugin's test server trims the edges of a binary body, so the
+        // face it serves fails to decode in every browser. A real server sends the file whole.
+        ->assertScript('fetch(('.INTER_SOURCES.')[0]).then((response) => `${response.status} ${response.headers.get("content-type")}`)', '200 font/woff2');
 });
 
 it('serves a configured host font from the host origin', function () {

@@ -103,7 +103,7 @@ it('shows the acme/maps plugin page in the sidebar and the palette after its bui
         ->assertSee('Edit resources/js/plugin.tsx to build this page.');
     assertCleanPage($page);
 
-    $page->navigate('/lathe')
+    latheNavigate($page, '/lathe')
         ->keys('#app', modKey($page, 'k'))
         ->type('[role="combobox"]', 'maps')
         ->assertCount('[role="group"][aria-label="Maps"] [role="option"]', 1)

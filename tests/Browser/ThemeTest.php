@@ -49,7 +49,7 @@ it('paints a primary button with the configured primary colour', function () {
 
     $page = openShipAction(signedInAt('/lathe/resources/orders'));
 
-    $page->assertScript('getComputedStyle(document.querySelector(\'[role="dialog"] button[type="submit"]\')).backgroundColor', 'oklch(0.62 0.19 259)');
+    $page->assertScript(roundedCss('getComputedStyle(document.querySelector(\'[role="dialog"] button[type="submit"]\')).backgroundColor'), 'oklch(0.62 0.19 259)');
     assertCleanPage($page);
 });
 

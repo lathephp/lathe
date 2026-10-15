@@ -19,7 +19,7 @@ function signedInAt(string $url, string $project = 'desktop-chrome', string $ema
     signInThroughForm($page, $email);
     $page->assertPathIs('/lathe');
 
-    return $page->navigate($url);
+    return latheNavigate($page, $url);
 }
 
 /**

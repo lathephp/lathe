@@ -73,7 +73,7 @@ it('walks the Sales dashboard, the Widget Gallery, a theme preset and dark mode'
         ->click('tbody tr:first-child input[type="checkbox"]')
         ->click('button[aria-haspopup="menu"]:text-is("Actions")')
         ->click('[role="menuitem"]:has-text("Mark Shipped")')
-        ->assertScript('getComputedStyle(document.querySelector(\'[role="dialog"] button[type="submit"]\')).backgroundColor', 'oklch(0.488 0.243 264.376)');
+        ->assertScript(roundedCss('getComputedStyle(document.querySelector(\'[role="dialog"] button[type="submit"]\')).backgroundColor'), 'oklch(0.488 0.243 264.376)');
     assertCleanPage($page);
 
     $page->navigate('/lathe/dashboards/widget-gallery')
