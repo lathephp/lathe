@@ -83,7 +83,7 @@ it('centres one card under the brand name with the hook below it', function (str
     $page->assertPresent('[data-demo-hook="auth:after-form"]');
 
     expect($page->script(AUTH_LAYOUT))->toBe([
-        'brand' => config('app.name'),
+        'brand' => config('lathe.name'),
         'cards' => 1,
         'hook' => 'auth:after-form',
         'badge' => 1,
