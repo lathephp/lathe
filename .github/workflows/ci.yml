@@ -205,8 +205,6 @@ jobs:
         with:
           php-version: '8.4'
           coverage: pcov
-          # composer mutate merges the coverage of the whole suite and ran out at 512 MB.
-          ini-values: memory_limit=2G
       # composer lint runs the translations check through pnpm.
       - uses: pnpm/action-setup@v4
       - uses: actions/setup-node@v4
