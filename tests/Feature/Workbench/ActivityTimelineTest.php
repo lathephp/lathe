@@ -4,6 +4,7 @@ namespace Lathe\Tests\Feature\Workbench;
 
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Str;
 use Inertia\Testing\AssertableInertia;
 use Lathe\Enums\ActionEventStatus;
 use Lathe\Enums\ActionEventType;
@@ -35,14 +36,14 @@ beforeEach(function () {
 
 function logOrderEvent(int $orderId, ActionEventType $type, string $at, array $attributes = []): void
 {
-    Order::findOrFail($orderId)->actions()->create([
-        'batch_id' => 'batch-'.$at,
+    $event = Order::findOrFail($orderId)->actions()->create([
+        'batch_id' => (string) Str::uuid(),
         'type' => $type,
         'status' => ActionEventStatus::Finished,
         'user_id' => (string) test()->admin->getKey(),
         ...$attributes,
     ]);
-    DB::table('lathe_action_events')->where('batch_id', 'batch-'.$at)->update(['created_at' => $at, 'updated_at' => $at]);
+    DB::table('lathe_action_events')->where('id', $event->getKey())->update(['created_at' => $at, 'updated_at' => $at]);
 }
 
 it('places the Activity timeline block on the order detail payload', function () {
