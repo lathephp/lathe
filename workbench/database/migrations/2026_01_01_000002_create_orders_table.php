@@ -11,7 +11,7 @@ return new class extends Migration
         Schema::create('orders', function (Blueprint $table) {
             $table->id();
             $table->foreignId('customer_id')->index()->constrained();
-            $table->char('number', 12)->unique();
+            $table->string('number', 12)->unique();
             $table->string('status', 16)->index();
             $table->integer('total_cents')->index();
             $table->dateTime('placed_at')->index();
