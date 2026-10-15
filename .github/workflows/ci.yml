@@ -19,7 +19,7 @@ jobs:
     name: php ${{ matrix.php }} ${{ matrix.database }}
     if: github.event_name != 'schedule'
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 60
     strategy:
       fail-fast: false
       matrix:
@@ -98,7 +98,7 @@ jobs:
     name: php-lowest ${{ matrix.php }} ${{ matrix.database }}
     if: github.event_name != 'schedule'
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 60
     strategy:
       fail-fast: false
       matrix:
