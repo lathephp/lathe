@@ -36,11 +36,12 @@ export interface NavContext {
   badges: Record<string, NavBadge>;
 }
 
-// The theme has no info, success or warning tokens yet, so these use the palette.
+// The theme has no info, success or warning tokens yet, so these use the palette. The 700
+// shades keep white 12px text above 4.5:1 contrast; the 600 shades fall below it.
 const tones: Record<string, string> = {
-  info: 'bg-sky-600',
-  success: 'bg-emerald-600',
-  warning: 'bg-amber-600',
+  info: 'bg-sky-700',
+  success: 'bg-emerald-700',
+  warning: 'bg-amber-700',
   destructive: 'bg-destructive',
 };
 
