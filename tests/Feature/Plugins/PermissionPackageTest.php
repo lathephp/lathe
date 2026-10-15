@@ -1,14 +1,15 @@
 <?php
 
 use Illuminate\Foundation\PackageManifest;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Schema;
 use Lathe\Permission\PermissionPlugin;
 use Lathe\Plugins\PluginDiscovery;
 use Spatie\Permission\Traits\HasRoles;
 use Workbench\App\Models\User;
 
-uses(RefreshDatabase::class);
+beforeEach(function () {
+    $this->artisan('migrate')->assertSuccessful();
+});
 
 it('installs lathe/permission from plugins/ so discovery finds its plugin', function () {
     $vendor = PluginDiscovery::vendorPath(app(PackageManifest::class)->vendorPath);
