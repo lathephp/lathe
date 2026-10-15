@@ -103,7 +103,7 @@ class ApiSnapshot
     protected function method(string $class, ReflectionMethod $method): string
     {
         $parameters = implode(', ', array_map($this->parameter(...), $method->getParameters()));
-        $return = $method->getReturnType() !== null ? ': '.$this->type($method->getReturnType()) : '';
+        $return = $method->getReturnType() !== null ? ': '.$this->type($method->getReturnType(), $method->getDeclaringClass()) : '';
         $static = $method->isStatic() ? 'static ' : '';
         $visibility = $method->isProtected() ? 'protected ' : '';
 
@@ -112,14 +112,14 @@ class ApiSnapshot
 
     protected function property(string $class, ReflectionProperty $property): string
     {
-        $type = $property->getType() !== null ? $this->type($property->getType()).' ' : '';
+        $type = $property->getType() !== null ? $this->type($property->getType(), $property->getDeclaringClass()).' ' : '';
 
         return "{$class}::{$type}\${$property->getName()}".($property->isProtected() ? '  [protected]' : '');
     }
 
     protected function parameter(ReflectionParameter $parameter): string
     {
-        $text = ($parameter->getType() !== null ? $this->type($parameter->getType()).' ' : '')
+        $text = ($parameter->getType() !== null ? $this->type($parameter->getType(), $parameter->getDeclaringClass()).' ' : '')
             .($parameter->isVariadic() ? '...' : '')
             .'$'.$parameter->getName();
 
@@ -132,13 +132,19 @@ class ApiSnapshot
         return (string) preg_replace('/\s+/', ' ', $text);
     }
 
-    protected function type(ReflectionType $type): string
+    /**
+     * PHP 8.4 writes self as written, 8.5 as the class it names; the snapshot holds the
+     * class name, so both versions give the same line.
+     *
+     * @param  ReflectionClass<object>|null  $class
+     */
+    protected function type(ReflectionType $type, ?ReflectionClass $class): string
     {
-        if ($type instanceof ReflectionNamedType) {
-            return ($type->allowsNull() && $type->getName() !== 'mixed' && $type->getName() !== 'null' ? '?' : '').$type->getName();
-        }
+        $text = $type instanceof ReflectionNamedType
+            ? ($type->allowsNull() && $type->getName() !== 'mixed' && $type->getName() !== 'null' ? '?' : '').$type->getName()
+            : (string) $type;
 
-        return (string) $type;
+        return $class === null ? $text : (string) preg_replace('/(?<![\\\w])self(?![\\\w])/', $class->getName(), $text);
     }
 
     protected function internal(string|false $docComment): bool

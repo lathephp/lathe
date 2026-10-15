@@ -46,6 +46,14 @@ it('writes the snapshot and then passes', function () {
     apiCheck($root)->assertSuccessful();
 });
 
+it('writes self as the class it names, on every PHP version', function () {
+    [$root, , $class] = apiFixture('    public static function make(?self $other = null): self|int { return 1; }');
+
+    apiCheck($root, write: true)->assertSuccessful();
+
+    expect(File::get("{$root}/api/php.txt"))->toContain("{$class}::make(?{$class} \$other = NULL): {$class}|int");
+});
+
 it('fails on a public method missing from the snapshot', function () {
     [$root, , $class] = apiFixture("    public function ping(): bool { return true; }\n\n    public function pong(): bool { return true; }");
     File::put("{$root}/api/php.txt", "class {$class}\n{$class}::ping(): bool\n");
