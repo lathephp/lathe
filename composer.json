@@ -102,17 +102,9 @@
             "@test"
         ],
         "test:scaffold": "@php vendor/bin/pest --group=scaffold",
-        "test:bench": [
-            "Composer\\Config::disableProcessTimeout",
-            "bash scripts/bench-lanes.sh"
-        ],
         "test:octane": [
             "Composer\\Config::disableProcessTimeout",
             "bash scripts/octane-lane.sh"
-        ],
-        "test:matrix": [
-            "Composer\\Config::disableProcessTimeout",
-            "bash scripts/matrix.sh"
         ],
         "types": "@php -d memory_limit=2G vendor/bin/pest --type-coverage --min=100",
         "mutate": [

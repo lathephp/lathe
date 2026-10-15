@@ -154,8 +154,7 @@ jobs:
           extensions: pdo_mysql, pdo_pgsql, pdo_sqlite, intl
           coverage: none
       - run: composer install --no-interaction --prefer-dist
-      # The cell's database is fresh, so the group runs in it directly, unlike
-      # scripts/bench-lanes.sh, which makes its own database on the local containers.
+      # The cell's database is fresh, so the group runs in it directly.
       - run: php vendor/bin/pest --group=benchmark --colors=never tests/Benchmark/QueryCountTest.php
 
   scaffold:
