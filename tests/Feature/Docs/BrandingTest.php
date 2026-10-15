@@ -34,7 +34,8 @@ it('describes the package as an admin panel builder for Laravel', function () {
 it('gives the README the install flow with no private repository or key step', function () {
     $readme = File::get(dirname(__DIR__, 3).'/README.md');
 
-    expect($readme)->toContain('PHP 8.4', 'Laravel 13', 'composer require lathe/lathe', 'php artisan lathe:install', 'php artisan lathe:user', 'gate()', '/lathe', 'SECURITY.md', 'composer serve', 'composer qa', 'lathephp.com/docs', 'demo.lathephp.com')
+    expect($readme)->toContain('PHP 8.4', 'Laravel 13', 'composer require lathe/lathe', 'php artisan lathe:install', 'php artisan lathe:user', 'gate()', '/lathe', 'SECURITY.md', 'composer serve', 'composer qa', 'lathephp.com/docs')
+        ->and($readme)->not->toContain('demo.lathephp.com')
         ->and(strpos($readme, 'lathe:install'))->toBeLessThan(strpos($readme, 'lathe:user'))
         ->and($readme)->not->toMatch('/http-basic|"repositories"|license[_ ]key|LICENSE_KEY/i');
 });
