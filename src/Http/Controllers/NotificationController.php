@@ -9,6 +9,7 @@ use Illuminate\Notifications\DatabaseNotification;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Str;
 use Lathe\Http\Requests\LatheRequest;
 use Lathe\Notifications\NotificationResource;
 use Lathe\Support\ConfigStore;
@@ -51,12 +52,12 @@ class NotificationController
 
     public function read(LatheRequest $request, string $id): Response
     {
-        return $this->change($request, fn (Builder $query) => $query->whereKey($id)->update(['read_at' => Carbon::now()]));
+        return $this->change($request, fn (Builder $query) => Str::isUuid($id) && $query->whereKey($id)->update(['read_at' => Carbon::now()]));
     }
 
     public function unread(LatheRequest $request, string $id): Response
     {
-        return $this->change($request, fn (Builder $query) => $query->whereKey($id)->update(['read_at' => null]));
+        return $this->change($request, fn (Builder $query) => Str::isUuid($id) && $query->whereKey($id)->update(['read_at' => null]));
     }
 
     public function markAllRead(LatheRequest $request): Response
@@ -66,7 +67,7 @@ class NotificationController
 
     public function destroy(LatheRequest $request, string $id): Response
     {
-        return $this->change($request, fn (Builder $query) => $query->whereKey($id)->delete());
+        return $this->change($request, fn (Builder $query) => Str::isUuid($id) && $query->whereKey($id)->delete());
     }
 
     public function destroyAll(LatheRequest $request): Response
@@ -75,6 +76,9 @@ class NotificationController
     }
 
     /**
+     * A write for one id skips an id that is no UUID: PostgreSQL refuses it for the uuid
+     * key, where SQLite and MySQL match nothing.
+     *
      * @param  callable(Builder<DatabaseNotification>): mixed  $write
      */
     protected function change(LatheRequest $request, callable $write): Response

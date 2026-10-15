@@ -117,6 +117,18 @@ test('another_users_id_changes_nothing', function () {
         ->and(DatabaseNotification::find($theirs)->read_at)->toBeNull();
 });
 
+test('an_id_that_is_no_uuid_changes_nothing', function () {
+    [$mine] = notifyUser($this->user, 1);
+    $this->actingAs($this->user);
+
+    $this->putJson('/lathe/api/notifications/1')->assertNoContent();
+    $this->postJson('/lathe/api/notifications/1/unread')->assertNoContent();
+    $this->deleteJson('/lathe/api/notifications/1')->assertNoContent();
+
+    expect(DatabaseNotification::find($mine))->not->toBeNull()
+        ->and(DatabaseNotification::find($mine)->read_at)->toBeNull();
+});
+
 test('every_endpoint_answers_401_with_no_user', function (string $method, string $uri) {
     $this->json($method, $uri)->assertUnauthorized();
 })->with([
