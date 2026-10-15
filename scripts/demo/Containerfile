@@ -1,4 +1,0 @@
-# A fresh Ubuntu 24.04 server for rehearsing deploy.sh; the script installs everything else.
-# rehearse.sh builds it and runs deploy.sh inside with --no-systemd.
-FROM docker.io/library/ubuntu:24.04
-CMD ["sleep", "infinity"]
