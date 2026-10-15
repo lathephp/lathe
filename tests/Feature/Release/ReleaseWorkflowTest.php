@@ -42,9 +42,10 @@ it('publishes the three npm packages with provenance under beta for a prerelease
         ->and($runs)->toContain('npm publish --provenance --access public --tag "$dist_tag"', 'for package in core ui vite-plugin', 'dist_tag=beta', 'dist_tag=latest');
 });
 
-it('creates the GitHub release from the changelog and dispatches the site and benchmark', function () {
+it('creates the GitHub release from the changelog and dispatches the site build', function () {
     expect(releaseRuns('github-release'))->toContain('CHANGELOG.md', 'gh release create')
-        ->and(releaseRuns('dispatch'))->toContain('repos/lathephp/lathephp.com/dispatches', 'repos/lathephp/benchmarks/dispatches');
+        ->and(releaseRuns('dispatch'))->toContain('repos/lathephp/lathephp.com/dispatches')
+        ->not->toContain('repos/lathephp/benchmarks');
 });
 
 it('holds no npm token, no token of the old release and no upload to another host', function () {

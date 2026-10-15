@@ -1,6 +1,6 @@
 ---
 title: Limits and performance
-description: The default limits that keep every page fast on tables with millions of rows, and the speed budgets Lathe is held to.
+description: The default limits that keep every page fast on tables with millions of rows, and the budgets Lathe's CI holds it to.
 order: 10
 ---
 
@@ -45,19 +45,13 @@ protected function configure(ResourceDefinition $definition): ResourceDefinition
 
 ## Speed budgets
 
-Lathe's CI fails a change that breaks one of these budgets. They are measured on a table of 10 million orders and with 500 Resources registered.
+Lathe's CI fails a change that breaks one of these budgets, on SQLite, MySQL, MariaDB and PostgreSQL.
 
 | Budget | Limit |
 |---|---|
-| List page, server time at the 95th percentile | 50 ms, with the same number of queries for 10 rows as for 100 |
-| Detail and edit page, server time at the 95th percentile | 30 ms |
-| Lathe's cost per request with 500 Resources | 5 ms over a plain Laravel route |
+| List page queries | The same number for 100 rows as for 10 |
 | JavaScript for the first page load | 200 KB gzipped |
-| Rendering a table of 100 rows and 20 columns | 50 ms in desktop Chrome |
-| Interaction to next paint on a mid-range phone | 200 ms |
-| Any of the above compared with the last release | at most 20% worse |
-
-The public benchmark against Filament runs the same six list, search, filter, detail and edit requests on both panels with the same data. Its results and how to run it again are at [github.com/lathephp/benchmarks](https://github.com/lathephp/benchmarks).
+| Resources built for one request, with 500 registered | Only the one the request uses |
 
 ## Keeping your own Resources fast
 

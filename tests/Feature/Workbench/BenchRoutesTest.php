@@ -2,7 +2,6 @@
 
 use Illuminate\Contracts\Http\Kernel;
 use Illuminate\Support\Facades\Gate;
-use Lathe\Notifications\LatheNotification;
 use Workbench\App\Http\Middleware\ServerTiming;
 use Workbench\App\Models\User;
 use Workbench\Database\Seeders\DemoSeeder;
@@ -26,21 +25,6 @@ it('sends no Server-Timing header from the package itself', function () {
 
     expect($this->get('/lathe/resources/orders')->assertOk()->headers->has('Server-Timing'))->toBeFalse()
         ->and((string) shell_exec('grep -rl "Server-Timing" '.escapeshellarg(dirname(__DIR__, 3).'/src')))->toBe('');
-});
-
-it('counts the unread notifications on the plain route as the bell does', function () {
-    $user = User::where('email', 'admin@lathephp.com')->firstOrFail();
-    $user->notify((new LatheNotification)->message('Exported.'));
-    $user->notify((new LatheNotification)->message('Imported.'));
-
-    expect($this->getJson('/bench/plain')->assertOk()->json('count'))->toBe(2)
-        ->and($this->getJson('/lathe/api/notifications/count')->assertOk()->json('count'))->toBe(2);
-});
-
-it('keeps the plain route behind sign in', function () {
-    auth()->logout();
-
-    $this->getJson('/bench/plain')->assertUnauthorized();
 });
 
 it('stripes the tables for one request that asks for it', function () {

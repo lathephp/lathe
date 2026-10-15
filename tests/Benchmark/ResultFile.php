@@ -78,7 +78,6 @@ class ResultFile
                 'database' => $driver,
                 'mysql' => $mysql ? DB::scalar('select version()') : null,
                 'node' => static::command(['node', '--version']),
-                'chromium' => static::chromium(),
                 'lathe' => static::command(['git', '-C', dirname(__DIR__, 2), 'rev-parse', '--short', 'HEAD']),
             ],
         ];
@@ -95,23 +94,6 @@ class ResultFile
 
         if (preg_match('/^CPU implementer\s*:\s*(\S+)$.*?^CPU part\s*:\s*(\S+)$/ms', $cpuinfo, $match) === 1) {
             return "implementer {$match[1]} part {$match[2]}";
-        }
-
-        return null;
-    }
-
-    /**
-     * The Chromium the browser budgets run: Playwright's newest download, else the system one.
-     */
-    protected static function chromium(): ?string
-    {
-        $bundled = glob((getenv('HOME') ?: '~').'/.cache/ms-playwright/chromium-*/chrome-linux*/chrome') ?: [];
-        natsort($bundled);
-
-        foreach ([...array_reverse($bundled), 'chromium-browser', 'chromium'] as $binary) {
-            if (($version = static::command([$binary, '--version'])) !== null) {
-                return $version;
-            }
         }
 
         return null;

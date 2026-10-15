@@ -126,9 +126,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
-      - name: Start the docs site build and the benchmark re-run
+      - name: Start the docs site build
         env:
           GH_TOKEN: ${{ secrets.RELEASE_DISPATCH_TOKEN }}
-        run: |
-          gh api repos/lathephp/lathephp.com/dispatches -f event_type=lathe-release -f "client_payload[tag]=$GITHUB_REF_NAME"
-          gh api repos/lathephp/benchmarks/dispatches -f event_type=lathe-release -f "client_payload[tag]=$GITHUB_REF_NAME"
+        run: gh api repos/lathephp/lathephp.com/dispatches -f event_type=lathe-release -f "client_payload[tag]=$GITHUB_REF_NAME"

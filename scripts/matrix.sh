@@ -20,7 +20,7 @@ failed=0
 
 # composer test's PHP step. Each group needs its own flag: a comma list excludes nothing.
 pest=(php vendor/bin/pest --parallel --colors=never
-    --exclude-group=browser --exclude-group=benchmark --exclude-group=budget --exclude-group=scaffold)
+    --exclude-group=browser --exclude-group=benchmark --exclude-group=scaffold)
 
 trap 'rm -rf "$lowest"' EXIT
 

@@ -3,8 +3,8 @@
 # SQLite and on Lathe's MySQL, MariaDB and PostgreSQL containers, all into one result file.
 # Stands in for the pull-request lane while GitHub Actions is off.
 #   bash scripts/bench-lanes.sh
-# It uses its own database, lathe_test_benchq, never lathe_test_bench, which holds the
-# 10 million row timing data. Prints one rc= line per lane and exits 1 when any failed.
+# It uses its own database, lathe_test_benchq. Prints one rc= line per lane and exits 1
+# when any failed.
 set -uo pipefail
 
 repo=$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)

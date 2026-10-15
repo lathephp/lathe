@@ -93,7 +93,7 @@
             "phpstan analyse --memory-limit=1G"
         ],
         "test": [
-            "@php vendor/bin/pest --parallel --exclude-group=browser --exclude-group=benchmark --exclude-group=budget --exclude-group=scaffold",
+            "@php vendor/bin/pest --parallel --exclude-group=browser --exclude-group=benchmark --exclude-group=scaffold",
             "bash scripts/pnpm.sh -r test"
         ],
         "qa": [
@@ -103,7 +103,6 @@
             "@test"
         ],
         "test:scaffold": "@php vendor/bin/pest --group=scaffold",
-        "test:budget": "@php vendor/bin/pest --group=budget",
         "test:bench": [
             "Composer\\Config::disableProcessTimeout",
             "bash scripts/bench-lanes.sh"

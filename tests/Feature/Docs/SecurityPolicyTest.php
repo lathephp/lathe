@@ -15,9 +15,8 @@ it('lists the supported platforms on the support page', function () {
     expect($page)->toContain('PHP 8.4+', 'Laravel 13', 'MySQL 8.4+', 'MariaDB 10.11+', 'PostgreSQL 15+', 'SQLite');
 });
 
-it('makes the maintainer own the speed baseline and the API snapshots', function () {
+it('makes the maintainer own the API snapshots', function () {
     $owners = (string) file_get_contents(dirname(__DIR__, 3).'/.github/CODEOWNERS');
 
-    expect($owners)->toMatch('#^/tests/Benchmark/baseline\.json @\S+$#m')
-        ->toMatch('#^/api/ @\S+$#m');
+    expect($owners)->toMatch('#^/api/ @\S+$#m');
 });
