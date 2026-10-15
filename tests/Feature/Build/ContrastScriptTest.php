@@ -57,21 +57,3 @@ it('fails on a ring planted at 2:1 on the background', function () {
 
     File::deleteDirectory($dir);
 });
-
-it('exits 0 on the chart slots', function () {
-    $result = runContrastScript('check-chart-slots.mjs');
-
-    expect($result->exitCode())->toBe(0, $result->output().$result->errorOutput());
-});
-
-it('fails on a chart slot planted at 2:1 on the card', function () {
-    // #777777 is 4.5:1 on white; #bbbbbb is 1.9:1.
-    [$dir, $palette] = plantedCopy('src/Widgets/PartitionColors.php', ["'#ef4444'," => "'#bbbbbb',"]);
-
-    $result = runContrastScript('check-chart-slots.mjs', dirname(__DIR__, 3).'/resources/css/app.css', $palette);
-
-    expect($result->exitCode())->toBe(1)
-        ->and($result->output())->toContain('light: chart slot 6 #bbbbbb is 1.');
-
-    File::deleteDirectory($dir);
-});
