@@ -47,7 +47,7 @@ run() {
     cleanup
     podman build -q -t $image -f "$repo/scripts/octane.Containerfile" "$repo/scripts" >"$logs/build.log" || return 1
     bash "$repo/scripts/lanes.sh" up mysql >/dev/null || return 1
-    podman exec -e MYSQL_PWD=lathe_secret lathe-mysql84 mysql -ulathe \
+    podman exec -e MYSQL_PWD=lathe_secret lathe-mysql84 mysql -h127.0.0.1 -ulathe \
         -e "drop database if exists $database; create database $database" || return 1
     in_image --rm $image php vendor/bin/testbench migrate:fresh --force >"$logs/migrate.log" || return 1
     in_image --rm $image php vendor/bin/testbench lathe:demo-seed --orders=10000 || return 1

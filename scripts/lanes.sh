@@ -46,6 +46,7 @@ start() {
     esac
 }
 
+# Over TCP: on Actions the server's socket path is not the one the client looks for.
 ready() {
     local name=$1 tries=90 error=
 
@@ -55,10 +56,10 @@ ready() {
                 error=$(podman exec "$name" pg_isready -U $user -d $database 2>&1) && return 0
                 ;;
             lathe-mariadb1011)
-                error=$(podman exec "$name" mariadb -u$user -p$password -e 'select 1' $database 2>&1) && return 0
+                error=$(podman exec "$name" mariadb -h127.0.0.1 -u$user -p$password -e 'select 1' $database 2>&1) && return 0
                 ;;
             *)
-                error=$(podman exec "$name" mysql -u$user -p$password -e 'select 1' $database 2>&1) && return 0
+                error=$(podman exec "$name" mysql -h127.0.0.1 -u$user -p$password -e 'select 1' $database 2>&1) && return 0
                 ;;
         esac
         sleep 2
@@ -76,8 +77,8 @@ grant() {
     local name=$1 sql="grant all on \`${database}\\_%\`.* to '$user'@'%'"
 
     case $name in
-        lathe-mariadb1011) podman exec "$name" mariadb -uroot -p$password -e "$sql" ;;
-        lathe-mysql84) podman exec "$name" mysql -uroot -p$password -e "$sql" 2>/dev/null ;;
+        lathe-mariadb1011) podman exec "$name" mariadb -h127.0.0.1 -uroot -p$password -e "$sql" ;;
+        lathe-mysql84) podman exec "$name" mysql -h127.0.0.1 -uroot -p$password -e "$sql" 2>/dev/null ;;
     esac
 }
 
