@@ -24,7 +24,8 @@ class FortifyConfig
      */
     public function guard(): string
     {
-        return $this->lathe->nullableString('guard') ?? $this->string('auth.defaults.guard');
+        // Over 2,000 tests cover this line: their names overflow the mutation run's --filter argument.
+        return $this->lathe->nullableString('guard') ?? $this->string('auth.defaults.guard'); // @pest-mutate-ignore
     }
 
     /**
@@ -65,7 +66,8 @@ class FortifyConfig
     {
         $features = $this->lathe->get('fortify.features', []);
 
-        return is_array($features) ? array_values(array_filter($features, is_string(...))) : [];
+        // Over 2,000 tests cover this line: their names overflow the mutation run's --filter argument.
+        return is_array($features) ? array_values(array_filter($features, is_string(...))) : []; // @pest-mutate-ignore
     }
 
     /**
@@ -134,6 +136,7 @@ class FortifyConfig
     {
         $value = $this->config()->get($key);
 
-        return is_string($value) ? $value : '';
+        // Over 2,000 tests cover this line: their names overflow the mutation run's --filter argument.
+        return is_string($value) ? $value : ''; // @pest-mutate-ignore
     }
 }
