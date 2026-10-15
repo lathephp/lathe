@@ -112,14 +112,18 @@ it('runs the weekly schedule on Monday at 04:00 UTC', function () {
     expect(ciWorkflow()['on']['schedule'])->toBe([['cron' => '0 4 * * 1']]);
 });
 
-it('lists all five browser projects', function () {
-    $steps = ciSteps('browser');
+it('runs each of the five browser projects in its own job', function () {
+    $job = ciWorkflow()['jobs']['browser'];
 
-    expect($steps)->toContain('composer test:browser');
-
-    foreach (['desktop-chrome', 'desktop-firefox', 'desktop-safari', 'phone-android', 'phone-ios'] as $project) {
-        expect($steps)->toContain($project);
-    }
+    expect(ciSteps('browser'))->toContain('LATHE_BROWSER_PROJECT=${{ matrix.project }} composer test:browser -- --browser ${{ matrix.browser }}')
+        ->and($job['strategy']['fail-fast'])->toBeFalse()
+        ->and(array_column($job['strategy']['matrix']['include'], 'browser', 'project'))->toBe([
+            'desktop-chrome' => 'chrome',
+            'desktop-firefox' => 'firefox',
+            'desktop-safari' => 'safari',
+            'phone-android' => 'chrome',
+            'phone-ios' => 'safari',
+        ]);
 });
 
 it('pins the pnpm version that pnpm/action-setup installs', function () {
@@ -145,12 +149,10 @@ it('makes the screenshot baselines when none are committed and uploads them', fu
 
     expect($steps->firstWhere('id', 'baselines')['run'])->toContain('tests/.pest/snapshots/Browser/VisualTest')
         ->and($steps->firstWhere('if', $missing)['run'])
-        ->toContain('pest tests/Browser/VisualTest.php --update-snapshots')
-        ->toContain('--browser firefox')
-        ->toContain('--browser safari')
+        ->toContain('pest tests/Browser/VisualTest.php --update-snapshots --browser ${{ matrix.browser }}')
         ->and($upload['if'])->toBe("{$missing} && !cancelled()")
         ->and($upload['with'])->toBe([
-            'name' => 'screenshot-baselines',
+            'name' => 'screenshot-baselines-${{ matrix.project }}',
             'path' => 'tests/.pest/snapshots/Browser/VisualTest',
             // The baselines sit under the hidden .pest folder, which the action skips by default.
             'include-hidden-files' => true,

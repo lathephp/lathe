@@ -247,9 +247,20 @@ jobs:
       - run: node scripts/third-party-licenses.mjs --output "$RUNNER_TEMP/THIRD-PARTY-LICENSES.md"
 
   browser:
+    name: browser ${{ matrix.project }}
     if: github.event_name != 'schedule'
     runs-on: ubuntu-latest
+    # One project takes about 10 minutes; all five in one job ran past 30.
     timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { project: desktop-chrome, browser: chrome, engine: chromium }
+          - { project: desktop-firefox, browser: firefox, engine: firefox }
+          - { project: desktop-safari, browser: safari, engine: webkit }
+          - { project: phone-android, browser: chrome, engine: chromium }
+          - { project: phone-ios, browser: safari, engine: webkit }
     steps:
       - uses: actions/checkout@v4
       - uses: shivammathur/setup-php@v2
@@ -268,11 +279,11 @@ jobs:
       - uses: actions/cache@v4
         with:
           path: ~/.cache/ms-playwright
-          key: playwright-${{ hashFiles('pnpm-lock.yaml') }}
-      - run: pnpm exec playwright install --with-deps chromium firefox webkit
+          key: playwright-${{ matrix.engine }}-${{ hashFiles('pnpm-lock.yaml') }}
+      - run: pnpm exec playwright install --with-deps ${{ matrix.engine }}
       # The screenshot baselines come from this image only, so its fonts match. With none
-      # committed yet, the desktop browsers write them here, the runs below compare against
-      # them, and the job uploads them for one commit.
+      # committed, each job writes its browser's baselines, compares against them, and
+      # uploads them for one commit.
       - id: baselines
         run: |
           if [ -d tests/.pest/snapshots/Browser/VisualTest ]; then
@@ -281,19 +292,12 @@ jobs:
             echo "missing=true" >> "$GITHUB_OUTPUT"
           fi
       - if: steps.baselines.outputs.missing == 'true'
-        run: |
-          php vendor/bin/pest tests/Browser/VisualTest.php --update-snapshots
-          php vendor/bin/pest tests/Browser/VisualTest.php --update-snapshots --browser firefox
-          php vendor/bin/pest tests/Browser/VisualTest.php --update-snapshots --browser safari
-      - run: LATHE_BROWSER_PROJECT=desktop-chrome composer test:browser
-      - run: LATHE_BROWSER_PROJECT=desktop-firefox composer test:browser -- --browser firefox
-      - run: LATHE_BROWSER_PROJECT=desktop-safari composer test:browser -- --browser safari
-      - run: LATHE_BROWSER_PROJECT=phone-android composer test:browser
-      - run: LATHE_BROWSER_PROJECT=phone-ios composer test:browser -- --browser safari
+        run: php vendor/bin/pest tests/Browser/VisualTest.php --update-snapshots --browser ${{ matrix.browser }}
+      - run: LATHE_BROWSER_PROJECT=${{ matrix.project }} composer test:browser -- --browser ${{ matrix.browser }}
       - if: steps.baselines.outputs.missing == 'true' && !cancelled()
         uses: actions/upload-artifact@v4
         with:
-          name: screenshot-baselines
+          name: screenshot-baselines-${{ matrix.project }}
           path: tests/.pest/snapshots/Browser/VisualTest
           # The baselines sit under the hidden .pest folder, which the action skips by default.
           include-hidden-files: true
