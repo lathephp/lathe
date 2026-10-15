@@ -10,7 +10,7 @@ on:
 jobs:
   tests:
     name: php ${{ matrix.php }} ${{ matrix.dependencies }}
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 20
     strategy:
       fail-fast: false
@@ -18,7 +18,7 @@ jobs:
         php: ['8.4', '8.5']
         dependencies: [lowest, highest]
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: shivammathur/setup-php@v2
         with:
           php-version: ${{ matrix.php }}
@@ -28,10 +28,10 @@ jobs:
       - run: vendor/bin/pest
 
   quality:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 20
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: shivammathur/setup-php@v2
         with:
           php-version: '8.4'
