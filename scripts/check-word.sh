@@ -7,10 +7,11 @@ word='l[a]xa'
 tickets='\b(L-0[0-9]{2}|B-0[0-9]|R-0[0-9]|CC-[0-9]{2}|SYS-[A-Z]|RES-[0-9]{2}|EXT-0[0-9]|MF-[0-9]{2})\b'
 hits=()
 
-# 1. Content of every tracked file.
+# 1. Content of every tracked file. The screenshot baselines are base64 images, where any
+#    four letters turn up by chance.
 while IFS= read -r file; do
     hits+=("content: $file")
-done < <(git ls-files -z | xargs -0 -r grep -IilE "$word" -- 2>/dev/null)
+done < <(git ls-files -z -- . ':(exclude)tests/.pest/snapshots/**/*.snap' | xargs -0 -r grep -IilE "$word" -- 2>/dev/null)
 
 # 2. File and folder names.
 while IFS= read -r file; do
