@@ -74,7 +74,7 @@ it('sorts the largest totals first', function () {
     rsort($expected);
 
     expect($values)->toBe($expected)
-        ->and($values[0])->toBe(Order::max('total_cents') / 100);
+        ->and($values[0])->toBe((float) (Order::max('total_cents') / 100));
 });
 
 it('sorts by two keys', function () {
