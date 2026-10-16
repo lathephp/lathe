@@ -17,6 +17,8 @@ it('sets up the frontend once, beside a host vite config it leaves alone', funct
     $this->artisan('lathe:widget', ['name' => 'TotalUsers', '--type' => 'custom'])->assertExitCode(0);
 
     $package = json_decode($this->generated('package.json'), true);
+    // 1.0.0-dev on main, the tag's version on a release commit.
+    $version = json_decode(File::get(dirname(__DIR__, 4).'/packages/core/package.json'), true)['version'];
 
     expect(File::exists("{$this->generatorBase}/resources/js/lathe/boot.ts"))->toBeTrue()
         ->and(File::isDirectory("{$this->generatorBase}/resources/js/lathe/fields"))->toBeTrue()
@@ -26,9 +28,9 @@ it('sets up the frontend once, beside a host vite config it leaves alone', funct
         ->and($this->generated('vite.lathe.config.ts'))->toContain("lathe({ mode: 'app' })")->toContain("from '@lathephp/vite-plugin'")
         ->and($package['devDependencies'])->toMatchArray([
             'vite' => '^7.0.0',
-            '@lathephp/core' => '1.0.0-dev',
-            '@lathephp/ui' => '1.0.0-dev',
-            '@lathephp/vite-plugin' => '1.0.0-dev',
+            '@lathephp/core' => $version,
+            '@lathephp/ui' => $version,
+            '@lathephp/vite-plugin' => $version,
         ])
         ->and(hash_file('sha256', "{$this->generatorBase}/vite.config.ts"))->toBe($before);
 });

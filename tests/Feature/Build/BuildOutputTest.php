@@ -207,9 +207,10 @@ it('leaves no CommonJS require of an import map specifier in any chunk', functio
 });
 
 it('ignores dist in git', function () {
-    // The pattern /dist/ matches a folder, so dist must exist first.
+    // The pattern /dist/ matches a folder, so dist must exist first. A release commit tracks dist,
+    // so --no-index asks the ignore rules alone.
     buildOutputTwice();
-    $process = new Process(['git', 'check-ignore', 'dist'], buildOutputRepo());
+    $process = new Process(['git', 'check-ignore', '--no-index', 'dist'], buildOutputRepo());
     $process->run();
 
     expect(trim($process->getOutput()))->toBe('dist');

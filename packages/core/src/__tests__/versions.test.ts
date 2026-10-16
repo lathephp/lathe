@@ -15,6 +15,10 @@ it('pins one version for the three npm packages and the composer branch', () => 
   // The branch alias 1.0.x-dev is the npm pre-release 1.0.0-dev.
   const branch = composer.extra?.['branch-alias']?.['dev-main']?.replace('.x-dev', '.0-dev');
 
-  expect([version('core'), version('ui'), version('vite-plugin')]).toEqual([branch, branch, branch]);
+  const versions = [version('core'), version('ui'), version('vite-plugin')];
+
   expect(branch).toBe('1.0.0-dev');
+  expect(versions).toEqual([versions[0], versions[0], versions[0]]);
+  // main carries the branch pre-release; a release commit carries the tag's version of the same line.
+  expect(versions[0]).toMatch(/^1\.0\.0(-dev|-(alpha|beta|rc)\.\d+)?$/);
 });

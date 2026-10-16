@@ -14,6 +14,15 @@ beforeEach(function () {
 });
 
 it('writes the package, wires the host composer.json and the pnpm workspace', function () {
+    // A development checkout; a release tag reports its own version, which the caret test covers.
+    $this->app[Kernel::class]->registerCommand(new class extends MakePluginCommand
+    {
+        protected function installedVersion(): ?string
+        {
+            return 'dev-main';
+        }
+    });
+
     $this->artisan('lathe:plugin', ['name' => 'acme/price-tracker', '--skip-composer' => true])->assertExitCode(0);
 
     $package = json_decode($this->generated('lathe-components/PriceTracker/composer.json'), true);
