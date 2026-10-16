@@ -1,0 +1,1 @@
+import{lazy as e}from"react";function t(t){let n,r=async()=>{n??=await t()},i=e(()=>{if(n!==void 0){let e={default:n};return{then:t=>{t(e)}}}return t().then(e=>(n=e,{default:e}))});return Object.assign(i,{preload:r})}export{t};

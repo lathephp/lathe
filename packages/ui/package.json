@@ -1,6 +1,6 @@
 {
   "name": "@lathephp/ui",
-  "version": "1.0.0-dev",
+  "version": "1.0.0-beta.1",
   "description": "The UI kit of the Lathe admin panel for plugins.",
   "license": "MIT",
   "type": "module",

@@ -4,7 +4,7 @@ All notable changes to Lathe are listed here. The format follows [Keep a Changel
 
 ## [Unreleased]
 
-## [1.0.0-beta.1] - Unreleased
+## [1.0.0-beta.1] - 2026-10-16
 
 The first public release of Lathe, an admin panel builder for Laravel on Inertia, React and shadcn/ui. MIT licensed.
 
