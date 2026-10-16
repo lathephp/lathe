@@ -4,7 +4,7 @@ All notable changes to Lathe are listed here. The format follows [Keep a Changel
 
 ## [Unreleased]
 
-## [1.0.0-beta.2] - Unreleased
+## [1.0.0-beta.2] - 2026-10-16
 
 ### Fixed
 
