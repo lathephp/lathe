@@ -3,6 +3,11 @@
   "version": "1.0.0-dev",
   "description": "The UI kit of the Lathe admin panel for plugins.",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/lathephp/lathe.git",
+    "directory": "packages/ui"
+  },
   "type": "module",
   "exports": {
     ".": {

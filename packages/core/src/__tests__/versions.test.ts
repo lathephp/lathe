@@ -22,3 +22,13 @@ it('pins one version for the three npm packages and the composer branch', () => 
   // main carries the branch pre-release; a release commit carries the tag's version of the same line.
   expect(versions[0]).toMatch(/^1\.0\.0(-dev|-(alpha|beta|rc)\.\d+)?$/);
 });
+
+it('names the GitHub repository in each npm package, which npm checks against the provenance', () => {
+  for (const folder of ['core', 'ui', 'vite-plugin']) {
+    expect((read(`../../../${folder}/package.json`) as { repository?: unknown }).repository).toEqual({
+      type: 'git',
+      url: 'git+https://github.com/lathephp/lathe.git',
+      directory: `packages/${folder}`,
+    });
+  }
+});

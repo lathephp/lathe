@@ -4,7 +4,13 @@ All notable changes to Lathe are listed here. The format follows [Keep a Changel
 
 ## [Unreleased]
 
-## [1.0.0-beta.1] - Unreleased
+## [1.0.0-beta.2] - Unreleased
+
+### Fixed
+
+- The npm packages name their GitHub repository, so npm accepts their provenance. 1.0.0-beta.1 never reached npm, so use 1.0.0-beta.2.
+
+## [1.0.0-beta.1] - 2026-10-16
 
 The first public release of Lathe, an admin panel builder for Laravel on Inertia, React and shadcn/ui. MIT licensed.
 

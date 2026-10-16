@@ -3,6 +3,11 @@
   "version": "1.0.0-dev",
   "description": "The browser API of the Lathe admin panel for plugins.",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/lathephp/lathe.git",
+    "directory": "packages/core"
+  },
   "type": "module",
   "exports": {
     ".": {

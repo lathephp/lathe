@@ -3,6 +3,11 @@
   "version": "1.0.0-dev",
   "description": "Builds Lathe plugin modules with Vite.",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/lathephp/lathe.git",
+    "directory": "packages/vite-plugin"
+  },
   "type": "module",
   "exports": {
     ".": {

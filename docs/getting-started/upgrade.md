@@ -8,7 +8,7 @@ order: 8
 
 This page is generated from the entries marked `[api]` in the [changelog](changelog.md). It lists only changes to the public API: the classes and methods in the API snapshot, the artisan commands, the config keys, the route names and the JSON contract.
 
-1.0.0-beta.1 is the first release of Lathe, so there are no API changes to upgrade across.
+1.0.0-beta.2 changes no public API since 1.0.0-beta.1. Run `composer update lathe/lathe` and you are done.
 
 ## What you see
 
