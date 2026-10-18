@@ -28,7 +28,7 @@ const uiSubpaths = [
   'select',
   'shimmer-bar',
   'sidebar',
-  'sonner',
+  'toast',
   'toggle',
   'toggle-group',
 ];

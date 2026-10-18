@@ -1,6 +1,6 @@
 import { router } from '@inertiajs/react';
 import { __panel, toast } from '@lathephp/core';
-import { act, fireEvent, render, screen, within } from '@testing-library/react';
+import { act, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { StaleAssetScreen } from '../components/StaleAssetScreen';
 import { Toaster } from '../components/Toaster';
@@ -251,7 +251,7 @@ describe('user menu', () => {
 });
 
 describe('toasts', () => {
-  it('renders the toasts of the panel store and dismisses one', () => {
+  it('renders the toasts of the panel store and dismisses one', async () => {
     render(<Toaster />);
 
     act(() => {
@@ -259,16 +259,18 @@ describe('toasts', () => {
       toast.error('The order could not be saved.');
     });
 
-    expect(screen.getByRole('status').textContent).toContain('Order saved');
+    expect((await screen.findByRole('status')).textContent).toContain('Order saved');
     expect(screen.getByRole('alert').textContent).toContain('The order could not be saved.');
 
     fireEvent.click(within(screen.getByRole('status')).getByRole('button', { name: 'Dismiss' }));
 
-    expect(screen.queryByText('Order saved')).toBeNull();
+    await waitFor(() => {
+      expect(screen.queryByText('Order saved')).toBeNull();
+    });
     expect(__panel.toasts.get()).toHaveLength(1);
   });
 
-  it('turns the flash messages into toasts', () => {
+  it('turns the flash messages into toasts', async () => {
     render(<Toaster />);
 
     act(() => {
@@ -276,7 +278,7 @@ describe('toasts', () => {
       showFlash({ success: null, error: 'Order failed' });
     });
 
-    expect(screen.getByRole('status').textContent).toContain('Order saved');
+    expect((await screen.findByRole('status')).textContent).toContain('Order saved');
     expect(screen.getByRole('alert').textContent).toContain('Order failed');
     expect(__panel.toasts.get()).toHaveLength(2);
   });

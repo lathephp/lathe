@@ -378,18 +378,38 @@ export const subpathDemos: [string, LazyExoticComponent<ComponentType>][] = [
     }),
   ],
   [
-    'sonner',
+    'toast',
     demo(async () => {
-      const { Toaster } = await import('@lathephp/ui/sonner');
+      const { Toast, ToastDescription, ToastProvider, ToastViewport, createToastManager, useToastManager } = await import('@lathephp/ui/toast');
+      const manager = createToastManager();
 
-      return function SonnerDemo() {
+      function Toasts() {
+        const { toasts } = useToastManager();
+
+        return toasts.map((item) => (
+          <Toast key={item.id} toast={item}>
+            <ToastDescription />
+          </Toast>
+        ));
+      }
+
+      return function ToastDemo() {
         const { __ } = useTranslation();
 
         return (
-          <>
-            <Toaster />
-            <span className="text-sm">{__('The Sonner toaster is mounted.')}</span>
-          </>
+          <ToastProvider toastManager={manager}>
+            <Button
+              variant="outline"
+              onClick={() => {
+                manager.add({ description: __('Order saved') });
+              }}
+            >
+              {__('Show toast')}
+            </Button>
+            <ToastViewport>
+              <Toasts />
+            </ToastViewport>
+          </ToastProvider>
         );
       };
     }),

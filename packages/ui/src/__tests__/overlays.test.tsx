@@ -1,6 +1,5 @@
 // @vitest-environment jsdom
 import { act, cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
-import { toast } from 'sonner';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import {
   Command,
@@ -66,7 +65,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from '../index';
-import { Toaster } from '../sonner';
+import { createToastManager, Toast, ToastDescription, ToastProvider, ToastViewport, useToastManager } from '../toast';
 
 // cmdk measures its list and scrolls the active item into view; jsdom does neither.
 globalThis.ResizeObserver = class {
@@ -297,14 +296,32 @@ describe('Command', () => {
   });
 });
 
-describe('Toaster', () => {
-  it('shows a toast that sonner sends', async () => {
-    render(<Toaster theme="dark" />);
+describe('Toast', () => {
+  it('shows a toast that its manager adds', async () => {
+    const manager = createToastManager();
+
+    function Toasts() {
+      const { toasts } = useToastManager();
+
+      return toasts.map((item) => (
+        <Toast key={item.id} toast={item}>
+          <ToastDescription />
+        </Toast>
+      ));
+    }
+
+    render(
+      <ToastProvider toastManager={manager}>
+        <ToastViewport>
+          <Toasts />
+        </ToastViewport>
+      </ToastProvider>,
+    );
 
     act(() => {
-      toast('Order saved');
+      manager.add({ description: 'Order saved' });
     });
 
-    expect((await screen.findByText('Order saved')).closest('[data-sonner-toast]')).not.toBeNull();
+    expect((await screen.findByText('Order saved')).closest('[data-slot="toast"]')).not.toBeNull();
   });
 });

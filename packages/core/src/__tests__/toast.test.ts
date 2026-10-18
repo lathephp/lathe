@@ -1,22 +1,19 @@
-import { afterEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, describe, expect, it } from 'vitest';
 import { __panel, toast } from '../index';
 
 afterEach(() => {
-  vi.useRealTimers();
   __panel.toasts.set([]);
 });
 
 describe('toast', () => {
-  it('dismisses itself after 4 seconds, an error too', () => {
-    vi.useFakeTimers();
+  it('gives a toast 5 seconds and keeps an error until it is dismissed', () => {
     toast.success('Saved');
     toast.error('Failed');
 
-    vi.advanceTimersByTime(3_999);
-    expect(__panel.toasts.get().map((t) => t.message)).toEqual(['Saved', 'Failed']);
-
-    vi.advanceTimersByTime(1);
-    expect(__panel.toasts.get()).toEqual([]);
+    expect(__panel.toasts.get().map((t) => [t.message, t.timeout])).toEqual([
+      ['Saved', 5_000],
+      ['Failed', 0],
+    ]);
   });
 
   it('shows at most 3 at once, dropping the oldest', () => {
@@ -29,13 +26,8 @@ describe('toast', () => {
   });
 
   it('stays for the duration it is given', () => {
-    vi.useFakeTimers();
     toast.info('Exported', { duration: 10_000 });
 
-    vi.advanceTimersByTime(9_999);
-    expect(__panel.toasts.get().map((t) => t.message)).toEqual(['Exported']);
-
-    vi.advanceTimersByTime(1);
-    expect(__panel.toasts.get()).toEqual([]);
+    expect(__panel.toasts.get().map((t) => t.timeout)).toEqual([10_000]);
   });
 });

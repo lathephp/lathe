@@ -1,10 +1,40 @@
 import { __panel, useTranslation } from '@lathephp/core';
 import { X } from 'lucide-react';
-import { useSyncExternalStore } from 'react';
+import { Suspense, useState, useSyncExternalStore } from 'react';
 import { cn } from '../lib/cn';
+import { lazyNamed } from '../lib/lazy';
+
+// Base UI Toast loads with the first toast, off the first paint. After a deploy the old
+// build's chunk is gone; then the plain list draws the toasts instead.
+const ToastStack = lazyNamed(() =>
+  import('./ToastStack').then(
+    (module) => module.ToastStack,
+    () => PlainToasts,
+  ),
+);
 
 /** The toasts of the panel store, at the bottom end of the screen. */
 export function Toaster() {
+  const toasts = useSyncExternalStore(__panel.toasts.subscribe, __panel.toasts.get);
+  const [started, setStarted] = useState(false);
+
+  if (!started && toasts.length > 0) {
+    setStarted(true);
+  }
+
+  if (!started) {
+    return null;
+  }
+
+  return (
+    <Suspense fallback={null}>
+      <ToastStack />
+    </Suspense>
+  );
+}
+
+/** The toasts as plain markup, for when the Base UI chunk fails to load. */
+function PlainToasts() {
   const { __ } = useTranslation();
   const toasts = useSyncExternalStore(__panel.toasts.subscribe, __panel.toasts.get);
 

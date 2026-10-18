@@ -8,7 +8,7 @@ use Workbench\App\Models\User;
 const IMPORT_MAP_UI_SUBPATHS = [
     'breadcrumb', 'button-group', 'calendar', 'chart', 'code-editor', 'collapsible', 'combobox', 'command',
     'direction', 'empty', 'field', 'hover-card', 'input-group', 'item', 'otp-field', 'pagination',
-    'popover', 'scroll-area', 'select', 'shimmer-bar', 'sidebar', 'sonner', 'toggle', 'toggle-group',
+    'popover', 'scroll-area', 'select', 'shimmer-bar', 'sidebar', 'toast', 'toggle', 'toggle-group',
 ];
 
 beforeEach(function () {
