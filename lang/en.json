@@ -364,6 +364,7 @@
     "Show :count :resource": "Show :count :resource",
     "Show Content": "Show Content",
     "Show all": "Show all",
+    "Show all :count :resource": "Show all :count :resource",
     "Show count": "Show count",
     "Show recovery codes": "Show recovery codes",
     "Shown because :field is :value": "Shown because :field is :value",

@@ -176,9 +176,9 @@ describe('states', () => {
     answer({ groups: [], skipped: [] });
     renderPalette();
 
-    await typeTerm('zzzz');
+    await typeTerm('warrne');
 
-    expect(screen.getByText('No results for "zzzz"')).toBeTruthy();
+    expect(screen.getByText('No results for "warrne"')).toBeTruthy();
   });
 
   it('shows a failure and retries it', async () => {
@@ -225,6 +225,36 @@ describe('results', () => {
     expect(within(customers[0] as HTMLElement).getByText('ann@example.com')).toBeTruthy();
     expect(customers[1]?.querySelector('img')?.getAttribute('src')).toBe('https://cdn.test/annette.png');
     expect(within(within(groups[1] as HTMLElement).getByRole('option')).getByText('OR')).toBeTruthy();
+  });
+
+  it('shows an order with its customer, date and total, and links to all 20 orders', async () => {
+    const visit = vi.spyOn(router, 'visit').mockImplementation(() => undefined);
+    const orders = [1049, 1656, 1839].map((id) => row('orders', id, `ORD-${String(id)}`, 'Prof. Warren Shields II · Oct 17, 2026 · $1,234.00'));
+
+    answer({
+      groups: [
+        { resourceName: 'customers', label: 'Customers', results: [row('customers', 270, 'Prof. Warren Shields II')], count: null },
+        { resourceName: 'orders', label: 'Orders', results: orders, count: { value: 20, exact: false, capped: false, estimated: false } },
+      ],
+      skipped: [],
+    });
+    const { onClose } = renderPalette();
+
+    await typeTerm('warren');
+
+    const group = screen.getByRole('group', { name: 'Orders' });
+
+    expect(within(within(group).getAllByRole('option')[0] as HTMLElement).getByText('Prof. Warren Shields II · Oct 17, 2026 · $1,234.00')).toBeTruthy();
+    expect(screen.queryByRole('link', { name: /Show all .* customers/ })).toBeNull();
+
+    const all = within(group).getByRole('link', { name: 'Show all 20 orders' });
+
+    expect(all.getAttribute('href')).toBe('/lathe/resources/orders?q=warren');
+
+    fireEvent.click(all);
+
+    expect(visit).toHaveBeenCalledWith('/lathe/resources/orders?q=warren');
+    expect(onClose).toHaveBeenCalledTimes(1);
   });
 
   it('wires the input to the listbox and the active option', async () => {

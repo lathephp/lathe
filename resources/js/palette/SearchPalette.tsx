@@ -104,7 +104,7 @@ export function SearchPalette({ basePath, debounce, onClose }: Props) {
       event.preventDefault();
       onClose();
     } else if (event.key === 'Tab') {
-      const focusable = [...(dialog.current?.querySelectorAll<HTMLElement>('input, button') ?? [])];
+      const focusable = [...(dialog.current?.querySelectorAll<HTMLElement>('input, button, a[href]') ?? [])];
       const edge = event.shiftKey ? focusable[0] : focusable.at(-1);
 
       if (event.target === edge) {
@@ -247,12 +247,30 @@ export function SearchPalette({ basePath, debounce, onClose }: Props) {
 
                   offset += group.results.length;
 
+                  const all = `${basePath}/resources/${group.resourceName}?q=${encodeURIComponent(wanted)}`;
+
                   return (
                     <div key={group.resourceName} role="group" aria-label={group.label}>
                       <div aria-hidden="true" className="px-2 pt-2 pb-1 text-xs font-medium text-muted-foreground">
                         {group.label}
                       </div>
                       {group.results.map((result, index) => option(result, start + index))}
+                      {group.count && (
+                        <a
+                          href={all}
+                          className="block rounded-md px-2 py-1.5 text-xs text-muted-foreground hover:bg-muted hover:text-foreground"
+                          onClick={(event) => {
+                            event.preventDefault();
+                            router.visit(all);
+                            onClose();
+                          }}
+                        >
+                          {__('Show all :count :resource', {
+                            count: `${group.count.value.toLocaleString()}${group.count.capped ? '+' : ''}`,
+                            resource: group.label.toLowerCase(),
+                          })}
+                        </a>
+                      )}
                     </div>
                   );
                 })

@@ -10,10 +10,20 @@ export interface SearchResult {
   url: string;
 }
 
+/** Every match of a Resource group, sent only when it has more than its rows; capped like the index count. */
+export interface SearchCount {
+  value: number;
+  exact: boolean;
+  capped: boolean;
+  estimated: boolean;
+}
+
 export interface SearchGroup {
   resourceName: string;
   label: string;
   results: SearchResult[];
+  /** Null when the group holds every match or its Resource counts nothing; absent on a provider's group. */
+  count?: SearchCount | null;
 }
 
 export interface SearchResponse {
