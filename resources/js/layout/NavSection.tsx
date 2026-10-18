@@ -119,6 +119,10 @@ function NavItem({ item, context }: { item: NavLink; context: NavContext }) {
               context.press(item.href);
             }
           }}
+          // A touch scroll or a drag that starts on the link cancels the press.
+          onPointerCancel={() => {
+            context.press(null);
+          }}
           onPointerLeave={(event) => {
             // Dragged off with the button held, the press will not click.
             if (event.buttons !== 0) {

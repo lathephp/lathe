@@ -25,6 +25,11 @@ export function Sidebar({ props, url, expanded, mobileOpen, onClose }: SidebarPr
   const sections: NavBlock[] = navigation;
   // The pressed link is the active one until the visit it starts lands somewhere.
   const [pressed, setPressed] = useState<{ href: string; from: string } | null>(null);
+
+  if (pressed !== null && pressed.from !== url) {
+    setPressed(null);
+  }
+
   const context = {
     url: pressed?.from === url ? pressed.href : url,
     basePath,

@@ -85,6 +85,18 @@ describe('a sidebar link', () => {
     expect(nav.getByRole('link', { name: 'Dashboard' }).getAttribute('aria-current')).toBe('page');
   });
 
+  it('gives the active state back when the browser cancels the press, as a touch scroll does', () => {
+    const nav = sidebar();
+    const products = nav.getByRole('link', { name: 'Products' });
+
+    fireEvent.pointerDown(products);
+    fireEvent.pointerCancel(products);
+    fireEvent.pointerLeave(products);
+
+    expect(products.getAttribute('aria-current')).toBeNull();
+    expect(nav.getByRole('link', { name: 'Dashboard' }).getAttribute('aria-current')).toBe('page');
+  });
+
   it('prefetches its page after a 75 ms hover, and not after 50 ms', async () => {
     vi.useFakeTimers();
     const orders = sidebar().getByRole('link', { name: 'Orders' });
