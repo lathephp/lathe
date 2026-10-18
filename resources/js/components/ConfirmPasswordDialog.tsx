@@ -41,6 +41,7 @@ export function ConfirmPasswordForm({ titleId, onDone }: { titleId: string; onDo
 
       setError(message ?? __('Something went wrong. Please try again.'));
       setBusy(false);
+      input.current?.focus();
     }
   }
 

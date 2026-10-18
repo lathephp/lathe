@@ -71,6 +71,7 @@ describe('confirm password dialog', () => {
     await screen.findByRole('dialog', { name: 'Confirm your password' });
 
     fireEvent.change(screen.getByLabelText('Password'), { target: { value: 'wrong' } });
+    screen.getByRole('button', { name: 'Confirm' }).focus();
     fireEvent.click(screen.getByRole('button', { name: 'Confirm' }));
 
     const error = await screen.findByText('The provided password was incorrect.');
@@ -78,6 +79,8 @@ describe('confirm password dialog', () => {
 
     expect(password.getAttribute('aria-invalid')).toBe('true');
     expect(password.getAttribute('aria-describedby')).toBe(error.id);
+    // The Confirm button was disabled while it waited, so the field takes the focus back for another try.
+    expect(document.activeElement).toBe(password);
     expect(screen.getByRole('dialog', { name: 'Confirm your password' })).toBeTruthy();
     expect(sent()).toHaveLength(2);
   });
