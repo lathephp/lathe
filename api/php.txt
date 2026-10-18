@@ -980,6 +980,7 @@ Lathe\Dashboards\Dashboard::menu(Lathe\Http\Requests\LatheRequest $request): Lat
 Lathe\Dashboards\Dashboard::name(): string
 Lathe\Dashboards\Dashboard::path(): string
 Lathe\Dashboards\Dashboard::payload(): array
+Lathe\Dashboards\Dashboard::ranges(): array
 Lathe\Dashboards\Dashboard::showRefreshButton(): static
 Lathe\Dashboards\Dashboard::uriKey(): string  [static]
 Lathe\Dashboards\Dashboard::widgets(Lathe\Http\Requests\LatheRequest $request): array
@@ -2591,7 +2592,7 @@ Lathe\Http\Controllers\WidgetController::list(Lathe\Http\Requests\LatheRequest $
 Lathe\Http\Controllers\WidgetController::resourceIndex(Lathe\Http\Requests\LatheRequest $request): Illuminate\Http\JsonResponse
 Lathe\Http\Controllers\WidgetController::resourceShow(Lathe\Http\Requests\LatheRequest $request, string $resource, string $widget): Illuminate\Http\JsonResponse
 Lathe\Http\Controllers\WidgetController::resourceWidgets(Lathe\Http\Requests\LatheRequest $request): array  [protected]
-Lathe\Http\Controllers\WidgetController::value(Lathe\Http\Requests\LatheRequest $request, Lathe\Widgets\WidgetList $list, string $uriKey, bool $detail = false, ?callable $allows = NULL, string $owner = '', ?callable $scope = NULL): Illuminate\Http\JsonResponse  [protected]
+Lathe\Http\Controllers\WidgetController::value(Lathe\Http\Requests\LatheRequest $request, Lathe\Widgets\WidgetList $list, string $uriKey, bool $detail = false, ?callable $allows = NULL, string $owner = '', ?callable $scope = NULL, ?string $range = NULL): Illuminate\Http\JsonResponse  [protected]
 Lathe\Http\Controllers\WidgetController::viewableLens(Lathe\Http\Requests\LatheRequest $request): array  [protected]
 Lathe\Http\ErrorPages::Lathe\Auth\FortifyConfig $fortify  [protected]
 Lathe\Http\ErrorPages::STATUSES
@@ -4451,6 +4452,7 @@ Lathe\Widgets\TrendWidget::countByMonths(Lathe\Http\Requests\LatheRequest $reque
 Lathe\Widgets\TrendWidget::countByWeeks(Lathe\Http\Requests\LatheRequest $request, Illuminate\Database\Eloquent\Builder|Illuminate\Database\Eloquent\Model|string $model, Illuminate\Contracts\Database\Query\Expression|string|null $column = NULL, ?string $dateColumn = NULL): Lathe\Widgets\Results\TrendResult  [protected]
 Lathe\Widgets\TrendWidget::curveType(string $type): static
 Lathe\Widgets\TrendWidget::defaultRange(string|int $key): static
+Lathe\Widgets\TrendWidget::defaultRangeKey(): string|int|null
 Lathe\Widgets\TrendWidget::descriptor(): array
 Lathe\Widgets\TrendWidget::dotColors(bool $on = true): static
 Lathe\Widgets\TrendWidget::dotStyle(string $style): static
@@ -4492,6 +4494,7 @@ Lathe\Widgets\ValueWidget::YTD
 Lathe\Widgets\ValueWidget::average(Lathe\Http\Requests\LatheRequest $request, Illuminate\Database\Eloquent\Builder|Illuminate\Database\Eloquent\Model|string $model, Illuminate\Contracts\Database\Query\Expression|string $column, ?string $dateColumn = NULL): Lathe\Widgets\Results\ValueResult  [protected]
 Lathe\Widgets\ValueWidget::count(Lathe\Http\Requests\LatheRequest $request, Illuminate\Database\Eloquent\Builder|Illuminate\Database\Eloquent\Model|string $model, Illuminate\Contracts\Database\Query\Expression|string|null $column = NULL, ?string $dateColumn = NULL): Lathe\Widgets\Results\ValueResult  [protected]
 Lathe\Widgets\ValueWidget::defaultRange(string|int $key): static
+Lathe\Widgets\ValueWidget::defaultRangeKey(): string|int|null
 Lathe\Widgets\ValueWidget::descriptor(): array
 Lathe\Widgets\ValueWidget::icon(Lathe\Enums\Icon $icon): static
 Lathe\Widgets\ValueWidget::max(Lathe\Http\Requests\LatheRequest $request, Illuminate\Database\Eloquent\Builder|Illuminate\Database\Eloquent\Model|string $model, Illuminate\Contracts\Database\Query\Expression|string $column, ?string $dateColumn = NULL): Lathe\Widgets\Results\ValueResult  [protected]
@@ -4533,6 +4536,7 @@ Lathe\Widgets\Widget::calculate(Lathe\Http\Requests\LatheRequest $request): mixe
 Lathe\Widgets\Widget::canSee(Closure $callback): static
 Lathe\Widgets\Widget::canSeeWhen(string $ability, mixed $arguments = array ( )): static
 Lathe\Widgets\Widget::component(): string
+Lathe\Widgets\Widget::defaultRangeKey(): string|int|null
 Lathe\Widgets\Widget::descriptor(): array
 Lathe\Widgets\Widget::doubleHeight(): static
 Lathe\Widgets\Widget::freshResponse(Lathe\Http\Requests\LatheRequest $request): array  [protected]

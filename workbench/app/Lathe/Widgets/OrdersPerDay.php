@@ -11,6 +11,13 @@ use Workbench\App\Models\Order;
  */
 class OrdersPerDay extends TrendWidget
 {
+    protected string|int|null $defaultRange = 30;
+
+    public function ranges(): array
+    {
+        return [7 => '7 Days', 30 => '30 Days', 365 => '365 Days'];
+    }
+
     public function name(): string
     {
         return 'Orders per day';

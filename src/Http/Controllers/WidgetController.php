@@ -35,7 +35,11 @@ class WidgetController
 
     public function dashboardShow(LatheRequest $request, string $dashboard, string $widget): JsonResponse
     {
-        return $this->value($request, $this->dashboardWidgets($request, $dashboard), $widget, owner: 'dashboard:'.$dashboard);
+        $range = $request->query('range');
+        // A range of the dashboard's picker maps onto each card's own; any other passes through.
+        $picked = is_string($range) && in_array($range, array_map(strval(...), array_keys($this->dashboards->forKey($dashboard)?->ranges() ?? [])), true);
+
+        return $this->value($request, $this->dashboardWidgets($request, $dashboard), $widget, owner: 'dashboard:'.$dashboard, range: $picked ? $range : null);
     }
 
     public function resourceIndex(LatheRequest $request): JsonResponse
@@ -96,8 +100,9 @@ class WidgetController
      * @param  (callable(Widget): bool)|null  $allows
      * @param  string  $owner  where the card is mounted, for its cache key
      * @param  (callable(Widget): mixed)|null  $scope  binds the host Resource's row scope
+     * @param  string|null  $range  a dashboard's range, which the card maps onto its own
      */
-    protected function value(LatheRequest $request, WidgetList $list, string $uriKey, bool $detail = false, ?callable $allows = null, string $owner = '', ?callable $scope = null): JsonResponse
+    protected function value(LatheRequest $request, WidgetList $list, string $uriKey, bool $detail = false, ?callable $allows = null, string $owner = '', ?callable $scope = null, ?string $range = null): JsonResponse
     {
         $widget = $list->find($uriKey);
 
@@ -108,7 +113,9 @@ class WidgetController
             $scope($widget);
         }
 
-        return new JsonResponse($widget->withCacheOwner($owner)->cachedResponse($request));
+        $widget->withCacheOwner($owner);
+
+        return new JsonResponse($range === null ? $widget->cachedResponse($request) : $widget->responseForRange($request, $range));
     }
 
     protected function dashboardWidgets(LatheRequest $request, string $uriKey): WidgetList

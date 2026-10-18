@@ -64,6 +64,11 @@ abstract class ValueWidget extends Widget
         return $this;
     }
 
+    public function defaultRangeKey(): int|string|null
+    {
+        return $this->defaultRange ?? parent::defaultRangeKey();
+    }
+
     /**
      * @return array<string, mixed>
      */

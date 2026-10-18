@@ -31,17 +31,18 @@ class DashboardController
     {
         $found = $this->find($request, $dashboard);
         $widgets = (new WidgetList($found->widgets($request), $found::class))->visible($request);
+        $range = $found->selectedRange($request);
         $values = [];
 
         // Each card's value is its own deferred group, so the cards fill in in parallel.
         foreach ($widgets as $widget) {
             if ($widget->requestsValue()) {
-                $values['widgetValue:'.$widget::uriKey()] = Inertia::defer(fn () => $widget->withCacheOwner('dashboard:'.$dashboard)->cachedResponse($request), $widget::uriKey());
+                $values['widgetValue:'.$widget::uriKey()] = Inertia::defer(fn () => $widget->withCacheOwner('dashboard:'.$dashboard)->responseForRange($request, $range), $widget::uriKey());
             }
         }
 
         return Inertia::render('Dashboard', [
-            'dashboard' => $found->payload(),
+            'dashboard' => [...$found->payload(), 'range' => $range],
             'widgets' => array_map(fn (Widget $widget) => $widget->descriptor(), $widgets),
             ...$values,
         ]);

@@ -12,6 +12,7 @@ use Lathe\Attributes\Dashboard\ShowRefreshButton;
 use Lathe\Auth\FortifyConfig;
 use Lathe\Enums\Icon;
 use Lathe\Http\Requests\LatheRequest;
+use Lathe\Lathe;
 use Lathe\Menu\MenuItem;
 use ReflectionClass;
 
@@ -105,6 +106,36 @@ abstract class Dashboard
     }
 
     /**
+     * The header's range options as days => label; every card shows the one picked. Empty
+     * hides the picker.
+     *
+     * @return array<int|string, string>
+     */
+    public function ranges(): array
+    {
+        return [7 => Lathe::__('7 days'), 30 => Lathe::__('30 days'), 365 => Lathe::__('12 months')];
+    }
+
+    /**
+     * The range the request names when the picker offers it, else 30 days or the first option.
+     *
+     * @internal
+     */
+    public function selectedRange(Request $request): int|string|null
+    {
+        $ranges = $this->ranges();
+        $range = $request->query('range');
+
+        foreach (array_keys($ranges) as $key) {
+            if ((string) $key === $range) {
+                return $key;
+            }
+        }
+
+        return array_key_exists(30, $ranges) ? 30 : array_key_first($ranges);
+    }
+
+    /**
      * The panel path of this dashboard: the home page for the key main.
      */
     public function path(): string
@@ -121,7 +152,7 @@ abstract class Dashboard
     }
 
     /**
-     * @return array{uriKey: string, name: string, description: string|null, icon: string|null, showRefreshButton: bool}
+     * @return array{uriKey: string, name: string, description: string|null, icon: string|null, showRefreshButton: bool, ranges: list<array{value: int|string, label: string}>}
      */
     public function payload(): array
     {
@@ -131,6 +162,7 @@ abstract class Dashboard
             'description' => $this->description ?? $this->attribute(Description::class)?->text,
             'icon' => $this->iconName()?->name,
             'showRefreshButton' => $this->refreshButton || $this->attribute(ShowRefreshButton::class) !== null,
+            'ranges' => array_map(fn (int|string $value, string $label) => ['value' => $value, 'label' => $label], array_keys($this->ranges()), $this->ranges()),
         ];
     }
 

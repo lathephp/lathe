@@ -44,7 +44,7 @@ it('fills each gallery card from the demo store', function () {
     $bars = $value('orders-by-status');
     expect($bars['name'])->toBe('Orders by status')
         ->and(collect($bars['value']['bars'])->pluck('label')->sort()->values()->all())->toBe(['Cancelled', 'Paid', 'Pending', 'Shipped'])
-        ->and(collect($bars['value']['bars'])->sum('value'))->toBe(10000);
+        ->and(collect($bars['value']['bars'])->sum('value'))->toBe(Order::where('placed_at', '>=', now()->subDays(30))->count());
 
     $pie = $value('products-by-category');
     expect($pie['name'])->toBe('Products by category')
@@ -75,7 +75,7 @@ it('changes the Sales Orders number and its change for 60 days', function () {
     $thirty = $this->getJson('/lathe/api/dashboards/main/widgets/orders')->assertOk()->json('value');
     $sixty = $this->getJson('/lathe/api/dashboards/main/widgets/orders?range=60')->assertOk()->json('value');
 
-    expect(collect($this->getJson('/lathe/api/dashboards/main/widgets')->json('widgets'))->pluck('uriKey')->all())->toBe(['orders', 'revenue', 'paid-orders'])
+    expect(collect($this->getJson('/lathe/api/dashboards/main/widgets')->json('widgets'))->pluck('uriKey')->all())->toContain('orders', 'revenue', 'paid-orders', 'orders-per-day', 'orders-by-status')
         ->and($sixty['value'])->not->toBe($thirty['value'])
         ->and($sixty['change'])->not->toBe($thirty['change'])
         ->and($thirty['change'])->toBeGreaterThan(0);

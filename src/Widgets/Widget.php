@@ -23,6 +23,7 @@ use Lathe\Enums\CardWidth;
 use Lathe\Filters\Filter;
 use Lathe\Filters\FilterApplicator;
 use Lathe\Http\Requests\LatheRequest;
+use Lathe\Lathe;
 use Lathe\Resources\Resource;
 use Lathe\Support\ConfigStore;
 use Lathe\Support\Timezone;
@@ -260,6 +261,57 @@ abstract class Widget
     public function ranges(): array
     {
         return [];
+    }
+
+    /**
+     * The range key used until the user picks one: the first range key.
+     */
+    public function defaultRangeKey(): int|string|null
+    {
+        return array_key_first($this->ranges());
+    }
+
+    /**
+     * The range this card shows for a dashboard's range: that range when the card offers it,
+     * else its default; null for a card without ranges.
+     *
+     * @internal
+     */
+    public function rangeFor(int|string|null $range): int|string|null
+    {
+        foreach (array_keys($this->ranges()) as $key) {
+            if ((string) $key === (string) $range) {
+                return $key;
+            }
+        }
+
+        return $this->defaultRangeKey();
+    }
+
+    /**
+     * The value response on a dashboard showing $range: the card computes its own range for it
+     * and, when that is another range, names it as fallbackRange.
+     *
+     * @internal
+     *
+     * @return array<string, mixed>
+     */
+    public function responseForRange(LatheRequest $request, int|string|null $range): array
+    {
+        $used = $this->rangeFor($range);
+        $query = $request->query->all();
+        unset($query['range']);
+
+        $response = $this->cachedResponse($request->duplicate($used === null ? $query : [...$query, 'range' => (string) $used]));
+
+        if ($used !== null && $range !== null && (string) $used !== (string) $range) {
+            $response['fallbackRange'] = [
+                'value' => $used,
+                'label' => is_int($used) ? Lathe::__('Last :count days', ['count' => $used]) : $this->ranges()[$used],
+            ];
+        }
+
+        return $response;
     }
 
     public function width(CardWidth $width): static

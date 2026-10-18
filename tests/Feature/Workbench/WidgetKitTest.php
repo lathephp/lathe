@@ -24,7 +24,7 @@ it('lists the dashboards and shows one', function () {
 it('lists the widgets of a dashboard and reads one card with its range', function () {
     $sales = LatheTest::dashboard('main');
 
-    expect($sales->widgets()->assertOk()->json('widgets.*.uriKey'))->toBe(['orders', 'revenue', 'paid-orders'])
+    expect($sales->widgets()->assertOk()->json('widgets.*.uriKey'))->toContain('orders', 'revenue', 'paid-orders')
         ->and($sales->widget('paid-orders')->assertOk()->json('value.value'))->toBe(Order::where('status', 'paid')->count())
         ->and($sales->widget('orders', ['range' => 60])->json('value'))->toBe($this->getJson('/lathe/api/dashboards/main/widgets/orders?range=60')->json('value'))
         ->and($sales->widget('orders', ['range' => 60])->json('value.value'))->not->toBe($sales->widget('orders')->json('value.value'));

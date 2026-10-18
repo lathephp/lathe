@@ -146,6 +146,19 @@ Lathe::registerDashboards(
 | `#[Description(string)]` | `description(string $text)` | The line under the title |
 | `#[ShowRefreshButton]` | `showRefreshButton()` | A button that reloads every card |
 
+## The range
+
+The header holds one range picker, and every card on the dashboard shows the range it picks. It offers 7 days, 30 days and 12 months, opens on 30 days, and keeps the choice in the URL as `?range=365`. Override `ranges()` to offer other day counts:
+
+```php
+public function ranges(): array
+{
+    return [7 => '7 days', 90 => '90 days'];
+}
+```
+
+A card shows the picked range when its own `ranges()` has that key. A card without it shows its default range and says which one, such as "Last 30 days" beside a value card's number. Return an empty array to hide the picker.
+
 ## The sidebar entry
 
 Each dashboard adds its own link to the sidebar through its `menu()` method. Override it to change that link, for example to add a badge:

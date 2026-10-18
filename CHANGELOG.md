@@ -6,6 +6,7 @@ All notable changes to Lathe are listed here. The format follows [Keep a Changel
 
 ### Added
 
+- [api] One range picker in a dashboard's header drives every widget on it. `Dashboard::ranges()` sets its options, 7 days, 30 days and 12 months by default, and the page reads the picked one from `?range=`. A widget that does not offer the picked range shows its default range, and its value response names that range as `fallbackRange`; `Widget::defaultRangeKey()` says which range that is. The workbench's Sales dashboard gains Orders per day and Orders by status.
 - [api] `SelectField::badges()` shows each value as a badge in a tone: neutral, primary, info, success, warning or danger. The workbench's order statuses use it.
 - [api] The `@lathephp/ui/popover` and `@lathephp/ui/select` subpaths, so a page can load the popover or the select without the whole kit.
 - The config keys `brand.logo` and `brand.logo_dark` put your logo at the top of the sidebar, with a separate image for the dark theme.

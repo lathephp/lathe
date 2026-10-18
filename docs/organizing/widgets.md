@@ -212,7 +212,7 @@ A cache store without tag support falls back to the time limit alone.
 
 ### Ranges
 
-Value and trend cards show a range selector. Override `ranges()` to offer your own choices. The array maps a key to a label:
+Value and trend cards show a range selector on a Resource page. On a dashboard the header's range picker drives every card instead (see [Dashboards](dashboards.md#the-range)). Override `ranges()` to offer your own choices. The array maps a key to a label:
 
 ```php
 public function ranges(): array

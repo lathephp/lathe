@@ -59,6 +59,11 @@ abstract class TrendWidget extends Widget
         return $this;
     }
 
+    public function defaultRangeKey(): int|string|null
+    {
+        return $this->defaultRange ?? parent::defaultRangeKey();
+    }
+
     public function lineOnly(bool $on = true): static
     {
         $this->lineOnly = $on;
