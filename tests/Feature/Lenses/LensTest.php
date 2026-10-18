@@ -392,7 +392,7 @@ it('answers 404 for an unknown lens', function (string $uri) {
 
 it('menu_item_links_to_a_lens', function () {
     expect(MenuItem::lens('orders', 'pending-orders')->jsonSerialize())
-        ->toBe(['label' => 'Pending Orders', 'href' => '/lathe/resources/orders/lens/pending-orders', 'icon' => null, 'component' => 'Resources/Index', 'cacheTag' => 'resource:orders']);
+        ->toBe(['label' => 'Pending Orders', 'href' => '/lathe/resources/orders/lens/pending-orders', 'icon' => null, 'component' => 'Resources/Index', 'cacheTag' => 'resource:orders', 'skeleton' => ['tabs' => true, 'actions' => true]]);
 })->group('regression');
 
 it('offers the lenses on the plain index page for the switcher', function () {

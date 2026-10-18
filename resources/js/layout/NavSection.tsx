@@ -108,7 +108,7 @@ function NavItem({ item, context }: { item: NavLink; context: NavContext }) {
           cacheTags={item.cacheTag}
           // A link that names its page shows it at once, with the label as its title.
           component={item.component}
-          pageProps={item.component === undefined ? null : instantProps(item.label)}
+          pageProps={item.component === undefined ? null : instantProps({ title: item.label, skeleton: item.skeleton })}
           onPointerEnter={() => {
             if (item.component !== undefined) {
               preloadPage(item.component);

@@ -122,7 +122,7 @@ export function ResourceTable({ resource, table, state, loading, selection, sort
 
   // A record page opens at once with the row's title; an edit form has no skeleton, so it waits.
   function visitOptions(row: Row) {
-    return clickAction === 'detail' ? { component: 'Resources/Detail', pageProps: instantProps(row.title) } : {};
+    return clickAction === 'detail' ? { component: 'Resources/Detail', pageProps: instantProps({ title: row.title }) } : {};
   }
 
   // Resting on a row's first cell for 75 ms fetches its page, kept 30 s or until a write to the resource.

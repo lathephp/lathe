@@ -22,6 +22,7 @@ use Lathe\Search\SearchableMorphToRelation;
 use Lathe\Search\SearchableRelation;
 use Lathe\Search\SearchableText;
 use Lathe\Support\ConfigStore;
+use ReflectionMethod;
 use Symfony\Component\Finder\Finder;
 use Throwable;
 
@@ -29,7 +30,7 @@ use Throwable;
  * Maps URI keys and models to Resource classes from a manifest, without loading
  * the Resources a request does not use. Nothing is scanned until the manifest is needed.
  *
- * @phpstan-type ManifestEntry array{class: class-string<\Lathe\Resources\Resource>, uriKey: string, model: class-string<\Illuminate\Database\Eloquent\Model>, canonical: bool, label: string, group: string|null, icon: string|null, displayInNavigation: bool, globallySearchable: bool, softDeletes: bool, hasBadge: bool, allowAll: bool, canSee: bool}
+ * @phpstan-type ManifestEntry array{class: class-string<\Lathe\Resources\Resource>, uriKey: string, model: class-string<\Illuminate\Database\Eloquent\Model>, canonical: bool, label: string, group: string|null, icon: string|null, displayInNavigation: bool, globallySearchable: bool, softDeletes: bool, hasBadge: bool, allowAll: bool, canSee: bool, hasTabs?: bool, hasActions?: bool}
  */
 class ResourceRegistry
 {
@@ -263,10 +264,25 @@ class ResourceRegistry
                 'hasBadge' => false,
                 'allowAll' => $definition->allowsAll(),
                 'canSee' => $definition->hasSeeCallback(),
+                // Whether the index draws a tab band and an action bar, so its skeleton draws them too.
+                'hasTabs' => static::overrides($class, 'tabs') || $definition->usesSavedTabs(),
+                'hasActions' => static::overrides($class, 'actions'),
             ];
         }
 
         return $manifest;
+    }
+
+    /**
+     * Whether the Resource declares its own method, rather than the base class's empty one.
+     *
+     * @internal
+     *
+     * @param  class-string<\Lathe\Resources\Resource>  $class
+     */
+    protected static function overrides(string $class, string $method): bool
+    {
+        return (new ReflectionMethod($class, $method))->getDeclaringClass()->getName() !== Resource::class;
     }
 
     /**

@@ -93,6 +93,8 @@ it('records each Resource in the manifest', function () {
         'hasBadge' => false,
         'allowAll' => false,
         'canSee' => false,
+        'hasTabs' => false,
+        'hasActions' => false,
     ]);
 });
 

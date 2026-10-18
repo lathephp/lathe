@@ -16,7 +16,7 @@ import type { IndexProps } from '../../index/types';
 import type { IndexUrlState } from '../../index/useIndexState';
 import { useIndexState } from '../../index/useIndexState';
 import { useRowSelection } from '../../index/useRowSelection';
-import type { SharedProps } from '../../types';
+import type { IndexSkeletonHint, SharedProps } from '../../types';
 import type { WidgetDescriptor } from '../../widgets/types';
 
 // The menus load after the rows, so the action code stays out of the index's first load.
@@ -29,8 +29,8 @@ const { RenderHook } = __panel;
 type IndexPageProps = IndexProps & { widgets?: WidgetDescriptor[] };
 
 /** An instant visit renders the page with its title alone, then the server's props arrive. */
-export default function Index(props: IndexPageProps | { title: string; table?: undefined }) {
-  return props.table === undefined ? <IndexSkeleton title={props.title} /> : <IndexPage {...props} />;
+export default function Index(props: IndexPageProps | { title: string; skeleton?: IndexSkeletonHint; table?: undefined }) {
+  return props.table === undefined ? <IndexSkeleton title={props.title} hint={props.skeleton} /> : <IndexPage {...props} />;
 }
 
 function IndexPage({ resource, table, state, count, error, lens, lenses, actions, widgets = [] }: IndexPageProps) {
@@ -148,20 +148,32 @@ function IndexPage({ resource, table, state, count, error, lens, lenses, actions
   );
 }
 
-/** The page before its props arrive: its title, the tab band, the toolbar and ten rows of the table's height. */
-function IndexSkeleton({ title }: { title: string }) {
+/**
+ * The page before its props arrive: its title, the toolbar and ten rows of the table's height, with
+ * the tab band and the action bar when the link says the index has them, so the rows land in place.
+ */
+function IndexSkeleton({ title, hint }: { title: string; hint?: IndexSkeletonHint }) {
   const { tableStyle } = usePage<SharedProps>().props;
 
   return (
     <AfterDelay>
       <Head title={title} />
       <div aria-busy="true" className="space-y-6">
-        <div aria-hidden="true" className={`h-8 w-64 ${skeletonBar}`} />
+        {hint?.tabs === true && (
+          <div aria-hidden="true" data-skeleton-tabs="" className="border-b border-border pb-2">
+            <div className={`h-8 w-64 ${skeletonBar}`} />
+          </div>
+        )}
         <div className="flex items-center gap-3">
           <h1 className="text-2xl font-semibold">{title}</h1>
           <div aria-hidden="true" className={`ms-auto h-9 w-56 ${skeletonBar}`} />
         </div>
         <Card aria-hidden="true" className="overflow-hidden">
+          {hint?.actions === true && (
+            <div data-skeleton-actions="" className="flex justify-end border-b border-border px-3 py-2">
+              <div className={`h-8 w-40 ${skeletonBar}`} />
+            </div>
+          )}
           <div className="h-10 border-b border-border" />
           {Array.from({ length: 10 }, (_, index) => (
             <div key={index} data-skeleton-row="" className={`flex items-center border-b border-border px-3 last:border-0 ${rowHeights[tableStyle.density]}`}>

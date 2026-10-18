@@ -48,4 +48,11 @@ export interface NavigationItem {
   component?: string;
   /** The prefetch cache tag a write to the link's resource flushes: resource:<uriKey>. */
   cacheTag?: string;
+  /** Whether the resource index draws a tab band and an action bar, so its skeleton draws them too. */
+  skeleton?: IndexSkeletonHint;
+}
+
+export interface IndexSkeletonHint {
+  tabs: boolean;
+  actions: boolean;
 }

@@ -8,6 +8,7 @@ use Illuminate\Support\Str;
 use JsonSerializable;
 use Lathe\Dashboards\DashboardRegistry;
 use Lathe\Enums\Icon;
+use Lathe\Lathe;
 use Lathe\Plugins\Plugin;
 use Lathe\Support\ConfigStore;
 
@@ -194,6 +195,11 @@ class MenuItem implements JsonSerializable
         if (! $this->external && preg_match('#^resources/([^/?\#]+)(/lens/[^/?\#]+)?(\?.*)?$#', trim($this->path, '/'), $match) === 1) {
             $json['component'] = 'Resources/Index';
             $json['cacheTag'] = "resource:{$match[1]}";
+            $entry = Lathe::resources()->manifest()[$match[1]] ?? null;
+
+            if ($entry !== null) {
+                $json['skeleton'] = ['tabs' => $entry['hasTabs'] ?? false, 'actions' => $entry['hasActions'] ?? false];
+            }
         } elseif ($this->component !== null) {
             $json['component'] = $this->component;
         }

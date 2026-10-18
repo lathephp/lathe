@@ -5,9 +5,9 @@ import { useEffect, useState, type ReactNode } from 'react';
 // Instant pages: a link shows its page before the server answers, and a write drops the pages
 // prefetched for its resource. The pieces live in one module, so the first load fetches one chunk.
 
-/** The props an instant visit renders with: the shell's shared props and the title the link knows. */
-export function instantProps(title: string) {
-  return (_current: Record<string, unknown>, shared: Record<string, unknown>) => ({ ...shared, title });
+/** The props an instant visit renders with: the shell's shared props and what the link knows, such as the title. */
+export function instantProps(seed: { title: string } & Record<string, unknown>) {
+  return (_current: Record<string, unknown>, shared: Record<string, unknown>) => ({ ...shared, ...seed });
 }
 
 /** Drops the prefetched pages of the resource a write URL names, so a hovered link never opens a stale page. */

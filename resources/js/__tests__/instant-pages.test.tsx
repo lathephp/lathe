@@ -9,8 +9,22 @@ const navigation = [
     label: 'Resources',
     icon: null,
     items: [
-      { label: 'Orders', href: '/lathe/resources/orders', icon: null, component: 'Resources/Index', cacheTag: 'resource:orders' },
-      { label: 'Products', href: '/lathe/resources/products', icon: null, component: 'Resources/Index', cacheTag: 'resource:products' },
+      {
+        label: 'Orders',
+        href: '/lathe/resources/orders',
+        icon: null,
+        component: 'Resources/Index',
+        cacheTag: 'resource:orders',
+        skeleton: { tabs: true, actions: true },
+      },
+      {
+        label: 'Products',
+        href: '/lathe/resources/products',
+        icon: null,
+        component: 'Resources/Index',
+        cacheTag: 'resource:products',
+        skeleton: { tabs: false, actions: true },
+      },
       { label: 'Reports', href: '/lathe/dashboards/reports', icon: null, component: 'Dashboard' },
     ],
   },
@@ -80,6 +94,20 @@ describe('an instant visit from the sidebar', () => {
     expect(screen.getByRole('heading', { name: 'Products' })).toBeTruthy();
     expect(skeletonRows()).toHaveLength(10);
     expect(requests).toHaveLength(1);
+  });
+
+  it('draws the tab band and the action bar only for an index that has them', async () => {
+    clickInSidebar('Orders');
+    await act(() => vi.advanceTimersByTimeAsync(110));
+    expect(document.querySelectorAll('[data-skeleton-tabs]')).toHaveLength(1);
+    expect(document.querySelectorAll('[data-skeleton-actions]')).toHaveLength(1);
+  });
+
+  it('leaves out the tab band of an index without tabs', async () => {
+    clickInSidebar('Products');
+    await act(() => vi.advanceTimersByTimeAsync(110));
+    expect(document.querySelectorAll('[data-skeleton-tabs]')).toHaveLength(0);
+    expect(document.querySelectorAll('[data-skeleton-actions]')).toHaveLength(1);
   });
 
   it('puts the rows where the skeleton was when the page arrives', async () => {

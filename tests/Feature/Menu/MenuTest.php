@@ -256,3 +256,13 @@ it('names the page a link opens, so the sidebar can show it before the server an
     'plugin' => [fn () => MenuItem::plugin('Acme\Heartbeat\Heartbeat'), null, null],
     'external link' => [fn () => MenuItem::externalLink('Docs', 'https://lathephp.com/resources/orders'), null, null],
 ]);
+
+it('tells the skeleton whether a resource index draws tabs and an action bar', function (Closure $make, ?array $skeleton) {
+    expect($make()->jsonSerialize()['skeleton'] ?? null)->toBe($skeleton);
+})->with([
+    'tabs and actions' => [fn () => MenuItem::resource('orders'), ['tabs' => true, 'actions' => true]],
+    'actions only' => [fn () => MenuItem::resource('products'), ['tabs' => false, 'actions' => true]],
+    'neither' => [fn () => MenuItem::resource('order-items'), ['tabs' => false, 'actions' => false]],
+    'a resource that is not registered' => [fn () => MenuItem::resource('nothing-here'), null],
+    'dashboard' => [fn () => MenuItem::dashboard('widget-gallery'), null],
+]);
