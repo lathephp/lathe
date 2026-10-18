@@ -1,5 +1,5 @@
 import { useTranslation } from '@lathephp/core';
-import { lazy, Suspense, useId, useState, type ReactNode } from 'react';
+import { lazy, Suspense, useId, useRef, useState, type ReactNode } from 'react';
 import { Card } from '../components/ui/Card';
 import { DetailField } from '../fields/registry';
 import type { DetailFieldData, DetailRecord, LayoutBlock, RelationFieldSchema } from '../fields/types';
@@ -8,6 +8,8 @@ import { RecordLayout } from './RecordLayout';
 
 // The panels load their table code only when a tab opens, as they did inside RecordLayout.
 const RelationPanel = lazy(() => import('../relations/RelationPanel').then((module) => ({ default: module.RelationPanel })));
+// The History card and its request wait until a record that keeps a log shows it.
+const HistoryCard = lazy(() => import('./HistoryCard').then((module) => ({ default: module.HistoryCard })));
 
 // The relation kinds drawn as a RelationPanel, the same list RecordLayout keeps.
 const panelKinds = ['hasMany', 'morphMany', 'belongsToMany', 'morphToMany', 'morphedByMany', 'hasManyThrough', 'hasOneThrough'];
@@ -110,6 +112,21 @@ function columns(record: DetailRecord): Columns {
 export function RecordColumns({ record, parent }: { record: DetailRecord; parent: Parent }) {
   const { __ } = useTranslation();
   const { tabs, wide, details, singular } = columns(record);
+  const [active, setActive] = useState(() => initialTab(tabs));
+  // A tab mounts when it first opens, so its panel loads then.
+  const [opened, setOpened] = useState<ReadonlySet<number>>(() => new Set([active]));
+  const tabsRef = useRef<HTMLDivElement>(null);
+
+  function select(index: number) {
+    setActive(index);
+    setOpened(new Set(opened).add(index));
+    const url = new URL(window.location.href);
+    url.searchParams.set(tabQueryKey, tabs[index]?.key ?? '');
+    window.history.replaceState(window.history.state, '', url);
+  }
+
+  // The full log is the Action Events panel the server adds to a record that keeps one.
+  const log = tabs.findIndex((field) => field.relationship === 'actions');
   const detailsCard =
     details.length === 0 ? null : (
       <FieldCard label={__('Details')}>
@@ -131,7 +148,11 @@ export function RecordColumns({ record, parent }: { record: DetailRecord; parent
   return (
     <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
       <div data-detail-column="main" className="min-w-0 space-y-6 lg:col-span-2">
-        {tabs.length > 0 ? <RelationTabs parent={parent} tabs={tabs} counts={record.counts ?? {}} /> : null}
+        {tabs.length > 0 ? (
+          <div ref={tabsRef}>
+            <RelationTabs parent={parent} tabs={tabs} counts={record.counts ?? {}} active={active} opened={opened} onSelect={select} />
+          </div>
+        ) : null}
         {wide.map((field) => (
           <FieldCard key={field.key} label={field.label}>
             <div className="min-w-0 break-words px-4 py-3 text-sm">
@@ -155,7 +176,20 @@ export function RecordColumns({ record, parent }: { record: DetailRecord; parent
             </FieldCard>
           ),
         )}
-        {/* The cards that follow the related records go here, at the end of the right column. */}
+        {record.history === true ? (
+          <Suspense fallback={null}>
+            <HistoryCard
+              uriKey={parent.uriKey}
+              id={parent.id}
+              onShowAll={() => {
+                if (log >= 0) {
+                  select(log);
+                  tabsRef.current?.scrollIntoView({ block: 'start' });
+                }
+              }}
+            />
+          </Suspense>
+        ) : null}
       </div>
     </div>
   );
@@ -178,19 +212,8 @@ function initialTab(tabs: RelationFieldSchema[]): number {
   return Math.max(index, 0);
 }
 
-function RelationTabs({ parent, tabs, counts }: { parent: Parent; tabs: RelationFieldSchema[]; counts: Record<string, number> }) {
+function RelationTabs({ parent, tabs, counts, active, opened, onSelect }: { parent: Parent; tabs: RelationFieldSchema[]; counts: Record<string, number>; active: number; opened: ReadonlySet<number>; onSelect: (index: number) => void }) {
   const id = useId();
-  const [active, setActive] = useState(() => initialTab(tabs));
-  // A tab mounts when it first opens, so its panel loads then.
-  const [opened, setOpened] = useState<ReadonlySet<number>>(() => new Set([active]));
-
-  function select(index: number) {
-    setActive(index);
-    setOpened(new Set(opened).add(index));
-    const url = new URL(window.location.href);
-    url.searchParams.set(tabQueryKey, tabs[index]?.key ?? '');
-    window.history.replaceState(window.history.state, '', url);
-  }
 
   return (
     <div className="space-y-3">
@@ -211,7 +234,7 @@ function RelationTabs({ parent, tabs, counts }: { parent: Parent; tabs: Relation
                 index === active ? 'border-primary font-medium' : 'border-transparent text-muted-foreground',
               )}
               onClick={() => {
-                select(index);
+                onSelect(index);
               }}
             >
               {field.label}

@@ -5,6 +5,8 @@ namespace Lathe\Tests\Feature\Records;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 use Inertia\Testing\AssertableInertia;
+use Lathe\ActionEvents\ActionEvent;
+use Lathe\ActionEvents\ActionEventPolicy;
 use Lathe\Http\Requests\LatheRequest;
 use Lathe\Lathe;
 use Lathe\Resources\ResourceDefinition;
@@ -84,6 +86,17 @@ it('counts each withCount relation and names the title field', function () {
         ->assertInertia(fn (AssertableInertia $page) => $page
             ->where('record.counts', ['items' => 3])
             ->where('record.titleKey', 'number'));
+});
+
+it('offers the History card on a record that keeps an action log, to a viewer who may read it', function () {
+    $this->actingAs(User::where('email', 'admin@lathephp.com')->firstOrFail());
+
+    $this->get('/lathe/resources/orders/12')->assertInertia(fn (AssertableInertia $page) => $page->where('record.history', true));
+    $this->get('/lathe/resources/customers/1')->assertInertia(fn (AssertableInertia $page) => $page->where('record.history', false));
+
+    Gate::policy(ActionEvent::class, ActionEventPolicy::class);
+
+    $this->get('/lathe/resources/orders/12')->assertInertia(fn (AssertableInertia $page) => $page->where('record.history', false));
 });
 
 it('uses detailBreadcrumbs() in place of the default trail', function () {

@@ -35,7 +35,7 @@ export function HistoryCard({ uriKey, id, onShowAll }: { uriKey: string; id: str
   }, [apiPath, uriKey, id]);
 
   return (
-    <Card>
+    <Card role="region" aria-label={__('History')}>
       <header className="flex items-center justify-between border-b border-border px-4 py-3">
         <h2 className="text-base font-semibold">{__('History')}</h2>
         {events !== null && events.length > 0 ? (

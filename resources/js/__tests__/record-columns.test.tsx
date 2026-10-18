@@ -1,5 +1,5 @@
 import { queryClient } from '@lathephp/core';
-import { screen, within } from '@testing-library/react';
+import { fireEvent, screen, within } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import type { LayoutBlock, PanelBlock } from '../fields/types';
 import { renderPage } from './support';
@@ -120,7 +120,9 @@ const abilities = { view: true, update: false, delete: false, replicate: false, 
 function answer() {
   return vi.spyOn(globalThis, 'fetch').mockImplementation((input) => {
     const url = typeof input === 'string' ? input : input instanceof URL ? input.href : input.url;
-    const body = url.includes('/relate-authorization')
+    const body = url.endsWith('/history')
+      ? { events: [{ id: 1, type: 'update', title: 'Changed Status', user: 'Admin User', at: '2026-10-17T21:00:00Z' }] }
+      : url.includes('/relate-authorization')
       ? { items: { add: false, attach: false, attachAny: false } }
       : url.includes('/filters')
         ? { filters: [] }
@@ -130,7 +132,9 @@ function answer() {
   });
 }
 
-function renderOrder(counts: Record<string, number>) {
+const actionEvents = field('actions', 'Action Events', null, { ...items, key: 'actions', attribute: 'actions', label: 'Action Events', kind: 'morphMany', relationship: 'actions', resource: 'action-events', collapsed: true, withCount: false });
+
+function renderOrder(counts: Record<string, number>, extra: Record<string, unknown> = {}) {
   answer();
 
   return renderPage('Resources/Detail', {
@@ -147,6 +151,7 @@ function renderOrder(counts: Record<string, number>) {
       layout: orderLayout,
       abilities,
       trashed: false,
+      ...extra,
     },
     breadcrumbs: [],
   });
@@ -211,5 +216,31 @@ describe('record columns', () => {
     expect(main).not.toBeNull();
     expect(within(main as HTMLElement).getByRole('region', { name: 'Details' })).toBeTruthy();
     expect(screen.queryAllByRole('tab')).toHaveLength(0);
+  });
+
+  it('ends the right column with the History card, whose Show all opens the Action Events tab', async () => {
+    renderOrder(
+      { items: 1 },
+      {
+        history: true,
+        fields: [...orderFields, actionEvents],
+        layout: [...orderLayout, { type: 'relation-field', key: 'actions', field: actionEvents } as LayoutBlock],
+      },
+    );
+
+    const side = document.querySelector<HTMLElement>('[data-detail-column="side"]') as HTMLElement;
+    const history = await within(side).findByRole('region', { name: 'History' });
+    expect(side.lastElementChild?.contains(history)).toBe(true);
+    expect(await within(history).findByText('Changed Status')).toBeTruthy();
+
+    fireEvent.click(within(history).getByRole('button', { name: 'Show all' }));
+
+    expect(screen.getByRole('tab', { name: 'Action Events' }).getAttribute('aria-selected')).toBe('true');
+  });
+
+  it('shows no History card when the record keeps no log the viewer may read', () => {
+    renderOrder({ items: 1 }, { history: false });
+
+    expect(screen.queryByRole('heading', { name: 'History' })).toBeNull();
   });
 });

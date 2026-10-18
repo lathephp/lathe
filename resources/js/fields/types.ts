@@ -146,6 +146,8 @@ export interface DetailRecord {
   titleKey?: string | null;
   /** The related count of each withCount relation field, by field key. */
   counts?: Record<string, number>;
+  /** Whether the record keeps an action log the viewer may read, which its History card lists. */
+  history?: boolean;
   avatar: { url: string | null; initials: string | null; rounded: boolean } | null;
   fields: DetailFieldData[];
   layout: LayoutBlock[];

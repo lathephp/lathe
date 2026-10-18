@@ -3,6 +3,8 @@
 namespace Lathe\Http\Payloads;
 
 use Illuminate\Database\Eloquent\Model;
+use Lathe\ActionEvents\Actionable;
+use Lathe\ActionEvents\ActionEventResource;
 use Lathe\Assets\AssetRegistry;
 use Lathe\Auth\Impersonation;
 use Lathe\Auth\ResourceAuthorization;
@@ -40,7 +42,7 @@ class RecordPayload
      * The detail page's record: its fields with their values, the layout and the abilities.
      *
      * @param  class-string<\Lathe\Resources\Resource>  $class
-     * @return array{id: mixed, title: string, subtitle: string, header: array{badge: string|null, meta: string|null}, titleKey: string|null, avatar: array{url: string|null, initials: string|null, style: array<string, mixed>, rounded: bool}|null, fields: list<array<string, mixed>>, counts: array<string, int>, layout: list<array<string, mixed>>, resourcePlugins: list<array<string, mixed>>, abilities: array<string, bool>, trashed: bool}
+     * @return array{id: mixed, title: string, subtitle: string, header: array{badge: string|null, meta: string|null}, titleKey: string|null, avatar: array{url: string|null, initials: string|null, style: array<string, mixed>, rounded: bool}|null, fields: list<array<string, mixed>>, counts: array<string, int>, history: bool, layout: list<array<string, mixed>>, resourcePlugins: list<array<string, mixed>>, abilities: array<string, bool>, trashed: bool}
      */
     public function detail(string $class, Model $model): array
     {
@@ -72,6 +74,9 @@ class RecordPayload
             'avatar' => $resource->resolveAvatar()?->jsonSerialize(),
             'fields' => $cells,
             'counts' => $counts,
+            // The History card reads the same log as the Action Events panel, behind the same gate.
+            'history' => in_array(Actionable::class, class_uses_recursive($model), true)
+                && $this->authorization->allows($user, ActionEventResource::class, 'viewAny'),
             'layout' => $resource->layoutFor(FieldContext::Detail, $this->request, $model),
             'resourcePlugins' => array_map(
                 fn (ResourcePlugin $plugin) => $this->resourcePlugin($class, $plugin),
