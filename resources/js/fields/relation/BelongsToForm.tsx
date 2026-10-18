@@ -215,6 +215,7 @@ function RelationSelect({ field, value, onChange, id, describedBy, invalid, disa
         ]}
         aria-describedby={describedBy}
         aria-invalid={invalid || undefined}
+        aria-required={field.required === true || undefined}
         disabled={disabled}
         onFocus={() => {
           setOpen(true);

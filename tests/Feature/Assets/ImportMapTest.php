@@ -45,7 +45,6 @@ it('maps each @lathephp/ui subpath to its own file under the asset hash', functi
             ->and($imports["@lathephp/ui/{$name}"])->toBe("/lathe/assets/abcd1234/lathephp-ui-{$name}-12345678.js");
     }
 
-    // The plan counted 28 entries; react/compiler-runtime, which the React Compiler output imports,
-    // made 29, and the popover and select subpaths of m9-copper make 31.
+    // 7 React and Lathe entries and 24 subpaths.
     expect($imports)->toHaveCount(31);
 });

@@ -37,6 +37,7 @@ export function MorphToForm(props: FormFieldProps & { record?: LookupRecord }) {
         options={[{ value: '', label: '—' }, ...types]}
         aria-describedby={describedBy}
         aria-invalid={invalid || undefined}
+        aria-required={field.required === true || undefined}
         disabled={disabled}
         onChange={(next) => {
           onChange(next === '' ? null : { type: next, id: null });

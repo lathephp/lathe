@@ -60,6 +60,17 @@ it('lists 25 orders newest first from the API', function () {
         ->and($rows[0]['cells']['customer']['display'])->toBe(Order::find(10000)?->customer?->name);
 });
 
+it('draws Placed as a date-time and Status as labelled badges', function () {
+    signInAs('admin@lathephp.com');
+
+    $columns = collect($this->getJson('/lathe/api/resources/orders?per_page=25')->assertOk()->json('table.columns'))->keyBy('attribute');
+
+    expect($columns['placed_at']['component'])->toBe('date-time-field')
+        ->and($columns['status']['component'])->toBe('select-field')
+        ->and(array_column($columns['status']['options'], 'label', 'value'))->toBe(['pending' => 'Pending', 'paid' => 'Paid', 'shipped' => 'Shipped', 'cancelled' => 'Cancelled'])
+        ->and($columns['status']['badges'])->toBe(['pending' => 'warning', 'paid' => 'success', 'shipped' => 'info', 'cancelled' => 'neutral']);
+});
+
 it('pages by the allowed sizes', function (string $query, int $rows, int $firstId) {
     signInAs('admin@lathephp.com');
 

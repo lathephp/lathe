@@ -150,6 +150,15 @@ describe('sidebar', () => {
     expect(sidebar().dataset.mobile).toBe('closed');
   });
 
+  it('scrolls its menu on its own, so every group stays reachable in a short window', () => {
+    renderPage('Dashboard', dashboard);
+
+    // jsdom draws no layout: the sidebar is a full-height column whose menu takes the rest and scrolls.
+    expect(sidebar().className).toContain('md:h-svh');
+    expect(sidebar().className).toContain('flex-col');
+    expect(within(sidebar()).getByRole('navigation', { name: 'Main' }).className).toContain('overflow-y-auto');
+  });
+
   it('closes the phone menu with Escape and puts the focus back on Open menu', () => {
     renderPage('Dashboard', dashboard);
     const opener = screen.getByRole('button', { name: 'Open menu' });
