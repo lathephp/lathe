@@ -1,4 +1,4 @@
-import { Link } from '@inertiajs/react';
+import { Link, usePage } from '@inertiajs/react';
 import { useId, useState } from 'react';
 import { NavIcon } from '../components/NavIcon';
 import { cn } from '../lib/cn';
@@ -59,6 +59,7 @@ function holdsActive(block: NavBlock, context: NavContext): boolean {
 }
 
 function NavItem({ item, context }: { item: NavLink; context: NavContext }) {
+  const { onceProps } = usePage();
   const [tip, setTip] = useState(false);
   const id = useId();
   const badge = item.badge ?? context.badges[item.href];
@@ -108,7 +109,7 @@ function NavItem({ item, context }: { item: NavLink; context: NavContext }) {
           cacheTags={item.cacheTag}
           // A link that names its page shows it at once, with the label as its title.
           component={item.component}
-          pageProps={item.component === undefined ? null : instantProps({ title: item.label, skeleton: item.skeleton })}
+          pageProps={item.component === undefined ? null : instantProps({ title: item.label, skeleton: item.skeleton }, onceProps)}
           onPointerEnter={() => {
             if (item.component !== undefined) {
               preloadPage(item.component);

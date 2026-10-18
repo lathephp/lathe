@@ -35,7 +35,7 @@ const dashboard = (name: string) => ({
   widgets: [],
 });
 
-const products = {
+const productsPage = {
   resource: {
     uriKey: 'products',
     label: 'Products',
@@ -115,7 +115,7 @@ describe('an instant visit from the sidebar', () => {
     await act(() => vi.advanceTimersByTimeAsync(150));
 
     await act(async () => {
-      requests[0]?.respond(200, { component: 'Resources/Index', props: products, url: '/lathe/resources/products' });
+      requests[0]?.respond(200, { component: 'Resources/Index', props: productsPage, url: '/lathe/resources/products' });
       await vi.advanceTimersByTimeAsync(10);
     });
 

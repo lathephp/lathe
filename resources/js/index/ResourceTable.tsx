@@ -80,7 +80,7 @@ export function direction(sort: string | undefined, key: string): 'ascending' | 
 
 export function ResourceTable({ resource, table, state, loading, selection, sort, onSort }: ResourceTableProps) {
   const { __ } = useTranslation();
-  const { basePath, tableStyle } = usePage<SharedProps>().props;
+  const { props: { basePath, tableStyle }, onceProps } = usePage<SharedProps>();
   const { clickAction, showColumnBorders } = resource.definition;
   // Deferred with the count, so the footer arrives after the rows.
   const { summaries, groups } = usePage<Pick<IndexProps, 'summaries' | 'groups'>>().props;
@@ -122,7 +122,7 @@ export function ResourceTable({ resource, table, state, loading, selection, sort
 
   // A record page opens at once with the row's title; an edit form has no skeleton, so it waits.
   function visitOptions(row: Row) {
-    return clickAction === 'detail' ? { component: 'Resources/Detail', pageProps: instantProps({ title: row.title }) } : {};
+    return clickAction === 'detail' ? { component: 'Resources/Detail', pageProps: instantProps({ title: row.title }, onceProps) } : {};
   }
 
   // Resting on a row's first cell for 75 ms fetches its page, kept 30 s or until a write to the resource.

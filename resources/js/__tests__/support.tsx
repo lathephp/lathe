@@ -85,13 +85,25 @@ export function renderPage(component: string, props: Record<string, unknown>, op
   );
 }
 
+/** Props the server sends once per session, by key: the browser keeps them across visits. */
+export type OnceProps = Record<string, { prop: string; expiresAt: number | null }>;
+
+/** The once props the shell gets, as the panel's server registers them. */
+export function onceProps(...keys: string[]): OnceProps {
+  return Object.fromEntries(keys.map((key) => [key, { prop: key, expiresAt: null }]));
+}
+
+function withoutOnce(props: Record<string, unknown>, once: OnceProps = {}): Record<string, unknown> {
+  return Object.fromEntries(Object.entries(props).filter(([key]) => !(key in once)));
+}
+
 /** One request Inertia sent through the fake XMLHttpRequest, answered when the test says so. */
 export interface FakeRequest {
   method: string;
   url: string;
   headers: Record<string, string>;
   /** Answers with this Inertia page, as the panel's server would. */
-  respond: (status: number, page: { component: string; props: Record<string, unknown>; url: string }) => void;
+  respond: (status: number, page: { component: string; props: Record<string, unknown>; url: string; onceProps?: OnceProps }) => void;
 }
 
 /**
@@ -144,7 +156,8 @@ export function fakeInertiaServer(): FakeRequest[] {
             rescuedProps: [],
             sharedProps: Object.keys(sharedProps()),
             ...page,
-            props: { errors: {}, ...sharedProps(), ...page.props },
+            // The server leaves out the once props the browser already keeps.
+            props: { errors: {}, ...withoutOnce(sharedProps(), page.onceProps), ...page.props },
           });
           this.onload?.();
         },

@@ -5,9 +5,18 @@ import { useEffect, useState, type ReactNode } from 'react';
 // Instant pages: a link shows its page before the server answers, and a write drops the pages
 // prefetched for its resource. The pieces live in one module, so the first load fetches one chunk.
 
-/** The props an instant visit renders with: the shell's shared props and what the link knows, such as the title. */
-export function instantProps(seed: { title: string } & Record<string, unknown>) {
-  return (_current: Record<string, unknown>, shared: Record<string, unknown>) => ({ ...shared, ...seed });
+/**
+ * The props an instant visit renders with: the shell's shared props and what the link knows, such as
+ * the title. The props the server sends once are left for Inertia to carry over, since only then does
+ * it keep them for a prefetched answer that leaves them out.
+ */
+export function instantProps(seed: { title: string } & Record<string, unknown>, once: Record<string, { prop: PropertyKey }> = {}) {
+  const kept = new Set<PropertyKey>(Object.values(once).map((entry) => entry.prop));
+
+  return (_current: Record<string, unknown>, shared: Record<string, unknown>) => ({
+    ...Object.fromEntries(Object.entries(shared).filter(([key]) => !kept.has(key))),
+    ...seed,
+  });
 }
 
 /** Drops the prefetched pages of the resource a write URL names, so a hovered link never opens a stale page. */
