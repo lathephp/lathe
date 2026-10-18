@@ -100,6 +100,13 @@ describe('the form footer', () => {
     expect(within(footer()).getByText('Unsaved changes')).toBeTruthy();
   });
 
+  it('sticks the footer to the bottom of the viewport while the form scrolls', () => {
+    renderForm();
+
+    // jsdom lays nothing out, so the test pins the classes that make the bar sticky.
+    expect(footer().className.split(' ')).toEqual(expect.arrayContaining(['sticky', 'bottom-0']));
+  });
+
   it('drops Unsaved changes after Update & Continue Editing saves', async () => {
     vi.spyOn(globalThis, 'fetch')
       .mockResolvedValueOnce(json({ id: 7, redirect: 'customers/7' }))
