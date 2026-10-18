@@ -35,6 +35,12 @@
 :where(:root) {
   color-scheme: light;
   --radius: 0.625rem;
+  /* The steps as variables too: @theme inline below puts them in the utilities only, and the
+     styles read var(--radius-md) and its kin in arbitrary values. */
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
   --background: oklch(0.985 0.003 70);
   --foreground: oklch(0.22 0.012 55);
   --card: oklch(1 0 0);

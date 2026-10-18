@@ -54,3 +54,13 @@ it('maps each new token to a utility colour for the panel and for plugins', func
         expect($css)->toContain("--color-{$name}: var(--{$name});");
     }
 })->with(['resources/css/app.css', 'packages/core/tokens.css']);
+
+it('defines the radius steps as variables, since the styles read var(--radius-md) and its kin', function () {
+    // @theme inline writes the steps into utilities only, so the page needs them as variables too.
+    expect(defaultTokens(':where(:root)'))->toMatchArray([
+        'radius-sm' => 'calc(var(--radius) - 4px)',
+        'radius-md' => 'calc(var(--radius) - 2px)',
+        'radius-lg' => 'var(--radius)',
+        'radius-xl' => 'calc(var(--radius) + 4px)',
+    ]);
+});
