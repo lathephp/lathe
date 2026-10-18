@@ -1,13 +1,30 @@
 import { ApiError, request, useLathe, useTranslation } from '@lathephp/core';
-import { useId, useState } from 'react';
+import { useEffect, useId, useRef, useState } from 'react';
 import { FieldError } from './FieldError';
 import { Modal } from './Modal';
 
 /** The confirm password form over the page: onDone(true) once confirmed, onDone(false) on Escape or Cancel. */
 export function ConfirmPasswordDialog({ onDone }: { onDone: (confirmed: boolean) => void }) {
+  const id = useId();
+
+  return (
+    <Modal
+      labelledBy={`${id}-title`}
+      onClose={() => {
+        onDone(false);
+      }}
+    >
+      <ConfirmPasswordForm titleId={`${id}-title`} onDone={onDone} />
+    </Modal>
+  );
+}
+
+/** The form alone, which an open modal shows in place of its content while a request waits on it. */
+export function ConfirmPasswordForm({ titleId, onDone }: { titleId: string; onDone: (confirmed: boolean) => void }) {
   const { __ } = useTranslation();
   const { basePath } = useLathe();
   const id = useId();
+  const input = useRef<HTMLInputElement>(null);
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | undefined>(undefined);
   const [busy, setBusy] = useState(false);
@@ -27,58 +44,56 @@ export function ConfirmPasswordDialog({ onDone }: { onDone: (confirmed: boolean)
     }
   }
 
+  useEffect(() => {
+    input.current?.focus();
+  }, []);
+
   return (
-    <Modal
-      labelledBy={`${id}-title`}
-      onClose={() => {
-        onDone(false);
+    <form
+      noValidate
+      className="space-y-4"
+      onSubmit={(event) => {
+        event.preventDefault();
+        void confirm();
       }}
     >
-      <form
-        noValidate
-        className="space-y-4"
-        onSubmit={(event) => {
-          event.preventDefault();
-          void confirm();
-        }}
-      >
-        <h2 id={`${id}-title`} className="text-base font-semibold">
-          {__('Confirm password')}
-        </h2>
-        <p className="text-sm text-muted-foreground">{__('For your security, please confirm your password to continue.')}</p>
-        <div className="space-y-1">
-          <label htmlFor={`${id}-password`} className="text-sm font-medium">
-            {__('Password')}
-          </label>
-          <input
-            id={`${id}-password`}
-            type="password"
-            autoComplete="current-password"
-            value={password}
-            aria-invalid={error !== undefined || undefined}
-            aria-describedby={error === undefined ? undefined : `${id}-error`}
-            onChange={(event) => {
-              setPassword(event.target.value);
-            }}
-            className="h-9 w-full rounded-md border border-input bg-background px-3 text-sm"
-          />
-          <FieldError id={`${id}-error`} message={error} />
-        </div>
-        <div className="flex justify-end gap-2">
-          <button
-            type="button"
-            className="h-9 rounded-md px-4 text-sm"
-            onClick={() => {
-              onDone(false);
-            }}
-          >
-            {__('Cancel')}
-          </button>
-          <button type="submit" disabled={busy} className="h-9 rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground disabled:opacity-60">
-            {__('Confirm')}
-          </button>
-        </div>
-      </form>
-    </Modal>
+      <h2 id={titleId} className="text-base font-semibold">
+        {__('Confirm your password')}
+      </h2>
+      <p className="text-sm text-muted-foreground">{__('For your security, please confirm your password to continue.')}</p>
+      <div className="space-y-1">
+        <label htmlFor={`${id}-password`} className="text-sm font-medium">
+          {__('Password')}
+        </label>
+        <input
+          ref={input}
+          id={`${id}-password`}
+          type="password"
+          autoComplete="current-password"
+          value={password}
+          aria-invalid={error !== undefined || undefined}
+          aria-describedby={error === undefined ? undefined : `${id}-error`}
+          onChange={(event) => {
+            setPassword(event.target.value);
+          }}
+          className="h-9 w-full rounded-md border border-input bg-background px-3 text-sm"
+        />
+        <FieldError id={`${id}-error`} message={error} />
+      </div>
+      <div className="flex justify-end gap-2">
+        <button
+          type="button"
+          className="h-9 rounded-md px-4 text-sm"
+          onClick={() => {
+            onDone(false);
+          }}
+        >
+          {__('Cancel')}
+        </button>
+        <button type="submit" disabled={busy} className="h-9 rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground disabled:opacity-60">
+          {__('Confirm')}
+        </button>
+      </div>
+    </form>
   );
 }

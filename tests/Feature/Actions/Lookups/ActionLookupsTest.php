@@ -108,6 +108,8 @@ it('merges the selected tags into the target', function () {
     $product = Product::findOrFail(1);
     $product->tags()->sync([$sale->id => ['position' => 1]]);
     Product::findOrFail(2)->tags()->sync([$new->id => ['position' => 2], $target->id => ['position' => 3]]);
+    // Merge tags asks for the password; this session confirmed it just now.
+    $this->withSession(['auth.password_confirmed_at' => time()]);
 
     LatheTest::resource('tags')->runAction('merge-tags', ['mode' => 'ids', 'ids' => [$sale->id, $new->id]], ['target' => $target->id])
         ->assertOk()
@@ -121,6 +123,7 @@ it('merges the selected tags into the target', function () {
 
 it('merges into the target the modal picker sends as {value, display}', function () {
     [$sale, $new, $target] = Tag::query()->orderBy('id')->limit(3)->get()->all();
+    $this->withSession(['auth.password_confirmed_at' => time()]);
 
     LatheTest::resource('tags')->runAction('merge-tags', ['mode' => 'ids', 'ids' => [$sale->id, $new->id]], ['target' => ['value' => $target->id, 'display' => $target->name]])
         ->assertOk()

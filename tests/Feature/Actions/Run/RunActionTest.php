@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Schema;
 use Lathe\Actions\Action;
 use Lathe\Actions\ActionFields;
 use Lathe\Actions\ActionResult;
+use Lathe\Actions\BulkRun;
 use Lathe\Http\Requests\LatheRequest;
 use Lathe\Lathe;
 use Lathe\Resources\Resource;
@@ -375,3 +376,27 @@ it('picks the handler and the failed handler for the model class', function (str
     'singular' => [RunHandlesOrder::class, ['handleForOrder', 'failedForOrder:boom:4']],
     'generic' => [RunHandles::class, ['handle', 'failed:boom:4']],
 ]);
+
+it('answers 423 for an action that needs the password until the password is confirmed', function () {
+    RunDeclared::$actions = [runShipping()->requirePassword()];
+
+    $this->postJson('/lathe/api/resources/run-orders/action', runBody('mark-shipped', [1]))
+        ->assertStatus(423)
+        ->assertExactJson(['message' => 'Password confirmation required.']);
+    expect(RunDeclared::$calls)->toBe([]);
+
+    $this->withSession(['auth.password_confirmed_at' => time()])
+        ->postJson('/lathe/api/resources/run-orders/action', runBody('mark-shipped', [1]))
+        ->assertOk();
+    expect(RunDeclared::$calls)->toBe(['handle:1']);
+});
+
+it('asks for the password before a run goes to the queue', function () {
+    RunDeclared::$actions = [runShipping()->requirePassword()];
+
+    $this->postJson('/lathe/api/resources/run-orders/action', ['action' => 'mark-shipped', 'selection' => ['mode' => 'all'], 'fields' => []])
+        ->assertStatus(423);
+
+    expect(RunDeclared::$calls)->toBe([])
+        ->and(BulkRun::count())->toBe(0);
+});

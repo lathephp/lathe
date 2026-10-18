@@ -26,9 +26,17 @@ export interface RequestOptions {
 
 let passwordConfirmer: (() => Promise<boolean>) | undefined;
 
-/** The panel's password dialog: resolves true once the password is confirmed, false when cancelled. */
-export function setPasswordConfirmer(confirmer: (() => Promise<boolean>) | undefined): void {
+type PasswordConfirmer = (() => Promise<boolean>) | undefined;
+
+/**
+ * The panel's password dialog: resolves true once the password is confirmed, false when cancelled.
+ * Returns the one it replaces, so an open modal can ask in place and hand the job back.
+ */
+export function setPasswordConfirmer(confirmer: PasswordConfirmer): PasswordConfirmer {
+  const replaced = passwordConfirmer;
   passwordConfirmer = confirmer;
+
+  return replaced;
 }
 
 let writeListener: ((url: string) => void) | undefined;

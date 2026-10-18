@@ -5,7 +5,10 @@ namespace Lathe\Actions;
 use Closure;
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Http\Exceptions\HttpResponseException;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Str;
 use JsonSerializable;
@@ -67,6 +70,8 @@ class Action implements JsonSerializable
     protected bool $pinned = false;
 
     protected bool $asBlob = false;
+
+    protected bool $requiresPassword = false;
 
     protected bool $showOnIndex = true;
 
@@ -260,6 +265,13 @@ class Action implements JsonSerializable
      */
     public function handleRequest(LatheRequest $request, Selection $selection): array
     {
+        // Before anything runs or queues, as Laravel's RequirePassword answers a JSON request.
+        $confirmedAt = session()->get('auth.password_confirmed_at');
+
+        if ($this->requiresPassword && Date::now()->unix() - (is_int($confirmedAt) ? $confirmedAt : 0) > config()->integer('auth.password_timeout', 10800)) {
+            throw new HttpResponseException(new JsonResponse(['message' => 'Password confirmation required.'], 423));
+        }
+
         return app(ActionDispatcher::class)->dispatch($request, $this, $selection);
     }
 
@@ -450,6 +462,16 @@ class Action implements JsonSerializable
     public function pinned(): static
     {
         $this->pinned = true;
+
+        return $this;
+    }
+
+    /**
+     * Asks for the user's password before a run unless they confirmed it within auth.password_timeout.
+     */
+    public function requirePassword(bool $require = true): static
+    {
+        $this->requiresPassword = $require;
 
         return $this;
     }

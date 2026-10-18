@@ -218,6 +218,8 @@ A destructive confirm names its safe button for what it keeps, such as `cancelBu
 
 An action with a form always opens its modal, whether or not it is confirmable.
 
+`requirePassword()` asks for the user's password before a run, unless they confirmed it within `auth.password_timeout` (three hours by default). The run answers 423 until then, the open dialog shows "Confirm your password" in place of its content, and after a correct password the run goes on. The check comes before a large run goes to the queue.
+
 ## The modal
 
 `size()` sets the width of the modal: `small` (400 px), `medium` (520 px), `large` (720 px), or `sm`, `md`, `lg`, `xl`, `2xl`, `3xl`, `4xl`, `5xl`, `6xl` or `7xl`. Without it a confirm is `small` and an action with fields is `medium`. The title is the confirm text, or the action's name when there is none. `fullscreen()` fills the screen, which suits a long form.

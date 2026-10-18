@@ -17,6 +17,13 @@ use Workbench\App\Models\Tag;
  */
 class MergeTags extends Action
 {
+    public function __construct()
+    {
+        parent::__construct();
+
+        $this->requirePassword();
+    }
+
     public function fields(LatheRequest $request): array
     {
         return [Field::belongsTo('Target', 'target', TagResource::class)->required()];

@@ -310,6 +310,67 @@ describe('the action modal', () => {
     expect(screen.getByRole('dialog', { name: 'Merge Tags' })).toBe(dialog);
   });
 
+  it('asks for the password inside the open dialog and runs the action once it is confirmed', async () => {
+    const fetch = vi
+      .spyOn(globalThis, 'fetch')
+      .mockResolvedValueOnce(json({ fields: [], confirmText: 'Mark 1 orders as shipped?' }))
+      .mockResolvedValueOnce(json({ message: 'Password confirmation required.' }, 423))
+      .mockResolvedValueOnce(new Response(null, { status: 201 }))
+      .mockResolvedValueOnce(json({ result: { message: 'Done.', level: 'success', effect: null }, permitted: 1, skipped: 0, failed: 0, errors: [] }));
+    renderOrders([meta('mark-shipped', 'Mark shipped', { confirmButtonText: 'Mark shipped', size: 'small' })], rows(1, ['mark-shipped']));
+    tick(1);
+    fireEvent.click(within(await openMenu()).getByRole('menuitem', { name: 'Mark shipped' }));
+    const run = await within(await screen.findByRole('dialog')).findByRole<HTMLButtonElement>('button', { name: 'Mark shipped' });
+    await waitFor(() => {
+      expect(run.disabled).toBe(false);
+    });
+
+    fireEvent.click(run);
+
+    const dialog = await screen.findByRole('dialog', { name: 'Confirm your password' });
+    expect(screen.getAllByRole('dialog')).toHaveLength(1);
+    expect(within(dialog).queryByRole('button', { name: 'Mark shipped' })).toBeNull();
+    expect(document.activeElement).toBe(within(dialog).getByLabelText('Password'));
+
+    fireEvent.change(within(dialog).getByLabelText('Password'), { target: { value: 'password' } });
+    fireEvent.click(within(dialog).getByRole('button', { name: 'Confirm' }));
+
+    await waitFor(() => {
+      expect(screen.queryByRole('dialog')).toBeNull();
+    });
+    expect(fetch.mock.calls.map(([url]) => url)).toEqual([
+      '/lathe/api/resources/orders/actions/mark-shipped/form?count=1&resourceId=1',
+      '/lathe/api/resources/orders/action',
+      '/lathe/confirm-password',
+      '/lathe/api/resources/orders/action',
+    ]);
+    expect(__panel.toasts.get().map((toast) => toast.message)).toEqual(['Done.']);
+  });
+
+  it('goes back to the dialog when the password check is cancelled', async () => {
+    vi.spyOn(globalThis, 'fetch')
+      .mockResolvedValueOnce(json({ fields: [], confirmText: 'Mark 1 orders as shipped?' }))
+      .mockResolvedValueOnce(json({ message: 'Password confirmation required.' }, 423));
+    renderOrders([meta('mark-shipped', 'Mark shipped', { confirmButtonText: 'Mark shipped', size: 'small' })], rows(1, ['mark-shipped']));
+    tick(1);
+    fireEvent.click(within(await openMenu()).getByRole('menuitem', { name: 'Mark shipped' }));
+    const run = await within(await screen.findByRole('dialog')).findByRole<HTMLButtonElement>('button', { name: 'Mark shipped' });
+    await waitFor(() => {
+      expect(run.disabled).toBe(false);
+    });
+    fireEvent.click(run);
+    const dialog = await screen.findByRole('dialog', { name: 'Confirm your password' });
+
+    fireEvent.keyDown(document.activeElement ?? document.body, { key: 'Escape' });
+
+    expect(await screen.findByRole('dialog', { name: 'Mark 1 orders as shipped?' })).toBe(dialog);
+    await waitFor(() => {
+      expect(within(dialog).getByRole<HTMLButtonElement>('button', { name: 'Mark shipped' }).disabled).toBe(false);
+    });
+    expect(dialog.contains(document.activeElement)).toBe(true);
+    expect(__panel.toasts.get()).toEqual([]);
+  });
+
   it('titles a form by the action name, 520 px wide', async () => {
     vi.spyOn(globalThis, 'fetch').mockResolvedValueOnce(
       json({ fields: [{ key: 'note', attribute: 'note', label: 'Note', component: 'text-field', value: null, stacked: false, compact: false, help: null, required: true }], confirmText: null }),

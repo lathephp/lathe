@@ -111,6 +111,7 @@ Lathe\Actions\Action::bool $confirmable  [protected]
 Lathe\Actions\Action::bool $destructive
 Lathe\Actions\Action::bool $pinned  [protected]
 Lathe\Actions\Action::bool $recordsActionEvents  [protected]
+Lathe\Actions\Action::bool $requiresPassword  [protected]
 Lathe\Actions\Action::bool $showOnDetail  [protected]
 Lathe\Actions\Action::bool $showOnIndex  [protected]
 Lathe\Actions\Action::bool $showOnTableRow  [protected]
@@ -168,6 +169,7 @@ Lathe\Actions\Action::openInNewTab(string $name, Closure|string $url): static  [
 Lathe\Actions\Action::pinned(): static
 Lathe\Actions\Action::recordsActionEvents(): bool
 Lathe\Actions\Action::redirect(string $name, Closure|string $url): static  [static]
+Lathe\Actions\Action::requirePassword(bool $require = true): static
 Lathe\Actions\Action::runThen(Illuminate\Support\Collection $models): void
 Lathe\Actions\Action::showInline(): static
 Lathe\Actions\Action::showOn(bool $index, bool $detail, bool $tableRow): static  [protected]

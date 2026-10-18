@@ -1,5 +1,9 @@
-import { pauseShortcuts, resumeShortcuts } from '@lathephp/core';
-import { useEffect, useId, useRef, type ReactNode } from 'react';
+import { __panel, pauseShortcuts, resumeShortcuts } from '@lathephp/core';
+import { Suspense, useEffect, useId, useRef, useState, type ReactNode } from 'react';
+import { lazyNamed } from '../lib/lazy';
+
+// A request that needs the password asks inside the top modal, so two dialogs never stack.
+const ConfirmPasswordForm = lazyNamed(() => import('./ConfirmPasswordDialog').then((module) => module.ConfirmPasswordForm));
 
 /** The open modals, bottom first. Only the top one takes keys. */
 const stack: string[] = [];
@@ -32,6 +36,17 @@ export function Modal({ labelledBy, onClose, children, className, locked = false
   const panel = useRef<HTMLDivElement>(null);
   const close = useRef(onClose);
   const held = useRef(locked);
+  const [asking, setAsking] = useState<((confirmed: boolean) => void) | null>(null);
+  const answer = useRef(asking);
+
+  useEffect(() => {
+    // Back from a password check, the focus returns into the modal's own content.
+    if (answer.current !== null && asking === null) {
+      panel.current?.querySelector<HTMLElement>(focusable)?.focus();
+    }
+
+    answer.current = asking;
+  }, [asking]);
 
   useEffect(() => {
     close.current = onClose;
@@ -46,6 +61,15 @@ export function Modal({ labelledBy, onClose, children, className, locked = false
     }
 
     const opener = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    let pending: Promise<boolean> | undefined;
+    const replaced = __panel.setPasswordConfirmer(
+      () =>
+        (pending ??= new Promise<boolean>((done) => {
+          setAsking(() => done);
+        }).finally(() => {
+          pending = undefined;
+        })),
+    );
     stack.push(id);
     pauseShortcuts();
     document.body.style.overflow = 'hidden';
@@ -56,8 +80,17 @@ export function Modal({ labelledBy, onClose, children, className, locked = false
         return;
       }
 
-      // A popover inside the modal that handled Escape has closed itself; the modal stays.
+      // Escape during a password check cancels it; a popover inside the modal that handled
+      // Escape has closed itself, so the modal stays.
       if (event.key === 'Escape') {
+        if (answer.current !== null) {
+          event.preventDefault();
+          answer.current(false);
+          setAsking(null);
+
+          return;
+        }
+
         if (event.defaultPrevented || held.current) {
           return;
         }
@@ -85,6 +118,7 @@ export function Modal({ labelledBy, onClose, children, className, locked = false
 
     return () => {
       document.removeEventListener('keydown', onKeyDown);
+      __panel.setPasswordConfirmer(replaced);
       stack.splice(stack.indexOf(id), 1);
       resumeShortcuts();
 
@@ -112,10 +146,22 @@ export function Modal({ labelledBy, onClose, children, className, locked = false
         role="dialog"
         data-lathe-modal
         aria-modal="true"
-        aria-labelledby={labelledBy}
+        aria-labelledby={asking === null ? labelledBy : `${id}-password`}
         className={className ?? 'relative w-full max-w-md space-y-4 rounded-lg border border-border bg-background p-4 text-foreground shadow-lg'}
       >
-        {children}
+        {asking === null ? (
+          children
+        ) : (
+          <Suspense fallback={null}>
+            <ConfirmPasswordForm
+              titleId={`${id}-password`}
+              onDone={(confirmed) => {
+                asking(confirmed);
+                setAsking(null);
+              }}
+            />
+          </Suspense>
+        )}
       </div>
     </div>
   );

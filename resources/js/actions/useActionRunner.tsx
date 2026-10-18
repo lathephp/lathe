@@ -74,6 +74,8 @@ export function useActionRunner({ base, onDone }: ActionRunnerOptions): { start:
         setReauth(() => () => {
           void execute(action, selection, fields, inModal).catch(() => undefined);
         });
+      } else if (error instanceof ApiError && error.status === 423) {
+        // The password check was cancelled; the dialog is still open to try again.
       } else if (error instanceof ApiError && error.status === 422) {
         const message = firstMessage(error.data);
 

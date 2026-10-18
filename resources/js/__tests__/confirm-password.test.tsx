@@ -33,7 +33,7 @@ const required: [number, string] = [423, '{"message":"Password confirmation requ
 
 /** The open dialog, once the modal's effect has moved focus in, paused the shortcuts and started listening for Escape. */
 async function openDialog(): Promise<HTMLElement> {
-  const dialog = await screen.findByRole('dialog', { name: 'Confirm password' });
+  const dialog = await screen.findByRole('dialog', { name: 'Confirm your password' });
   await waitFor(() => {
     expect(dialog.contains(document.activeElement)).toBe(true);
   });
@@ -47,7 +47,7 @@ describe('confirm password dialog', () => {
     render(<PasswordConfirmHost />);
 
     const result = request('/lathe/api/thing', { method: 'POST', body: { enable: true } });
-    const dialog = await screen.findByRole('dialog', { name: 'Confirm password' });
+    const dialog = await screen.findByRole('dialog', { name: 'Confirm your password' });
 
     fireEvent.change(screen.getByLabelText('Password'), { target: { value: 'secret' } });
     fireEvent.click(screen.getByRole('button', { name: 'Confirm' }));
@@ -68,7 +68,7 @@ describe('confirm password dialog', () => {
     render(<PasswordConfirmHost />);
 
     void request('/lathe/api/thing').catch(() => undefined);
-    await screen.findByRole('dialog', { name: 'Confirm password' });
+    await screen.findByRole('dialog', { name: 'Confirm your password' });
 
     fireEvent.change(screen.getByLabelText('Password'), { target: { value: 'wrong' } });
     fireEvent.click(screen.getByRole('button', { name: 'Confirm' }));
@@ -78,7 +78,7 @@ describe('confirm password dialog', () => {
 
     expect(password.getAttribute('aria-invalid')).toBe('true');
     expect(password.getAttribute('aria-describedby')).toBe(error.id);
-    expect(screen.getByRole('dialog', { name: 'Confirm password' })).toBeTruthy();
+    expect(screen.getByRole('dialog', { name: 'Confirm your password' })).toBeTruthy();
     expect(sent()).toHaveLength(2);
   });
 
