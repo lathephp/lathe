@@ -23,6 +23,9 @@ export interface PiePayload extends Partial<NumberDisplay> {
 // The outer radius as a percentage of the space the legend leaves, so the pie fits its card.
 const outer = 80;
 
+// More slices than this cannot be read as a pie, so they draw as bars.
+const maxSlices = 6;
+
 /** The sectors of one ring, coloured by the server. */
 const sectors = (segments: Segment[]) => segments.map((segment) => ({ name: segment.label, value: segment.value, fill: segment.color }));
 
@@ -56,6 +59,14 @@ export function PieCard({ widget, value }: WidgetRendererProps) {
   const rows = (rings.length > 0 ? rings.flatMap((ring) => ring.segments.map((segment) => ({ ...segment, label: `${ring.name}: ${segment.label}` }))) : segments).map(
     (segment) => [segment.label, format(segment.value), `${String(segment.percentage)}%`],
   );
+
+  if (rings.length === 0 && segments.length > maxSlices) {
+    return (
+      <ChartFrame name={widget.name} columns={[__('Label'), __('Value'), __('Percentage')]} rows={rows}>
+        <SliceBars name={widget.name} segments={segments} format={format} />
+      </ChartFrame>
+    );
+  }
 
   return (
     <ChartFrame name={widget.name} columns={[__('Label'), __('Value'), __('Percentage')]} rows={rows}>
@@ -116,5 +127,35 @@ export function PieCard({ widget, value }: WidgetRendererProps) {
         </PieChart>
       </ChartContainer>
     </ChartFrame>
+  );
+}
+
+/** The five largest slices as bars against the largest, then the rest as one Other row without a bar. */
+function SliceBars({ name, segments, format }: { name: string; segments: Segment[]; format: (value: number) => string }) {
+  const { __ } = useTranslation();
+  const top = [...segments].sort((a, b) => b.value - a.value).slice(0, maxSlices - 1);
+  const rest = segments.filter((segment) => !top.includes(segment)).reduce((sum, segment) => sum + segment.value, 0);
+  const largest = Math.max(...top.map((segment) => segment.value), 1);
+
+  return (
+    <ul aria-label={name} className="space-y-2 text-xs">
+      {top.map((segment) => (
+        <li key={segment.label} className="grid grid-cols-[minmax(0,7rem)_minmax(0,1fr)_auto] items-center gap-2.5">
+          <span className="truncate">{segment.label}</span>
+          <span className="h-2 rounded-[2px] bg-muted">
+            <span data-bar="" className="block h-full rounded-[2px]" style={{ width: `${String((segment.value / largest) * 100)}%`, backgroundColor: segment.color }} />
+          </span>
+          <span className="text-end font-medium tabular-nums">{format(segment.value)}</span>
+        </li>
+      ))}
+      <li className="grid grid-cols-[minmax(0,7rem)_minmax(0,1fr)_auto] items-center gap-2.5 text-muted-foreground">
+        <span className="flex items-center gap-1.5">
+          <span aria-hidden="true" className="size-2 rounded-[2px] bg-chart-other" />
+          {__('Other')}
+        </span>
+        <span />
+        <span className="text-end font-medium tabular-nums">{format(rest)}</span>
+      </li>
+    </ul>
   );
 }
