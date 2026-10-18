@@ -56,7 +56,7 @@ function done(run: Run): boolean {
 function refreshIndex(resource: string, basePath: string): void {
   router.flushByCacheTags(`resource:${resource}`);
 
-  if (new RegExp(`^${basePath}/resources/${resource}(/lenses/[^/]+)?/?$`).test(window.location.pathname)) {
+  if (new RegExp(`^${basePath}/resources/${resource}(/lens/[^/]+)?/?$`).test(window.location.pathname)) {
     router.reload({ only: ['table', 'count', 'tabCounts', 'summaries'] });
   }
 }

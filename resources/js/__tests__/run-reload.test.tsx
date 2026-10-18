@@ -103,6 +103,19 @@ describe('a bulk run that ends', () => {
     expect(requests).toHaveLength(1);
   });
 
+  it('reloads a lens of the resource it started on', async () => {
+    vi.spyOn(globalThis, 'fetch').mockImplementation(() => Promise.resolve(Response.json(finished)));
+    renderPage('Resources/Index', index('Pending'), { url: '/lathe/resources/orders/lens/pending-orders' });
+    window.history.replaceState(null, '', '/lathe/resources/orders/lens/pending-orders');
+    await startRun();
+    requests.length = 0;
+
+    await tick();
+
+    expect(requests).toHaveLength(1);
+    expect(requests[0]?.headers['X-Inertia-Partial-Data']).toBe('table,count,tabCounts,summaries');
+  });
+
   it('drops the pages a load-more index had accumulated', async () => {
     vi.spyOn(globalThis, 'fetch').mockImplementation((input) =>
       Promise.resolve(
