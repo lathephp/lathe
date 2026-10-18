@@ -7,6 +7,7 @@ import { cn } from '../../lib/cn';
 import { DetailField, FormField, stringValue, type DetailFieldProps, type FormFieldProps } from '../registry';
 import type { FieldSchema } from '../types';
 import { RepeaterErrorsContext, RepeaterPathContext } from './errors';
+import { RepeaterFailuresContext } from './failures';
 
 interface Block {
   key: string;
@@ -142,6 +143,7 @@ export function RepeaterForm({ field, value, onChange, id, describedBy, disabled
   const { __ } = useTranslation();
   const cfg = config(field);
   const errors = useContext(RepeaterErrorsContext);
+  const failures = useContext(RepeaterFailuresContext);
   const parent = useContext(RepeaterPathContext);
   const path = parent === '' ? field.attribute : `${parent}.${field.attribute}`;
   const rows: unknown[] = Array.isArray(value) ? value : [];
@@ -155,10 +157,11 @@ export function RepeaterForm({ field, value, onChange, id, describedBy, disabled
   const failing = rows.map((_, index) => errorAt(errors, `${path}.${String(index)}`) !== undefined);
   const firstFailingIndex = failing.indexOf(true);
 
-  // A failed submit brings the first failing row into view; failing rows stay open.
+  // A failed save brings the first failing row into view; failing rows stay open. Fixing a
+  // field changes the errors too, and must not pull the page back here.
   useEffect(() => {
     firstFailing.current?.scrollIntoView({ block: 'center' });
-  }, [errors]);
+  }, [failures]);
 
   function commit(next: unknown[], nextIds: string[]) {
     setIds(nextIds);

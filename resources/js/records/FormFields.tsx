@@ -5,6 +5,7 @@ import { labelOf, optionsOf } from '../fields/choice/options';
 import { passes, type ConditionData } from '../fields/conditions';
 import { FormField, stringValue } from '../fields/registry';
 import { RepeaterErrorsContext } from '../fields/repeater/errors';
+import { RepeaterFailuresContext } from '../fields/repeater/failures';
 import type { FormFieldData } from '../fields/types';
 import { cn } from '../lib/cn';
 import { RecordLayout } from './RecordLayout';
@@ -53,50 +54,53 @@ export function FormFields({ uriKey, mode, id, record, idPrefix = 'field' }: For
     dirty,
     apply: record.applyValues,
   });
-  // One Set per failed submit, so the layout opens the marked tab once.
+  // The fields holding an error now, which the layout marks on their tabs.
   const errorKeys = useMemo(() => new Set(Object.keys(record.errors).map((key) => key.split('.')[0] ?? key)), [record.errors]);
 
   return (
     <RepeaterErrorsContext value={record.errors}>
-      <RecordLayout
-        blocks={record.payload.layout}
-        borderless={record.payload.borderless === true}
-        errorKeys={errorKeys}
-        renderField={(key, first) => {
-          const field = byKey.get(key);
+      <RepeaterFailuresContext value={record.failures}>
+        <RecordLayout
+          blocks={record.payload.layout}
+          borderless={record.payload.borderless === true}
+          errorKeys={errorKeys}
+          failures={record.failures}
+          renderField={(key, first) => {
+            const field = byKey.get(key);
 
-          const patch = patches[key] ?? {};
+            const patch = patches[key] ?? {};
 
-          if (field === undefined || patch.visible === false || (patch.visible !== true && field.visibleWhen != null && !passes(field.visibleWhen, record.values))) {
-            return null;
-          }
+            if (field === undefined || patch.visible === false || (patch.visible !== true && field.visibleWhen != null && !passes(field.visibleWhen, record.values))) {
+              return null;
+            }
 
-          const from = field.optionsFrom as { field: string; map: Record<string, unknown> } | null | undefined;
-          const decided = {
-            ...field,
-            ...(from == null ? {} : { options: from.map[stringValue(record.values[from.field])] ?? [] }),
-            ...(patch.options === undefined ? {} : { options: patch.options }),
-            required: patch.required ?? (field.required === true || (field.requiredWhen != null && passes(field.requiredWhen, record.values))),
-            readonly: patch.readonly ?? (field.readonly === true || (field.readonlyWhen != null && passes(field.readonlyWhen, record.values))),
-          };
+            const from = field.optionsFrom as { field: string; map: Record<string, unknown> } | null | undefined;
+            const decided = {
+              ...field,
+              ...(from == null ? {} : { options: from.map[stringValue(record.values[from.field])] ?? [] }),
+              ...(patch.options === undefined ? {} : { options: patch.options }),
+              required: patch.required ?? (field.required === true || (field.requiredWhen != null && passes(field.requiredWhen, record.values))),
+              readonly: patch.readonly ?? (field.readonly === true || (field.readonlyWhen != null && passes(field.readonlyWhen, record.values))),
+            };
 
-          return (
-            <FormRow
-              field={decided}
-              wide={first}
-              reason={field.visibleWhen == null ? undefined : reasonFor(field.visibleWhen)}
-              idPrefix={idPrefix}
-              value={record.values[field.attribute]}
-              values={record.values}
-              error={record.errors[field.attribute]}
-              onChange={(value) => {
-                setDirty((current) => new Set(current).add(field.attribute));
-                record.setValue(field.attribute, value);
-              }}
-            />
-          );
-        }}
-      />
+            return (
+              <FormRow
+                field={decided}
+                wide={first}
+                reason={field.visibleWhen == null ? undefined : reasonFor(field.visibleWhen)}
+                idPrefix={idPrefix}
+                value={record.values[field.attribute]}
+                values={record.values}
+                error={record.errors[field.attribute]}
+                onChange={(value) => {
+                  setDirty((current) => new Set(current).add(field.attribute));
+                  record.setValue(field.attribute, value);
+                }}
+              />
+            );
+          }}
+        />
+      </RepeaterFailuresContext>
     </RepeaterErrorsContext>
   );
 }

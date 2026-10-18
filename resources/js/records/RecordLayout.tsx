@@ -33,8 +33,10 @@ export interface RecordLayoutProps {
   blocks: LayoutBlock[];
   /** Draws one field of a panel, by key; null when the key has no field here. A form learns which field opens its panel. */
   renderField: (key: string, first?: boolean) => ReactNode;
-  /** The field keys a failed submit marked; their tabs get a dot and the first one opens. */
+  /** The field keys that hold an error now; their tabs get a dot. */
   errorKeys?: ReadonlySet<string>;
+  /** Counts the failed saves: each new one opens the first tab holding an error, once. */
+  failures?: number;
   /** The Resource's borderless(): no divider lines anywhere. */
   borderless?: boolean;
   /** Detail pages cut a panel at its limit(); forms show every field. */
@@ -199,13 +201,13 @@ function TabGroup({ group, ...props }: RecordLayoutProps & { group: TabGroupBloc
   const [active, setActive] = useState(() => initialTab(group));
   // A detail page mounts a tab when it first opens, so its relation panels load then (PERF-7).
   const [opened, setOpened] = useState<ReadonlySet<number>>(() => new Set([active]));
-  const { errorKeys } = props;
+  const { errorKeys, failures } = props;
 
-  const [seenErrors, setSeenErrors] = useState(errorKeys);
+  const [seenFailures, setSeenFailures] = useState(failures);
 
-  // A failed submit opens the first tab it marked.
-  if (errorKeys !== seenErrors) {
-    setSeenErrors(errorKeys);
+  // A failed save opens the first tab it marked; fixing a field later leaves the tab alone.
+  if (failures !== seenFailures) {
+    setSeenFailures(failures);
     const failed = group.tabs.findIndex((tab) => hasError(tab, errorKeys));
 
     if (failed >= 0) {

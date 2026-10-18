@@ -247,6 +247,23 @@ describe('repeater-field', () => {
     expect(scroll.mock.contexts[0]).toBe(failing);
   });
 
+  it('scrolls to a failing row once per failed save, not when another field changes the errors', () => {
+    const scroll = vi.fn();
+    Element.prototype.scrollIntoView = scroll;
+    const errors = { 'specifications.1.name': 'The name field is required.', total: 'Bad.' };
+    const field = repeater();
+    const view = renderRepeater(field, two, errors);
+
+    // Fixing Total elsewhere on the form hands down a new errors object without it.
+    view.rerender(
+      <RepeaterErrorsContext value={{ 'specifications.1.name': 'The name field is required.' }}>
+        <Harness field={field} initial={two} onChange={view.onChange} />
+      </RepeaterErrorsContext>,
+    );
+
+    expect(scroll).toHaveBeenCalledTimes(1);
+  });
+
   it('adds a polymorphic row of the chosen block and draws only its fields', () => {
     const view = renderRepeater(
       repeater({
