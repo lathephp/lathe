@@ -1,5 +1,5 @@
 import { ApiError, request, toast, useLathe, useTranslation } from '@lathephp/core';
-import { Suspense, useId, useState, type KeyboardEvent } from 'react';
+import { Suspense, useEffect, useId, useRef, useState, type KeyboardEvent } from 'react';
 import { Select } from '../components/ui/Select';
 import { badgesOf, SelectBadge } from '../fields/choice/SelectFields';
 import type { Cell, FieldSchema } from '../fields/types';
@@ -9,6 +9,7 @@ import { BelongsToForm, MorphToForm } from '../fields/relation/lazy';
 import { isMorphToValue } from '../fields/relation/MorphToField';
 import { cn } from '../lib/cn';
 import { TableCell } from '../table/cells';
+import { ConflictDialog } from './lazy';
 
 
 interface InlineReply {
@@ -47,9 +48,52 @@ export function InlineCell({ uriKey, rowId, column, cell, token, onRow }: Inline
   const [error, setError] = useState<string | null>(null);
   // A morphTo type chosen but no record picked yet; undefined while there is none.
   const [morphDraft, setMorphDraft] = useState<unknown>(undefined);
+  // The undo outlives this render: the toast calls it later, so it reads the latest token and row callback from refs.
+  const latest = useRef({ token, onRow });
+  useEffect(() => {
+    latest.current = { token, onRow };
+  });
+  const [conflict, setConflict] = useState<unknown>(undefined);
   const shown = pending ?? cell;
   const busy = pending !== null;
   const options = (column.options as Option[] | undefined) ?? [];
+
+  function send(value: unknown, extra: Record<string, unknown>, updatedAt: string | undefined) {
+    return request<InlineReply>(`${apiPath}/resources/${uriKey}/${String(rowId)}/field/${column.key}`, {
+      method: 'PATCH',
+      toastOnError: false,
+      body: { value, ...extra, _updated_at: updatedAt },
+    });
+  }
+
+  /** Saves the value the cell had before as a new change; a record changed since opens the conflict dialog. */
+  async function undo(before: unknown, updatedAt: string | null | undefined = latest.current.token) {
+    setPending({ value: before, display: displayOf(before) });
+
+    try {
+      const reply = await send(before, {}, updatedAt ?? undefined);
+
+      if (reply !== null) {
+        latest.current.onRow(reply.fields, reply.updatedAt);
+        latest.current.token = reply.updatedAt;
+      }
+
+      setConflict(undefined);
+    } catch (failure) {
+      const reply = failure instanceof ApiError && failure.status === 409 ? (failure.data as InlineReply | null) : null;
+
+      if (reply?.fields === undefined) {
+        setConflict(undefined);
+        toast.error(__('Something went wrong. Please try again.'));
+      } else {
+        latest.current.onRow(reply.fields, reply.updatedAt);
+        latest.current.token = reply.updatedAt;
+        setConflict({ before });
+      }
+    } finally {
+      setPending(null);
+    }
+  }
 
   async function commit(value: unknown, shownWhilePending?: Cell, extra: Record<string, unknown> = {}) {
     if (busy) {
@@ -60,14 +104,20 @@ export function InlineCell({ uriKey, rowId, column, cell, token, onRow }: Inline
     setPending(shownWhilePending ?? { value, display: displayOf(value) });
 
     try {
-      const reply = await request<InlineReply>(`${apiPath}/resources/${uriKey}/${String(rowId)}/field/${column.key}`, {
-        method: 'PATCH',
-        toastOnError: false,
-        body: { value, ...extra, _updated_at: token ?? undefined },
-      });
+      const reply = await send(value, extra, token ?? undefined);
 
       if (reply !== null) {
         onRow(reply.fields, reply.updatedAt);
+        latest.current.token = reply.updatedAt;
+
+        if (column.component !== 'belongs-to-field' && column.component !== 'morph-to-field') {
+          const before = cell.value;
+          const display = reply.fields[column.key]?.display ?? displayOf(value);
+
+          toast.success(__(':field changed to :value.', { field: column.label, value: display }), {
+            action: { label: __('Undo'), onClick: () => void undo(before) },
+          });
+        }
       }
     } catch (failure) {
       if (failure instanceof ApiError && failure.status === 422) {
@@ -263,6 +313,23 @@ export function InlineCell({ uriKey, rowId, column, cell, token, onRow }: Inline
   return (
     <div data-inline-cell="" className="relative">
       {control}
+      {busy ? <span className="ms-2 text-xs text-muted-foreground">{__('Saving…')}</span> : null}
+      {conflict === undefined ? null : (
+        <Suspense fallback={null}>
+          <ConflictDialog
+            onRefresh={() => {
+              setConflict(undefined);
+            }}
+            onOverride={() => {
+              setConflict(undefined);
+              void undo((conflict as { before: unknown }).before, latest.current.token);
+            }}
+            onClose={() => {
+              setConflict(undefined);
+            }}
+          />
+        </Suspense>
+      )}
       {error === null ? null : (
         <div id={errorId} role="tooltip" className="absolute start-0 top-full z-10 mt-1 rounded-md bg-destructive px-2 py-1 text-xs whitespace-nowrap text-destructive-foreground shadow">
           {error}

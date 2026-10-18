@@ -7,6 +7,8 @@ export const RenameTabDialog = lazyNamed(() => import('./RenameTabDialog').then(
 export const FilterPanel = lazyNamed(() => import('./FilterPanel').then((module) => module.FilterPanel));
 // The row menu's list and its delete confirmation load on the menu's first open.
 export const RowMenuPanel = lazyNamed(() => import('./RowMenuPanel').then((module) => module.RowMenuPanel));
+// The edit-conflict dialog loads when an undo finds the record changed.
+export const ConflictDialog = lazyNamed(() => import('../records/ConflictDialog').then((module) => module.ConflictDialog));
 
 /** Loads both dialogs now, so the next first render does not suspend. */
 export async function preloadTabDialogs(): Promise<void> {
