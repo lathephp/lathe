@@ -1,6 +1,5 @@
 import { Link } from '@inertiajs/react';
 import { useTranslation } from '@lathephp/core';
-import { Ellipsis } from 'lucide-react';
 import { useEffect, useId, useRef, useState } from 'react';
 
 const itemClass =
@@ -55,7 +54,12 @@ export function WidgetMenu({ name, onRefresh, link, csv }: WidgetMenuProps) {
           setOpen(!open);
         }}
       >
-        <Ellipsis aria-hidden="true" className="size-4" />
+        {/* Drawn here: lucide's Ellipsis would split into a chunk the index's first load then fetches. */}
+        <svg aria-hidden="true" viewBox="0 0 24 24" className="size-4 fill-current">
+          <circle cx="5" cy="12" r="1.75" />
+          <circle cx="12" cy="12" r="1.75" />
+          <circle cx="19" cy="12" r="1.75" />
+        </svg>
       </button>
       {open && (
         <div
