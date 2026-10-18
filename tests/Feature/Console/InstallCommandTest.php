@@ -94,7 +94,7 @@ it('installs into a fresh Laravel app and changes only app, bootstrap, config an
         ->and(array_filter($changed, fn (string $path) => ! preg_match('#^(app|bootstrap|config|database/migrations)/#', $path)))->toBe([]);
 
     expect(File::get("{$app}/config/lathe.php"))->toBe(File::get(dirname(__DIR__, 3).'/config/lathe.php'))
-        ->and(glob("{$app}/database/migrations/2026_01_01_0000*.php"))->toHaveCount(10)
+        ->and(glob("{$app}/database/migrations/2026_01_01_0000*.php"))->toHaveCount(11)
         ->and(require "{$app}/bootstrap/providers.php")->toContain('App\Providers\LatheServiceProvider')
         ->and("{$app}/app/Providers/LatheServiceProvider.php")->toBeFile()
         ->and("{$app}/app/Lathe/Resources/User.php")->toBeFile()
