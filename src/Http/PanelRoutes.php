@@ -328,6 +328,7 @@ class PanelRoutes
         $router->delete('dashboards/{dashboard}/layout', [DashboardLayoutController::class, 'destroy'])->name('dashboards.layout.destroy');
         $router->get('dashboards/{dashboard}/widgets', [WidgetController::class, 'dashboardIndex'])->name('dashboards.widgets.index');
         $router->get('dashboards/{dashboard}/widgets/{widget}', [WidgetController::class, 'dashboardShow'])->name('dashboards.widgets.show');
+        $router->get('dashboards/{dashboard}/widgets/{widget}/csv', [WidgetController::class, 'dashboardCsv'])->name('dashboards.widgets.csv');
         $router->get('resources/{resource}/widgets', [WidgetController::class, 'resourceIndex'])->name('resources.widgets.index');
         $router->get('resources/{resource}/widgets/{widget}', [WidgetController::class, 'resourceShow'])->name('resources.widgets.show');
         $router->get('resources/{resource}/lenses/{lens}/widgets', [WidgetController::class, 'lensIndex'])->name('resources.lenses.widgets.index');

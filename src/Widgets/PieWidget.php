@@ -120,7 +120,7 @@ abstract class PieWidget extends Widget
      */
     protected function count(LatheRequest $request, Builder|Model|string $model, Expression|string $groupBy, Expression|string|null $column = null): PieResult
     {
-        return $this->fromPartition(AggregateQuery::for($model)->count($column)->groupBy($groupBy));
+        return $this->fromPartition($this->aggregateQuery($model)->count($column)->groupBy($groupBy));
     }
 
     /**
@@ -128,7 +128,7 @@ abstract class PieWidget extends Widget
      */
     protected function sum(LatheRequest $request, Builder|Model|string $model, Expression|string $column, Expression|string $groupBy): PieResult
     {
-        return $this->fromPartition(AggregateQuery::for($model)->sum($column)->groupBy($groupBy));
+        return $this->fromPartition($this->aggregateQuery($model)->sum($column)->groupBy($groupBy));
     }
 
     /**
@@ -136,7 +136,7 @@ abstract class PieWidget extends Widget
      */
     protected function average(LatheRequest $request, Builder|Model|string $model, Expression|string $column, Expression|string $groupBy): PieResult
     {
-        return $this->fromPartition(AggregateQuery::for($model)->average($column)->groupBy($groupBy));
+        return $this->fromPartition($this->aggregateQuery($model)->average($column)->groupBy($groupBy));
     }
 
     /**
@@ -144,7 +144,7 @@ abstract class PieWidget extends Widget
      */
     protected function max(LatheRequest $request, Builder|Model|string $model, Expression|string $column, Expression|string $groupBy): PieResult
     {
-        return $this->fromPartition(AggregateQuery::for($model)->max($column)->groupBy($groupBy));
+        return $this->fromPartition($this->aggregateQuery($model)->max($column)->groupBy($groupBy));
     }
 
     /**
@@ -152,7 +152,7 @@ abstract class PieWidget extends Widget
      */
     protected function min(LatheRequest $request, Builder|Model|string $model, Expression|string $column, Expression|string $groupBy): PieResult
     {
-        return $this->fromPartition(AggregateQuery::for($model)->min($column)->groupBy($groupBy));
+        return $this->fromPartition($this->aggregateQuery($model)->min($column)->groupBy($groupBy));
     }
 
     protected function fromPartition(AggregateQuery $query): PieResult

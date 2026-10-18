@@ -11,6 +11,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Grammar;
 use Illuminate\Database\Query\Builder as QueryBuilder;
 use Illuminate\Database\Query\JoinClause;
+use Illuminate\Support\Str;
 use Lathe\Query\DateBucket;
 use Lathe\Support\Timezone;
 use Lathe\Widgets\Results\BarResult;
@@ -230,6 +231,38 @@ class AggregateQuery
         }
 
         return array_values(array_unique($tables));
+    }
+
+    /**
+     * The model the query reads.
+     *
+     * @internal
+     *
+     * @return class-string<Model>
+     */
+    public function model(): string
+    {
+        return $this->builder->getModel()::class;
+    }
+
+    /**
+     * The name of the number column in a CSV: the counted table, else the aggregated column.
+     *
+     * @internal
+     */
+    public function columnName(): string
+    {
+        return $this->function === 'count' ? $this->builder->getModel()->getTable() : $this->nameOf($this->column, 'value');
+    }
+
+    /**
+     * The name of the group column in a CSV.
+     *
+     * @internal
+     */
+    public function groupName(): string
+    {
+        return $this->nameOf($this->groupColumn, 'label');
     }
 
     /**
@@ -457,6 +490,16 @@ class AggregateQuery
         }
 
         return $grammar->wrap($this->qualified($column));
+    }
+
+    /**
+     * A column without its table, or the fallback for an expression.
+     *
+     * @internal
+     */
+    protected function nameOf(Expression|string|null $column, string $fallback): string
+    {
+        return is_string($column) ? Str::afterLast($column, '.') : $fallback;
     }
 
     protected function qualified(string $column): string

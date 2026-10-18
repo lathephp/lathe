@@ -228,6 +228,20 @@ public function ranges(): array
 
 On a value card, a number key means the last N days, compared with the N days before. The constants `TODAY`, `YESTERDAY`, `THIS_WEEK`, `MTD`, `QTD`, `YTD` and `ALL` compare against the matching earlier period. `defaultRange()` picks the choice that shows first. Return an empty array to hide the selector. The selected key reaches your code as `$request->query('range')`.
 
+### Open records
+
+A card's menu offers Open records when the card has a link. When every aggregate helper the card ran reads the same model, and a Resource has that model, the link is that Resource's index, shown only to a user who may list it. Set your own link with `link()`, shown as given:
+
+```php
+NewUsers::make()->link('/lathe/resources/users?filter[status]=new'),
+```
+
+### Download as CSV
+
+On a dashboard, the menu of a trend, bar, partition, pie, radar or table card offers Download CSV: the rows or series the card shows, for the range it shows. `GET api/dashboards/{dashboard}/widgets/{widget}/csv` answers the file, named `<widget>-<YYYY-MM-DD>.csv`; any other card answers 404. Numbers are plain, without separators, prefix or suffix, and dates read `YYYY-MM-DD`.
+
+The header names the columns the helper read: a trend reads `date,orders` for a count of orders, and a bar `status,total_cents` for a sum of `total_cents` by `status`. A result you build by hand reads `date,value` or `label,value`. A radar writes one row per axis and one column per dataset; a table writes its column keys, or `title,subtitle` for `MetricTableRow` rows.
+
 ## Value widgets
 
 A `ValueWidget` shows one number, the number for the period before it, and the percentage change. The helpers `count()`, `sum()`, `average()`, `min()` and `max()` read the selected range for you. They take the request, a model class (or a query builder), the column and, as an optional last argument, the date column:

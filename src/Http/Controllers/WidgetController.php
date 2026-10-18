@@ -2,8 +2,10 @@
 
 namespace Lathe\Http\Controllers;
 
+use Carbon\CarbonImmutable;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Response;
 use Lathe\Auth\ResourceAuthorization;
 use Lathe\Dashboards\DashboardRegistry;
 use Lathe\Http\Controllers\Resources\AuthorizesResources;
@@ -12,6 +14,7 @@ use Lathe\Lenses\Lens;
 use Lathe\Query\QueryContext;
 use Lathe\Query\ResourceQuery;
 use Lathe\Resources\Resource;
+use Lathe\Support\Timezone;
 use Lathe\Widgets\Widget;
 use Lathe\Widgets\WidgetList;
 
@@ -35,11 +38,41 @@ class WidgetController
 
     public function dashboardShow(LatheRequest $request, string $dashboard, string $widget): JsonResponse
     {
-        $range = $request->query('range');
-        // A range of the dashboard's picker maps onto each card's own; any other passes through.
-        $picked = is_string($range) && in_array($range, array_map(strval(...), array_keys($this->dashboards->forKey($dashboard)?->ranges() ?? [])), true);
+        return $this->value($request, $this->dashboardWidgets($request, $dashboard), $widget, owner: 'dashboard:'.$dashboard, range: $this->pickedRange($request, $dashboard));
+    }
 
-        return $this->value($request, $this->dashboardWidgets($request, $dashboard), $widget, owner: 'dashboard:'.$dashboard, range: $picked ? $range : null);
+    /**
+     * The request's range when the dashboard's picker offers it, which each card maps onto
+     * its own; null passes any other range through.
+     *
+     * @internal
+     */
+    protected function pickedRange(LatheRequest $request, string $dashboard): ?string
+    {
+        $range = $request->query('range');
+
+        return is_string($range) && in_array($range, array_map(strval(...), array_keys($this->dashboards->forKey($dashboard)?->ranges() ?? [])), true) ? $range : null;
+    }
+
+    /**
+     * The rows or series a chart or table card shows, as a CSV download. A card without
+     * a CSV answers 404.
+     */
+    public function dashboardCsv(LatheRequest $request, string $dashboard, string $widget): Response
+    {
+        $found = $this->dashboardWidgets($request, $dashboard)->find($widget);
+
+        abort_if($found === null || ! $found->requestsValue() || $found->isOnlyOnDetail(), 404);
+        abort_unless($found->authorize($request), 403);
+
+        $csv = $found->withCacheOwner('dashboard:'.$dashboard)->csv($request, $this->pickedRange($request, $dashboard));
+
+        abort_if($csv === null, 404);
+
+        return new Response($csv, 200, [
+            'Content-Type' => 'text/csv; charset=UTF-8',
+            'Content-Disposition' => 'attachment; filename="'.$found::uriKey().'-'.CarbonImmutable::now(app(Timezone::class)->forRequest($request))->toDateString().'.csv"',
+        ]);
     }
 
     public function resourceIndex(LatheRequest $request): JsonResponse

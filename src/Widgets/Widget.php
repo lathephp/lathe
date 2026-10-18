@@ -19,12 +19,14 @@ use Lathe\Attributes\Widget\RefreshWhenActionsRun;
 use Lathe\Attributes\Widget\RefreshWhenFiltersChange;
 use Lathe\Attributes\Widget\Width;
 use Lathe\Auth\FortifyConfig;
+use Lathe\Auth\ResourceAuthorization;
 use Lathe\Enums\CardWidth;
 use Lathe\Filters\Filter;
 use Lathe\Filters\FilterApplicator;
 use Lathe\Http\Requests\LatheRequest;
 use Lathe\Lathe;
 use Lathe\Resources\Resource;
+use Lathe\Resources\ResourceRegistry;
 use Lathe\Support\ConfigStore;
 use Lathe\Support\Timezone;
 use Lathe\Widgets\Concerns\RoundingPrecision;
@@ -88,6 +90,11 @@ abstract class Widget
     protected ?array $filters = null;
 
     protected ?Resource $filterHost = null;
+
+    protected ?string $link = null;
+
+    /** The internal key of a stored response: the model and column names its value came from. */
+    private const string SOURCE = '_source';
 
     public function __construct()
     {
@@ -299,10 +306,7 @@ abstract class Widget
     public function responseForRange(LatheRequest $request, int|string|null $range): array
     {
         $used = $this->rangeFor($range);
-        $query = $request->query->all();
-        unset($query['range']);
-
-        $response = $this->cachedResponse($request->duplicate($used === null ? $query : [...$query, 'range' => (string) $used]));
+        $response = $this->cachedResponse($this->requestForRange($request, $range));
 
         if ($used !== null && $range !== null && (string) $used !== (string) $range) {
             $response['fallbackRange'] = [
@@ -312,6 +316,49 @@ abstract class Widget
         }
 
         return $response;
+    }
+
+    /**
+     * The card's CSV on a dashboard showing $range, or for the request's own range when null;
+     * null when the card has none.
+     *
+     * @internal
+     */
+    public function csv(LatheRequest $request, int|string|null $range): ?string
+    {
+        if (! WidgetCsv::supports($this)) {
+            return null;
+        }
+
+        $response = $this->storedResponse($range === null ? $request : $this->requestForRange($request, $range));
+        $source = is_array($response[self::SOURCE] ?? null) ? $response[self::SOURCE] : [];
+
+        return WidgetCsv::from($this, $response['value'] ?? null, is_string($source['column'] ?? null) ? $source['column'] : 'value', is_string($source['group'] ?? null) ? $source['group'] : 'label');
+    }
+
+    /**
+     * The request with the range this card shows for a dashboard's range.
+     *
+     * @internal
+     */
+    protected function requestForRange(LatheRequest $request, int|string|null $range): LatheRequest
+    {
+        $used = $this->rangeFor($range);
+        $query = $request->query->all();
+        unset($query['range']);
+
+        return $request->duplicate($used === null ? $query : [...$query, 'range' => (string) $used]);
+    }
+
+    /**
+     * Where Open records goes, shown as given. Without one, a card whose aggregates all read
+     * one model links to that model's Resource index for a user who may list it.
+     */
+    public function link(string $url): static
+    {
+        $this->link = $url;
+
+        return $this;
     }
 
     public function width(CardWidth $width): static
@@ -455,6 +502,25 @@ abstract class Widget
      */
     public function cachedResponse(LatheRequest $request): array
     {
+        $response = $this->storedResponse($request);
+        $source = $response[self::SOURCE] ?? null;
+        unset($response[self::SOURCE]);
+
+        // The cache may be shared between users, so the link is checked per request.
+        $link = $this->link ?? (is_array($source) && is_string($source['model'] ?? null) ? $this->resourceLink($request, $source['model']) : null);
+
+        return $link === null ? $response : [...$response, 'link' => $link];
+    }
+
+    /**
+     * The response with what its value came from, from the cache while it holds one.
+     *
+     * @internal
+     *
+     * @return array<string, mixed>
+     */
+    protected function storedResponse(LatheRequest $request): array
+    {
         $ttl = $this->cacheFor() ?? app(ConfigStore::class)->integer('limits.metrics_ttl');
 
         if ($ttl === 0) {
@@ -462,6 +528,23 @@ abstract class Widget
         }
 
         return app(WidgetCache::class)->remember($this->cacheKey($request), $ttl, fn () => $this->freshResponse($request));
+    }
+
+    /**
+     * The panel index of the model's Resource, when this request's user may list it.
+     *
+     * @internal
+     */
+    protected function resourceLink(LatheRequest $request, string $model): ?string
+    {
+        $resource = app(ResourceRegistry::class)->forModel($model);
+        $authorization = app(ResourceAuthorization::class);
+
+        if ($resource === null || ! $authorization->canSee($request, $resource) || ! $authorization->allows($request->user(), $resource, 'viewAny')) {
+            return null;
+        }
+
+        return '/'.trim(rtrim(Lathe::path(), '/').'/resources/'.$resource::uriKey(), '/');
     }
 
     /**
@@ -474,8 +557,27 @@ abstract class Widget
         $this->aggregates = [];
         $response = (new WidgetPresenter($this))->toResponse($request);
         $tables = array_merge(...array_map(fn (AggregateQuery $query) => $query->tables(), $this->aggregates));
+        $response[self::SOURCE] = $this->source();
 
         return [$response, array_values(array_unique([...$tables, ...$this->cacheTags]))];
+    }
+
+    /**
+     * What the value read: its model when every aggregate read the same one, and the column
+     * names of the last aggregate, for the CSV header.
+     *
+     * @return array{model: class-string<Model>|null, column: string, group: string}
+     */
+    private function source(): array
+    {
+        $models = array_values(array_unique(array_map(fn (AggregateQuery $query) => $query->model(), $this->aggregates)));
+        $last = $this->aggregates === [] ? null : $this->aggregates[array_key_last($this->aggregates)];
+
+        return [
+            'model' => count($models) === 1 ? $models[0] : null,
+            'column' => $last?->columnName() ?? 'value',
+            'group' => $last?->groupName() ?? 'label',
+        ];
     }
 
     /**
@@ -528,6 +630,7 @@ abstract class Widget
             'onlyOnDetail' => $this->onlyOnDetail,
             'requestsValue' => $this->requestsValue(),
             'ranges' => $this->rangeOptions(),
+            'csv' => WidgetCsv::supports($this),
             ...($this->tooltip === null ? [] : ['tooltip' => $this->tooltip->jsonSerialize()]),
             ...$this->meta,
         ];

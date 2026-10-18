@@ -39,7 +39,7 @@ abstract class RadarWidget extends Widget
      */
     protected function count(LatheRequest $request, Builder|Model|string $model, Expression|string $groupBy, Expression|string|null $column = null): RadarResult
     {
-        return $this->fromGroups(AggregateQuery::for($model)->count($column)->groupBy($groupBy));
+        return $this->fromGroups($this->aggregateQuery($model)->count($column)->groupBy($groupBy));
     }
 
     /**
@@ -47,7 +47,7 @@ abstract class RadarWidget extends Widget
      */
     protected function sum(LatheRequest $request, Builder|Model|string $model, Expression|string $column, Expression|string $groupBy): RadarResult
     {
-        return $this->fromGroups(AggregateQuery::for($model)->sum($column)->groupBy($groupBy));
+        return $this->fromGroups($this->aggregateQuery($model)->sum($column)->groupBy($groupBy));
     }
 
     /**
@@ -55,7 +55,7 @@ abstract class RadarWidget extends Widget
      */
     protected function average(LatheRequest $request, Builder|Model|string $model, Expression|string $column, Expression|string $groupBy): RadarResult
     {
-        return $this->fromGroups(AggregateQuery::for($model)->average($column)->groupBy($groupBy));
+        return $this->fromGroups($this->aggregateQuery($model)->average($column)->groupBy($groupBy));
     }
 
     /**
@@ -63,7 +63,7 @@ abstract class RadarWidget extends Widget
      */
     protected function max(LatheRequest $request, Builder|Model|string $model, Expression|string $column, Expression|string $groupBy): RadarResult
     {
-        return $this->fromGroups(AggregateQuery::for($model)->max($column)->groupBy($groupBy));
+        return $this->fromGroups($this->aggregateQuery($model)->max($column)->groupBy($groupBy));
     }
 
     /**
@@ -71,7 +71,7 @@ abstract class RadarWidget extends Widget
      */
     protected function min(LatheRequest $request, Builder|Model|string $model, Expression|string $column, Expression|string $groupBy): RadarResult
     {
-        return $this->fromGroups(AggregateQuery::for($model)->min($column)->groupBy($groupBy));
+        return $this->fromGroups($this->aggregateQuery($model)->min($column)->groupBy($groupBy));
     }
 
     /**

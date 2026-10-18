@@ -2593,6 +2593,7 @@ Lathe\Http\Controllers\Uploads\UploadController::show(Lathe\Http\Requests\LatheR
 Lathe\Http\Controllers\WidgetController::Lathe\Auth\ResourceAuthorization $authorization  [protected]
 Lathe\Http\Controllers\WidgetController::Lathe\Dashboards\DashboardRegistry $dashboards  [protected]
 Lathe\Http\Controllers\WidgetController::__construct(Lathe\Dashboards\DashboardRegistry $dashboards, Lathe\Auth\ResourceAuthorization $authorization)
+Lathe\Http\Controllers\WidgetController::dashboardCsv(Lathe\Http\Requests\LatheRequest $request, string $dashboard, string $widget): Illuminate\Http\Response
 Lathe\Http\Controllers\WidgetController::dashboardIndex(Lathe\Http\Requests\LatheRequest $request, string $dashboard): Illuminate\Http\JsonResponse
 Lathe\Http\Controllers\WidgetController::dashboardShow(Lathe\Http\Requests\LatheRequest $request, string $dashboard, string $widget): Illuminate\Http\JsonResponse
 Lathe\Http\Controllers\WidgetController::dashboardWidgets(Lathe\Http\Requests\LatheRequest $request, string $uriKey): Lathe\Widgets\WidgetList  [protected]
@@ -4524,6 +4525,7 @@ Lathe\Widgets\Widget::?Lathe\Widgets\Tooltip $tooltip  [protected]
 Lathe\Widgets\Widget::?array $filters  [protected]
 Lathe\Widgets\Widget::?string $component  [protected]
 Lathe\Widgets\Widget::?string $helpText  [protected]
+Lathe\Widgets\Widget::?string $link  [protected]
 Lathe\Widgets\Widget::?string $resourceScopeModel  [protected]
 Lathe\Widgets\Widget::Lathe\Enums\CardWidth $width  [protected]
 Lathe\Widgets\Widget::__construct()
@@ -4562,6 +4564,7 @@ Lathe\Widgets\Widget::int $refreshInterval  [protected]
 Lathe\Widgets\Widget::int $roundingMode  [protected]
 Lathe\Widgets\Widget::int $roundingPrecision  [protected]
 Lathe\Widgets\Widget::isOnlyOnDetail(): bool
+Lathe\Widgets\Widget::link(string $url): static
 Lathe\Widgets\Widget::make(): static  [static]
 Lathe\Widgets\Widget::name(): string
 Lathe\Widgets\Widget::onlyOnDetail(): static
