@@ -19,20 +19,24 @@ interface ModalProps {
   onClose: () => void;
   children: ReactNode;
   className?: string;
+  /** While work runs, Escape and the scrim leave the modal open. */
+  locked?: boolean;
 }
 
 /**
- * A modal on the panel's stack: the top one traps focus and closes on Escape, focus returns
- * to the element that opened it, shortcuts pause and the page stops scrolling while any is open.
+ * A modal on the panel's stack: the top one traps focus and closes on Escape unless locked, focus
+ * returns to the element that opened it, shortcuts pause and the page stops scrolling while any is open.
  */
-export function Modal({ labelledBy, onClose, children, className }: ModalProps) {
+export function Modal({ labelledBy, onClose, children, className, locked = false }: ModalProps) {
   const id = useId();
   const panel = useRef<HTMLDivElement>(null);
   const close = useRef(onClose);
+  const held = useRef(locked);
 
   useEffect(() => {
     close.current = onClose;
-  }, [onClose]);
+    held.current = locked;
+  }, [onClose, locked]);
 
   useEffect(() => {
     if (stack.length >= MAX_MODALS) {
@@ -52,7 +56,12 @@ export function Modal({ labelledBy, onClose, children, className }: ModalProps) 
         return;
       }
 
+      // A popover inside the modal that handled Escape has closed itself; the modal stays.
       if (event.key === 'Escape') {
+        if (event.defaultPrevented || held.current) {
+          return;
+        }
+
         event.preventDefault();
         close.current();
       } else if (event.key === 'Tab' && panel.current !== null) {
@@ -89,7 +98,15 @@ export function Modal({ labelledBy, onClose, children, className }: ModalProps) 
 
   return (
     <div className="fixed inset-0 z-50 flex items-start justify-center p-4 pt-[15vh]">
-      <div aria-hidden="true" className="absolute inset-0 bg-scrim" onClick={onClose} />
+      <div
+        aria-hidden="true"
+        className="absolute inset-0 bg-scrim"
+        onClick={() => {
+          if (!locked) {
+            onClose();
+          }
+        }}
+      />
       <div
         ref={panel}
         role="dialog"

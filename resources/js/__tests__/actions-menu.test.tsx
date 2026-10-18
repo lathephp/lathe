@@ -274,7 +274,8 @@ describe('the action modal', () => {
     tick(1);
     fireEvent.click(within(await openMenu()).getByRole('menuitem', { name: 'Merge Tags' }));
     fireEvent.mouseDown(await within(await screen.findByRole('dialog')).findByRole('combobox'), { button: 0 });
-    await screen.findByRole('option', { name: 'sale' });
+    // In a browser the open list takes the focus, as here.
+    (await screen.findByRole('option', { name: 'sale' })).focus();
 
     fireEvent.keyDown(document.activeElement ?? document.body, { key: 'Escape' });
 
@@ -282,6 +283,31 @@ describe('the action modal', () => {
       expect(screen.queryByRole('listbox')).toBeNull();
     });
     expect(screen.getByRole('dialog', { name: 'Merge Tags' })).toBeTruthy();
+  });
+
+  it('closes only the searchable Target picker on Escape in its search box', async () => {
+    vi.spyOn(globalThis, 'fetch')
+      .mockResolvedValueOnce(
+        json({
+          fields: [
+            { key: 'target', attribute: 'target', label: 'Target', component: 'belongs-to-field', resource: 'tags', searchable: true, value: null, stacked: false, compact: false, help: null, required: true },
+          ],
+          confirmText: null,
+        }),
+      )
+      .mockResolvedValue(json({ items: [{ value: 1, display: 'sale' }], has_more: false }));
+    renderOrders([meta('merge-tags', 'Merge Tags', { size: 'medium' })], rows(1, ['merge-tags']));
+    tick(1);
+    fireEvent.click(within(await openMenu()).getByRole('menuitem', { name: 'Merge Tags' }));
+    const dialog = await screen.findByRole('dialog');
+    fireEvent.click(await within(dialog).findByRole('button', { name: 'Target' }));
+    await within(dialog).findByRole('listbox');
+    expect(document.activeElement).toBe(within(dialog).getByRole('searchbox'));
+
+    fireEvent.keyDown(document.activeElement ?? document.body, { key: 'Escape' });
+
+    expect(within(dialog).queryByRole('listbox')).toBeNull();
+    expect(screen.getByRole('dialog', { name: 'Merge Tags' })).toBe(dialog);
   });
 
   it('titles a form by the action name, 520 px wide', async () => {

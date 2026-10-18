@@ -99,6 +99,7 @@ export function ActionModal({ base, action, count, resourceId, onClose, onRun }:
     <Modal
       labelledBy={titleId}
       onClose={onClose}
+      locked={busy}
       className={cn(
         'relative w-full overflow-y-auto rounded-lg border border-border bg-background p-4 text-foreground shadow-lg',
         action.style === 'fullscreen' ? 'h-[85vh] max-w-none' : (sizes[action.size] ?? sizes.medium),
