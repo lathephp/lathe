@@ -30,6 +30,7 @@ export function UserMenu({ user, items, logoutPath, collapsed }: UserMenuProps) 
   const { __ } = useTranslation();
   const [open, setOpen] = useState(false);
   const root = useRef<HTMLDivElement>(null);
+  const trigger = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
     if (!open) {
@@ -41,10 +42,19 @@ export function UserMenu({ user, items, logoutPath, collapsed }: UserMenuProps) 
         setOpen(false);
       }
     };
+    // Escape closes the menu wherever the focus is, the trigger included, and hands it back there.
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        setOpen(false);
+        trigger.current?.focus();
+      }
+    };
     document.addEventListener('pointerdown', onPointerDown);
+    document.addEventListener('keydown', onKeyDown);
 
     return () => {
       document.removeEventListener('pointerdown', onPointerDown);
+      document.removeEventListener('keydown', onKeyDown);
     };
   }, [open]);
 
@@ -57,11 +67,6 @@ export function UserMenu({ user, items, logoutPath, collapsed }: UserMenuProps) 
           aria-label={__('User menu')}
           tabIndex={-1}
           className="absolute start-2 bottom-full z-10 mb-2 w-56 rounded-lg border border-border bg-background p-1 shadow-lg"
-          onKeyDown={(event) => {
-            if (event.key === 'Escape') {
-              setOpen(false);
-            }
-          }}
         >
           <div role="none" className="px-2 py-1.5 text-sm">
             <p className="font-medium">{user.name}</p>
@@ -100,6 +105,7 @@ export function UserMenu({ user, items, logoutPath, collapsed }: UserMenuProps) 
         </div>
       )}
       <button
+        ref={trigger}
         type="button"
         aria-haspopup="menu"
         aria-expanded={open}

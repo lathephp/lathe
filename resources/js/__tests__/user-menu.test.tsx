@@ -33,6 +33,18 @@ describe('user menu', () => {
     expect(trigger.textContent).toContain('ada@example.com');
   });
 
+  it('closes on Escape pressed on its trigger, where the focus stays after a click', () => {
+    renderPage('Dashboard', dashboard);
+    openMenu();
+    const trigger = within(screen.getByRole('complementary')).getByRole('button', { name: /Ada Lovelace/ });
+
+    trigger.focus();
+    fireEvent.keyDown(trigger, { key: 'Escape' });
+
+    expect(screen.queryByRole('menu', { name: 'User menu' })).toBeNull();
+    expect(document.activeElement).toBe(trigger);
+  });
+
   it('closes on Escape and on a click outside it', () => {
     renderPage('Dashboard', dashboard);
 
