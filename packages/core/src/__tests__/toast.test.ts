@@ -37,4 +37,18 @@ describe('toast', () => {
 
     expect(__panel.toasts.get().map((t) => t.timeout)).toEqual([10_000]);
   });
+
+  it('updates a toast in place by its id', () => {
+    toast.info('Saved');
+    const id = __panel.putToast({ type: 'info', message: 'Exporting 50 of 100', timeout: 0 });
+    toast.info('Deleted');
+    __panel.putToast({ type: 'success', message: 'Your export is ready for download.', body: 'Orders', timeout: 5_000 }, id);
+
+    expect(__panel.toasts.get().map((t) => [t.message, t.body, t.timeout])).toEqual([
+      ['Saved', undefined, 5_000],
+      ['Your export is ready for download.', 'Orders', 5_000],
+      ['Deleted', undefined, 5_000],
+    ]);
+    expect(__panel.toasts.get()[1]?.id).toBe(id);
+  });
 });

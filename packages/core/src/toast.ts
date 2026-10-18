@@ -19,10 +19,14 @@ export interface ToastMessage {
   id: number;
   type: ToastType;
   message: string;
+  /** A second line under the message. */
+  body?: string;
   action?: ToastAction;
   links?: ToastLink[];
   /** How long it stays, in milliseconds; 0 keeps it until it is dismissed. */
   timeout: number;
+  /** False while a task runs: no Dismiss button, and the action leaves the toast open. */
+  dismissible?: boolean;
 }
 
 export interface ToastOptions {
@@ -43,17 +47,24 @@ const lifetime = 5_000;
 /** The toaster shows three and folds the rest into "N more"; past this many the oldest goes. */
 const kept = 20;
 
+/** Adds a toast, or replaces the one with this id in place, and returns its id. */
+export function putToast(toast: Omit<ToastMessage, 'id'>, id = nextId++): number {
+  const next = { ...toast, id };
+  const current = toasts.get();
+
+  toasts.set(current.some((other) => other.id === id) ? current.map((other) => (other.id === id ? next : other)) : [...current, next].slice(-kept));
+
+  return id;
+}
+
 function show(type: ToastType, message: string, options: ToastOptions = {}): void {
-  const id = nextId++;
-  const next: ToastMessage = {
-    id,
+  putToast({
     type,
     message,
     ...(options.action === undefined ? {} : { action: options.action }),
     ...(options.links === undefined ? {} : { links: options.links }),
     timeout: options.duration ?? (type === 'error' ? 0 : lifetime),
-  };
-  toasts.set([...toasts.get(), next].slice(-kept));
+  });
 }
 
 export function dismissToast(id: number): void {
