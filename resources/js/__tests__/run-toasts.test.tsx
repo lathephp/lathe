@@ -111,6 +111,19 @@ describe('run toasts', () => {
     expect(screen.getByRole('link', { name: 'View run' }).getAttribute('href')).toBe('/lathe/runs/export/4');
   });
 
+  it('says an export started until it knows how many rows it has', async () => {
+    vi.spyOn(globalThis, 'fetch').mockImplementation(() => Promise.resolve(json({ status: 'waiting', total_rows: 0, processed_rows: 0 })));
+    renderRuns();
+
+    act(() => {
+      window.dispatchEvent(new CustomEvent('lathe:export-started', { detail: { id: 4 } }));
+    });
+    await poll();
+
+    expect(within(stack()).getByText('Export started.')).toBeTruthy();
+    expect(screen.queryByText('Exporting 0 of 0')).toBeNull();
+  });
+
   it('keeps a running export in the toast stack and updates its one toast in place', async () => {
     let status: Record<string, unknown> = { status: 'running', total_rows: 100, processed_rows: 50 };
     vi.spyOn(globalThis, 'fetch').mockImplementation(() => Promise.resolve(json(status)));

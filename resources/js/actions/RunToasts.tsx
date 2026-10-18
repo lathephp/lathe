@@ -167,7 +167,8 @@ export function RunToasts() {
         return { message: __('Your export failed.') };
       }
 
-      return { message: status === null ? __('Export started.') : __('Exporting :n of :total', { n: formatNumber(status.processed_rows), total: formatNumber(status.total_rows) }) };
+      // Until the job counts its rows, the run has only started.
+      return { message: status === null || status.total_rows === 0 ? __('Export started.') : __('Exporting :n of :total', { n: formatNumber(status.processed_rows), total: formatNumber(status.total_rows) }) };
     }
 
     const status = run.status;
@@ -198,7 +199,7 @@ export function RunToasts() {
       return { message: __('Your import failed.') };
     }
 
-    return { message: status === null ? __('Import started.') : __('Importing :n of :total', { n: formatNumber(status.processed_rows), total: formatNumber(status.total_rows) }) };
+    return { message: status === null || status.total_rows === 0 ? __('Import started.') : __('Importing :n of :total', { n: formatNumber(status.processed_rows), total: formatNumber(status.total_rows) }) };
   }
 
   // One toast per run, keyed by run and updated in place; it stays while the run runs and when it needs a look.

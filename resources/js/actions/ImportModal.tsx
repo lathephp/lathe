@@ -170,10 +170,7 @@ export function ImportModal({ base, action, selection, onClose }: ImportModalPro
     const run = await step({ import_step: 'import', import_id: detected.import_id, column_map: map });
 
     if (run?.import_run !== undefined) {
-      if (run.result.message !== null) {
-        toast.success(run.result.message);
-      }
-
+      // The run's own toast says the import started.
       window.dispatchEvent(new CustomEvent('lathe:import-started', { detail: { id: run.import_run.id } }));
       onClose();
     }

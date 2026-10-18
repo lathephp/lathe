@@ -482,6 +482,8 @@ describe('the action modal', () => {
     });
     window.removeEventListener('lathe:export-started', started);
     expect((started.mock.calls[0]?.[0] as CustomEvent).detail).toEqual({ id: 7 });
+    // The run's own toast says it started; the result's message would say it twice.
+    expect(__panel.toasts.get().filter((toast) => toast.message === 'Export started.' && toast.type === 'success')).toEqual([]);
   });
 
   it('runs an action without confirmation at once and toasts Retry on a server error', async () => {

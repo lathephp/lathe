@@ -48,7 +48,10 @@ export function useActionRunner({ base, onDone }: ActionRunnerOptions): { start:
       const run = await runAction(`${base}/action`, action.uriKey, selection, fields);
       setRunning(null);
       emit('actions:ran', { action: action.uriKey });
-      applyActionResult(run.result, {
+      // A queued run's own toast says it started, so its message would say it twice.
+      const queued = run.bulk_run !== undefined || 'export_run' in run;
+
+      applyActionResult(queued ? { ...run.result, message: null } : run.result, {
         openModal: (component, data) => {
           setResponse({ component, data });
         },
