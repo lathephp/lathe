@@ -12,7 +12,8 @@ function bannedWord(): string
 
 function runWordCheck(string $repo): ProcessResult
 {
-    return Process::path($repo)->run(['bash', dirname(__DIR__, 3).'/scripts/check-word.sh']);
+    // The check packs the archives and takes about 20 s on the tree; a parallel suite can triple that.
+    return Process::path($repo)->timeout(180)->run(['bash', dirname(__DIR__, 3).'/scripts/check-word.sh']);
 }
 
 function plantRepo(callable $plant): string
