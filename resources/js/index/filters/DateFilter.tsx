@@ -1,4 +1,6 @@
 import { useTranslation } from '@lathephp/core';
+import { Suspense } from 'react';
+import { DateText } from '../../fields/date/lazy';
 import type { FilterControlProps } from '../types';
 import { FilterFieldset, fieldClass } from './FilterFieldset';
 
@@ -12,16 +14,17 @@ export function DateFilter({ filter, value, onChange }: FilterControlProps) {
     <FilterFieldset legend={filter.name}>
       <div className="flex gap-2">
         {(['from', 'to'] as const).map((side) => (
-          <input
-            key={side}
-            type="date"
-            className={fieldClass}
-            aria-label={labels[side]}
-            value={sides[side] ?? ''}
-            onChange={(event) => {
-              onChange({ ...sides, [side]: event.target.value });
-            }}
-          />
+          <Suspense key={side} fallback={<div className="h-9 flex-1" aria-hidden="true" />}>
+            <DateText
+              time={false}
+              className={fieldClass}
+              label={labels[side]}
+              value={sides[side] ?? ''}
+              onChange={(day) => {
+                onChange({ ...sides, [side]: day });
+              }}
+            />
+          </Suspense>
         ))}
       </div>
     </FilterFieldset>

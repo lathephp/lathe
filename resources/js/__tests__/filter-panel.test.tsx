@@ -143,6 +143,25 @@ describe('filter panel', () => {
   });
 });
 
+describe('date filter', () => {
+  const placed: AvailableFilter = { ...status, key: 'placed', name: 'Placed', component: 'date-filter', options: null };
+
+  it('takes a typed day in each side and draws no native date input', () => {
+    const visit = mockVisit();
+    const { container } = renderIndex({ available: [placed] });
+
+    fireEvent.click(screen.getByRole('button', { name: 'Filters' }));
+    expect(container.querySelector('input[type=date]')).toBeNull();
+
+    const from = screen.getByLabelText('From');
+    fireEvent.change(from, { target: { value: 'Oct 17, 2026' } });
+    fireEvent.blur(from);
+    fireEvent.click(screen.getByRole('button', { name: 'Apply' }));
+
+    expect(visitData(visit)).toEqual({ filter: { placed: { from: '2026-10-17' } } });
+  });
+});
+
 describe('remote picker', () => {
   it('pages the options from the server on More and lists every label', async () => {
     const pages: Record<string, unknown> = {

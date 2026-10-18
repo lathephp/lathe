@@ -1,6 +1,7 @@
 import { formatDate, formatDateTime } from '@lathephp/core';
 import { DetailFallbackField, FallbackField, registerField, type DetailFieldProps, type IndexFieldProps } from '../registry';
-import { DateInput, DateTimeInput } from '../date/DateInput';
+import { DateInput, DateTimeInput } from '../date/lazy';
+import { deferred } from './deferred';
 
 /** A string that holds a Y-m-d day, which is the only thing formatDate can draw. */
 function isDay(value: unknown): value is string {
@@ -30,6 +31,6 @@ function DetailDateTime({ field }: DetailFieldProps) {
 
 /** Register the renderers of the date and dateTime fields. */
 export function registerDateFields(): void {
-  registerField('date-field', { index: IndexDate, detail: DetailDate, form: DateInput });
-  registerField('date-time-field', { index: IndexDateTime, detail: DetailDateTime, form: DateTimeInput });
+  registerField('date-field', { index: IndexDate, detail: DetailDate, form: deferred(DateInput) });
+  registerField('date-time-field', { index: IndexDateTime, detail: DetailDateTime, form: deferred(DateTimeInput) });
 }
