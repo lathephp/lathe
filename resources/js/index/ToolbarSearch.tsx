@@ -1,4 +1,5 @@
 import { addShortcut, useTranslation } from '@lathephp/core';
+import { Search } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 
 interface ToolbarSearchProps {
@@ -43,23 +44,27 @@ export function ToolbarSearch({ label, value, debounce, onSearch }: ToolbarSearc
     [],
   );
 
+  // Open at 260 px; on a narrow screen only its icon shows until it has focus or text.
   return (
-    <input
-      ref={input}
-      type="search"
-      value={term}
-      placeholder={__('Search')}
-      aria-label={__('Search :resource', { resource: label.toLowerCase() })}
-      aria-keyshortcuts="/"
-      className="h-9 w-full max-w-xs rounded-md border border-border bg-background px-3 text-sm outline-none focus-visible:ring-2 focus-visible:ring-ring"
-      onChange={(event) => {
-        const next = event.target.value;
-        setTerm(next);
-        clearTimeout(timer.current);
-        timer.current = setTimeout(() => {
-          onSearch(next.trim());
-        }, debounce * 1000);
-      }}
-    />
+    <span className="relative">
+      <Search aria-hidden="true" className="pointer-events-none absolute start-2.5 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+      <input
+        ref={input}
+        type="search"
+        value={term}
+        placeholder={__('Search')}
+        aria-label={__('Search :resource', { resource: label.toLowerCase() })}
+        aria-keyshortcuts="/"
+        className="h-9 w-[260px] rounded-md border border-border bg-background ps-8 pe-3 text-sm outline-none focus-visible:ring-2 focus-visible:ring-ring max-md:w-9 max-md:placeholder:text-transparent max-md:focus:w-44 max-md:[&:not(:placeholder-shown)]:w-44"
+        onChange={(event) => {
+          const next = event.target.value;
+          setTerm(next);
+          clearTimeout(timer.current);
+          timer.current = setTimeout(() => {
+            onSearch(next.trim());
+          }, debounce * 1000);
+        }}
+      />
+    </span>
   );
 }

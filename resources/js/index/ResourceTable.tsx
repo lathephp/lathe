@@ -315,7 +315,7 @@ export function ResourceTable({ resource, table, state, loading, selection, sort
                   {sortable ? (
                     <button
                       type="button"
-                      className="-mx-1 inline-flex items-center gap-1 rounded px-1 font-medium outline-none hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring"
+                      className="group/sort -mx-1 inline-flex items-center gap-1 rounded px-1 font-medium outline-none hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring"
                       onClick={(event) => {
                         onSort(nextSort(sort, column.sortKey, event.shiftKey));
                       }}
@@ -323,6 +323,8 @@ export function ResourceTable({ resource, table, state, loading, selection, sort
                       {column.label}
                       {sorted === 'ascending' && <ArrowUp aria-hidden="true" className="size-3.5" />}
                       {sorted === 'descending' && <ArrowDown aria-hidden="true" className="size-3.5" />}
+                      {/* An unsorted column shows its arrow only under the pointer. */}
+                      {sorted === 'none' && <ArrowUp aria-hidden="true" className="size-3.5 opacity-0 group-hover/sort:opacity-50 group-focus-visible/sort:opacity-50" />}
                     </button>
                   ) : (
                     column.label

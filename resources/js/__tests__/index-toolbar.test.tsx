@@ -68,6 +68,14 @@ function header(name: string): HTMLElement {
 }
 
 describe('toolbar search', () => {
+  it('opens the box at 260 px on a wide screen and to its icon on a narrow one', () => {
+    renderOrders();
+    const box = screen.getByRole('searchbox');
+
+    expect(box.className).toContain('w-[260px]');
+    expect(box.className).toContain('max-md:w-9');
+  });
+
   it('waits 500 ms after the last keystroke, then visits once with q trimmed', () => {
     vi.useFakeTimers();
     const visit = mockVisit();
@@ -161,6 +169,15 @@ describe('search box and the URL', () => {
 });
 
 describe('sort headers', () => {
+  it('shows an unsorted column\'s arrow only under the pointer, and the sorted one\'s always', () => {
+    renderOrders({ url: '/lathe/resources/orders?sort=number' });
+    const arrow = (name: string) => header(name).querySelector('svg')?.getAttribute('class') ?? '';
+
+    expect(arrow('Total')).toContain('opacity-0');
+    expect(arrow('Total')).toContain('group-hover/sort:opacity-50');
+    expect(arrow('Number')).not.toContain('opacity-0');
+  });
+
   it('sorts Total ascending on the first click and descending on the second', () => {
     const visit = mockVisit();
     const { unmount } = renderOrders();

@@ -1,4 +1,4 @@
-import { usePage } from '@inertiajs/react';
+import { Link, usePage } from '@inertiajs/react';
 import { formatNumber, useTranslation } from '@lathephp/core';
 import { Ellipsis, GripVertical, Plus } from 'lucide-react';
 import { Suspense, useId, useState, type KeyboardEvent } from 'react';
@@ -7,6 +7,7 @@ import { NavIcon } from '../components/NavIcon';
 import { cn } from '../lib/cn';
 import { DeleteTabDialog, RenameTabDialog, SaveTabDialog } from './lazy';
 import type { BadgeType, IndexProps, SavedTab, TabCount } from './types';
+import type { SharedProps } from '../types';
 import type { IndexUrlState } from './useIndexState';
 import { useSavedTabs } from './useSavedTabs';
 
@@ -72,7 +73,7 @@ const tabClass = (current: boolean) =>
 /** The developer tabs, then the user's saved tabs, in one strip above the toolbar. */
 export function TabBar({ resource, state, visit }: TabBarProps) {
   const { __ } = useTranslation();
-  const { tabs, tabCounts } = usePage<Pick<IndexProps, 'tabs' | 'tabCounts'>>().props;
+  const { tabs, tabCounts, lens, lenses = [], basePath } = usePage<Pick<IndexProps, 'tabs' | 'tabCounts' | 'lens' | 'lenses'> & SharedProps>().props;
   const id = useId();
   const saved = useSavedTabs(resource.uriKey, tabs?.saved ?? [], tabs?.activeSaved ?? null, visit);
   const [menu, setMenu] = useState<number | null>(null);
@@ -80,12 +81,15 @@ export function TabBar({ resource, state, visit }: TabBarProps) {
   const [dragged, setDragged] = useState<number | null>(null);
   const [announcement, setAnnouncement] = useState('');
 
-  if (tabs === undefined || (tabs.items.length === 0 && saved.list.length === 0 && !resource.definition.savedTabs)) {
+  const items = tabs?.items ?? [];
+
+  if (items.length === 0 && saved.list.length === 0 && !resource.definition.savedTabs && lenses.length === 0) {
     return null;
   }
 
-  const activeSaved = tabs.activeSaved ?? null;
-  const active = activeSaved === null ? (tabs.active ?? tabs.items[0]?.key) : null;
+  const activeSaved = tabs?.activeSaved ?? null;
+  // On a lens no developer tab is current: the lens's own tab is.
+  const active = activeSaved === null && lens == null ? (tabs?.active ?? items[0]?.key) : null;
   const ids = saved.list.map((tab) => tab.id);
 
   function move(tab: SavedTab, position: number) {
@@ -118,7 +122,7 @@ export function TabBar({ resource, state, visit }: TabBarProps) {
     <div>
       <nav aria-label={__('Tabs')} className={tabBand}>
         <ul className="flex flex-wrap items-center gap-1">
-          {tabs.items.map((tab, index) => (
+          {items.map((tab, index) => (
             <li key={tab.key}>
               <button
                 type="button"
@@ -247,6 +251,19 @@ export function TabBar({ resource, state, visit }: TabBarProps) {
                   </Button>
                 </span>
               )}
+            </li>
+          ))}
+          {/* The lenses sit beside the views, each marked with the lens icon. */}
+          {lenses.map((item) => (
+            <li key={item.uriKey}>
+              <Link
+                href={`${basePath}/resources/${resource.uriKey}/lens/${item.uriKey}`}
+                aria-current={item.uriKey === lens?.uriKey ? 'page' : undefined}
+                className={tabClass(item.uriKey === lens?.uriKey)}
+              >
+                <NavIcon name="Scan" />
+                {item.name}
+              </Link>
             </li>
           ))}
         </ul>

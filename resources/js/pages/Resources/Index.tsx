@@ -34,7 +34,7 @@ export default function Index(props: IndexPageProps | { title: string; skeleton?
   return props.table === undefined ? <IndexSkeleton title={props.title} hint={props.skeleton} /> : <IndexPage {...props} />;
 }
 
-function IndexPage({ resource, table, state, count, error, lens, lenses, actions, widgets = [] }: IndexPageProps) {
+function IndexPage({ resource, table, state, count, error, lens, actions, widgets = [] }: IndexPageProps) {
   const { basePath } = usePage<SharedProps>().props;
   const index = useIndexState({ perPage: resource.perPageOptions[0] ?? state.perPage });
   const filtered = index.state.q !== undefined || index.state.filter !== undefined;
@@ -106,7 +106,6 @@ function IndexPage({ resource, table, state, count, error, lens, lenses, actions
         <IndexToolbar
           resource={resource}
           lens={lens}
-          lenses={lenses}
           q={index.state.q}
           visit={visit}
           polling={polling !== null && showPollingToggle ? pollingChoice : null}

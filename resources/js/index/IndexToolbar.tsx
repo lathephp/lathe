@@ -5,7 +5,6 @@ import { Button } from '../components/ui/Button';
 import { Filters } from './Filters';
 import { GroupMenu } from './GroupMenu';
 import { countText } from './IndexFooter';
-import { LensSelector } from './LensSelector';
 import { PollingToggle } from './PollingToggle';
 import type { Count, IndexProps } from './types';
 import { ToolbarSearch } from './ToolbarSearch';
@@ -32,7 +31,7 @@ export function IndexHeader({ resource, lens }: Pick<IndexProps, 'resource' | 'l
   );
 }
 
-interface IndexToolbarProps extends Pick<IndexProps, 'resource' | 'lens' | 'lenses'> {
+interface IndexToolbarProps extends Pick<IndexProps, 'resource' | 'lens'> {
   q: string | undefined;
   visit: (changes: IndexUrlState) => void;
   /** Null when the Resource shows no polling toggle. */
@@ -45,7 +44,7 @@ interface IndexToolbarProps extends Pick<IndexProps, 'resource' | 'lens' | 'lens
   actions: ReactNode;
 }
 
-export function IndexToolbar({ resource, lens, lenses, q, visit, polling, selection, count, hasMorePages, actions }: IndexToolbarProps) {
+export function IndexToolbar({ resource, lens, q, visit, polling, selection, count, hasMorePages, actions }: IndexToolbarProps) {
   const { __ } = useTranslation();
   const { basePath } = usePage<SharedProps>().props;
   const resourcePath = `${basePath}/resources/${resource.uriKey}`;
@@ -85,9 +84,6 @@ export function IndexToolbar({ resource, lens, lenses, q, visit, polling, select
         </div>
       ) : (
         <div className="flex flex-wrap items-center gap-3">
-          {lenses !== undefined && lenses.length > 0 && (
-            <LensSelector resourcePath={resourcePath} label={resource.label} lens={lens ?? null} lenses={lenses} />
-          )}
           {resource.searchable && (
             <ToolbarSearch
               label={resource.label}
