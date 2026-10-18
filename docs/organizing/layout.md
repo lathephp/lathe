@@ -308,6 +308,21 @@ The panel applies the choice before the first paint, so a reload does not flash.
 
 The config file lists all 40 tokens. They are `background`, `foreground`, `card`, `popover`, `primary`, `secondary`, `muted`, `accent`, `destructive`, `success`, `warning` and `info` (each with a `-foreground` partner), `border`, `input`, `ring`, `link`, `link-hover`, `chart-1` to `chart-5`, and the `sidebar` tokens. Charts and widgets use the `chart-*` tokens. A value that is not a colour, or an unknown token, fails `php artisan lathe:doctor`.
 
+With no colours set, the panel wears Lathe's copper theme: warm greys, a copper primary button and copper marks, in light and dark. Every text colour reads at 4.5:1 on its ground, and every mark at 3:1.
+
+Beside the 40, the panel defines these tokens, which your CSS can read and override:
+
+- `brand`: copper for marks that carry no text, such as the active menu bar and `chart-1`. Text on a copper fill uses `primary`.
+- `focus`: the focus ring.
+- `primary-subtle`, `success-subtle`, `warning-subtle`, `info-subtle` and `destructive-subtle`, each with a `-foreground` partner: the quiet fills of badges and banners, with their text.
+- `skeleton`: the fill of loading placeholders.
+- `scrim`: the shade behind a dialog or the phone menu.
+- `chart-other`: the "Other" slice of a chart.
+- `sidebar-hover`: a menu item under the pointer.
+- `shadow-xs`, `shadow-sm`, `shadow-md` and `shadow-lg`: the shadows of buttons, cards, menus and dialogs.
+
+Each colour token is also a utility colour, such as `bg-success-subtle` or `text-brand`.
+
 `theme.font` swaps the typeface. The default is Inter, which the package carries, so the browser fetches nothing from another site. To use your own font, name the family and list woff2 files under your `public` folder:
 
 ```php

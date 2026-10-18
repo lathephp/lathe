@@ -25,8 +25,15 @@ for (const [mode, t] of Object.entries(modes(css))) {
     const base = name.replace(/-foreground$/, '');
     if (base !== name && t[base]) expectRatio(mode, `${name} on ${base}`, t[name], t[base], 4.5);
   }
+  // Text that sits on a ground other than its own partner, as the design system's usage notes place it.
+  for (const ground of ['background', 'card', 'popover']) {
+    for (const name of ['foreground', 'muted-foreground', 'link', 'link-hover']) {
+      expectRatio(mode, `${name} on ${ground}`, t[name], t[ground], 4.5);
+    }
+  }
+  expectRatio(mode, 'muted-foreground on muted', t['muted-foreground'], t.muted, 4.5);
   for (const ground of ['background', 'card']) {
-    for (const name of ['ring', 'chart-1', 'chart-2', 'chart-3', 'chart-4', 'chart-5']) {
+    for (const name of ['ring', 'brand', 'focus', 'chart-1', 'chart-2', 'chart-3', 'chart-4', 'chart-5']) {
       expectRatio(mode, `${name} on ${ground}`, t[name], t[ground], 3);
     }
   }
