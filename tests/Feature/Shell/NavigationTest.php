@@ -62,15 +62,15 @@ it('orders the dashboards, the Navigation group, the sections, the plugin sectio
 
     expect(array_column($navigation, 'label'))->toBe(['Dashboards', 'Navigation', 'Insights', 'Insights', 'Hello Plugin', 'Heartbeat', 'Gauge', 'Content', 'Resources'])
         ->and($navigation[1]['items'])->toBe([['label' => 'Docs', 'href' => '/docs', 'icon' => null]])
-        ->and($navigation[7]['items'])->toBe([['label' => 'News', 'href' => '/lathe/resources/articles', 'icon' => 'FileText']]);
+        ->and($navigation[7]['items'])->toBe([['label' => 'News', 'href' => '/lathe/resources/articles', 'icon' => 'FileText', 'component' => 'Resources/Index', 'cacheTag' => 'resource:articles']]);
 });
 
 it('lists the dashboard and the Resources', function () {
     expect(navigationFor('admin@lathephp.com'))->toBe([
-        ['label' => 'Dashboards', 'icon' => null, 'items' => [['label' => 'Sales', 'href' => '/lathe', 'icon' => 'LayoutDashboard']]],
+        ['label' => 'Dashboards', 'icon' => null, 'items' => [['label' => 'Sales', 'href' => '/lathe', 'icon' => 'LayoutDashboard', 'component' => 'Dashboard']]],
         ['label' => 'Insights', 'icon' => null, 'items' => [
             ['label' => 'Overview', 'href' => '/lathe/plugins/insights', 'icon' => 'BarChart'],
-            ['label' => 'Widget Gallery', 'href' => '/lathe/dashboards/widget-gallery', 'icon' => 'LayoutDashboard'],
+            ['label' => 'Widget Gallery', 'href' => '/lathe/dashboards/widget-gallery', 'icon' => 'LayoutDashboard', 'component' => 'Dashboard'],
         ]],
         ['label' => 'Demo Kit', 'icon' => null, 'items' => [
             ['label' => 'UI Gallery', 'href' => '/lathe/pages/ui-gallery', 'icon' => null],
@@ -79,15 +79,15 @@ it('lists the dashboard and the Resources', function () {
         ['label' => 'Hello Plugin', 'icon' => null, 'items' => [['label' => 'Settings', 'href' => '/lathe/plugins/hello-plugin/settings', 'icon' => null]]],
         ['label' => 'Heartbeat', 'icon' => null, 'items' => [['label' => 'Heartbeat', 'href' => '/lathe/plugins/heartbeat', 'icon' => 'Activity']]],
         ['label' => 'Resources', 'icon' => null, 'items' => [
-            ['label' => 'Categories', 'href' => '/lathe/resources/categories', 'icon' => 'Folder'],
-            ['label' => 'Comments', 'href' => '/lathe/resources/comments', 'icon' => 'MessageSquare'],
-            ['label' => 'Customers', 'href' => '/lathe/resources/customers', 'icon' => 'Users'],
-            ['label' => 'Order Items', 'href' => '/lathe/resources/order-items', 'icon' => 'Receipt'],
-            ['label' => 'Orders', 'href' => '/lathe/resources/orders', 'icon' => 'ShoppingCart'],
-            ['label' => 'Posts', 'href' => '/lathe/resources/posts', 'icon' => null],
-            ['label' => 'Products', 'href' => '/lathe/resources/products', 'icon' => 'Package'],
-            ['label' => 'Tags', 'href' => '/lathe/resources/tags', 'icon' => 'Tag'],
-            ['label' => 'Users', 'href' => '/lathe/resources/users', 'icon' => null],
+            ['label' => 'Categories', 'href' => '/lathe/resources/categories', 'icon' => 'Folder', 'component' => 'Resources/Index', 'cacheTag' => 'resource:categories'],
+            ['label' => 'Comments', 'href' => '/lathe/resources/comments', 'icon' => 'MessageSquare', 'component' => 'Resources/Index', 'cacheTag' => 'resource:comments'],
+            ['label' => 'Customers', 'href' => '/lathe/resources/customers', 'icon' => 'Users', 'component' => 'Resources/Index', 'cacheTag' => 'resource:customers'],
+            ['label' => 'Order Items', 'href' => '/lathe/resources/order-items', 'icon' => 'Receipt', 'component' => 'Resources/Index', 'cacheTag' => 'resource:order-items'],
+            ['label' => 'Orders', 'href' => '/lathe/resources/orders', 'icon' => 'ShoppingCart', 'component' => 'Resources/Index', 'cacheTag' => 'resource:orders'],
+            ['label' => 'Posts', 'href' => '/lathe/resources/posts', 'icon' => null, 'component' => 'Resources/Index', 'cacheTag' => 'resource:posts'],
+            ['label' => 'Products', 'href' => '/lathe/resources/products', 'icon' => 'Package', 'component' => 'Resources/Index', 'cacheTag' => 'resource:products'],
+            ['label' => 'Tags', 'href' => '/lathe/resources/tags', 'icon' => 'Tag', 'component' => 'Resources/Index', 'cacheTag' => 'resource:tags'],
+            ['label' => 'Users', 'href' => '/lathe/resources/users', 'icon' => null, 'component' => 'Resources/Index', 'cacheTag' => 'resource:users'],
         ]],
     ]);
 });

@@ -21,7 +21,7 @@ it('adds its header to the panel and lists Overview and Widget Gallery once each
 
     expect(collect($navigation)->firstWhere('label', 'Insights'))->toBe(['label' => 'Insights', 'icon' => null, 'items' => [
         ['label' => 'Overview', 'href' => '/lathe/plugins/insights', 'icon' => 'BarChart'],
-        ['label' => 'Widget Gallery', 'href' => '/lathe/dashboards/widget-gallery', 'icon' => 'LayoutDashboard'],
+        ['label' => 'Widget Gallery', 'href' => '/lathe/dashboards/widget-gallery', 'icon' => 'LayoutDashboard', 'component' => 'Dashboard'],
     ]])
         ->and($hrefs->filter(fn (string $href) => $href === '/lathe/dashboards/widget-gallery'))->toHaveCount(1)
         ->and($hrefs->filter(fn (string $href) => $href === '/lathe/plugins/insights'))->toHaveCount(1);

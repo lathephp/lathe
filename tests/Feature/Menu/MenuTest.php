@@ -241,3 +241,18 @@ it('carries a server-side active override', function () {
     expect(array_map(fn (string $label) => $json[$label]['active'] ?? null, ['On', 'Off', 'When', 'Unless', 'Auto']))
         ->toBe([true, false, true, false, null]);
 });
+
+it('names the page a link opens, so the sidebar can show it before the server answers', function (Closure $make, ?string $component, ?string $cacheTag) {
+    $json = $make()->jsonSerialize();
+
+    expect($json['component'] ?? null)->toBe($component)
+        ->and($json['cacheTag'] ?? null)->toBe($cacheTag);
+})->with([
+    'resource' => [fn () => MenuItem::resource('orders'), 'Resources/Index', 'resource:orders'],
+    'link to a resource' => [fn () => MenuItem::link('Orders', 'resources/orders'), 'Resources/Index', 'resource:orders'],
+    'lens' => [fn () => MenuItem::lens('orders', 'pending-orders'), 'Resources/Index', 'resource:orders'],
+    'dashboard' => [fn () => MenuItem::dashboard('widget-gallery'), 'Dashboard', null],
+    'plain link' => [fn () => MenuItem::link('Docs', 'pages/ui-gallery'), null, null],
+    'plugin' => [fn () => MenuItem::plugin('Acme\Heartbeat\Heartbeat'), null, null],
+    'external link' => [fn () => MenuItem::externalLink('Docs', 'https://lathephp.com/resources/orders'), null, null],
+]);

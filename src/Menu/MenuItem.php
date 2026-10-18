@@ -29,6 +29,9 @@ class MenuItem implements JsonSerializable
 
     protected ?bool $active = null;
 
+    /** The Inertia page a dashboard link opens; a resource link's page follows from its path. */
+    protected ?string $component = null;
+
     /** @var (Closure(Request): bool)|null */
     protected ?Closure $activeCallback = null;
 
@@ -73,11 +76,12 @@ class MenuItem implements JsonSerializable
     {
         $registered = app(DashboardRegistry::class)->forKey($dashboard);
 
-        if ($registered === null) {
-            return new static(Str::headline($dashboard), "dashboards/{$dashboard}");
-        }
+        $item = $registered === null
+            ? new static(Str::headline($dashboard), "dashboards/{$dashboard}")
+            : (new static($registered->name(), $registered->path()))->icon($registered->iconName() ?? Icon::LayoutDashboard);
+        $item->component = 'Dashboard';
 
-        return (new static($registered->name(), $registered->path()))->icon($registered->iconName() ?? Icon::LayoutDashboard);
+        return $item;
     }
 
     /**
@@ -180,6 +184,14 @@ class MenuItem implements JsonSerializable
 
         if ($this->external || $this->target === '_blank') {
             $json['rel'] = 'noopener noreferrer';
+        }
+
+        // The sidebar opens the page before the server answers, and its prefetch is flushed by the tag.
+        if (! $this->external && preg_match('#^resources/([^/?\#]+)(/lens/[^/?\#]+)?(\?.*)?$#', trim($this->path, '/'), $match) === 1) {
+            $json['component'] = 'Resources/Index';
+            $json['cacheTag'] = "resource:{$match[1]}";
+        } elseif ($this->component !== null) {
+            $json['component'] = $this->component;
         }
 
         return [...$json, ...$this->badgePayload()];

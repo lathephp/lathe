@@ -44,4 +44,8 @@ export interface NavigationItem {
   label: string;
   href: string;
   icon: string | null;
+  /** The Inertia page the link opens, sent for a resource index or a dashboard. */
+  component?: string;
+  /** The prefetch cache tag a write to the link's resource flushes: resource:<uriKey>. */
+  cacheTag?: string;
 }

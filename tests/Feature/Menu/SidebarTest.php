@@ -137,7 +137,7 @@ it('keeps lazy badge values out of the navigation JSON', function () {
         MenuItem::link('Orders', 'resources/orders')->withBadge(fn () => 3),
     ));
 
-    expect(sidebarProps()['navigation'][1]['items'])->toBe([['label' => 'Orders', 'href' => '/lathe/resources/orders', 'icon' => null]]);
+    expect(sidebarProps()['navigation'][1]['items'])->toBe([['label' => 'Orders', 'href' => '/lathe/resources/orders', 'icon' => null, 'component' => 'Resources/Index', 'cacheTag' => 'resource:orders']]);
 });
 
 it('sends the active override of activeWhen, activeUnless and active', function () {
@@ -156,7 +156,7 @@ it('lists a dashboard a plugin registers and links once', function () {
 
     expect(array_count_values(sidebarHrefs(sidebarProps()['navigation']))['/lathe/dashboards/sidebar-test-reports'])->toBe(1)
         ->and(collect(sidebarProps()['navigation'])->firstWhere('label', 'Reporting')['items'])
-        ->toBe([['label' => 'Sidebar Test Reports', 'href' => '/lathe/dashboards/sidebar-test-reports', 'icon' => 'LayoutDashboard']]);
+        ->toBe([['label' => 'Sidebar Test Reports', 'href' => '/lathe/dashboards/sidebar-test-reports', 'icon' => 'LayoutDashboard', 'component' => 'Dashboard']]);
 });
 
 it('keeps an explicit menu item where the app put it and drops the automatic entry', function () {
@@ -176,5 +176,5 @@ it('replaces a Resource default entry with its own menu() item', function () {
     Lathe::registerResources(SidebarTestArticle::class);
 
     expect(collect(sidebarProps()['navigation'])->firstWhere('label', 'Content')['items'])
-        ->toBe([['label' => 'Drafts', 'href' => '/lathe/resources/sidebar-test-articles?status=draft', 'icon' => 'FileText']]);
+        ->toBe([['label' => 'Drafts', 'href' => '/lathe/resources/sidebar-test-articles?status=draft', 'icon' => 'FileText', 'component' => 'Resources/Index', 'cacheTag' => 'resource:sidebar-test-articles']]);
 });
