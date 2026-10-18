@@ -98,8 +98,8 @@ export function ResourceTable({ resource, table, state, loading, selection, sort
   const withMenu = previews || table.rows.some((row) => hasRowMenu(row));
   // The row whose preview modal is open.
   const [previewing, setPreviewing] = useState<Row['id'] | null>(null);
-  // Cells and tokens an inline save sent back, by row, over the rows the page loaded.
-  const [saved, setSaved] = useState<Record<string, { cells: Row['cells']; updatedAt: string | null | undefined }>>({});
+  // Cells and tokens an inline save sent back, by row, over the row the page had loaded; a reload's newer row wins.
+  const [saved, setSaved] = useState<Record<string, { over: Row; cells: Row['cells']; updatedAt: string | null | undefined }>>({});
   // Each column's cell classes, worked out once per render rather than once per cell.
   const cellClasses = table.columns.map((column, index) => {
     const base = cn('max-w-80 px-3 whitespace-nowrap', alignClass(column), index === 0 && firstColumn, border);
@@ -285,7 +285,8 @@ export function ResourceTable({ resource, table, state, loading, selection, sort
                           />
                         </td>
                         {table.columns.map((column, index) => {
-                          const fresh = saved[String(row.id)];
+                          const kept = saved[String(row.id)];
+                          const fresh = kept?.over === row ? kept : undefined;
                           const cell = (fresh?.cells ?? row.cells)[column.key];
                           const inline = column.inline === true && row.abilities.update === true;
 
@@ -317,7 +318,7 @@ export function ResourceTable({ resource, table, state, loading, selection, sort
                                     cell={cell}
                                     token={fresh === undefined ? row.updatedAt : fresh.updatedAt}
                                     onRow={(cells, updatedAt) => {
-                                      setSaved((current) => ({ ...current, [String(row.id)]: { cells: { ...row.cells, ...cells }, updatedAt } }));
+                                      setSaved((current) => ({ ...current, [String(row.id)]: { over: row, cells: { ...row.cells, ...cells }, updatedAt } }));
                                     }}
                                   />
                                 ) : (

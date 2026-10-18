@@ -1,10 +1,12 @@
 import { __panel } from '@lathephp/core';
 import { act, fireEvent, screen, waitFor } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { choose, renderPage } from './support';
+import { router } from '@inertiajs/react';
+import { choose, fakeInertiaServer, renderPage } from './support';
 
 afterEach(() => {
   vi.restoreAllMocks();
+  vi.unstubAllGlobals();
 });
 
 const definition = { debounce: 0.5, paginationType: 'links', clickAction: 'detail', polling: null, showPollingToggle: false, tableStyle: 'default', showColumnBorders: false, softDeletes: false };
@@ -154,5 +156,48 @@ describe('inline cells', () => {
 
     expect(screen.queryByRole('combobox', { name: 'Status' })).toBeNull();
     expect(screen.getByText('pending')).toBeDefined();
+  });
+
+  it('shows the cells a later reload brings over the cells an inline save sent back', async () => {
+    vi.spyOn(globalThis, 'fetch').mockResolvedValueOnce(reply(200, { field: 'name', fields: { name: { value: 'Ann Lee', display: 'Ann Lee' } }, updatedAt: '2026-10-14T09:00:02.000Z' }));
+    const requests = fakeInertiaServer();
+    renderRows();
+    window.history.replaceState(null, '', '/lathe/resources/orders');
+
+    fireEvent.click(screen.getByRole('button', { name: 'Edit Name' }));
+    fireEvent.change(screen.getByRole('textbox', { name: 'Name' }), { target: { value: 'Ann Lee' } });
+    fireEvent.keyDown(screen.getByRole('textbox', { name: 'Name' }), { key: 'Enter' });
+    expect(await screen.findByText('Ann Lee')).toBeDefined();
+
+    // A queued run renamed the row since, and the index reloads its rows.
+    router.reload({ only: ['table'] });
+    await waitFor(() => {
+      expect(requests).toHaveLength(1);
+    });
+    await act(async () => {
+      requests[0]?.respond(200, {
+        component: 'Resources/Index',
+        url: '/lathe/resources/orders',
+        props: {
+          table: {
+            columns: [status, name, active, vip],
+            rows: [
+              {
+                id: 12,
+                title: 'ORD-00012',
+                cells: { status: { value: 'shipped', display: 'shipped' }, name: { value: 'Ann Lee-Park', display: 'Ann Lee-Park' }, active: { value: false, display: 'No' }, vip: { value: false, display: 'No' } },
+                abilities: { view: true, update: true },
+                updatedAt: '2026-10-14T09:05:00.000Z',
+              },
+            ],
+            rowKey: 'id',
+            sortKeys: [],
+          },
+        },
+      });
+      await Promise.resolve();
+    });
+
+    expect(await screen.findByText('Ann Lee-Park')).toBeDefined();
   });
 });
