@@ -30,23 +30,6 @@ export function IndexFooter({ resource, state, count, rowCount, hasMorePages, lo
 
   return (
     <div className="flex flex-wrap items-center justify-between gap-3 border-t border-border px-3 py-2 text-sm">
-      <p className="text-muted-foreground">
-        {/* Simple pagination counts nothing, so it shows the range alone. */}
-        {resource.definition.paginationType === 'simple' ? (
-          __('Showing :from to :to', { from, to })
-        ) : (
-          <Deferred
-            data="count"
-            fallback={__('Showing :from to :to', { from, to })}
-            // A failed count keeps the rows and shows an em dash for the total.
-            rescue={__('Showing :from to :to of :count', { from, to, count: '—' })}
-          >
-            {count === null || count === undefined
-              ? __('Showing :from to :to', { from, to })
-              : __('Showing :from to :to of :count', { from, to, count: countText(count) })}
-          </Deferred>
-        )}
-      </p>
       <div className="flex items-center gap-2">
         <label htmlFor="per-page" className="text-muted-foreground">
           {__('Per page')}
@@ -60,9 +43,28 @@ export function IndexFooter({ resource, state, count, rowCount, hasMorePages, lo
             visit({ per_page: Number(option) });
           }}
         />
+      </div>
+      <div className="flex flex-wrap items-center gap-3">
+        <p className="text-muted-foreground">
+          {/* Simple pagination counts nothing, so it shows the range alone. */}
+          {resource.definition.paginationType === 'simple' ? (
+            __(':from–:to', { from, to })
+          ) : (
+            <Deferred
+              data="count"
+              fallback={__(':from–:to', { from, to })}
+              // A failed count keeps the rows and shows an em dash for the total.
+              rescue={__(':from–:to of :count', { from, to, count: '—' })}
+            >
+              {count === null || count === undefined ? __(':from–:to', { from, to }) : __(':from–:to of :count', { from, to, count: countText(count) })}
+            </Deferred>
+          )}
+        </p>
         <Pagination
           type={resource.definition.paginationType}
           page={state.page}
+          perPage={state.perPage}
+          count={count}
           hasMorePages={hasMorePages}
           loadingMore={loadingMore}
           onPage={(page) => {

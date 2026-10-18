@@ -1,20 +1,24 @@
 import { usePage } from '@inertiajs/react';
 import { request, toast, useTranslation } from '@lathephp/core';
-import { useState } from 'react';
+import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from 'lucide-react';
+import { Fragment, useState } from 'react';
 import { Button } from '../components/ui/Button';
 import type { SharedProps } from '../types';
-import type { IndexProps, ResourceDefinition, Row } from './types';
+import type { Count, IndexProps, ResourceDefinition, Row } from './types';
 
 interface PaginationProps {
   type: ResourceDefinition['paginationType'];
   page: number;
+  perPage?: number;
+  /** Undefined while the count loads, null when the Resource counts nothing. */
+  count?: Count | null;
   hasMorePages: boolean;
   loadingMore: boolean;
   onPage: (page: number) => void;
   onLoadMore: () => void;
 }
 
-export function Pagination({ type, page, hasMorePages, loadingMore, onPage, onLoadMore }: PaginationProps) {
+export function Pagination({ type, page, perPage = 1, count, hasMorePages, loadingMore, onPage, onLoadMore }: PaginationProps) {
   const { __ } = useTranslation();
 
   if (type === 'load-more') {
@@ -27,29 +31,37 @@ export function Pagination({ type, page, hasMorePages, loadingMore, onPage, onLo
     );
   }
 
+  // The last page is known only from an exact count that is not capped or estimated. While the
+  // count loads (undefined) Last shows disabled, so the pager keeps its width when the count lands.
+  const known = type === 'links' && count != null && !count.capped && !count.estimated;
+  const loading = type === 'links' && count === undefined;
+  const last = known ? Math.ceil(count.value / perPage) : 0;
+  const pages = type === 'simple' ? [] : [...new Set([1, page - 1, page, page + 1, ...(known ? [last] : [2, 3])])].filter((n) => n >= 1 && (!known || n <= last)).sort((x, y) => x - y);
+
+  function go(label: string, target: number, disabled: boolean, Icon: typeof ChevronLeft) {
+    return (
+      <Button variant="outline" size="sm" className="w-8 px-0" aria-label={label} disabled={disabled} onClick={() => { onPage(target); }}>
+        <Icon className="size-4" />
+      </Button>
+    );
+  }
+
   return (
-    <>
-      <Button
-        variant="outline"
-        size="sm"
-        disabled={page <= 1}
-        onClick={() => {
-          onPage(page - 1);
-        }}
-      >
-        {__('Previous')}
-      </Button>
-      <Button
-        variant="outline"
-        size="sm"
-        disabled={!hasMorePages}
-        onClick={() => {
-          onPage(page + 1);
-        }}
-      >
-        {__('Next')}
-      </Button>
-    </>
+    <div className="flex items-center gap-1">
+      {go(__('First page'), 1, page <= 1, ChevronsLeft)}
+      {go(__('Previous page'), page - 1, page <= 1, ChevronLeft)}
+      {pages.map((n, index) => (
+        <Fragment key={n}>
+          {n - (pages[index - 1] ?? n) > 1 && <span aria-hidden>…</span>}
+          <Button variant={n === page ? 'default' : 'outline'} size="sm" aria-current={n === page ? 'page' : undefined} onClick={() => { onPage(n); }}>
+            {n}
+          </Button>
+        </Fragment>
+      ))}
+      {pages.length > 0 && !known && <span aria-hidden>…</span>}
+      {go(__('Next page'), page + 1, !hasMorePages, ChevronRight)}
+      {(known || loading) && go(__('Last page'), last, loading || page >= last, ChevronsRight)}
+    </div>
   );
 }
 

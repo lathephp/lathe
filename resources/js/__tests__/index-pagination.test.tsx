@@ -79,16 +79,47 @@ describe('links pagination', () => {
   it('reads the range and the count with previous and next', () => {
     renderOrders();
 
-    expect(screen.getByText('Showing 1 to 25 of 10,000')).toBeTruthy();
-    expect(screen.getByRole('button', { name: 'Previous' })).toBeTruthy();
-    expect(screen.getByRole('button', { name: 'Next' })).toBeTruthy();
+    expect(screen.getByText('1–25 of 10,000')).toBeTruthy();
+    expect(screen.getByRole('button', { name: 'Previous page' })).toBeTruthy();
+    expect(screen.getByRole('button', { name: 'Next page' })).toBeTruthy();
     expect(screen.queryByRole('button', { name: 'Load more' })).toBeNull();
+  });
+
+  it('adds first, last and page numbers from the count', () => {
+    const visit = vi.spyOn(router, 'visit').mockImplementation(() => undefined);
+    renderOrders({ count: { value: 10000, exact: true, capped: false, estimated: false } });
+
+    expect(screen.getByRole('button', { name: 'First page' })).toBeTruthy();
+    expect(screen.getByRole('button', { name: '1' }).getAttribute('aria-current')).toBe('page');
+
+    fireEvent.click(screen.getByRole('button', { name: 'Last page' }));
+    expect(visit.mock.calls[0]?.[1]).toMatchObject({ data: { page: 400 } });
+    expect(screen.getByRole('button', { name: '400' })).toBeTruthy();
+  });
+
+  it('goes back to the first page', () => {
+    const visit = vi.spyOn(router, 'visit').mockImplementation(() => undefined);
+    renderOrders({ rows: rows(25, 51), state: { page: 3, perPage: 25, hasMorePages: true } });
+
+    fireEvent.click(screen.getByRole('button', { name: 'First page' }));
+
+    // The first page is the URL without a page parameter.
+    expect(visit.mock.calls[0]?.[0]).toBe('/lathe/resources/orders');
+    expect(visit.mock.calls[0]?.[1]).toMatchObject({ data: {} });
+  });
+
+  it('hides last and its number when the count is capped', () => {
+    renderOrders({ count: { value: 10000, exact: false, capped: true, estimated: false } });
+
+    expect(screen.getByText('1–25 of 10,000+')).toBeTruthy();
+    expect(screen.queryByRole('button', { name: 'Last page' })).toBeNull();
+    expect(screen.queryByRole('button', { name: '400' })).toBeNull();
   });
 
   it('reads 50 rows per page from the count', () => {
     renderOrders({ rows: rows(50), state: { page: 1, perPage: 50, hasMorePages: true } });
 
-    expect(screen.getByText('Showing 1 to 50 of 10,000')).toBeTruthy();
+    expect(screen.getByText('1–50 of 10,000')).toBeTruthy();
   });
 });
 
@@ -96,17 +127,18 @@ describe('simple pagination', () => {
   it('shows previous and next with no count', () => {
     renderOrders({ definition: { paginationType: 'simple' } });
 
-    expect(screen.getByText('Showing 1 to 25')).toBeTruthy();
+    expect(screen.getByText('1–25')).toBeTruthy();
     expect(screen.queryByText(/10,000/)).toBeNull();
-    expect(screen.getByRole('button', { name: 'Previous' })).toBeTruthy();
-    expect(screen.getByRole('button', { name: 'Next' })).toBeTruthy();
+    expect(screen.queryByRole('button', { name: 'Last page' })).toBeNull();
+    expect(screen.getByRole('button', { name: 'Previous page' })).toBeTruthy();
+    expect(screen.getByRole('button', { name: 'Next page' })).toBeTruthy();
   });
 
   it('visits the next page', () => {
     const visit = vi.spyOn(router, 'visit').mockImplementation(() => undefined);
     renderOrders({ definition: { paginationType: 'simple' } });
 
-    fireEvent.click(screen.getByRole('button', { name: 'Next' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Next page' }));
 
     expect(visit.mock.calls[0]?.[1]).toMatchObject({ data: { page: 2 } });
   });
@@ -123,7 +155,7 @@ describe('load-more pagination', () => {
     const visit = vi.spyOn(router, 'visit').mockImplementation(() => undefined);
     renderOrders({ definition: { paginationType: 'load-more' }, url: '/lathe/resources/orders?sort=-total' });
 
-    expect(screen.queryByRole('button', { name: 'Next' })).toBeNull();
+    expect(screen.queryByRole('button', { name: 'Next page' })).toBeNull();
 
     fireEvent.click(screen.getByRole('button', { name: 'Load more' }));
 
@@ -132,7 +164,7 @@ describe('load-more pagination', () => {
     });
     expect(fetch.mock.calls[0]?.[0]).toBe('/lathe/api/resources/orders?sort=-total&page=2');
     expect(within(bodyRows()[25] as HTMLElement).getAllByRole('cell').map((cell) => cell.textContent)).toContain('ORD-00026');
-    expect(screen.getByText('Showing 1 to 50 of 10,000')).toBeTruthy();
+    expect(screen.getByText('1–50 of 10,000')).toBeTruthy();
     // The last page has no next one.
     expect(screen.queryByRole('button', { name: 'Load more' })).toBeNull();
     expect(visit).not.toHaveBeenCalled();

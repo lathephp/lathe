@@ -129,44 +129,44 @@ describe('orders table', () => {
   it('counts the rows in the footer', () => {
     renderOrders();
 
-    expect(screen.getByText('Showing 1 to 25 of 10,000')).toBeTruthy();
+    expect(screen.getByText('1–25 of 10,000')).toBeTruthy();
   });
 
   it('adds a plus to a capped count', () => {
     renderOrders({ count: { value: 10000, exact: false, capped: true, estimated: false } });
 
-    expect(screen.getByText('Showing 1 to 25 of 10,000+')).toBeTruthy();
+    expect(screen.getByText('1–25 of 10,000+')).toBeTruthy();
   });
 
   it('shows an estimate as a rounded figure with a tilde', () => {
     renderOrders({ count: { value: 9_812_345, exact: false, capped: false, estimated: true } });
 
-    expect(screen.getByText('Showing 1 to 25 of ~9.8M')).toBeTruthy();
+    expect(screen.getByText('1–25 of ~9.8M')).toBeTruthy();
   });
 
   it('shows the range alone for a Resource that counts nothing', () => {
     renderOrders({ count: null });
 
-    expect(screen.getByText('Showing 1 to 25')).toBeTruthy();
+    expect(screen.getByText('1–25')).toBeTruthy();
   });
 
   it('counts from the current page', () => {
     renderOrders({ rows: rows(25, 26), state: { page: 2, perPage: 25, hasMorePages: true } });
 
-    expect(screen.getByText('Showing 26 to 50 of 10,000')).toBeTruthy();
+    expect(screen.getByText('26–50 of 10,000')).toBeTruthy();
   });
 
   it('shows the range alone while the count loads', () => {
     vi.spyOn(router, 'reload').mockImplementation(() => undefined);
     renderOrders({ count: undefined, page: { deferredProps: { default: ['count'] } } });
 
-    expect(screen.getByText('Showing 1 to 25')).toBeTruthy();
+    expect(screen.getByText('1–25')).toBeTruthy();
   });
 
   it('puts an em dash in place of a count that failed and keeps the rows', () => {
     renderOrders({ count: undefined, page: { rescuedProps: ['count'] } });
 
-    expect(screen.getByText('Showing 1 to 25 of —')).toBeTruthy();
+    expect(screen.getByText('1–25 of —')).toBeTruthy();
     expect(bodyRows()).toHaveLength(25);
   });
 
@@ -228,9 +228,9 @@ describe('orders pagination', () => {
     const visit = vi.spyOn(router, 'visit').mockImplementation(() => undefined);
     renderOrders();
 
-    expect(screen.getByRole<HTMLButtonElement>('button', { name: 'Previous' }).disabled).toBe(true);
+    expect(screen.getByRole<HTMLButtonElement>('button', { name: 'Previous page' }).disabled).toBe(true);
 
-    fireEvent.click(screen.getByRole('button', { name: 'Next' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Next page' }));
 
     expect(visit.mock.calls[0]?.[0]).toBe('/lathe/resources/orders');
     expect(visit.mock.calls[0]?.[1]).toMatchObject({
@@ -245,9 +245,9 @@ describe('orders pagination', () => {
     const visit = vi.spyOn(router, 'visit').mockImplementation(() => undefined);
     renderOrders({ rows: rows(25, 26), state: { page: 2, perPage: 25, hasMorePages: false } });
 
-    expect(screen.getByRole<HTMLButtonElement>('button', { name: 'Next' }).disabled).toBe(true);
+    expect(screen.getByRole<HTMLButtonElement>('button', { name: 'Next page' }).disabled).toBe(true);
 
-    fireEvent.click(screen.getByRole('button', { name: 'Previous' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Previous page' }));
 
     expect(visit.mock.calls[0]?.[1]).toMatchObject({ data: {} });
   });
@@ -274,7 +274,7 @@ describe('orders pagination', () => {
     });
     renderOrders();
 
-    fireEvent.click(screen.getByRole('button', { name: 'Next' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Next page' }));
 
     expect(document.querySelectorAll('tbody tr[data-skeleton]')).toHaveLength(25);
 
@@ -310,6 +310,11 @@ describe('orders translation', () => {
       '25',
       '50',
       '100',
+      // Page numbers and the gap between them are figures, not words.
+      '1',
+      '2',
+      '…',
+      '400',
       'Paid',
       'Oct 1, 2026',
       ...rows(25).flatMap((item) => [item.cells.number.display, item.cells.customer.display, item.cells.total.display]),
@@ -317,8 +322,8 @@ describe('orders translation', () => {
     const main = screen.getByRole('main');
     const strings = visibleStrings(main);
 
-    expect(strings).toContain('[Showing 1 to 25 of 10,000]');
-    expect(strings).toContain('[Next]');
+    expect(strings).toContain('[1–25 of 10,000]');
+    expect(strings).toContain('[Next page]');
     expect(strings.filter((text) => !data.has(text) && !/^\[.+\]$/.test(text))).toEqual([]);
   });
 
