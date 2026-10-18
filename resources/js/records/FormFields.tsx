@@ -94,7 +94,17 @@ export function FormRow({ field, wide = false, idPrefix, value, values, error, o
   const describedBy = [helpId, errorId].filter((part) => part !== undefined).join(' ') || undefined;
 
   return (
-    <div className={cn('flex flex-col gap-2 px-4 py-3 text-sm', (wide || field.stacked || field.fullWidth) && 'lg:col-span-2')}>
+    <div
+      data-readonly={field.readonly === true ? '' : undefined}
+      className={cn(
+        'flex flex-col gap-2 px-4 py-3 text-sm',
+        // Readonly reads as a settled value: muted ground, dashed edge. Any other disabled control is dimmed.
+        field.readonly === true
+          ? '[&_button]:border-dashed [&_button]:bg-muted [&_input]:border-dashed [&_input]:bg-muted [&_select]:border-dashed [&_select]:bg-muted [&_textarea]:border-dashed [&_textarea]:bg-muted'
+          : '[&_:disabled]:opacity-50',
+        (wide || field.stacked || field.fullWidth) && 'lg:col-span-2',
+      )}
+    >
       {field.compact ? null : (
         <label htmlFor={id} className="font-medium">
           {field.label}

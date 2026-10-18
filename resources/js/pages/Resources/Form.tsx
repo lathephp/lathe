@@ -4,6 +4,7 @@ import { useEffect, useRef } from 'react';
 import type { FormProps } from '../../fields/types';
 import { Breadcrumbs } from '../../records/Breadcrumbs';
 import { ConflictDialog } from '../../records/ConflictDialog';
+import { ErrorSummary } from '../../records/ErrorSummary';
 import { FormFields } from '../../records/FormFields';
 import { ReauthModal } from '../../records/ReauthModal';
 import { useLeaveGuard } from '../../records/useLeaveGuard';
@@ -16,6 +17,7 @@ export default function Form({ resource, mode, id, title, breadcrumbs, form, sub
   const page = usePage<SharedProps>();
   const { basePath, auth } = page.props;
   const formRef = useRef<HTMLFormElement>(null);
+  const summaryRef = useRef<HTMLDivElement>(null);
   // A create opened from a relation panel: `orders/12/items` names the parent and the relation.
   const via = mode === 'create' ? new URLSearchParams(page.url.split('?')[1] ?? '').get('via') : null;
   const record = useRecordForm({ resource, mode, id, form, via }, (redirect) => {
@@ -33,12 +35,14 @@ export default function Form({ resource, mode, id, title, breadcrumbs, form, sub
   const updating = mode === 'update';
   const cancelHref = updating ? `${basePath}/resources/${resource.uriKey}/${String(id)}` : `${basePath}/resources/${resource.uriKey}`;
 
-  // A failed submit moves focus to the first field it marked.
+  // A failed save brings the summary into view, then focuses the first field it marked.
+  // Keyed on the save count, so fixing one field does not pull focus away from the next.
   useEffect(() => {
-    if (Object.keys(record.errors).length > 0) {
-      formRef.current?.querySelector<HTMLElement>('[aria-invalid="true"]')?.focus();
+    if (record.failures > 0) {
+      summaryRef.current?.scrollIntoView({ block: 'start' });
+      formRef.current?.querySelector<HTMLElement>('[aria-invalid="true"]')?.focus({ preventScroll: true });
     }
-  }, [record.errors]);
+  }, [record.failures]);
 
   function submit(intent: SubmitIntent) {
     void record.submit(intent);
@@ -61,7 +65,8 @@ export default function Form({ resource, mode, id, title, breadcrumbs, form, sub
           submit('default');
         }}
       >
-        <div className="mx-auto w-full max-w-[880px]">
+        <div className="mx-auto w-full max-w-[880px] space-y-6">
+          <ErrorSummary ref={summaryRef} errors={record.errors} fields={record.payload.fields} idPrefix="field" />
           <FormFields uriKey={resource.uriKey} mode={mode} id={id} record={record} />
         </div>
         {/* The window scrolls the shell, so the bar stays at the bottom of the viewport while the form does. */}

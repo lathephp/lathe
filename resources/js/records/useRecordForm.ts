@@ -65,6 +65,8 @@ export function useRecordForm(
   const [saved] = useState(() => (drafts ? readDraft(attributes) : null));
   const [values, setValues] = useState<Record<string, unknown>>(() => ({ ...initialValues(form.fields), ...saved }));
   const [errors, setErrors] = useState<Record<string, string>>({});
+  /** Counts the saves a 422 refused, so the page moves the user to the errors once per save. */
+  const [failures, setFailures] = useState(0);
   const [busy, setBusy] = useState(false);
   /** The submit a 401 or 419 interrupted, replayed once the user signs in again. */
   const [reauth, setReauth] = useState<SubmitIntent | null>(null);
@@ -88,6 +90,12 @@ export function useRecordForm(
     draft.touch();
     setDirty(true);
     setValues((current) => ({ ...current, [attribute]: value }));
+    // A changed field's message is stale: drop it and the ones under its nested keys.
+    setErrors((current) => {
+      const kept = Object.entries(current).filter(([key]) => key !== attribute && !key.startsWith(`${attribute}.`));
+
+      return kept.length === Object.keys(current).length ? current : Object.fromEntries(kept);
+    });
   };
 
   async function submit(intent: SubmitIntent = 'default', token: string | null | undefined = payload.updatedAt): Promise<void> {
@@ -126,6 +134,7 @@ export function useRecordForm(
           setReauth(intent);
         } else if (error instanceof ApiError && error.status === 422) {
           setErrors(firstErrors(error.data));
+          setFailures((count) => count + 1);
           toast.error(__('Please fix the highlighted fields.'));
         } else {
           toast.error(__('Something went wrong. Please try again.'), {
@@ -147,6 +156,7 @@ export function useRecordForm(
     values,
     setValue,
     errors,
+    failures,
     busy,
     dirty,
     /** The dirty flag as of now, for a handler that runs before the next render. */

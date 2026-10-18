@@ -32,3 +32,8 @@ afterEach(() => {
   __panel.sharedProps.set({});
   __panel.setTranslator(null);
 });
+
+// jsdom does not implement scrollIntoView; the form's error summary calls it after a failed save.
+if (typeof Element !== 'undefined' && typeof Element.prototype.scrollIntoView !== 'function') {
+  Element.prototype.scrollIntoView = () => undefined;
+}

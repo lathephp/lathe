@@ -1,10 +1,12 @@
 {
     "1. Run php artisan lathe:user to create a panel user.": "1. Run php artisan lathe:user to create a panel user.",
+    "1 field needs a change before you can save": "1 field needs a change before you can save",
     "2. Add that user's email to gate() in app/Providers/LatheServiceProvider.php.": "2. Add that user's email to gate() in app/Providers/LatheServiceProvider.php.",
     ":code is not a shadcn preset code.": ":code is not a shadcn preset code.",
     ":count :resource": ":count :resource",
     ":count action events deleted.": ":count action events deleted.",
     ":count bulk runs deleted.": ":count bulk runs deleted.",
+    ":count fields need a change before you can save": ":count fields need a change before you can save",
     ":count draft uploads deleted.": ":count draft uploads deleted.",
     ":count exports deleted.": ":count exports deleted.",
     ":count imports deleted.": ":count imports deleted.",
