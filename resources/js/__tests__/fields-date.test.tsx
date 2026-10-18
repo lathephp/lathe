@@ -89,7 +89,7 @@ describe('date-field', () => {
     expect(input.value).toBe('Oct 17, 2026');
   });
 
-  it('keeps an unparseable entry and marks it invalid', () => {
+  it('keeps an unparseable entry, marks it invalid and hands it to the form for the server to refuse', () => {
     const onChange = vi.fn();
     renderForm(field, '2026-10-14', onChange);
     const input = screen.getByLabelText<HTMLInputElement>('When');
@@ -98,7 +98,8 @@ describe('date-field', () => {
     fireEvent.blur(input);
 
     expect([input.value, input.getAttribute('aria-invalid')]).toEqual(['Oct 32, 2026', 'true']);
-    expect(onChange).not.toHaveBeenCalled();
+    // Kept back, the old date would save under a success toast while the box shows other text.
+    expect(onChange).toHaveBeenCalledWith('Oct 32, 2026');
   });
 
   it('disables the calendar days outside min and max', async () => {

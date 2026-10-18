@@ -40,7 +40,10 @@ export function DateText({ value, time, onChange, className, label, describedBy,
     const parsed = draft.trim() === '' ? '' : parseDate(draft);
 
     if (parsed === null || (!time && parsed.length > 10)) {
+      // The text goes to the form as typed, so a save sends it and the server's date rule
+      // refuses it on the field, rather than keeping the old date under a success toast.
       setBad(true);
+      onChange(draft.trim());
 
       return;
     }
