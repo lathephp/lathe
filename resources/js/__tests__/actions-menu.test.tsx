@@ -211,6 +211,79 @@ describe('the action modal', () => {
     expect(document.activeElement).toBe(within(dialog).getByRole('button', { name: 'Keep order' }));
   });
 
+  it('closes on Escape and gives the focus back to the button that opened it', async () => {
+    vi.spyOn(globalThis, 'fetch').mockResolvedValueOnce(json({ fields: [], confirmText: 'Mark 1 orders as shipped?' }));
+    renderOrders([meta('mark-shipped', 'Mark shipped', { confirmButtonText: 'Mark shipped', size: 'small' })], rows(1, ['mark-shipped']));
+    tick(1);
+    const trigger = await screen.findByRole('button', { name: 'Actions' });
+    trigger.focus();
+    fireEvent.click(trigger);
+    fireEvent.click(within(screen.getByRole('menu', { name: 'Actions' })).getByRole('menuitem', { name: 'Mark shipped' }));
+    await screen.findByRole('dialog');
+
+    fireEvent.keyDown(document.activeElement ?? document.body, { key: 'Escape' });
+
+    await waitFor(() => {
+      expect(screen.queryByRole('dialog')).toBeNull();
+    });
+    expect(document.activeElement).toBe(screen.getByRole('button', { name: 'Actions' }));
+  });
+
+  it('stays open on Escape and a scrim click while the action runs', async () => {
+    let finish: (response: Response) => void = () => undefined;
+    vi.spyOn(globalThis, 'fetch')
+      .mockResolvedValueOnce(json({ fields: [], confirmText: 'Mark 1 orders as shipped?' }))
+      .mockReturnValueOnce(
+        new Promise<Response>((resolve) => {
+          finish = resolve;
+        }),
+      );
+    renderOrders([meta('mark-shipped', 'Mark shipped', { confirmButtonText: 'Mark shipped', size: 'small' })], rows(1, ['mark-shipped']));
+    tick(1);
+    fireEvent.click(within(await openMenu()).getByRole('menuitem', { name: 'Mark shipped' }));
+    const dialog = await screen.findByRole('dialog');
+    const run = within(dialog).getByRole<HTMLButtonElement>('button', { name: 'Mark shipped' });
+    await waitFor(() => {
+      expect(run.disabled).toBe(false);
+    });
+
+    fireEvent.click(run);
+    await waitFor(() => {
+      expect(run.disabled).toBe(true);
+    });
+    fireEvent.keyDown(document.activeElement ?? document.body, { key: 'Escape' });
+    fireEvent.click(document.querySelector('.bg-scrim') as HTMLElement);
+
+    expect(screen.getByRole('dialog')).toBe(dialog);
+    finish(json({ result: { message: 'Done.', level: 'success', effect: null }, permitted: 1, skipped: 0, failed: 0, errors: [] }));
+    await waitFor(() => {
+      expect(screen.queryByRole('dialog')).toBeNull();
+    });
+  });
+
+  it('closes only the Target picker on Escape inside it', async () => {
+    vi.spyOn(globalThis, 'fetch')
+      .mockResolvedValueOnce(
+        json({
+          fields: [{ key: 'target', attribute: 'target', label: 'Target', component: 'belongs-to-field', resource: 'tags', value: null, stacked: false, compact: false, help: null, required: true }],
+          confirmText: null,
+        }),
+      )
+      .mockResolvedValueOnce(json({ items: [{ value: 1, display: 'sale' }], has_more: false }));
+    renderOrders([meta('merge-tags', 'Merge Tags', { size: 'medium' })], rows(1, ['merge-tags']));
+    tick(1);
+    fireEvent.click(within(await openMenu()).getByRole('menuitem', { name: 'Merge Tags' }));
+    fireEvent.mouseDown(await within(await screen.findByRole('dialog')).findByRole('combobox'), { button: 0 });
+    await screen.findByRole('option', { name: 'sale' });
+
+    fireEvent.keyDown(document.activeElement ?? document.body, { key: 'Escape' });
+
+    await waitFor(() => {
+      expect(screen.queryByRole('listbox')).toBeNull();
+    });
+    expect(screen.getByRole('dialog', { name: 'Merge Tags' })).toBeTruthy();
+  });
+
   it('titles a form by the action name, 520 px wide', async () => {
     vi.spyOn(globalThis, 'fetch').mockResolvedValueOnce(
       json({ fields: [{ key: 'note', attribute: 'note', label: 'Note', component: 'text-field', value: null, stacked: false, compact: false, help: null, required: true }], confirmText: null }),
