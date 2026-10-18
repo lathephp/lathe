@@ -9,6 +9,7 @@ All notable changes to Lathe are listed here. The format follows [Keep a Changel
 - [api] `SelectField::badges()` shows each value as a badge in a tone: neutral, primary, info, success, warning or danger. The workbench's order statuses use it.
 - [api] The `@lathephp/ui/popover` and `@lathephp/ui/select` subpaths, so a page can load the popover or the select without the whole kit.
 - The config keys `brand.logo` and `brand.logo_dark` put your logo at the top of the sidebar, with a separate image for the dark theme.
+- Sidebar links and a table row's first cell fetch their page after a 75 ms hover and keep it 30 seconds; any write to the resource drops it. A click shows the next page at once: the sidebar item turns active on press, and if the data has not come after 100 ms the page shows its title and a skeleton of its layout.
 
 ### Changed
 
@@ -16,12 +17,14 @@ All notable changes to Lathe are listed here. The format follows [Keep a Changel
 - [api] The 16 new colour tokens are `theme.colors` keys and `Lathe\Theme\Color` cases. When an app sets any colour of its own, every token it did not set keeps its value from before copper, so the app keeps its look; `brand` and `focus` take `primary` at 3:1 on the page, and each `-subtle` pair is a tint of its colour with text at 4.5:1.
 - [api] Toasts render with Base UI Toast. A toast stays 5 seconds, its timer pauses on hover and focus, and an error stays until it is dismissed. The `@lathephp/ui/sonner` subpath is removed; `@lathephp/ui/toast` replaces it, and sonner is no longer a dependency. `ToastMessage` gains a `timeout` field.
 - [api] Date-times read on the 24-hour clock, such as `Oct 17, 2026, 23:12`, where they read `11:12 PM` before.
+- Value and progress widgets show their number at once instead of counting up to it. Tab counts and the table's summary footer hold their space while they load and fade in.
 - [api] The user menu's "Log out" reads "Sign out"; an app that translates the panel moves its `Log out` string to `Sign out`. The menu's trigger shows the email under the name.
 
 ### Fixed
 
 - On a phone, the open menu has a Close menu button and closes on Escape, and the user menu closes on a click outside it.
 - A record's breadcrumb names it by its title instead of `#id`; the id stays only when the title is empty.
+- When a queued bulk action, delete or restore ends, the index it ran on reloads its rows in place.
 
 ## [1.0.0-beta.2] - Unreleased
 

@@ -42,7 +42,7 @@ function badgeText(counts: TabCount | undefined, fallback: string | number | nul
 function TabBadge({ text, type, deferred = false, pending = false }: { text: string | null; type: BadgeType | null; deferred?: boolean; pending?: boolean }) {
   if (text === null) {
     return deferred && pending ? (
-      <span aria-hidden="true" data-badge-placeholder="" className="h-4 w-6 animate-pulse rounded-full bg-muted motion-reduce:animate-none" />
+      <span aria-hidden="true" data-badge-placeholder="" className="h-4 w-6 animate-pulse rounded-full bg-skeleton motion-reduce:animate-none" />
     ) : null;
   }
 

@@ -21,7 +21,7 @@ export function TableSummaryPlaceholder({ columns, rows, leading, trailing }: Pi
         <tr key={index} className="h-10 border-t border-border">
           <td className={leading} />
           <td colSpan={columns.length + (trailing ? 1 : 0)} className="px-3">
-            <span className="block h-3 w-24 animate-pulse rounded bg-muted motion-reduce:animate-none" />
+            <span className="block h-3 w-24 animate-pulse rounded bg-skeleton motion-reduce:animate-none" />
           </td>
         </tr>
       ))}

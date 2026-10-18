@@ -19,7 +19,7 @@ export function flushResourceOf(url: string): void {
 }
 
 /** The fill of a skeleton bar, which pulses unless reduced motion is asked for. */
-export const skeletonBar = 'animate-pulse rounded-md bg-muted motion-reduce:animate-none';
+export const skeletonBar = 'animate-pulse rounded-md bg-skeleton motion-reduce:animate-none';
 
 /**
  * Shows nothing for the first 100 ms, so an answer that comes quickly never flashes a skeleton.
