@@ -132,7 +132,7 @@ export function Modal({ labelledBy, onClose, children, className, locked = false
   }, [id]);
 
   return (
-    <div className="fixed inset-0 z-50 flex items-start justify-center p-4 pt-[15vh] max-md:items-end max-md:p-0">
+    <div className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto p-4 pt-[15vh] max-md:items-end max-md:p-0">
       <div
         aria-hidden="true"
         className="absolute inset-0 bg-scrim"

@@ -310,6 +310,17 @@ describe('the action modal', () => {
     expect(screen.getByRole('dialog', { name: 'Merge Tags' })).toBe(dialog);
   });
 
+  it('lets a picker hang below the dialog: the overlay scrolls, not the dialog', async () => {
+    vi.spyOn(globalThis, 'fetch').mockResolvedValueOnce(json({ fields: [], confirmText: null }));
+    renderOrders([meta('merge-tags', 'Merge Tags', { size: 'medium' })], rows(1, ['merge-tags']));
+    tick(1);
+    fireEvent.click(within(await openMenu()).getByRole('menuitem', { name: 'Merge Tags' }));
+    const dialog = await screen.findByRole('dialog');
+
+    expect(dialog.className).not.toContain('overflow-y-auto');
+    expect(dialog.parentElement?.className).toContain('overflow-y-auto');
+  });
+
   it('asks for the password inside the open dialog and runs the action once it is confirmed', async () => {
     const fetch = vi
       .spyOn(globalThis, 'fetch')
