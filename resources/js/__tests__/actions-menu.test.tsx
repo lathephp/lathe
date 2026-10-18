@@ -310,6 +310,49 @@ describe('the action modal', () => {
     expect(screen.getByRole('dialog', { name: 'Merge Tags' })).toBe(dialog);
   });
 
+  it('opens the search picker on the first press when the field has too many options for a list', async () => {
+    vi.spyOn(globalThis, 'fetch')
+      .mockResolvedValueOnce(
+        json({
+          fields: [{ key: 'target', attribute: 'target', label: 'Target', component: 'belongs-to-field', resource: 'tags', value: null, stacked: false, compact: false, help: null, required: true }],
+          confirmText: null,
+        }),
+      )
+      .mockResolvedValue(json({ items: [{ value: 1, display: 'sale' }], has_more: true }));
+    renderOrders([meta('merge-tags', 'Merge Tags', { size: 'medium' })], rows(1, ['merge-tags']));
+    tick(1);
+    fireEvent.click(within(await openMenu()).getByRole('menuitem', { name: 'Merge Tags' }));
+    const dialog = await screen.findByRole('dialog');
+
+    fireEvent.mouseDown(await within(dialog).findByRole('combobox'), { button: 0 });
+
+    // The press loads the options, finds more than a list holds and swaps in the search picker, which opens.
+    expect(await within(dialog).findByRole('listbox')).toBeTruthy();
+    expect(document.activeElement).toBe(within(dialog).getByRole('searchbox'));
+  });
+
+  it('swaps in the search picker closed when only the focus loaded too many options', async () => {
+    const fetch = vi
+      .spyOn(globalThis, 'fetch')
+      .mockResolvedValueOnce(
+        json({
+          fields: [{ key: 'target', attribute: 'target', label: 'Target', component: 'belongs-to-field', resource: 'tags', value: null, stacked: false, compact: false, help: null, required: true }],
+          confirmText: null,
+        }),
+      )
+      .mockResolvedValue(json({ items: [{ value: 1, display: 'sale' }], has_more: true }));
+    renderOrders([meta('merge-tags', 'Merge Tags', { size: 'medium' })], rows(1, ['merge-tags']));
+    tick(1);
+    fireEvent.click(within(await openMenu()).getByRole('menuitem', { name: 'Merge Tags' }));
+    const dialog = await screen.findByRole('dialog');
+
+    fireEvent.focus(await within(dialog).findByRole('combobox'));
+
+    expect(await within(dialog).findByRole('button', { name: 'Target' })).toBeTruthy();
+    expect(fetch.mock.calls.length).toBeGreaterThan(1);
+    expect(within(dialog).queryByRole('listbox')).toBeNull();
+  });
+
   it('lets a picker hang below the dialog: the overlay scrolls, not the dialog', async () => {
     vi.spyOn(globalThis, 'fetch').mockResolvedValueOnce(json({ fields: [], confirmText: null }));
     renderOrders([meta('merge-tags', 'Merge Tags', { size: 'medium' })], rows(1, ['merge-tags']));

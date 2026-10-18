@@ -39,9 +39,22 @@ function WithTrashedBox({ checked, onChange }: { checked: boolean; onChange: (ch
 }
 
 /** A button that opens a searchable list of the related records, loaded from the server only once opened. */
-export function RelationPicker({ field, value, onChange, id, describedBy, invalid, disabled, type, record, endpoint, onCreate }: FormFieldProps & LookupProps & { endpoint?: string; onCreate?: (text: string) => void }) {
+export function RelationPicker({
+  field,
+  value,
+  onChange,
+  id,
+  describedBy,
+  invalid,
+  disabled,
+  type,
+  record,
+  endpoint,
+  onCreate,
+  startOpen = false,
+}: FormFieldProps & LookupProps & { endpoint?: string; onCreate?: (text: string) => void; startOpen?: boolean }) {
   const { __ } = useTranslation();
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState(startOpen);
   const [term, setTerm] = useState('');
   const [withTrashed, setWithTrashed] = useState(false);
   const [active, setActive] = useState(-1);
@@ -211,9 +224,11 @@ export function RelationPicker({ field, value, onChange, id, describedBy, invali
 }
 
 /** A native select whose options load on first focus; a first page with more turns it into the picker. */
-function RelationSelect({ field, value, onChange, id, describedBy, invalid, disabled, type, record, onTooMany }: FormFieldProps & LookupProps & { onTooMany: () => void }) {
+function RelationSelect({ field, value, onChange, id, describedBy, invalid, disabled, type, record, onTooMany }: FormFieldProps & LookupProps & { onTooMany: (pressed: boolean) => void }) {
   const { __ } = useTranslation();
   const [open, setOpen] = useState(false);
+  // A press or an opening key, as opposed to the focus alone, which also loads the options.
+  const pressed = useRef(false);
   const [withTrashed, setWithTrashed] = useState(false);
   const { items, hasMore } = useAssociatable(field, { open, term: '', withTrashed, type, record });
   const current = isBelongsToValue(value) ? String(value.value) : '';
@@ -221,7 +236,7 @@ function RelationSelect({ field, value, onChange, id, describedBy, invalid, disa
 
   useEffect(() => {
     if (hasMore) {
-      onTooMany();
+      onTooMany(pressed.current);
     }
   }, [hasMore, onTooMany]);
 
@@ -230,7 +245,14 @@ function RelationSelect({ field, value, onChange, id, describedBy, invalid, disa
     // eslint-disable-next-line jsx-a11y/no-static-element-interactions -- not a control, it only hears the Select's own press
     <div
       onMouseDown={() => {
+        pressed.current = true;
         setOpen(true);
+      }}
+      onKeyDown={(event) => {
+        if (['Enter', ' ', 'ArrowDown', 'ArrowUp'].includes(event.key)) {
+          pressed.current = true;
+          setOpen(true);
+        }
       }}
     >
       <Select
@@ -268,6 +290,8 @@ export function BelongsToForm(props: FormFieldProps & LookupProps) {
   const { __ } = useTranslation();
   const { field, value, onChange, disabled } = props;
   const [searchable, setSearchable] = useState(field.searchable === true);
+  // Set when the list turned out too long as it opened: the search picker that replaces it opens at once.
+  const [swapped, setSwapped] = useState(false);
   // The text the create sheet starts its title field with, or null while it is shut.
   const [creating, setCreating] = useState<string | null>(null);
   const label = typeof field.singularLabel === 'string' ? field.singularLabel : field.label;
@@ -278,12 +302,13 @@ export function BelongsToForm(props: FormFieldProps & LookupProps) {
   }
 
   const control = searchable ? (
-    <RelationPicker {...props} onCreate={field.creatable === true ? setCreating : undefined} />
+    <RelationPicker {...props} startOpen={swapped} onCreate={field.creatable === true ? setCreating : undefined} />
   ) : (
     <RelationSelect
       {...props}
-      onTooMany={() => {
+      onTooMany={(pressed) => {
         setSearchable(true);
+        setSwapped(pressed);
       }}
     />
   );
