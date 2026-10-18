@@ -1,4 +1,5 @@
 import { router } from '@inertiajs/react';
+import { __panel } from '@lathephp/core';
 import { act, fireEvent, screen, within } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { fakeInertiaServer, renderPage, type FakeRequest } from './support';
@@ -122,5 +123,27 @@ describe('a sidebar link', () => {
     router.flushByCacheTags('resource:orders');
 
     expect(router.getCached('/lathe/resources/orders')).toBeNull();
+  });
+});
+
+describe('a hover or a step back', () => {
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
+  it('shows no toast and no error page when the hovered page is forbidden', async () => {
+    vi.useFakeTimers();
+    const orders = sidebar().getByRole('link', { name: 'Orders' });
+
+    fireEvent.mouseEnter(orders);
+    await act(() => vi.advanceTimersByTimeAsync(75));
+    await act(async () => {
+      requests[0]?.respond(403, { component: 'Error', props: { status: 403, shell: true }, url: '/lathe/resources/orders' });
+      await vi.advanceTimersByTimeAsync(10);
+    });
+
+    expect(screen.getByRole('heading', { name: 'Home' })).toBeTruthy();
+    expect(__panel.toasts.get()).toEqual([]);
+    expect(screen.queryByRole('dialog')).toBeNull();
   });
 });
