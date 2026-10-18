@@ -1915,6 +1915,7 @@ Lathe\Field\Relations\BelongsToField::?array $viewableKeys  [protected]
 Lathe\Field\Relations\BelongsToField::allowsInlineCreate(?Lathe\Http\Requests\LatheRequest $request): bool
 Lathe\Field\Relations\BelongsToField::bool $viewable  [protected]
 Lathe\Field\Relations\BelongsToField::cell(Illuminate\Database\Eloquent\Model $model): array
+Lathe\Field\Relations\BelongsToField::createTitle(): ?string  [protected]
 Lathe\Field\Relations\BelongsToField::detailPath(Illuminate\Database\Eloquent\Model $related): ?string  [protected]
 Lathe\Field\Relations\BelongsToField::fill(Lathe\Http\Requests\LatheRequest $request, object $model, ?string $requestAttribute = NULL): ?Closure
 Lathe\Field\Relations\BelongsToField::filled(?Closure $callback): static

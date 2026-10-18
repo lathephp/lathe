@@ -26,6 +26,11 @@ All notable changes to Lathe are listed here. The format follows [Keep a Changel
 - Each user can show, hide, reorder and pin the index columns from the picker at the header's right end; pinned columns stay in view when the table scrolls sideways.
 - Value and progress widgets show their number at once instead of counting up to it. Tab counts and the table's summary footer hold their space while they load and fade in.
 - [api] The user menu's "Log out" reads "Sign out"; an app that translates the panel moves its `Log out` string to `Sign out`. The menu's trigger shows the email under the name.
+- [api] A creatable relation field offers `Create customer "Hanna Vos"` at the foot of its search results. Choosing it opens the related create form in a 480 px sheet from the right with the typed text in the related Resource's title field, and saving selects the new record. The field's payload gains `createTitle`, the related title attribute, or null when the title is a closure.
+
+### Deprecated
+
+- [api] `RelationField::modalSize()` is still accepted but no longer sizes anything: the create sheet is always 480 px wide.
 
 ### Fixed
 

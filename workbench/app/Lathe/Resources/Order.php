@@ -52,7 +52,7 @@ class Order extends Resource
                 Field::dateTime('Created', 'created_at')->onlyOnDetail()->canSee(fn (LatheRequest $request) => $request->user() instanceof User && $request->user()->email === 'admin@lathephp.com'),
             ]),
             Section::make('Customer', [
-                Field::belongsTo('Customer')->searchable()->creatable()->modalSize('lg'),
+                Field::belongsTo('Customer')->searchable()->creatable(),
             ]),
             LayoutTab::group(null, [
                 LayoutTab::make('Billing', [$this->total()->required()->showOnPreview()]),

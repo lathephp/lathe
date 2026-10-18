@@ -219,7 +219,7 @@ it('offers the inline create with create on customers and addCustomer on orders'
     $field = collect($this->getJson('/lathe/api/resources/orders/creation-fields')->assertOk()->json('fields'))->firstWhere('key', 'customer');
 
     expect($field['creatable'])->toBeTrue()
-        ->and($field['modalSize'])->toBe('lg');
+        ->and($field['createTitle'])->toBe('name');
 });
 
 it('hides the inline create without addCustomer on orders', function () {

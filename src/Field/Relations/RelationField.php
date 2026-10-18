@@ -408,6 +408,9 @@ abstract class RelationField extends Field implements PrimesForPage
         return $this->option('creatable', $creatable);
     }
 
+    /**
+     * @deprecated The create sheet is always 480 px wide.
+     */
     public function modalSize(string $size): static
     {
         if (! in_array($size, self::MODAL_SIZES, true)) {

@@ -96,12 +96,26 @@ class BelongsToField extends RelationField implements FilterableField, PrimesFor
     public function jsonSerialize(): array
     {
         $request = Evaluator::currentRequest();
+        $creatable = $this->allowsInlineCreate($request);
 
         return [
             ...parent::jsonSerialize(),
             'peekable' => $this->opensPeek($request),
-            'creatable' => $this->allowsInlineCreate($request),
+            'creatable' => $creatable,
+            'createTitle' => $creatable ? $this->createTitle() : null,
         ];
+    }
+
+    /**
+     * The related Resource's title attribute, which the create sheet fills with the typed
+     * search; null when the title is a closure, since no one field holds it.
+     */
+    protected function createTitle(): ?string
+    {
+        $related = $this->relatedResource();
+        $title = $related !== null ? $related::make()->definition()->getTitle() : null;
+
+        return is_string($title) ? $title : null;
     }
 
     /**

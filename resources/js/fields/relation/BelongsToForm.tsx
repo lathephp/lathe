@@ -8,8 +8,8 @@ import type { FormFieldProps } from '../registry';
 import { isBelongsToValue } from './BelongsToField';
 import { useAssociatable, type AssociatableItem, type LookupRecord } from './useAssociatable';
 
-// The related create form loads only when a "+" is pressed, so no list page carries it.
-const CreateRelationModal = lazy(() => import('./CreateRelationModal').then((module) => ({ default: module.CreateRelationModal })));
+// The related create form loads only when a create is chosen, so no list page carries it.
+const CreateRelationSheet = lazy(() => import('./CreateRelationSheet').then((module) => ({ default: module.CreateRelationSheet })));
 
 /** What a lookup needs beyond the field: a morphTo's chosen type, or the record of an index row. */
 interface LookupProps {
@@ -39,7 +39,7 @@ function WithTrashedBox({ checked, onChange }: { checked: boolean; onChange: (ch
 }
 
 /** A button that opens a searchable list of the related records, loaded from the server only once opened. */
-export function RelationPicker({ field, value, onChange, id, describedBy, invalid, disabled, type, record, endpoint }: FormFieldProps & LookupProps & { endpoint?: string }) {
+export function RelationPicker({ field, value, onChange, id, describedBy, invalid, disabled, type, record, endpoint, onCreate }: FormFieldProps & LookupProps & { endpoint?: string; onCreate?: (text: string) => void }) {
   const { __ } = useTranslation();
   const [open, setOpen] = useState(false);
   const [term, setTerm] = useState('');
@@ -50,6 +50,10 @@ export function RelationPicker({ field, value, onChange, id, describedBy, invali
   const button = useRef<HTMLButtonElement>(null);
   const search = useRef<HTMLInputElement>(null);
   const label = typeof field.singularLabel === 'string' ? field.singularLabel : field.label;
+  const typed = term.trim();
+  // A creatable field offers the typed text as a new record, after the matches.
+  const creates = onCreate !== undefined && typed !== '';
+  const last = items.length - (creates ? 0 : 1);
 
   useEffect(() => {
     if (!open) {
@@ -79,6 +83,11 @@ export function RelationPicker({ field, value, onChange, id, describedBy, invali
   function choose(item: AssociatableItem) {
     onChange(picked(item));
     close();
+  }
+
+  function create() {
+    close();
+    onCreate?.(typed);
   }
 
   return (
@@ -111,7 +120,7 @@ export function RelationPicker({ field, value, onChange, id, describedBy, invali
             aria-label={__('Search')}
             placeholder={__('Search')}
             aria-controls={`${id}-listbox`}
-            aria-activedescendant={active >= 0 && active < items.length ? `${id}-option-${String(active)}` : undefined}
+            aria-activedescendant={active >= 0 && active <= last ? `${id}-option-${String(active)}` : undefined}
             value={term}
             // The server refuses a longer term; 100 is limits.search_term_chars by default.
             maxLength={typeof field.searchTermChars === 'number' ? field.searchTermChars : 100}
@@ -122,7 +131,7 @@ export function RelationPicker({ field, value, onChange, id, describedBy, invali
             onKeyDown={(event) => {
               if (event.key === 'ArrowDown') {
                 event.preventDefault();
-                setActive(Math.min(active + 1, items.length - 1));
+                setActive(Math.min(active + 1, last));
               } else if (event.key === 'ArrowUp') {
                 event.preventDefault();
                 setActive(Math.max(active - 1, 0));
@@ -133,6 +142,8 @@ export function RelationPicker({ field, value, onChange, id, describedBy, invali
 
                 if (item !== undefined) {
                   choose(item);
+                } else if (creates && active === items.length) {
+                  create();
                 }
               } else if (event.key === 'Escape') {
                 event.preventDefault();
@@ -164,13 +175,28 @@ export function RelationPicker({ field, value, onChange, id, describedBy, invali
                 {item.subtitle !== undefined && <span className="block text-xs text-muted-foreground">{item.subtitle}</span>}
               </li>
             ))}
+            {creates && (
+              // eslint-disable-next-line jsx-a11y/click-events-have-key-events
+              <li
+                id={`${id}-option-${String(items.length)}`}
+                role="option"
+                aria-selected={false}
+                onMouseDown={(event) => {
+                  event.preventDefault();
+                }}
+                onClick={create}
+                className={`cursor-pointer rounded px-2 py-1 text-sm hover:bg-muted ${active === items.length ? 'bg-muted' : ''}`}
+              >
+                {__('Create :resource ":text"', { resource: label.toLowerCase(), text: typed })}
+              </li>
+            )}
           </ul>
           {error !== null && (
             <p role="alert" className="px-2 py-1 text-sm text-destructive">
               {error}
             </p>
           )}
-          {loaded && items.length === 0 && <p className="px-2 py-1 text-sm text-muted-foreground">{__('No results')}</p>}
+          {loaded && items.length === 0 && !creates && <p className="px-2 py-1 text-sm text-muted-foreground">{__('No results')}</p>}
           {hasMore && (
             <Button variant="outline" size="sm" className="mt-1 w-full" onClick={more}>
               {__('More')}
@@ -240,7 +266,8 @@ export function BelongsToForm(props: FormFieldProps & LookupProps) {
   const { __ } = useTranslation();
   const { field, value, onChange, disabled } = props;
   const [searchable, setSearchable] = useState(field.searchable === true);
-  const [creating, setCreating] = useState(false);
+  // The text the create sheet starts its title field with, or null while it is shut.
+  const [creating, setCreating] = useState<string | null>(null);
   const label = typeof field.singularLabel === 'string' ? field.singularLabel : field.label;
 
   // A field locked by the page, such as under a via, shows its record and no picker.
@@ -249,7 +276,7 @@ export function BelongsToForm(props: FormFieldProps & LookupProps) {
   }
 
   const control = searchable ? (
-    <RelationPicker {...props} />
+    <RelationPicker {...props} onCreate={field.creatable === true ? setCreating : undefined} />
   ) : (
     <RelationSelect
       {...props}
@@ -272,19 +299,20 @@ export function BelongsToForm(props: FormFieldProps & LookupProps) {
         aria-label={__('Create :resource', { resource: label })}
         disabled={disabled}
         onClick={() => {
-          setCreating(true);
+          setCreating('');
         }}
       >
         <Plus aria-hidden="true" className="size-4" />
       </Button>
-      {creating && (
+      {creating !== null && (
         <Suspense fallback={null}>
-          <CreateRelationModal
+          <CreateRelationSheet
             field={field}
             record={props.record}
+            text={creating}
             onCreated={onChange}
             onClose={() => {
-              setCreating(false);
+              setCreating(null);
             }}
           />
         </Suspense>

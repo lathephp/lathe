@@ -108,6 +108,7 @@
     "Create": "Create",
     "Create & Add Another": "Create & Add Another",
     "Create :resource": "Create :resource",
+    "Create :resource \":text\"": "Create :resource \":text\"",
     "Created": "Created",
     "Current password": "Current password",
     "Customize": "Customize",

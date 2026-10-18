@@ -117,7 +117,7 @@ describe('inline create from a belongsTo field', () => {
     expect(screen.getByRole('button', { name: 'Create Customer' })).toBeDefined();
   });
 
-  it('opens the related create form in a modal of the field size with one request', async () => {
+  it('opens the related create form in a 480 px sheet whatever the modal size, with one request', async () => {
     const fetch = server();
     renderField(customerField({ modalSize: 'lg' }));
 
@@ -126,12 +126,12 @@ describe('inline create from a belongsTo field', () => {
     const dialog = await screen.findByRole('dialog');
     await screen.findByLabelText(/Name/);
 
-    expect(dialog.className).toContain('max-w-lg');
+    expect(dialog.className).toContain('max-w-[480px]');
     expect(screen.getByLabelText('Email')).toBeDefined();
     expect(calls(fetch)).toEqual(['GET /lathe/api/resources/customers/creation-fields']);
   });
 
-  it('posts the values, selects the new record and closes the modal', async () => {
+  it('posts the values, selects the new record and closes the sheet', async () => {
     const fetch = server();
     const onChange = vi.fn();
     renderField(customerField(), onChange);
@@ -154,7 +154,7 @@ describe('inline create from a belongsTo field', () => {
     expect(JSON.parse(fetch.mock.calls[1]?.[1]?.body as string)).toMatchObject({ name: 'Zed Inline', email: 'zed.inline@example.com' });
   });
 
-  it('shows a 422 under its field and keeps the modal open', async () => {
+  it('shows a 422 under its field and keeps the sheet open', async () => {
     server(reply({ errors: { email: ['The email has already been taken.'] } }, 422));
     const onChange = vi.fn();
     renderField(customerField(), onChange);
