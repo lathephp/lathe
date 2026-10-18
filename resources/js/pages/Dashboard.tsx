@@ -1,12 +1,13 @@
 import { Head, router, usePage } from '@inertiajs/react';
 import { useLathe, useTranslation } from '@lathephp/core';
 import { RefreshCw } from 'lucide-react';
-import { type KeyboardEvent, useEffect, useState } from 'react';
+import { type KeyboardEvent, Suspense, useEffect, useState } from 'react';
 import { AfterDelay, skeletonBar } from '../lib/instant';
 import { cn } from '../lib/cn';
 import { Button } from '../components/ui/Button';
 import { Card } from '../components/ui/Card';
-import type { WidgetDescriptor, WidgetValue } from '../widgets/types';
+import { AddPanel, CustomizeHeader, EditCardHeader, preloadCustomize } from '../widgets/customize/lazy';
+import type { LayoutDraft, WidgetDescriptor, WidgetValue } from '../widgets/types';
 import { WidgetGrid } from '../widgets/WidgetGrid';
 
 export interface DashboardPayload {
@@ -15,6 +16,10 @@ export interface DashboardPayload {
   description: string | null;
   icon: string | null;
   showRefreshButton: boolean;
+  /** False hides Customize. */
+  customizable: boolean;
+  /** Whether the user saved a layout of this dashboard. */
+  customized: boolean;
   /** The header's range options; empty hides the picker. */
   ranges: RangeOption[];
   /** The picked range, from ?range=; null without options. */
@@ -31,7 +36,10 @@ const widgetCommand = 'php artisan lathe:widget TotalUsers --type=value';
 
 interface DashboardProps {
   dashboard: DashboardPayload;
+  /** The cards shown, in the user's order and at their saved sizes. */
   widgets: WidgetDescriptor[];
+  /** The cards the user hid. */
+  hiddenWidgets: WidgetDescriptor[];
 }
 
 /** An instant visit renders the page with its title alone, then the server's props arrive. */
@@ -39,7 +47,7 @@ export default function Dashboard(props: DashboardProps | { title: string; dashb
   return props.dashboard === undefined ? <DashboardSkeleton title={props.title} /> : <DashboardPage {...props} />;
 }
 
-function DashboardPage({ dashboard, widgets }: DashboardProps) {
+function DashboardPage({ dashboard, widgets, hiddenWidgets }: DashboardProps) {
   const { __ } = useTranslation();
   const { apiPath } = useLathe();
   const page = usePage();
@@ -49,6 +57,16 @@ function DashboardPage({ dashboard, widgets }: DashboardProps) {
   const [reloads] = useState(() => new Set<() => void>());
   const [updatedAt, setUpdatedAt] = useState(() => Date.now());
   const range = dashboard.range === null ? undefined : String(dashboard.range);
+  // Customize mode's unsaved layout; null outside it. The grid shows it live.
+  const [draft, setDraft] = useState<LayoutDraft | null>(null);
+  const shown = draft?.shown ?? widgets;
+  const change = (update: (current: LayoutDraft) => LayoutDraft) => {
+    setDraft((current) => (current === null ? null : update(current)));
+  };
+  const customize = async () => {
+    await preloadCustomize();
+    setDraft({ shown: widgets, hidden: hiddenWidgets });
+  };
 
   // The pick goes into the URL without a server visit: the cards refetch through their own endpoint.
   const pick = (value: number | string) => {
@@ -77,11 +95,22 @@ function DashboardPage({ dashboard, widgets }: DashboardProps) {
     <div className="space-y-6">
       <Head title={dashboard.name} />
       <div className="flex flex-wrap items-center gap-x-3 gap-y-3">
-        <div className="min-w-0 flex-1">
+        <div className={cn('min-w-0', draft === null && 'flex-1')}>
           <h1 className="text-2xl font-semibold">{dashboard.name}</h1>
           {dashboard.description !== null && <p className="text-sm text-muted-foreground">{dashboard.description}</p>}
         </div>
-        {widgets.length > 0 && (
+        {draft !== null && (
+          <Suspense fallback={null}>
+            <CustomizeHeader
+              uriKey={dashboard.uriKey}
+              draft={draft}
+              onDone={() => {
+                setDraft(null);
+              }}
+            />
+          </Suspense>
+        )}
+        {draft === null && widgets.length > 0 && (
           <>
             {dashboard.ranges.length > 0 && <RangePicker ranges={dashboard.ranges} value={range} onPick={pick} />}
             <UpdatedAgo at={updatedAt} />
@@ -90,22 +119,55 @@ function DashboardPage({ dashboard, widgets }: DashboardProps) {
             </Button>
           </>
         )}
+        {/* A user who hid every card still has a saved layout, and Customize to undo it. */}
+        {draft === null && dashboard.customizable && (widgets.length > 0 || dashboard.customized) && (
+          <Button
+            variant="outline"
+            onPointerEnter={() => {
+              void preloadCustomize();
+            }}
+            onClick={() => {
+              void customize();
+            }}
+          >
+            {__('Customize')}
+          </Button>
+        )}
       </div>
-      {widgets.length > 0 && (
-        <WidgetGrid
-          widgets={widgets}
-          valueUrl={`${apiPath}/dashboards/${dashboard.uriKey}/widgets`}
-          range={range}
-          reloads={reloads}
-          menus
-          // Each card's value is its own deferred prop, so the cards fill in one by one.
-          deferred={(uriKey) => ({
-            value: page.props[`widgetValue:${uriKey}`] as WidgetValue | undefined,
-            rescued: rescued.includes(`widgetValue:${uriKey}`),
-          })}
-        />
+      {(shown.length > 0 || draft !== null) && (
+        // One wrapper in both modes, so the grid keeps its cards, and their values, on entering Customize.
+        <div className="flex flex-col gap-5 xl:flex-row xl:items-start">
+          <div className="min-w-0 flex-1">
+            <WidgetGrid
+              widgets={shown}
+              valueUrl={`${apiPath}/dashboards/${dashboard.uriKey}/widgets`}
+              range={range}
+              reloads={reloads}
+              menus
+              // Each card's value is its own deferred prop, so the cards fill in one by one.
+              deferred={(uriKey) => ({
+                value: page.props[`widgetValue:${uriKey}`] as WidgetValue | undefined,
+                rescued: rescued.includes(`widgetValue:${uriKey}`),
+              })}
+              edit={
+                draft === null
+                  ? undefined
+                  : (widget) => (
+                      <Suspense fallback={null}>
+                        <EditCardHeader widget={widget} draft={draft} change={change} />
+                      </Suspense>
+                    )
+              }
+            />
+          </div>
+          {draft !== null && (
+            <Suspense fallback={null}>
+              <AddPanel name={dashboard.name} draft={draft} change={change} />
+            </Suspense>
+          )}
+        </div>
       )}
-      {widgets.length === 0 && (
+      {shown.length === 0 && draft === null && (
         <Card className="space-y-3 p-12 text-center text-sm text-muted-foreground">
           <p>{__('No widgets yet')}</p>
           <p>

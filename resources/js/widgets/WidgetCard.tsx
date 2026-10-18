@@ -1,5 +1,5 @@
 import { on, request, useTranslation } from '@lathephp/core';
-import { Suspense, useEffect, useEffectEvent, useRef, useState } from 'react';
+import { type ReactNode, Suspense, useEffect, useEffectEvent, useRef, useState } from 'react';
 import { Button } from '../components/ui/Button';
 import { Card } from '../components/ui/Card';
 import { Select } from '../components/ui/Select';
@@ -34,9 +34,11 @@ export interface WidgetCardProps {
   range?: string;
   /** Gives the card its ⋯ menu, as a dashboard does. */
   menu?: boolean;
+  /** Customize mode's header for the card. The card then keeps its last value, dimmed, and does not refetch. */
+  edit?: ReactNode;
 }
 
-export function WidgetCard({ widget, url, params, deferred, register, range: hostRange, menu = false }: WidgetCardProps) {
+export function WidgetCard({ widget, url, params, deferred, register, range: hostRange, menu = false, edit }: WidgetCardProps) {
   const { __ } = useTranslation();
   const Renderer = widgetRenderers[widget.component];
   const fetches = widget.requestsValue && Renderer !== undefined;
@@ -51,6 +53,7 @@ export function WidgetCard({ widget, url, params, deferred, register, range: hos
   const latest = useRef(0);
   // The filters of the last filters:changed, sent with every later request.
   const filters = useRef<[string, string][]>([]);
+  const editing = edit !== undefined;
 
   // Asks for the value and keeps the number on screen until the answer: a poll or an event.
   const send = (nextRange: string | null) => {
@@ -115,7 +118,7 @@ export function WidgetCard({ widget, url, params, deferred, register, range: hos
   }, []);
 
   useEffect(() => {
-    if (!fetches || widget.refreshEvery <= 0) {
+    if (!fetches || editing || widget.refreshEvery <= 0) {
       return;
     }
 
@@ -126,7 +129,7 @@ export function WidgetCard({ widget, url, params, deferred, register, range: hos
     return () => {
       clearInterval(interval);
     };
-  }, [fetches, widget.refreshEvery]);
+  }, [fetches, editing, widget.refreshEvery]);
 
   useEffect(() => {
     const refetch = () => {
@@ -136,15 +139,17 @@ export function WidgetCard({ widget, url, params, deferred, register, range: hos
       filters.current = filterParams(payload);
       quietly();
     };
-    const offs = [
-      fetches && widget.refreshWhenActionsRun ? on('actions:ran', refetch) : null,
-      fetches && widget.refreshWhenFiltersChange ? on('filters:changed', refilter) : null,
-    ];
+    const offs = editing
+      ? []
+      : [
+          fetches && widget.refreshWhenActionsRun ? on('actions:ran', refetch) : null,
+          fetches && widget.refreshWhenFiltersChange ? on('filters:changed', refilter) : null,
+        ];
 
     return () => {
       offs.forEach((off) => off?.());
     };
-  }, [fetches, widget.refreshWhenActionsRun, widget.refreshWhenFiltersChange]);
+  }, [fetches, editing, widget.refreshWhenActionsRun, widget.refreshWhenFiltersChange]);
 
   // The host's range changed: the first value already came with the page, so only later picks refetch.
   const shownRange = useRef(hostRange);
@@ -182,42 +187,48 @@ export function WidgetCard({ widget, url, params, deferred, register, range: hos
 
   return (
     // The card does not clip, so its menu can open past its edge; its body clips instead.
-    <Card data-lathe-widget={widget.uriKey} aria-busy={refreshing || undefined} className={cn('relative flex flex-col gap-2 p-4', cellClass(widget))}>
+    <Card
+      data-lathe-widget={widget.uriKey}
+      aria-busy={refreshing || undefined}
+      className={cn('relative flex flex-col gap-2 p-4', editing && 'border-dashed border-ring', cellClass(widget))}
+    >
       {refreshing && <span aria-hidden="true" className="absolute inset-x-0 top-0 h-0.5 rounded-t-[inherit] bg-brand" />}
-      <div className="flex items-center justify-between gap-2">
-        <div className="flex min-w-0 items-center gap-1">
-          <h2 className="truncate text-sm font-medium text-muted-foreground">{widget.name}</h2>
-          {widget.help !== null && <HelpTooltip text={widget.help} width={widget.helpWidth} />}
+      {edit ?? (
+        <div className="flex items-center justify-between gap-2">
+          <div className="flex min-w-0 items-center gap-1">
+            <h2 className="truncate text-sm font-medium text-muted-foreground">{widget.name}</h2>
+            {widget.help !== null && <HelpTooltip text={widget.help} width={widget.helpWidth} />}
+          </div>
+          {refreshing ? (
+            <span className="text-xs text-muted-foreground">{__('Updating…')}</span>
+          ) : (
+            value?.fallbackRange !== undefined && <span className="shrink-0 text-xs text-muted-foreground">{value.fallbackRange.label}</span>
+          )}
+          {hostRange === undefined && widget.ranges.length > 0 && (
+            <Select
+              aria-label={__('Range')}
+              size="sm"
+              value={range ?? ''}
+              options={widget.ranges.map((option) => ({ value: String(option.value), label: option.label }))}
+              onChange={(next) => {
+                setRange(next);
+                load(next);
+              }}
+            />
+          )}
+          {menu && fetches && (
+            <WidgetMenu
+              name={widget.name}
+              link={value?.link ?? null}
+              csv={widget.csv === true ? `${url}/csv${range === null ? '' : `?${new URLSearchParams({ range }).toString()}`}` : null}
+              onRefresh={() => {
+                load();
+              }}
+            />
+          )}
         </div>
-        {refreshing ? (
-          <span className="text-xs text-muted-foreground">{__('Updating…')}</span>
-        ) : (
-          value?.fallbackRange !== undefined && <span className="shrink-0 text-xs text-muted-foreground">{value.fallbackRange.label}</span>
-        )}
-        {hostRange === undefined && widget.ranges.length > 0 && (
-          <Select
-            aria-label={__('Range')}
-            size="sm"
-            value={range ?? ''}
-            options={widget.ranges.map((option) => ({ value: String(option.value), label: option.label }))}
-            onChange={(next) => {
-              setRange(next);
-              load(next);
-            }}
-          />
-        )}
-        {menu && fetches && (
-          <WidgetMenu
-            name={widget.name}
-            link={value?.link ?? null}
-            csv={widget.csv === true ? `${url}/csv${range === null ? '' : `?${new URLSearchParams({ range }).toString()}`}` : null}
-            onRefresh={() => {
-              load();
-            }}
-          />
-        )}
-      </div>
-      <div className={cn('min-h-0 flex-1 overflow-hidden', refreshing && 'opacity-60')}>
+      )}
+      <div inert={editing} className={cn('min-h-0 flex-1 overflow-hidden', refreshing && 'opacity-60', editing && 'pointer-events-none opacity-55')}>
         {error ? (
           <div className="flex flex-col items-start gap-1 text-sm">
             <p className="font-medium text-destructive-subtle-foreground">{__(':title could not load', { title: widget.name })}</p>

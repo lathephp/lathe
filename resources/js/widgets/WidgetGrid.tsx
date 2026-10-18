@@ -1,5 +1,5 @@
 import { useTranslation } from '@lathephp/core';
-import { useState } from 'react';
+import { type ReactNode, useState } from 'react';
 import { Button } from '../components/ui/Button';
 import { gridClass } from './layout';
 import type { WidgetDescriptor } from './types';
@@ -19,10 +19,12 @@ export interface WidgetGridProps {
   reloads?: Set<() => void>;
   /** On a dashboard: gives every card its ⋯ menu. */
   menus?: boolean;
+  /** In Customize mode: each card's edit header. */
+  edit?: (widget: WidgetDescriptor) => ReactNode;
 }
 
 /** The cards of a dashboard, a Resource page or a lens, on a 12-column grid. */
-export function WidgetGrid({ widgets, valueUrl, params, deferred, showRefreshButton = false, range, reloads: hostReloads, menus = false }: WidgetGridProps) {
+export function WidgetGrid({ widgets, valueUrl, params, deferred, showRefreshButton = false, range, reloads: hostReloads, menus = false, edit }: WidgetGridProps) {
   const { __ } = useTranslation();
   // The cards' reload functions; one Set for the life of the grid.
   const [ownReloads] = useState(() => new Set<() => void>());
@@ -63,6 +65,7 @@ export function WidgetGrid({ widgets, valueUrl, params, deferred, showRefreshBut
             register={register}
             range={range}
             menu={menus}
+            edit={edit?.(widget)}
           />
         ))}
       </div>

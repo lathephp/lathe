@@ -22,6 +22,7 @@ All notable changes to Lathe are listed here. The format follows [Keep a Changel
 
 ### Changed
 
+- A customizable dashboard has a Customize button. In Customize mode a user moves cards by dragging their handle or with the keyboard, sets a card's size or hides it from its ⋯ menu, adds hidden cards back, then saves the layout for their account, cancels or resets to the default.
 - Each dashboard card has a ⋯ menu with Refresh, Open records when the card links to records the user may list, and Download CSV for chart and table cards.
 - [api] Dashboard cards in one row share the tallest card's height, and `height()` is now a minimum. A value card shows every digit on a desktop and a short form on a phone, the change as a signed badge, then "vs" and the earlier value; with no earlier data it says so. `ValueResult::lowerIsBetter()` shows a rise in the destructive colour and a fall in the success colour. The grid gap is 20 px, and below 768 px value cards sit two across.
 - A pie widget with more than six slices draws as bars: the five largest against the largest, then the rest added up as one Other row.

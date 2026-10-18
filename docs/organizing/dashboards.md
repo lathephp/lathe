@@ -175,6 +175,10 @@ Turn it off for a dashboard with `customizable(false)`. The layout routes then a
 Lathe::registerDashboards(Finance::make()->customizable(false));
 ```
 
+### Customize
+
+On the page, a user presses Customize to change their layout. Each card shows a drag handle and a ⋯ menu with five sizes (Small, Medium, Large, Wide and Full) and Hide from this dashboard. A card moves by dragging its handle, or with the keyboard: focus the handle, press Space, move it with the arrow keys and press Space again. The Add a widget panel lists the hidden cards, and Add puts one at the end of the page. Save layout stores the layout for that user, Cancel drops the changes, and Reset to default deletes the saved layout. A dashboard with `customizable(false)` has no Customize button.
+
 ## The sidebar entry
 
 Each dashboard adds its own link to the sidebar through its `menu()` method. Override it to change that link, for example to add a badge:

@@ -19,6 +19,12 @@ export interface WidgetDescriptor {
   [option: string]: unknown;
 }
 
+/** Customize mode's unsaved layout: the shown cards in order, at their draft sizes, and the hidden ones. */
+export interface LayoutDraft {
+  shown: WidgetDescriptor[];
+  hidden: WidgetDescriptor[];
+}
+
 /** A value response and a deferred value prop: {name, uriKey, component, value}. */
 export interface WidgetValue {
   name: string;
