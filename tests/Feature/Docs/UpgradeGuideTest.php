@@ -51,3 +51,20 @@ it('lists the api entries of the newest release since the one before', function 
         ->not->toContain('Not released yet')
         ->not->toContain('A fix with no API change');
 })->group('frontend');
+
+it('lists the copper round changes once the unreleased entries ship', function () {
+    $root = dirname(__DIR__, 3);
+    $next = str_replace('## [Unreleased]', "## [Unreleased]\n\n## [1.0.0-beta.3] - 2026-10-30", File::get("{$root}/CHANGELOG.md"));
+
+    expect(upgradeGuide($next))->toContain(
+        '## 1.0.0-beta.2 to 1.0.0-beta.3',
+        'copper',
+        '`brand`, `focus`',
+        '`@lathephp/ui/sonner` subpath is removed',
+        '`@lathephp/ui/select`',
+        '"Sign out"',
+        '`SelectField::badges()`',
+        '24-hour clock',
+        '`Lathe\Theme\Color`',
+    );
+})->group('frontend');
