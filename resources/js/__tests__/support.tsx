@@ -69,10 +69,89 @@ export function renderPage(component: string, props: Record<string, unknown>, op
     <App
       initialPage={initialPage}
       initialComponent={Component}
-      resolveComponent={() => Component}
+      resolveComponent={(name) => {
+        const page = pages[`../pages/${name}.tsx`]?.default;
+
+        if (page === undefined) {
+          throw new Error(`No page named "${name}".`);
+        }
+
+        return page;
+      }}
       defaultLayout={panelLayout}
     />,
   );
+}
+
+/** One request Inertia sent through the fake XMLHttpRequest, answered when the test says so. */
+export interface FakeRequest {
+  method: string;
+  url: string;
+  headers: Record<string, string>;
+  /** Answers with this Inertia page, as the panel's server would. */
+  respond: (status: number, page: { component: string; props: Record<string, unknown>; url: string }) => void;
+}
+
+/**
+ * Stands in for the browser's XMLHttpRequest, so a test drives real Inertia visits: each request
+ * waits in the list until the test answers it. Undo it with vi.unstubAllGlobals().
+ */
+export function fakeInertiaServer(): FakeRequest[] {
+  const requests: FakeRequest[] = [];
+
+  class FakeXhr {
+    status = 0;
+    responseText = '';
+    upload = {};
+    onload: (() => void) | null = null;
+    onerror: (() => void) | null = null;
+    onabort: (() => void) | null = null;
+    private method = 'GET';
+    private url = '';
+    private headers: Record<string, string> = {};
+    private responseHeaders = '';
+
+    open(method: string, url: string) {
+      this.method = method;
+      this.url = url;
+    }
+
+    setRequestHeader(name: string, value: string) {
+      this.headers[name] = value;
+    }
+
+    getAllResponseHeaders() {
+      return this.responseHeaders;
+    }
+
+    abort() {
+      this.onabort?.();
+    }
+
+    send() {
+      requests.push({
+        method: this.method,
+        url: this.url,
+        headers: this.headers,
+        respond: (status, page) => {
+          this.status = status;
+          this.responseHeaders = 'content-type: application/json\r\nx-inertia: true';
+          this.responseText = JSON.stringify({
+            version: null,
+            flash: {},
+            rescuedProps: [],
+            ...page,
+            props: { errors: {}, ...sharedProps(), ...page.props },
+          });
+          this.onload?.();
+        },
+      });
+    }
+  }
+
+  vi.stubGlobal('XMLHttpRequest', FakeXhr);
+
+  return requests;
 }
 
 /** Every text node and accessible label on screen, trimmed, in document order. */
