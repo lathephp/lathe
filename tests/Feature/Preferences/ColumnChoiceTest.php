@@ -15,9 +15,9 @@ it('leaves out a hidden column', function () {
 });
 
 it('shows the columns in the chosen order', function () {
-    $choice = ['order' => ['placed_at', 'total_cents', 'number', 'customer', 'status'], 'hidden' => [], 'pinned' => []];
+    $choice = ['order' => ['number', 'placed_at', 'total_cents', 'customer', 'status'], 'hidden' => [], 'pinned' => []];
 
-    expect(ColumnChoice::visible(ORDER_COLUMNS, $choice))->toBe(['placed_at', 'total_cents', 'number', 'customer', 'status']);
+    expect(ColumnChoice::visible(ORDER_COLUMNS, $choice))->toBe(['number', 'placed_at', 'total_cents', 'customer', 'status']);
 });
 
 it('keeps a pinned column pinned', function () {
@@ -34,9 +34,9 @@ it('drops a column removed from code', function () {
 });
 
 it('shows a column added in code at the end', function () {
-    $choice = ['order' => ['status', 'number'], 'hidden' => [], 'pinned' => []];
+    $choice = ['order' => ['number', 'status'], 'hidden' => [], 'pinned' => []];
 
-    expect(ColumnChoice::visible(['number', 'status', 'placed_at'], $choice))->toBe(['status', 'number', 'placed_at']);
+    expect(ColumnChoice::visible(['number', 'customer', 'status', 'placed_at'], $choice))->toBe(['number', 'status', 'customer', 'placed_at']);
 });
 
 it('drops a hidden column that was later removed from code', function () {
@@ -46,10 +46,10 @@ it('drops a hidden column that was later removed from code', function () {
 });
 
 it('drops unknown keys, duplicates and items that are not strings', function () {
-    $choice = ['order' => ['status', 'status', 'nope', 7, 'number'], 'hidden' => ['nope', 'customer', 'customer'], 'pinned' => ['total_cents', 'total_cents', 'nope']];
+    $choice = ['order' => ['number', 'status', 'status', 'nope', 7], 'hidden' => ['nope', 'customer', 'customer'], 'pinned' => ['total_cents', 'total_cents', 'nope']];
 
     expect(ColumnChoice::age(ORDER_COLUMNS, $choice))->toBe([
-        'order' => ['status', 'number', 'customer', 'total_cents', 'placed_at'],
+        'order' => ['number', 'status', 'customer', 'total_cents', 'placed_at'],
         'hidden' => ['customer'],
         'pinned' => ['total_cents'],
     ]);
@@ -60,4 +60,12 @@ it('keeps a hidden column in the order, so the picker can show it again', functi
 
     expect($aged['order'])->toBe(ORDER_COLUMNS)
         ->and(ColumnChoice::visible(ORDER_COLUMNS, $aged))->toBe(['number', 'status', 'total_cents', 'placed_at']);
+});
+
+it('keeps the title column shown and first, whatever a request asks', function () {
+    $aged = ColumnChoice::age(ORDER_COLUMNS, ['order' => ['status', 'number'], 'hidden' => ORDER_COLUMNS, 'pinned' => []]);
+
+    expect($aged['order'][0])->toBe('number')
+        ->and($aged['hidden'])->toBe(['customer', 'status', 'total_cents', 'placed_at'])
+        ->and(ColumnChoice::visible(ORDER_COLUMNS, $aged))->toBe(['number']);
 });

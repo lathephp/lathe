@@ -17,7 +17,7 @@ class ColumnChoice
     }
 
     /**
-     * The choice with only the code's keys, each once. Code keys the order lacks join its end.
+     * The choice with only the code's keys, each once, the title column first and shown. Code keys the order lacks join its end.
      *
      * @param  list<string>  $codeKeys
      * @param  array<array-key, mixed>  $choice
@@ -25,8 +25,10 @@ class ColumnChoice
      */
     public static function age(array $codeKeys, array $choice): array
     {
-        $order = self::known($codeKeys, $choice['order'] ?? []);
-        $hidden = self::known($codeKeys, $choice['hidden'] ?? []);
+        // The first code column is the title: always shown and always first, as the picker locks it.
+        $title = array_slice($codeKeys, 0, 1);
+        $order = [...$title, ...array_values(array_diff(self::known($codeKeys, $choice['order'] ?? []), $title))];
+        $hidden = array_values(array_diff(self::known($codeKeys, $choice['hidden'] ?? []), $title));
 
         return [
             // Every code column has a place in the order, the hidden ones too, so the picker lists them all.

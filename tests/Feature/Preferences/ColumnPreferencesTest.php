@@ -61,11 +61,11 @@ it('hides and pins columns for the user who saved them only', function () {
 it('cleans the saved choice of unknown keys and duplicates', function () {
     columnsAs('admin@lathephp.com');
 
-    $this->putJson(COLUMNS_URL, ['order' => ['placed_at', 'nope', 'placed_at', 'number'], 'hidden' => ['status', 'status'], 'pinned' => ['nope']])
+    $this->putJson(COLUMNS_URL, ['order' => ['number', 'placed_at', 'nope', 'placed_at'], 'hidden' => ['status', 'status'], 'pinned' => ['nope']])
         ->assertOk()
-        ->assertExactJson(['order' => ['placed_at', 'number', 'customer', 'status', 'total_cents'], 'hidden' => ['status'], 'pinned' => []]);
+        ->assertExactJson(['order' => ['number', 'placed_at', 'customer', 'status', 'total_cents'], 'hidden' => ['status'], 'pinned' => []]);
 
-    expect(array_column($this->getJson('/lathe/api/resources/orders')->json('table.columns'), 'key'))->toBe(['placed_at', 'number', 'customer', 'total_cents']);
+    expect(array_column($this->getJson('/lathe/api/resources/orders')->json('table.columns'), 'key'))->toBe(['number', 'placed_at', 'customer', 'total_cents']);
 });
 
 it('refuses a malformed choice', function (array $body) {
