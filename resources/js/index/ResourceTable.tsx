@@ -1,10 +1,11 @@
 import { useTranslation } from '@lathephp/core';
 import { router, usePage } from '@inertiajs/react';
 import { ArrowDown, ArrowUp, Eye } from 'lucide-react';
-import { Fragment, Suspense, useState, type MouseEvent } from 'react';
+import { Fragment, Suspense, useRef, useState, type MouseEvent } from 'react';
 import type { FieldSchema } from '../fields/types';
 import { PreviewModal } from '../fields/relation/lazy';
 import { cn } from '../lib/cn';
+import { instantProps } from '../lib/pages';
 import { TableCell } from '../table/cells';
 import type { SharedProps } from '../types';
 import { GroupHeaderRow } from './GroupHeaderRow';
@@ -119,6 +120,24 @@ export function ResourceTable({ resource, table, state, loading, selection, sort
     return clickAction === 'edit' ? (row.abilities.update === true ? `${detail}/edit` : detail) : null;
   }
 
+  // A record page opens at once with the row's title; an edit form has no skeleton, so it waits.
+  function visitOptions(row: Row) {
+    return clickAction === 'detail' ? { component: 'Resources/Detail', pageProps: instantProps(row.title) } : {};
+  }
+
+  // Resting on a row's first cell for 75 ms fetches its page, kept 30 s or until a write to the resource.
+  const hover = useRef<number | undefined>(undefined);
+
+  function prefetchRow(row: Row) {
+    const url = rowUrl(row);
+
+    if (url !== null) {
+      hover.current = window.setTimeout(() => {
+        router.prefetch(url, visitOptions(row), { cacheFor: '30s', cacheTags: `resource:${resource.uriKey}` });
+      }, 75);
+    }
+  }
+
   function clickRow(event: MouseEvent<HTMLTableRowElement>, row: Row) {
     // A click inside a portal, such as an inline select's list, reaches the row through
     // React's tree but not the page's, so the row is not where it landed.
@@ -147,7 +166,7 @@ export function ResourceTable({ resource, table, state, loading, selection, sort
     if (event.metaKey || event.ctrlKey) {
       window.open(url, '_blank', 'noopener');
     } else {
-      router.visit(url);
+      router.visit(url, visitOptions(row));
     }
   }
 
@@ -271,7 +290,24 @@ export function ResourceTable({ resource, table, state, loading, selection, sort
                           const inline = column.inline === true && row.abilities.update === true;
 
                           return (
-                            <td key={column.key} className={inline ? cellClasses[index]?.inline : cellClasses[index]?.plain}>
+                            <td
+                              key={column.key}
+                              className={inline ? cellClasses[index]?.inline : cellClasses[index]?.plain}
+                              onMouseEnter={
+                                index === 0
+                                  ? () => {
+                                      prefetchRow(row);
+                                    }
+                                  : undefined
+                              }
+                              onMouseLeave={
+                                index === 0
+                                  ? () => {
+                                      window.clearTimeout(hover.current);
+                                    }
+                                  : undefined
+                              }
+                            >
                               {cell !== undefined &&
                                 (inline ? (
                                   <InlineCell
