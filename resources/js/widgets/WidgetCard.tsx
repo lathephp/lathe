@@ -29,14 +29,17 @@ export interface WidgetCardProps {
   deferred?: DeferredValue;
   /** Hands the grid a function that refetches the card, for the Refresh button. */
   register?: (reload: () => void) => () => void;
+  /** The range the host picked for every card, as a dashboard's header does; the card then has no picker of its own. */
+  range?: string;
 }
 
-export function WidgetCard({ widget, url, params, deferred, register }: WidgetCardProps) {
+export function WidgetCard({ widget, url, params, deferred, register, range: hostRange }: WidgetCardProps) {
   const { __ } = useTranslation();
   const Renderer = widgetRenderers[widget.component];
   const fetches = widget.requestsValue && Renderer !== undefined;
   const first = widget.ranges.find((option) => option.value === widget.defaultRange) ?? widget.ranges[0];
-  const [range, setRange] = useState(first === undefined ? null : String(first.value));
+  const [ownRange, setRange] = useState(first === undefined ? null : String(first.value));
+  const range = hostRange ?? ownRange;
   const [fetched, setFetched] = useState<WidgetValue | undefined>(undefined);
   const [failed, setFailed] = useState(false);
   const [pending, setPending] = useState(fetches && deferred === undefined);
@@ -67,14 +70,19 @@ export function WidgetCard({ widget, url, params, deferred, register }: WidgetCa
       },
     );
   };
-  // Puts up the skeleton for at least the floor, then asks: a range change, Retry or Refresh.
+  // Puts up the skeleton for at least the floor, then asks: a range change, Try again or Refresh.
+  // Under a host range the card dims its last value instead, so it holds no skeleton.
   const load = (nextRange = range) => {
     setPending(true);
-    setHeld(true);
-    clearTimeout(holdTimer.current);
-    holdTimer.current = setTimeout(() => {
-      setHeld(false);
-    }, skeletonFloor);
+
+    if (hostRange === undefined) {
+      setHeld(true);
+      clearTimeout(holdTimer.current);
+      holdTimer.current = setTimeout(() => {
+        setHeld(false);
+      }, skeletonFloor);
+    }
+
     send(nextRange);
   };
   const quietly = useEffectEvent(() => {
@@ -135,6 +143,19 @@ export function WidgetCard({ widget, url, params, deferred, register }: WidgetCa
     };
   }, [fetches, widget.refreshWhenActionsRun, widget.refreshWhenFiltersChange]);
 
+  // The host's range changed: the first value already came with the page, so only later picks refetch.
+  const shownRange = useRef(hostRange);
+  const repick = useEffectEvent(() => {
+    if (fetches && shownRange.current !== hostRange) {
+      shownRange.current = hostRange;
+      load();
+    }
+  });
+
+  useEffect(() => {
+    repick();
+  }, [hostRange]);
+
   useEffect(
     () =>
       fetches
@@ -147,7 +168,8 @@ export function WidgetCard({ widget, url, params, deferred, register }: WidgetCa
 
   const value = fetched ?? deferred?.value;
   const error = Renderer === undefined || (!pending && (failed || (fetched === undefined && deferred?.rescued === true)));
-  const loading = !error && (held || pending || (fetches && value === undefined));
+  const refreshing = !error && hostRange !== undefined && pending && value !== undefined;
+  const loading = !error && !refreshing && (held || pending || (fetches && value === undefined));
   const skeleton = (
     <div role="status" aria-label={__('Loading')} className="space-y-2">
       <div className="h-8 w-24 animate-pulse rounded bg-muted" />
@@ -156,13 +178,19 @@ export function WidgetCard({ widget, url, params, deferred, register }: WidgetCa
   );
 
   return (
-    <Card data-lathe-widget={widget.uriKey} className={cn('flex flex-col gap-2 overflow-hidden p-4', cellClass(widget))}>
+    <Card data-lathe-widget={widget.uriKey} aria-busy={refreshing || undefined} className={cn('relative flex flex-col gap-2 overflow-hidden p-4', cellClass(widget))}>
+      {refreshing && <span aria-hidden="true" className="absolute inset-x-0 top-0 h-0.5 bg-brand" />}
       <div className="flex items-center justify-between gap-2">
         <div className="flex min-w-0 items-center gap-1">
           <h2 className="truncate text-sm font-medium text-muted-foreground">{widget.name}</h2>
           {widget.help !== null && <HelpTooltip text={widget.help} width={widget.helpWidth} />}
         </div>
-        {widget.ranges.length > 0 && (
+        {refreshing ? (
+          <span className="text-xs text-muted-foreground">{__('Updating…')}</span>
+        ) : (
+          value?.fallbackRange !== undefined && <span className="shrink-0 text-xs text-muted-foreground">{value.fallbackRange.label}</span>
+        )}
+        {hostRange === undefined && widget.ranges.length > 0 && (
           <Select
             aria-label={__('Range')}
             size="sm"
@@ -175,19 +203,21 @@ export function WidgetCard({ widget, url, params, deferred, register }: WidgetCa
           />
         )}
       </div>
-      <div className="min-h-0 flex-1">
+      <div className={cn('min-h-0 flex-1', refreshing && 'opacity-60')}>
         {error ? (
-          <div className="flex flex-col items-start gap-2 text-sm text-muted-foreground">
-            <p>{__('The widget could not be loaded.')}</p>
+          <div className="flex flex-col items-start gap-1 text-sm">
+            <p className="font-medium text-destructive-subtle-foreground">{__(':title could not load', { title: widget.name })}</p>
+            <p className="text-xs text-muted-foreground">{__('The other widgets are not affected.')}</p>
             {Renderer !== undefined && (
               <Button
                 variant="outline"
                 size="sm"
+                className="mt-1"
                 onClick={() => {
                   load();
                 }}
               >
-                {__('Retry')}
+                {__('Try again')}
               </Button>
             )}
           </div>

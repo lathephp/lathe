@@ -8,7 +8,7 @@ afterEach(() => {
   vi.unstubAllEnvs();
 });
 
-const dashboard = { dashboard: { uriKey: 'main', name: 'Dashboard', description: null, icon: null, showRefreshButton: false }, widgets: [] };
+const dashboard = { dashboard: { uriKey: 'main', name: 'Dashboard', description: null, icon: null, showRefreshButton: false, ranges: [], range: null }, widgets: [] };
 
 interface Seen {
   slotVersion?: number;

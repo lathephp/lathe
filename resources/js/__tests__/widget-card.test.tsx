@@ -52,7 +52,19 @@ function valueOf(uriKey: string, value: number) {
   };
 }
 
-const dashboard = { uriKey: 'main', name: 'Sales', description: null, icon: null, showRefreshButton: false };
+const dashboard = {
+  uriKey: 'main',
+  name: 'Sales',
+  description: null,
+  icon: null,
+  showRefreshButton: false,
+  ranges: [
+    { value: 7, label: '7 days' },
+    { value: 30, label: '30 days' },
+    { value: 365, label: '12 months' },
+  ],
+  range: 30,
+};
 
 /** Answers every value request with the number the handler picks; the list endpoint answers `list`. */
 const urlOf = (input: RequestInfo | URL): string => (typeof input === 'string' ? input : input instanceof URL ? input.href : input.url);
@@ -90,13 +102,13 @@ function card(uriKey: string): HTMLElement {
   return found;
 }
 
-function renderDashboard(widgets: WidgetDescriptor[], values: Record<string, number>, page: Record<string, unknown> = {}, showRefreshButton = false) {
+function renderDashboard(widgets: WidgetDescriptor[], values: Record<string, number>, page: Record<string, unknown> = {}) {
   const reload = vi.spyOn(router, 'reload').mockImplementation(() => undefined);
 
   renderPage(
     'Dashboard',
     {
-      dashboard: { ...dashboard, showRefreshButton },
+      dashboard,
       widgets,
       ...Object.fromEntries(Object.entries(values).map(([key, value]) => [`widgetValue:${key}`, valueOf(key, value)])),
     },
@@ -131,21 +143,21 @@ describe('the dashboard grid', () => {
     });
   });
 
-  it('shows a failed card alone, with Retry that loads the value', async () => {
+  it('shows a failed card alone, with Try again that loads the value', async () => {
     const fetch = answer(() => 42);
     renderDashboard([descriptor('orders'), descriptor('revenue')], { orders: 1234 }, { rescuedProps: ['widgetValue:revenue'] });
 
     await waitFor(() => {
-      expect(within(card('revenue')).getByText('The widget could not be loaded.')).toBeTruthy();
+      expect(within(card('revenue')).getByText('Revenue could not load')).toBeTruthy();
       expect(within(card('orders')).getByText('1,234')).toBeTruthy();
     });
 
-    fireEvent.click(within(card('revenue')).getByRole('button', { name: 'Retry' }));
+    fireEvent.click(within(card('revenue')).getByRole('button', { name: 'Try again' }));
 
     await waitFor(() => {
       expect(within(card('revenue')).getByText('42')).toBeTruthy();
     });
-    expect(calls(fetch)).toEqual(['/lathe/api/dashboards/main/widgets/revenue']);
+    expect(calls(fetch)).toEqual(['/lathe/api/dashboards/main/widgets/revenue?range=30']);
   });
 
   it('keeps the empty state of a dashboard with no widgets', () => {
@@ -155,9 +167,9 @@ describe('the dashboard grid', () => {
     expect(document.querySelector('[data-lathe-widget]')).toBeNull();
   });
 
-  it('refetches every card from the Refresh button', async () => {
+  it('refetches every card from the Refresh button in the header', async () => {
     const fetch = answer((url) => (url.includes('orders') ? 7 : 8));
-    renderDashboard([descriptor('orders'), descriptor('revenue')], { orders: 1, revenue: 2 }, {}, true);
+    renderDashboard([descriptor('orders'), descriptor('revenue')], { orders: 1, revenue: 2 });
 
     fireEvent.click(screen.getByRole('button', { name: 'Refresh' }));
 
@@ -165,13 +177,98 @@ describe('the dashboard grid', () => {
       expect(within(card('orders')).getByText('7')).toBeTruthy();
       expect(within(card('revenue')).getByText('8')).toBeTruthy();
     });
-    expect(calls(fetch).sort()).toEqual(['/lathe/api/dashboards/main/widgets/orders', '/lathe/api/dashboards/main/widgets/revenue']);
+    expect(calls(fetch).sort()).toEqual(['/lathe/api/dashboards/main/widgets/orders?range=30', '/lathe/api/dashboards/main/widgets/revenue?range=30']);
+  });
+});
+
+describe('the dashboard range', () => {
+  const ranges = [
+    { value: 30, label: '30 Days' },
+    { value: 60, label: '60 Days' },
+  ];
+
+  it('offers one Range picker in the header and none on the cards', () => {
+    renderDashboard([descriptor('orders', { ranges }), descriptor('revenue')], { orders: 1, revenue: 2 });
+
+    const picker = screen.getByRole('radiogroup', { name: 'Range' });
+    expect(within(picker).getAllByRole('radio').map((radio) => radio.textContent)).toEqual(['7 days', '30 days', '12 months']);
+    expect(within(picker).getByRole('radio', { name: '30 days' }).getAttribute('aria-checked')).toBe('true');
+    expect(within(picker).getByRole('radio', { name: '7 days' }).getAttribute('aria-checked')).toBe('false');
+    expect(screen.queryByRole('combobox', { name: 'Range' })).toBeNull();
   });
 
-  it('has no Refresh button unless the dashboard asks for one', () => {
+  it('refetches every card with the picked range and keeps it in the URL', async () => {
+    const fetch = answer((url) => (url.includes('range=365') ? 365 : 30));
+    const { reload } = renderDashboard([descriptor('orders', { ranges }), descriptor('revenue')], { orders: 1, revenue: 2 });
+
+    fireEvent.click(screen.getByRole('radio', { name: '12 months' }));
+
+    await waitFor(() => {
+      expect(within(card('orders')).getByText('365')).toBeTruthy();
+      expect(within(card('revenue')).getByText('365')).toBeTruthy();
+    });
+    expect(calls(fetch).sort()).toEqual(['/lathe/api/dashboards/main/widgets/orders?range=365', '/lathe/api/dashboards/main/widgets/revenue?range=365']);
+    expect(window.location.pathname + window.location.search).toBe('/lathe?range=365');
+    expect(screen.getByRole('radio', { name: '12 months' }).getAttribute('aria-checked')).toBe('true');
+    expect(reload).not.toHaveBeenCalled();
+  });
+
+  it('names the range a card fell back to', async () => {
+    vi.spyOn(globalThis, 'fetch').mockResolvedValue(
+      new Response(JSON.stringify({ ...valueOf('orders', 5), fallbackRange: { value: 30, label: 'Last 30 days' } }), { status: 200 }),
+    );
     renderDashboard([descriptor('orders')], { orders: 1 });
 
-    expect(screen.queryByRole('button', { name: 'Refresh' })).toBeNull();
+    await waitFor(() => {
+      expect(within(card('orders')).getByText('1')).toBeTruthy();
+    });
+    fireEvent.click(screen.getByRole('radio', { name: '7 days' }));
+
+    await waitFor(() => {
+      expect(within(card('orders')).getByText('5')).toBeTruthy();
+    });
+    expect(within(card('orders')).getByText('Last 30 days')).toBeTruthy();
+  });
+
+  it('keeps the last value on screen, dimmed, while a card reloads', async () => {
+    let finish: (response: Response) => void = () => undefined;
+    vi.spyOn(globalThis, 'fetch').mockReturnValue(
+      new Promise((resolve) => {
+        finish = resolve;
+      }),
+    );
+    renderDashboard([descriptor('orders')], { orders: 1234 });
+
+    await waitFor(() => {
+      expect(within(card('orders')).getByText('1,234')).toBeTruthy();
+    });
+    fireEvent.click(screen.getByRole('radio', { name: '7 days' }));
+
+    await waitFor(() => {
+      expect(within(card('orders')).getByText('Updating…')).toBeTruthy();
+    });
+    expect(within(card('orders')).getByText('1,234').closest('.opacity-60')).not.toBeNull();
+    expect(within(card('orders')).queryByRole('status', { name: 'Loading' })).toBeNull();
+
+    finish(new Response(JSON.stringify(valueOf('orders', 7)), { status: 200 }));
+    await waitFor(() => {
+      expect(within(card('orders')).getByText('7')).toBeTruthy();
+    });
+    expect(within(card('orders')).queryByText('Updating…')).toBeNull();
+  });
+
+  it('shows a failed card by name while the others keep their values', async () => {
+    answer((url) => (url.includes('orders') ? new Error('Server Error') : 8));
+    renderDashboard([descriptor('orders'), descriptor('revenue')], { orders: 1, revenue: 2 });
+
+    fireEvent.click(screen.getByRole('radio', { name: '12 months' }));
+
+    await waitFor(() => {
+      expect(within(card('orders')).getByText('Orders could not load')).toBeTruthy();
+      expect(within(card('revenue')).getByText('8')).toBeTruthy();
+    });
+    expect(within(card('orders')).getByText('The other widgets are not affected.')).toBeTruthy();
+    expect(within(card('orders')).getByRole('button', { name: 'Try again' })).toBeTruthy();
   });
 });
 
@@ -184,7 +281,7 @@ describe('refresh triggers', () => {
 
     await pass(10_500);
 
-    expect(calls(fetch)).toEqual(['/lathe/api/dashboards/main/widgets/orders', '/lathe/api/dashboards/main/widgets/orders']);
+    expect(calls(fetch)).toEqual(['/lathe/api/dashboards/main/widgets/orders?range=30', '/lathe/api/dashboards/main/widgets/orders?range=30']);
     expect(visit).not.toHaveBeenCalled();
     expect(reload).not.toHaveBeenCalled();
   });
@@ -200,7 +297,7 @@ describe('refresh triggers', () => {
     await waitFor(() => {
       expect(within(card('orders')).getByText('9')).toBeTruthy();
     });
-    expect(calls(fetch)).toEqual(['/lathe/api/dashboards/main/widgets/orders']);
+    expect(calls(fetch)).toEqual(['/lathe/api/dashboards/main/widgets/orders?range=30']);
   });
 
   it('refetches after the filters change only the cards that ask for it', async () => {
@@ -214,30 +311,38 @@ describe('refresh triggers', () => {
     await waitFor(() => {
       expect(within(card('revenue')).getByText('9')).toBeTruthy();
     });
-    expect(calls(fetch)).toEqual(['/lathe/api/dashboards/main/widgets/revenue']);
+    expect(calls(fetch)).toEqual(['/lathe/api/dashboards/main/widgets/revenue?range=30']);
   });
 
-  it('refetches only the card whose range changes', async () => {
+  it('refetches only the card whose range changes on a Resource page', async () => {
     const fetch = answer((url) => (url.includes('range=60') ? 60 : 30));
     const ranges = [
       { value: 30, label: '30 Days' },
       { value: 60, label: '60 Days' },
     ];
-    renderDashboard([descriptor('orders', { ranges }), descriptor('revenue', { ranges })], { orders: 1, revenue: 2 });
+    render(<WidgetGrid widgets={[descriptor('orders', { ranges }), descriptor('revenue', { ranges })]} valueUrl="/lathe/api/resources/orders/widgets" />);
 
+    await waitFor(() => {
+      expect(within(card('revenue')).getByText('30')).toBeTruthy();
+    });
     await choose(within(card('orders')).getByRole('combobox', { name: 'Range' }), '60 Days');
 
     await waitFor(() => {
       expect(within(card('orders')).getByText('60')).toBeTruthy();
     });
-    expect(calls(fetch)).toEqual(['/lathe/api/dashboards/main/widgets/orders?range=60']);
-    expect(within(card('revenue')).getByText('2')).toBeTruthy();
+    expect(calls(fetch)).toEqual([
+      '/lathe/api/resources/orders/widgets/orders?range=30',
+      '/lathe/api/resources/orders/widgets/revenue?range=30',
+      '/lathe/api/resources/orders/widgets/orders?range=60',
+    ]);
+    expect(within(card('revenue')).getByText('30')).toBeTruthy();
   });
 });
 
 describe('the card', () => {
-  it('shows a range selector only when the widget has ranges', () => {
-    renderDashboard([descriptor('orders', { ranges: [{ value: 30, label: '30 Days' }] }), descriptor('revenue')], { orders: 1, revenue: 2 });
+  it('shows a range selector on a Resource page only when the widget has ranges', () => {
+    answer(() => 1);
+    render(<WidgetGrid widgets={[descriptor('orders', { ranges: [{ value: 30, label: '30 Days' }] }), descriptor('revenue')]} valueUrl="/lathe/api/resources/orders/widgets" />);
 
     expect(within(card('orders')).getByRole('combobox', { name: 'Range' })).toBeTruthy();
     expect(within(card('revenue')).queryByRole('combobox')).toBeNull();
@@ -262,7 +367,7 @@ describe('the card', () => {
     renderDashboard([descriptor('chart', { component: 'unknown-widget' })], { chart: 1 });
 
     await waitFor(() => {
-      expect(within(card('chart')).getByText('The widget could not be loaded.')).toBeTruthy();
+      expect(within(card('chart')).getByText('Chart could not load')).toBeTruthy();
     });
   });
 
@@ -305,17 +410,17 @@ describe('cards that fetch their own value', () => {
     expect(within(card('orders')).getByText('5')).toBeTruthy();
   });
 
-  it('shows a failed request with Retry, and Retry loads the value', async () => {
+  it('shows a failed request with Try again, and Try again loads the value', async () => {
     let fail = true;
     const fetch = answer(() => (fail ? new Error('Server Error') : 11));
     render(<WidgetGrid widgets={[descriptor('orders')]} valueUrl="/lathe/api/resources/orders/widgets" params={{ resourceId: '12' }} />);
 
     await waitFor(() => {
-      expect(within(card('orders')).getByText('The widget could not be loaded.')).toBeTruthy();
+      expect(within(card('orders')).getByText('Orders could not load')).toBeTruthy();
     });
 
     fail = false;
-    fireEvent.click(within(card('orders')).getByRole('button', { name: 'Retry' }));
+    fireEvent.click(within(card('orders')).getByRole('button', { name: 'Try again' }));
 
     await waitFor(() => {
       expect(within(card('orders')).getByText('11')).toBeTruthy();

@@ -6,7 +6,7 @@ import { SearchPalette } from '../palette/SearchPalette';
 import { renderPage } from './support';
 
 const recentsKey = 'lathe-recent-searches';
-const dashboard = { dashboard: { uriKey: 'main', name: 'Dashboard', description: null, icon: null, showRefreshButton: false }, widgets: [] };
+const dashboard = { dashboard: { uriKey: 'main', name: 'Dashboard', description: null, icon: null, showRefreshButton: false, ranges: [], range: null }, widgets: [] };
 
 function row(resource: string, id: number, title: string, subTitle: string | null = null, avatar: string | null = null) {
   return {

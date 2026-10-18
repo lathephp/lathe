@@ -5,7 +5,7 @@ import { fakeInertiaServer, renderPage } from './support';
 // Its own file: Inertia's router and the browser history outlive a test.
 
 const dashboard = (name: string) => ({
-  dashboard: { uriKey: 'main', name, description: null, icon: null, showRefreshButton: false },
+  dashboard: { uriKey: 'main', name, description: null, icon: null, showRefreshButton: false, ranges: [], range: null },
   widgets: [],
 });
 

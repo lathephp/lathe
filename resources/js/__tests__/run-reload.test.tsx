@@ -42,7 +42,7 @@ const index = (status: string, definition: Record<string, unknown> = {}) => ({
   count: { value: 3, exact: true, capped: false, estimated: false },
 });
 
-const dashboard = { dashboard: { uriKey: 'main', name: 'Home', description: null, icon: null, showRefreshButton: false }, widgets: [] };
+const dashboard = { dashboard: { uriKey: 'main', name: 'Home', description: null, icon: null, showRefreshButton: false, ranges: [], range: null }, widgets: [] };
 
 let requests: FakeRequest[];
 

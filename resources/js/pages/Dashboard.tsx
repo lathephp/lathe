@@ -1,6 +1,10 @@
-import { Head, usePage } from '@inertiajs/react';
+import { Head, router, usePage } from '@inertiajs/react';
 import { useLathe, useTranslation } from '@lathephp/core';
+import { RefreshCw } from 'lucide-react';
+import { type KeyboardEvent, useEffect, useState } from 'react';
 import { AfterDelay, skeletonBar } from '../lib/instant';
+import { cn } from '../lib/cn';
+import { Button } from '../components/ui/Button';
 import { Card } from '../components/ui/Card';
 import type { WidgetDescriptor, WidgetValue } from '../widgets/types';
 import { WidgetGrid } from '../widgets/WidgetGrid';
@@ -11,6 +15,15 @@ export interface DashboardPayload {
   description: string | null;
   icon: string | null;
   showRefreshButton: boolean;
+  /** The header's range options; empty hides the picker. */
+  ranges: RangeOption[];
+  /** The picked range, from ?range=; null without options. */
+  range: number | string | null;
+}
+
+interface RangeOption {
+  value: number | string;
+  label: string;
 }
 
 // A shell command, so it is never translated.
@@ -32,19 +45,58 @@ function DashboardPage({ dashboard, widgets }: DashboardProps) {
   const page = usePage();
   // The server leaves rescuedProps out when no deferred prop failed, whatever the type says.
   const rescued = (page.rescuedProps as string[] | undefined) ?? [];
+  // The cards' reload functions, for the header's Refresh button.
+  const [reloads] = useState(() => new Set<() => void>());
+  const [updatedAt, setUpdatedAt] = useState(() => Date.now());
+  const range = dashboard.range === null ? undefined : String(dashboard.range);
+
+  // The pick goes into the URL without a server visit: the cards refetch through their own endpoint.
+  const pick = (value: number | string) => {
+    if (String(value) === range) {
+      return;
+    }
+
+    const url = new URL(page.url, window.location.origin);
+    url.searchParams.set('range', String(value));
+    setUpdatedAt(Date.now());
+    router.replace({
+      url: url.pathname + url.search,
+      props: (current) => ({ ...current, dashboard: { ...(current.dashboard as DashboardPayload), range: value } }),
+      preserveState: true,
+      preserveScroll: true,
+    });
+  };
+  const refresh = () => {
+    setUpdatedAt(Date.now());
+    reloads.forEach((reload) => {
+      reload();
+    });
+  };
 
   return (
     <div className="space-y-6">
       <Head title={dashboard.name} />
-      <div>
-        <h1 className="text-2xl font-semibold">{dashboard.name}</h1>
-        {dashboard.description !== null && <p className="text-sm text-muted-foreground">{dashboard.description}</p>}
+      <div className="flex flex-wrap items-center gap-x-3 gap-y-3">
+        <div className="min-w-0 flex-1">
+          <h1 className="text-2xl font-semibold">{dashboard.name}</h1>
+          {dashboard.description !== null && <p className="text-sm text-muted-foreground">{dashboard.description}</p>}
+        </div>
+        {widgets.length > 0 && (
+          <>
+            {dashboard.ranges.length > 0 && <RangePicker ranges={dashboard.ranges} value={range} onPick={pick} />}
+            <UpdatedAgo at={updatedAt} />
+            <Button variant="outline" size="icon" aria-label={__('Refresh')} onClick={refresh}>
+              <RefreshCw aria-hidden="true" className="size-4" />
+            </Button>
+          </>
+        )}
       </div>
       {widgets.length > 0 && (
         <WidgetGrid
           widgets={widgets}
           valueUrl={`${apiPath}/dashboards/${dashboard.uriKey}/widgets`}
-          showRefreshButton={dashboard.showRefreshButton}
+          range={range}
+          reloads={reloads}
           // Each card's value is its own deferred prop, so the cards fill in one by one.
           deferred={(uriKey) => ({
             value: page.props[`widgetValue:${uriKey}`] as WidgetValue | undefined,
@@ -68,6 +120,84 @@ function DashboardPage({ dashboard, widgets }: DashboardProps) {
         </Card>
       )}
     </div>
+  );
+}
+
+/** The header's segmented range control; below 768 px it takes a full-width row of its own. */
+function RangePicker({ ranges, value, onPick }: { ranges: RangeOption[]; value: string | undefined; onPick: (value: number | string) => void }) {
+  const { __ } = useTranslation();
+  const steps: Record<string, number> = { ArrowRight: 1, ArrowDown: 1, ArrowLeft: -1, ArrowUp: -1 };
+
+  // Arrow keys pick the next option and move focus to it, as a radio group does.
+  const move = (event: KeyboardEvent<HTMLButtonElement>, at: number) => {
+    const step = steps[event.key];
+
+    if (step === undefined) {
+      return;
+    }
+
+    event.preventDefault();
+    const next = event.currentTarget.parentElement?.children[(at + step + ranges.length) % ranges.length] as HTMLElement | undefined;
+    next?.focus();
+    next?.click();
+  };
+
+  return (
+    <div
+      role="radiogroup"
+      aria-label={__('Range')}
+      className="order-last grid basis-full auto-cols-fr grid-flow-col gap-0.5 rounded-lg border bg-muted p-0.5 md:order-none md:inline-grid md:basis-auto"
+    >
+      {ranges.map((option, at) => {
+        const checked = String(option.value) === value;
+
+        return (
+          <button
+            key={String(option.value)}
+            type="button"
+            role="radio"
+            aria-checked={checked}
+            tabIndex={checked ? 0 : -1}
+            className={cn(
+              'h-9 rounded-md px-2.5 text-sm font-medium whitespace-nowrap md:h-7',
+              checked ? 'bg-card text-foreground shadow-xs' : 'text-muted-foreground hover:text-foreground',
+            )}
+            onClick={() => {
+              onPick(option.value);
+            }}
+            onKeyDown={(event) => {
+              move(event, at);
+            }}
+          >
+            {option.label}
+          </button>
+        );
+      })}
+    </div>
+  );
+}
+
+/** "Updated ... ago" for the last pick or Refresh, rewritten each minute. */
+function UpdatedAgo({ at }: { at: number }) {
+  const { __ } = useTranslation();
+  const [now, setNow] = useState(at);
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setNow(Date.now());
+    }, 60_000);
+
+    return () => {
+      clearInterval(timer);
+    };
+  }, []);
+
+  const minutes = Math.floor(Math.max(0, now - at) / 60_000);
+
+  return (
+    <span className="hidden text-xs text-muted-foreground md:inline">
+      {minutes === 0 ? __('Updated just now') : __('Updated :count min ago', { count: minutes })}
+    </span>
   );
 }
 

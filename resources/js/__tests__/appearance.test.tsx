@@ -2,7 +2,7 @@ import { fireEvent, screen, waitFor, within } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { renderPage } from './support';
 
-const dashboard = { dashboard: { uriKey: 'main', name: 'Dashboard', description: null, icon: null, showRefreshButton: false }, widgets: [] };
+const dashboard = { dashboard: { uriKey: 'main', name: 'Dashboard', description: null, icon: null, showRefreshButton: false, ranges: [], range: null }, widgets: [] };
 const root = document.documentElement;
 
 /** A matchMedia that answers the dark query from `state.dark` and tells its listeners when it flips. */

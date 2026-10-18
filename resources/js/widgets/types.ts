@@ -23,6 +23,8 @@ export interface WidgetValue {
   uriKey: string;
   component: string;
   value: unknown;
+  /** On a dashboard: the card's own range, when it does not offer the one picked. */
+  fallbackRange?: { value: number | string; label: string };
 }
 
 /** What every renderer gets: the card and the value field of its response. */

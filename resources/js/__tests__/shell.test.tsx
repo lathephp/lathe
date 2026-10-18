@@ -8,7 +8,7 @@ import { assetHashFromUrl, markBuildStale, resetBuildStale, setEntryHash } from 
 import { showFlash } from '../lib/visits';
 import { bracketed, renderPage, visibleStrings } from './support';
 
-const dashboard = { dashboard: { uriKey: 'main', name: 'Dashboard', description: null, icon: null, showRefreshButton: false }, widgets: [] };
+const dashboard = { dashboard: { uriKey: 'main', name: 'Dashboard', description: null, icon: null, showRefreshButton: false, ranges: [], range: null }, widgets: [] };
 
 afterEach(() => {
   vi.restoreAllMocks();

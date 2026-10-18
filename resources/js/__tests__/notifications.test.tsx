@@ -323,7 +323,7 @@ describe('toast on a rise', () => {
 });
 
 describe('notifications.enabled', () => {
-  const dashboard = { dashboard: { uriKey: 'main', name: 'Dashboard', description: null, icon: null, showRefreshButton: false }, widgets: [] };
+  const dashboard = { dashboard: { uriKey: 'main', name: 'Dashboard', description: null, icon: null, showRefreshButton: false, ranges: [], range: null }, widgets: [] };
 
   it('mounts no bell and sends no request when off', async () => {
     renderPage('Dashboard', dashboard, { shared: { notifications: { enabled: false, pollingInterval: 7, showUnreadCount: false } } });

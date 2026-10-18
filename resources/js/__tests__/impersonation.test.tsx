@@ -13,7 +13,7 @@ afterEach(() => {
   vi.restoreAllMocks();
 });
 
-const dashboard = { dashboard: { uriKey: 'main', name: 'Dashboard', description: null, icon: null, showRefreshButton: false }, widgets: [] };
+const dashboard = { dashboard: { uriKey: 'main', name: 'Dashboard', description: null, icon: null, showRefreshButton: false, ranges: [], range: null }, widgets: [] };
 const json = (body: unknown) => new Response(JSON.stringify(body), { status: 200 });
 
 function impersonateCalls(fetch: { mock: { calls: unknown[][] } }) {

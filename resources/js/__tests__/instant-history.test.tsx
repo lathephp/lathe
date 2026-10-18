@@ -6,7 +6,7 @@ import { fakeInertiaServer, renderPage } from './support';
 // earlier test in the same file would sit in the history this one steps back through.
 
 const dashboard = (name: string) => ({
-  dashboard: { uriKey: 'main', name, description: null, icon: null, showRefreshButton: false },
+  dashboard: { uriKey: 'main', name, description: null, icon: null, showRefreshButton: false, ranges: [], range: null },
   widgets: [],
 });
 

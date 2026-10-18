@@ -31,7 +31,7 @@ const navigation = [
 ];
 
 const dashboard = (name: string) => ({
-  dashboard: { uriKey: 'main', name, description: null, icon: null, showRefreshButton: false },
+  dashboard: { uriKey: 'main', name, description: null, icon: null, showRefreshButton: false, ranges: [], range: null },
   widgets: [],
 });
 

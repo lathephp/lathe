@@ -5,7 +5,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { fakeInertiaServer, renderPage, type FakeRequest } from './support';
 
 const dashboard = (name: string) => ({
-  dashboard: { uriKey: 'main', name, description: null, icon: null, showRefreshButton: false },
+  dashboard: { uriKey: 'main', name, description: null, icon: null, showRefreshButton: false, ranges: [], range: null },
   widgets: [],
 });
 

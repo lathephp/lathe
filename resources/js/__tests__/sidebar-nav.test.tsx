@@ -4,7 +4,7 @@ import { describe, expect, it } from 'vitest';
 import type { SharedProps } from '../types';
 import { renderPage } from './support';
 
-const dashboard = { dashboard: { uriKey: 'main', name: 'Dashboard', description: null, icon: null, showRefreshButton: false }, widgets: [] };
+const dashboard = { dashboard: { uriKey: 'main', name: 'Dashboard', description: null, icon: null, showRefreshButton: false, ranges: [], range: null }, widgets: [] };
 
 // Groups and the optional keys go beyond NavigationSection, so the fixture is cast once here.
 const navigation = [

@@ -13,13 +13,18 @@ export interface WidgetGridProps {
   /** On a dashboard: each card's deferred value prop. */
   deferred?: (uriKey: string) => DeferredValue;
   showRefreshButton?: boolean;
+  /** On a dashboard: the header's range, which every card shows. */
+  range?: string;
+  /** The cards' reload functions, when the host has its own Refresh button. */
+  reloads?: Set<() => void>;
 }
 
 /** The cards of a dashboard, a Resource page or a lens, on a 12-column grid. */
-export function WidgetGrid({ widgets, valueUrl, params, deferred, showRefreshButton = false }: WidgetGridProps) {
+export function WidgetGrid({ widgets, valueUrl, params, deferred, showRefreshButton = false, range, reloads: hostReloads }: WidgetGridProps) {
   const { __ } = useTranslation();
   // The cards' reload functions; one Set for the life of the grid.
-  const [reloads] = useState(() => new Set<() => void>());
+  const [ownReloads] = useState(() => new Set<() => void>());
+  const reloads = hostReloads ?? ownReloads;
   const register = (reload: () => void) => {
     reloads.add(reload);
 
@@ -54,6 +59,7 @@ export function WidgetGrid({ widgets, valueUrl, params, deferred, showRefreshBut
             params={params}
             deferred={deferred?.(widget.uriKey)}
             register={register}
+            range={range}
           />
         ))}
       </div>
