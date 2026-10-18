@@ -110,7 +110,7 @@ function groupPartial(): array
 
 function groupCents(int|string $cents): string
 {
-    return number_format((int) $cents / 100, 2, '.', '');
+    return '$'.number_format((int) $cents / 100, 2);
 }
 
 function actAsGroupAdmin(): void
@@ -275,9 +275,9 @@ it('groups a datetime column by the user\'s local day', function (string $zone, 
     expect(array_column(array_column($rows, 'group'), 'key'))->toBe($keys)
         ->and(array_map(fn (array $group) => $group['total_cents'][0]['value'], $summaries['groups']))->toBe($totals);
 })->with([
-    'UTC' => ['UTC', ['2026-03-08', '2026-03-08', '2026-03-09'], ['2026-03-08' => '1.20', '2026-03-09' => '0.03']],
-    'Pacific/Kiritimati' => ['Pacific/Kiritimati', ['2026-03-08', '2026-03-09', '2026-03-09'], ['2026-03-08' => '0.20', '2026-03-09' => '1.03']],
-    'America/New_York' => ['America/New_York', ['2026-03-07', '2026-03-08', '2026-03-09'], ['2026-03-07' => '0.20', '2026-03-08' => '1.00', '2026-03-09' => '0.03']],
+    'UTC' => ['UTC', ['2026-03-08', '2026-03-08', '2026-03-09'], ['2026-03-08' => '$1.20', '2026-03-09' => '$0.03']],
+    'Pacific/Kiritimati' => ['Pacific/Kiritimati', ['2026-03-08', '2026-03-09', '2026-03-09'], ['2026-03-08' => '$0.20', '2026-03-09' => '$1.03']],
+    'America/New_York' => ['America/New_York', ['2026-03-07', '2026-03-08', '2026-03-09'], ['2026-03-07' => '$0.20', '2026-03-08' => '$1.00', '2026-03-09' => '$0.03']],
 ]);
 
 it('joins a to-one relation group like a relation sort', function () {

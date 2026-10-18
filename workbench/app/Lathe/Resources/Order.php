@@ -3,7 +3,6 @@
 namespace Workbench\App\Lathe\Resources;
 
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Model;
 use Lathe\Actions\Export\ExportAction;
 use Lathe\Field\CurrencyField;
 use Lathe\Field\Field;
@@ -78,10 +77,8 @@ class Order extends Resource
             Field::text('Number')->sortable(),
             Field::belongsTo('Customer')->sortable(),
             $this->status(),
-            $this->total()->summarize(Summary::sum()->label('Revenue')->format(fn (int|float|string $cents) => number_format((float) $cents / 100, 2, '.', ''))),
-            Field::make('Placed', 'placed_at', fn (Model $order) => $order instanceof OrderModel
-                ? $order->placed_at->utc()->toIso8601ZuluString()
-                : null)->sortable(),
+            $this->total()->summarize(Summary::sum()->label('Revenue')->format(fn (int|float|string $cents) => (string) $this->total()->formatMoney((float) $cents / 100))),
+            Field::dateTime('Placed', 'placed_at')->sortable(),
         ];
     }
 
@@ -92,7 +89,10 @@ class Order extends Resource
 
     protected function status(): SelectField
     {
-        return Field::select('Status')->options(['pending', 'paid', 'shipped', 'cancelled'])->inline();
+        return Field::select('Status')
+            ->options(['pending' => 'Pending', 'paid' => 'Paid', 'shipped' => 'Shipped', 'cancelled' => 'Cancelled'])
+            ->badges(['pending' => 'warning', 'paid' => 'success', 'shipped' => 'info', 'cancelled' => 'neutral'])
+            ->inline();
     }
 
     protected function total(): CurrencyField

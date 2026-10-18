@@ -99,8 +99,8 @@ describe('date-time-field', () => {
   it('shows the four values on index, detail and form', () => {
     __panel.sharedProps.set({ locale: 'en', timezone: 'Pacific/Kiritimati' });
 
-    expect(plain(renderIndex(field, '2026-10-13T19:00:00Z').textContent)).toBe('Oct 14, 2026, 9:00 AM');
-    expect(plain(renderDetail(field, '2026-10-13T19:00:00Z').textContent)).toBe('Oct 14, 2026, 9:00 AM');
+    expect(plain(renderIndex(field, '2026-10-13T19:00:00Z').textContent)).toBe('Oct 14, 2026, 09:00');
+    expect(plain(renderDetail(field, '2026-10-13T19:00:00Z').textContent)).toBe('Oct 14, 2026, 09:00');
     expect(renderIndex(field, 5).textContent).toBe('5');
     expect(renderIndex(field, 'x').textContent).toBe('x');
     expect(renderDetail(field, true, 'Yes').textContent).toBe('Yes');

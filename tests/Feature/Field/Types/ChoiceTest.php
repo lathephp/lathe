@@ -312,3 +312,14 @@ it('memoizes the country and timezone lists in the request attributes', function
     expect($request->attributes->has('lathe.countries'))->toBeTrue()
         ->and($request->attributes->has('lathe.timezones'))->toBeTrue();
 });
+
+it('sends the badge tone of each value with badges()', function () {
+    $field = Field::select('Status')->options(['paid' => 'Paid', 'cancelled' => 'Cancelled'])->badges(['paid' => 'success', 'cancelled' => 'neutral']);
+
+    expect($field->jsonSerialize()['badges'])->toBe(['paid' => 'success', 'cancelled' => 'neutral'])
+        ->and(Field::select('Plain')->options(['a'])->jsonSerialize()['badges'])->toBeNull();
+});
+
+it('refuses a badge tone it does not know', function () {
+    Field::select('Status')->badges(['paid' => 'green']);
+})->throws(\InvalidArgumentException::class, 'green');

@@ -61,13 +61,13 @@ describe('formatDateTime', () => {
   it('converts a UTC instant into the user timezone', () => {
     sharedProps.set({ locale: 'en', timezone: 'Pacific/Kiritimati' });
 
-    expect(plain(formatDateTime('2026-10-13T19:00:00Z'))).toBe('Oct 14, 2026, 9:00 AM');
+    expect(plain(formatDateTime('2026-10-13T19:00:00Z'))).toBe('Oct 14, 2026, 09:00');
   });
 });
 
 describe('fallbacks', () => {
   it('uses en and UTC when the shared props carry neither', () => {
     expect(formatNumber(1234.5)).toBe('1,234.5');
-    expect(plain(formatDateTime('2026-10-13T19:00:00Z'))).toBe('Oct 13, 2026, 7:00 PM');
+    expect(plain(formatDateTime('2026-10-13T19:00:00Z'))).toBe('Oct 13, 2026, 19:00');
   });
 });

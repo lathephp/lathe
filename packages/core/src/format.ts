@@ -56,7 +56,7 @@ export function formatDate(iso: string, options: Intl.DateTimeFormatOptions = {}
   return dateFormat({ dateStyle: 'medium', ...options, timeZone: 'UTC' }).format(new Date(`${iso.slice(0, 10)}T00:00:00Z`));
 }
 
-/** A UTC ISO 8601 instant, shown in the user's timezone. */
+/** A UTC ISO 8601 instant, shown in the user's timezone on the 24-hour clock: Oct 17, 2026, 23:12. */
 export function formatDateTime(iso: string, options: Intl.DateTimeFormatOptions = {}): string {
-  return dateFormat({ dateStyle: 'medium', timeStyle: 'short', ...options, timeZone: timezone() }).format(new Date(iso));
+  return dateFormat({ dateStyle: 'medium', timeStyle: 'short', hourCycle: 'h23', ...options, timeZone: timezone() }).format(new Date(iso));
 }

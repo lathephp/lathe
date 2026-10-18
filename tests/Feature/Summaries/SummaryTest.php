@@ -111,7 +111,7 @@ function summarize(string $class, bool $paged = true): array
 
 function cents(int|string $cents): string
 {
-    return number_format((int) $cents / 100, 2, '.', '');
+    return '$'.number_format((int) $cents / 100, 2);
 }
 
 function summaryThings(): void
@@ -138,7 +138,7 @@ it('totals every order and the page shown in the Orders footer', function () {
 
     expect($summaries['allRecords']['total_cents'])->toBe([['label' => 'Revenue', 'value' => cents((int) DB::table('orders')->sum('total_cents'))]])
         ->and($summaries['page']['total_cents'])->toBe([['label' => 'Revenue', 'value' => cents($page)]])
-        ->and($summaries['allRecords']['total_cents'][0]['value'])->toMatch('/^\d+\.\d{2}$/')
+        ->and($summaries['allRecords']['total_cents'][0]['value'])->toMatch('/^\$[\d,]+\.\d{2}$/')
         ->and($summaries['message'])->toBeNull();
 });
 

@@ -1,6 +1,7 @@
 import { ApiError, request, toast, useLathe, useTranslation } from '@lathephp/core';
 import { Suspense, useId, useState, type KeyboardEvent } from 'react';
 import { Select } from '../components/ui/Select';
+import { badgesOf, SelectBadge } from '../fields/choice/SelectFields';
 import type { Cell, FieldSchema } from '../fields/types';
 import { stringValue } from '../fields/registry';
 import { isBelongsToValue } from '../fields/relation/BelongsToField';
@@ -157,6 +158,7 @@ export function InlineCell({ uriKey, rowId, column, cell, token, onRow }: Inline
     ) : (
       <Select
         {...common}
+        {...(badgesOf(column) === null ? {} : { display: (value: string) => <SelectBadge field={column} value={value} /> })}
         value={typeof current === 'string' ? current : ''}
         options={[{ value: '', label: '—' }, ...options]}
         onChange={(value) => {

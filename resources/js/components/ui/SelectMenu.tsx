@@ -1,5 +1,5 @@
 import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from '@lathephp/ui/select';
-import { selectedText, type SelectOption, type SelectProps } from './Select';
+import { triggerContent, type SelectOption, type SelectProps } from './Select';
 
 /** The options cut into runs of one group each; a run without a group has none. */
 function runs(options: readonly SelectOption[]): { group: string | undefined; options: SelectOption[] }[] {
@@ -20,12 +20,12 @@ function runs(options: readonly SelectOption[]): { group: string | undefined; op
 
 /** The Base UI select behind the panel's Select, loaded on the first press. */
 export function SelectMenu(props: SelectProps & { defaultOpen: boolean }) {
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars -- value, multiple and onChange go to the root below
-  const { options, id, placeholder, size = 'default', disabled = false, className, defaultOpen, value, multiple, onChange, onFocus, ...aria } = props;
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars -- value, multiple, onChange and display reach the parts through props
+  const { options, id, placeholder, size = 'default', disabled = false, className, defaultOpen, value, multiple, onChange, display, onFocus, ...aria } = props;
   const parts = (
     <>
       <SelectTrigger id={id} size={size} className={className} onFocus={onFocus} {...aria}>
-        <SelectValue placeholder={placeholder}>{() => selectedText(props) ?? placeholder}</SelectValue>
+        <SelectValue placeholder={placeholder}>{() => triggerContent(props)}</SelectValue>
       </SelectTrigger>
       <SelectContent alignItemWithTrigger={false} align="start">
         {runs(options).map((run) => {
