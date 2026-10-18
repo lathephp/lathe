@@ -1,6 +1,8 @@
 import { Head, router, usePage } from '@inertiajs/react';
 import { lazy, Suspense } from 'react';
 import { useShortcut, useTranslation } from '@lathephp/core';
+import { AfterDelay, skeletonBar } from '../../components/AfterDelay';
+import { Card } from '../../components/ui/Card';
 import { DetailField } from '../../fields/registry';
 import type { DetailFieldData, DetailProps } from '../../fields/types';
 import { cn } from '../../lib/cn';
@@ -16,7 +18,14 @@ const ResourcePlugins = lazy(() => import('../../records/ResourcePlugins').then(
 const ResourceWidgets = lazy(() => import('../../widgets/ResourceWidgets').then((module) => ({ default: module.ResourceWidgets })));
 
 /** One record: its fields in the Resource's panels, grids and tabs. */
-export default function Detail({ resource, record, breadcrumbs, actions, widgets = [] }: DetailProps & { widgets?: WidgetDescriptor[] }) {
+type DetailPageProps = DetailProps & { widgets?: WidgetDescriptor[] };
+
+/** An instant visit renders the page with its title alone, then the server's props arrive. */
+export default function Detail(props: DetailPageProps | { title: string; record?: undefined }) {
+  return props.record === undefined ? <RecordSkeleton title={props.title} /> : <DetailPage {...props} />;
+}
+
+function DetailPage({ resource, record, breadcrumbs, actions, widgets = [] }: DetailPageProps) {
   const { id, title, fields, layout, abilities } = record;
   const { __ } = useTranslation();
   const { basePath } = usePage<SharedProps>().props;
@@ -74,5 +83,28 @@ function DetailRow({ field }: { field: DetailFieldData }) {
         <DetailField field={field} />
       </div>
     </div>
+  );
+}
+
+/** The page before its props arrive: its title and three section cards. */
+function RecordSkeleton({ title }: { title: string }) {
+  return (
+    <AfterDelay>
+      <Head title={title} />
+      <div aria-busy="true" className="space-y-6">
+        <div aria-hidden="true" className={`h-4 w-48 ${skeletonBar}`} />
+        <div className="flex items-center gap-3">
+          <h1 className="truncate text-xl font-semibold">{title}</h1>
+          <div aria-hidden="true" className={`ms-auto h-9 w-40 ${skeletonBar}`} />
+        </div>
+        {[0, 1, 2].map((card) => (
+          <Card key={card} data-skeleton-card="" aria-hidden="true" className="space-y-3 p-4">
+            <div className={`h-4 w-32 ${skeletonBar}`} />
+            <div className={`h-3 w-full ${skeletonBar}`} />
+            <div className={`h-3 w-2/3 ${skeletonBar}`} />
+          </Card>
+        ))}
+      </div>
+    </AfterDelay>
   );
 }

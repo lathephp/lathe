@@ -1,7 +1,7 @@
 import '../css/app.css';
 import { createInertiaApp, router } from '@inertiajs/react';
 import { __panel, QueryClientProvider, queryClient } from '@lathephp/core';
-import { lazy, type ComponentType } from 'react';
+import { lazy } from 'react';
 import { createRoot } from 'react-dom/client';
 import { StaleAssetScreen } from './components/StaleAssetScreen';
 import { registerBuiltinFields } from './fields/builtin';
@@ -12,12 +12,11 @@ import { Toaster } from './components/Toaster';
 import { panelLayout } from './layout/panelLayout';
 import { assetHashFromUrl, markBuildStale, setEntryHash } from './lib/assets';
 import { DirectionProvider } from './lib/direction';
+import { pages } from './lib/pages';
 import { pageTitle } from './lib/title';
 import { showFlash } from './lib/visits';
 import type { SharedProps } from './types';
 
-// Each page is its own lazy chunk.
-const pages = import.meta.glob<{ default: ComponentType }>('./pages/**/*.tsx');
 
 // Inertia's asset version is off, so the panel compares the server's asset hash with its own.
 setEntryHash(assetHashFromUrl(import.meta.url));
@@ -51,7 +50,7 @@ void createInertiaApp({
   progress: { delay: 150 },
   title: (title) => pageTitle(title, __panel.sharedProps.get().appName ?? 'Lathe'),
   resolve: async (name) => {
-    const page = pages[`./pages/${name}.tsx`];
+    const page = pages[`../pages/${name}.tsx`];
 
     if (page === undefined) {
       throw new Error(`Lathe has no page named "${name}".`);

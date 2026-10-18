@@ -1,5 +1,6 @@
 import { Head, usePage } from '@inertiajs/react';
 import { useLathe, useTranslation } from '@lathephp/core';
+import { AfterDelay, skeletonBar } from '../components/AfterDelay';
 import { Card } from '../components/ui/Card';
 import type { WidgetDescriptor, WidgetValue } from '../widgets/types';
 import { WidgetGrid } from '../widgets/WidgetGrid';
@@ -20,7 +21,12 @@ interface DashboardProps {
   widgets: WidgetDescriptor[];
 }
 
-export default function Dashboard({ dashboard, widgets }: DashboardProps) {
+/** An instant visit renders the page with its title alone, then the server's props arrive. */
+export default function Dashboard(props: DashboardProps | { title: string; dashboard?: undefined }) {
+  return props.dashboard === undefined ? <DashboardSkeleton title={props.title} /> : <DashboardPage {...props} />;
+}
+
+function DashboardPage({ dashboard, widgets }: DashboardProps) {
   const { __ } = useTranslation();
   const { apiPath } = useLathe();
   const page = usePage();
@@ -62,5 +68,25 @@ export default function Dashboard({ dashboard, widgets }: DashboardProps) {
         </Card>
       )}
     </div>
+  );
+}
+
+/** The page before its props arrive: its title and frames where widgets go, since the widgets come with the page. */
+function DashboardSkeleton({ title }: { title: string }) {
+  return (
+    <AfterDelay>
+      <Head title={title} />
+      <div aria-busy="true" className="space-y-6">
+        <h1 className="text-2xl font-semibold">{title}</h1>
+        <div aria-hidden="true" className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+          {[0, 1, 2, 3].map((frame) => (
+            <Card key={frame} data-skeleton-frame="" className="h-32 p-4">
+              <div className={`h-3 w-24 ${skeletonBar}`} />
+              <div className={`mt-4 h-8 w-32 ${skeletonBar}`} />
+            </Card>
+          ))}
+        </div>
+      </div>
+    </AfterDelay>
   );
 }

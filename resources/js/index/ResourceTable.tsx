@@ -17,7 +17,8 @@ import type { IndexProps, Row } from './types';
 import type { RowSelection } from './useRowSelection';
 
 
-const rowHeights = { compact: 'h-8', comfortable: 'h-10', spacious: 'h-12' };
+// A row's height at each table density; a loading row takes the same.
+export const rowHeights = { compact: 'h-8', comfortable: 'h-10', spacious: 'h-12' };
 
 // Under 768 px the table scrolls inside its card; the checkbox and the first column stay as the row's anchor.
 const checkboxColumn = 'sticky start-0 w-10 bg-background px-3';

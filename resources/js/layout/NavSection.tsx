@@ -2,6 +2,7 @@ import { Link } from '@inertiajs/react';
 import { useId, useState } from 'react';
 import { NavIcon } from '../components/NavIcon';
 import { cn } from '../lib/cn';
+import { instantProps, preloadPage } from '../lib/pages';
 import type { NavigationItem } from '../types';
 
 export interface NavBadge {
@@ -104,6 +105,14 @@ function NavItem({ item, context }: { item: NavLink; context: NavContext }) {
           prefetch
           cacheFor="30s"
           cacheTags={item.cacheTag}
+          // A link that names its page shows it at once, with the label as its title.
+          component={item.component}
+          pageProps={item.component === undefined ? null : instantProps(item.label)}
+          onPointerEnter={() => {
+            if (item.component !== undefined) {
+              preloadPage(item.component);
+            }
+          }}
           onPointerDown={(event) => {
             if (event.button === 0 && !event.metaKey && !event.ctrlKey && !event.shiftKey) {
               context.press(item.href);

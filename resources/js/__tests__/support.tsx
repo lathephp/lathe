@@ -62,6 +62,8 @@ export function renderPage(component: string, props: Record<string, unknown>, op
     rescuedProps: [],
     flash: {},
     rememberedState: {},
+    // The server names its shared props, so an instant visit keeps them for the shell.
+    sharedProps: Object.keys(sharedProps(options.shared)),
     ...options.page,
   } as InitialPage;
 
@@ -140,6 +142,7 @@ export function fakeInertiaServer(): FakeRequest[] {
             version: null,
             flash: {},
             rescuedProps: [],
+            sharedProps: Object.keys(sharedProps()),
             ...page,
             props: { errors: {}, ...sharedProps(), ...page.props },
           });

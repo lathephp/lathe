@@ -1,6 +1,7 @@
 import { Head, usePage } from '@inertiajs/react';
 import { lazy, Suspense } from 'react';
 import { __panel, emit, useShortcut } from '@lathephp/core';
+import { AfterDelay, skeletonBar } from '../../components/AfterDelay';
 import { Card } from '../../components/ui/Card';
 import { EmptyState } from '../../index/EmptyState';
 import { IndexBanner } from '../../index/IndexBanner';
@@ -8,7 +9,7 @@ import { IndexFooter } from '../../index/IndexFooter';
 import { IndexToolbar } from '../../index/IndexToolbar';
 import { useLoadMore } from '../../index/Pagination';
 import { usePolling, usePollingChoice } from '../../index/PollingToggle';
-import { ResourceTable } from '../../index/ResourceTable';
+import { ResourceTable, rowHeights } from '../../index/ResourceTable';
 import { SelectionBanner } from '../../index/SelectionBanner';
 import { TabBar } from '../../index/TabBar';
 import type { IndexProps } from '../../index/types';
@@ -25,7 +26,14 @@ const DeleteMenu = lazy(() => import('../../actions/DeleteMenu').then((module) =
 const ResourceWidgets = lazy(() => import('../../widgets/ResourceWidgets').then((module) => ({ default: module.ResourceWidgets })));
 const { RenderHook } = __panel;
 
-export default function Index({ resource, table, state, count, error, lens, lenses, actions, widgets = [] }: IndexProps & { widgets?: WidgetDescriptor[] }) {
+type IndexPageProps = IndexProps & { widgets?: WidgetDescriptor[] };
+
+/** An instant visit renders the page with its title alone, then the server's props arrive. */
+export default function Index(props: IndexPageProps | { title: string; table?: undefined }) {
+  return props.table === undefined ? <IndexSkeleton title={props.title} /> : <IndexPage {...props} />;
+}
+
+function IndexPage({ resource, table, state, count, error, lens, lenses, actions, widgets = [] }: IndexPageProps) {
   const { basePath } = usePage<SharedProps>().props;
   const index = useIndexState({ perPage: resource.perPageOptions[0] ?? state.perPage });
   const filtered = index.state.q !== undefined || index.state.filter !== undefined;
@@ -137,5 +145,31 @@ export default function Index({ resource, table, state, count, error, lens, lens
         </Card>
       )}
     </div>
+  );
+}
+
+/** The page before its props arrive: its title, the tab band, the toolbar and ten rows of the table's height. */
+function IndexSkeleton({ title }: { title: string }) {
+  const { tableStyle } = usePage<SharedProps>().props;
+
+  return (
+    <AfterDelay>
+      <Head title={title} />
+      <div aria-busy="true" className="space-y-6">
+        <div aria-hidden="true" className={`h-8 w-64 ${skeletonBar}`} />
+        <div className="flex items-center gap-3">
+          <h1 className="text-2xl font-semibold">{title}</h1>
+          <div aria-hidden="true" className={`ms-auto h-9 w-56 ${skeletonBar}`} />
+        </div>
+        <Card aria-hidden="true" className="overflow-hidden">
+          <div className="h-10 border-b border-border" />
+          {Array.from({ length: 10 }, (_, index) => (
+            <div key={index} data-skeleton-row="" className={`flex items-center border-b border-border px-3 last:border-0 ${rowHeights[tableStyle.density]}`}>
+              <span className={`h-3 w-full ${skeletonBar}`} />
+            </div>
+          ))}
+        </Card>
+      </div>
+    </AfterDelay>
   );
 }
