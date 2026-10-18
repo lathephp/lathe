@@ -306,11 +306,11 @@ The panel applies the choice before the first paint, so a reload does not flash.
 ],
 ```
 
-The config file lists all 40 tokens. They are `background`, `foreground`, `card`, `popover`, `primary`, `secondary`, `muted`, `accent`, `destructive`, `success`, `warning` and `info` (each with a `-foreground` partner), `border`, `input`, `ring`, `link`, `link-hover`, `chart-1` to `chart-5`, and the `sidebar` tokens. Charts and widgets use the `chart-*` tokens. A value that is not a colour, or an unknown token, fails `php artisan lathe:doctor`.
+The config file lists all 56 tokens. They are `background`, `foreground`, `card`, `popover`, `primary`, `secondary`, `muted`, `accent`, `destructive`, `success`, `warning` and `info` (each with a `-foreground` partner), `border`, `input`, `ring`, `link`, `link-hover`, `chart-1` to `chart-5`, the `sidebar` tokens, and the 16 design system tokens below. Charts and widgets use the `chart-*` tokens. A value that is not a colour, or an unknown token, fails `php artisan lathe:doctor`.
 
 With no colours set, the panel wears Lathe's copper theme: warm greys, a copper primary button and copper marks, in light and dark. Every text colour reads at 4.5:1 on its ground, and every mark at 3:1.
 
-Beside the 40, the panel defines these tokens, which your CSS can read and override:
+The design system tokens:
 
 - `brand`: copper for marks that carry no text, such as the active menu bar and `chart-1`. Text on a copper fill uses `primary`.
 - `focus`: the focus ring.
@@ -319,7 +319,17 @@ Beside the 40, the panel defines these tokens, which your CSS can read and overr
 - `scrim`: the shade behind a dialog or the phone menu.
 - `chart-other`: the "Other" slice of a chart.
 - `sidebar-hover`: a menu item under the pointer.
-- `shadow-xs`, `shadow-sm`, `shadow-md` and `shadow-lg`: the shadows of buttons, cards, menus and dialogs.
+
+When you set your own colours, or ran `lathe:preset`, these tokens follow them, so the panel keeps your look and wears no copper:
+
+- `brand`, `focus` and `link` take `primary`, and `link-hover` is `primary` mixed with 15% black. `link` and `link-hover` follow only when you did not set `link`.
+- Each `-subtle` is a 14% tint of its colour over `background`. Its `-foreground` is the colour, darker on a light background or lighter on a dark one, until it reads at 4.5:1 on the tint.
+- `skeleton` takes `muted`, `chart-other` takes `muted-foreground`, and `sidebar-hover` takes `sidebar-accent`, or `accent` when `sidebar-accent` is not set.
+- `scrim` keeps its default.
+
+A token follows only a colour you set, and a token you set yourself wins. A colour with a `light` and a `dark` value gives a light and a dark result.
+
+The panel also defines `shadow-xs`, `shadow-sm`, `shadow-md` and `shadow-lg`, the shadows of buttons, cards, menus and dialogs, which your CSS can read and override.
 
 Each colour token is also a utility colour, such as `bg-success-subtle` or `text-brand`.
 

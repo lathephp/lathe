@@ -47,6 +47,22 @@ enum Color: string
     case SidebarAccentForeground = 'sidebar-accent-foreground';
     case SidebarBorder = 'sidebar-border';
     case SidebarRing = 'sidebar-ring';
+    case Brand = 'brand';
+    case Focus = 'focus';
+    case PrimarySubtle = 'primary-subtle';
+    case PrimarySubtleForeground = 'primary-subtle-foreground';
+    case SuccessSubtle = 'success-subtle';
+    case SuccessSubtleForeground = 'success-subtle-foreground';
+    case WarningSubtle = 'warning-subtle';
+    case WarningSubtleForeground = 'warning-subtle-foreground';
+    case InfoSubtle = 'info-subtle';
+    case InfoSubtleForeground = 'info-subtle-foreground';
+    case DestructiveSubtle = 'destructive-subtle';
+    case DestructiveSubtleForeground = 'destructive-subtle-foreground';
+    case Skeleton = 'skeleton';
+    case Scrim = 'scrim';
+    case ChartOther = 'chart-other';
+    case SidebarHover = 'sidebar-hover';
 
     /**
      * The CSS variable that holds the colour, such as --primary.

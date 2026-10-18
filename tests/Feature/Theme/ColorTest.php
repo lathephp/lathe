@@ -10,8 +10,11 @@ it('has one case per colour token in the config', function () {
         'warning', 'warning-foreground', 'info', 'info-foreground', 'border', 'input', 'ring', 'link', 'link-hover',
         'chart-1', 'chart-2', 'chart-3', 'chart-4', 'chart-5', 'sidebar', 'sidebar-foreground',
         'sidebar-primary', 'sidebar-primary-foreground', 'sidebar-accent', 'sidebar-accent-foreground',
-        'sidebar-border', 'sidebar-ring',
-    ])->and(Color::cases())->toHaveCount(40);
+        'sidebar-border', 'sidebar-ring', 'brand', 'focus', 'primary-subtle', 'primary-subtle-foreground',
+        'success-subtle', 'success-subtle-foreground', 'warning-subtle', 'warning-subtle-foreground',
+        'info-subtle', 'info-subtle-foreground', 'destructive-subtle', 'destructive-subtle-foreground',
+        'skeleton', 'scrim', 'chart-other', 'sidebar-hover',
+    ])->and(Color::cases())->toHaveCount(56);
 });
 
 it('names the CSS variable and utility of a token', function () {

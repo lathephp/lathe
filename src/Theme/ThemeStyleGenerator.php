@@ -37,19 +37,95 @@ class ThemeStyleGenerator
         $light = static::isLength($radius) ? ["--radius:{$radius}"] : [];
         $dark = [];
 
+        $set = [];
+
         foreach (Color::cases() as $color) {
             $value = $colors[$color->value] ?? null;
 
             if (is_string($value) && static::isColor($value)) {
-                $light[] = "{$color->variable()}:{$value}";
+                $set[$color->value] = [$value, null];
             } elseif (is_array($value) && is_string($value['light'] ?? null) && is_string($value['dark'] ?? null)
                 && static::isColor($value['light']) && static::isColor($value['dark'])) {
-                $light[] = "{$color->variable()}:{$value['light']}";
-                $dark[] = "{$color->variable()}:{$value['dark']}";
+                $set[$color->value] = [$value['light'], $value['dark']];
+            }
+        }
+
+        $tokens = $set + $this->derive($set);
+
+        foreach (Color::cases() as $color) {
+            if (isset($tokens[$color->value])) {
+                [$lightValue, $darkValue] = $tokens[$color->value];
+                $light[] = "{$color->variable()}:{$lightValue}";
+
+                if ($darkValue !== null) {
+                    $dark[] = "{$color->variable()}:{$darkValue}";
+                }
             }
         }
 
         return ':root{'.implode(';', $light).'}'.($dark === [] ? '' : '.dark{'.implode(';', $dark).'}');
+    }
+
+    /**
+     * The tokens that follow the app's own colours, so an app with theme.colors does not
+     * wear copper in them. Each one derives only from a token the app set, so an app with
+     * no colours gets the copper values of app.css. A derived value is not checked by
+     * isColor(), because color-mix() fails it, but it only embeds colours that passed.
+     *
+     * @param  array<string, array{string, ?string}>  $set  token => [light or only value, dark or null]
+     * @return array<string, array{string, ?string}>
+     */
+    private function derive(array $set): array
+    {
+        $copy = fn (string $from, string ...$to): array => isset($set[$from]) ? array_fill_keys($to, $set[$from]) : [];
+        $derived = [
+            ...$copy('primary', 'brand', 'focus'),
+            ...$copy('muted', 'skeleton'),
+            ...$copy('muted-foreground', 'chart-other'),
+            ...$copy(isset($set['sidebar-accent']) ? 'sidebar-accent' : 'accent', 'sidebar-hover'),
+        ];
+
+        if (isset($set['primary']) && ! isset($set['link'])) {
+            $derived['link'] = $set['primary'];
+            $derived['link-hover'] = $this->map($set['primary'], fn (string $c): string => "color-mix(in oklch, {$c} 85%, black)");
+        }
+
+        foreach (['primary', 'success', 'warning', 'info', 'destructive'] as $name) {
+            if (isset($set[$name])) {
+                $derived["{$name}-subtle"] = $this->map($set[$name], fn (string $c): string => "color-mix(in oklch, {$c} 14%, var(--background))");
+                $derived["{$name}-subtle-foreground"] = $this->map($set[$name], fn (string $c, string $mode): string => $this->subtleForeground($c, $mode, $set['background'] ?? null));
+            }
+        }
+
+        return $derived;
+    }
+
+    /**
+     * @param  array{string, ?string}  $pair
+     * @param  callable(string, string): string  $make  colour, light or dark => derived colour
+     * @return array{string, ?string}
+     */
+    private function map(array $pair, callable $make): array
+    {
+        return [$make($pair[0], 'light'), $pair[1] === null ? null : $make($pair[1], 'dark')];
+    }
+
+    /**
+     * The colour at 4.5:1 on its -subtle tint, worked out here because CSS cannot search
+     * for a contrast. A single-string colour sits in :root, so it is measured on the light
+     * ground. Without an app background the ground is copper's, from resources/css/app.css.
+     *
+     * @param  array{string, ?string}|null  $background
+     */
+    private function subtleForeground(string $color, string $mode, ?array $background): string
+    {
+        $ground = $background === null
+            ? ($mode === 'light' ? 'oklch(0.985 0.003 70)' : 'oklch(0.165 0.006 60)')
+            : ($mode === 'light' ? $background[0] : $background[1] ?? $background[0]);
+
+        // A keyword such as red has no parsed value, so it is mixed toward black or white instead.
+        return Contrast::subtleForeground($color, $ground)
+            ?? "color-mix(in oklch, {$color} 60%, ".($mode === 'light' ? 'black' : 'white').')';
     }
 
     /**

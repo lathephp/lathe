@@ -67,6 +67,40 @@ class Contrast
         return $weak;
     }
 
+    /**
+     * The colour moved in oklch lightness until it reads at 4.5:1 on its tint, the
+     * color-mix(in oklch, <colour> 14%, <ground>) of a -subtle token. It darkens on a
+     * light ground and lightens on a dark one. Null when either colour is not in a
+     * notation above.
+     *
+     * @internal
+     */
+    public static function subtleForeground(string $color, string $ground): ?string
+    {
+        $front = self::oklch(strtolower(trim($color)));
+        $back = self::oklch(strtolower(trim($ground)));
+
+        if ($front === null || $back === null) {
+            return null;
+        }
+
+        // color-mix() takes the hue of the other colour when one has no chroma, else the shorter way round.
+        $hue = $back[1] < 0.0001 ? $front[2] : ($front[1] < 0.0001 ? $back[2] : $front[2] + 0.86 * (fmod($back[2] - $front[2] + 540, 360) - 180));
+        $tint = sprintf('oklch(%.4f %.4f %.2f)', 0.14 * $front[0] + 0.86 * $back[0], 0.14 * $front[1] + 0.86 * $back[1], fmod($hue + 360, 360));
+        $step = $back[0] > 0.5 ? -0.01 : 0.01;
+
+        for ($i = 0; $i <= 100; $i++) {
+            $lightness = min(1.0, max(0.0, $front[0] + $i * $step));
+            $candidate = sprintf('oklch(%.3f %.3f %.2f)', $lightness, $front[1], $front[2]);
+
+            if (self::ratio($candidate, $tint) >= 4.5 || $lightness <= 0.0 || $lightness >= 1.0) {
+                return $candidate;
+            }
+        }
+
+        return null;
+    }
+
     private static function override(mixed $value, string $mode): ?string
     {
         $colour = is_array($value) ? ($value[$mode] ?? null) : $value;
@@ -133,6 +167,36 @@ class Contrast
         }
 
         return null;
+    }
+
+    /**
+     * @return array{float, float, float}|null oklch lightness, chroma and hue in degrees
+     */
+    private static function oklch(string $v): ?array
+    {
+        // An oklch() colour is read as written, so a chroma outside sRGB is not clipped first.
+        if (preg_match('/^oklch\(\s*([\d.]+)(%?)\s+([\d.]+)\s+([\d.]+)(?:deg)?(?:\s*\/.*)?\)$/', $v, $m)) {
+            return [$m[2] === '%' ? (float) $m[1] / 100 : (float) $m[1], (float) $m[3], (float) $m[4]];
+        }
+
+        $rgb = self::linear($v);
+
+        if ($rgb === null) {
+            return null;
+        }
+
+        [$r, $g, $b] = $rgb;
+        $l = (0.4122214708 * $r + 0.5363325363 * $g + 0.0514459929 * $b) ** (1 / 3);
+        $mid = (0.2119034982 * $r + 0.6806995451 * $g + 0.1073969566 * $b) ** (1 / 3);
+        $s = (0.0883024619 * $r + 0.2817188376 * $g + 0.6299787005 * $b) ** (1 / 3);
+        $a = 1.9779984951 * $l - 2.428592205 * $mid + 0.4505937099 * $s;
+        $bb = 0.0259040371 * $l + 0.7827717662 * $mid - 0.808675766 * $s;
+
+        return [
+            0.2104542553 * $l + 0.793617785 * $mid - 0.0040720468 * $s,
+            sqrt($a ** 2 + $bb ** 2),
+            fmod(rad2deg(atan2($bb, $a)) + 360, 360),
+        ];
     }
 
     private static function gamma(float $c): float

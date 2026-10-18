@@ -46,7 +46,7 @@ it('applies a preset code to the theme keys and sends one request', function () 
         ->and($theme['radius'])->toBe('0.625rem')
         ->and($theme['appearance'])->toBe('system')
         ->and($theme['font'])->toBe(['family' => 'Inter', 'fallback' => 'ui-sans-serif, system-ui, sans-serif', 'files' => []])
-        ->and($theme['colors'])->toHaveCount(40)
+        ->and($theme['colors'])->toHaveCount(56)
         ->and($theme['colors']['primary'])->toBe(['light' => 'oklch(0.491 0.27 292.581)', 'dark' => 'oklch(0.432 0.232 292.759)'])
         ->and($theme['colors']['background'])->toBe(['light' => 'oklch(1 0 0)', 'dark' => 'oklch(0.145 0 0)'])
         ->and($theme['colors']['sidebar-ring'])->toBe(['light' => 'oklch(0.708 0 0)', 'dark' => 'oklch(0.556 0 0)'])
@@ -100,7 +100,7 @@ it('resets every colour to null and keeps style, radius and font', function () {
 
     $theme = writtenTheme($this->configPath);
 
-    expect($theme['colors'])->toHaveCount(40)
+    expect($theme['colors'])->toHaveCount(56)
         ->and(array_filter($theme['colors']))->toBe([])
         ->and($theme['style'])->toBe('nova')
         ->and($theme['radius'])->toBe('0.625rem')

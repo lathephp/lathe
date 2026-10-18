@@ -122,7 +122,7 @@ See [Limits and performance](limits-and-performance.md) for why each number is w
 
 | Key | Default | Effect |
 |---|---|---|
-| `theme.colors` | every token `null` | 40 colour tokens (`background`, `primary`, `sidebar`, `chart-1` and so on). Each is any CSS colour string, or `['light' => ..., 'dark' => ...]`. `null` keeps the style's colour. |
+| `theme.colors` | every token `null` | 56 colour tokens (`background`, `primary`, `sidebar`, `chart-1` and so on). Each is any CSS colour string, or `['light' => ..., 'dark' => ...]`. `null` keeps the style's colour. |
 | `theme.appearance` | `'system'` | `light`, `dark` or `system`. |
 | `theme.radius` | `'0.625rem'` | The base corner radius. |
 | `theme.style` | `'nova'` | One of the 8 styles: `nova`, `vega`, `lyra`, `maia`, `mira`, `luma`, `rhea`, `sera`. Only the chosen style's stylesheet loads. |
