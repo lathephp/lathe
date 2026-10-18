@@ -8,6 +8,8 @@ export interface SelectOption {
   label: string;
   /** Options in a row with the same group show under its heading. */
   group?: string;
+  /** Shown but not pickable, such as a column another row has taken. */
+  disabled?: boolean;
 }
 
 interface CommonProps {
@@ -21,6 +23,7 @@ interface CommonProps {
   'aria-labelledby'?: string;
   'aria-describedby'?: string;
   'aria-invalid'?: boolean;
+  'aria-required'?: boolean;
   /** Called when the trigger takes the focus, such as to load remote options. */
   onFocus?: () => void;
   /** Draws a single select's chosen value in the trigger, such as a status badge, in place of its label. */

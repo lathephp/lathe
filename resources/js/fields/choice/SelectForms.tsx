@@ -71,6 +71,7 @@ export function SelectForm(props: FormFieldProps & { remote?: RemoteSource }) {
         onFocus={remote?.onFocus}
         aria-describedby={describedBy}
         aria-invalid={invalid || undefined}
+        aria-required={field.required === true || undefined}
         disabled={disabled}
         onChange={(next) => {
           onChange(next === '' ? null : next);
@@ -110,6 +111,7 @@ export function MultiSelectForm(props: FormFieldProps & { remote?: RemoteSource 
         onFocus={remote?.onFocus}
         aria-describedby={describedBy}
         aria-invalid={invalid || undefined}
+        aria-required={field.required === true || undefined}
         disabled={disabled}
         onChange={onChange}
         className="w-full"

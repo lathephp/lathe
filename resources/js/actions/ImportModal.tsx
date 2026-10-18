@@ -232,12 +232,14 @@ export function ImportModal({ base, action, selection, onClose }: ImportModalPro
                         value={map[index] ?? ''}
                         size="sm"
                         className="w-full"
-                        // A column maps to one row, so the columns other rows took are left out.
+                        // A column maps to one row, so the columns other rows took show but cannot be picked.
                         options={[
                           { value: '', label: __('Skip') },
-                          ...detected.columns
-                            .filter((column) => !map.some((name, other) => name === column.name && other !== index))
-                            .map((column) => ({ value: column.name, label: column.label })),
+                          ...detected.columns.map((column) => ({
+                            value: column.name,
+                            label: column.label,
+                            disabled: map.some((name, other) => name === column.name && other !== index),
+                          })),
                         ]}
                         onChange={(next) => {
                           const value = next === '' ? null : next;

@@ -3,7 +3,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import { IMPORT_POLL_MS, ImportModal } from '../actions/ImportModal';
 import type { ActionMeta } from '../actions/types';
 import type { SelectionDescriptor } from '../index/useRowSelection';
-import { choose, optionLabels, pickFile } from './support';
+import { choose, pickFile } from './support';
 
 const action: ActionMeta = {
   uriKey: 'import',
@@ -151,14 +151,25 @@ describe('import modal', () => {
     expect(calls[0]?.body).toEqual({ name: 'products.csv', size: 15, mime: 'text/csv' });
     expect(step('upload')?.body).toEqual({ action: 'import', selection, fields: { import_step: 'upload', file: '01UPLOAD' } });
 
-    // 2. The mapping comes prefilled; a column mapped by another row is not offered, and a
-    // required column set to Skip holds Continue back.
+    // 2. The mapping comes prefilled; a column mapped by another row shows but cannot be
+    // picked, and a required column set to Skip holds Continue back.
     expect((await screen.findByLabelText('Name')).textContent).toBe('Name');
     expect(screen.getByLabelText('SKU').textContent).toBe('Sku');
     expect(screen.getByLabelText('Price').textContent).toBe('Price');
     expect(screen.getByText('Camp Kettle')).toBeTruthy();
     expect(container.querySelector('select')).toBeNull();
-    expect(await optionLabels(screen.getByLabelText('Price'))).toEqual(['Skip', 'Price']);
+    fireEvent.mouseDown(screen.getByLabelText('Price'), { button: 0 });
+    await screen.findByRole('listbox');
+    expect(screen.getAllByRole('option').map((option) => [option.textContent, option.getAttribute('aria-disabled') === 'true'])).toEqual([
+      ['Skip', false],
+      ['Name', true],
+      ['Sku', true],
+      ['Price', false],
+    ]);
+    fireEvent.keyDown(screen.getByRole('listbox'), { key: 'Escape' });
+    await waitFor(() => {
+      expect(screen.queryByRole('listbox')).toBeNull();
+    });
 
     await choose(screen.getByLabelText('Price'), 'Skip');
     expect(screen.getByLabelText('Price').textContent).toBe('Skip');

@@ -30,7 +30,7 @@ export function SelectMenu(props: SelectProps & { defaultOpen: boolean }) {
       <SelectContent alignItemWithTrigger={false} align="start">
         {runs(options).map((run) => {
           const items = run.options.map((option) => (
-            <SelectItem key={option.value} value={option.value}>
+            <SelectItem key={option.value} value={option.value} disabled={option.disabled ?? false}>
               {option.label}
             </SelectItem>
           ));
