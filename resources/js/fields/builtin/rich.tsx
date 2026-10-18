@@ -3,10 +3,11 @@ import { SafeHtml } from '../../components/SafeHtml';
 import { DetailFallbackField, registerField, type DetailFieldProps, type FormFieldProps, type IndexFieldProps } from '../registry';
 import CodeDetail from '../rich/CodeDetail';
 import KeyValueForm, { KeyValueDetail } from '../key-value/KeyValueFields';
-import SlugInput from '../slug/SlugInput';
+import { SlugInput } from '../slug/lazy';
 import { Collapsible, lineCount } from '../text/Collapsible';
 import { isSafeHtml } from '../text/TextValue';
 import { lazyNamed } from '../../lib/lazy';
+import { deferred } from './deferred';
 
 // A separate chunk: the editor loads only on a form that has a Markdown field.
 const MarkdownEditor = lazy(() => import('../rich/MarkdownEditor'));
@@ -68,6 +69,6 @@ function SlugIndex({ cell }: IndexFieldProps) {
 
 /** Register the slug and key-value renderers. */
 function registerSlugAndKeyValueFields(): void {
-  registerField('slug-field', { index: SlugIndex, form: SlugInput });
+  registerField('slug-field', { index: SlugIndex, form: deferred(SlugInput) });
   registerField('key-value-field', { detail: KeyValueDetail, form: KeyValueForm });
 }

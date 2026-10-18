@@ -13,22 +13,6 @@ interface TableSummaryRowProps {
   trailing: boolean;
 }
 
-/** The footer's place held while the summaries load: `rows` rows of the real height, then the real footer fades in. */
-export function TableSummaryPlaceholder({ columns, rows, leading, trailing }: Pick<TableSummaryRowProps, 'columns' | 'leading' | 'trailing'> & { rows: number }) {
-  return (
-    <tfoot aria-hidden="true">
-      {Array.from({ length: rows }, (_, index) => (
-        <tr key={index} className="h-10 border-t border-border">
-          <td className={leading} />
-          <td colSpan={columns.length + (trailing ? 1 : 0)} className="px-3">
-            <span className="block h-3 w-24 animate-pulse rounded bg-skeleton motion-reduce:animate-none" />
-          </td>
-        </tr>
-      ))}
-    </tfoot>
-  );
-}
-
 /** The footer rows "This page" and "All records", each total under its own column. */
 export function TableSummaryRow({ columns, summaries, pins, leading, trailing }: TableSummaryRowProps) {
   const { __ } = useTranslation();

@@ -11,9 +11,9 @@ import type { SharedProps } from '../types';
 import { GroupHeaderRow } from './GroupHeaderRow';
 import { GroupSummaryRow } from './GroupSummaryRow';
 import { InlineCell } from './InlineCell';
-import { ColumnPicker } from './lazy';
+import { ColumnPicker, TableSummaryRow } from './lazy';
 import { hasRowMenu, RowMenu } from './RowMenu';
-import { TableSummaryPlaceholder, TableSummaryRow } from './TableSummaryRow';
+import { TableSummaryPlaceholder } from './TableSummaryPlaceholder';
 import type { ColumnPin, IndexProps, Row } from './types';
 import type { RowSelection } from './useRowSelection';
 
@@ -257,6 +257,16 @@ export function ResourceTable({ resource, table, state, loading, selection, sort
     }
   }
 
+  const placeholder = (
+    <TableSummaryPlaceholder
+      columns={columns}
+      // A paged table totals the page and all records, an unpaged one only the records.
+      rows={state.hasMorePages || state.page > 1 ? 2 : 1}
+      leading={cn(checkboxColumn, border)}
+      trailing={withMenu}
+    />
+  );
+
   return (
     // Focusable, so a keyboard user can scroll a wide table sideways.
     // Relative, so the visually hidden header labels stay inside the scroll box on a narrow screen.
@@ -480,23 +490,18 @@ export function ResourceTable({ resource, table, state, loading, selection, sort
                 );
               })}
         </tbody>
-        {!loading && summaries === undefined && resource.hasSummaries === true && (
-          <TableSummaryPlaceholder
-            columns={columns}
-            // A paged table totals the page and all records, an unpaged one only the records.
-            rows={state.hasMorePages || state.page > 1 ? 2 : 1}
-            leading={cn(checkboxColumn, border)}
-            trailing={withMenu}
-          />
-        )}
+        {!loading && summaries === undefined && resource.hasSummaries === true && placeholder}
         {!loading && summaries !== undefined && summaries !== null && (
-          <TableSummaryRow
-            columns={columns}
-            summaries={summaries}
-            pins={pins}
-            leading={cn(checkboxColumn, border)}
-            trailing={withMenu}
-          />
+          // The totals' code loads with their deferred values; until it lands the placeholder holds their place.
+          <Suspense fallback={placeholder}>
+            <TableSummaryRow
+              columns={columns}
+              summaries={summaries}
+              pins={pins}
+              leading={cn(checkboxColumn, border)}
+              trailing={withMenu}
+            />
+          </Suspense>
         )}
       </table>
       {previewing === null ? null : (

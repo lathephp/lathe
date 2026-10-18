@@ -5,7 +5,7 @@ import { Suspense, useId, useState, type KeyboardEvent } from 'react';
 import { Button } from '../components/ui/Button';
 import { NavIcon } from '../components/NavIcon';
 import { cn } from '../lib/cn';
-import { RenameTabDialog, SaveTabDialog } from './lazy';
+import { DeleteTabDialog, RenameTabDialog, SaveTabDialog } from './lazy';
 import type { BadgeType, IndexProps, SavedTab, TabCount } from './types';
 import type { IndexUrlState } from './useIndexState';
 import { useSavedTabs } from './useSavedTabs';
@@ -296,39 +296,19 @@ export function TabBar({ resource, state, visit }: TabBarProps) {
         )}
       </Suspense>
       {dialog?.kind === 'delete' && (
-        <div className="fixed inset-0 z-50 flex items-start justify-center bg-scrim p-4 pt-[15vh]">
-          <div
-            role="alertdialog"
-            aria-modal="true"
-            aria-labelledby={`${id}-delete`}
-            className="w-full max-w-sm space-y-4 rounded-lg border border-border bg-background p-4 text-foreground shadow-lg"
-          >
-            <h2 id={`${id}-delete`} className="text-base font-semibold">
-              {__('Delete :name?', { name: dialog.tab.name })}
-            </h2>
-            <div className="flex justify-end gap-2">
-              <Button
-                variant="outline"
-                // eslint-disable-next-line jsx-a11y/no-autofocus -- Cancel is the safe choice of a confirm.
-                autoFocus
-                onClick={() => {
-                  setDialog(null);
-                }}
-              >
-                {__('Cancel')}
-              </Button>
-              <Button
-                onClick={() => {
-                  const tab = dialog.tab;
-                  setDialog(null);
-                  void saved.delete(tab.id);
-                }}
-              >
-                {__('Delete')}
-              </Button>
-            </div>
-          </div>
-        </div>
+        <Suspense fallback={null}>
+          <DeleteTabDialog
+            name={dialog.tab.name}
+            onDelete={() => {
+              const tab = dialog.tab;
+              setDialog(null);
+              void saved.delete(tab.id);
+            }}
+            onClose={() => {
+              setDialog(null);
+            }}
+          />
+        </Suspense>
       )}
     </div>
   );

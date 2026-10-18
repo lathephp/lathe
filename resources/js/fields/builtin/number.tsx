@@ -1,7 +1,8 @@
 import { formatCurrency, formatNumber } from '@lathephp/core';
 import { DetailFallbackField, FallbackField, registerField, type DetailFieldProps, type IndexFieldProps } from '../registry';
 import { NumberInput } from '../number/NumberInput';
-import { TokenInput } from '../number/TokenInput';
+import { TokenInput } from '../number/lazy';
+import { deferred } from './deferred';
 
 /** A number, or a decimal string that is one; anything else is not drawn as a number. */
 function numeric(value: unknown): value is number | string {
@@ -45,5 +46,5 @@ function DetailToken({ field }: DetailFieldProps) {
 export function registerNumberFields(): void {
   registerField('number-field', { index: IndexNumber, detail: DetailNumber, form: NumberInput });
   registerField('currency-field', { index: IndexCurrency, detail: DetailCurrency, form: NumberInput });
-  registerField('token-field', { index: IndexToken, detail: DetailToken, form: TokenInput });
+  registerField('token-field', { index: IndexToken, detail: DetailToken, form: deferred(TokenInput) });
 }

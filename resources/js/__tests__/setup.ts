@@ -6,14 +6,16 @@ import { preloadChoiceForms } from '../fields/choice/lazy';
 import { preloadDateFields } from '../fields/date/lazy';
 import { preloadRelationForms } from '../fields/relation/lazy';
 import { preloadRepeaterFields } from '../fields/repeater/lazy';
-import { preloadTabDialogs } from '../index/lazy';
+import { preloadTabDialogs, TableSummaryRow } from '../index/lazy';
+import { TokenInput } from '../fields/number/lazy';
+import { SlugInput } from '../fields/slug/lazy';
 import { Uploader } from '../fields/upload/file';
 
 registerBuiltinFields();
 
 // The relation pickers, the repeater, the date picker and the saved-view dialogs are lazy chunks; loaded up front, a test renders them at once.
 beforeAll(async () => {
-  await Promise.all([preloadRelationForms(), preloadChoiceForms(), preloadRepeaterFields(), preloadTabDialogs(), Uploader.preload(), preloadDateFields()]);
+  await Promise.all([preloadRelationForms(), preloadChoiceForms(), preloadRepeaterFields(), preloadTabDialogs(), TableSummaryRow.preload(), TokenInput.preload(), SlugInput.preload(), Uploader.preload(), preloadDateFields()]);
 });
 
 // jsdom has no layout for ranges, and ProseMirror measures one when a Tiptap update
