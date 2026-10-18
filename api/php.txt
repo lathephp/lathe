@@ -2471,6 +2471,8 @@ Lathe\Http\Controllers\Resources\BatchDeleteController::delete(Lathe\Http\Reques
 Lathe\Http\Controllers\Resources\BatchDeleteController::forceDelete(Lathe\Http\Requests\LatheRequest $request, Lathe\Auth\ResourceAuthorization $authorization, Lathe\Resources\RecordDeleter $deleter, Lathe\ActionEvents\ActionEventRecorder $recorder): Illuminate\Http\JsonResponse
 Lathe\Http\Controllers\Resources\BatchDeleteController::handle(Lathe\Http\Requests\LatheRequest $request, Lathe\Auth\ResourceAuthorization $authorization, Lathe\Resources\RecordDeleter $deleter, Lathe\ActionEvents\ActionEventRecorder $recorder, string $ability, string $key): Illuminate\Http\JsonResponse  [protected]
 Lathe\Http\Controllers\Resources\BatchDeleteController::restore(Lathe\Http\Requests\LatheRequest $request, Lathe\Auth\ResourceAuthorization $authorization, Lathe\Resources\RecordDeleter $deleter, Lathe\ActionEvents\ActionEventRecorder $recorder): Illuminate\Http\JsonResponse
+Lathe\Http\Controllers\Resources\ColumnPreferenceController::destroy(Lathe\Http\Requests\LatheRequest $request, Lathe\Auth\ResourceAuthorization $authorization): Illuminate\Http\Response
+Lathe\Http\Controllers\Resources\ColumnPreferenceController::update(Lathe\Http\Requests\LatheRequest $request, Lathe\Auth\ResourceAuthorization $authorization, Lathe\Http\Payloads\IndexPayload $payload): Illuminate\Http\JsonResponse
 Lathe\Http\Controllers\Resources\CountController::__invoke(Lathe\Http\Requests\LatheRequest $request, Lathe\Auth\ResourceAuthorization $authorization, Lathe\Http\Payloads\IndexPayload $payload): Illuminate\Http\JsonResponse
 Lathe\Http\Controllers\Resources\DeleteController::authorizedModel(Lathe\Http\Requests\LatheRequest $request, Lathe\Auth\ResourceAuthorization $authorization, string $class, string $id, string $ability, bool $withTrashed): Illuminate\Database\Eloquent\Model  [protected]
 Lathe\Http\Controllers\Resources\DeleteController::delete(Lathe\Http\Requests\LatheRequest $request, Lathe\Auth\ResourceAuthorization $authorization, Lathe\Resources\RecordDeleter $deleter, string $resource, string $resourceId): Illuminate\Http\JsonResponse
@@ -2640,6 +2642,8 @@ Lathe\Http\Payloads\IndexPayload::__construct(Lathe\Http\Requests\LatheRequest $
 Lathe\Http\Payloads\IndexPayload::activeSavedTab(Lathe\Resources\Resource $resource): ?int  [protected]
 Lathe\Http\Payloads\IndexPayload::build(string $class, ?Lathe\Lenses\Lens $lens = NULL): array
 Lathe\Http\Payloads\IndexPayload::checkRowKeys(string $class, string $rowKey, Illuminate\Database\Eloquent\Collection $rows): void  [protected]
+Lathe\Http\Payloads\IndexPayload::chosenColumns(array $fields, array $choice): array  [protected]
+Lathe\Http\Payloads\IndexPayload::columnChoice(string $class, array $fields): ?array  [protected]
 Lathe\Http\Payloads\IndexPayload::columns(Lathe\Resources\Resource $resource, ?Lathe\Lenses\Lens $lens = NULL): array
 Lathe\Http\Payloads\IndexPayload::count(string $class, ?Lathe\Lenses\Lens $lens = NULL): ?array
 Lathe\Http\Payloads\IndexPayload::groups(Lathe\Resources\Resource $resource, ?array $active, ?Lathe\Lenses\Lens $lens): array  [protected]
@@ -3177,6 +3181,14 @@ Lathe\Plugins\ResourcePluginRegistry::index(?Lathe\Http\Requests\LatheRequest $r
 Lathe\Plugins\ResourcePluginRegistry::placedIn(string $class, Lathe\Http\Requests\LatheRequest $request): array  [static]
 Lathe\Plugins\ResourcePluginRegistry::resourceFor(string $component, string $uriKey, ?Lathe\Http\Requests\LatheRequest $request = NULL): ?string
 Lathe\Plugins\ResourcePluginRegistry::script(string $uriKey, string $file, ?Lathe\Http\Requests\LatheRequest $request = NULL): ?string
+Lathe\Preferences\ColumnChoice::age(array $codeKeys, array $choice): array  [static]
+Lathe\Preferences\ColumnChoice::key(string $uriKey): string  [static]
+Lathe\Preferences\ColumnChoice::known(array $codeKeys, mixed $keys): array  [protected static]
+Lathe\Preferences\ColumnChoice::visible(array $codeKeys, ?array $choice): array  [static]
+Lathe\Preferences\UserPreference::$fillable  [protected]
+Lathe\Preferences\UserPreference::$table  [protected]
+Lathe\Preferences\UserPreference::casts(): array  [protected]
+Lathe\Preferences\UserPreference::userId(Lathe\Http\Requests\LatheRequest $request): string  [static]
 Lathe\Query\Count::__construct(int $value, bool $capped, bool $exact = false, bool $estimated = false)
 Lathe\Query\Count::bool $capped
 Lathe\Query\Count::bool $estimated
@@ -4797,6 +4809,7 @@ class Lathe\Http\Controllers\Resources\ActionLookupController
 class Lathe\Http\Controllers\Resources\ActionRunController
 class Lathe\Http\Controllers\Resources\AssociatableController
 class Lathe\Http\Controllers\Resources\BatchDeleteController
+class Lathe\Http\Controllers\Resources\ColumnPreferenceController
 class Lathe\Http\Controllers\Resources\CountController
 class Lathe\Http\Controllers\Resources\DeleteController
 class Lathe\Http\Controllers\Resources\DependencyController
@@ -4867,6 +4880,8 @@ class Lathe\Plugins\PluginSetting
 class Lathe\Plugins\PluginSettings
 class Lathe\Plugins\ResourcePlugin
 class Lathe\Plugins\ResourcePluginRegistry
+class Lathe\Preferences\ColumnChoice
+class Lathe\Preferences\UserPreference
 class Lathe\Query\Count
 class Lathe\Query\DateBucket
 class Lathe\Query\PivotVia

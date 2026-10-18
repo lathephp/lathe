@@ -9,6 +9,7 @@ All notable changes to Lathe are listed here. The format follows [Keep a Changel
 - [api] `SelectField::badges()` shows each value as a badge in a tone: neutral, primary, info, success, warning or danger. The workbench's order statuses use it.
 - [api] The `@lathephp/ui/popover` and `@lathephp/ui/select` subpaths, so a page can load the popover or the select without the whole kit.
 - The config keys `brand.logo` and `brand.logo_dark` put your logo at the top of the sidebar, with a separate image for the dark theme.
+- [api] Each user's column choices on a resource index (shown, hidden, order, pinned) are saved on the server in the new `lathe_user_preferences` table, through `PUT` and `DELETE` on `api/resources/{resource}/columns`. A column removed from code drops out of a saved choice, and a new one shows at the end. Run `php artisan migrate` after upgrading.
 - Sidebar links and a table row's first cell fetch their page after a 75 ms hover and keep it 30 seconds; any write to the resource drops it. A click shows the next page at once: the sidebar item turns active on press, and if the data has not come after 100 ms the page shows its title and a skeleton of its layout.
 
 ### Changed

@@ -128,7 +128,7 @@ it('keeps the first paint at four queries and the count at two, at 25 and 100 ro
         'X-Inertia-Version' => (string) app(HandleInertiaRequests::class)->version(request()),
     ])->assertOk());
 
-    // The user, the rows, the eager-loaded customers and the user's saved tabs.
+    // The rows, the eager-loaded customers, the user's saved tabs and the user's column choice.
     expect(count($page))->toBeLessThanOrEqual(4)
         ->and(count($count))->toBeLessThanOrEqual(2);
 })->with([25, 100]);

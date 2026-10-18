@@ -128,7 +128,8 @@ test('index_query_count_is_flat_across_page_sizes', function () {
     $at25 = sqlDuring(fn () => test()->actingAs($admin)->getJson('/lathe/api/resources/orders?per_page=25')->assertOk());
     $at100 = sqlDuring(fn () => test()->actingAs($admin)->getJson('/lathe/api/resources/orders?per_page=100')->assertOk());
 
-    expect(count($at25))->toBe(count($at100))->toBeLessThanOrEqual(3);
+    // The user's column choice is one of these, read once per request.
+    expect(count($at25))->toBe(count($at100))->toBeLessThanOrEqual(4);
 })->group('regression');
 
 test('capped_count_never_runs_full_count', function () {

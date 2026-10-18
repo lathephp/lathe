@@ -15,7 +15,8 @@ beforeEach(function () {
     $this->actingAs(User::where('email', 'admin@lathephp.com')->firstOrFail());
 });
 
-// Budget of 3 measured on a warmed panel: the first page of orders, its customers, the user's saved tabs.
+// Budget of 4 measured on a warmed panel: the first page of orders, its customers, the user's saved tabs
+// and the user's column choice.
 it('runs only the first-page query when an index is prefetched', function () {
     warmNavigationBadges();
 
@@ -40,5 +41,5 @@ it('runs only the first-page query when an index is prefetched', function () {
     expect($orders)->toHaveCount(1)
         ->and($orders[0])->toStartWith('select ')->and($orders[0])->toContain('limit')
         ->and($countsOnOrders)->toBeEmpty()
-        ->and($sql)->toHaveCount(3);
+        ->and($sql)->toHaveCount(4);
 });
