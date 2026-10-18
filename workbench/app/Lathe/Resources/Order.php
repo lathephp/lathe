@@ -41,6 +41,7 @@ class Order extends Resource
             // Contains, so "warren" finds the orders of "Prof. Warren Shields II".
             ->searchable(['number', new SearchableRelation('customer', 'name', 'contains')])
             ->globallySearchable()
+            ->globalSearchResults(3)
             ->with(['customer'])
             ->icon('ShoppingCart')
             ->recordHeader(meta: 'placed_at')

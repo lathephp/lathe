@@ -250,10 +250,10 @@ it('lists a customer\'s orders with the customer, date and total, and counts the
 
     expect(array_column($groups['customers']['results'], 'title'))->toBe(['Prof. Warren Shields II'])
         ->and($groups['customers']['count'])->toBeNull()
-        ->and(array_column($groups['orders']['results'], 'title'))->toBe(['ORD-08311457', 'ORD-13118290', 'ORD-14567467', 'ORD-15058445', 'ORD-20039496'])
+        ->and(array_column($groups['orders']['results'], 'title'))->toBe(['ORD-08311457', 'ORD-13118290', 'ORD-14567467'])
         ->and($groups['orders']['count'])->toBe(['value' => 20, 'exact' => false, 'capped' => false, 'estimated' => false]);
 
-    $totals = ['$1,751.47', '$1,518.40', '$1,246.52', '$693.76', '$714.82'];
+    $totals = ['$1,751.47', '$1,518.40', '$1,246.52'];
 
     foreach ($groups['orders']['results'] as $i => $row) {
         expect($row['subTitle'])->toMatch('/^Prof\. Warren Shields II · [A-Z][a-z]{2} \d{1,2}, \d{4} · '.preg_quote($totals[$i], '/').'$/');
