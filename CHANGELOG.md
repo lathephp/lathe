@@ -19,6 +19,7 @@ All notable changes to Lathe are listed here. The format follows [Keep a Changel
 
 ### Changed
 
+- [api] Dashboard cards in one row share the tallest card's height, and `height()` is now a minimum. A value card shows every digit on a desktop and a short form on a phone, the change as a signed badge, then "vs" and the earlier value; with no earlier data it says so. `ValueResult::lowerIsBetter()` shows a rise in the destructive colour and a fall in the success colour. The grid gap is 20 px, and below 768 px value cards sit two across.
 - A pie widget with more than six slices draws as bars: the five largest against the largest, then the rest added up as one Other row.
 - [api] The default theme is Lathe's copper design in light and dark. Apps that set `theme.colors` keep their colours. New public tokens: `brand`, `focus`, `skeleton`, `scrim`, `chart-other`, `sidebar-hover`, a `-subtle` and `-subtle-foreground` pair for `primary`, `success`, `warning`, `info` and `destructive`, and `shadow-xs` to `shadow-lg`.
 - [api] The 16 new colour tokens are `theme.colors` keys and `Lathe\Theme\Color` cases. When an app sets any colour of its own, every token it did not set keeps its value from before copper, so the app keeps its look; `brand` and `focus` take `primary` at 3:1 on the page, and each `-subtle` pair is a tint of its colour with text at 4.5:1.

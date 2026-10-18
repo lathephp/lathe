@@ -23,49 +23,69 @@ export function ValueCard({ widget, value }: WidgetRendererProps) {
   const direction = change === null ? null : change > 0 ? 'up' : change < 0 ? 'down' : 'flat';
   const Arrow = direction === 'up' ? ArrowUpRight : direction === 'down' ? ArrowDownRight : ArrowRight;
 
+  const full = formatMetric(number, result, true);
+  const short = formatMetric(number, result);
+  // A rise is good unless the result says lower is better.
+  const good = direction === 'flat' ? null : (direction === 'up') !== (result.lowerIsBetter === true);
+
   return (
-    <div className="space-y-1">
-      <div className="flex items-start justify-between gap-3">
-        <div className="flex min-w-0 items-center gap-2">
-          {icon !== null && (
-            <Suspense fallback={<span className="size-5 shrink-0" />}>
-              <WidgetIcon name={icon} />
-            </Suspense>
+    <div className="space-y-1.5">
+      <div className="flex min-w-0 items-center gap-2">
+        {icon !== null && (
+          <Suspense fallback={<span className="size-5 shrink-0" />}>
+            <WidgetIcon name={icon} />
+          </Suspense>
+        )}
+        <p className="truncate text-[26px] leading-8 font-semibold tracking-tight tabular-nums">
+          {/* Every digit on a desktop; a phone shows the short form and reads the full one aloud. */}
+          {short === full ? (
+            full
+          ) : (
+            <>
+              <span className="max-md:sr-only">{full}</span>
+              <span aria-hidden="true" className="md:hidden">
+                {short}
+              </span>
+            </>
           )}
-          <p className="truncate text-3xl font-semibold tracking-tight tabular-nums">{formatMetric(number, result)}</p>
-          {result.copyable && (
-            <button
-              type="button"
-              aria-label={__('Copy')}
-              className="rounded p-1 text-muted-foreground hover:text-foreground"
-              onClick={() => {
-                void navigator.clipboard.writeText(formatMetric(number, result)).then(() => {
-                  toast.success(__('Copied to clipboard'));
-                });
-              }}
-            >
-              <Copy aria-hidden="true" className="size-3.5" />
-            </button>
-          )}
-        </div>
+        </p>
+        {result.copyable && (
+          <button
+            type="button"
+            aria-label={__('Copy')}
+            className="rounded p-1 text-muted-foreground hover:text-foreground"
+            onClick={() => {
+              void navigator.clipboard.writeText(full).then(() => {
+                toast.success(__('Copied to clipboard'));
+              });
+            }}
+          >
+            <Copy aria-hidden="true" className="size-3.5" />
+          </button>
+        )}
+      </div>
+      <div className="flex flex-wrap items-center gap-2 text-xs">
         {change !== null && (
           <span
             data-change={direction}
             className={cn(
-              'flex shrink-0 items-center gap-1 rounded-md px-2 py-1 text-xs font-medium tabular-nums',
-              direction === 'up' && 'bg-success text-success-foreground',
-              direction === 'down' && 'bg-destructive text-destructive-foreground',
-              direction === 'flat' && 'bg-muted text-muted-foreground',
+              'inline-flex h-[22px] shrink-0 items-center gap-1 rounded-md px-1.5 font-medium tabular-nums',
+              good === true && 'bg-success-subtle text-success-subtle-foreground',
+              good === false && 'bg-destructive-subtle text-destructive-subtle-foreground',
+              good === null && 'bg-muted text-muted-foreground',
             )}
           >
             <Arrow aria-hidden="true" className="size-3.5" />
-            {formatNumber(Math.abs(change) / 100, { style: 'percent', maximumFractionDigits: 2 })}
+            {formatNumber(change / 100, { style: 'percent', maximumFractionDigits: 2, signDisplay: 'exceptZero' })}
           </span>
         )}
+        {result.previous !== null && change !== null && (
+          <span className="text-muted-foreground tabular-nums">
+            {result.previousLabel === null ? __('vs :value', { value: formatMetric(result.previous, result, true) }) : `${result.previousLabel}: ${formatMetric(result.previous, result, true)}`}
+          </span>
+        )}
+        {result.previous === 0 && change === null && <span className="text-muted-foreground">{__('No earlier data to compare with.')}</span>}
       </div>
-      {result.previous !== null && (
-        <p className="text-xs text-muted-foreground">{`${result.previousLabel ?? __('Previous')}: ${formatMetric(result.previous, result)}`}</p>
-      )}
     </div>
   );
 }

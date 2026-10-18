@@ -232,6 +232,7 @@
     "No Data": "No Data",
     "No Results Found...": "No Results Found...",
     "No changes yet": "No changes yet",
+    "No earlier data to compare with.": "No earlier data to compare with.",
     "No file": "No file",
     "No notifications": "No notifications",
     "No operation performed.": "No operation performed.",
@@ -267,7 +268,6 @@
     "Preset applied to config/lathe.php.": "Preset applied to config/lathe.php.",
     "Preview": "Preview",
     "Preview :title": "Preview :title",
-    "Previous": "Previous",
     "Previous page": "Previous page",
     "Processed": "Processed",
     "Radius": "Radius",
@@ -471,5 +471,6 @@
     "Your session has expired": "Your session has expired",
     "config/lathe.php is not published. Run php artisan lathe:install first.": "config/lathe.php is not published. Run php artisan lathe:install first.",
     "of target": "of target",
-    "shadcn answered :status for that preset.": "shadcn answered :status for that preset."
+    "shadcn answered :status for that preset.": "shadcn answered :status for that preset.",
+    "vs :value": "vs :value"
 }

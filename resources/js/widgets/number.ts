@@ -3,8 +3,11 @@ import type { NumberDisplay } from './types';
 
 const compact: Intl.NumberFormatOptions = { notation: 'compact', maximumFractionDigits: 1 };
 
-/** Intl options for a result's format: 'a' is compact, '.2' or '.00' is that many fraction digits. */
-function options(value: number, format: NumberDisplay['format']): Intl.NumberFormatOptions {
+/**
+ * Intl options for a result's format: 'a' is compact, '.2' or '.00' is that many fraction digits.
+ * Without a format a number from 10,000 up is compact, unless it is to show in full.
+ */
+function options(value: number, format: NumberDisplay['format'], full: boolean): Intl.NumberFormatOptions {
   if (format !== null && typeof format === 'object') {
     return format;
   }
@@ -21,7 +24,7 @@ function options(value: number, format: NumberDisplay['format']): Intl.NumberFor
     return { minimumFractionDigits: count, maximumFractionDigits: count };
   }
 
-  return Math.abs(value) < 10_000 ? { maximumFractionDigits: 2 } : compact;
+  return full || Math.abs(value) < 10_000 ? { maximumFractionDigits: 2 } : compact;
 }
 
 /** The suffix gets an English s unless the value is 1 or -1 or the suffix already ends in s. */
@@ -37,13 +40,16 @@ function suffixFor(value: number, display: NumberDisplay): string {
   return ` ${plain ? suffix : `${suffix}s`}`;
 }
 
-/** A result's number with its prefix and suffix, in the user's locale; an em dash when there is none. */
-export function formatMetric(value: number | null, display: NumberDisplay): string {
+/**
+ * A result's number with its prefix and suffix, in the user's locale; an em dash when there is none.
+ * Full keeps every digit of a number the format leaves unset.
+ */
+export function formatMetric(value: number | null, display: NumberDisplay, full = false): string {
   if (value === null || !Number.isFinite(value)) {
     return '—';
   }
 
-  return `${display.prefix ?? ''}${formatNumber(value, options(value, display.format))}${suffixFor(value, display)}`;
+  return `${display.prefix ?? ''}${formatNumber(value, options(value, display.format, full))}${suffixFor(value, display)}`;
 }
 
 /**

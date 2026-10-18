@@ -21,6 +21,8 @@ class ValueResult implements JsonSerializable
 
     public bool $copyable = false;
 
+    public bool $lowerIsBetter = false;
+
     protected ?Closure $transformCallback = null;
 
     /** @var (Closure(int|float): (int|float))|null */
@@ -65,6 +67,17 @@ class ValueResult implements JsonSerializable
     public function copyable(): static
     {
         $this->copyable = true;
+
+        return $this;
+    }
+
+    /**
+     * Marks a rise as bad, such as cancelled orders: a rise shows in the destructive colour
+     * and a fall in the success colour.
+     */
+    public function lowerIsBetter(bool $lowerIsBetter = true): static
+    {
+        $this->lowerIsBetter = $lowerIsBetter;
 
         return $this;
     }
@@ -124,6 +137,7 @@ class ValueResult implements JsonSerializable
             'tooltipFormat' => $this->tooltipFormat,
             'allowZeroResult' => $this->zeroAllowed,
             'copyable' => $this->copyable,
+            'lowerIsBetter' => $this->lowerIsBetter,
             'precision' => $this->roundedTo,
             'roundingMode' => $this->roundedBy,
         ];

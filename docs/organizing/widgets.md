@@ -261,7 +261,10 @@ The helpers return a `ValueResult`. To build one by hand, use `new ValueResult($
 | `transform(callable)` | Changes the number before it shows |
 | `allowZeroResult()` | Shows 0 instead of "No Data" |
 | `copyable()` | Adds a copy button |
+| `lowerIsBetter()` | Shows a rise in red and a fall in green, for numbers such as cancelled orders |
 | `tooltipFormat(string)` | Sets the format of the hover tooltip |
+
+The card shows every digit on a desktop and a short form, such as $1.9M, on a phone. Under the number it shows the change as a badge and then the earlier value, as "vs $1,852,565.92".
 
 `precision(2)` on the widget rounds the value on the server. A second argument picks the rounding mode, such as `PHP_ROUND_HALF_EVEN`.
 

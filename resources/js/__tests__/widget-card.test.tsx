@@ -266,27 +266,27 @@ describe('the card', () => {
     });
   });
 
-  it('lays cards out on 12 columns with a 16 px gap, full width below 768 px', () => {
+  it('lays cards out on 12 columns with a 20 px gap, value cards two across below 768 px', () => {
     renderDashboard(
       [3, 4, 6, 8, 9, 12].map((columns) => descriptor(`w${String(columns)}`, { columns })),
       {},
     );
 
     expect(card('w3').parentElement?.className).toContain('grid-cols-12');
-    expect(card('w3').parentElement?.className).toContain('gap-4');
+    expect(card('w3').parentElement?.className).toContain('gap-5');
 
     for (const columns of [3, 4, 6, 8, 9, 12]) {
       const classes = card(`w${String(columns)}`).className.split(' ');
-      expect(classes).toContain('col-span-12');
+      expect(classes).toContain('col-span-6');
       expect(classes).toContain(`md:col-span-${String(columns)}`);
     }
   });
 
-  it('is 160 px high, 320 px when double and sized to content when dynamic', () => {
+  it('is at least 160 px high, 320 px when double and sized to content when dynamic', () => {
     renderDashboard([descriptor('fixed'), descriptor('double', { height: 'double' }), descriptor('dynamic', { height: 'dynamic' })], {});
 
-    expect(card('fixed').className.split(' ')).toContain('h-40');
-    expect(card('double').className.split(' ')).toContain('h-80');
+    expect(card('fixed').className.split(' ')).toContain('min-h-40');
+    expect(card('double').className.split(' ')).toContain('min-h-80');
     expect(card('dynamic').className).not.toMatch(/\bh-(40|80)\b/);
   });
 });

@@ -112,6 +112,11 @@ it('runs transform on the previous value too, so both share a unit', function ()
         ->and($payload['change'])->toBe(3.84);
 });
 
+it('says when a rise is bad', function () {
+    expect(valueOf(valueProbe((new ValueResult(382))->previous(344)->lowerIsBetter())))->toMatchArray(['lowerIsBetter' => true, 'change' => 11.05])
+        ->and(valueOf(valueProbe(new ValueResult(5))))->toMatchArray(['lowerIsBetter' => false]);
+});
+
 it('sends the format as given', function (string|array $format) {
     expect(valueOf(valueProbe((new ValueResult(5))->format($format)))['format'])->toBe($format);
 })->with([

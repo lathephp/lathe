@@ -114,8 +114,8 @@ describe('value display rules', () => {
 
 describe('the change badge', () => {
   it.each([
-    [50, 'up', '50%'],
-    [-10, 'down', '10%'],
+    [50, 'up', '+50%'],
+    [-10, 'down', '-10%'],
     [0, 'flat', '0%'],
   ])('shows %s as a %s arrow', (change, direction, shown) => {
     showValue({ value: 150, previous: 100, change });

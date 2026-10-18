@@ -4381,6 +4381,7 @@ Lathe\Widgets\Results\ValueResult::__construct(int|float|null $value, int|float|
 Lathe\Widgets\Results\ValueResult::allowZeroResult(bool $allow = true): static
 Lathe\Widgets\Results\ValueResult::array|string|null $format
 Lathe\Widgets\Results\ValueResult::bool $copyable
+Lathe\Widgets\Results\ValueResult::bool $lowerIsBetter
 Lathe\Widgets\Results\ValueResult::bool $suffixInflection
 Lathe\Widgets\Results\ValueResult::bool $zeroAllowed
 Lathe\Widgets\Results\ValueResult::change(): ?float
@@ -4388,6 +4389,7 @@ Lathe\Widgets\Results\ValueResult::copyable(): static
 Lathe\Widgets\Results\ValueResult::int|float|null $previous
 Lathe\Widgets\Results\ValueResult::int|float|null $value
 Lathe\Widgets\Results\ValueResult::jsonSerialize(): array
+Lathe\Widgets\Results\ValueResult::lowerIsBetter(bool $lowerIsBetter = true): static
 Lathe\Widgets\Results\ValueResult::previous(int|float|null $previous, ?string $label = NULL): static
 Lathe\Widgets\Results\ValueResult::rounded(Closure $round, int $precision, int $mode): static
 Lathe\Widgets\Results\ValueResult::tooltipFormat(string $format): static

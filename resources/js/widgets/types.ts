@@ -46,6 +46,7 @@ export interface ValueResult extends NumberDisplay {
   previousLabel: string | null;
   allowZeroResult: boolean;
   copyable: boolean;
+  lowerIsBetter?: boolean;
 }
 
 export interface ProgressResult extends NumberDisplay {
