@@ -1,13 +1,11 @@
-import { formatNumber, request, useLathe, useTranslation } from '@lathephp/core';
+import { __panel, formatNumber, request, useLathe, useTranslation, type ToastLink, type ToastMessage, type ToastType } from '@lathephp/core';
 import { router } from '@inertiajs/react';
-import { X } from 'lucide-react';
 import { useEffect, useRef, useState, useSyncExternalStore } from 'react';
 import { runStore, type RunVerb, type StartedRun } from './runStore';
 import { reloadIndexRows } from '../lib/instant';
 
 /** How often a running run asks the server for its progress, in milliseconds. */
 export const RUN_POLL_MS = 2_000;
-
 
 interface BulkStatus {
   status: 'waiting' | 'running' | 'finished' | 'failed' | 'cancelled';
@@ -34,6 +32,7 @@ export interface ImportStatus {
   skipped_rows: number;
   failed_rows: number;
   errors_url?: string | null;
+  resource_label?: string | null;
 }
 
 type Status = BulkStatus | ExportStatus | ImportStatus;
@@ -72,6 +71,7 @@ export function RunToasts() {
   const started = useSyncExternalStore(runStore.subscribe, runStore.get);
   const [statuses, setStatuses] = useState<Record<string, Status | null>>({});
   const reloaded = useRef(new Set<string>());
+  const shown = useRef(new Map<string, { id: number; toast: Omit<ToastMessage, 'id'> }>());
   const runs = started.map((run: StartedRun) => ({ ...run, status: statuses[`${run.kind}:${run.id}`] ?? null }) as Run);
 
   const active = runs.filter((run) => !done(run)).map((run) => `${run.kind}:${run.id}`).join(',');
@@ -105,14 +105,6 @@ export function RunToasts() {
       clearInterval(timer);
     };
   }, [active, apiPath, basePath]);
-
-  if (runs.length === 0) {
-    return null;
-  }
-
-  function dismiss(run: Run) {
-    runStore.dismiss(run.kind, run.id);
-  }
 
   function cancel(run: Run) {
     void request(`${apiPath}/bulk-runs/${run.id}`, { method: 'DELETE' }).catch(() => undefined);
@@ -180,6 +172,16 @@ export function RunToasts() {
 
     const status = run.status;
 
+    if (status?.status === 'completed' && status.failed_rows > 0) {
+      return {
+        message: __(':imported of :total :resource imported', {
+          imported: formatNumber(status.total_rows - status.failed_rows),
+          total: formatNumber(status.total_rows),
+          resource: (status.resource_label ?? __('Rows')).toLocaleLowerCase(),
+        }),
+      };
+    }
+
     if (status?.status === 'completed') {
       return {
         message: __('Your import has completed.'),
@@ -199,65 +201,76 @@ export function RunToasts() {
     return { message: status === null ? __('Import started.') : __('Importing :n of :total', { n: formatNumber(status.processed_rows), total: formatNumber(status.total_rows) }) };
   }
 
-  const linkClass = 'rounded-sm font-medium underline outline-none focus-visible:ring-2 focus-visible:ring-ring';
+  // One toast per run, keyed by run and updated in place; it stays while the run runs and when it needs a look.
+  useEffect(() => {
+    for (const run of runs) {
+      const key = `${run.kind}:${run.id}`;
+      const { message, body } = text(run);
+      const status = run.status;
+      const ended = done(run);
+      const links: ToastLink[] = [];
+      let type: ToastType = ended ? 'success' : 'info';
 
-  return (
-    <section aria-label={__('Runs')} className="fixed start-4 bottom-4 z-40 flex w-80 flex-col gap-2">
-      {runs.map((run) => {
-        const { message, body } = text(run);
-        const ended = done(run);
-        const exported = run.kind === 'export' ? run.status : null;
-        const imported = run.kind === 'import' ? run.status : null;
+      if (run.kind === 'export' && run.status?.download_url != null) {
+        links.push({ label: __('Download'), href: run.status.download_url, newTab: true });
+      }
 
-        return (
-          <div key={`${run.kind}:${run.id}`} role="status" className="flex items-start gap-3 rounded-lg border border-border bg-background p-3 text-sm shadow-lg">
-            <div className="min-w-0 flex-1 space-y-1">
-              <p>{message}</p>
-              {body !== undefined && <p className="text-muted-foreground">{body}</p>}
-              <div className="flex flex-wrap gap-3">
-                {exported?.download_url != null && (
-                  <a href={exported.download_url} target="_blank" rel="noopener noreferrer" className={linkClass}>
-                    {__('Download')}
-                  </a>
-                )}
-                {imported?.errors_url != null && imported.failed_rows > 0 && (
-                  <a href={imported.errors_url} target="_blank" rel="noopener noreferrer" className={linkClass}>
-                    {__('Download Failed Rows')}
-                  </a>
-                )}
-                {run.kind !== 'bulk' && (
-                  <a href={`${basePath}/runs/${run.kind}/${run.id}`} className={linkClass}>
-                    {run.kind === 'import' && run.status?.status === 'failed' ? __('Resume') : __('View run')}
-                  </a>
-                )}
-                {run.kind === 'bulk' && !ended && (
-                  <button
-                    type="button"
-                    className={linkClass}
-                    onClick={() => {
-                      cancel(run);
-                    }}
-                  >
-                    {__('Cancel')}
-                  </button>
-                )}
-              </div>
-            </div>
-            {ended && (
-              <button
-                type="button"
-                aria-label={__('Dismiss')}
-                className="rounded-sm outline-none focus-visible:ring-2 focus-visible:ring-ring"
-                onClick={() => {
-                  dismiss(run);
-                }}
-              >
-                <X aria-hidden="true" className="size-4" />
-              </button>
-            )}
-          </div>
-        );
-      })}
-    </section>
+      if (run.kind === 'import' && run.status?.errors_url != null && run.status.failed_rows > 0) {
+        links.push({ label: __('Download failed rows'), href: run.status.errors_url, newTab: true });
+      }
+
+      if (run.kind !== 'bulk') {
+        links.push({ label: run.kind === 'import' && status?.status === 'failed' ? __('Resume') : __('View run'), href: `${basePath}/runs/${run.kind}/${run.id}`, newTab: false });
+      }
+
+      if (status?.status === 'failed' || (run.kind === 'bulk' && run.status !== null && run.status.failed > 0 && run.status.failed === run.status.processed)) {
+        type = 'error';
+      } else if ((run.kind === 'bulk' && run.status !== null && (run.status.failed > 0 || run.status.skipped > 0)) || (run.kind === 'import' && (run.status?.failed_rows ?? 0) > 0)) {
+        type = 'warning';
+      }
+
+      const next: Omit<ToastMessage, 'id'> = {
+        type,
+        message,
+        ...(body === undefined ? {} : { body }),
+        links,
+        ...(run.kind === 'bulk' && !ended
+          ? {
+              action: {
+                label: __('Cancel'),
+                onClick: () => {
+                  cancel(run);
+                },
+              },
+            }
+          : {}),
+        timeout: ended && type === 'success' ? 5_000 : 0,
+        dismissible: ended,
+      };
+      const previous = shown.current.get(key);
+
+      if (previous === undefined || JSON.stringify(previous.toast) !== JSON.stringify(next)) {
+        shown.current.set(key, { id: __panel.putToast(next, previous?.id), toast: next });
+      }
+    }
+  });
+
+  // A toast the person dismissed, or one whose timer ran out, ends its run here too.
+  useEffect(
+    () =>
+      __panel.toasts.subscribe(() => {
+        const ids = new Set(__panel.toasts.get().map((toast) => toast.id));
+
+        shown.current.forEach(({ id }, key) => {
+          if (!ids.has(id)) {
+            shown.current.delete(key);
+            const [kind, runId] = key.split(':') as [Run['kind'], string];
+            runStore.dismiss(kind, runId);
+          }
+        });
+      }),
+    [],
   );
+
+  return null;
 }
