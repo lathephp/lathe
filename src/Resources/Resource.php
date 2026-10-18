@@ -787,6 +787,11 @@ abstract class Resource
         return $this->resolveText($this->definition()->getSubtitle());
     }
 
+    public function globalSearchSubtitle(): string
+    {
+        return $this->resolveText($this->definition()->getGlobalSearchSubtitle());
+    }
+
     /**
      * The picture beside the title: the first Cover field of the detail fields. A record
      * with no picture of its own gets the initials of its title.

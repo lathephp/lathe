@@ -2,6 +2,7 @@
 
 namespace Lathe\Search;
 
+use Closure;
 use Illuminate\Container\Attributes\Singleton;
 use Lathe\Auth\ResourceAuthorization;
 use Lathe\Http\Requests\LatheRequest;
@@ -18,7 +19,7 @@ use Throwable;
  * @phpstan-import-type ManifestEntry from ResourceRegistry
  *
  * @phpstan-type Row array{resourceTitle: string, title: string, subTitle: string|null, resourceName: string, resourceId: mixed, avatar: string|null, rounded: bool, url: string|null}
- * @phpstan-type Group array{resourceName: string, label: string, results: list<Row>}
+ * @phpstan-type Group array{resourceName: string, label: string, results: list<Row>, count?: array{value: int, exact: bool, capped: bool, estimated: bool}|null}
  */
 #[Singleton]
 class GlobalSearch
@@ -73,7 +74,7 @@ class GlobalSearch
             }
 
             try {
-                $rows = $this->resourceRows($request, $entry, $remaining);
+                [$rows, $count] = $this->resourceRows($request, $entry, $remaining);
             } catch (Throwable $e) {
                 report($e);
                 $skipped[] = $entry['label'];
@@ -82,7 +83,7 @@ class GlobalSearch
             }
 
             if ($rows !== []) {
-                $groups[] = ['resourceName' => $entry['uriKey'], 'label' => $entry['label'], 'results' => $rows];
+                $groups[] = ['resourceName' => $entry['uriKey'], 'label' => $entry['label'], 'results' => $rows, 'count' => $count];
                 $remaining -= count($rows);
             }
         }
@@ -115,10 +116,11 @@ class GlobalSearch
     }
 
     /**
-     * One Resource's rows through its scoped query in the Search context.
+     * One Resource's rows through its scoped query in the Search context, and the count of
+     * every match in the Resource's count mode when there are more than the rows.
      *
      * @param  ManifestEntry  $entry
-     * @return list<Row>
+     * @return array{list<Row>, array{value: int, exact: bool, capped: bool, estimated: bool}|null}
      */
     protected function resourceRows(LatheRequest $request, array $entry, int $remaining): array
     {
@@ -126,13 +128,25 @@ class GlobalSearch
 
         // A Resource with no search column would match every row; Scout counts as one.
         if ($resource->searchableColumns() === [] && ! $resource->usesScout()) {
-            return [];
+            return [[], null];
         }
 
-        $limit = min($resource->definition()->getGlobalSearchResults(), $remaining);
+        $definition = $resource->definition();
+        $limit = min($definition->getGlobalSearchResults(), $remaining);
+        $query = new ResourceQuery($resource, $request, QueryContext::Search);
+        // One row past the limit tells whether the group has more without counting.
+        $models = $query->searchResults($limit + 1);
+        $count = $models->count() > $limit ? $query->count()?->toArray() : null;
+        $models = $models->take($limit);
+
+        // A title or subtitle closure may read the relations the Resource eager loads.
+        if ($definition->getTitle() instanceof Closure || $definition->getGlobalSearchSubtitle() instanceof Closure) {
+            $models->load($resource->with());
+        }
+
         $rows = [];
 
-        foreach ((new ResourceQuery($resource, $request, QueryContext::Search))->searchResults($limit) as $model) {
+        foreach ($models as $model) {
             $record = $resource->forModel($model);
             $key = $model->getKey();
             // The palette draws the title's initials when the cover has no image.
@@ -141,7 +155,7 @@ class GlobalSearch
             $rows[] = [
                 'resourceTitle' => $entry['label'],
                 'title' => $record->title(),
-                'subTitle' => $record->subtitle() !== '' ? $record->subtitle() : null,
+                'subTitle' => $record->globalSearchSubtitle() !== '' ? $record->globalSearchSubtitle() : null,
                 'resourceName' => $entry['uriKey'],
                 'resourceId' => $key,
                 'avatar' => $avatar?->url,
@@ -150,7 +164,7 @@ class GlobalSearch
             ];
         }
 
-        return $rows;
+        return [$rows, $count];
     }
 
     /**

@@ -163,6 +163,12 @@ The attributes `#[Title('number')]` and `#[Subtitle('email')]` do the same for a
 
 If the subtitle reads a related model, load the relation with `->with(['customer'])` on the definition to avoid one query per result.
 
+To show a different line in the palette only, leaving the record pages' subtitle as it is, use `globalSearchSubtitle()`. It takes an attribute name or a closure, like `subtitle()`:
+
+```php
+->globalSearchSubtitle(fn (Order $order) => $order->customer->name.' · '.$order->placed_at->format('M j, Y'))
+```
+
 A `Cover` field on the detail page supplies the avatar. A record without a picture gets the initials of its title.
 
 ### How many results
@@ -173,7 +179,9 @@ Each Resource returns up to `global_search.results` rows (5 by default). Change 
 ->globalSearchResults(10)
 ```
 
-or with `#[GlobalSearchResults(10)]`. The other `global_search` keys are `enabled` and `debounce`; both are in [Configuration](../getting-started/configuration.md). Set `global_search.enabled` to `false` to remove the palette.
+or with `#[GlobalSearchResults(10)]`. When a Resource has more matches than it shows, the group ends with "Show all 20 orders", which opens the Resource's index searched for the term. The number is the index's count, capped the same way; a Resource that counts nothing (`CountStrategy::None`) shows no link.
+
+The other `global_search` keys are `enabled` and `debounce`; both are in [Configuration](../getting-started/configuration.md). Set `global_search.enabled` to `false` to remove the palette.
 
 ### Scope global search
 

@@ -3,6 +3,7 @@
 namespace Workbench\App\Lathe\Resources;
 
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
 use Lathe\Actions\Export\ExportAction;
 use Lathe\Field\CurrencyField;
 use Lathe\Field\Field;
@@ -32,7 +33,13 @@ class Order extends Resource
     {
         return $definition->model(OrderModel::class)
             ->title('number')
-            ->searchable(['number', new SearchableRelation('customer', 'name')])
+            ->globalSearchSubtitle(function (Model $order) {
+                assert($order instanceof OrderModel);
+
+                return implode(' · ', [$order->customer->name, $order->placed_at->format('M j, Y'), $this->total()->formatMoney($order->total_cents / 100)]);
+            })
+            // Contains, so "warren" finds the orders of "Prof. Warren Shields II".
+            ->searchable(['number', new SearchableRelation('customer', 'name', 'contains')])
             ->globallySearchable()
             ->with(['customer'])
             ->icon('ShoppingCart')

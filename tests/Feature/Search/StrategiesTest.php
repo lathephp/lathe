@@ -206,17 +206,17 @@ it('matches a JSON path by prefix with SearchableJson', function () {
         ->and(strategyIds('strategy-json-gizmos', 'blue'))->toBe([$blue->id]);
 });
 
-it('finds Orders by the name prefix of their customer', function () {
+it('finds Orders by a part of their customer\'s name', function () {
     $this->seed(DemoSeeder::class);
     $joanne = Customer::forceCreate(['name' => 'Joanne Banner', 'email' => 'jb@example.com']);
-    $hidden = Order::forceCreate(['customer_id' => $joanne->id, 'number' => 'ORD-JOANNE', 'status' => 'paid', 'total_cents' => 100, 'placed_at' => now()]);
+    $found = Order::forceCreate(['customer_id' => $joanne->id, 'number' => 'ORD-JOANNE', 'status' => 'paid', 'total_cents' => 100, 'placed_at' => now()]);
 
     $ids = strategyIds('orders', 'ann');
     $names = Order::with('customer')->whereKey($ids)->get()->pluck('customer.name')->unique()->all();
 
-    expect($ids)->not->toBeEmpty()->not->toContain($hidden->id)
-        ->and($names)->toContain('Ann Taylor', 'Anna Kowalski', 'Annette Fox')
-        ->and(array_filter($names, fn (string $name) => ! str_starts_with(strtolower($name), 'ann')))->toBe([]);
+    expect($ids)->toContain($found->id)
+        ->and($names)->toContain('Ann Taylor', 'Anna Kowalski', 'Annette Fox', 'Joanne Banner')
+        ->and(array_filter($names, fn (string $name) => ! str_contains(strtolower($name), 'ann')))->toBe([]);
 });
 
 it('searches the relation when indexQuery joins a table that shares name', function () {

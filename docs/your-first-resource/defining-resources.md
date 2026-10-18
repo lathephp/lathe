@@ -404,6 +404,7 @@ These definition methods have no section above:
 | `canSee(Closure)` | Hides the Resource from requests the closure refuses. |
 | `defaultGroup(string)` | The row grouping applied when the URL names none. |
 | `globalSearchResults(int)` | The most rows this Resource adds to global search. |
+| `globalSearchSubtitle(string\|Closure)` | The line under a result's title in global search, in place of the subtitle. |
 | `scoutSearchResults(int)` | The most keys a Scout search reads. |
 | `useScout(?bool)` | Forces Scout on or off. `null` detects it. |
 | `maxPrimaryKeySize(int)` | The largest integer key the key search accepts. |

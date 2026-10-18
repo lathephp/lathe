@@ -33,6 +33,9 @@ class ResourceDefinition
     /** @var string|Closure(Model): string */
     protected string|Closure $subtitle = '';
 
+    /** @var string|Closure(Model): string|null */
+    protected string|Closure|null $globalSearchSubtitle = null;
+
     /** @var array{title?: string|null, badge?: string|null, value?: string|null, meta?: string|null} */
     protected array $phoneCard = [];
 
@@ -347,6 +350,17 @@ class ResourceDefinition
     public function globalSearchResults(int $results): static
     {
         return $this->limit('global_search.results', $results);
+    }
+
+    /**
+     * The line under a record's title in the search palette, in place of the subtitle.
+     * A closure may read the relations with() eager loads.
+     *
+     * @param  string|Closure(Model): string  $subtitle
+     */
+    public function globalSearchSubtitle(string|Closure $subtitle): static
+    {
+        return $this->set(fn () => $this->globalSearchSubtitle = $subtitle);
     }
 
     /**
@@ -673,6 +687,16 @@ class ResourceDefinition
     public function getGlobalSearchResults(): int
     {
         return $this->getLimit('global_search.results');
+    }
+
+    /**
+     * The search palette's line under the title: the global search subtitle, else the subtitle.
+     *
+     * @return string|Closure(Model): string
+     */
+    public function getGlobalSearchSubtitle(): string|Closure
+    {
+        return $this->globalSearchSubtitle ?? $this->subtitle;
     }
 
     public function getBulkInlineMax(): int

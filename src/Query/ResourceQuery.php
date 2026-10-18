@@ -250,7 +250,7 @@ class ResourceQuery
         $query = $this->scoped();
         $definition = $this->resource->definition();
         $title = $definition->getTitle();
-        $subtitle = $definition->getSubtitle();
+        $subtitle = $definition->getGlobalSearchSubtitle();
 
         if (is_string($title) && is_string($subtitle)) {
             $columns = array_unique(array_filter([$query->getModel()->getKeyName(), $title, $subtitle, $this->coverColumn()]));

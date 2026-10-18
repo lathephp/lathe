@@ -3394,6 +3394,7 @@ Lathe\Resources\Resource::filterableFields(Lathe\Http\Requests\LatheRequest $req
 Lathe\Resources\Resource::filters(Lathe\Http\Requests\LatheRequest $request): array
 Lathe\Resources\Resource::forModel(?Illuminate\Database\Eloquent\Model $model): static
 Lathe\Resources\Resource::getModel(): ?Illuminate\Database\Eloquent\Model
+Lathe\Resources\Resource::globalSearchSubtitle(): string
 Lathe\Resources\Resource::groups(Lathe\Http\Requests\LatheRequest $request): array
 Lathe\Resources\Resource::indexQuery(Lathe\Http\Requests\LatheRequest $request, Illuminate\Database\Eloquent\Builder $query): Illuminate\Database\Eloquent\Builder  [static]
 Lathe\Resources\Resource::keyOf(Lathe\Resources\Resource $resource): string  [protected static]
@@ -3444,6 +3445,7 @@ Lathe\Resources\ResourceDefinition::?string $model  [protected]
 Lathe\Resources\ResourceDefinition::?string $navigationLabel  [protected]
 Lathe\Resources\ResourceDefinition::Closure|string $subtitle  [protected]
 Lathe\Resources\ResourceDefinition::Closure|string $title  [protected]
+Lathe\Resources\ResourceDefinition::Closure|string|null $globalSearchSubtitle  [protected]
 Lathe\Resources\ResourceDefinition::Lathe\Enums\ClickAction $clickAction  [protected]
 Lathe\Resources\ResourceDefinition::Lathe\Enums\TableStyle $tableStyle  [protected]
 Lathe\Resources\ResourceDefinition::Lathe\Query\CountStrategy $countStrategy  [protected]
@@ -3486,6 +3488,7 @@ Lathe\Resources\ResourceDefinition::getDebounce(): float
 Lathe\Resources\ResourceDefinition::getDefaultGroup(): ?string
 Lathe\Resources\ResourceDefinition::getFilterRemoteThreshold(): int
 Lathe\Resources\ResourceDefinition::getGlobalSearchResults(): int
+Lathe\Resources\ResourceDefinition::getGlobalSearchSubtitle(): Closure|string
 Lathe\Resources\ResourceDefinition::getGroup(): ?string
 Lathe\Resources\ResourceDefinition::getIcon(): ?string
 Lathe\Resources\ResourceDefinition::getIdListMax(): int
@@ -3511,6 +3514,7 @@ Lathe\Resources\ResourceDefinition::getTrafficCop(): ?bool
 Lathe\Resources\ResourceDefinition::getUseScout(): ?bool
 Lathe\Resources\ResourceDefinition::getWith(): array
 Lathe\Resources\ResourceDefinition::globalSearchResults(int $results): static
+Lathe\Resources\ResourceDefinition::globalSearchSubtitle(Closure|string $subtitle): static
 Lathe\Resources\ResourceDefinition::globallySearchable(bool $searchable = true): static
 Lathe\Resources\ResourceDefinition::group(?string $group): static
 Lathe\Resources\ResourceDefinition::hasSeeCallback(): bool

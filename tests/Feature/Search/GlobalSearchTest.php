@@ -223,16 +223,46 @@ it('returns the Ann customers as rows with exactly the eight keys', function () 
 it('finds an order by its number in the Orders group', function () {
     $number = Order::findOrFail(12)->number;
 
-    expect(globalSearchGroups($number)['orders']['results'])->toBe([[
-        'resourceTitle' => 'Orders',
-        'title' => $number,
-        'subTitle' => null,
-        'resourceName' => 'orders',
-        'resourceId' => 12,
-        'avatar' => null,
-        'rounded' => false,
-        'url' => '/resources/orders/12',
-    ]]);
+    $results = globalSearchGroups($number)['orders']['results'];
+
+    // The seed dates count back from today, so only the date's shape is fixed.
+    expect($results[0]['subTitle'] ?? null)->toMatch('/^Vivien McCullough · [A-Z][a-z]{2} \d{1,2}, \d{4} · \$177\.48$/')
+        ->and($results)->toBe([[
+            'resourceTitle' => 'Orders',
+            'title' => $number,
+            'subTitle' => $results[0]['subTitle'],
+            'resourceName' => 'orders',
+            'resourceId' => 12,
+            'avatar' => null,
+            'rounded' => false,
+            'url' => '/resources/orders/12',
+        ]]);
+});
+
+it('lists a customer\'s orders with the customer, date and total, and counts the group', function () {
+    $queries = [];
+    DB::listen(function (QueryExecuted $event) use (&$queries) {
+        $queries[] = $event->sql;
+    });
+
+    $response = $this->getJson('/lathe/api/search?q=warren')->assertOk();
+    $groups = array_column($response->json('groups'), null, 'resourceName');
+
+    expect(array_column($groups['customers']['results'], 'title'))->toBe(['Prof. Warren Shields II'])
+        ->and($groups['customers']['count'])->toBeNull()
+        ->and(array_column($groups['orders']['results'], 'title'))->toBe(['ORD-08311457', 'ORD-13118290', 'ORD-14567467', 'ORD-15058445', 'ORD-20039496'])
+        ->and($groups['orders']['count'])->toBe(['value' => 20, 'exact' => false, 'capped' => false, 'estimated' => false]);
+
+    $totals = ['$1,751.47', '$1,518.40', '$1,246.52', '$693.76', '$714.82'];
+
+    foreach ($groups['orders']['results'] as $i => $row) {
+        expect($row['subTitle'])->toMatch('/^Prof\. Warren Shields II · [A-Z][a-z]{2} \d{1,2}, \d{4} · '.preg_quote($totals[$i], '/').'$/');
+    }
+
+    // Customers: their rows. Orders: the matching customer keys, their rows, the capped count
+    // (a sixth row came back) and the rows' customers for the subtitle.
+    $touched = array_filter($queries, fn (string $sql) => preg_match('/from ["`](customers|orders)["`]/', $sql) === 1);
+    expect($touched)->toHaveCount(5);
 });
 
 it('caps each group at 5 rows, or at global_search.results', function () {
