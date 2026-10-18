@@ -1,6 +1,6 @@
 import { router } from '@inertiajs/react';
 import { QueryClientProvider, queryClient } from '@lathephp/core';
-import { fireEvent, render, screen, within } from '@testing-library/react';
+import { act, fireEvent, render, screen, within } from '@testing-library/react';
 import { afterEach, beforeAll, describe, expect, it, vi } from 'vitest';
 import { FilterPanel } from '../index/FilterPanel';
 import { FilterPanel as LazyFilterPanel } from '../index/lazy';
@@ -169,6 +169,28 @@ describe('date filter', () => {
 });
 
 describe('remote picker', () => {
+  it('applies a picked option whose key the server sends as a number', async () => {
+    vi.spyOn(globalThis, 'fetch').mockResolvedValue(new Response(JSON.stringify({ options: [{ label: 'Anna Kowalski', value: 2 }], hasMore: false })));
+    const visit = vi.fn();
+
+    render(
+      <QueryClientProvider client={queryClient}>
+        <FilterPanel resource="orders" endpoint="/lathe/api/resources/orders/filters" available={[customer]} softDeletes={false} state={{}} visit={visit} />
+      </QueryClientProvider>,
+    );
+
+    const option = await screen.findByRole('button', { name: 'Anna Kowalski' });
+    vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout'] });
+    fireEvent.click(option);
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(300);
+    });
+    vi.useRealTimers();
+
+    expect(visit).toHaveBeenCalledWith({ filter: { customer: '2' } });
+    expect(screen.getByRole('button', { name: 'Anna Kowalski' }).getAttribute('aria-pressed')).toBe('true');
+  });
+
   it('pages the options from the server on More and lists every label', async () => {
     const pages: Record<string, unknown> = {
       '1': { options: [{ label: 'Ann Lee', value: '1' }], hasMore: true },

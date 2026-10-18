@@ -8,7 +8,8 @@ import { FilterFieldset, fieldClass } from './FilterFieldset';
 const debounceMs = 300;
 
 interface OptionsPage {
-  options: FilterOption[];
+  /** A relation's options carry their keys as numbers. */
+  options: (Omit<FilterOption, 'value'> & { value: string | number })[];
   hasMore: boolean;
 }
 
@@ -35,20 +36,25 @@ function OptionPage({ filter, endpoint, resource, term, page, last, selected, on
 
   return (
     <>
-      {data?.options.map((option) => (
-        <Button
-          key={option.value}
-          variant={selected.includes(option.value) ? 'default' : 'ghost'}
-          size="sm"
-          className="justify-start"
-          aria-pressed={selected.includes(option.value)}
-          onClick={() => {
-            onChoose(option.value);
-          }}
-        >
-          {option.label}
-        </Button>
-      ))}
+      {data?.options.map((option) => {
+        // The URL and the selection hold text.
+        const value = String(option.value);
+
+        return (
+          <Button
+            key={value}
+            variant={selected.includes(value) ? 'default' : 'ghost'}
+            size="sm"
+            className="justify-start"
+            aria-pressed={selected.includes(value)}
+            onClick={() => {
+              onChoose(value);
+            }}
+          >
+            {option.label}
+          </Button>
+        );
+      })}
       {last && data?.hasMore === true && (
         <Button variant="outline" size="sm" onClick={onMore}>
           {__('More')}
