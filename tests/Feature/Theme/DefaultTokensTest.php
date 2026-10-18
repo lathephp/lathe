@@ -35,8 +35,8 @@ it('defaults to the copper primary in light and dark', function () {
         ->and(defaultTokens("\n.dark")['primary'])->toBe('oklch(0.72 0.14 55)');
 });
 
-it('still defines every one of the 40 token names', function (string $block) {
-    expect(array_keys(defaultTokens($block)))->toContain(...array_map(fn (Color $color) => $color->value, array_slice(Color::cases(), 0, 40)));
+it('defines every one of the 56 token names', function (string $block) {
+    expect(array_keys(defaultTokens($block)))->toContain(...array_map(fn (Color $color) => $color->value, Color::cases()));
 })->with('default blocks');
 
 it('defines the design system tokens and shadows', function (string $block) {
