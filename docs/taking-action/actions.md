@@ -206,7 +206,7 @@ A regular action asks for confirmation only when you say so:
 | Method | Effect |
 |---|---|
 | `confirmText($text)` | Sets the text without turning confirmation on. |
-| `confirmButtonText($text)` | Names the confirm button. The default is "Run Action". |
+| `confirmButtonText($text)` | Names the confirm button. The default is the action's name, so the button repeats its verb. |
 | `cancelButtonText($text)` | Names the cancel button. The default is "Cancel". |
 | `withoutConfirmation()` | Turns confirmation off, even on a destructive action. |
 
@@ -214,7 +214,7 @@ An action with a form always opens its modal, whether or not it is confirmable.
 
 ## The modal
 
-`size()` sets the width of the modal: `sm`, `md`, `lg`, `xl`, `2xl` (the default), `3xl`, `4xl`, `5xl`, `6xl` or `7xl`. `fullscreen()` fills the screen, which suits a long form.
+`size()` sets the width of the modal: `small` (400 px), `medium` (520 px), `large` (720 px), or `sm`, `md`, `lg`, `xl`, `2xl`, `3xl`, `4xl`, `5xl`, `6xl` or `7xl`. Without it a confirm is `small` and an action with fields is `medium`. The title is the confirm text, or the action's name when there is none. `fullscreen()` fills the screen, which suits a long form.
 
 ```php
 (new BulkEdit)->size('4xl')

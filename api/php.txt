@@ -97,6 +97,7 @@ Lathe\Actions\Action::?string $group  [protected]
 Lathe\Actions\Action::?string $icon  [protected]
 Lathe\Actions\Action::?string $name  [protected]
 Lathe\Actions\Action::?string $queue
+Lathe\Actions\Action::?string $size  [protected]
 Lathe\Actions\Action::?string $uriKey  [protected]
 Lathe\Actions\Action::Closure|string|null $confirmText  [protected]
 Lathe\Actions\Action::__construct()
@@ -177,7 +178,6 @@ Lathe\Actions\Action::singularLabel(): string
 Lathe\Actions\Action::size(string $size): static
 Lathe\Actions\Action::sole(): static
 Lathe\Actions\Action::standalone(): static
-Lathe\Actions\Action::string $size  [protected]
 Lathe\Actions\Action::string $style  [protected]
 Lathe\Actions\Action::target(Closure|string $value): string  [protected static]
 Lathe\Actions\Action::then(callable $callback): static

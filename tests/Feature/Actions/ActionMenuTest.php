@@ -80,9 +80,9 @@ it('lists the Orders actions in menu order with their metadata', function () {
     expect(array_keys($json))->toBe(['actions', 'pivotActions', 'counts'])
         ->and(array_column($json['actions'], 'uriKey'))->toBe(['export', 'hold-order', 'mark-shipped', 'cancel-order'])
         ->and($json['actions'][0])->toMatchArray(['name' => 'Export', 'group' => null, 'standalone' => false])
-        ->and($json['actions'][2])->toMatchArray(['name' => 'Mark Shipped', 'group' => 'Fulfilment', 'destructive' => false, 'confirmText' => 'Mark :count orders as shipped?'])
-        ->and($json['actions'][3])->toMatchArray(['name' => 'Cancel Order', 'destructive' => true, 'confirmText' => 'Cancel :count order?'])
-        ->and($json['actions'][1])->toMatchArray(['name' => 'Hold Order', 'sole' => true, 'showOnTableRow' => true])
+        ->and($json['actions'][2])->toMatchArray(['name' => 'Mark shipped', 'group' => 'Fulfilment', 'destructive' => false, 'confirmText' => 'Mark :count orders as shipped?', 'confirmButtonText' => 'Mark shipped'])
+        ->and($json['actions'][3])->toMatchArray(['name' => 'Cancel order', 'destructive' => true, 'confirmText' => 'Cancel :count order?'])
+        ->and($json['actions'][1])->toMatchArray(['name' => 'Hold order', 'sole' => true, 'showOnTableRow' => true])
         ->and($json['actions'][1])->not->toHaveKey('authorizedToRun')
         ->and($json['pivotActions'])->toBe([])
         ->and($json['counts'])->toEqual(['standalone' => 0, 'sole' => 1, 'resource' => 3]);

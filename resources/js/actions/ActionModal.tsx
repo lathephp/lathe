@@ -25,6 +25,9 @@ interface ActionModalProps {
 }
 
 const sizes: Record<string, string> = {
+  small: 'max-w-[400px]',
+  medium: 'max-w-[520px]',
+  large: 'max-w-[720px]',
   sm: 'max-w-sm',
   md: 'max-w-md',
   lg: 'max-w-lg',
@@ -94,7 +97,7 @@ export function ActionModal({ base, action, count, onClose, onRun }: ActionModal
       onClose={onClose}
       className={cn(
         'relative w-full overflow-y-auto rounded-lg border border-border bg-background p-4 text-foreground shadow-lg',
-        action.style === 'fullscreen' ? 'h-[85vh] max-w-none' : (sizes[action.size] ?? 'max-w-2xl'),
+        action.style === 'fullscreen' ? 'h-[85vh] max-w-none' : (sizes[action.size] ?? sizes.medium),
       )}
     >
       <form
@@ -104,10 +107,10 @@ export function ActionModal({ base, action, count, onClose, onRun }: ActionModal
           void submit();
         }}
       >
+        {/* A confirm asks its question as the title; a form without one is titled by the action. */}
         <h2 id={titleId} className="text-base font-semibold">
-          {action.name}
+          {text ?? action.name}
         </h2>
-        {text !== null && <p className="text-sm text-muted-foreground">{text}</p>}
         {errors.selection !== undefined && (
           <p role="alert" className="text-sm text-destructive">
             {errors.selection}

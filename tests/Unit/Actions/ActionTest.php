@@ -104,13 +104,13 @@ class SilentShip extends Action
 }
 
 /**
- * What an action shows the client and records, without the class-derived name and key.
+ * What an action shows the client and records, without the class-derived name, key and button text.
  *
  * @return array<string, mixed>
  */
 function actionState(Action $action): array
 {
-    return [...Arr::except($action->jsonSerialize(), ['name', 'uriKey']), 'recordsActionEvents' => $action->recordsActionEvents()];
+    return [...Arr::except($action->jsonSerialize(), ['name', 'uriKey', 'confirmButtonText']), 'recordsActionEvents' => $action->recordsActionEvents()];
 }
 
 it('serializes an action with no modifiers to the default metadata', function () {
@@ -128,9 +128,9 @@ it('serializes an action with no modifiers to the default metadata', function ()
         'pinned' => false,
         'withoutConfirmation' => true,
         'confirmText' => null,
-        'confirmButtonText' => 'Run Action',
+        'confirmButtonText' => 'Mark Shipped',
         'cancelButtonText' => 'Cancel',
-        'size' => '2xl',
+        'size' => 'small',
         'style' => 'window',
         'asBlob' => false,
         'showOnIndex' => true,
@@ -145,6 +145,12 @@ it('serializes an action with no modifiers to the default metadata', function ()
 
 it('opens the modal for an action that declares fields without confirmable', function () {
     expect(MergeIntoTarget::make()->jsonSerialize()['withoutConfirmation'])->toBeFalse();
+});
+
+it('sizes a modal by what it holds unless a size is set', function () {
+    expect(MarkShipped::make()->jsonSerialize()['size'])->toBe('small')
+        ->and(MergeIntoTarget::make()->jsonSerialize()['size'])->toBe('medium')
+        ->and(MergeIntoTarget::make()->size('2xl')->jsonSerialize()['size'])->toBe('2xl');
 });
 
 it('gives the same metadata for an attribute and its fluent twin', function (string $class, Closure $fluent, array $changed) {

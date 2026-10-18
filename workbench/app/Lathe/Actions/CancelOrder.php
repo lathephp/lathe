@@ -13,7 +13,7 @@ class CancelOrder extends DestructiveAction
     {
         parent::__construct();
 
-        $this->confirmText('Cancel :count order?');
+        $this->withName('Cancel order')->confirmText('Cancel :count order?');
     }
 
     public function handle(ActionFields $fields, Collection $models): ActionResult

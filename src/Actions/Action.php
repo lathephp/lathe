@@ -54,7 +54,8 @@ class Action implements JsonSerializable
 
     protected ?string $cancelButtonText = null;
 
-    protected string $size = '2xl';
+    /** Null sizes the modal by what it holds: small for a confirm, medium for fields. */
+    protected ?string $size = null;
 
     /** @var 'window'|'fullscreen' */
     protected string $style = 'window';
@@ -690,6 +691,8 @@ class Action implements JsonSerializable
      */
     public function jsonSerialize(): array
     {
+        $declaresFields = (new ReflectionMethod($this, 'fields'))->class !== self::class;
+
         return [
             'uriKey' => $this->uriKey(),
             'name' => $this->name(),
@@ -702,11 +705,12 @@ class Action implements JsonSerializable
             'pinned' => $this->isPinned(),
             // A class that declares fields gets the modal even when it is not confirmable:
             // run without it, the fields would get no values.
-            'withoutConfirmation' => ! $this->isConfirmable() && (new ReflectionMethod($this, 'fields'))->class === self::class,
+            'withoutConfirmation' => ! $this->isConfirmable() && ! $declaresFields,
             'confirmText' => is_string($this->confirmText) ? $this->confirmText : null,
-            'confirmButtonText' => $this->confirmButtonText ?? Lathe::__('Run Action'),
+            // The primary button repeats the action's verb.
+            'confirmButtonText' => $this->confirmButtonText ?? $this->name(),
             'cancelButtonText' => $this->cancelButtonText ?? Lathe::__('Cancel'),
-            'size' => $this->size,
+            'size' => $this->size ?? ($declaresFields ? 'medium' : 'small'),
             'style' => $this->style,
             'asBlob' => $this->asBlob,
             'showOnIndex' => $this->shownOnIndex(),

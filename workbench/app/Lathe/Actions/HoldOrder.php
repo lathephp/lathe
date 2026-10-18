@@ -13,7 +13,7 @@ class HoldOrder extends Action
     {
         parent::__construct();
 
-        $this->showInline()->sole();
+        $this->withName('Hold order')->showInline()->sole();
     }
 
     public function handle(ActionFields $fields, Collection $models): ActionResult

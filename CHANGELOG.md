@@ -22,6 +22,8 @@ All notable changes to Lathe are listed here. The format follows [Keep a Changel
 
 ### Changed
 
+- [api] An action's dialog is titled by its confirm text, such as "Mark 3 orders as shipped?", or by the action's name when it has none, and its primary button repeats the action's name. Without `size()` a dialog is 400 px for a confirm and 520 px for an action with fields; the metadata's `size` is then `small` or `medium` where it was `2xl`.
+- [api] Changed English strings, for an app that translates the panel: `Run Action` is gone (the primary button shows the action's name).
 - A customizable dashboard has a Customize button. In Customize mode a user moves cards by dragging their handle or with the keyboard, sets a card's size or hides it from its ⋯ menu, adds hidden cards back, then saves the layout for their account, cancels or resets to the default.
 - Each dashboard card has a ⋯ menu with Refresh, Open records when the card links to records the user may list, and Download CSV for chart and table cards.
 - [api] Dashboard cards in one row share the tallest card's height, and `height()` is now a minimum. A value card shows every digit on a desktop and a short form on a phone, the change as a signed badge, then "vs" and the earlier value; with no earlier data it says so. `ValueResult::lowerIsBetter()` shows a rise in the destructive colour and a fall in the success colour. The grid gap is 20 px, and below 768 px value cards sit two across.

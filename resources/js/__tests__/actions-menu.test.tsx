@@ -181,6 +181,30 @@ describe('the action modal', () => {
     expect(screen.queryByRole('dialog')).toBeNull();
   });
 
+  it('titles a confirm by its question, 400 px wide, with the verb as the rightmost button', async () => {
+    vi.spyOn(globalThis, 'fetch').mockResolvedValueOnce(json({ fields: [], confirmText: 'Mark 3 orders as shipped?' }));
+    renderOrders([meta('mark-shipped', 'Mark shipped', { confirmText: 'Mark :count orders as shipped?', confirmButtonText: 'Mark shipped', size: 'small' })], rows(3, ['mark-shipped']));
+    tick(1, 2, 3);
+    fireEvent.click(within(await openMenu()).getByRole('menuitem', { name: 'Mark shipped' }));
+
+    const dialog = await screen.findByRole('dialog', { name: 'Mark 3 orders as shipped?' });
+    expect(within(dialog).getByRole('heading').textContent).toBe('Mark 3 orders as shipped?');
+    expect(within(dialog).getAllByRole('button').at(-1)?.textContent).toBe('Mark shipped');
+    expect(dialog.className).toContain('max-w-[400px]');
+  });
+
+  it('titles a form by the action name, 520 px wide', async () => {
+    vi.spyOn(globalThis, 'fetch').mockResolvedValueOnce(
+      json({ fields: [{ key: 'note', attribute: 'note', label: 'Note', component: 'text-field', value: null, stacked: false, compact: false, help: null, required: true }], confirmText: null }),
+    );
+    renderOrders([meta('mark-shipped', 'Mark shipped', { confirmButtonText: 'Mark shipped', size: 'medium' })], rows(1, ['mark-shipped']));
+    tick(1);
+    fireEvent.click(within(await openMenu()).getByRole('menuitem', { name: 'Mark shipped' }));
+
+    const dialog = await screen.findByRole('dialog', { name: 'Mark shipped' });
+    expect(dialog.className).toContain('max-w-[520px]');
+  });
+
   it('keeps the modal open with the message under its field on a 422', async () => {
     vi.spyOn(globalThis, 'fetch')
       .mockResolvedValueOnce(
