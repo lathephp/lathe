@@ -59,7 +59,7 @@ export function useActionRunner({ base, onDone }: ActionRunnerOptions): { start:
       });
 
       if (run.bulk_run !== undefined) {
-        window.dispatchEvent(new CustomEvent('lathe:bulk-run-started', { detail: run.bulk_run }));
+        window.dispatchEvent(new CustomEvent('lathe:bulk-run-started', { detail: { ...run.bulk_run, resource: /\/resources\/([^/]+)/.exec(base)?.[1] } }));
       }
 
       if ('export_run' in run) {

@@ -1,6 +1,7 @@
 import { formatNumber, request, useLathe, useTranslation } from '@lathephp/core';
+import { router } from '@inertiajs/react';
 import { X } from 'lucide-react';
-import { useEffect, useState, useSyncExternalStore } from 'react';
+import { useEffect, useRef, useState, useSyncExternalStore } from 'react';
 import { runStore, type RunVerb, type StartedRun } from './runStore';
 
 /** How often a running run asks the server for its progress, in milliseconds. */
@@ -48,6 +49,19 @@ function done(run: Run): boolean {
 }
 
 /**
+ * Once a bulk run ends, drops the prefetched pages of its resource and, when the person is still on that
+ * index or one of its lenses, reloads its rows in place. The toasts sit beside Inertia's page, so the
+ * address bar says where the person is.
+ */
+function refreshIndex(resource: string, basePath: string): void {
+  router.flushByCacheTags(`resource:${resource}`);
+
+  if (new RegExp(`^${basePath}/resources/${resource}(/lenses/[^/]+)?/?$`).test(window.location.pathname)) {
+    router.reload({ only: ['table', 'count', 'tabCounts', 'summaries'] });
+  }
+}
+
+/**
  * The progress toasts of queued runs on the page that started them: a bulk action or delete,
  * an export or an import. Each polls its run every 2 seconds until it ends, then shows the result.
  */
@@ -56,6 +70,7 @@ export function RunToasts() {
   const { apiPath, basePath } = useLathe();
   const started = useSyncExternalStore(runStore.subscribe, runStore.get);
   const [statuses, setStatuses] = useState<Record<string, Status | null>>({});
+  const reloaded = useRef(new Set<string>());
   const runs = started.map((run: StartedRun) => ({ ...run, status: statuses[`${run.kind}:${run.id}`] ?? null }) as Run);
 
   const active = runs.filter((run) => !done(run)).map((run) => `${run.kind}:${run.id}`).join(',');
@@ -73,6 +88,13 @@ export function RunToasts() {
         request<Status>(`${apiPath}/${paths[kind]}/${id}`, { toastOnError: false })
           .then((status) => {
             setStatuses((current) => ({ ...current, [key]: status }));
+
+            const started = runStore.get().find((run) => run.kind === 'bulk' && run.id === id);
+
+            if (started?.kind === 'bulk' && started.resource !== undefined && status !== null && status.status !== 'waiting' && status.status !== 'running' && !reloaded.current.has(id)) {
+              reloaded.current.add(id);
+              refreshIndex(started.resource, basePath);
+            }
           })
           .catch(() => undefined);
       }
@@ -81,7 +103,7 @@ export function RunToasts() {
     return () => {
       clearInterval(timer);
     };
-  }, [active, apiPath]);
+  }, [active, apiPath, basePath]);
 
   if (runs.length === 0) {
     return null;

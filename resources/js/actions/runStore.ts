@@ -1,7 +1,7 @@
 /** What a run's toast says while it runs: the verb of a bulk run. */
 export type RunVerb = 'action' | 'delete' | 'forceDelete' | 'restore';
 
-export type StartedRun = { kind: 'bulk'; id: string; verb: RunVerb } | { kind: 'export'; id: string } | { kind: 'import'; id: string };
+export type StartedRun = { kind: 'bulk'; id: string; verb: RunVerb; resource?: string } | { kind: 'export'; id: string } | { kind: 'import'; id: string };
 
 let runs: StartedRun[] = [];
 const listeners = new Set<() => void>();
@@ -37,7 +37,7 @@ function add(run: StartedRun): void {
 }
 
 /**
- * Records each run the page starts: lathe:bulk-run-started {id, verb}, lathe:export-started {id}
+ * Records each run the page starts: lathe:bulk-run-started {id, verb, resource}, lathe:export-started {id}
  * and lathe:import-started {id}. Returns the function that stops listening.
  */
 export function listenForRuns(): () => void {
@@ -45,8 +45,8 @@ export function listenForRuns(): () => void {
     [
       'lathe:bulk-run-started',
       (event) => {
-        const { id, verb } = detail(event);
-        add({ kind: 'bulk', id: String(id), verb: typeof verb === 'string' ? (verb as RunVerb) : 'action' });
+        const { id, verb, resource } = detail(event);
+        add({ kind: 'bulk', id: String(id), verb: typeof verb === 'string' ? (verb as RunVerb) : 'action', resource: typeof resource === 'string' ? resource : undefined });
       },
     ],
     [
