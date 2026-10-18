@@ -45,6 +45,20 @@ it('fails on each banned pattern', function (string $path, string $content) {
     'final class' => ['src/Resources/Locked.php', "<?php\nfinal class Locked {}\n"],
 ]);
 
+it('fails on a banned pattern in a file git does not track yet', function () {
+    $repo = sys_get_temp_dir().'/pattern-check-'.bin2hex(random_bytes(6));
+    File::ensureDirectoryExists("{$repo}/src/Http");
+    Process::path($repo)->run('git init -q -b main')->throw();
+    File::put("{$repo}/src/Http/Notes.php", "<?php\n\$rows = Note::query()->get();\n");
+
+    $result = runPatternCheck($repo);
+
+    expect($result->exitCode())->toBe(1)
+        ->and($result->output())->toContain('src/Http/Notes.php');
+
+    File::deleteDirectory($repo);
+});
+
 it('allows html injection listed in the sinks file', function () {
     $repo = sys_get_temp_dir().'/pattern-check-'.bin2hex(random_bytes(6));
     File::ensureDirectoryExists("{$repo}/resources/js");

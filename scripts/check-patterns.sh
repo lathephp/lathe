@@ -1,12 +1,13 @@
 #!/usr/bin/env bash
-# Fails on code patterns the package bans. Scans tracked files under src,
-# resources/js and packages/*/src. See the quality spec for why each is banned.
+# Fails on code patterns the package bans. Scans files under src, resources/js
+# and packages/*/src, tracked or new and not ignored. See the quality spec for
+# why each is banned.
 set -uo pipefail
 
 hits=()
 
 files() {
-    git ls-files -z -- 'src' 'resources/js' ':(glob)packages/*/src/**' 2>/dev/null
+    git ls-files -z --cached --others --exclude-standard -- 'src' 'resources/js' ':(glob)packages/*/src/**' 2>/dev/null
 }
 
 check() {
