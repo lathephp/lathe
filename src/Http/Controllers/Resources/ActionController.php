@@ -57,9 +57,10 @@ class ActionController
         $resourceId = $request->query('resourceId');
         $title = null;
 
-        // A run on one record names it, read through the detail query like the menu's record check.
+        // A run on one record names it, read through the detail query and only for a user who may view it.
         if (is_string($resourceId)) {
-            $title = $class::make((new ResourceQuery($class::make(), $request, QueryContext::Detail))->find($resourceId))->title();
+            $model = (new ResourceQuery($class::make(), $request, QueryContext::Detail))->find($resourceId);
+            $title = $authorization->allows($request->user(), $class, 'view', $model) ? $class::make($model)->title() : null;
         }
 
         return new JsonResponse([

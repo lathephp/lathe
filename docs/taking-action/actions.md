@@ -201,7 +201,7 @@ A regular action asks for confirmation only when you say so:
 (new SendBulkEmail)->confirmable(fn (int $count) => "Send to {$count} users?")
 ```
 
-`:count` in a string becomes the number of selected rows, and `:title` the record's title when the action runs on one record. A closure receives the count, so it can word one record and several apart:
+`:count` in a string becomes the number of selected rows, and `:title` the record's title when the action runs on one record the user may view; otherwise `:title` drops out, so "Cancel order :title?" reads "Cancel order?". A closure receives the count, so it can word one record and several apart:
 
 ```php
 (new CancelOrder)->confirmText(fn (int $count) => $count === 1 ? 'Cancel order :title?' : 'Cancel :count orders?')
@@ -218,7 +218,7 @@ A destructive confirm names its safe button for what it keeps, such as `cancelBu
 
 An action with a form always opens its modal, whether or not it is confirmable.
 
-`requirePassword()` asks for the user's password before a run, unless they confirmed it within `auth.password_timeout` (three hours by default). The run answers 423 until then, the open dialog shows "Confirm your password" in place of its content, and after a correct password the run goes on. The check comes before a large run goes to the queue.
+`requirePassword()` asks for the user's password before a run, unless they confirmed it within `auth.password_timeout` (three hours by default). The run answers 423 until then, the open dialog shows "Confirm your password" in place of its content, and after a correct password the run goes on. The check comes before anything runs, including an export, an import or a large run that goes to the queue.
 
 ## The modal
 

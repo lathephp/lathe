@@ -275,3 +275,10 @@ it('fills the confirm text for a count, a closure called with it', function () {
 it('writes the count in the confirm text with thousands separators', function () {
     expect(Action::make()->confirmable('Mark :count orders as shipped?')->confirmTextFor(2424))->toBe('Mark 2,424 orders as shipped?');
 });
+
+it('drops :title from a confirm text when no title comes with the run', function () {
+    $action = MarkShipped::make()->confirmText('Cancel order :title?');
+
+    expect($action->confirmTextFor(1))->toBe('Cancel order?')
+        ->and($action->confirmTextFor(1, 'ORD-1'))->toBe('Cancel order ORD-1?');
+});

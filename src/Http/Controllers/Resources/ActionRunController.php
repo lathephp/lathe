@@ -31,6 +31,11 @@ class ActionRunController
         abort_if($action === null, 404);
         abort_unless($action->authorizedToSee($request), 403);
 
+        // Here, before any run, queue or subclass's own handleRequest, as RequirePassword answers JSON.
+        if ($action->needsPasswordConfirmation()) {
+            return new JsonResponse(['message' => 'Password confirmation required.'], 423);
+        }
+
         // A standalone action runs on no rows, so it reads no selection.
         $selection = $action->isStandalone() ? new Selection('ids') : $request->selection();
 

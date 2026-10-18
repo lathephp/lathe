@@ -5,8 +5,6 @@ namespace Lathe\Actions;
 use Closure;
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Http\Exceptions\HttpResponseException;
-use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\Gate;
@@ -265,14 +263,20 @@ class Action implements JsonSerializable
      */
     public function handleRequest(LatheRequest $request, Selection $selection): array
     {
-        // Before anything runs or queues, as Laravel's RequirePassword answers a JSON request.
+        return app(ActionDispatcher::class)->dispatch($request, $this, $selection);
+    }
+
+    /**
+     * Whether a run must wait for the password: requirePassword() is set and the session's last
+     * confirmation is older than auth.password_timeout, as Laravel's RequirePassword reads it.
+     *
+     * @internal
+     */
+    public function needsPasswordConfirmation(): bool
+    {
         $confirmedAt = session()->get('auth.password_confirmed_at');
 
-        if ($this->requiresPassword && Date::now()->unix() - (is_int($confirmedAt) ? $confirmedAt : 0) > config()->integer('auth.password_timeout', 10800)) {
-            throw new HttpResponseException(new JsonResponse(['message' => 'Password confirmation required.'], 423));
-        }
-
-        return app(ActionDispatcher::class)->dispatch($request, $this, $selection);
+        return $this->requiresPassword && Date::now()->unix() - (is_int($confirmedAt) ? $confirmedAt : 0) > config()->integer('auth.password_timeout', 10800);
     }
 
     public function withActionBatchId(?string $batchId): static
@@ -539,7 +543,7 @@ class Action implements JsonSerializable
 
     /**
      * The confirmation text for a run on $count rows: ":count" replaced, a closure called with it,
-     * and ":title" replaced by the record's title when the run is on one record.
+     * and ":title" replaced by the record's title when the run is on one record the user may view.
      */
     public function confirmTextFor(int $count, ?string $title = null): ?string
     {
@@ -549,7 +553,10 @@ class Action implements JsonSerializable
             return null;
         }
 
-        return str_replace(':count', number_format($count), $title === null ? $text : str_replace(':title', $title, $text));
+        // Without a title, ":title" drops out with the space before it: "Cancel order?".
+        $text = $title === null ? (preg_replace('/\s*:title/', '', $text) ?? $text) : str_replace(':title', $title, $text);
+
+        return str_replace(':count', number_format($count), $text);
     }
 
     /**

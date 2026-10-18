@@ -403,3 +403,13 @@ it('offers Export on each row by the export ability, not runAction', function ()
 
     expect($json['table']['rows'][0]['actions'])->toBe(['export']);
 });
+
+it('asks for the password before an export that requires it', function () {
+    ExportDeclared::$actions = [ExportAction::make()->requirePassword()];
+    $url = '/lathe/api/resources/declared-export-orders/action';
+
+    $this->postJson($url, exportBody(['mode' => 'ids', 'ids' => [1]], ['filename' => 'orders']))->assertStatus(423);
+    $this->withSession(['auth.password_confirmed_at' => time()])
+        ->postJson($url, exportBody(['mode' => 'ids', 'ids' => [1]], ['filename' => 'orders']))
+        ->assertOk();
+});

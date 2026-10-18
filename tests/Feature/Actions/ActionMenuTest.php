@@ -16,6 +16,7 @@ use RuntimeException;
 use Workbench\App\Lathe\Resources\Order;
 use Workbench\App\Models\Order as OrderModel;
 use Workbench\App\Models\User;
+use Workbench\App\Policies\OrderPolicy;
 use Workbench\Database\Seeders\DemoSeeder;
 
 /** Orders under another key, with the actions a test declares. */
@@ -32,6 +33,14 @@ class MenuOrders extends Order
     public function actions(LatheRequest $request): array
     {
         return static::$declared;
+    }
+}
+
+class NoViewOrderPolicy extends OrderPolicy
+{
+    public function view(User $user, OrderModel $order): bool
+    {
+        return false;
     }
 }
 
@@ -131,6 +140,15 @@ it('names the one record a destructive confirm runs on and counts several', func
     expect($one['confirmText'])->toBe("Cancel order {$order->number}?")
         ->and($one['action'])->toMatchArray(['confirmButtonText' => 'Cancel order', 'cancelButtonText' => 'Keep order', 'destructive' => true])
         ->and($three['confirmText'])->toBe('Cancel 3 orders?');
+});
+
+it('leaves out the title of a record the user may not view', function () {
+    Gate::policy(OrderModel::class, NoViewOrderPolicy::class);
+    $order = OrderModel::query()->orderBy('id')->firstOrFail();
+
+    $json = $this->getJson("/lathe/api/resources/orders/actions/cancel-order/form?count=1&resourceId={$order->getKey()}")->assertOk()->json();
+
+    expect($json['confirmText'])->toBe('Cancel order?');
 });
 
 it('answers 404 for a confirm on a record the detail query cannot find', function () {
