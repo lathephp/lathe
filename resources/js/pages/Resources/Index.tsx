@@ -94,7 +94,7 @@ function IndexPage({ resource, table, state, count, error, lens, lenses, actions
             // Hidden when the ticked rows allow nothing; while the menus load, a spacer of their
             // height keeps the table from moving under the pointer.
             <div className="flex justify-end gap-2 border-b border-border px-3 py-2 empty:hidden">
-              <Suspense fallback={actions !== undefined && actions.actions.length > 0 ? <div aria-hidden="true" className="h-8" /> : null}>
+              <Suspense fallback={actions !== undefined && actions.actions.length > 0 ? <div aria-hidden="true" className="cn-button-size-sm" /> : null}>
               <DeleteMenu
                 uriKey={resource.uriKey}
                 lens={lens?.uriKey ?? null}
@@ -175,7 +175,7 @@ function IndexSkeleton({ title, hint }: { title: string; hint?: IndexSkeletonHin
         <Card aria-hidden="true" className="overflow-hidden">
           {hint?.actions === true && (
             <div data-skeleton-actions="" className="flex justify-end border-b border-border px-3 py-2">
-              <div className={`h-8 w-40 ${skeletonBar}`} />
+              <div className={`cn-button-size-sm w-40 ${skeletonBar}`} />
             </div>
           )}
           <div className="h-10 border-b border-border" />

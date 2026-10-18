@@ -101,6 +101,8 @@ describe('an instant visit from the sidebar', () => {
     await act(() => vi.advanceTimersByTimeAsync(110));
     expect(document.querySelectorAll('[data-skeleton-tabs]')).toHaveLength(1);
     expect(document.querySelectorAll('[data-skeleton-actions]')).toHaveLength(1);
+    // As tall as the action buttons in whichever kit style the panel uses.
+    expect(document.querySelector('[data-skeleton-actions] > div')?.className).toContain('cn-button-size-sm');
   });
 
   it('lays its header out as the page does: the title on a row, the controls below', async () => {
