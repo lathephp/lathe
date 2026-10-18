@@ -18,10 +18,10 @@ interface TabBarProps extends Pick<IndexProps, 'resource'> {
 type Dialog = { kind: 'save' } | { kind: 'rename'; tab: SavedTab } | { kind: 'delete'; tab: SavedTab };
 
 const badgeColours: Record<BadgeType, string> = {
-  info: 'bg-sky-100 text-sky-800 dark:bg-sky-900 dark:text-sky-100',
-  success: 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900 dark:text-emerald-100',
-  warning: 'bg-amber-100 text-amber-800 dark:bg-amber-900 dark:text-amber-100',
-  danger: 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-100',
+  info: 'bg-info-subtle text-info-subtle-foreground',
+  success: 'bg-success-subtle text-success-subtle-foreground',
+  warning: 'bg-warning-subtle text-warning-subtle-foreground',
+  danger: 'bg-destructive-subtle text-destructive-subtle-foreground',
 };
 
 /** A capped count reads "10,000+". */
@@ -276,7 +276,7 @@ export function TabBar({ resource, state, visit }: TabBarProps) {
         )}
       </Suspense>
       {dialog?.kind === 'delete' && (
-        <div className="fixed inset-0 z-50 flex items-start justify-center bg-black/50 p-4 pt-[15vh]">
+        <div className="fixed inset-0 z-50 flex items-start justify-center bg-scrim p-4 pt-[15vh]">
           <div
             role="alertdialog"
             aria-modal="true"

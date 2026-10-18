@@ -26,14 +26,14 @@ export function SaveTabDialog({ onSave, onClose }: SaveTabDialogProps) {
   const [badgeType, setBadgeType] = useState<BadgeColour>('success');
   const [saving, setSaving] = useState(false);
   const colours: { value: BadgeColour; label: string; swatch: string }[] = [
-    { value: 'success', label: __('Success'), swatch: 'bg-emerald-500' },
-    { value: 'danger', label: __('Danger'), swatch: 'bg-red-500' },
-    { value: 'warning', label: __('Warning'), swatch: 'bg-amber-500' },
+    { value: 'success', label: __('Success'), swatch: 'bg-success' },
+    { value: 'danger', label: __('Danger'), swatch: 'bg-destructive' },
+    { value: 'warning', label: __('Warning'), swatch: 'bg-warning' },
   ];
 
   return (
     <div className="fixed inset-0 z-50 flex items-start justify-center p-4 pt-[15vh]">
-      <button type="button" tabIndex={-1} aria-label={__('Close')} className="absolute inset-0 bg-black/50" onClick={onClose} />
+      <button type="button" tabIndex={-1} aria-label={__('Close')} className="absolute inset-0 bg-scrim" onClick={onClose} />
       {/* Escape closes the dialog wherever focus is inside it. */}
       {/* eslint-disable-next-line jsx-a11y/no-noninteractive-element-interactions */}
       <form

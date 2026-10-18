@@ -39,11 +39,11 @@ export function NotificationCenter({ basePath, pollingInterval, showUnreadCount 
         <Bell aria-hidden="true" className="size-4" />
         {state.unread > 0 &&
           (showUnreadCount ? (
-            <span className="absolute -end-1 -top-1 min-w-4 rounded-full bg-red-600 px-1 text-[10px] leading-4 font-medium text-white">
+            <span className="absolute -end-1 -top-1 min-w-4 rounded-full bg-destructive px-1 text-[10px] leading-4 font-medium text-destructive-foreground">
               {state.unread > 99 ? '99+' : state.unread}
             </span>
           ) : (
-            <span data-testid="unread-dot" className="absolute end-1.5 top-1.5 size-2 rounded-full bg-red-600" />
+            <span data-testid="unread-dot" className="absolute end-1.5 top-1.5 size-2 rounded-full bg-destructive" />
           ))}
       </Button>
       {open && (

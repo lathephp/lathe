@@ -133,7 +133,7 @@ export function RecordActions({ uriKey, record }: RecordActionsProps) {
             </button>
             <button
               type="button"
-              className="h-9 rounded-md bg-destructive px-4 text-sm font-medium text-white"
+              className="h-9 rounded-md bg-destructive px-4 text-sm font-medium text-destructive-foreground"
               onClick={() => {
                 void run(confirming);
               }}

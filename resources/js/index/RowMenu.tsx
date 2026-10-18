@@ -168,7 +168,7 @@ export function RowMenu({ uriKey, row }: { uriKey: string; row: Row }) {
         </div>
       )}
       {confirming !== null && (
-        <div className="fixed inset-0 z-50 grid place-items-center bg-black/40 p-4">
+        <div className="fixed inset-0 z-50 grid place-items-center bg-scrim p-4">
           <div
             role="alertdialog"
             aria-modal="true"
@@ -192,7 +192,7 @@ export function RowMenu({ uriKey, row }: { uriKey: string; row: Row }) {
               {/* The ui Button has no destructive variant, and its classes do not merge with an override. */}
               <button
                 type="button"
-                className="inline-flex h-8 items-center rounded-md bg-destructive px-3 text-sm font-medium text-white outline-none hover:bg-destructive/90 focus-visible:ring-2 focus-visible:ring-ring"
+                className="inline-flex h-8 items-center rounded-md bg-destructive px-3 text-sm font-medium text-destructive-foreground outline-none hover:bg-destructive/90 focus-visible:ring-2 focus-visible:ring-ring"
                 onClick={() => {
                   void run(confirming);
                 }}

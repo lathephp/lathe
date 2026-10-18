@@ -264,7 +264,7 @@ export function InlineCell({ uriKey, rowId, column, cell, token, onRow }: Inline
     <div data-inline-cell="" className="relative">
       {control}
       {error === null ? null : (
-        <div id={errorId} role="tooltip" className="absolute start-0 top-full z-10 mt-1 rounded-md bg-destructive px-2 py-1 text-xs whitespace-nowrap text-white shadow">
+        <div id={errorId} role="tooltip" className="absolute start-0 top-full z-10 mt-1 rounded-md bg-destructive px-2 py-1 text-xs whitespace-nowrap text-destructive-foreground shadow">
           {error}
         </div>
       )}

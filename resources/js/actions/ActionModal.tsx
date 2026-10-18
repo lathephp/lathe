@@ -145,7 +145,7 @@ export function ActionModal({ base, action, count, onClose, onRun }: ActionModal
             disabled={busy || form === null}
             className={cn(
               'inline-flex h-8 items-center rounded-md px-3 text-sm font-medium outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:opacity-50',
-              action.destructive ? 'bg-destructive text-white hover:bg-destructive/90' : 'bg-primary text-primary-foreground hover:bg-primary/90',
+              action.destructive ? 'bg-destructive text-destructive-foreground hover:bg-destructive/90' : 'bg-primary text-primary-foreground hover:bg-primary/90',
             )}
           >
             {busy && action.asBlob ? __('Preparing file') : action.confirmButtonText}

@@ -18,7 +18,7 @@ export function RenameTabDialog({ name: current, onSave, onClose }: RenameTabDia
 
   return (
     <div className="fixed inset-0 z-50 flex items-start justify-center p-4 pt-[15vh]">
-      <button type="button" tabIndex={-1} aria-label={__('Close')} className="absolute inset-0 bg-black/50" onClick={onClose} />
+      <button type="button" tabIndex={-1} aria-label={__('Close')} className="absolute inset-0 bg-scrim" onClick={onClose} />
       {/* Escape closes the dialog wherever focus is inside it. */}
       {/* eslint-disable-next-line jsx-a11y/no-noninteractive-element-interactions */}
       <form

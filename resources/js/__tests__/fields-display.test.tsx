@@ -86,8 +86,8 @@ describe('badge-field', () => {
     renderIndex('badge-field', { value: 'gold', display: 'Gold', type: 'vip' });
     renderIndex('badge-field', { value: 'paid', display: 'Paid', type: 'success', icon: 'circle-check' });
 
-    expect(screen.getByText('Gold').getAttribute('data-lathe-badge-type')).toBe('vip');
-    expect(screen.getByText('Paid').getAttribute('data-lathe-badge-type')).toBe('success');
+    expect(screen.getByText('Gold').closest('[data-lathe-badge-type]')?.getAttribute('data-lathe-badge-type')).toBe('vip');
+    expect(screen.getByText('Paid').closest('[data-lathe-badge-type]')?.getAttribute('data-lathe-badge-type')).toBe('success');
     expect(screen.getByText('Paid').querySelector('svg')).not.toBeNull();
     expect(screen.getByText('Gold').querySelector('svg')).toBeNull();
   });
@@ -114,9 +114,9 @@ describe('status-field', () => {
     renderIndex('status-field', { value: 'run', display: 'Run', type: 'loading' });
     renderIndex('status-field', { value: 'done', display: 'Done', type: 'success' });
 
-    expect(screen.getByText('Run').getAttribute('data-lathe-badge-type')).toBe('loading');
+    expect(screen.getByText('Run').closest('[data-lathe-badge-type]')?.getAttribute('data-lathe-badge-type')).toBe('loading');
     expect(screen.getByText('Run').querySelector('svg')?.getAttribute('class')).toContain('animate-spin');
-    expect(screen.getByText('Done').getAttribute('data-lathe-badge-type')).toBe('success');
+    expect(screen.getByText('Done').closest('[data-lathe-badge-type]')?.getAttribute('data-lathe-badge-type')).toBe('success');
   });
 
   it('edits the form value as text', () => {
@@ -144,7 +144,7 @@ describe('icon-field', () => {
     const icon = screen.getByRole('img', { name: 'a' });
 
     expect(icon.getAttribute('data-lathe-icon')).toBe('star');
-    expect(icon.className).toContain('text-amber-600');
+    expect(icon.className).toContain('text-warning');
     expect(icon.querySelector('svg')).not.toBeNull();
   });
 

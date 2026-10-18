@@ -23,10 +23,10 @@ const columnClass: Record<number, string> = {
 const panelKinds = ['hasMany', 'morphMany', 'belongsToMany', 'morphToMany', 'morphedByMany', 'hasManyThrough', 'hasOneThrough'];
 
 const badgeClass: Record<string, string> = {
-  info: 'bg-sky-100 text-sky-800',
-  success: 'bg-emerald-100 text-emerald-800',
-  warning: 'bg-amber-100 text-amber-800',
-  danger: 'bg-red-100 text-red-800',
+  info: 'bg-info-subtle text-info-subtle-foreground',
+  success: 'bg-success-subtle text-success-subtle-foreground',
+  warning: 'bg-warning-subtle text-warning-subtle-foreground',
+  danger: 'bg-destructive-subtle text-destructive-subtle-foreground',
 };
 
 export interface RecordLayoutProps {

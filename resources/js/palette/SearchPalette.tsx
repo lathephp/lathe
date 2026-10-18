@@ -167,7 +167,7 @@ export function SearchPalette({ basePath, debounce, onClose }: Props) {
         type="button"
         tabIndex={-1}
         aria-label={__('Close')}
-        className="absolute inset-0 bg-black/50"
+        className="absolute inset-0 bg-scrim"
         onClick={onClose}
       />
       {/* The keydown handler sits on the dialog so Escape and mod+k work wherever focus is inside it. */}

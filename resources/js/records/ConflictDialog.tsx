@@ -25,7 +25,7 @@ export function ConflictDialog({ onRefresh, onOverride, onClose }: ConflictDialo
         <button type="button" className="h-9 rounded-md border border-input px-4 text-sm" onClick={onRefresh}>
           {__('Refresh')}
         </button>
-        <button type="button" className="h-9 rounded-md bg-destructive px-4 text-sm font-medium text-white" onClick={onOverride}>
+        <button type="button" className="h-9 rounded-md bg-destructive px-4 text-sm font-medium text-destructive-foreground" onClick={onOverride}>
           {__('Override')}
         </button>
       </div>

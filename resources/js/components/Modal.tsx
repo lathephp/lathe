@@ -89,7 +89,7 @@ export function Modal({ labelledBy, onClose, children, className }: ModalProps) 
 
   return (
     <div className="fixed inset-0 z-50 flex items-start justify-center p-4 pt-[15vh]">
-      <div aria-hidden="true" className="absolute inset-0 bg-black/50" onClick={onClose} />
+      <div aria-hidden="true" className="absolute inset-0 bg-scrim" onClick={onClose} />
       <div
         ref={panel}
         role="dialog"

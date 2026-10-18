@@ -194,7 +194,7 @@ describe('tabs', () => {
     }
     renderDetail([group], ['order', 'billing']);
 
-    expect(within(screen.getByRole('tab', { name: /Billing/ })).getByText('3').className).toContain('bg-red-100');
+    expect(within(screen.getByRole('tab', { name: /Billing/ })).getByText('3').className).toContain('bg-destructive-subtle');
   });
 
   it('marks the tab of a failed field with a red dot and opens it', async () => {

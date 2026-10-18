@@ -37,7 +37,7 @@ export default function Detail({ resource, record, breadcrumbs, actions, widgets
       <Breadcrumbs items={breadcrumbs} />
       <DetailHeader resource={resource} record={record} actions={actions} />
       {record.trashed ? (
-        <div role="status" data-lathe-banner className="rounded-md border border-amber-300 bg-amber-50 px-4 py-3 text-sm font-medium text-amber-900">
+        <div role="status" data-lathe-banner className="rounded-md border border-warning bg-warning-subtle px-4 py-3 text-sm font-medium text-warning-subtle-foreground">
           {__('Soft Deleted')}
         </div>
       ) : null}

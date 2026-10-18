@@ -1,4 +1,5 @@
 import { createElement } from 'react';
+import { Badge, type BadgeTone } from '../../components/ui/Badge';
 import { cn } from '../../lib/cn';
 import type { DetailFieldProps, IndexFieldProps } from '../registry';
 import type { FieldSchema } from '../types';
@@ -14,14 +15,7 @@ function text(value: unknown): string {
   return typeof value === 'string' ? value : '';
 }
 
-const badgeClasses: Record<string, string> = {
-  info: 'bg-sky-100 text-sky-800 dark:bg-sky-950 dark:text-sky-200',
-  success: 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-200',
-  warning: 'bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-200',
-  danger: 'bg-red-100 text-red-800 dark:bg-red-950 dark:text-red-200',
-  failed: 'bg-red-100 text-red-800 dark:bg-red-950 dark:text-red-200',
-  loading: 'bg-muted text-muted-foreground',
-};
+const badgeTones: Record<string, BadgeTone> = { info: 'info', success: 'success', warning: 'warning', danger: 'danger', failed: 'danger', loading: 'neutral' };
 
 // A status draws its own icon; a badge draws one only when the server sent it.
 const statusIcons: Record<string, string> = { loading: 'loader-circle', failed: 'circle-x', success: 'circle-check' };
@@ -33,12 +27,11 @@ function BadgeView({ label, type, icon, status }: { label: string; type: string;
   }
 
   return (
-    <span
-      data-lathe-badge-type={type}
-      className={cn('inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium', badgeClasses[type] ?? 'bg-muted text-foreground')}
-    >
-      {name !== '' && createElement(iconNamed(name), { 'aria-hidden': true, className: cn('size-3.5', type === 'loading' && 'animate-spin') })}
-      {label}
+    <span data-lathe-badge-type={type} className="inline-flex">
+      <Badge tone={badgeTones[type] ?? 'neutral'}>
+        {name !== '' && createElement(iconNamed(name), { 'aria-hidden': true, className: cn('size-3.5', type === 'loading' && 'animate-spin') })}
+        {label}
+      </Badge>
     </span>
   );
 }
@@ -56,10 +49,10 @@ export function StatusIndex({ cell }: IndexFieldProps) {
 }
 
 const iconColors: Record<string, string> = {
-  info: 'text-sky-600',
-  success: 'text-emerald-600',
-  warning: 'text-amber-600',
-  danger: 'text-red-600',
+  info: 'text-info',
+  success: 'text-success',
+  warning: 'text-warning',
+  danger: 'text-destructive',
   primary: 'text-primary',
   muted: 'text-muted-foreground',
 };

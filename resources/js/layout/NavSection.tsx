@@ -36,13 +36,11 @@ export interface NavContext {
   badges: Record<string, NavBadge>;
 }
 
-// The theme has no info, success or warning tokens yet, so these use the palette. The 700
-// shades keep white 12px text above 4.5:1 contrast; the 600 shades fall below it.
 const tones: Record<string, string> = {
-  info: 'bg-sky-700',
-  success: 'bg-emerald-700',
-  warning: 'bg-amber-700',
-  destructive: 'bg-destructive',
+  info: 'bg-info text-info-foreground',
+  success: 'bg-success text-success-foreground',
+  warning: 'bg-warning text-warning-foreground',
+  destructive: 'bg-destructive text-destructive-foreground',
 };
 
 /** A server override wins. The panel root is active on its own path only, any other link also below it. */
@@ -87,7 +85,7 @@ function NavItem({ item, context }: { item: NavLink; context: NavContext }) {
       {badge !== undefined && (
         <span
           data-badge-type={badge.type}
-          className={cn('ms-auto rounded-full px-1.5 text-xs font-medium text-white', tones[badge.type], context.collapsed && 'md:sr-only')}
+          className={cn('ms-auto rounded-full px-1.5 text-xs font-medium', tones[badge.type], context.collapsed && 'md:sr-only')}
         >
           {badge.value}
         </span>
