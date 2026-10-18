@@ -353,6 +353,45 @@ describe('the action modal', () => {
     expect(within(dialog).queryByRole('listbox')).toBeNull();
   });
 
+  it('keeps the focus on the field when the focus alone swaps in the search picker, and ArrowDown opens it', async () => {
+    vi.spyOn(globalThis, 'fetch')
+      .mockResolvedValueOnce(
+        json({
+          fields: [{ key: 'target', attribute: 'target', label: 'Target', component: 'belongs-to-field', resource: 'tags', value: null, stacked: false, compact: false, help: null, required: true }],
+          confirmText: null,
+        }),
+      )
+      .mockResolvedValue(json({ items: [{ value: 1, display: 'sale' }], has_more: true }));
+    renderOrders([meta('merge-tags', 'Merge Tags', { size: 'medium' })], rows(1, ['merge-tags']));
+    tick(1);
+    fireEvent.click(within(await openMenu()).getByRole('menuitem', { name: 'Merge Tags' }));
+    const dialog = await screen.findByRole('dialog');
+
+    (await within(dialog).findByRole('combobox')).focus();
+
+    const picker = await within(dialog).findByRole('button', { name: 'Target' });
+    await waitFor(() => {
+      expect(document.activeElement).toBe(picker);
+    });
+
+    fireEvent.keyDown(document.activeElement ?? document.body, { key: 'ArrowDown' });
+
+    expect(await within(dialog).findByRole('listbox')).toBeTruthy();
+  });
+
+  it('brings the focus back into the dialog when Tab starts from outside it', async () => {
+    vi.spyOn(globalThis, 'fetch').mockResolvedValueOnce(json({ fields: [], confirmText: 'Mark 1 orders as shipped?' }));
+    renderOrders([meta('mark-shipped', 'Mark shipped', { confirmButtonText: 'Mark shipped', size: 'small' })], rows(1, ['mark-shipped']));
+    tick(1);
+    fireEvent.click(within(await openMenu()).getByRole('menuitem', { name: 'Mark shipped' }));
+    const dialog = await screen.findByRole('dialog');
+    (document.activeElement as HTMLElement | null)?.blur();
+
+    fireEvent.keyDown(document.body, { key: 'Tab', shiftKey: true });
+
+    expect(dialog.contains(document.activeElement)).toBe(true);
+  });
+
   it('lets a picker hang below the dialog: the overlay scrolls, not the dialog', async () => {
     vi.spyOn(globalThis, 'fetch').mockResolvedValueOnce(json({ fields: [], confirmText: null }));
     renderOrders([meta('merge-tags', 'Merge Tags', { size: 'medium' })], rows(1, ['merge-tags']));

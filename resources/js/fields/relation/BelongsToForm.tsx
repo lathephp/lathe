@@ -52,7 +52,8 @@ export function RelationPicker({
   endpoint,
   onCreate,
   startOpen = false,
-}: FormFieldProps & LookupProps & { endpoint?: string; onCreate?: (text: string) => void; startOpen?: boolean }) {
+  takeFocus = false,
+}: FormFieldProps & LookupProps & { endpoint?: string; onCreate?: (text: string) => void; startOpen?: boolean; takeFocus?: boolean }) {
   const { __ } = useTranslation();
   const [open, setOpen] = useState(startOpen);
   const [term, setTerm] = useState('');
@@ -67,6 +68,13 @@ export function RelationPicker({
   // A creatable field offers the typed text as a new record, after the matches.
   const creates = onCreate !== undefined && typed !== '';
   const last = items.length - (creates ? 0 : 1);
+
+  // Swapped in for a select that held the focus: the focus stays on the field, not on the page.
+  useEffect(() => {
+    if (takeFocus && !startOpen) {
+      button.current?.focus();
+    }
+  }, [takeFocus, startOpen]);
 
   useEffect(() => {
     if (!open) {
@@ -122,6 +130,14 @@ export function RelationPicker({
         onClick={() => {
           setActive(-1);
           setOpen(!open);
+        }}
+        onKeyDown={(event) => {
+          // As the list select it replaces: the arrows open it too.
+          if (!open && (event.key === 'ArrowDown' || event.key === 'ArrowUp')) {
+            event.preventDefault();
+            setActive(-1);
+            setOpen(true);
+          }
         }}
         className={`${inputClass} text-start`}
       >
@@ -290,8 +306,8 @@ export function BelongsToForm(props: FormFieldProps & LookupProps) {
   const { __ } = useTranslation();
   const { field, value, onChange, disabled } = props;
   const [searchable, setSearchable] = useState(field.searchable === true);
-  // Set when the list turned out too long as it opened: the search picker that replaces it opens at once.
-  const [swapped, setSwapped] = useState(false);
+  // How the list select gave way to the search picker: on a press it opens at once; on the focus alone it keeps the focus.
+  const [swapped, setSwapped] = useState<'open' | 'focus' | null>(null);
   // The text the create sheet starts its title field with, or null while it is shut.
   const [creating, setCreating] = useState<string | null>(null);
   const label = typeof field.singularLabel === 'string' ? field.singularLabel : field.label;
@@ -302,13 +318,13 @@ export function BelongsToForm(props: FormFieldProps & LookupProps) {
   }
 
   const control = searchable ? (
-    <RelationPicker {...props} startOpen={swapped} onCreate={field.creatable === true ? setCreating : undefined} />
+    <RelationPicker {...props} startOpen={swapped === 'open'} takeFocus={swapped !== null} onCreate={field.creatable === true ? setCreating : undefined} />
   ) : (
     <RelationSelect
       {...props}
       onTooMany={(pressed) => {
         setSearchable(true);
-        setSwapped(pressed);
+        setSwapped(pressed ? 'open' : 'focus');
       }}
     />
   );

@@ -107,6 +107,10 @@ export function Modal({ labelledBy, onClose, children, className, locked = false
 
         if (first === undefined || last === undefined) {
           event.preventDefault();
+        } else if (!panel.current.contains(document.activeElement)) {
+          // The focus fell out, such as with a control that remounted: Tab brings it back in.
+          event.preventDefault();
+          (event.shiftKey ? last : first).focus();
         } else if (event.shiftKey && document.activeElement === first) {
           event.preventDefault();
           last.focus();
