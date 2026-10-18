@@ -54,7 +54,7 @@ test('each_list_endpoint_has_its_documented_shape', function (string $uri, array
     'notifications' => ['/lathe/api/notifications', ['notifications', 'unreadCount'], null, []],
     'actions' => ['/lathe/api/resources/orders/actions?display=index', ['actions', 'pivotActions', 'counts'], 'counts', ['standalone', 'sole', 'resource']],
     'action form' => ['/lathe/api/resources/orders/actions/mark-shipped/form?count=3', ['fields', 'confirmText', 'action'], null, []],
-    'dashboards' => ['/lathe/api/dashboards', ['dashboards'], 'dashboards.0', ['uriKey', 'name', 'description', 'icon', 'showRefreshButton']],
+    'dashboards' => ['/lathe/api/dashboards', ['dashboards'], 'dashboards.0', ['uriKey', 'name', 'description', 'icon', 'showRefreshButton', 'customizable', 'ranges']],
     'dashboard widgets' => ['/lathe/api/dashboards/main/widgets', ['widgets'], null, []],
     'resource widgets' => ['/lathe/api/resources/orders/widgets', ['widgets'], null, []],
     'lens widgets' => ['/lathe/api/resources/orders/lenses/pending-orders/widgets', ['widgets'], null, []],

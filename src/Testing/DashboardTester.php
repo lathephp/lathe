@@ -55,6 +55,38 @@ class DashboardTester
         return $this->getJson($this->uri().'/widgets/'.$widget.($params === [] ? '' : '?'.http_build_query($params)));
     }
 
+    /**
+     * One chart or table card as a CSV download; the params go out as the query string.
+     *
+     * @param  array<string, mixed>  $params
+     * @return TestResponse<Response>
+     */
+    public function csv(string $widget, array $params = []): TestResponse
+    {
+        return $this->get($this->uri().'/widgets/'.$widget.'/csv'.($params === [] ? '' : '?'.http_build_query($params)));
+    }
+
+    /**
+     * Saves the user's layout: each widget's uriKey, width and hidden flag, in order.
+     *
+     * @param  list<array{uriKey: string, width: string, hidden: bool}>  $widgets
+     * @return TestResponse<Response>
+     */
+    public function saveLayout(array $widgets): TestResponse
+    {
+        return $this->putJson($this->uri().'/layout', ['widgets' => $widgets]);
+    }
+
+    /**
+     * Drops the user's layout, back to the one in code.
+     *
+     * @return TestResponse<Response>
+     */
+    public function resetLayout(): TestResponse
+    {
+        return $this->deleteJson($this->uri().'/layout');
+    }
+
     protected function uri(): string
     {
         return rtrim(Lathe::path(), '/').'/api/dashboards/'.$this->uriKey;

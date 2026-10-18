@@ -3853,6 +3853,9 @@ Lathe\Testing\DashboardTester::$unencryptedCookies  [protected]
 Lathe\Testing\DashboardTester::$withCredentials  [protected]
 Lathe\Testing\DashboardTester::Illuminate\Contracts\Foundation\Application $app  [protected]
 Lathe\Testing\DashboardTester::__construct(string $uriKey)
+Lathe\Testing\DashboardTester::csv(string $widget, array $params = array ( )): Illuminate\Testing\TestResponse
+Lathe\Testing\DashboardTester::resetLayout(): Illuminate\Testing\TestResponse
+Lathe\Testing\DashboardTester::saveLayout(array $widgets): Illuminate\Testing\TestResponse
 Lathe\Testing\DashboardTester::show(): Illuminate\Testing\TestResponse
 Lathe\Testing\DashboardTester::string $uriKey  [protected]
 Lathe\Testing\DashboardTester::uri(): string  [protected]

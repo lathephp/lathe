@@ -95,5 +95,5 @@ it('renders the dashboard at the key main', function () {
         ->component('Dashboard', false)
         ->where('dashboard.uriKey', 'main')
         ->where('dashboard.name', 'Sales')
-        ->has('widgets', 3));
+        ->where('widgets.0.uriKey', 'orders'));
 });
