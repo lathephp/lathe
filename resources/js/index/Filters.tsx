@@ -1,11 +1,11 @@
 import { usePage } from '@inertiajs/react';
 import { useTranslation } from '@lathephp/core';
 import { ListFilter } from 'lucide-react';
-import { Suspense, useId, useState } from 'react';
+import { Suspense, useEffect, useId, useRef, useState } from 'react';
 import { Button } from '../components/ui/Button';
 import { skeletonBar } from '../lib/instant';
 import type { SharedProps } from '../types';
-import { activeFilters } from './FilterChips';
+import { activeFilters, cancelFilterVisit } from './FilterChips';
 import { IndexBanner } from './IndexBanner';
 import { countText } from './IndexFooter';
 import { FilterPanel } from './lazy';
@@ -24,11 +24,39 @@ export function Filters({ visit }: { visit: (changes: IndexUrlState) => void }) 
   const active = Object.keys(filter).length;
   const available = filters?.available ?? [];
   const softDeletes = resource.softDeletes;
+  const box = useRef<HTMLDivElement>(null);
+
+  // Escape or a press outside closes the popover. A select's list draws in a portal, so a press in a listbox stays inside.
+  useEffect(() => {
+    if (!open) {
+      return;
+    }
+
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        setOpen(false);
+      }
+    };
+    const onPress = (event: PointerEvent) => {
+      const target = event.target instanceof Element ? event.target : null;
+
+      if (target !== null && box.current?.contains(target) !== true && target.closest('[role="listbox"]') === null) {
+        setOpen(false);
+      }
+    };
+    document.addEventListener('keydown', onKey);
+    document.addEventListener('pointerdown', onPress);
+
+    return () => {
+      document.removeEventListener('keydown', onKey);
+      document.removeEventListener('pointerdown', onPress);
+    };
+  }, [open]);
 
   return (
     <>
       {(available.length > 0 || softDeletes) && (
-        <div className="relative">
+        <div ref={box} className="relative">
           <Button
             variant="outline"
             aria-expanded={open}
@@ -67,6 +95,7 @@ export function Filters({ visit }: { visit: (changes: IndexUrlState) => void }) 
                     type="button"
                     className="rounded-sm text-sm font-medium text-primary outline-none hover:underline focus-visible:ring-2 focus-visible:ring-ring"
                     onClick={() => {
+                      cancelFilterVisit();
                       visit({ filter: {} });
                     }}
                   >

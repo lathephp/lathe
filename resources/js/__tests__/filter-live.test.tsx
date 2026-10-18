@@ -123,6 +123,40 @@ describe('live filters', () => {
     expect(visitData(visit)).toEqual({ filter: { status: 'paid', total: { min: '100', max: '500' } } });
   });
 
+  it('drops a change still waiting when a chip is removed meanwhile', async () => {
+    const visit = mockVisit();
+    renderIndex('/lathe/resources/orders?filter[status]=paid', paidCount);
+
+    fireEvent.click(screen.getByRole('button', { name: 'Filter 1' }));
+    vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout'] });
+    fireEvent.change(screen.getByLabelText('Min'), { target: { value: '100' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Remove Status filter' }));
+    await advance(400);
+
+    expect(visit).toHaveBeenCalledTimes(1);
+    expect(visitData(visit)).toEqual({});
+  });
+
+  it('closes the popover on Escape and on a press outside it', () => {
+    renderIndex('/lathe/resources/orders', paidCount);
+
+    fireEvent.click(screen.getByRole('button', { name: 'Filter' }));
+    fireEvent.keyDown(document, { key: 'Escape' });
+
+    expect(screen.queryByRole('dialog', { name: 'Filters' })).toBeNull();
+
+    fireEvent.click(screen.getByRole('button', { name: 'Filter' }));
+    fireEvent.pointerDown(document.body);
+
+    expect(screen.queryByRole('dialog', { name: 'Filters' })).toBeNull();
+  });
+
+  it('lets the popover reach past a short table, the card clipping nothing', () => {
+    renderIndex('/lathe/resources/orders', paidCount);
+
+    expect(document.querySelector('[data-lathe-card]')?.className).not.toContain('overflow-hidden');
+  });
+
   it('shows the match count, a chip for the filter and the count on the button', () => {
     const visit = mockVisit();
     renderIndex('/lathe/resources/orders?filter[status]=paid', paidCount);

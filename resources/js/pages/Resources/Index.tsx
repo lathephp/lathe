@@ -98,8 +98,9 @@ function IndexPage({ resource, table, state, count, error, lens, lenses, actions
           <ResourceWidgets widgets={widgets} path={lens == null ? `resources/${resource.uriKey}` : `resources/${resource.uriKey}/lenses/${lens.uriKey}`} />
         </Suspense>
       )}
-      {/* One card: the tab band, the toolbar row (the selection bar while rows are ticked), the filter chips, then the table. */}
-      <Card data-lathe-card className="overflow-hidden">
+      {/* One card: the tab band, the toolbar row (the selection bar while rows are ticked), the filter chips, then the table.
+          Nothing clips it, so a popover from its toolbar reaches past a short table. */}
+      <Card data-lathe-card>
         <TabBar resource={resource} state={index.state} visit={visit} />
         <IndexToolbar
           resource={resource}

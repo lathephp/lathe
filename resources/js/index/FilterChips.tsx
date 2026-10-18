@@ -5,6 +5,20 @@ import type { SharedProps } from '../types';
 import type { AvailableFilter, IndexProps } from './types';
 import { type FilterValue, type IndexUrlState, parseQuery } from './useIndexState';
 
+// The filter panel's change still waiting to be sent; a chip or Reset that visits first drops it.
+let pending: ReturnType<typeof setTimeout> | undefined;
+
+/** Sends a filter change after the wait, replacing one still waiting. */
+export function deferFilterVisit(send: () => void, wait: number): void {
+  clearTimeout(pending);
+  pending = setTimeout(send, wait);
+}
+
+/** Drops the filter change still waiting, so it cannot undo a visit made since. */
+export function cancelFilterVisit(): void {
+  clearTimeout(pending);
+}
+
 /** The URL's filters without the keys the server dropped as stale. */
 export function activeFilters(url: string, staleFilters: string[]): Record<string, FilterValue> {
   const filter = parseQuery(url.split('?')[1] ?? '').filter ?? {};
@@ -54,6 +68,7 @@ export function FilterChips({ visit }: { visit: (changes: IndexUrlState) => void
               aria-label={__('Remove :filter filter', { filter: name })}
               className="grid size-6 place-items-center rounded-full text-muted-foreground outline-none hover:bg-muted focus-visible:ring-2 focus-visible:ring-ring"
               onClick={() => {
+                cancelFilterVisit();
                 visit({ filter: Object.fromEntries(Object.entries(active).filter(([other]) => other !== key)) });
               }}
             >
@@ -66,6 +81,7 @@ export function FilterChips({ visit }: { visit: (changes: IndexUrlState) => void
         type="button"
         className="ms-1 rounded-sm text-sm font-medium text-primary outline-none hover:underline focus-visible:ring-2 focus-visible:ring-ring"
         onClick={() => {
+          cancelFilterVisit();
           visit({ filter: {} });
         }}
       >

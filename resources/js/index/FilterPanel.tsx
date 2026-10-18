@@ -1,11 +1,12 @@
 import { __panel, useTranslation } from '@lathephp/core';
-import { type ComponentType, useId, useRef, useState } from 'react';
+import { type ComponentType, useId, useState } from 'react';
 import { Select } from '../components/ui/Select';
 import { DateFilter } from './filters/DateFilter';
 import { MultiSelectFilter } from './filters/MultiSelectFilter';
 import { RangeFilter } from './filters/RangeFilter';
 import { RemotePicker } from './filters/RemotePicker';
 import { SelectFilter } from './filters/SelectFilter';
+import { cancelFilterVisit, deferFilterVisit } from './FilterChips';
 import type { AvailableFilter, FilterControlProps } from './types';
 import { type FilterValue, type IndexUrlState, toQuery } from './useIndexState';
 
@@ -50,7 +51,6 @@ export function FilterPanel({ resource, endpoint, available, softDeletes, state,
   const [draft, setDraft] = useState<Record<string, FilterValue>>(applied);
   const [seenUrl, setSeenUrl] = useState(url);
   const [sent, setSent] = useState<string | null>(null);
-  const timer = useRef<ReturnType<typeof setTimeout>>(undefined);
 
   // The panel's own visit keeps the draft, so a range typed on while it was out survives it.
   // Any other new URL, such as a removed chip or a clicked tab, starts the draft again from it.
@@ -63,7 +63,7 @@ export function FilterPanel({ resource, endpoint, available, softDeletes, state,
   }
 
   function send(changes: IndexUrlState, filter: Record<string, FilterValue>) {
-    clearTimeout(timer.current);
+    cancelFilterVisit();
     setSent(filterKey(filter));
     visit({ ...changes, filter });
   }
@@ -78,8 +78,7 @@ export function FilterPanel({ resource, endpoint, available, softDeletes, state,
       return;
     }
 
-    clearTimeout(timer.current);
-    timer.current = setTimeout(() => {
+    deferFilterVisit(() => {
       send({}, next);
     }, debounceMs);
   }
