@@ -1,4 +1,5 @@
 import { router } from '@inertiajs/react';
+import { __panel } from '@lathephp/core';
 import { useEffect, useState, type ReactNode } from 'react';
 
 // Instant pages: a link shows its page before the server answers, and a write drops the pages
@@ -17,6 +18,9 @@ export function flushResourceOf(url: string): void {
     router.flushByCacheTags(`resource:${match[1]}`);
   }
 }
+
+// Every write through the panel's client drops its resource's prefetched pages.
+__panel.setWriteListener(flushResourceOf);
 
 /** The fill of a skeleton bar, which pulses unless reduced motion is asked for. */
 export const skeletonBar = 'animate-pulse rounded-md bg-skeleton motion-reduce:animate-none';

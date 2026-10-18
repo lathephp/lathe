@@ -1,4 +1,5 @@
 import { router } from '@inertiajs/react';
+import { request } from '@lathephp/core';
 import { afterEach, beforeEach, describe, expect, it, vi, type MockInstance } from 'vitest';
 import { runAction } from '../actions/runAction';
 import { flushResourceOf } from '../lib/instant';
@@ -52,5 +53,15 @@ describe('runAction with a file', () => {
     await runAction('/lathe/api/resources/orders/actions', 'import', selection, fields).catch(() => undefined);
 
     expect(flush).not.toHaveBeenCalled();
+  });
+});
+
+describe('a write through the panel client', () => {
+  it('flushes the resource it wrote to', async () => {
+    vi.stubGlobal('fetch', vi.fn(() => Promise.resolve(new Response('{}', { status: 200 }))));
+
+    await request('/lathe/api/resources/orders/12/field/status', { method: 'PATCH', body: { value: 'shipped' } });
+
+    expect(flush.mock.calls).toEqual([['resource:orders']]);
   });
 });
