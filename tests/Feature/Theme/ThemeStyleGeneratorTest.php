@@ -21,10 +21,12 @@ it('writes colour overrides into one nonced style tag', function () {
 
     $html = (string) $this->actingAs($this->admin)->get('/lathe')->assertOk()->getContent();
 
-    preg_match_all('/<style\b[^>]*>.*?<\/style>/s', $html, $tags);
-    expect($tags[0])->toBe([
-        '<style nonce="n0nce">:root{--radius:0.625rem;--ring:oklch(0.62 0.19 259);--sidebar:#f5f5f5}.dark{--sidebar:#171717}</style>',
-    ]);
+    preg_match_all('/<style\b([^>]*)>(.*?)<\/style>/s', $html, $tags);
+    expect($tags[1])->toBe([' nonce="n0nce"'])
+        ->and(themeVariable($tags[2][0], ':root', 'radius'))->toBe('0.625rem')
+        ->and(themeVariable($tags[2][0], ':root', 'ring'))->toBe('oklch(0.62 0.19 259)')
+        ->and(themeVariable($tags[2][0], ':root', 'sidebar'))->toBe('#f5f5f5')
+        ->and(themeVariable($tags[2][0], '.dark', 'sidebar'))->toBe('#171717');
 });
 
 it('keeps a theme value that would close the style tag off the page', function () {
@@ -36,9 +38,12 @@ it('keeps a theme value that would close the style tag off the page', function (
 
     $html = (string) $this->actingAs($this->admin)->get('/lathe')->assertOk()->getContent();
 
-    preg_match_all('/<style\b[^>]*>.*?<\/style>/s', $html, $tags);
+    preg_match_all('/<style\b[^>]*>(.*?)<\/style>/s', $html, $tags);
     expect($html)->not->toContain('<script>alert(1)</script>')
-        ->and($tags[0])->toBe(['<style>:root{--sidebar:#f5f5f5}.dark{--sidebar:#171717}</style>']);
+        ->and($tags[1])->toHaveCount(1)
+        ->and(themeVariable($tags[1][0], ':root', 'radius'))->toBeNull()
+        ->and(themeVariable($tags[1][0], ':root', 'primary'))->toBe('oklch(0.205 0 0)')
+        ->and(themeVariable($tags[1][0], ':root', 'sidebar'))->toBe('#f5f5f5');
 });
 
 it('drops every theme value that is not a CSS colour or length', function () {
@@ -52,7 +57,17 @@ it('drops every theme value that is not a CSS colour or length', function () {
         'input' => 'rgb(1 2 3){',
     ]);
 
-    expect($css)->toBe(':root{--muted:hsl(210 40% 50%);--accent:RebeccaPurple;--ring:oklch(0.5 0.1 200 / 50%);--skeleton:hsl(210 40% 50%);--sidebar-hover:RebeccaPurple}');
+    // The dropped values fall back to the defaults before copper, as any unset token does.
+    expect(themeVariable($css, ':root', 'radius'))->toBeNull()
+        ->and(themeVariable($css, ':root', 'muted'))->toBe('hsl(210 40% 50%)')
+        ->and(themeVariable($css, ':root', 'accent'))->toBe('RebeccaPurple')
+        ->and(themeVariable($css, ':root', 'ring'))->toBe('oklch(0.5 0.1 200 / 50%)')
+        ->and(themeVariable($css, ':root', 'skeleton'))->toBe('hsl(210 40% 50%)')
+        ->and(themeVariable($css, ':root', 'primary'))->toBe('oklch(0.205 0 0)')
+        ->and(themeVariable($css, ':root', 'sidebar'))->toBe('oklch(0.985 0 0)')
+        ->and(themeVariable($css, ':root', 'border'))->toBe('oklch(0.922 0 0)')
+        ->and(themeVariable($css, ':root', 'input'))->toBe('oklch(0.922 0 0)')
+        ->and($css)->not->toContain('red;x')->not->toContain('url(x)')->not->toContain('blue}')->not->toContain('{;');
 });
 
 /** The value of a variable in the :root or .dark block of generated CSS. */
@@ -64,22 +79,35 @@ function themeVariable(string $css, string $block, string $name): ?string
     return $match[1] ?? null;
 }
 
-it('derives the new tokens from an app primary', function () {
+it('derives the new tokens from an app primary and keeps the rest of its look', function () {
     $css = (new ThemeStyleGenerator)->generate('0.625rem', ['primary' => '#2563eb']);
 
-    // The tints are color-mix(in oklch, <primary> 14%, <copper background oklch(0.985 0.003 70)>), worked out by hand.
-    expect($css)->toStartWith(':root{--radius:0.625rem;--primary:#2563eb;--link:#2563eb;--link-hover:color-mix(in oklch, #2563eb 85%, black);--brand:#2563eb;--focus:#2563eb;--primary-subtle:color-mix(in oklch, #2563eb 14%, var(--background));--primary-subtle-foreground:')
-        ->and(Contrast::ratio((string) themeVariable($css, ':root', 'primary-subtle-foreground'), 'oklch(0.9236 0.0327 46.60)'))->toBeGreaterThanOrEqual(4.5);
+    // An app with its own colours wears no copper: the tokens it left unset keep their values
+    // from before copper, the white and near-black of shadcn's neutral.
+    expect(themeVariable($css, ':root', 'primary'))->toBe('#2563eb')
+        ->and(themeVariable($css, ':root', 'brand'))->toBe('#2563eb')
+        ->and(themeVariable($css, ':root', 'focus'))->toBe('#2563eb')
+        ->and(themeVariable($css, ':root', 'ring'))->toBe('oklch(0.64 0 0)')
+        ->and(themeVariable($css, '.dark', 'ring'))->toBe('oklch(0.556 0 0)')
+        ->and(themeVariable($css, ':root', 'chart-1'))->toBe('oklch(0.646 0.222 41.116)')
+        ->and(themeVariable($css, ':root', 'link'))->toBe('oklch(0.488 0.243 264.376)')
+        ->and(themeVariable($css, '.dark', 'link'))->toBe('oklch(0.707 0.165 254.624)')
+        ->and(themeVariable($css, ':root', 'sidebar-accent'))->toBe('oklch(0.97 0 0)')
+        ->and(themeVariable($css, ':root', 'sidebar-hover'))->toBe('oklch(0.97 0 0)')
+        ->and(themeVariable($css, ':root', 'background'))->toBe('oklch(1 0 0)')
+        ->and(themeVariable($css, ':root', 'primary-subtle'))->toBe('color-mix(in oklch, #2563eb 14%, var(--background))');
 
-    // The tint follows the dark background, so the text gets a dark value of its own:
-    // the tint there is color-mix(in oklch, #2563eb 14%, oklch(0.165 0.006 60)).
+    // The tints, worked out by hand: color-mix(in oklch, #2563eb 14%, <background>) on white
+    // and on oklch(0.145 0 0). A single colour shows in dark mode too, so the text gets a dark value.
     expect(themeVariable($css, '.dark', 'primary'))->toBeNull()
-        ->and(Contrast::ratio((string) themeVariable($css, '.dark', 'primary-subtle-foreground'), 'oklch(0.2184 0.0353 38.00)'))->toBeGreaterThanOrEqual(4.5);
+        ->and(Contrast::ratio((string) themeVariable($css, ':root', 'primary-subtle-foreground'), 'oklch(0.9365 0.0301 262.88)'))->toBeGreaterThanOrEqual(4.5)
+        ->and(Contrast::ratio((string) themeVariable($css, '.dark', 'primary-subtle-foreground'), 'oklch(0.2012 0.0301 262.88)'))->toBeGreaterThanOrEqual(4.5)
+        ->and(Contrast::ratio((string) themeVariable($css, '.dark', 'brand'), 'oklch(0.145 0 0)'))->toBeGreaterThanOrEqual(3.0);
 
     $light = (new ThemeStyleGenerator)->generate('0.625rem', ['primary' => '#60a5fa']);
 
-    expect(Contrast::ratio('#60a5fa', 'oklch(0.9470 0.0227 45.45)'))->toBeLessThan(4.5)
-        ->and(Contrast::ratio((string) themeVariable($light, ':root', 'primary-subtle-foreground'), 'oklch(0.9470 0.0227 45.45)'))->toBeGreaterThanOrEqual(4.5);
+    expect(Contrast::ratio('#60a5fa', 'oklch(0.9599 0.0201 254.62)'))->toBeLessThan(4.5)
+        ->and(Contrast::ratio((string) themeVariable($light, ':root', 'primary-subtle-foreground'), 'oklch(0.9599 0.0201 254.62)'))->toBeGreaterThanOrEqual(4.5);
 });
 
 it('keeps a new token the app set over the derived one', function () {
@@ -88,23 +116,40 @@ it('keeps a new token the app set over the derived one', function () {
     expect(themeVariable($css, ':root', 'brand'))->toBe('#ff0000')
         ->and(themeVariable($css, ':root', 'focus'))->toBe('#2563eb')
         ->and(themeVariable($css, ':root', 'link'))->toBe('#00ff00')
-        ->and(themeVariable($css, ':root', 'link-hover'))->toBeNull();
+        ->and(themeVariable($css, ':root', 'link-hover'))->toBe('oklch(0.424 0.199 265.638)');
 });
 
-it('derives nothing for an app without colours, so app.css supplies copper', function () {
-    expect((new ThemeStyleGenerator)->generate('0.625rem', []))->toBe(':root{--radius:0.625rem}')
-        ->and((new ThemeStyleGenerator)->generate('0.625rem', ['border' => '#cccccc']))->toBe(':root{--radius:0.625rem;--border:#cccccc}');
+it('writes nothing but the radius for an app without colours, so app.css supplies copper', function () {
+    expect((new ThemeStyleGenerator)->generate('0.625rem', []))->toBe(':root{--radius:0.625rem}');
+
+    $border = (new ThemeStyleGenerator)->generate('0.625rem', ['border' => '#cccccc']);
+
+    expect(themeVariable($border, ':root', 'border'))->toBe('#cccccc')
+        ->and(themeVariable($border, ':root', 'primary'))->toBe('oklch(0.205 0 0)')
+        ->and(themeVariable($border, '.dark', 'primary'))->toBe('oklch(0.922 0 0)');
 });
 
-it('derives a light and a dark value from a light and dark primary', function () {
+it('derives a light and a dark value from a light and dark primary, each readable as a mark', function () {
     $css = (new ThemeStyleGenerator)->generate('0.625rem', ['primary' => ['light' => '#60a5fa', 'dark' => '#2563eb']]);
 
-    // The dark tint mixes into the copper dark background oklch(0.165 0.006 60).
-    expect(themeVariable($css, ':root', 'brand'))->toBe('#60a5fa')
+    // #60a5fa reads 2.5:1 on white, under the 3:1 a mark needs, so the brand bar darkens it.
+    expect(Contrast::ratio('#60a5fa', 'oklch(1 0 0)'))->toBeLessThan(3.0)
+        ->and(Contrast::ratio((string) themeVariable($css, ':root', 'brand'), 'oklch(1 0 0)'))->toBeGreaterThanOrEqual(3.0)
         ->and(themeVariable($css, '.dark', 'brand'))->toBe('#2563eb')
         ->and(themeVariable($css, '.dark', 'primary-subtle'))->toBe('color-mix(in oklch, #2563eb 14%, var(--background))')
-        ->and(Contrast::ratio('#2563eb', 'oklch(0.2184 0.0353 38.00)'))->toBeLessThan(4.5)
-        ->and(Contrast::ratio((string) themeVariable($css, '.dark', 'primary-subtle-foreground'), 'oklch(0.2184 0.0353 38.00)'))->toBeGreaterThanOrEqual(4.5);
+        ->and(Contrast::ratio((string) themeVariable($css, '.dark', 'primary-subtle-foreground'), 'oklch(0.2012 0.0301 262.88)'))->toBeGreaterThanOrEqual(4.5);
+});
+
+it('keeps a preset app link and makes its brand readable in dark mode', function () {
+    // The violet preset of PresetCommandTest: its dark primary reads 2.16:1 on its dark background.
+    $css = (new ThemeStyleGenerator)->generate('0.625rem', [
+        'primary' => ['light' => 'oklch(0.541 0.281 293.009)', 'dark' => 'oklch(0.432 0.232 292.759)'],
+        'background' => ['light' => 'oklch(1 0 0)', 'dark' => 'oklch(0.145 0 0)'],
+    ]);
+
+    expect(Contrast::ratio('oklch(0.432 0.232 292.759)', 'oklch(0.145 0 0)'))->toBeLessThan(3.0)
+        ->and(Contrast::ratio((string) themeVariable($css, '.dark', 'brand'), 'oklch(0.145 0 0)'))->toBeGreaterThanOrEqual(3.0)
+        ->and(themeVariable($css, '.dark', 'link'))->toBe('oklch(0.707 0.165 254.624)');
 });
 
 it('writes the derived tokens into the page style tag', function () {

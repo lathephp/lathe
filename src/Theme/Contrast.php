@@ -87,13 +87,37 @@ class Contrast
         // color-mix() takes the hue of the other colour when one has no chroma, else the shorter way round.
         $hue = $back[1] < 0.0001 ? $front[2] : ($front[1] < 0.0001 ? $back[2] : $front[2] + 0.86 * (fmod($back[2] - $front[2] + 540, 360) - 180));
         $tint = sprintf('oklch(%.4f %.4f %.2f)', 0.14 * $front[0] + 0.86 * $back[0], 0.14 * $front[1] + 0.86 * $back[1], fmod($hue + 360, 360));
+
+        return self::readable($color, $tint);
+    }
+
+    /**
+     * The colour as it is when it reads at the ratio on the ground, else moved in oklch
+     * lightness until it does: darker on a light ground, lighter on a dark one. Null when
+     * either colour is not in a notation above.
+     *
+     * @internal
+     */
+    public static function readable(string $color, string $ground, float $min = 4.5): ?string
+    {
+        $front = self::oklch(strtolower(trim($color)));
+        $back = self::oklch(strtolower(trim($ground)));
+
+        if ($front === null || $back === null) {
+            return null;
+        }
+
+        if ((self::ratio($color, $ground) ?? 0.0) >= $min) {
+            return $color;
+        }
+
         $step = $back[0] > 0.5 ? -0.01 : 0.01;
 
-        for ($i = 0; $i <= 100; $i++) {
+        for ($i = 1; $i <= 100; $i++) {
             $lightness = min(1.0, max(0.0, $front[0] + $i * $step));
             $candidate = sprintf('oklch(%.3f %.3f %.2f)', $lightness, $front[1], $front[2]);
 
-            if (self::ratio($candidate, $tint) >= 4.5 || $lightness <= 0.0 || $lightness >= 1.0) {
+            if (self::ratio($candidate, $ground) >= $min || $lightness <= 0.0 || $lightness >= 1.0) {
                 return $candidate;
             }
         }

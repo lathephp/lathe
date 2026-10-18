@@ -29,6 +29,55 @@ class ThemeStyleGenerator
     ];
 
     /**
+     * The defaults of the 40 tokens before the copper theme, light and dark. An app that sets
+     * any colour keeps its look, so every token it left unset takes the value it had then.
+     *
+     * @var array<string, array{string, string}>
+     */
+    private const array PREVIOUS = [
+        'background' => ['oklch(1 0 0)', 'oklch(0.145 0 0)'],
+        'foreground' => ['oklch(0.145 0 0)', 'oklch(0.985 0 0)'],
+        'card' => ['oklch(1 0 0)', 'oklch(0.205 0 0)'],
+        'card-foreground' => ['oklch(0.145 0 0)', 'oklch(0.985 0 0)'],
+        'popover' => ['oklch(1 0 0)', 'oklch(0.205 0 0)'],
+        'popover-foreground' => ['oklch(0.145 0 0)', 'oklch(0.985 0 0)'],
+        'primary' => ['oklch(0.205 0 0)', 'oklch(0.922 0 0)'],
+        'primary-foreground' => ['oklch(0.985 0 0)', 'oklch(0.205 0 0)'],
+        'secondary' => ['oklch(0.97 0 0)', 'oklch(0.269 0 0)'],
+        'secondary-foreground' => ['oklch(0.205 0 0)', 'oklch(0.985 0 0)'],
+        'muted' => ['oklch(0.97 0 0)', 'oklch(0.269 0 0)'],
+        'muted-foreground' => ['oklch(0.53 0 0)', 'oklch(0.708 0 0)'],
+        'accent' => ['oklch(0.97 0 0)', 'oklch(0.269 0 0)'],
+        'accent-foreground' => ['oklch(0.205 0 0)', 'oklch(0.985 0 0)'],
+        'destructive' => ['oklch(0.577 0.245 27.325)', 'oklch(0.704 0.191 22.216)'],
+        'destructive-foreground' => ['oklch(0.985 0 0)', 'oklch(0.145 0 0)'],
+        'success' => ['oklch(0.527 0.154 150.069)', 'oklch(0.723 0.219 149.579)'],
+        'success-foreground' => ['oklch(0.985 0 0)', 'oklch(0.145 0 0)'],
+        'warning' => ['oklch(0.555 0.163 48.998)', 'oklch(0.828 0.189 84.429)'],
+        'warning-foreground' => ['oklch(0.985 0 0)', 'oklch(0.145 0 0)'],
+        'info' => ['oklch(0.5 0.134 242.749)', 'oklch(0.746 0.16 232.661)'],
+        'info-foreground' => ['oklch(0.985 0 0)', 'oklch(0.145 0 0)'],
+        'border' => ['oklch(0.922 0 0)', 'oklch(1 0 0 / 10%)'],
+        'input' => ['oklch(0.922 0 0)', 'oklch(1 0 0 / 15%)'],
+        'ring' => ['oklch(0.64 0 0)', 'oklch(0.556 0 0)'],
+        'link' => ['oklch(0.488 0.243 264.376)', 'oklch(0.707 0.165 254.624)'],
+        'link-hover' => ['oklch(0.424 0.199 265.638)', 'oklch(0.809 0.105 251.813)'],
+        'chart-1' => ['oklch(0.646 0.222 41.116)', 'oklch(0.54 0.243 264.376)'],
+        'chart-2' => ['oklch(0.6 0.118 184.704)', 'oklch(0.696 0.17 162.48)'],
+        'chart-3' => ['oklch(0.398 0.07 227.392)', 'oklch(0.769 0.188 70.08)'],
+        'chart-4' => ['oklch(0.64 0.15 84.429)', 'oklch(0.627 0.265 303.9)'],
+        'chart-5' => ['oklch(0.64 0.16 70.08)', 'oklch(0.645 0.246 16.439)'],
+        'sidebar' => ['oklch(0.985 0 0)', 'oklch(0.205 0 0)'],
+        'sidebar-foreground' => ['oklch(0.145 0 0)', 'oklch(0.985 0 0)'],
+        'sidebar-primary' => ['oklch(0.205 0 0)', 'oklch(0.488 0.243 264.376)'],
+        'sidebar-primary-foreground' => ['oklch(0.985 0 0)', 'oklch(0.985 0 0)'],
+        'sidebar-accent' => ['oklch(0.97 0 0)', 'oklch(0.269 0 0)'],
+        'sidebar-accent-foreground' => ['oklch(0.205 0 0)', 'oklch(0.985 0 0)'],
+        'sidebar-border' => ['oklch(0.922 0 0)', 'oklch(1 0 0 / 10%)'],
+        'sidebar-ring' => ['oklch(0.708 0 0)', 'oklch(0.556 0 0)'],
+    ];
+
+    /**
      * @param  array<array-key, mixed>  $colors  token => colour, ['light' => ..., 'dark' => ...] or null
      */
     public function generate(string $radius, array $colors): string
@@ -50,7 +99,10 @@ class ThemeStyleGenerator
             }
         }
 
-        $tokens = $set + $this->derive($set);
+        // No colours: the copper of app.css. Any colour: the app's look, the 40 tokens it left
+        // unset at their values before copper, and the new tokens derived from that palette.
+        $base = $set === [] ? [] : $set + self::PREVIOUS;
+        $tokens = $base === [] ? [] : $base + $this->derive($base);
 
         foreach (Color::cases() as $color) {
             if (isset($tokens[$color->value])) {
@@ -67,36 +119,32 @@ class ThemeStyleGenerator
     }
 
     /**
-     * The tokens that follow the app's own colours, so an app with theme.colors does not
-     * wear copper in them. Each one derives only from a token the app set, so an app with
-     * no colours gets the copper values of app.css. A derived value is not checked by
-     * isColor(), because color-mix() fails it, but it only embeds colours that passed.
+     * The new tokens, following the palette of an app that sets its own colours, so it wears
+     * no copper in them. A derived value is not checked by isColor(), because color-mix()
+     * fails it, but it only embeds colours that passed.
      *
      * @param  array<string, array{string, ?string}>  $set  token => [light or only value, dark or null]
      * @return array<string, array{string, ?string}>
      */
     private function derive(array $set): array
     {
-        $copy = fn (string $from, string ...$to): array => isset($set[$from]) ? array_fill_keys($to, $set[$from]) : [];
+        $background = $set['background'];
+        // The brand bar and the focus ring are marks, so each reads at 3:1 on the page in its mode.
+        $mark = $this->map($this->both($set['primary']), fn (string $c, string $mode): string => Contrast::readable($c, $this->ground($background, $mode), 3.0) ?? $c);
         $derived = [
-            ...$copy('primary', 'brand', 'focus'),
-            ...$copy('muted', 'skeleton'),
-            ...$copy('muted-foreground', 'chart-other'),
-            ...$copy(isset($set['sidebar-accent']) ? 'sidebar-accent' : 'accent', 'sidebar-hover'),
+            'brand' => $mark,
+            'focus' => $mark,
+            'skeleton' => $set['muted'],
+            'chart-other' => $set['muted-foreground'],
+            'sidebar-hover' => $set['sidebar-accent'],
         ];
-
-        if (isset($set['primary']) && ! isset($set['link'])) {
-            $derived['link'] = $set['primary'];
-            $derived['link-hover'] = $this->map($set['primary'], fn (string $c): string => "color-mix(in oklch, {$c} 85%, black)");
-        }
 
         foreach (['primary', 'success', 'warning', 'info', 'destructive'] as $name) {
             if (isset($set[$name])) {
                 $derived["{$name}-subtle"] = $this->map($set[$name], fn (string $c): string => "color-mix(in oklch, {$c} 14%, var(--background))");
                 // The text gets a dark value even from a single colour: the tint follows the dark
                 // background, so the light text would be too faint on it.
-                $both = [$set[$name][0], $set[$name][1] ?? $set[$name][0]];
-                $derived["{$name}-subtle-foreground"] = $this->map($both, fn (string $c, string $mode): string => $this->subtleForeground($c, $mode, $set['background'] ?? null));
+                $derived["{$name}-subtle-foreground"] = $this->map($this->both($set[$name]), fn (string $c, string $mode): string => $this->subtleForeground($c, $this->ground($background, $mode), $mode));
             }
         }
 
@@ -114,17 +162,32 @@ class ThemeStyleGenerator
     }
 
     /**
-     * The colour at 4.5:1 on its -subtle tint, worked out here because CSS cannot search
-     * for a contrast. Without an app background the ground is copper's, from resources/css/app.css.
+     * A pair with a dark value: a single colour sits in :root and so shows in dark mode too.
      *
-     * @param  array{string, ?string}|null  $background
+     * @param  array{string, ?string}  $pair
+     * @return array{string, string}
      */
-    private function subtleForeground(string $color, string $mode, ?array $background): string
+    private function both(array $pair): array
     {
-        $ground = $background === null
-            ? ($mode === 'light' ? 'oklch(0.985 0.003 70)' : 'oklch(0.165 0.006 60)')
-            : ($mode === 'light' ? $background[0] : $background[1] ?? $background[0]);
+        return [$pair[0], $pair[1] ?? $pair[0]];
+    }
 
+    /**
+     * The page background in a mode.
+     *
+     * @param  array{string, ?string}  $background
+     */
+    private function ground(array $background, string $mode): string
+    {
+        return $mode === 'light' ? $background[0] : $background[1] ?? $background[0];
+    }
+
+    /**
+     * The colour at 4.5:1 on its -subtle tint, worked out here because CSS cannot search
+     * for a contrast.
+     */
+    private function subtleForeground(string $color, string $ground, string $mode): string
+    {
         // A keyword such as red has no parsed value, so it is mixed toward black or white instead.
         return Contrast::subtleForeground($color, $ground)
             ?? "color-mix(in oklch, {$color} 60%, ".($mode === 'light' ? 'black' : 'white').')';

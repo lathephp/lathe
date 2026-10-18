@@ -320,14 +320,14 @@ The design system tokens:
 - `chart-other`: the "Other" slice of a chart.
 - `sidebar-hover`: a menu item under the pointer.
 
-When you set your own colours, or ran `lathe:preset`, these tokens follow them, so the panel keeps your look and wears no copper:
+When you set any colour of your own, or ran `lathe:preset`, the panel keeps your look and wears no copper. Each of the 40 tokens you did not set keeps the neutral value it had before the copper theme, and the new tokens follow your palette:
 
-- `brand`, `focus` and `link` take `primary`, and `link-hover` is `primary` mixed with 15% black. `link` and `link-hover` follow only when you did not set `link`.
+- `brand` and `focus` take `primary`, made darker or lighter where needed until they read at 3:1 on `background`.
 - Each `-subtle` is a 14% tint of its colour over `background`. Its `-foreground` is the colour, darker on a light background or lighter on a dark one, until it reads at 4.5:1 on the tint.
-- `skeleton` takes `muted`, `chart-other` takes `muted-foreground`, and `sidebar-hover` takes `sidebar-accent`, or `accent` when `sidebar-accent` is not set.
+- `skeleton` takes `muted`, `chart-other` takes `muted-foreground`, and `sidebar-hover` takes `sidebar-accent`.
 - `scrim` keeps its default.
 
-A token follows only a colour you set, and a token you set yourself wins. A colour with a `light` and a `dark` value gives a light and a dark result.
+A token you set yourself wins. A colour with a `light` and a `dark` value gives a light and a dark result.
 
 The panel also defines `shadow-xs`, `shadow-sm`, `shadow-md` and `shadow-lg`, the shadows of buttons, cards, menus and dialogs, which your CSS can read and override.
 
