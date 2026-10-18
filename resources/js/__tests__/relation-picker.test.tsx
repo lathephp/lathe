@@ -4,6 +4,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { registerRelationFields } from '../fields/builtin/relation';
 import { FormField } from '../fields/registry';
 import type { FieldSchema } from '../fields/types';
+import { choose } from './support';
 
 registerRelationFields();
 
@@ -284,7 +285,7 @@ describe('belongsTo relation picker', () => {
     await flush();
 
     expect(urls()).toEqual(['/lathe/api/resources/orders/associatable/customer?q=&page=1']);
-    fireEvent.change(screen.getByLabelText('Customer'), { target: { value: '3' } });
+    await choose(screen.getByLabelText('Customer'), 'Ann Lee');
     expect(onChange).toHaveBeenCalledWith({ value: 3, display: 'Ann Lee' });
   });
 
@@ -292,7 +293,8 @@ describe('belongsTo relation picker', () => {
     server(reply({ items: anns, has_more: true }));
     renderField(schema({ searchable: false }));
 
-    expect(screen.getByLabelText('Customer').tagName).toBe('SELECT');
+    expect(screen.getByLabelText('Customer').getAttribute('role')).toBe('combobox');
+    expect(document.querySelector('select')).toBeNull();
 
     fireEvent.focus(screen.getByLabelText('Customer'));
     await flush();

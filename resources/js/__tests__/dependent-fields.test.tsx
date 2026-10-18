@@ -1,7 +1,7 @@
 import { __panel } from '@lathephp/core';
 import { act, fireEvent, screen } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { renderPage } from './support';
+import { choose, optionLabels, renderPage } from './support';
 
 afterEach(() => {
   vi.restoreAllMocks();
@@ -35,17 +35,18 @@ function renderCustomers() {
   });
 }
 
-const optionTexts = (label: RegExp) => [...screen.getByLabelText<HTMLSelectElement>(label).options].map((option) => option.textContent);
+const optionTexts = (label: RegExp) => optionLabels(screen.getByLabelText(label));
 
 describe('dependent fields', () => {
-  it('takes the State options from the Country value in the browser', () => {
+  it('takes the State options from the Country value in the browser', async () => {
     vi.spyOn(globalThis, 'fetch');
     renderCustomers();
 
-    expect(optionTexts(/State/)).toContain('NY');
-    fireEvent.change(screen.getByLabelText(/Country/), { target: { value: 'BD' } });
-    expect(optionTexts(/State/)).toContain('Dhaka');
-    expect(optionTexts(/State/)).not.toContain('NY');
+    expect(await optionTexts(/State/)).toContain('NY');
+    await choose(screen.getByLabelText(/Country/), 'BD');
+    const states = await optionTexts(/State/);
+    expect(states).toContain('Dhaka');
+    expect(states).not.toContain('NY');
   });
 
   it('asks the server 300 ms after the last change, applies its patches and never overwrites a typed value', async () => {

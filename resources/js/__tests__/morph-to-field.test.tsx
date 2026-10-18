@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { registerRelationFields } from '../fields/builtin/relation';
 import { FormField } from '../fields/registry';
+import { choose, optionLabels } from './support';
 import type { FieldSchema } from '../fields/types';
 
 registerRelationFields();
@@ -96,12 +97,12 @@ describe('morphTo form field', () => {
     const fetch = server();
     render(<Harness field={schema()} onChange={() => undefined} />);
 
-    const type = screen.getByLabelText<HTMLSelectElement>('Commentable');
-    expect([...type.options].map((option) => option.textContent)).toEqual(['—', 'Post', 'Product']);
-    expect(type.value).toBe('');
+    const type = screen.getByLabelText('Commentable');
+    expect(await optionLabels(type)).toEqual(['—', 'Post', 'Product']);
+    expect(type.textContent).toBe('—');
     expect(screen.queryByRole('button', { name: /Select/ })).toBeNull();
 
-    fireEvent.change(type, { target: { value: 'posts' } });
+    await choose(screen.getByLabelText('Commentable'), 'Post');
     await flush();
     expect(fetch).not.toHaveBeenCalled();
 
@@ -116,7 +117,7 @@ describe('morphTo form field', () => {
     const onChange = vi.fn();
     render(<Harness field={schema()} onChange={onChange} />);
 
-    fireEvent.change(screen.getByLabelText('Commentable'), { target: { value: 'posts' } });
+    await choose(screen.getByLabelText('Commentable'), 'Post');
     fireEvent.click(screen.getByRole('button', { name: 'Select Post' }));
     await flush();
     fireEvent.click(screen.getByRole('option', { name: 'Hello world' }));
@@ -124,7 +125,7 @@ describe('morphTo form field', () => {
     expect(onChange).toHaveBeenLastCalledWith({ type: 'posts', id: 7, display: 'Hello world' });
     expect(screen.getByRole('button', { name: 'Hello world' })).toBeDefined();
 
-    fireEvent.change(screen.getByLabelText('Commentable'), { target: { value: 'products' } });
+    await choose(screen.getByLabelText('Commentable'), 'Product');
 
     expect(onChange).toHaveBeenLastCalledWith({ type: 'products', id: null });
     fireEvent.click(screen.getByRole('button', { name: 'Select Product' }));
@@ -138,7 +139,7 @@ describe('morphTo form field', () => {
     const fetch = server();
     render(<Harness field={schema()} onChange={() => undefined} initial={{ type: 'products', id: 3, display: 'Desk lamp', href: '/lathe/resources/products/3' }} />);
 
-    expect(screen.getByLabelText<HTMLSelectElement>('Commentable').value).toBe('products');
+    expect(screen.getByLabelText('Commentable').textContent).toBe('Product');
     fireEvent.click(screen.getByRole('button', { name: 'Desk lamp' }));
     await flush();
 
@@ -149,7 +150,7 @@ describe('morphTo form field', () => {
     server();
     render(<Harness field={schema({ defaultType: 'posts' })} onChange={() => undefined} />);
 
-    expect(screen.getByLabelText<HTMLSelectElement>('Commentable').value).toBe('posts');
+    expect(screen.getByLabelText('Commentable').textContent).toBe('Post');
     expect(screen.getByRole('button', { name: 'Select Post' })).toBeDefined();
   });
 

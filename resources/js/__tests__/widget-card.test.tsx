@@ -5,7 +5,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import { ResourceWidgets } from '../widgets/ResourceWidgets';
 import type { WidgetDescriptor } from '../widgets/types';
 import { WidgetGrid } from '../widgets/WidgetGrid';
-import { renderPage } from './support';
+import { choose, renderPage } from './support';
 
 afterEach(() => {
   vi.restoreAllMocks();
@@ -225,7 +225,7 @@ describe('refresh triggers', () => {
     ];
     renderDashboard([descriptor('orders', { ranges }), descriptor('revenue', { ranges })], { orders: 1, revenue: 2 });
 
-    fireEvent.change(within(card('orders')).getByRole('combobox', { name: 'Range' }), { target: { value: '60' } });
+    await choose(within(card('orders')).getByRole('combobox', { name: 'Range' }), '60 Days');
 
     await waitFor(() => {
       expect(within(card('orders')).getByText('60')).toBeTruthy();

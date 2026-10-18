@@ -26,23 +26,6 @@ export function filterOptions(options: Option[], query: string, keep: string[]):
     : options.filter((option) => keep.includes(option.value) || option.label.toLowerCase().includes(needle));
 }
 
-/** Split a list into runs of the same group, so each run can sit in its own optgroup. */
-export function groupRuns(options: Option[]): { group: string | undefined; options: Option[] }[] {
-  const runs: { group: string | undefined; options: Option[] }[] = [];
-
-  for (const option of options) {
-    const last = runs.at(-1);
-
-    if (last !== undefined && last.group === option.group) {
-      last.options.push(option);
-    } else {
-      runs.push({ group: option.group, options: [option] });
-    }
-  }
-
-  return runs;
-}
-
 /** The label of the option a value picks, or the value itself when none matches. */
 export function labelOf(options: Option[], value: string): string {
   return options.find((option) => option.value === value)?.label ?? value;

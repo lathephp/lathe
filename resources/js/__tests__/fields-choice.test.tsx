@@ -1,8 +1,9 @@
-import { fireEvent, render, screen, within } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { useState } from 'react';
 import { describe, expect, it, vi } from 'vitest';
 import { registries, type FormFieldProps } from '../fields/registry';
 import type { DetailFieldData, FieldSchema, FormFieldData } from '../fields/types';
+import { choose, optionLabels } from './support';
 
 const options = [
   { value: 'a', label: 'Alpha' },
@@ -81,38 +82,68 @@ function renderDetail(component: string, value: unknown, extra: Record<string, u
 const fourValues: unknown[] = [5, 'x', true, null];
 
 describe('select-field', () => {
-  it('shows the label of the selected option and reports a pick', () => {
+  const statuses = [
+    { value: 'pending', label: 'Pending' },
+    { value: 'paid', label: 'Paid' },
+    { value: 'shipped', label: 'Shipped' },
+    { value: 'cancelled', label: 'Cancelled' },
+  ];
+
+  it('opens a list of the four statuses and reports the one picked', async () => {
+    const onChange = vi.fn();
+    const { container } = renderForm('select-field', 'pending', { options: statuses }, onChange);
+    const trigger = screen.getByRole('combobox');
+
+    expect(container.querySelector('select')).toBeNull();
+    expect(trigger.textContent).toBe('Pending');
+    expect(await optionLabels(trigger)).toEqual(['', 'Pending', 'Paid', 'Shipped', 'Cancelled']);
+
+    await choose(screen.getByRole('combobox'), 'Shipped');
+    expect(onChange).toHaveBeenCalledWith('shipped');
+  });
+
+  it('reports null when the empty option is picked', async () => {
     const onChange = vi.fn();
     renderForm('select-field', 'b', {}, onChange);
-    const select = screen.getByRole('combobox');
 
-    expect(select).toHaveProperty('value', 'b');
-    expect(within(select).getByRole('option', { name: 'Beta' })).toHaveProperty('selected', true);
+    expect(screen.getByRole('combobox').textContent).toBe('Beta');
 
-    fireEvent.change(select, { target: { value: 'c' } });
-    expect(onChange).toHaveBeenCalledWith('c');
+    await choose(screen.getByRole('combobox'), '');
+    expect(onChange).toHaveBeenCalledWith(null);
+  });
 
-    fireEvent.change(select, { target: { value: '' } });
-    expect(onChange).toHaveBeenLastCalledWith(null);
+  it('opens from the focused trigger with Enter and closes with Escape', async () => {
+    // A fresh module, so the list has not loaded and the trigger is the first-paint one.
+    vi.resetModules();
+    const { SelectForm: Fresh } = await import('../fields/choice/SelectForms');
+    render(<Fresh {...formProps('select-field', 'pending', { options: statuses })} />);
+    const trigger = screen.getByRole('combobox');
+
+    trigger.focus();
+    fireEvent.keyDown(trigger, { key: 'Enter' });
+    const list = await screen.findByRole('listbox');
+
+    fireEvent.keyDown(list, { key: 'Escape' });
+    await waitFor(() => {
+      expect(screen.queryByRole('listbox')).toBeNull();
+    });
   });
 
   it('opens on the default country with its name selected', () => {
     renderForm('select-field', 'US', { options: [{ value: 'BD', label: 'Bangladesh' }, { value: 'US', label: 'United States' }] });
 
-    const selected = screen.getByRole<HTMLSelectElement>('combobox').selectedOptions[0];
-
-    expect(selected?.textContent).toBe('United States');
+    expect(screen.getByRole('combobox').textContent).toBe('United States');
   });
 
-  it('filters the options with the search box and keeps the selected one', () => {
+  it('filters the options with the search box and keeps the selected one', async () => {
     renderForm('select-field', 'c', { searchable: true });
 
     fireEvent.change(screen.getByRole('searchbox'), { target: { value: 'alp' } });
 
-    expect(screen.getAllByRole('option').map((option) => option.textContent)).toEqual(['', 'Alpha', 'Gamma']);
+    expect(await optionLabels(screen.getByRole('combobox'))).toEqual(['', 'Alpha', 'Gamma']);
   });
 
-  it('groups options by their group', () => {
+  it('groups options by their group', async () => {
     renderForm('select-field', null, {
       options: [
         { value: 'n', label: 'None' },
@@ -120,7 +151,12 @@ describe('select-field', () => {
       ],
     });
 
-    expect(screen.getByRole('group', { name: 'Fruit' })).toBeTruthy();
+    fireEvent.mouseDown(screen.getByRole('combobox'), { button: 0 });
+    await screen.findByRole('listbox');
+
+    const groups = screen.getAllByRole('group');
+    expect(groups).toHaveLength(1);
+    expect(groups[0]?.textContent).toBe('FruitApple');
   });
 
   it('draws the label on index and detail only with displayUsingLabels', () => {
@@ -246,29 +282,68 @@ describe('multi-select-field', () => {
     return <Form {...formProps('multi-select-field', value, extra, setValue)} />;
   }
 
+  it('lists the four statuses and reports a pick with the ones already chosen', async () => {
+    const onChange = vi.fn();
+    const statuses = [
+      { value: 'pending', label: 'Pending' },
+      { value: 'paid', label: 'Paid' },
+      { value: 'shipped', label: 'Shipped' },
+      { value: 'cancelled', label: 'Cancelled' },
+    ];
+    const { container } = renderForm('multi-select-field', ['pending'], { options: statuses }, onChange);
+
+    expect(container.querySelector('select')).toBeNull();
+    expect(await optionLabels(screen.getByRole('combobox'))).toEqual(['Pending', 'Paid', 'Shipped', 'Cancelled']);
+
+    fireEvent.mouseDown(screen.getByRole('combobox'), { button: 0 });
+    const shipped = await screen.findByRole('option', { name: 'Shipped' });
+    await waitFor(() => {
+      fireEvent.click(shipped);
+      expect(onChange).toHaveBeenCalledWith(['pending', 'shipped']);
+    });
+  });
+
+  it('opens from the focused trigger with Enter and closes with Escape', async () => {
+    // A fresh module, so the list has not loaded and the trigger is the first-paint one.
+    vi.resetModules();
+    const { MultiSelectForm: Fresh } = await import('../fields/choice/SelectForms');
+    render(<Fresh {...formProps('multi-select-field', ['a'])} />);
+    const trigger = screen.getByRole('combobox');
+
+    trigger.focus();
+    fireEvent.keyDown(trigger, { key: 'Enter' });
+    const list = await screen.findByRole('listbox');
+
+    fireEvent.keyDown(list, { key: 'Escape' });
+    await waitFor(() => {
+      expect(screen.queryByRole('listbox')).toBeNull();
+    });
+  });
+
   it('multi_select_keeps_selection', () => {
     render(<Harness initial={['a', 'b', 'c']} extra={{ withSelectedTags: true }} />);
 
     fireEvent.click(screen.getByRole('button', { name: 'Remove Beta' }));
 
-    const selected = screen.getAllByRole<HTMLOptionElement>('option').filter((option) => option.selected);
-
-    expect(selected.map((option) => option.textContent)).toEqual(['Alpha', 'Gamma']);
+    expect(screen.getByRole('combobox').textContent).toBe('Alpha, Gamma');
     expect(screen.getByRole('button', { name: 'Remove Alpha' })).toBeTruthy();
     expect(screen.getByRole('button', { name: 'Remove Gamma' })).toBeTruthy();
     expect(screen.queryByRole('button', { name: 'Remove Beta' })).toBeNull();
   });
 
-  it('keeps a selected item while the search hides it', () => {
+  it('keeps a selected item while the search hides it', async () => {
     const onChange = vi.fn();
     renderForm('multi-select-field', ['c'], { searchable: true }, onChange);
 
     fireEvent.change(screen.getByRole('searchbox'), { target: { value: 'alp' } });
-    const alpha = screen.getByRole<HTMLOptionElement>('option', { name: 'Alpha' });
-    alpha.selected = true;
-    fireEvent.change(screen.getByRole('listbox'));
+    fireEvent.mouseDown(screen.getByRole('combobox'), { button: 0 });
+    const alpha = await screen.findByRole('option', { name: 'Alpha' });
+    expect(screen.queryByRole('option', { name: 'Beta' })).toBeNull();
 
-    expect(onChange).toHaveBeenCalledWith(['a', 'c']);
+    await waitFor(() => {
+      fireEvent.click(alpha);
+      expect(onChange).toHaveBeenCalledWith(['c', 'a']);
+    });
   });
 
   it('shows no tags with withSelectedTags false', () => {
@@ -289,6 +364,6 @@ describe('multi-select-field', () => {
     renderIndex('multi-select-field', value);
     renderDetail('multi-select-field', value);
 
-    expect(screen.getByRole('listbox')).toBeTruthy();
+    expect(screen.getByRole('combobox')).toBeTruthy();
   });
 });

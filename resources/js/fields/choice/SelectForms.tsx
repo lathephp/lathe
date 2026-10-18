@@ -1,9 +1,10 @@
 import { useTranslation } from '@lathephp/core';
 import { X } from 'lucide-react';
 import { Suspense, useState, type ComponentType } from 'react';
+import { Select } from '../../components/ui/Select';
 import { lazyNamed } from '../../lib/lazy';
 import { stringValue, type FormFieldProps } from '../registry';
-import { filterOptions, groupRuns, inputClass, labelOf, optionsOf, stringsOf, type Option } from './options';
+import { filterOptions, inputClass, labelOf, optionsOf, stringsOf, type Option } from './options';
 
 /** The options a remote field found on the server, and the search that asks for them. */
 export interface RemoteSource {
@@ -45,27 +46,6 @@ export function SearchBox({ query, onQuery, disabled, onFocus }: { query: string
   );
 }
 
-/** Options as <option> elements, each group in its own <optgroup>. */
-export function OptionElements({ options }: { options: Option[] }) {
-  return groupRuns(options).map((run) =>
-    run.group === undefined ? (
-      run.options.map((option) => (
-        <option key={option.value} value={option.value}>
-          {option.label}
-        </option>
-      ))
-    ) : (
-      <optgroup key={`group:${run.group}`} label={run.group}>
-        {run.options.map((option) => (
-          <option key={option.value} value={option.value}>
-            {option.label}
-          </option>
-        ))}
-      </optgroup>
-    ),
-  );
-}
-
 export function SelectForm(props: FormFieldProps & { remote?: RemoteSource }) {
   const { field, value, onChange, id, describedBy, invalid, disabled, remote } = props;
   const [query, setQuery] = useState('');
@@ -84,23 +64,19 @@ export function SelectForm(props: FormFieldProps & { remote?: RemoteSource }) {
       ) : (
         field.searchable === true && <SearchBox query={query} onQuery={setQuery} disabled={disabled} />
       )}
-      <select
+      <Select
         id={id}
-        name={field.attribute}
         value={current}
+        options={[{ value: '', label: field.placeholder ?? '' }, ...visible]}
         onFocus={remote?.onFocus}
         aria-describedby={describedBy}
         aria-invalid={invalid || undefined}
-        aria-required={field.required === true || undefined}
         disabled={disabled}
-        onChange={(event) => {
-          onChange(event.target.value === '' ? null : event.target.value);
+        onChange={(next) => {
+          onChange(next === '' ? null : next);
         }}
-        className={inputClass}
-      >
-        <option value="">{field.placeholder ?? ''}</option>
-        <OptionElements options={visible} />
-      </select>
+        className="w-full"
+      />
     </div>
   );
 }
@@ -126,23 +102,18 @@ export function MultiSelectForm(props: FormFieldProps & { remote?: RemoteSource 
       ) : (
         field.searchable === true && <SearchBox query={query} onQuery={setQuery} disabled={disabled} />
       )}
-      <select
-        id={id}
-        name={field.attribute}
+      <Select
         multiple
+        id={id}
         value={selected}
+        options={visible}
         onFocus={remote?.onFocus}
         aria-describedby={describedBy}
         aria-invalid={invalid || undefined}
-        aria-required={field.required === true || undefined}
         disabled={disabled}
-        onChange={(event) => {
-          onChange(Array.from(event.target.selectedOptions, (option) => option.value));
-        }}
-        className={`${inputClass} h-auto min-h-24`}
-      >
-        <OptionElements options={visible} />
-      </select>
+        onChange={onChange}
+        className="w-full"
+      />
       {field.withSelectedTags !== false && selected.length > 0 && (
         <ul className="flex flex-wrap gap-1">
           {selected.map((item) => {

@@ -1,8 +1,9 @@
 import { emit } from '@lathephp/core';
-import { act, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
+import { act, render, screen, waitFor, within } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import type { WidgetDescriptor } from '../widgets/types';
 import { WidgetGrid } from '../widgets/WidgetGrid';
+import { choose } from './support';
 
 afterEach(() => {
   vi.restoreAllMocks();
@@ -83,7 +84,7 @@ describe('a card on a filtered Resource page', () => {
     await waitFor(() => {
       expect(urls()).toHaveLength(2);
     });
-    fireEvent.change(within(document.body).getByRole('combobox', { name: 'Range' }), { target: { value: '60' } });
+    await choose(within(document.body).getByRole('combobox', { name: 'Range' }), '60 Days');
     await waitFor(() => {
       expect(urls()).toHaveLength(3);
     });
@@ -113,7 +114,7 @@ describe('a value card', () => {
     await screen.findByText('12');
 
     expect(urls()).toEqual(['/lathe/api/resources/orders/widgets/orders?range=60']);
-    expect(within(document.body).getByRole<HTMLSelectElement>('combobox', { name: 'Range' }).value).toBe('60');
+    expect(within(document.body).getByRole('combobox', { name: 'Range' }).textContent).toBe('60 Days');
   });
 
   it('draws the icon the descriptor names beside the number', async () => {

@@ -1,6 +1,6 @@
 import { act, fireEvent, screen } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { renderPage } from './support';
+import { choose, renderPage } from './support';
 
 afterEach(() => {
   vi.restoreAllMocks();
@@ -96,7 +96,7 @@ describe('relation inline cells', () => {
     });
     renderRows('comments', commentable, { value: { type: 'posts', id: 1, display: 'Hello world', href: '/lathe/resources/posts/1' }, display: 'Hello world' });
 
-    fireEvent.change(screen.getByRole('combobox', { name: 'Commentable' }), { target: { value: 'products' } });
+    await choose(screen.getByRole('combobox', { name: 'Commentable' }), 'Product');
     await flush();
     expect(fetch).not.toHaveBeenCalled();
 

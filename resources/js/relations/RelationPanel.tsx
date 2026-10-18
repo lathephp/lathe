@@ -13,6 +13,7 @@ import type { AvailableFilter } from '../index/types';
 import { applyChanges, type IndexUrlState } from '../index/useIndexState';
 import { useRowSelection } from '../index/useRowSelection';
 import { Modal } from '../components/Modal';
+import { Select } from '../components/ui/Select';
 import { cn } from '../lib/cn';
 import { TableCell } from '../table/cells';
 import { AttachRelationModal } from './AttachRelationModal';
@@ -354,20 +355,15 @@ function PanelBody({ parent, field, bodyId, onToggle }: RelationPanelProps & { b
             <label htmlFor={perPageId} className="text-muted-foreground">
               {__('Per page')}
             </label>
-            <select
+            <Select
               id={perPageId}
-              value={data.perPage}
-              className="h-8 rounded-md border border-border bg-background px-2 outline-none focus-visible:ring-2 focus-visible:ring-ring"
-              onChange={(event) => {
-                change({ per_page: Number(event.target.value) });
+              size="sm"
+              value={String(data.perPage)}
+              options={data.perPageOptions.map((option) => ({ value: String(option), label: String(option) }))}
+              onChange={(option) => {
+                change({ per_page: Number(option) });
               }}
-            >
-              {data.perPageOptions.map((option) => (
-                <option key={option} value={option}>
-                  {option}
-                </option>
-              ))}
-            </select>
+            />
             <Pagination
               type="simple"
               page={data.page}

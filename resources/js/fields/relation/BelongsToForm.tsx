@@ -2,6 +2,7 @@ import { useTranslation } from '@lathephp/core';
 import { Button } from '@lathephp/ui';
 import { Plus } from 'lucide-react';
 import { lazy, Suspense, useEffect, useRef, useState } from 'react';
+import { Select } from '../../components/ui/Select';
 import { inputClass } from '../choice/options';
 import type { FormFieldProps } from '../registry';
 import { isBelongsToValue } from './BelongsToField';
@@ -197,40 +198,38 @@ function RelationSelect({ field, value, onChange, id, describedBy, invalid, disa
   }, [hasMore, onTooMany]);
 
   return (
-    <div>
-      <select
+    // The press that opens the list bubbles here, so the options load as it opens.
+    // eslint-disable-next-line jsx-a11y/no-static-element-interactions -- not a control, it only hears the Select's own press
+    <div
+      onMouseDown={() => {
+        setOpen(true);
+      }}
+    >
+      <Select
         id={id}
-        name={field.attribute}
         value={current}
+        options={[
+          { value: '', label: field.placeholder ?? __('Select :title', { title: label }) },
+          ...(isBelongsToValue(value) && !items.some((item) => String(item.value) === current) ? [{ value: current, label: value.display }] : []),
+          ...items.map((item) => ({ value: String(item.value), label: item.display })),
+        ]}
         aria-describedby={describedBy}
         aria-invalid={invalid || undefined}
-        aria-required={field.required === true || undefined}
         disabled={disabled}
         onFocus={() => {
           setOpen(true);
         }}
-        onMouseDown={() => {
-          setOpen(true);
-        }}
-        onChange={(event) => {
-          const item = items.find((option) => String(option.value) === event.target.value);
+        onChange={(next) => {
+          const item = items.find((option) => String(option.value) === next);
 
-          if (event.target.value === '') {
+          if (next === '') {
             onChange(null);
           } else if (item !== undefined) {
             onChange(picked(item));
           }
         }}
-        className={inputClass}
-      >
-        <option value="">{field.placeholder ?? __('Select :title', { title: label })}</option>
-        {isBelongsToValue(value) && !items.some((item) => String(item.value) === current) && <option value={current}>{value.display}</option>}
-        {items.map((item) => (
-          <option key={item.value} value={String(item.value)}>
-            {item.display}
-          </option>
-        ))}
-      </select>
+        className="w-full"
+      />
       {field.withTrashed === true && <WithTrashedBox checked={withTrashed} onChange={setWithTrashed} />}
     </div>
   );

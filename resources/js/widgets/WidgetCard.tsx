@@ -2,6 +2,7 @@ import { on, request, useTranslation } from '@lathephp/core';
 import { Suspense, useEffect, useEffectEvent, useRef, useState } from 'react';
 import { Button } from '../components/ui/Button';
 import { Card } from '../components/ui/Card';
+import { Select } from '../components/ui/Select';
 import { cn } from '../lib/cn';
 import { HelpTooltip } from './HelpTooltip';
 import { filterParams } from './filterParams';
@@ -162,21 +163,16 @@ export function WidgetCard({ widget, url, params, deferred, register }: WidgetCa
           {widget.help !== null && <HelpTooltip text={widget.help} width={widget.helpWidth} />}
         </div>
         {widget.ranges.length > 0 && (
-          <select
+          <Select
             aria-label={__('Range')}
+            size="sm"
             value={range ?? ''}
-            className="h-7 rounded-md border border-border bg-background px-2 text-xs"
-            onChange={(event) => {
-              setRange(event.target.value);
-              load(event.target.value);
+            options={widget.ranges.map((option) => ({ value: String(option.value), label: option.label }))}
+            onChange={(next) => {
+              setRange(next);
+              load(next);
             }}
-          >
-            {widget.ranges.map((option) => (
-              <option key={option.value} value={String(option.value)}>
-                {option.label}
-              </option>
-            ))}
-          </select>
+          />
         )}
       </div>
       <div className="min-h-0 flex-1">

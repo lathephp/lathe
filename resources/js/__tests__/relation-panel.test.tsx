@@ -3,7 +3,7 @@ import { queryClient } from '@lathephp/core';
 import { act, fireEvent, screen, waitFor, within } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import type { LayoutBlock, PanelBlock, TabGroupBlock } from '../fields/types';
-import { renderPage } from './support';
+import { choose, renderPage } from './support';
 
 afterEach(() => {
   queryClient.clear();
@@ -235,7 +235,7 @@ describe('relation panel', () => {
     renderDetail([relationBlock()]);
     await screen.findByText('Autem blanditiis');
 
-    fireEvent.change(screen.getByRole('combobox', { name: 'Per page' }), { target: { value: '50' } });
+    await choose(screen.getByRole('combobox', { name: 'Per page' }), '50');
 
     await waitFor(() => {
       expect(listCalls(fetch).at(-1)).toBe('/lathe/api/resources/orders/12/items?per_page=50');

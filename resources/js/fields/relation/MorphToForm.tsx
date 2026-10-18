@@ -1,6 +1,6 @@
 import { __panel } from '@lathephp/core';
 import { useSyncExternalStore } from 'react';
-import { inputClass } from '../choice/options';
+import { Select } from '../../components/ui/Select';
 import type { FormFieldProps } from '../registry';
 import { isBelongsToValue } from './BelongsToField';
 import { BelongsToForm } from './BelongsToForm';
@@ -31,26 +31,18 @@ export function MorphToForm(props: FormFieldProps & { record?: LookupRecord }) {
 
   return (
     <div className="space-y-2">
-      <select
+      <Select
         id={id}
-        name={`${field.attribute}_type`}
         value={type}
+        options={[{ value: '', label: '—' }, ...types]}
         aria-describedby={describedBy}
         aria-invalid={invalid || undefined}
-        aria-required={field.required === true || undefined}
         disabled={disabled}
-        onChange={(event) => {
-          onChange(event.target.value === '' ? null : { type: event.target.value, id: null });
+        onChange={(next) => {
+          onChange(next === '' ? null : { type: next, id: null });
         }}
-        className={inputClass}
-      >
-        <option value="">{'—'}</option>
-        {types.map((option) => (
-          <option key={option.value} value={option.value}>
-            {option.label}
-          </option>
-        ))}
-      </select>
+        className="w-full"
+      />
       {chosen !== undefined && (
         <BelongsToForm
           // A new type starts a fresh picker: no search term and no options of the old type.

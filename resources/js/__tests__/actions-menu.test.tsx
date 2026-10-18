@@ -219,7 +219,7 @@ describe('the action modal', () => {
     renderOrders([meta('merge-tags', 'Merge Tags')], rows(1, ['merge-tags']));
     tick(1);
     fireEvent.click(within(await openMenu()).getByRole('menuitem', { name: 'Merge Tags' }));
-    fireEvent.focus(await within(await screen.findByRole('dialog')).findByRole('combobox'));
+    fireEvent.mouseDown(await within(await screen.findByRole('dialog')).findByRole('combobox'), { button: 0 });
 
     expect(await screen.findByRole('option', { name: 'sale' })).toBeTruthy();
     expect(fetch.mock.calls[1]?.[0]).toBe('/lathe/api/resources/orders/action/associatable?action=merge-tags&field=target&q=&page=1');
