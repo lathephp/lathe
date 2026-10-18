@@ -25,7 +25,7 @@ describe('history card', () => {
     render(<HistoryCard uriKey="orders" id={12} onShowAll={() => {}} />);
 
     const items = await screen.findAllByRole('listitem');
-    expect(fetch.mock.calls[0]?.[0]).toBe('/lathe/api/resources/orders/12/history');
+    expect(fetch.mock.calls[0]?.[0]).toBe('/lathe/api/resources/orders/12/history/latest');
     expect(items.map((item) => item.textContent)).toEqual(['Admin User Changed StatusOct 17, 2026, 21:00', 'Admin User CreatedOct 17, 2026, 09:00']);
     expect(screen.getByRole('heading', { name: 'History' })).toBeDefined();
   });

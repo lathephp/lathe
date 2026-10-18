@@ -20,7 +20,7 @@ export function HistoryCard({ uriKey, id, onShowAll }: { uriKey: string; id: str
   useEffect(() => {
     const abort = new AbortController();
 
-    request<{ events: HistoryEvent[] }>(`${apiPath}/resources/${uriKey}/${String(id)}/history`, { signal: abort.signal, toastOnError: false }).then(
+    request<{ events: HistoryEvent[] }>(`${apiPath}/resources/${uriKey}/${String(id)}/history/latest`, { signal: abort.signal, toastOnError: false }).then(
       (reply) => {
         setEvents(reply?.events ?? []);
       },

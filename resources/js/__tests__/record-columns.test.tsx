@@ -120,7 +120,7 @@ const abilities = { view: true, update: false, delete: false, replicate: false, 
 function answer() {
   return vi.spyOn(globalThis, 'fetch').mockImplementation((input) => {
     const url = typeof input === 'string' ? input : input instanceof URL ? input.href : input.url;
-    const body = url.endsWith('/history')
+    const body = url.endsWith('/history/latest')
       ? { events: [{ id: 1, type: 'update', title: 'Changed Status', user: 'Admin User', at: '2026-10-17T21:00:00Z' }] }
       : url.includes('/relate-authorization')
       ? { items: { add: false, attach: false, attachAny: false } }

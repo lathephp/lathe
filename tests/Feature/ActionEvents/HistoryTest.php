@@ -1,7 +1,9 @@
 <?php
 
+use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Str;
 use Lathe\ActionEvents\ActionEvent;
 use Lathe\ActionEvents\ActionEventPolicy;
@@ -43,7 +45,7 @@ it('lists the newest five events of a record, newest first, with who, what and w
     historyEvent($order, '2026-10-17 20:00:00', ['type' => 'action-ran', 'action_name' => 'Mark Shipped', 'user_id' => $this->admin->id]);
     historyEvent($order, '2026-10-17 21:00:00', ['type' => 'attach', 'user_id' => $this->admin->id]);
 
-    $events = $this->getJson('/lathe/api/resources/orders/12/history')->assertOk()->json('events');
+    $events = $this->getJson('/lathe/api/resources/orders/12/history/latest')->assertOk()->json('events');
 
     expect($events)->toHaveCount(5)
         ->and($events[0])->toMatchArray(['type' => 'attach', 'title' => 'Attached', 'user' => $this->admin->name, 'at' => '2026-10-17T21:00:00Z'])
@@ -57,22 +59,26 @@ it('says Updated when no changed attribute has a field', function () {
     ActionEvent::query()->forActionable($order)->delete();
     historyEvent($order, '2026-10-17 09:00:00', ['changes' => ['updated_at' => '2026-10-17 09:00:00']]);
 
-    expect($this->getJson('/lathe/api/resources/orders/12/history')->json('events.0.title'))->toBe('Updated');
+    expect($this->getJson('/lathe/api/resources/orders/12/history/latest')->json('events.0.title'))->toBe('Updated');
 });
 
 it('answers an empty list for a record with no events', function () {
     $order = Order::query()->findOrFail(12);
     ActionEvent::query()->forActionable($order)->delete();
 
-    $this->getJson('/lathe/api/resources/orders/12/history')->assertOk()->assertExactJson(['events' => []]);
+    $this->getJson('/lathe/api/resources/orders/12/history/latest')->assertOk()->assertExactJson(['events' => []]);
 });
 
 it('answers 403 to a viewer who may not read the action log', function () {
     Gate::policy(ActionEvent::class, ActionEventPolicy::class);
 
-    $this->getJson('/lathe/api/resources/orders/12/history')->assertForbidden();
+    $this->getJson('/lathe/api/resources/orders/12/history/latest')->assertForbidden();
 });
 
 it('answers 404 for a record whose model keeps no action log', function () {
-    $this->getJson('/lathe/api/resources/tags/1/history')->assertNotFound();
+    $this->getJson('/lathe/api/resources/tags/1/history/latest')->assertNotFound();
+});
+
+it('leaves the path of a relation named history to that relation', function () {
+    expect(Route::getRoutes()->match(Request::create('/lathe/api/resources/orders/12/history'))->getName())->toBe('lathe.api.resources.relation.index');
 });
