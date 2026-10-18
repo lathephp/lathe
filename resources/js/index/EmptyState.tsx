@@ -1,7 +1,6 @@
 import { Link } from '@inertiajs/react';
 import { useTranslation } from '@lathephp/core';
 import { Button } from '../components/ui/Button';
-import { Card } from '../components/ui/Card';
 
 interface EmptyStateProps {
   label: string;
@@ -27,15 +26,15 @@ export function EmptyState({ label, filtered, createHref, onClear }: EmptyStateP
 
   if (!filtered) {
     return (
-      <Card className="space-y-4 p-12 text-center text-sm text-muted-foreground">
+      <div className="space-y-4 p-12 text-center text-sm text-muted-foreground">
         <p>{__('No :resource yet', { resource: label.toLowerCase() })}</p>
         {create}
-      </Card>
+      </div>
     );
   }
 
   return (
-    <Card className="space-y-4 p-12 text-center text-sm text-muted-foreground">
+    <div className="space-y-4 p-12 text-center text-sm text-muted-foreground">
       <p>{__('No results match your filters')}</p>
       <div className="flex flex-wrap justify-center gap-2">
         <Button variant="outline" onClick={onClear}>
@@ -43,6 +42,6 @@ export function EmptyState({ label, filtered, createHref, onClear }: EmptyStateP
         </Button>
         {create}
       </div>
-    </Card>
+    </div>
   );
 }

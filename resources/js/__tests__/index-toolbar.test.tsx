@@ -274,15 +274,14 @@ describe('filtered empty state', () => {
     expect(screen.queryByRole('button', { name: 'Clear filters' })).toBeNull();
   });
 
-  it('puts the title on a row of its own, with the controls on the row below', () => {
+  it('puts the title on a row of its own above the card, with the controls in the card\'s first row', () => {
     renderOrders();
-    const rows = document.querySelectorAll('[data-lathe-toolbar] > div');
+    const card = document.querySelector('[data-lathe-card]');
+    const toolbar = document.querySelector('[data-lathe-toolbar]');
 
-    // A column, so the controls never share the title's row, however many there are.
-    expect(document.querySelector('[data-lathe-toolbar]')?.className).toContain('flex-col');
-
-    expect(rows).toHaveLength(2);
-    expect(rows[0]?.querySelector('h1')?.textContent).toBe('Orders');
-    expect(rows[1]?.querySelector('input[type="search"]')).toBeTruthy();
+    expect(document.querySelector('[data-lathe-header] h1')?.textContent).toBe('Orders');
+    expect(card?.contains(document.querySelector('[data-lathe-header]'))).toBe(false);
+    expect(toolbar?.parentElement).toBe(card);
+    expect(toolbar?.querySelector('input[type="search"]')).toBeTruthy();
   });
 });

@@ -62,11 +62,11 @@ describe('row selection', () => {
     fireEvent.keyDown(document.body, { key: 'a', ctrlKey: true });
 
     expect(rowBoxes().every((box) => box.checked)).toBe(true);
-    expect(screen.getByText('All 25 rows on this page are selected.')).toBeTruthy();
+    expect(screen.getByText('25 selected')).toBeTruthy();
 
-    fireEvent.click(screen.getByRole('button', { name: 'Select all matching rows (120)' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Select all 120' }));
 
-    expect(screen.getByText('All matching rows selected (120)')).toBeTruthy();
+    expect(screen.getByText('All 120 selected')).toBeTruthy();
   });
 
   it('selects all matching on mod+shift+a, reading the capped count', () => {
@@ -74,12 +74,37 @@ describe('row selection', () => {
 
     fireEvent.keyDown(document.body, { key: 'A', ctrlKey: true, shiftKey: true });
 
-    expect(screen.getByText('All matching rows selected (10,000+)')).toBeTruthy();
+    expect(screen.getByText('All 10,000+ selected')).toBeTruthy();
     expect(rowBoxes().every((box) => box.checked)).toBe(true);
 
     fireEvent.click(screen.getByRole('button', { name: 'Clear' }));
 
     expect(rowBoxes().some((box) => box.checked)).toBe(false);
+  });
+
+  it('swaps the toolbar row for the selection bar in place, so the header row stays put', () => {
+    renderOrders({ value: 10000, exact: true, capped: false, estimated: false });
+    const toolbar = document.querySelector<HTMLElement>('[data-lathe-toolbar]');
+    const card = document.querySelector('[data-lathe-card]');
+    const before = [...(card?.children ?? [])];
+
+    for (const box of rowBoxes().slice(0, 3)) {
+      fireEvent.click(box);
+    }
+
+    const bar = document.querySelector<HTMLElement>('[data-lathe-toolbar]');
+
+    // The same row, so the same height, and nothing new above the table.
+    expect(bar).toBe(toolbar);
+    expect([...(card?.children ?? [])]).toEqual(before);
+    expect(within(bar as HTMLElement).getByText('3 selected')).toBeTruthy();
+    expect(within(bar as HTMLElement).getByRole('button', { name: 'Select all 10,000' })).toBeTruthy();
+    expect(within(bar as HTMLElement).queryByRole('searchbox')).toBeNull();
+
+    fireEvent.click(within(bar as HTMLElement).getByRole('button', { name: 'Clear' }));
+
+    expect(rowBoxes().some((box) => box.checked)).toBe(false);
+    expect(within(bar as HTMLElement).queryByText('3 selected')).toBeNull();
   });
 });
 

@@ -96,32 +96,26 @@ describe('an instant visit from the sidebar', () => {
     expect(requests).toHaveLength(1);
   });
 
-  it('draws the tab band and the action bar only for an index that has them', async () => {
+  it('draws the tab band in the card only for an index that has tabs', async () => {
     clickInSidebar('Orders');
     await act(() => vi.advanceTimersByTimeAsync(110));
-    expect(document.querySelectorAll('[data-skeleton-tabs]')).toHaveLength(1);
-    expect(document.querySelectorAll('[data-skeleton-actions]')).toHaveLength(1);
-    // As tall as the action buttons in whichever kit style the panel uses.
-    expect(document.querySelector('[data-skeleton-actions] > div')?.className).toContain('cn-button-size-sm');
+    expect(document.querySelector('[data-skeleton-tabs]')?.parentElement?.hasAttribute('data-lathe-card')).toBe(true);
   });
 
-  it('lays its header out as the page does: the title on a row, the controls below', async () => {
+  it('lays itself out as the page does: the title above the card, the toolbar row first in it', async () => {
     clickInSidebar('Products');
     await act(() => vi.advanceTimersByTimeAsync(110));
-    const rows = document.querySelectorAll('[data-lathe-toolbar] > div');
+    const toolbar = document.querySelector('[data-lathe-toolbar]');
 
-    // A column, so the controls never share the title's row, however many there are.
-    expect(document.querySelector('[data-lathe-toolbar]')?.className).toContain('flex-col');
-
-    expect(rows).toHaveLength(2);
-    expect(rows[0]?.querySelector('h1')?.textContent).toBe('Products');
+    expect(document.querySelector('[data-lathe-header] h1')?.textContent).toBe('Products');
+    expect(toolbar?.parentElement?.hasAttribute('data-lathe-card')).toBe(true);
+    expect(toolbar?.className).toContain('h-14');
   });
 
   it('leaves out the tab band of an index without tabs', async () => {
     clickInSidebar('Products');
     await act(() => vi.advanceTimersByTimeAsync(110));
     expect(document.querySelectorAll('[data-skeleton-tabs]')).toHaveLength(0);
-    expect(document.querySelectorAll('[data-skeleton-actions]')).toHaveLength(1);
   });
 
   it('puts the rows where the skeleton was when the page arrives', async () => {

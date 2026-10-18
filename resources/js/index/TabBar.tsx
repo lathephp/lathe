@@ -60,6 +60,9 @@ function TabBadge({ text, type, deferred = false, pending = false }: { text: str
   );
 }
 
+/** The tab band at the top of the table card. */
+export const tabBand = 'flex flex-wrap items-center gap-1 border-b border-border px-4 pt-3 pb-2';
+
 const tabClass = (current: boolean) =>
   cn(
     'inline-flex h-8 items-center gap-1.5 rounded-md px-2.5 text-sm font-medium outline-none hover:bg-muted focus-visible:ring-2 focus-visible:ring-ring',
@@ -113,7 +116,7 @@ export function TabBar({ resource, state, visit }: TabBarProps) {
 
   return (
     <div>
-      <nav aria-label={__('Tabs')} className="flex flex-wrap items-center gap-1 border-b border-border pb-2">
+      <nav aria-label={__('Tabs')} className={tabBand}>
         <ul className="flex flex-wrap items-center gap-1">
           {tabs.items.map((tab, index) => (
             <li key={tab.key}>
