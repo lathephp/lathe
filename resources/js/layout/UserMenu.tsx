@@ -43,18 +43,20 @@ export function UserMenu({ user, items, logoutPath, collapsed }: UserMenuProps) 
       }
     };
     // Escape closes the menu wherever the focus is, the trigger included, and hands it back there.
+    // It listens in the capture phase and claims the key, so the phone menu around it stays open.
     const onKeyDown = (event: KeyboardEvent) => {
       if (event.key === 'Escape') {
+        event.preventDefault();
         setOpen(false);
         trigger.current?.focus();
       }
     };
     document.addEventListener('pointerdown', onPointerDown);
-    document.addEventListener('keydown', onKeyDown);
+    document.addEventListener('keydown', onKeyDown, true);
 
     return () => {
       document.removeEventListener('pointerdown', onPointerDown);
-      document.removeEventListener('keydown', onKeyDown);
+      document.removeEventListener('keydown', onKeyDown, true);
     };
   }, [open]);
 

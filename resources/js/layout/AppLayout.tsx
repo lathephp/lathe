@@ -47,8 +47,9 @@ export function AppLayout({ children }: { children: ReactNode }) {
       return undefined;
     }
 
+    // A menu inside the sheet that claimed the key closes first, on its own.
     const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') {
+      if (event.key === 'Escape' && !event.defaultPrevented) {
         closeSheet();
       }
     };

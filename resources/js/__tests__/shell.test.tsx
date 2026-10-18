@@ -159,6 +159,20 @@ describe('sidebar', () => {
     expect(within(sidebar()).getByRole('navigation', { name: 'Main' }).className).toContain('overflow-y-auto');
   });
 
+  it('closes only the user menu on Escape when it is open inside the phone menu', () => {
+    renderPage('Dashboard', dashboard);
+
+    fireEvent.click(screen.getByRole('button', { name: 'Open menu' }));
+    const trigger = within(sidebar()).getByRole('button', { name: /Ada Lovelace/ });
+    fireEvent.click(trigger);
+    trigger.focus();
+    fireEvent.keyDown(trigger, { key: 'Escape' });
+
+    expect(screen.queryByRole('menu', { name: 'User menu' })).toBeNull();
+    expect(sidebar().dataset.mobile).toBe('open');
+    expect(document.activeElement).toBe(trigger);
+  });
+
   it('closes the phone menu with Escape and puts the focus back on Open menu', () => {
     renderPage('Dashboard', dashboard);
     const opener = screen.getByRole('button', { name: 'Open menu' });
