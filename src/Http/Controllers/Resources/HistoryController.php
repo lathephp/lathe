@@ -53,14 +53,15 @@ class HistoryController
     }
 
     /**
-     * @param  array<string, string>  $labels  field labels by attribute
+     * @param  array<string, string>  $labels  field labels by attribute, in field order
      * @return array{id: mixed, type: string, title: string, user: string|null, at: string|null}
      */
     private function describe(ActionEvent $event, array $labels): array
     {
         $name = $event->user?->getAttribute('name');
         $at = $event->getAttribute('created_at');
-        $changed = implode(', ', array_map(fn (string $key) => $labels[$key] ?? $key, array_keys($event->changes ?? [])));
+        // Only attributes a field shows: a timestamp such as updated_at means nothing to staff.
+        $changed = implode(', ', array_values(array_intersect_key($labels, $event->changes ?? [])));
 
         return [
             'id' => $event->getKey(),

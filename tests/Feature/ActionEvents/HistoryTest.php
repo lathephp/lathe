@@ -38,7 +38,7 @@ it('lists the newest five events of a record, newest first, with who, what and w
     ActionEvent::query()->forActionable($order)->delete();
     historyEvent($order, '2026-10-17 09:00:00', ['type' => 'create']);
     foreach (range(1, 4) as $hour) {
-        historyEvent($order, "2026-10-17 1{$hour}:00:00", ['user_id' => $this->admin->id, 'changes' => ['status' => 'paid']]);
+        historyEvent($order, "2026-10-17 1{$hour}:00:00", ['user_id' => $this->admin->id, 'changes' => ['status' => 'paid', 'updated_at' => '2026-10-17 1'.$hour.':00:00']]);
     }
     historyEvent($order, '2026-10-17 20:00:00', ['type' => 'action-ran', 'action_name' => 'Mark Shipped', 'user_id' => $this->admin->id]);
     historyEvent($order, '2026-10-17 21:00:00', ['type' => 'attach', 'user_id' => $this->admin->id]);
@@ -50,6 +50,14 @@ it('lists the newest five events of a record, newest first, with who, what and w
         ->and($events[1])->toMatchArray(['type' => 'action-ran', 'title' => 'Mark Shipped'])
         ->and($events[2])->toMatchArray(['type' => 'update', 'title' => 'Changed Status', 'at' => '2026-10-17T14:00:00Z'])
         ->and(collect($events)->pluck('type')->all())->not->toContain('create');
+});
+
+it('says Updated when no changed attribute has a field', function () {
+    $order = Order::query()->findOrFail(12);
+    ActionEvent::query()->forActionable($order)->delete();
+    historyEvent($order, '2026-10-17 09:00:00', ['changes' => ['updated_at' => '2026-10-17 09:00:00']]);
+
+    expect($this->getJson('/lathe/api/resources/orders/12/history')->json('events.0.title'))->toBe('Updated');
 });
 
 it('answers an empty list for a record with no events', function () {
