@@ -40,8 +40,8 @@ class HistoryController
             $labels[$field->attribute()] = $field->label();
         }
 
-        $events = ActionEvent::query()
-            ->forActionable($model)
+        // The relation Actionable adds, so a host's own action event model is read.
+        $events = $model->morphMany(Lathe::actionEventModel(), 'actionable')
             ->with('user')
             ->latest('created_at')
             ->latest('id')
