@@ -96,6 +96,30 @@ export function RowMenuPanel({ uriKey, row, open, menuId, onClose }: RowMenuPane
     }
   }
 
+  const actions = menuActions(row);
+  const destructive = actions.filter((action) => action === 'delete' || action === 'forceDelete');
+  const safe = actions.filter((action) => action !== 'delete' && action !== 'forceDelete');
+
+  function entry(action: MenuAction) {
+    return isLink(action) ? (
+      <Link key={action} role="menuitem" href={`${basePath}/resources/${uriKey}/${String(row.id)}${links[action]}`} className={itemClass}>
+        {labels[action]}
+      </Link>
+    ) : (
+      <button
+        key={action}
+        type="button"
+        role="menuitem"
+        className={action === 'restore' ? itemClass : `${itemClass} text-destructive`}
+        onClick={() => {
+          choose(action);
+        }}
+      >
+        {labels[action]}
+      </button>
+    );
+  }
+
   return (
     <>
       {open && (
@@ -111,25 +135,7 @@ export function RowMenuPanel({ uriKey, row, open, menuId, onClose }: RowMenuPane
             }
           }}
         >
-          {menuActions(row).map((action) =>
-            isLink(action) ? (
-              <Link key={action} role="menuitem" href={`${basePath}/resources/${uriKey}/${String(row.id)}${links[action]}`} className={itemClass}>
-                {labels[action]}
-              </Link>
-            ) : (
-              <button
-                key={action}
-                type="button"
-                role="menuitem"
-                className={action === 'restore' ? itemClass : `${itemClass} text-destructive`}
-                onClick={() => {
-                  choose(action);
-                }}
-              >
-                {labels[action]}
-              </button>
-            ),
-          )}
+          {safe.map((action) => entry(action))}
           {row.abilities.impersonate === true && (
             <button
               type="button"
@@ -143,6 +149,12 @@ export function RowMenuPanel({ uriKey, row, open, menuId, onClose }: RowMenuPane
               {__('Impersonate')}
             </button>
           )}
+          {/* The row's inline actions portal in here, so Delete stays the menu's last entry. */}
+          <div ref={setMenu} role="none" />
+          {destructive.length > 0 && (safe.length > 0 || inline || row.abilities.impersonate === true) && (
+            <div role="separator" className="-mx-1 my-1 h-px bg-border" />
+          )}
+          {destructive.map((action) => entry(action))}
         </div>
       )}
       {confirming !== null && (

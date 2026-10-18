@@ -1,6 +1,6 @@
 import { useTranslation } from '@lathephp/core';
-import { router, usePage } from '@inertiajs/react';
-import { ArrowDown, ArrowUp, Eye } from 'lucide-react';
+import { Link, router, usePage } from '@inertiajs/react';
+import { ArrowDown, ArrowUp, ArrowUpRight, Eye, Pencil } from 'lucide-react';
 import { Fragment, Suspense, useRef, useState, type MouseEvent } from 'react';
 import type { FieldSchema } from '../fields/types';
 import { PreviewModal } from '../fields/relation/lazy';
@@ -24,6 +24,10 @@ export const rowHeights = { compact: 'h-8', comfortable: 'h-10', spacious: 'h-12
 // Under 768 px the table scrolls inside its card; the checkbox and the first column stay as the row's anchor.
 const checkboxColumn = 'sticky start-0 w-10 bg-background px-3';
 const firstColumn = 'sticky start-10 bg-background';
+
+// View and Edit sit in the DOM at rest so the cell keeps its width; the row's hover or focus shows them.
+const rowLink =
+  'rounded-sm p-1 text-muted-foreground opacity-0 outline-none group-hover:opacity-100 group-focus-within:opacity-100 hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring';
 
 // A click on these does its own thing, never the row's click action.
 const ownClick = 'a, button, input, label, select, [data-row-menu], [data-inline-cell]';
@@ -95,7 +99,7 @@ export function ResourceTable({ resource, table, state, loading, selection, sort
   );
   const border = showColumnBorders && 'border-e border-border last:border-e-0';
   const previews = resource.preview === true;
-  const withMenu = previews || table.rows.some((row) => hasRowMenu(row));
+  const withMenu = previews || table.rows.some((row) => hasRowMenu(row) || row.abilities.view === true || row.abilities.update === true);
   // The row whose preview modal is open.
   const [previewing, setPreviewing] = useState<Row['id'] | null>(null);
   // Cells and tokens an inline save sent back, by row, over the row the page had loaded; a reload's newer row wins.
@@ -268,7 +272,7 @@ export function ResourceTable({ resource, table, state, loading, selection, sort
                     )}
                     {!folded && (
                       <tr
-                        className={cn(rowClass, opens && 'cursor-pointer hover:bg-muted/50')}
+                        className={cn('group', rowClass, opens && 'cursor-pointer hover:bg-muted/50')}
                         onClick={(event) => {
                           clickRow(event, row);
                         }}
@@ -335,6 +339,24 @@ export function ResourceTable({ resource, table, state, loading, selection, sort
                         {withMenu && (
                           <td data-row-menu="" className={cn('px-3', border)}>
                             <div className="flex items-center justify-end gap-1">
+                              {row.abilities.view === true && (
+                                <Link
+                                  href={`${basePath}/resources/${resource.uriKey}/${String(row.id)}`}
+                                  aria-label={__('View :title', { title: row.title })}
+                                  className={rowLink}
+                                >
+                                  <ArrowUpRight aria-hidden="true" className="size-4" />
+                                </Link>
+                              )}
+                              {row.abilities.update === true && (
+                                <Link
+                                  href={`${basePath}/resources/${resource.uriKey}/${String(row.id)}/edit`}
+                                  aria-label={__('Edit :title', { title: row.title })}
+                                  className={rowLink}
+                                >
+                                  <Pencil aria-hidden="true" className="size-4" />
+                                </Link>
+                              )}
                               {previews && row.abilities.view === true && (
                                 <button
                                   type="button"

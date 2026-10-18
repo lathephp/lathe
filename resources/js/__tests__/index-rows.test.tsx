@@ -214,12 +214,55 @@ describe('row selection', () => {
   });
 });
 
-describe('row menu', () => {
-  function menuItems(title: string): string[] {
-    fireEvent.click(screen.getByRole('button', { name: `Actions for ${title}` }));
+function menuItems(title: string): string[] {
+  fireEvent.click(screen.getByRole('button', { name: `Actions for ${title}` }));
 
-    return screen.getAllByRole('menuitem').map((item) => item.textContent);
-  }
+  return screen.getAllByRole('menuitem').map((item) => item.textContent);
+}
+
+describe('row hover actions', () => {
+  it('shows View and Edit links that appear on row hover or focus', () => {
+    renderOrders({ rows: [row(1, { view: true, update: true })] });
+
+    const view = screen.getByRole('link', { name: 'View ORD-00001' });
+    const edit = screen.getByRole('link', { name: 'Edit ORD-00001' });
+
+    expect(view.getAttribute('href')).toBe('/lathe/resources/orders/1');
+    expect(edit.getAttribute('href')).toBe('/lathe/resources/orders/1/edit');
+    for (const link of [view, edit]) {
+      expect(link.className).toContain('opacity-0');
+      expect(link.className).toContain('group-hover:opacity-100');
+      expect(link.className).toContain('group-focus-within:opacity-100');
+    }
+  });
+
+  it('leaves out Edit on a row the user may not update', () => {
+    renderOrders({ rows: [row(1, { view: true })] });
+
+    expect(screen.getByRole('link', { name: 'View ORD-00001' })).toBeTruthy();
+    expect(screen.queryByRole('link', { name: 'Edit ORD-00001' })).toBeNull();
+  });
+
+  it('visits once when View is clicked, not again through the row', () => {
+    const visit = vi.spyOn(router, 'visit').mockImplementation(() => undefined);
+    renderOrders({ rows: [row(1, { view: true, update: true })] });
+
+    fireEvent.click(screen.getByRole('link', { name: 'View ORD-00001' }));
+
+    expect(visit).toHaveBeenCalledTimes(1);
+    expect(visit.mock.calls[0]?.[0]).toBe('/lathe/resources/orders/1');
+  });
+
+  it('ends the row menu with Delete after a separator, below Impersonate', () => {
+    renderOrders({ rows: [row(1, { view: true, update: true, delete: true, impersonate: true })] });
+
+    expect(menuItems('ORD-00001')).toEqual(['View', 'Edit', 'Impersonate', 'Delete']);
+    const delet = screen.getByRole('menuitem', { name: 'Delete' });
+    expect(delet.previousElementSibling?.getAttribute('role')).toBe('separator');
+  });
+});
+
+describe('row menu', () => {
 
   it('offers Delete on a live row the user may delete', () => {
     renderOrders({ rows: [row(1, { view: true, delete: true, restore: true, forceDelete: true }, false)] });
