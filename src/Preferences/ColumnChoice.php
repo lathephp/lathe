@@ -17,7 +17,7 @@ class ColumnChoice
     }
 
     /**
-     * The choice with only the code's keys, each once. Code keys neither ordered nor hidden join the end of the order.
+     * The choice with only the code's keys, each once. Code keys the order lacks join its end.
      *
      * @param  list<string>  $codeKeys
      * @param  array<array-key, mixed>  $choice
@@ -29,7 +29,8 @@ class ColumnChoice
         $hidden = self::known($codeKeys, $choice['hidden'] ?? []);
 
         return [
-            'order' => [...$order, ...array_values(array_diff($codeKeys, $order, $hidden))],
+            // Every code column has a place in the order, the hidden ones too, so the picker lists them all.
+            'order' => [...$order, ...array_values(array_diff($codeKeys, $order))],
             'hidden' => $hidden,
             'pinned' => self::known($codeKeys, $choice['pinned'] ?? []),
         ];

@@ -49,8 +49,15 @@ it('drops unknown keys, duplicates and items that are not strings', function () 
     $choice = ['order' => ['status', 'status', 'nope', 7, 'number'], 'hidden' => ['nope', 'customer', 'customer'], 'pinned' => ['total_cents', 'total_cents', 'nope']];
 
     expect(ColumnChoice::age(ORDER_COLUMNS, $choice))->toBe([
-        'order' => ['status', 'number', 'total_cents', 'placed_at'],
+        'order' => ['status', 'number', 'customer', 'total_cents', 'placed_at'],
         'hidden' => ['customer'],
         'pinned' => ['total_cents'],
     ]);
+});
+
+it('keeps a hidden column in the order, so the picker can show it again', function () {
+    $aged = ColumnChoice::age(ORDER_COLUMNS, ['order' => [], 'hidden' => ['customer'], 'pinned' => []]);
+
+    expect($aged['order'])->toBe(ORDER_COLUMNS)
+        ->and(ColumnChoice::visible(ORDER_COLUMNS, $aged))->toBe(['number', 'status', 'total_cents', 'placed_at']);
 });

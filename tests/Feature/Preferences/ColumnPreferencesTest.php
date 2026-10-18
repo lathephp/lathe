@@ -63,7 +63,7 @@ it('cleans the saved choice of unknown keys and duplicates', function () {
 
     $this->putJson(COLUMNS_URL, ['order' => ['placed_at', 'nope', 'placed_at', 'number'], 'hidden' => ['status', 'status'], 'pinned' => ['nope']])
         ->assertOk()
-        ->assertExactJson(['order' => ['placed_at', 'number', 'customer', 'total_cents'], 'hidden' => ['status'], 'pinned' => []]);
+        ->assertExactJson(['order' => ['placed_at', 'number', 'customer', 'status', 'total_cents'], 'hidden' => ['status'], 'pinned' => []]);
 
     expect(array_column($this->getJson('/lathe/api/resources/orders')->json('table.columns'), 'key'))->toBe(['placed_at', 'number', 'customer', 'total_cents']);
 });
@@ -106,7 +106,7 @@ it('writes only the signed-in user\'s row', function () {
         [(string) $admin->getKey(), 'columns:orders'],
         [(string) $editor->getKey(), 'columns:orders'],
     ])
-        ->and(keysSorted(UserPreference::where('user_id', (string) $admin->getKey())->sole()->value))->toBe(['hidden' => ['customer'], 'order' => ['number', 'status', 'total_cents', 'placed_at'], 'pinned' => []]);
+        ->and(keysSorted(UserPreference::where('user_id', (string) $admin->getKey())->sole()->value))->toBe(['hidden' => ['customer'], 'order' => ['number', 'customer', 'status', 'total_cents', 'placed_at'], 'pinned' => []]);
 
     $this->deleteJson(COLUMNS_URL)->assertNoContent();
 

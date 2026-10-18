@@ -28,6 +28,12 @@ it('seeds 10 users, 1,000 customers and 10,000 orders', function () {
         ->and(Order::count())->toBe(10000);
 });
 
+it('seeds the 2,552 paid orders the tables Show path reads', function () {
+    seedDemo();
+
+    expect(Order::where('status', 'paid')->count())->toBe(2552);
+});
+
 it('creates the named users with password and a verified email', function () {
     seedDemo();
 

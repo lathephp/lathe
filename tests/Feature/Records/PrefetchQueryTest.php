@@ -41,5 +41,6 @@ it('runs only the first-page query when an index is prefetched', function () {
     expect($orders)->toHaveCount(1)
         ->and($orders[0])->toStartWith('select ')->and($orders[0])->toContain('limit')
         ->and($countsOnOrders)->toBeEmpty()
-        ->and($sql)->toHaveCount(4);
+        ->and($sql)->toHaveCount(4)
+        ->and(array_filter($sql, fn (string $query) => str_contains($query, '"lathe_user_preferences"')))->toHaveCount(1);
 });
