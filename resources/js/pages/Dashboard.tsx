@@ -38,8 +38,8 @@ interface DashboardProps {
   dashboard: DashboardPayload;
   /** The cards shown, in the user's order and at their saved sizes. */
   widgets: WidgetDescriptor[];
-  /** The cards the user hid. */
-  hiddenWidgets: WidgetDescriptor[];
+  /** The cards the user hid; missing from a page an older build rendered. */
+  hiddenWidgets?: WidgetDescriptor[];
 }
 
 /** An instant visit renders the page with its title alone, then the server's props arrive. */
@@ -47,7 +47,7 @@ export default function Dashboard(props: DashboardProps | { title: string; dashb
   return props.dashboard === undefined ? <DashboardSkeleton title={props.title} /> : <DashboardPage {...props} />;
 }
 
-function DashboardPage({ dashboard, widgets, hiddenWidgets }: DashboardProps) {
+function DashboardPage({ dashboard, widgets, hiddenWidgets = [] }: DashboardProps) {
   const { __ } = useTranslation();
   const { apiPath } = useLathe();
   const page = usePage();
@@ -120,7 +120,7 @@ function DashboardPage({ dashboard, widgets, hiddenWidgets }: DashboardProps) {
           </>
         )}
         {/* A user who hid every card still has a saved layout, and Customize to undo it. */}
-        {draft === null && dashboard.customizable && (widgets.length > 0 || dashboard.customized) && (
+        {draft === null && dashboard.customizable && (widgets.length > 0 || hiddenWidgets.length > 0 || dashboard.customized) && (
           <Button
             variant="outline"
             onPointerEnter={() => {
@@ -167,7 +167,12 @@ function DashboardPage({ dashboard, widgets, hiddenWidgets }: DashboardProps) {
           )}
         </div>
       )}
-      {shown.length === 0 && draft === null && (
+      {shown.length === 0 && draft === null && hiddenWidgets.length > 0 && (
+        <Card className="p-12 text-center text-sm text-muted-foreground">
+          <p>{__('Every widget on this dashboard is hidden. Press Customize to add them back.')}</p>
+        </Card>
+      )}
+      {shown.length === 0 && draft === null && hiddenWidgets.length === 0 && (
         <Card className="space-y-3 p-12 text-center text-sm text-muted-foreground">
           <p>{__('No widgets yet')}</p>
           <p>

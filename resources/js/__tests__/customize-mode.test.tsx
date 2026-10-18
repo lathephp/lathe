@@ -152,3 +152,13 @@ describe('customize mode', () => {
     });
   });
 });
+
+describe('a dashboard whose cards are all hidden', () => {
+  it('says the cards are hidden and points to Customize, not to the developer setup', () => {
+    renderDashboard(true, [], ['orders', 'revenue']);
+
+    expect(screen.getByText('Every widget on this dashboard is hidden. Press Customize to add them back.')).toBeTruthy();
+    expect(screen.queryByText('No widgets yet')).toBeNull();
+    expect(screen.getByRole('button', { name: 'Customize' })).toBeTruthy();
+  });
+});
