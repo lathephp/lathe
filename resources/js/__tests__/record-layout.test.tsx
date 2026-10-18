@@ -1,7 +1,8 @@
 import type { SafeHtml } from '@lathephp/core';
-import { fireEvent, screen, waitFor, within } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import type { LayoutBlock, PanelBlock, TabGroupBlock } from '../fields/types';
+import { RecordLayout } from '../records/RecordLayout';
 import { renderPage } from './support';
 
 afterEach(() => {
@@ -83,12 +84,26 @@ function tabs(attribute: string, queryKey: string, names: string[], overrides: P
   };
 }
 
+// The detail page draws its own two columns, so RecordLayout's detail mode renders on its own here.
 function renderDetail(layout: LayoutBlock[], keys: string[]) {
-  return renderPage('Resources/Detail', {
-    resource,
-    record: { id: 12, title: 'ORD-00012', subtitle: '', avatar: null, fields: keys.map((key) => field(key)), layout, abilities: { view: true, update: false, delete: false, replicate: false, restore: false, forceDelete: false }, trashed: false },
-    breadcrumbs: [],
-  });
+  const byKey = new Map(keys.map((key) => [key, field(key)]));
+
+  return render(
+    <RecordLayout
+      detail
+      blocks={layout}
+      renderField={(key) => {
+        const one = byKey.get(key);
+
+        return one === undefined ? null : (
+          <div>
+            <div>{one.label}</div>
+            <div>{one.display}</div>
+          </div>
+        );
+      }}
+    />,
+  );
 }
 
 function renderForm(layout: LayoutBlock[], keys: string[], borderless = false) {

@@ -131,7 +131,7 @@ describe('field registries', () => {
 });
 
 describe('detail page', () => {
-  it('shows the title, the breadcrumbs, the fields in their panel and Edit only when update is allowed', () => {
+  it('shows the title, the breadcrumbs, the fields in the Details card and Edit only when update is allowed', () => {
     const props = {
       resource: { ...resource, uriKey: 'orders', label: 'Orders', singularLabel: 'Order' },
       record: {
@@ -151,7 +151,7 @@ describe('detail page', () => {
 
     expect(screen.getByRole('heading', { level: 1 }).textContent).toBe('ORD-00012');
     expect(screen.getByRole('navigation', { name: 'Breadcrumb' }).textContent).toBe('Dashboard/Orders/#12');
-    expect(within(screen.getByRole('region', { name: 'Order' })).getByText('paid')).toBeDefined();
+    expect(within(screen.getByRole('region', { name: 'Details' })).getByText('paid')).toBeDefined();
     expect(screen.getByRole('link', { name: 'Edit' }).getAttribute('href')).toBe('/lathe/resources/orders/12/edit');
   });
 

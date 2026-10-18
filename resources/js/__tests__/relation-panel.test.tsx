@@ -54,6 +54,9 @@ function relationBlock(overrides: Record<string, unknown> = {}): LayoutBlock {
   return { type: 'relation-field', key: 'items', field: itemsField(overrides) } as LayoutBlock;
 }
 
+// A second to-many relation, drawn as the first tab so the Items tab starts closed.
+const notesBlock = { type: 'relation-field', key: 'notes', field: itemsField({ key: 'notes', attribute: 'notes', label: 'Notes', relationship: 'notes' }) } as LayoutBlock;
+
 const billing: PanelBlock = {
   type: 'panel',
   attribute: 'billing-fields',
@@ -157,23 +160,23 @@ describe('relation panel', () => {
 
   it('waits for its tab to open before it loads', async () => {
     const fetch = answer();
-    renderDetail([inTabs(relationBlock())]);
+    renderDetail([notesBlock, inTabs(relationBlock())]);
     await settle();
 
     expect(listCalls(fetch)).toEqual([]);
 
     fireEvent.click(screen.getByRole('tab', { name: 'Items' }));
 
-    expect(await screen.findByText('Autem blanditiis')).toBeTruthy();
+    expect(await within(screen.getByRole('tabpanel', { name: 'Items' })).findByText('Autem blanditiis')).toBeTruthy();
     expect(listCalls(fetch)).toEqual(['/lathe/api/resources/orders/12/items']);
   });
 
   it('loads at once when the URL opens its tab', async () => {
     window.history.replaceState(null, '', '/lathe/resources/orders/12?tab=items');
     const fetch = answer();
-    renderDetail([inTabs(relationBlock())]);
+    renderDetail([notesBlock, inTabs(relationBlock())]);
 
-    expect(await screen.findByText('Autem blanditiis')).toBeTruthy();
+    expect(await within(screen.getByRole('tabpanel', { name: 'Items' })).findByText('Autem blanditiis')).toBeTruthy();
     expect(listCalls(fetch)).toEqual(['/lathe/api/resources/orders/12/items']);
   });
 
@@ -182,10 +185,10 @@ describe('relation panel', () => {
     const fetch = answer();
     const group = inTabs(relationBlock()) as TabGroupBlock;
     group.tabs = group.tabs.map((tab) => (tab.attribute === 'items' ? { ...tab, attribute: 'order-lines', label: 'Order lines' } : tab));
-    renderDetail([group]);
+    renderDetail([notesBlock, group]);
 
-    expect(await screen.findByText('Autem blanditiis')).toBeTruthy();
-    expect(screen.getByRole('tab', { name: 'Order lines' }).getAttribute('aria-selected')).toBe('true');
+    expect(await within(screen.getByRole('tabpanel', { name: 'Items' })).findByText('Autem blanditiis')).toBeTruthy();
+    expect(screen.getByRole('tab', { name: 'Items' }).getAttribute('aria-selected')).toBe('true');
     expect(listCalls(fetch)).toEqual(['/lathe/api/resources/orders/12/items']);
   });
 
@@ -242,16 +245,16 @@ describe('relation panel', () => {
     });
   });
 
-  it('loads a collapsed panel only once it is unfolded', async () => {
+  it('loads a collapsed panel only once its tab opens, and shows it open there', async () => {
     const fetch = answer();
-    renderDetail([relationBlock({ collapsible: true, collapsed: true })]);
+    renderDetail([notesBlock, relationBlock({ collapsible: true, collapsed: true })]);
     await settle();
 
     expect(listCalls(fetch)).toEqual([]);
 
-    fireEvent.click(screen.getByRole('button', { name: 'Items' }));
+    fireEvent.click(screen.getByRole('tab', { name: 'Items' }));
 
-    expect(await screen.findByText('Autem blanditiis')).toBeTruthy();
+    expect(await within(screen.getByRole('tabpanel', { name: 'Items' })).findByText('Autem blanditiis')).toBeTruthy();
     expect(listCalls(fetch)).toEqual(['/lathe/api/resources/orders/12/items']);
   });
 

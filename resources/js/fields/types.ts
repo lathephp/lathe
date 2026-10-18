@@ -142,6 +142,10 @@ export interface DetailRecord {
   subtitle: string;
   /** The field keys the header shows: a badge beside the title and the meta line. */
   header?: { badge: string | null; meta: string | null };
+  /** The key of the field the title reads, which the Details card leaves out; null for a computed title. */
+  titleKey?: string | null;
+  /** The related count of each withCount relation field, by field key. */
+  counts?: Record<string, number>;
   avatar: { url: string | null; initials: string | null; rounded: boolean } | null;
   fields: DetailFieldData[];
   layout: LayoutBlock[];

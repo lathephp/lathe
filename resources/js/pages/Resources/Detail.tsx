@@ -3,12 +3,10 @@ import { lazy, Suspense } from 'react';
 import { useShortcut, useTranslation } from '@lathephp/core';
 import { AfterDelay, skeletonBar } from '../../lib/instant';
 import { Card } from '../../components/ui/Card';
-import { DetailField } from '../../fields/registry';
-import type { DetailFieldData, DetailProps } from '../../fields/types';
-import { cn } from '../../lib/cn';
+import type { DetailProps } from '../../fields/types';
 import { Breadcrumbs } from '../../records/Breadcrumbs';
 import { DetailHeader } from '../../records/DetailHeader';
-import { RecordLayout } from '../../records/RecordLayout';
+import { RecordColumns } from '../../records/RecordColumns';
 import type { SharedProps } from '../../types';
 import type { WidgetDescriptor } from '../../widgets/types';
 
@@ -17,7 +15,7 @@ const ResourcePlugins = lazy(() => import('../../records/ResourcePlugins').then(
 // The cards load only when the page lists one.
 const ResourceWidgets = lazy(() => import('../../widgets/ResourceWidgets').then((module) => ({ default: module.ResourceWidgets })));
 
-/** One record: its fields in the Resource's panels, grids and tabs. */
+/** One record: its relations as tabs, its fields in a Details card and its related records in cards. */
 type DetailPageProps = DetailProps & { widgets?: WidgetDescriptor[] };
 
 /** An instant visit renders the page with its title alone, then the server's props arrive. */
@@ -26,10 +24,9 @@ export default function Detail(props: DetailPageProps | { title: string; record?
 }
 
 function DetailPage({ resource, record, breadcrumbs, actions, widgets = [] }: DetailPageProps) {
-  const { id, title, fields, layout, abilities } = record;
+  const { id, title, abilities } = record;
   const { __ } = useTranslation();
   const { basePath } = usePage<SharedProps>().props;
-  const byKey = new Map(fields.map((field) => [field.key, field]));
   const recordPath = `${basePath}/resources/${resource.uriKey}/${String(id)}`;
 
   useShortcut(
@@ -55,17 +52,7 @@ function DetailPage({ resource, record, breadcrumbs, actions, widgets = [] }: De
           <ResourceWidgets widgets={widgets} path={`resources/${resource.uriKey}`} resourceId={String(id)} />
         </Suspense>
       )}
-      <RecordLayout
-        detail
-        parent={{ uriKey: resource.uriKey, id }}
-        blocks={layout}
-        detailFields={byKey}
-        renderField={(key) => {
-          const field = byKey.get(key);
-
-          return field === undefined ? null : <DetailRow field={field} />;
-        }}
-      />
+      <RecordColumns record={record} parent={{ uriKey: resource.uriKey, id }} />
       {record.resourcePlugins !== undefined && record.resourcePlugins.length > 0 ? (
         <Suspense fallback={null}>
           <ResourcePlugins resourceName={resource.uriKey} resourceId={id} plugins={record.resourcePlugins} />
@@ -75,19 +62,16 @@ function DetailPage({ resource, record, breadcrumbs, actions, widgets = [] }: De
   );
 }
 
-function DetailRow({ field }: { field: DetailFieldData }) {
-  return (
-    <div className={cn('gap-2 px-4 py-3 text-sm', field.stacked ? 'flex flex-col' : 'grid md:grid-cols-[minmax(0,1fr)_minmax(0,3fr)]')}>
-      {field.compact ? null : <div className="font-medium text-muted-foreground">{field.label}</div>}
-      <div className={cn('min-w-0 break-words', field.textAlign === 'right' && 'text-end', field.textAlign === 'center' && 'text-center')}>
-        <DetailField field={field} />
-      </div>
-    </div>
-  );
-}
-
-/** The page before its props arrive: its title and three section cards. */
+/** The page before its props arrive: its title, then the two columns of cards the record fills. */
 function RecordSkeleton({ title }: { title: string }) {
+  const card = (
+    <Card data-skeleton-card="" aria-hidden="true" className="space-y-3 p-4">
+      <div className={`h-4 w-32 ${skeletonBar}`} />
+      <div className={`h-3 w-full ${skeletonBar}`} />
+      <div className={`h-3 w-2/3 ${skeletonBar}`} />
+    </Card>
+  );
+
   return (
     <AfterDelay>
       <Head title={title} />
@@ -97,13 +81,16 @@ function RecordSkeleton({ title }: { title: string }) {
           <h1 className="truncate text-xl font-semibold">{title}</h1>
           <div aria-hidden="true" className={`ms-auto h-9 w-40 ${skeletonBar}`} />
         </div>
-        {[0, 1, 2].map((card) => (
-          <Card key={card} data-skeleton-card="" aria-hidden="true" className="space-y-3 p-4">
-            <div className={`h-4 w-32 ${skeletonBar}`} />
-            <div className={`h-3 w-full ${skeletonBar}`} />
-            <div className={`h-3 w-2/3 ${skeletonBar}`} />
-          </Card>
-        ))}
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+          <div className="min-w-0 space-y-6 lg:col-span-2">
+            <div aria-hidden="true" className={`h-9 w-full ${skeletonBar}`} />
+            {card}
+          </div>
+          <div className="min-w-0 space-y-6">
+            {card}
+            {card}
+          </div>
+        </div>
       </div>
     </AfterDelay>
   );
