@@ -13,7 +13,7 @@ interface Action {
   openInNewTab: boolean;
 }
 
-function item(id: string, message: string, extra: { actions?: Action[]; duration?: number | null; readAt?: string | null } = {}) {
+function item(id: string, message: string, extra: { actions?: Action[]; duration?: number | null; readAt?: string | null; createdAt?: string } = {}) {
   return {
     id,
     type: 'App\\Notifications\\Sent',
@@ -24,7 +24,7 @@ function item(id: string, message: string, extra: { actions?: Action[]; duration
     actions: [] as Action[],
     duration: null as number | null,
     readAt: null as string | null,
-    createdAt: '2026-10-14T10:00:00+00:00',
+    createdAt: '2020-10-14T10:00:00+00:00',
     createdAtHuman: '5 minutes ago',
     ...extra,
   };
@@ -103,12 +103,12 @@ beforeAll(async () => {
 });
 
 describe('bell', () => {
-  it('shows a red dot when unread exist', async () => {
+  it('shows a brand dot when unread exist', async () => {
     count = 3;
     mount();
     await settle();
 
-    expect(bell().querySelector('[data-testid="unread-dot"]')).not.toBeNull();
+    expect(bell().querySelector('[data-testid="unread-dot"]')?.className).toContain('bg-brand');
     expect(bell().textContent).toBe('');
   });
 
@@ -128,6 +128,10 @@ describe('bell', () => {
     count = 12;
     await tick(7);
     expect(bell().textContent).toBe('12');
+
+    count = 3;
+    await tick(7);
+    expect(bell().textContent).toBe('3');
   });
 });
 
@@ -241,17 +245,17 @@ describe('panel', () => {
     ]);
   });
 
-  it('disables Mark all read at zero unread and calls it otherwise', async () => {
+  it('disables Mark all as read at zero unread and calls it otherwise', async () => {
     list = [item('b', 'Read one', { readAt: '2026-10-14T10:01:00+00:00' })];
     mount();
     await openPanel();
 
-    expect(screen.getByRole<HTMLButtonElement>('button', { name: 'Mark all read' }).disabled).toBe(true);
+    expect(screen.getByRole<HTMLButtonElement>('button', { name: 'Mark all as read' }).disabled).toBe(true);
     fireEvent.keyDown(document.body, { key: 'n' });
 
     list = [item('a', 'Unread one')];
     await openPanel();
-    const markAll = screen.getByRole<HTMLButtonElement>('button', { name: 'Mark all read' });
+    const markAll = screen.getByRole<HTMLButtonElement>('button', { name: 'Mark all as read' });
     expect(markAll.disabled).toBe(false);
     fireEvent.click(markAll);
     await settle();
@@ -274,7 +278,7 @@ describe('panel', () => {
   });
 });
 
-describe('toast on a rise', () => {
+describe('a new notification', () => {
   it('shows no toast on the first load', async () => {
     count = 4;
     list = [item('a', 'Old')];
@@ -284,29 +288,30 @@ describe('toast on a rise', () => {
     expect(__panel.toasts.get()).toEqual([]);
   });
 
-  it('toasts the newest unread item with its actions and duration', async () => {
+  it('lights the bell and adds no toast', async () => {
+    mount();
+    await settle();
+    count = 1;
+    list = [item('a', 'Export ready', { duration: 9000 })];
+    await tick(7);
+
+    expect(__panel.toasts.get()).toEqual([]);
+    expect(bell().querySelector('[data-testid="unread-dot"]')?.className).toContain('bg-brand');
+  });
+
+  it('shows two notifications from one poll tick, newest first, and no toast', async () => {
     mount();
     await settle();
     count = 2;
     list = [
-      item('b', 'Export ready', {
-        duration: 9000,
-        actions: [{ text: 'Download', url: '/lathe/exports/1', icon: null, style: 'button', openInNewTab: true }],
-      }),
-      item('a', 'Older'),
+      item('b', 'Second', { createdAt: '2020-10-14T10:00:01+00:00' }),
+      item('a', 'First', { createdAt: '2020-10-14T10:00:00+00:00' }),
     ];
     await tick(7);
+    await openPanel();
+    const messages = within(screen.getByRole('dialog')).getAllByText(/^(First|Second)$/);
 
-    expect(__panel.toasts.get()).toMatchObject([
-      { message: 'Export ready', links: [{ label: 'Download', href: '/lathe/exports/1', newTab: true }] },
-    ]);
-    const link = screen.getByRole('link', { name: 'Download' });
-    expect(link.getAttribute('href')).toBe('/lathe/exports/1');
-    expect(link.getAttribute('target')).toBe('_blank');
-
-    await tick(8.9);
-    expect(__panel.toasts.get()).toHaveLength(1);
-    await tick(0.2);
+    expect(messages.map((node) => node.textContent)).toEqual(['Second', 'First']);
     expect(__panel.toasts.get()).toEqual([]);
   });
 
@@ -319,6 +324,63 @@ describe('toast on a rise', () => {
     await tick(7);
 
     expect(__panel.toasts.get()).toEqual([]);
+  });
+});
+
+describe('grouping and buttons', () => {
+  it('lists today under Today and older under Earlier', async () => {
+    list = [item('a', 'Fresh', { createdAt: new Date().toISOString() }), item('b', 'Stale')];
+    count = 2;
+    mount();
+    await openPanel();
+    const panel = within(screen.getByRole('dialog'));
+    const under = (name: string) => within(panel.getByRole('heading', { name }).parentElement as HTMLElement);
+
+    expect(under('Today').getByText('Fresh')).toBeTruthy();
+    expect(under('Today').queryByText('Stale')).toBeNull();
+    expect(under('Earlier').getByText('Stale')).toBeTruthy();
+  });
+
+  it('marks the item read when its Download button is used', async () => {
+    list = [
+      item('a', 'Export ready', {
+        actions: [{ text: 'Download', url: '/lathe/exports/1', icon: null, style: 'button', openInNewTab: true }],
+      }),
+    ];
+    count = 1;
+    mount();
+    await openPanel();
+    calls.length = 0;
+    list = [{ ...(list[0] as ReturnType<typeof item>), readAt: '2026-10-14T10:01:00+00:00' }];
+
+    fireEvent.click(within(screen.getByRole('dialog')).getByRole('link', { name: 'Download' }));
+    await settle();
+
+    expect(calls).toContain('PUT /lathe/api/notifications/a');
+    expect(within(screen.getByRole('dialog')).getByRole('button', { name: 'Mark as unread' })).toBeTruthy();
+  });
+
+  it('clears the dot with Mark all as read', async () => {
+    list = [item('a', 'One')];
+    count = 1;
+    mount();
+    await settle();
+    await openPanel();
+    expect(bell().querySelector('[data-testid="unread-dot"]')).not.toBeNull();
+
+    list = [item('a', 'One', { readAt: '2026-10-14T10:01:00+00:00' })];
+    fireEvent.click(screen.getByRole('button', { name: 'Mark all as read' }));
+    await settle();
+
+    expect(calls).toContain('POST /lathe/api/notifications/mark-all-read');
+    expect(bell().querySelector('[data-testid="unread-dot"]')).toBeNull();
+  });
+
+  it('reads No notifications when empty', async () => {
+    mount();
+    await openPanel();
+
+    expect(within(screen.getByRole('dialog')).getByText('No notifications')).toBeTruthy();
   });
 });
 

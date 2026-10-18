@@ -1,4 +1,4 @@
-import { request, toast } from '@lathephp/core';
+import { request } from '@lathephp/core';
 import { useCallback, useEffect, useRef, useState } from 'react';
 
 export interface NotificationAction {
@@ -18,6 +18,7 @@ export interface NotificationData {
   actions: NotificationAction[];
   duration: number | null;
   readAt: string | null;
+  createdAt: string | null;
   createdAtHuman: string;
 }
 
@@ -28,7 +29,7 @@ interface ListResponse {
 
 /**
  * The unread count, polled while the tab is visible, and the list, loaded when the count
- * rises and when the panel is open. A rise while the panel is closed toasts the newest unread item.
+ * rises and when the panel is open. A rise only lights the bell, it never toasts.
  * The first count only seeds the baseline.
  */
 export function useNotifications(basePath: string, pollingInterval: number, open: boolean) {
@@ -36,12 +37,7 @@ export function useNotifications(basePath: string, pollingInterval: number, open
   const [items, setItems] = useState<NotificationData[]>([]);
   const [unread, setUnread] = useState(0);
   const baseline = useRef<number | null>(null);
-  const isOpen = useRef(open);
   const polling = useRef(false);
-
-  useEffect(() => {
-    isOpen.current = open;
-  }, [open]);
 
   const load = useCallback(async (): Promise<NotificationData[]> => {
     const data = await request<ListResponse>(url, { toastOnError: false });
@@ -73,15 +69,7 @@ export function useNotifications(basePath: string, pollingInterval: number, open
       baseline.current = count;
 
       if (before !== null && count > before) {
-        const list = await load();
-        const newest = list.find((item) => item.readAt === null);
-
-        if (newest !== undefined && !isOpen.current) {
-          toast[newest.notificationType](newest.message, {
-            links: newest.actions.map((action) => ({ label: action.text, href: action.url, newTab: action.openInNewTab })),
-            ...(newest.duration === null ? {} : { duration: newest.duration }),
-          });
-        }
+        await load();
       }
     } catch {
       // The next tick tries again.

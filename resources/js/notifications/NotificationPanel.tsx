@@ -2,17 +2,47 @@ import { useTranslation } from '@lathephp/core';
 import { Button } from '@lathephp/ui';
 import { X } from 'lucide-react';
 import { NotificationItem } from './NotificationItem';
-import type { useNotifications } from './useNotifications';
+import type { NotificationData, useNotifications } from './useNotifications';
+
+function List({ title, rows, state }: { title: string; rows: NotificationData[]; state: Props['state'] }) {
+  if (rows.length === 0) {
+    return null;
+  }
+
+  return (
+    <section>
+      <h3 className="px-4 pt-3 text-xs font-medium text-muted-foreground">{title}</h3>
+      <ul>
+        {rows.map((item) => (
+          <NotificationItem
+            key={item.id}
+            item={item}
+            onRead={() => state.markRead(item.id)}
+            onUnread={() => {
+              void state.markUnread(item.id);
+            }}
+            onDelete={() => {
+              void state.remove(item.id);
+            }}
+          />
+        ))}
+      </ul>
+    </section>
+  );
+}
 
 interface Props {
   state: ReturnType<typeof useNotifications>;
   onClose: () => void;
 }
 
-/** The right-side panel: Mark all read and Delete all above the list, or the empty state. */
+/** The right-side panel: Mark all as read and Delete all above the list, or the empty state. */
 export function NotificationPanel({ state, onClose }: Props) {
   const { __ } = useTranslation();
   const { items, unread } = state;
+  const day = new Date().toDateString();
+  const today = items.filter((item) => item.createdAt !== null && new Date(item.createdAt).toDateString() === day);
+  const earlier = items.filter((item) => !today.includes(item));
 
   return (
     <div
@@ -30,7 +60,7 @@ export function NotificationPanel({ state, onClose }: Props) {
             void state.markAllRead();
           }}
         >
-          {__('Mark all read')}
+          {__('Mark all as read')}
         </Button>
         <Button
           variant="ghost"
@@ -49,23 +79,10 @@ export function NotificationPanel({ state, onClose }: Props) {
       {items.length === 0 ? (
         <p className="p-6 text-center text-sm text-muted-foreground">{__('No notifications')}</p>
       ) : (
-        <ul className="flex-1 overflow-y-auto">
-          {items.map((item) => (
-            <NotificationItem
-              key={item.id}
-              item={item}
-              onRead={() => {
-                void state.markRead(item.id);
-              }}
-              onUnread={() => {
-                void state.markUnread(item.id);
-              }}
-              onDelete={() => {
-                void state.remove(item.id);
-              }}
-            />
-          ))}
-        </ul>
+        <div className="flex-1 overflow-y-auto">
+          <List title={__('Today')} rows={today} state={state} />
+          <List title={__('Earlier')} rows={earlier} state={state} />
+        </div>
       )}
     </div>
   );
