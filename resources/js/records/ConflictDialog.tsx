@@ -21,11 +21,11 @@ export function ConflictDialog({ onRefresh, onOverride, onClose }: ConflictDialo
       <p className="text-sm text-muted-foreground">
         {__('Someone else saved this record after you opened it. Load their version, or save yours over theirs.')}
       </p>
-      <div className="flex justify-end gap-2">
-        <button type="button" className="h-9 rounded-md border border-input px-4 text-sm" onClick={onRefresh}>
+      <div className="flex justify-end gap-2 max-md:flex-col-reverse">
+        <button type="button" className="h-9 rounded-md border border-input px-4 text-sm max-md:h-11" onClick={onRefresh}>
           {__('Load their version')}
         </button>
-        <button type="button" className="h-9 rounded-md bg-destructive px-4 text-sm font-medium text-destructive-foreground" onClick={onOverride}>
+        <button type="button" className="h-9 rounded-md bg-destructive px-4 text-sm font-medium text-destructive-foreground max-md:h-11" onClick={onOverride}>
           {__('Save mine over theirs')}
         </button>
       </div>

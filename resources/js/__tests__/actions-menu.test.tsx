@@ -371,6 +371,29 @@ describe('the action modal', () => {
     expect(__panel.toasts.get()).toEqual([]);
   });
 
+  it('is a bottom sheet on a phone with 44 px buttons, the action on top', async () => {
+    vi.spyOn(globalThis, 'fetch').mockResolvedValueOnce(json({ fields: [], confirmText: 'Cancel order ORD-00001?' }));
+    renderOrders(
+      [meta('cancel-order', 'Cancel order', { destructive: true, confirmButtonText: 'Cancel order', cancelButtonText: 'Keep order', size: 'small' })],
+      rows(1, ['cancel-order']),
+    );
+    tick(1);
+    fireEvent.click(within(await openMenu()).getByRole('menuitem', { name: 'Cancel order' }));
+    const dialog = await screen.findByRole('dialog', { name: 'Cancel order ORD-00001?' });
+
+    // Below md the overlay pins the panel to the bottom edge at full width.
+    expect(dialog.parentElement?.className).toContain('max-md:items-end');
+    expect(dialog.className).toContain('max-md:max-w-none');
+    expect(dialog.className).toContain('max-md:rounded-b-none');
+    const keep = within(dialog).getByRole('button', { name: 'Keep order' });
+    const cancel = within(dialog).getByRole('button', { name: 'Cancel order' });
+    // Keep order comes first in the markup and the column reverses, so Cancel order sits on top.
+    expect(keep.parentElement?.className).toContain('max-md:flex-col-reverse');
+    expect(keep.compareDocumentPosition(cancel) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(keep.className).toContain('max-md:h-11');
+    expect(cancel.className).toContain('max-md:h-11');
+  });
+
   it('titles a form by the action name, 520 px wide', async () => {
     vi.spyOn(globalThis, 'fetch').mockResolvedValueOnce(
       json({ fields: [{ key: 'note', attribute: 'note', label: 'Note', component: 'text-field', value: null, stacked: false, compact: false, help: null, required: true }], confirmText: null }),

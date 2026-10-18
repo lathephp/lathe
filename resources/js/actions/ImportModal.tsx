@@ -326,7 +326,7 @@ export function ImportModal({ base, action, selection, onClose }: ImportModalPro
           </div>
         )}
 
-        <div className="flex justify-end gap-2">
+        <div className="flex justify-end gap-2 max-md:flex-col-reverse">
           <Button type="button" variant="outline" size="sm" onClick={onClose}>
             {action.cancelButtonText}
           </Button>

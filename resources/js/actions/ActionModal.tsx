@@ -1,5 +1,4 @@
 import { ApiError, request, toast, useTranslation } from '@lathephp/core';
-import { Button } from '@lathephp/ui';
 import { useEffect, useId, useState } from 'react';
 import { Modal } from '../components/Modal';
 import { AssociatableEndpoint } from '../fields/relation/useAssociatable';
@@ -143,16 +142,21 @@ export function ActionModal({ base, action, count, resourceId, onClose, onRun }:
             </div>
           </AssociatableEndpoint>
         )}
-        <div className="flex justify-end gap-2">
-          <Button type="button" variant="outline" size="sm" onClick={onClose}>
+        {/* On a phone the buttons stack 44 px tall with the action on top. */}
+        <div className="flex justify-end gap-2 max-md:flex-col-reverse">
+          {/* Plain buttons: the ui Button has no destructive variant, and its size classes win over an override. */}
+          <button
+            type="button"
+            className="inline-flex h-8 items-center justify-center rounded-md border border-input px-3 text-sm font-medium outline-none hover:bg-accent focus-visible:ring-2 focus-visible:ring-ring max-md:h-11"
+            onClick={onClose}
+          >
             {action.cancelButtonText}
-          </Button>
-          {/* The ui Button has no destructive variant, and its classes do not merge with an override. */}
+          </button>
           <button
             type="submit"
             disabled={busy || form === null}
             className={cn(
-              'inline-flex h-8 items-center rounded-md px-3 text-sm font-medium outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:opacity-50',
+              'inline-flex h-8 items-center justify-center rounded-md px-3 text-sm font-medium outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:opacity-50 max-md:h-11',
               action.destructive ? 'bg-destructive text-destructive-foreground hover:bg-destructive/90' : 'bg-primary text-primary-foreground hover:bg-primary/90',
             )}
           >

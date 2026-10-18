@@ -80,17 +80,17 @@ export function ConfirmPasswordForm({ titleId, onDone }: { titleId: string; onDo
         />
         <FieldError id={`${id}-error`} message={error} />
       </div>
-      <div className="flex justify-end gap-2">
+      <div className="flex justify-end gap-2 max-md:flex-col-reverse">
         <button
           type="button"
-          className="h-9 rounded-md px-4 text-sm"
+          className="h-9 rounded-md px-4 text-sm max-md:h-11"
           onClick={() => {
             onDone(false);
           }}
         >
           {__('Cancel')}
         </button>
-        <button type="submit" disabled={busy} className="h-9 rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground disabled:opacity-60">
+        <button type="submit" disabled={busy} className="h-9 rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground disabled:opacity-60 max-md:h-11">
           {__('Confirm')}
         </button>
       </div>

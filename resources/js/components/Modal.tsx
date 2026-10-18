@@ -1,5 +1,6 @@
 import { __panel, pauseShortcuts, resumeShortcuts } from '@lathephp/core';
 import { Suspense, useEffect, useId, useRef, useState, type ReactNode } from 'react';
+import { cn } from '../lib/cn';
 import { lazyNamed } from '../lib/lazy';
 
 // A request that needs the password asks inside the top modal, so two dialogs never stack.
@@ -131,7 +132,7 @@ export function Modal({ labelledBy, onClose, children, className, locked = false
   }, [id]);
 
   return (
-    <div className="fixed inset-0 z-50 flex items-start justify-center p-4 pt-[15vh]">
+    <div className="fixed inset-0 z-50 flex items-start justify-center p-4 pt-[15vh] max-md:items-end max-md:p-0">
       <div
         aria-hidden="true"
         className="absolute inset-0 bg-scrim"
@@ -147,7 +148,8 @@ export function Modal({ labelledBy, onClose, children, className, locked = false
         data-lathe-modal
         aria-modal="true"
         aria-labelledby={asking === null ? labelledBy : `${id}-password`}
-        className={className ?? 'relative w-full max-w-md space-y-4 rounded-lg border border-border bg-background p-4 text-foreground shadow-lg'}
+        // On a phone every modal is a bottom sheet.
+        className={cn(className ?? 'relative w-full max-w-md space-y-4 rounded-lg border border-border bg-background p-4 text-foreground shadow-lg', 'max-md:max-w-none max-md:rounded-t-xl max-md:rounded-b-none')}
       >
         {asking === null ? (
           children

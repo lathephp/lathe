@@ -162,7 +162,7 @@ export function SearchPalette({ basePath, debounce, onClose }: Props) {
   let offset = 0;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-start justify-center p-4 pt-[10vh]">
+    <div className="fixed inset-0 z-50 flex items-start justify-center p-4 pt-[10vh] max-md:p-0">
       <button
         type="button"
         tabIndex={-1}
@@ -177,7 +177,8 @@ export function SearchPalette({ basePath, debounce, onClose }: Props) {
         role="dialog"
         aria-modal="true"
         aria-label={__('Search')}
-        className="relative flex max-h-[70vh] w-full max-w-xl flex-col overflow-hidden rounded-lg border border-border bg-background text-foreground shadow-lg"
+        // On a phone the palette takes the whole screen and closes with Cancel.
+        className="relative flex max-h-[70vh] w-full max-w-[640px] flex-col overflow-hidden rounded-lg border border-border bg-background text-foreground shadow-lg max-md:h-dvh max-md:max-h-none max-md:max-w-none max-md:rounded-none max-md:border-0"
         onKeyDown={onKeyDown}
       >
         <div className="flex items-center gap-2 border-b border-border px-3">
@@ -200,6 +201,9 @@ export function SearchPalette({ basePath, debounce, onClose }: Props) {
               setActive(0);
             }}
           />
+          <button type="button" className="h-11 shrink-0 rounded-md px-2 text-sm font-medium outline-none focus-visible:ring-2 focus-visible:ring-ring md:hidden" onClick={onClose}>
+            {__('Cancel')}
+          </button>
         </div>
         {/* Focusable, so a keyboard user can scroll a long result list. */}
         <div className="overflow-y-auto p-2" role="region" tabIndex={0} aria-label={__('Search results')}>

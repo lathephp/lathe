@@ -344,6 +344,25 @@ describe('keyboard', () => {
   });
 });
 
+describe('on a phone', () => {
+  it('fills the screen below 768 px and closes with Cancel', () => {
+    const { onClose } = renderPalette();
+    const dialog = screen.getByRole('dialog', { name: 'Search' });
+
+    // 640 px on a wider screen; below md the dialog takes the whole viewport.
+    expect(dialog.className).toContain('max-w-[640px]');
+    expect(dialog.className).toContain('max-md:h-dvh');
+    expect(dialog.className).toContain('max-md:max-w-none');
+    expect(dialog.className).toContain('max-md:rounded-none');
+    const cancel = screen.getByRole('button', { name: 'Cancel' });
+    expect(cancel.className).toContain('md:hidden');
+
+    fireEvent.click(cancel);
+
+    expect(onClose).toHaveBeenCalledTimes(1);
+  });
+});
+
 describe('recent searches', () => {
   async function choose(term: string, body: unknown) {
     answer(body);
