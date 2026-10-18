@@ -112,6 +112,25 @@ describe('the delete menu', () => {
     expect(reload).toHaveBeenCalledWith({ only: ['table', 'count', 'tabCounts', 'summaries'] });
   });
 
+  it('focuses the confirm, closes it on Escape and gives the focus back to Delete', async () => {
+    renderPosts([{ id: 1 }, { id: 2 }]);
+    tick(1);
+    const trigger = await screen.findByRole('button', { name: 'Delete' });
+    trigger.focus();
+    fireEvent.click(trigger);
+    const item = screen.getByRole('menuitem', { name: 'Delete Selected' });
+    item.focus();
+    fireEvent.click(item);
+    const dialog = screen.getByRole('alertdialog', { name: 'Delete 1 resource(s)?' });
+
+    expect(dialog.contains(document.activeElement)).toBe(true);
+
+    fireEvent.keyDown(document.activeElement ?? document.body, { key: 'Escape' });
+
+    expect(screen.queryByRole('alertdialog')).toBeNull();
+    expect(document.activeElement).toBe(screen.getByRole('button', { name: 'Delete' }));
+  });
+
   it('toasts a failure with Retry', async () => {
     vi.spyOn(globalThis, 'fetch').mockResolvedValueOnce(json({ message: 'Server Error' }, 500));
     renderPosts([{ id: 1, trashed: true }]);

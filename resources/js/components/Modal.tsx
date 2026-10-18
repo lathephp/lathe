@@ -26,13 +26,15 @@ interface ModalProps {
   className?: string;
   /** While work runs, Escape and the scrim leave the modal open. */
   locked?: boolean;
+  /** alertdialog for a confirm that interrupts, such as a delete. */
+  role?: 'dialog' | 'alertdialog';
 }
 
 /**
  * A modal on the panel's stack: the top one traps focus and closes on Escape unless locked, focus
  * returns to the element that opened it, shortcuts pause and the page stops scrolling while any is open.
  */
-export function Modal({ labelledBy, onClose, children, className, locked = false }: ModalProps) {
+export function Modal({ labelledBy, onClose, children, className, locked = false, role = 'dialog' }: ModalProps) {
   const id = useId();
   const panel = useRef<HTMLDivElement>(null);
   const close = useRef(onClose);
@@ -144,7 +146,7 @@ export function Modal({ labelledBy, onClose, children, className, locked = false
       />
       <div
         ref={panel}
-        role="dialog"
+        role={role}
         data-lathe-modal
         aria-modal="true"
         aria-labelledby={asking === null ? labelledBy : `${id}-password`}

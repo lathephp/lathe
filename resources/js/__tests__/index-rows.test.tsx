@@ -322,6 +322,24 @@ describe('row menu', () => {
     expect(visit).not.toHaveBeenCalled();
   });
 
+  it('focuses the confirm, closes it on Escape and gives the focus back to the row menu button', () => {
+    renderOrders({ rows: [row(12, { view: true, delete: true })] });
+    const trigger = screen.getByRole('button', { name: 'Actions for ORD-00012' });
+    trigger.focus();
+    fireEvent.click(trigger);
+    const item = screen.getByRole('menuitem', { name: 'Delete' });
+    item.focus();
+    fireEvent.click(item);
+    const dialog = screen.getByRole('alertdialog', { name: 'Delete ORD-00012?' });
+
+    expect(dialog.contains(document.activeElement)).toBe(true);
+
+    fireEvent.keyDown(document.activeElement ?? document.body, { key: 'Escape' });
+
+    expect(screen.queryByRole('alertdialog')).toBeNull();
+    expect(document.activeElement).toBe(screen.getByRole('button', { name: 'Actions for ORD-00012' }));
+  });
+
   it('sends nothing when the confirm is cancelled', () => {
     const fetch = vi.spyOn(globalThis, 'fetch');
     renderOrders({ rows: [row(12, { view: true, delete: true })] });
