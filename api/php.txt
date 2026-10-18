@@ -123,7 +123,7 @@ Lathe\Actions\Action::canSeeWhen(string $ability, mixed $arguments = array ( )):
 Lathe\Actions\Action::cancelButtonText(string $text): static
 Lathe\Actions\Action::confirmButtonText(string $text): static
 Lathe\Actions\Action::confirmText(Closure|string $text): static
-Lathe\Actions\Action::confirmTextFor(int $count): ?string
+Lathe\Actions\Action::confirmTextFor(int $count, ?string $title = NULL): ?string
 Lathe\Actions\Action::confirmable(Closure|string $text = ''): static
 Lathe\Actions\Action::danger(string $name, string $message): static  [static]
 Lathe\Actions\Action::deleted(): Lathe\Actions\ActionResult  [static]

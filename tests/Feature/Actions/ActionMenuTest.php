@@ -81,7 +81,7 @@ it('lists the Orders actions in menu order with their metadata', function () {
         ->and(array_column($json['actions'], 'uriKey'))->toBe(['export', 'hold-order', 'mark-shipped', 'cancel-order'])
         ->and($json['actions'][0])->toMatchArray(['name' => 'Export', 'group' => null, 'standalone' => false])
         ->and($json['actions'][2])->toMatchArray(['name' => 'Mark shipped', 'group' => 'Fulfilment', 'destructive' => false, 'confirmText' => 'Mark :count orders as shipped?', 'confirmButtonText' => 'Mark shipped'])
-        ->and($json['actions'][3])->toMatchArray(['name' => 'Cancel order', 'destructive' => true, 'confirmText' => 'Cancel :count order?'])
+        ->and($json['actions'][3])->toMatchArray(['name' => 'Cancel order', 'destructive' => true, 'confirmText' => null])
         ->and($json['actions'][1])->toMatchArray(['name' => 'Hold order', 'sole' => true, 'showOnTableRow' => true])
         ->and($json['actions'][1])->not->toHaveKey('authorizedToRun')
         ->and($json['pivotActions'])->toBe([])
@@ -120,6 +120,21 @@ it('resolves the Mark Shipped form with the count in its confirm text and no ord
         ->and($json['confirmText'])->toBe('Mark 3 orders as shipped?')
         ->and($json['action'])->toMatchArray(['uriKey' => 'mark-shipped', 'group' => 'Fulfilment'])
         ->and(array_values(array_filter($sql, fn (string $query) => str_contains($query, 'orders'))))->toBe([]);
+});
+
+it('names the one record a destructive confirm runs on and counts several', function () {
+    $order = OrderModel::query()->orderBy('id')->firstOrFail();
+
+    $one = $this->getJson("/lathe/api/resources/orders/actions/cancel-order/form?count=1&resourceId={$order->getKey()}")->assertOk()->json();
+    $three = $this->getJson('/lathe/api/resources/orders/actions/cancel-order/form?count=3')->assertOk()->json();
+
+    expect($one['confirmText'])->toBe("Cancel order {$order->number}?")
+        ->and($one['action'])->toMatchArray(['confirmButtonText' => 'Cancel order', 'cancelButtonText' => 'Keep order', 'destructive' => true])
+        ->and($three['confirmText'])->toBe('Cancel 3 orders?');
+});
+
+it('answers 404 for a confirm on a record the detail query cannot find', function () {
+    $this->getJson('/lathe/api/resources/orders/actions/cancel-order/form?count=1&resourceId=999999999')->assertNotFound();
 });
 
 it('sends the action fields with their defaults on the form', function () {

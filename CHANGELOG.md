@@ -23,6 +23,7 @@ All notable changes to Lathe are listed here. The format follows [Keep a Changel
 ### Changed
 
 - [api] An action's dialog is titled by its confirm text, such as "Mark 3 orders as shipped?", or by the action's name when it has none, and its primary button repeats the action's name. Without `size()` a dialog is 400 px for a confirm and 520 px for an action with fields; the metadata's `size` is then `small` or `medium` where it was `2xl`.
+- [api] `:title` in an action's confirm text becomes the record's title when it runs on one record, such as "Cancel order ORD-79186507?": the form route `api/resources/{resource}/actions/{action}/form` takes `resourceId` (404 when the detail query cannot find it) and `Action::confirmTextFor()` takes the title as a second argument. The workbench's Cancel order keeps the order with "Keep order".
 - [api] Changed English strings, for an app that translates the panel: `Run Action` is gone (the primary button shows the action's name).
 - A customizable dashboard has a Customize button. In Customize mode a user moves cards by dragging their handle or with the keyboard, sets a card's size or hides it from its ⋯ menu, adds hidden cards back, then saves the layout for their account, cancels or resets to the default.
 - Each dashboard card has a ⋯ menu with Refresh, Open records when the card links to records the user may list, and Download CSV for chart and table cards.

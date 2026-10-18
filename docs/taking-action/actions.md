@@ -201,7 +201,13 @@ A regular action asks for confirmation only when you say so:
 (new SendBulkEmail)->confirmable(fn (int $count) => "Send to {$count} users?")
 ```
 
-`:count` in a string becomes the number of selected rows. A closure receives the count.
+`:count` in a string becomes the number of selected rows, and `:title` the record's title when the action runs on one record. A closure receives the count, so it can word one record and several apart:
+
+```php
+(new CancelOrder)->confirmText(fn (int $count) => $count === 1 ? 'Cancel order :title?' : 'Cancel :count orders?')
+```
+
+A destructive confirm names its safe button for what it keeps, such as `cancelButtonText('Keep order')`; that button holds the focus when the dialog opens.
 
 | Method | Effect |
 |---|---|

@@ -13,7 +13,9 @@ class CancelOrder extends DestructiveAction
     {
         parent::__construct();
 
-        $this->withName('Cancel order')->confirmText('Cancel :count order?');
+        $this->withName('Cancel order')
+            ->confirmText(fn (int $count) => $count === 1 ? 'Cancel order :title?' : 'Cancel :count orders?')
+            ->cancelButtonText('Keep order');
     }
 
     public function handle(ActionFields $fields, Collection $models): ActionResult

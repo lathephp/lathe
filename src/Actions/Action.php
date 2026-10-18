@@ -496,7 +496,7 @@ class Action implements JsonSerializable
     // Confirmation and modal
 
     /**
-     * @param  string|Closure(int): string  $text  ":count" in a string is the selection size
+     * @param  string|Closure(int): string  $text  ":count" in a string is the selection size, ":title" the record's title on a run on one record
      */
     public function confirmable(string|Closure $text = ''): static
     {
@@ -516,13 +516,18 @@ class Action implements JsonSerializable
     }
 
     /**
-     * The confirmation text for a run on $count rows: ":count" replaced, a closure called with it.
+     * The confirmation text for a run on $count rows: ":count" replaced, a closure called with it,
+     * and ":title" replaced by the record's title when the run is on one record.
      */
-    public function confirmTextFor(int $count): ?string
+    public function confirmTextFor(int $count, ?string $title = null): ?string
     {
         $text = $this->confirmText instanceof Closure ? ($this->confirmText)($count) : $this->confirmText;
 
-        return is_string($text) ? str_replace(':count', number_format($count), $text) : null;
+        if (! is_string($text)) {
+            return null;
+        }
+
+        return str_replace(':count', number_format($count), $title === null ? $text : str_replace(':title', $title, $text));
     }
 
     /**

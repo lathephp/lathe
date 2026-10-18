@@ -120,6 +120,7 @@ export function useActionRunner({ base, onDone }: ActionRunnerOptions): { start:
           base={base}
           action={running.action}
           count={running.count}
+          resourceId={running.selection.mode === 'ids' && running.selection.ids.length === 1 ? (running.selection.ids[0] ?? null) : null}
           onClose={closeRunning}
           onRun={(fields) => execute(running.action, running.selection, fields, true)}
         />

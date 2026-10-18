@@ -19,6 +19,8 @@ interface ActionModalProps {
   base: string;
   action: ActionMeta;
   count: number;
+  /** The record of a run on one record, so the confirm text can name it. */
+  resourceId: string | number | null;
   onClose: () => void;
   /** Runs the action with the form's values; a 422 rejects with its ApiError and the modal shows it. */
   onRun: (fields: Record<string, unknown>) => Promise<void>;
@@ -44,7 +46,7 @@ const sizes: Record<string, string> = {
  * Confirms an action and collects its fields. The fields resolve once per opening; a 422
  * shows its messages under the fields and keeps every value.
  */
-export function ActionModal({ base, action, count, onClose, onRun }: ActionModalProps) {
+export function ActionModal({ base, action, count, resourceId, onClose, onRun }: ActionModalProps) {
   const { __ } = useTranslation();
   const titleId = useId();
   const [form, setForm] = useState<ActionForm | null>(null);
@@ -55,7 +57,9 @@ export function ActionModal({ base, action, count, onClose, onRun }: ActionModal
   useEffect(() => {
     let live = true;
 
-    request<ActionForm>(`${base}/actions/${action.uriKey}/form?count=${String(count)}`, { toastOnError: false })
+    const query = new URLSearchParams({ count: String(count), ...(resourceId === null ? {} : { resourceId: String(resourceId) }) });
+
+    request<ActionForm>(`${base}/actions/${action.uriKey}/form?${query.toString()}`, { toastOnError: false })
       .then((loaded) => {
         if (live && loaded !== null) {
           setForm(loaded);
@@ -72,7 +76,7 @@ export function ActionModal({ base, action, count, onClose, onRun }: ActionModal
     return () => {
       live = false;
     };
-  }, [base, action.uriKey, count, __, onClose]);
+  }, [base, action.uriKey, count, resourceId, __, onClose]);
 
   async function submit() {
     setBusy(true);

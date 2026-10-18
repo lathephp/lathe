@@ -193,6 +193,24 @@ describe('the action modal', () => {
     expect(dialog.className).toContain('max-w-[400px]');
   });
 
+  it('names the one record a destructive confirm runs on and holds the focus on its safe button', async () => {
+    const fetch = vi.spyOn(globalThis, 'fetch').mockResolvedValueOnce(json({ fields: [], confirmText: 'Cancel order ORD-00001?' }));
+    renderOrders(
+      [meta('cancel-order', 'Cancel order', { destructive: true, confirmButtonText: 'Cancel order', cancelButtonText: 'Keep order', size: 'small' })],
+      rows(3, ['cancel-order']),
+    );
+    tick(1);
+    fireEvent.click(within(await openMenu()).getByRole('menuitem', { name: 'Cancel order' }));
+
+    const dialog = await screen.findByRole('dialog', { name: 'Cancel order ORD-00001?' });
+    expect(fetch.mock.calls[0]?.[0]).toBe('/lathe/api/resources/orders/actions/cancel-order/form?count=1&resourceId=1');
+    expect(within(dialog).getAllByRole('button').map((button) => button.textContent)).toEqual(['Keep order', 'Cancel order']);
+    await waitFor(() => {
+      expect(within(dialog).getByRole<HTMLButtonElement>('button', { name: 'Cancel order' }).disabled).toBe(false);
+    });
+    expect(document.activeElement).toBe(within(dialog).getByRole('button', { name: 'Keep order' }));
+  });
+
   it('titles a form by the action name, 520 px wide', async () => {
     vi.spyOn(globalThis, 'fetch').mockResolvedValueOnce(
       json({ fields: [{ key: 'note', attribute: 'note', label: 'Note', component: 'text-field', value: null, stacked: false, compact: false, help: null, required: true }], confirmText: null }),

@@ -37,8 +37,8 @@ class ActionController
     }
 
     /**
-     * The modal of one action: its fields, its confirm text with :count filled in, and its
-     * metadata. 404 for an unknown action, 403 for one canSee hides.
+     * The modal of one action: its fields, its confirm text with :count filled in (and :title
+     * with resourceId), and its metadata. 404 for an unknown action or record, 403 for one canSee hides.
      */
     public function form(LatheRequest $request, ResourceAuthorization $authorization, string $resource, string $action): JsonResponse
     {
@@ -53,13 +53,21 @@ class ActionController
             ->authorized($request);
         $metadata = $found->jsonSerialize();
         $count = $request->query('count');
+        $request->validate(['resourceId' => ['nullable', 'string']]);
+        $resourceId = $request->query('resourceId');
+        $title = null;
+
+        // A run on one record names it, read through the detail query like the menu's record check.
+        if (is_string($resourceId)) {
+            $title = $class::make((new ResourceQuery($class::make(), $request, QueryContext::Detail))->find($resourceId))->title();
+        }
 
         return new JsonResponse([
             'fields' => array_values($fields->map(fn (Field $field) => [
                 ...$field->schema(FieldContext::Create, $request),
                 'value' => $field->resolveDefaultValue($request),
             ])->all()),
-            'confirmText' => is_numeric($count) ? $found->confirmTextFor((int) $count) : $metadata['confirmText'],
+            'confirmText' => is_numeric($count) ? $found->confirmTextFor((int) $count, $title) : $metadata['confirmText'],
             'action' => $metadata,
         ]);
     }
