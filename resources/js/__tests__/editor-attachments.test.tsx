@@ -3,7 +3,7 @@ import { __panel } from '@lathephp/core';
 import { fireEvent, screen, waitFor } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import type { FieldSchema } from '../fields/types';
-import { renderPage } from './support';
+import { pickFile, renderPage } from './support';
 
 const DRAFT = '0b4f1c1e-5d2c-4a52-9c39-0d1e6a3b7f10';
 const URL_STORED = '/storage/pasted.png';
@@ -138,8 +138,10 @@ describe('editor attachments', () => {
     server();
     renderPostForm();
 
-    const input = await screen.findByLabelText<HTMLInputElement>('Upload image');
-    fireEvent.change(input, { target: { files: [png()] } });
+    const input = pickFile(await screen.findByRole('button', { name: 'Upload image' }), png());
+
+    expect(document.body.querySelector('input[type="file"]')).toBeNull();
+    expect(input.accept).toBe('image/png,image/jpeg,image/gif,image/webp');
 
     await waitFor(() => {
       expect(screen.getByRole<HTMLTextAreaElement>('textbox', { name: 'Summary' }).value).toBe(`![pasted.png](${URL_STORED})`);

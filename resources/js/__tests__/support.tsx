@@ -1,6 +1,6 @@
 import { App } from '@inertiajs/react';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
-import { expect } from 'vitest';
+import { expect, vi } from 'vitest';
 import type { ComponentProps, ComponentType } from 'react';
 import { panelLayout } from '../layout/panelLayout';
 import type { SharedProps } from '../types';
@@ -123,4 +123,23 @@ export async function optionLabels(trigger: HTMLElement): Promise<string[]> {
   });
 
   return labels;
+}
+
+/**
+ * Presses a panel file picker and chooses this file in the dialog it opens. The picker makes
+ * its file input in code, so the spy on click catches that input in place of the dialog.
+ */
+export function pickFile(button: HTMLElement, file: File): HTMLInputElement {
+  const click = vi.spyOn(HTMLInputElement.prototype, 'click').mockImplementation(() => undefined);
+  fireEvent.click(button);
+  const input = click.mock.contexts[0] as HTMLInputElement | undefined;
+  click.mockRestore();
+
+  if (input === undefined) {
+    throw new Error('The button opened no file dialog.');
+  }
+
+  fireEvent.change(input, { target: { files: [file] } });
+
+  return input;
 }

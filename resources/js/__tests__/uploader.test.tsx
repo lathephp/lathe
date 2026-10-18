@@ -4,7 +4,7 @@ import { act, fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { FormField } from '../fields/registry';
 import type { FieldSchema } from '../fields/types';
-import { renderPage } from './support';
+import { pickFile, renderPage } from './support';
 
 const MB = 1024 * 1024;
 
@@ -87,8 +87,8 @@ function renderField(field: FieldSchema = schema(), onChange: (value: unknown) =
   );
 }
 
-function choose(file: File) {
-  fireEvent.change(screen.getByLabelText('Avatar'), { target: { files: [file] } });
+function choose(file: File): HTMLInputElement {
+  return pickFile(screen.getByLabelText('Avatar'), file);
 }
 
 function sized(bytes: number, name = 'avatar.png', type = 'image/png', lastModified = 1_700_000_000_000): File {
@@ -107,6 +107,23 @@ afterEach(() => {
 });
 
 describe('chunked uploader', () => {
+  it('picks the file from a button that opens the dialog for the accepted types, with no file input in the page', async () => {
+    const { calls } = server();
+    const onChange = vi.fn();
+    const { container } = renderField(schema(), onChange);
+
+    expect(container.querySelector('input[type="file"]')).toBeNull();
+    expect(screen.getByRole('button', { name: 'Avatar' }).textContent).toBe('Upload');
+
+    const input = choose(sized(10));
+
+    expect(input.accept).toBe('image/png,image/jpeg');
+    await waitFor(() => {
+      expect(onChange).toHaveBeenCalledWith('01UPLOAD');
+    });
+    expect(calls[0]).toEqual({ method: 'POST', url: '/lathe/api/resources/users/uploads/avatar', body: { name: 'avatar.png', size: 10, mime: 'image/png', resource_id: 7 } });
+  });
+
   it('uploads a 3 MB png in chunks, fills the progress bar and sets the upload id', async () => {
     const { calls, chunks } = server();
     const onChange = vi.fn();
@@ -262,10 +279,10 @@ describe('chunked uploader', () => {
     expect(await screen.findByText('File exceeds the 5 MB limit')).toBeTruthy();
   });
 
-  it('disables the file input of a readonly field', () => {
+  it('disables the file button of a readonly field', () => {
     renderField(schema(), () => undefined, null, true);
 
-    expect(screen.getByLabelText<HTMLInputElement>('Avatar').disabled).toBe(true);
+    expect(screen.getByLabelText<HTMLButtonElement>('Avatar').disabled).toBe(true);
   });
 
   it('starts a repeater row upload with its scoped attribute', async () => {
@@ -337,19 +354,17 @@ describe('file sub-fields', () => {
   it('starts the upload of a file inside a repeater row under its scoped key', async () => {
     const { RepeaterPathContext } = await import('../fields/repeater/errors');
     const { FileControl } = await import('../fields/upload/file');
-    const { render, fireEvent, waitFor } = await import('@testing-library/react');
+    const { render, waitFor } = await import('@testing-library/react');
     const fetch = vi.spyOn(globalThis, 'fetch').mockResolvedValue(new Response(JSON.stringify({ message: 'stop' }), { status: 422 }));
     const field = { key: 'photo', attribute: 'photo', label: 'Photo', component: 'file-field', maxSize: 10, acceptedTypes: [] } as never;
 
     __panel.sharedProps.set({ basePath: '/lathe', resource: { uriKey: 'orders' }, mode: 'update', id: 12 });
-    const { container } = render(
+    render(
       <RepeaterPathContext value="items.0">
         <FileControl field={field} value={null} onChange={() => undefined} id="photo" describedBy={undefined} invalid={false} disabled={false} media={() => null} />
       </RepeaterPathContext>,
     );
-    const input = container.querySelector('input[type="file"]');
-    if (input === null) throw new Error('no file input');
-    fireEvent.change(input, { target: { files: [new File(['x'], 'a.txt', { type: 'text/plain' })] } });
+    pickFile(await screen.findByRole('button', { name: 'Upload' }), new File(['x'], 'a.txt', { type: 'text/plain' }));
 
     await waitFor(() => {
       expect(fetch).toHaveBeenCalled();

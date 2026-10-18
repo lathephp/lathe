@@ -1,4 +1,5 @@
 import { useTranslation } from '@lathephp/core';
+import { FilePicker } from '../../components/ui/FilePicker';
 import type { FormFieldData } from '../types';
 import { useChunkedUpload } from './useChunkedUpload';
 
@@ -14,7 +15,7 @@ function acceptAttribute(types: unknown): string | undefined {
 }
 
 /**
- * The file input of a file field: it uploads the chosen file in chunks with a progress bar
+ * The file button of a file field: it uploads the chosen file in chunks with a progress bar
  * and hands the upload id to the form. `attribute` is the form path, such as `items.0.photo`.
  */
 export function Uploader({
@@ -40,22 +41,19 @@ export function Uploader({
 
   return (
     <div className="flex flex-col gap-1">
-      <input
+      <FilePicker
         id={id}
-        type="file"
         accept={acceptAttribute(field.acceptedTypes)}
         aria-describedby={[describedBy, upload.error === null ? undefined : errorId].filter(Boolean).join(' ') || undefined}
         aria-invalid={invalid || upload.error !== null || undefined}
         disabled={disabled}
-        onChange={(event) => {
-          const file = event.target.files?.[0];
-
-          if (file !== undefined) {
-            void upload.choose(file);
-          }
+        onPick={(file) => {
+          void upload.choose(file);
         }}
-        className="text-sm file:me-3 file:rounded-md file:border file:border-input file:bg-background file:px-3 file:py-1 file:text-sm"
-      />
+        className="self-start aria-[invalid]:border-destructive"
+      >
+        {__('Upload')}
+      </FilePicker>
       {upload.progress === null ? null : (
         <div className="flex items-center gap-2 text-xs text-muted-foreground">
           <div

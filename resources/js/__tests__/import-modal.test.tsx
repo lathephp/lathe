@@ -1,8 +1,9 @@
-import { act, fireEvent, render, screen } from '@testing-library/react';
+import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { IMPORT_POLL_MS, ImportModal } from '../actions/ImportModal';
 import type { ActionMeta } from '../actions/types';
 import type { SelectionDescriptor } from '../index/useRowSelection';
+import { choose, optionLabels, pickFile } from './support';
 
 const action: ActionMeta = {
   uriKey: 'import',
@@ -127,17 +128,20 @@ afterEach(() => {
 
 describe('import modal', () => {
   it('uploads, maps, validates and imports a file', async () => {
-    vi.useFakeTimers({ toFake: ['setTimeout', 'setInterval', 'clearTimeout', 'clearInterval'] });
     const { calls, step } = server();
     const onClose = vi.fn();
     const started = vi.fn();
     window.addEventListener('lathe:import-started', started);
-    render(<ImportModal base="/lathe/api/resources/products" action={action} selection={selection} onClose={onClose} />);
+    const { container } = render(<ImportModal base="/lathe/api/resources/products" action={action} selection={selection} onClose={onClose} />);
 
     // 1. Choose the file: it uploads in chunks, then the upload step reads its headers.
+    expect(container.querySelector('input[type="file"]')).toBeNull();
     const file = new File(['Name,SKU,Price\n'], 'products.csv', { type: 'text/csv' });
-    fireEvent.change(screen.getByLabelText('File'), { target: { files: [file] } });
-    await flush();
+    const input = pickFile(screen.getByLabelText('File'), file);
+    expect(input.accept).toBe('.csv,.xlsx');
+    await waitFor(() => {
+      expect(step('upload')).toBeDefined();
+    });
 
     expect(calls.slice(0, 3).map((call) => `${call.method} ${call.url}`)).toEqual([
       'POST /lathe/api/resources/products/actions/import/uploads/file',
@@ -147,18 +151,24 @@ describe('import modal', () => {
     expect(calls[0]?.body).toEqual({ name: 'products.csv', size: 15, mime: 'text/csv' });
     expect(step('upload')?.body).toEqual({ action: 'import', selection, fields: { import_step: 'upload', file: '01UPLOAD' } });
 
-    // 2. The mapping comes prefilled; a required column set to Skip holds Continue back.
-    const price = screen.getByLabelText<HTMLSelectElement>('Price');
-    expect(screen.getByLabelText<HTMLSelectElement>('Name').value).toBe('name');
-    expect(screen.getByLabelText<HTMLSelectElement>('SKU').value).toBe('sku');
-    expect(price.value).toBe('price');
+    // 2. The mapping comes prefilled; a column mapped by another row is not offered, and a
+    // required column set to Skip holds Continue back.
+    expect((await screen.findByLabelText('Name')).textContent).toBe('Name');
+    expect(screen.getByLabelText('SKU').textContent).toBe('Sku');
+    expect(screen.getByLabelText('Price').textContent).toBe('Price');
     expect(screen.getByText('Camp Kettle')).toBeTruthy();
+    expect(container.querySelector('select')).toBeNull();
+    expect(await optionLabels(screen.getByLabelText('Price'))).toEqual(['Skip', 'Price']);
 
-    fireEvent.change(price, { target: { value: '' } });
+    await choose(screen.getByLabelText('Price'), 'Skip');
+    expect(screen.getByLabelText('Price').textContent).toBe('Skip');
     expect(screen.getByRole<HTMLButtonElement>('button', { name: 'Continue' }).disabled).toBe(true);
-    fireEvent.change(price, { target: { value: 'price' } });
+    await choose(screen.getByLabelText('Price'), 'Price');
     expect(screen.getByRole<HTMLButtonElement>('button', { name: 'Continue' }).disabled).toBe(false);
     fireEvent.click(screen.getByRole('button', { name: 'Continue' }));
+
+    // The status poll runs on timers, so the test drives them from here.
+    vi.useFakeTimers({ toFake: ['setTimeout', 'setInterval', 'clearTimeout', 'clearInterval'] });
 
     // 3. Validate runs the dry run and polls the import until it ends.
     fireEvent.click(screen.getByRole('button', { name: 'Validate' }));

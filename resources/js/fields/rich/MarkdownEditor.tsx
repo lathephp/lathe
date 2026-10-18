@@ -2,6 +2,7 @@ import { usePage } from '@inertiajs/react';
 import { request, useLathe, useTranslation, type SafeHtml as SafeHtmlValue } from '@lathephp/core';
 import { useRef, useState } from 'react';
 import { SafeHtml } from '../../components/SafeHtml';
+import { FilePicker } from '../../components/ui/FilePicker';
 import { stringValue, type FormFieldProps } from '../registry';
 import type { FormProps } from '../types';
 
@@ -57,23 +58,17 @@ export default function MarkdownEditor({ field, value, onChange, id, describedBy
   return (
     <div className="space-y-2">
       {uploadImage !== undefined && (
-        <label className="float-right cursor-pointer rounded-md px-3 py-1 text-sm font-medium text-muted-foreground hover:bg-muted hover:text-foreground focus-within:ring-2 focus-within:ring-ring">
+        <FilePicker
+          variant="ghost"
+          accept="image/png,image/jpeg,image/gif,image/webp"
+          disabled={disabled}
+          onPick={(file) => {
+            void addImage(file, uploadImage);
+          }}
+          className="float-right text-muted-foreground hover:text-foreground"
+        >
           {__('Upload image')}
-          <input
-            type="file"
-            accept="image/png,image/jpeg,image/gif,image/webp"
-            className="sr-only"
-            disabled={disabled}
-            onChange={(event) => {
-              const file = event.target.files?.[0];
-              event.target.value = '';
-
-              if (file !== undefined) {
-                void addImage(file, uploadImage);
-              }
-            }}
-          />
-        </label>
+        </FilePicker>
       )}
       <div role="tablist" className="flex gap-1">
         <button

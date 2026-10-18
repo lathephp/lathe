@@ -2,6 +2,8 @@ import { ApiError, request, toast, useLathe, useTranslation } from '@lathephp/co
 import { Button } from '@lathephp/ui';
 import { useEffect, useId, useRef, useState } from 'react';
 import { Modal } from '../components/Modal';
+import { FilePicker } from '../components/ui/FilePicker';
+import { Select } from '../components/ui/Select';
 import type { SelectionDescriptor } from '../index/useRowSelection';
 import { uploadImportFile } from './import/uploadImportFile';
 import { runAction } from './runAction';
@@ -195,20 +197,16 @@ export function ImportModal({ base, action, selection, onClose }: ImportModalPro
             <label htmlFor={`${titleId}-file`} className="text-sm font-medium">
               {__('File')}
             </label>
-            <input
+            <FilePicker
               id={`${titleId}-file`}
-              type="file"
               accept=".csv,.xlsx"
               disabled={busy}
-              className="block w-full text-sm"
-              onChange={(event) => {
-                const file = event.target.files?.[0];
-
-                if (file !== undefined) {
-                  void choose(file);
-                }
+              onPick={(file) => {
+                void choose(file);
               }}
-            />
+            >
+              {__('Upload')}
+            </FilePicker>
             <p className="text-sm text-muted-foreground">{busy ? __('Uploading…') : __('Choose a CSV or XLSX file.')}</p>
           </div>
         )}
@@ -229,22 +227,23 @@ export function ImportModal({ base, action, selection, onClose }: ImportModalPro
                       <label htmlFor={`${titleId}-map-${String(index)}`}>{header}</label>
                     </td>
                     <td className="py-1">
-                      <select
+                      <Select
                         id={`${titleId}-map-${String(index)}`}
                         value={map[index] ?? ''}
-                        className="h-8 w-full rounded-md border border-input bg-background px-2"
-                        onChange={(event) => {
-                          const value = event.target.value === '' ? null : event.target.value;
+                        size="sm"
+                        className="w-full"
+                        // A column maps to one row, so the columns other rows took are left out.
+                        options={[
+                          { value: '', label: __('Skip') },
+                          ...detected.columns
+                            .filter((column) => !map.some((name, other) => name === column.name && other !== index))
+                            .map((column) => ({ value: column.name, label: column.label })),
+                        ]}
+                        onChange={(next) => {
+                          const value = next === '' ? null : next;
                           setMap((current) => detected.headers.map((_, other) => (other === index ? value : (current[other] ?? null))));
                         }}
-                      >
-                        <option value="">{__('Skip')}</option>
-                        {detected.columns.map((column) => (
-                          <option key={column.name} value={column.name} disabled={map.some((name, other) => name === column.name && other !== index)}>
-                            {column.label}
-                          </option>
-                        ))}
-                      </select>
+                      />
                     </td>
                   </tr>
                 ))}
