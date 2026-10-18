@@ -39,6 +39,26 @@ function notifyUser(User $user, int $count = 1, ?string $readAt = null, ?Carbon 
     return $ids;
 }
 
+test('list_puts_a_notification_sent_one_second_later_first_whatever_its_id', function () {
+    $at = Carbon::parse('2026-10-19 12:00:00');
+    [$older, $newer] = [
+        ['id' => 'ffffffff-0000-4000-8000-000000000001', 'at' => $at],
+        ['id' => '00000000-0000-4000-8000-000000000002', 'at' => $at->copy()->addSecond()],
+    ];
+
+    foreach ([$older, $newer] as $row) {
+        $this->user->notifications()->create([
+            'id' => $row['id'],
+            'type' => LatheNotification::class,
+            'data' => (new LatheNotification)->message($row['id'])->toArray(),
+        ])->forceFill(['created_at' => $row['at']])->save();
+    }
+
+    $ids = collect($this->actingAs($this->user)->getJson('/lathe/api/notifications')->assertOk()->json('notifications'))->pluck('id')->all();
+
+    expect($ids)->toBe([$newer['id'], $older['id']]);
+});
+
 test('list_returns_the_newest_100_first_with_the_unread_count', function () {
     notifyUser($this->user, 101);
 
