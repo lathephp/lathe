@@ -110,7 +110,7 @@ it('gives the attribute twins the payload of the fluent calls', function () {
 
     expect($payload('/lathe/api/dashboards/described'))
         ->toBe($payload('/lathe/api/dashboards/described-fluent'))
-        ->toBe(['description' => 'Numbers of the week', 'icon' => 'BarChart', 'showRefreshButton' => true, 'ranges' => [
+        ->toBe(['description' => 'Numbers of the week', 'icon' => 'BarChart', 'showRefreshButton' => true, 'customizable' => true, 'ranges' => [
             ['value' => 7, 'label' => '7 days'],
             ['value' => 30, 'label' => '30 days'],
             ['value' => 365, 'label' => '12 months'],

@@ -29,6 +29,8 @@ abstract class Dashboard
 
     protected bool $refreshButton = false;
 
+    protected bool $customizable = true;
+
     /** @var (Closure(Request): bool)|null */
     protected ?Closure $seeCallback = null;
 
@@ -78,6 +80,21 @@ abstract class Dashboard
         $this->refreshButton = true;
 
         return $this;
+    }
+
+    /**
+     * Whether each user may save their own order, sizes and hidden cards of this dashboard. On unless turned off.
+     */
+    public function customizable(bool $customizable = true): static
+    {
+        $this->customizable = $customizable;
+
+        return $this;
+    }
+
+    public function isCustomizable(): bool
+    {
+        return $this->customizable;
     }
 
     /**
@@ -152,7 +169,7 @@ abstract class Dashboard
     }
 
     /**
-     * @return array{uriKey: string, name: string, description: string|null, icon: string|null, showRefreshButton: bool, ranges: list<array{value: int|string, label: string}>}
+     * @return array{uriKey: string, name: string, description: string|null, icon: string|null, showRefreshButton: bool, customizable: bool, ranges: list<array{value: int|string, label: string}>}
      */
     public function payload(): array
     {
@@ -162,6 +179,7 @@ abstract class Dashboard
             'description' => $this->description ?? $this->attribute(Description::class)?->text,
             'icon' => $this->iconName()?->name,
             'showRefreshButton' => $this->refreshButton || $this->attribute(ShowRefreshButton::class) !== null,
+            'customizable' => $this->customizable,
             'ranges' => array_map(fn (int|string $value, string $label) => ['value' => $value, 'label' => $label], array_keys($this->ranges()), $this->ranges()),
         ];
     }

@@ -159,6 +159,22 @@ public function ranges(): array
 
 A card shows the picked range when its own `ranges()` has that key. A card without it shows its default range and says which one, such as "Last 30 days" beside a value card's number. Return an empty array to hide the picker.
 
+## Each user's layout
+
+Every dashboard is customizable. A user can save their own order, size and hidden cards, and reset to the layout in your code. The layout is stored per user in the `lathe_user_preferences` table, through `PUT` and `DELETE` on `api/dashboards/{dashboard}/layout`. The `PUT` body lists the cards in order:
+
+```json
+{"widgets": [{"uriKey": "revenue", "width": "1/2", "hidden": false}]}
+```
+
+A width is a `CardWidth` value: `1/4`, `1/3`, `1/2`, `2/3`, `3/4` or `full`. A card you remove from code drops out of a saved layout, and a card you add shows at the end, at its code width. Two saves in a row both succeed, and the last one wins.
+
+Turn it off for a dashboard with `customizable(false)`. The layout routes then answer 403 and any saved layout is ignored:
+
+```php
+Lathe::registerDashboards(Finance::make()->customizable(false));
+```
+
 ## The sidebar entry
 
 Each dashboard adds its own link to the sidebar through its `menu()` method. Override it to change that link, for example to add a badge:

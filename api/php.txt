@@ -968,12 +968,15 @@ Lathe\Dashboards\Dashboard::?Lathe\Enums\Icon $icon  [protected]
 Lathe\Dashboards\Dashboard::?string $description  [protected]
 Lathe\Dashboards\Dashboard::attribute(string $attribute): ?object  [protected]
 Lathe\Dashboards\Dashboard::authorize(Illuminate\Http\Request $request): bool
+Lathe\Dashboards\Dashboard::bool $customizable  [protected]
 Lathe\Dashboards\Dashboard::bool $refreshButton  [protected]
 Lathe\Dashboards\Dashboard::canSee(Closure $callback): static
 Lathe\Dashboards\Dashboard::canSeeWhen(string $ability, mixed $arguments = array ( )): static
+Lathe\Dashboards\Dashboard::customizable(bool $customizable = true): static
 Lathe\Dashboards\Dashboard::description(string $text): static
 Lathe\Dashboards\Dashboard::icon(Lathe\Enums\Icon $icon): static
 Lathe\Dashboards\Dashboard::iconName(): ?Lathe\Enums\Icon
+Lathe\Dashboards\Dashboard::isCustomizable(): bool
 Lathe\Dashboards\Dashboard::label(): string  [static]
 Lathe\Dashboards\Dashboard::make(): static  [static]
 Lathe\Dashboards\Dashboard::menu(Lathe\Http\Requests\LatheRequest $request): Lathe\Menu\MenuItem
@@ -2420,10 +2423,17 @@ Lathe\Http\Controllers\BulkRunController::status(Lathe\Actions\BulkRun $run): ar
 Lathe\Http\Controllers\DashboardController::Lathe\Dashboards\DashboardRegistry $dashboards  [protected]
 Lathe\Http\Controllers\DashboardController::__construct(Lathe\Dashboards\DashboardRegistry $dashboards)
 Lathe\Http\Controllers\DashboardController::__invoke(Lathe\Http\Requests\LatheRequest $request): Inertia\Response
+Lathe\Http\Controllers\DashboardController::arrange(Lathe\Http\Requests\LatheRequest $request, Lathe\Dashboards\Dashboard $dashboard, array $visible): array  [protected]
+Lathe\Http\Controllers\DashboardController::descriptor(Lathe\Widgets\Widget $widget, ?array $widths): array  [protected]
 Lathe\Http\Controllers\DashboardController::find(Illuminate\Http\Request $request, string $uriKey): Lathe\Dashboards\Dashboard  [protected]
 Lathe\Http\Controllers\DashboardController::index(Illuminate\Http\Request $request): Illuminate\Http\JsonResponse
 Lathe\Http\Controllers\DashboardController::page(Lathe\Http\Requests\LatheRequest $request, string $dashboard): Inertia\Response
 Lathe\Http\Controllers\DashboardController::show(Illuminate\Http\Request $request, string $dashboard): Illuminate\Http\JsonResponse
+Lathe\Http\Controllers\DashboardLayoutController::Lathe\Dashboards\DashboardRegistry $dashboards  [protected]
+Lathe\Http\Controllers\DashboardLayoutController::__construct(Lathe\Dashboards\DashboardRegistry $dashboards)
+Lathe\Http\Controllers\DashboardLayoutController::customizable(Lathe\Http\Requests\LatheRequest $request, string $uriKey): Lathe\Dashboards\Dashboard  [protected]
+Lathe\Http\Controllers\DashboardLayoutController::destroy(Lathe\Http\Requests\LatheRequest $request, string $dashboard): Illuminate\Http\Response
+Lathe\Http\Controllers\DashboardLayoutController::update(Lathe\Http\Requests\LatheRequest $request, string $dashboard): Illuminate\Http\JsonResponse
 Lathe\Http\Controllers\ExportController::download(Lathe\Http\Requests\LatheRequest $request, string $export): Symfony\Component\HttpFoundation\StreamedResponse
 Lathe\Http\Controllers\ExportController::show(Lathe\Http\Requests\LatheRequest $request, string $export): Illuminate\Http\JsonResponse
 Lathe\Http\Controllers\ExportController::userId(Lathe\Http\Requests\LatheRequest $request): string|int|null  [protected]
@@ -3192,6 +3202,8 @@ Lathe\Preferences\ColumnChoice::age(array $codeKeys, array $choice): array  [sta
 Lathe\Preferences\ColumnChoice::key(string $uriKey): string  [static]
 Lathe\Preferences\ColumnChoice::known(array $codeKeys, mixed $keys): array  [protected static]
 Lathe\Preferences\ColumnChoice::visible(array $codeKeys, ?array $choice): array  [static]
+Lathe\Preferences\DashboardLayout::age(array $saved, array $codeWidths): array  [static]
+Lathe\Preferences\DashboardLayout::key(string $uriKey): string  [static]
 Lathe\Preferences\UserPreference::$fillable  [protected]
 Lathe\Preferences\UserPreference::$table  [protected]
 Lathe\Preferences\UserPreference::casts(): array  [protected]
@@ -4813,6 +4825,7 @@ class Lathe\Http\Controllers\Auth\TwoFactorAuthenticationController
 class Lathe\Http\Controllers\Auth\TwoFactorChallengeController
 class Lathe\Http\Controllers\BulkRunController
 class Lathe\Http\Controllers\DashboardController
+class Lathe\Http\Controllers\DashboardLayoutController
 class Lathe\Http\Controllers\ExportController
 class Lathe\Http\Controllers\GlobalSearchController
 class Lathe\Http\Controllers\ImpersonateController
@@ -4902,6 +4915,7 @@ class Lathe\Plugins\PluginSettings
 class Lathe\Plugins\ResourcePlugin
 class Lathe\Plugins\ResourcePluginRegistry
 class Lathe\Preferences\ColumnChoice
+class Lathe\Preferences\DashboardLayout
 class Lathe\Preferences\UserPreference
 class Lathe\Query\Count
 class Lathe\Query\DateBucket

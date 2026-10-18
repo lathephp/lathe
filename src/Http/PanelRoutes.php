@@ -18,6 +18,7 @@ use Lathe\Http\Controllers\Auth\TwoFactorAuthenticationController;
 use Lathe\Http\Controllers\Auth\TwoFactorChallengeController;
 use Lathe\Http\Controllers\BulkRunController;
 use Lathe\Http\Controllers\DashboardController;
+use Lathe\Http\Controllers\DashboardLayoutController;
 use Lathe\Http\Controllers\ExportController;
 use Lathe\Http\Controllers\GlobalSearchController;
 use Lathe\Http\Controllers\ImpersonateController;
@@ -323,6 +324,8 @@ class PanelRoutes
     {
         $router->get('dashboards', [DashboardController::class, 'index'])->name('dashboards.index');
         $router->get('dashboards/{dashboard}', [DashboardController::class, 'show'])->name('dashboards.show');
+        $router->put('dashboards/{dashboard}/layout', [DashboardLayoutController::class, 'update'])->name('dashboards.layout.update');
+        $router->delete('dashboards/{dashboard}/layout', [DashboardLayoutController::class, 'destroy'])->name('dashboards.layout.destroy');
         $router->get('dashboards/{dashboard}/widgets', [WidgetController::class, 'dashboardIndex'])->name('dashboards.widgets.index');
         $router->get('dashboards/{dashboard}/widgets/{widget}', [WidgetController::class, 'dashboardShow'])->name('dashboards.widgets.show');
         $router->get('resources/{resource}/widgets', [WidgetController::class, 'resourceIndex'])->name('resources.widgets.index');
