@@ -58,9 +58,23 @@ export function ToastStack() {
     <ToastProvider toastManager={manager}>
       <ToastViewport aria-label={__('Notifications')}>
         <ToastList />
+        <MoreRow />
       </ToastViewport>
     </ToastProvider>
   );
+}
+
+// Base UI marks the toasts past the limit as limited and keeps them; this row counts them.
+function MoreRow() {
+  const { __ } = useTranslation();
+  const { toasts } = useToastManager<ToastMessage>();
+  const count = toasts.filter((item) => item.limited === true).length;
+
+  if (count === 0) {
+    return null;
+  }
+
+  return <p className="self-end px-1 text-xs text-muted-foreground">{__(':count more', { count })}</p>;
 }
 
 function ToastList() {

@@ -16,13 +16,20 @@ describe('toast', () => {
     ]);
   });
 
-  it('shows at most 3 at once, dropping the oldest', () => {
+  it('keeps the oldest past 3 for the toaster to fold, and drops past 20', () => {
     toast.info('One');
     toast.info('Two');
     toast.warning('Three');
     toast.success('Four');
 
-    expect(__panel.toasts.get().map((t) => t.message)).toEqual(['Two', 'Three', 'Four']);
+    expect(__panel.toasts.get().map((t) => t.message)).toEqual(['One', 'Two', 'Three', 'Four']);
+
+    for (let n = 5; n <= 21; n++) {
+      toast.info(`Toast ${String(n)}`);
+    }
+
+    expect(__panel.toasts.get()).toHaveLength(20);
+    expect(__panel.toasts.get()[0]?.message).toBe('Two');
   });
 
   it('stays for the duration it is given', () => {

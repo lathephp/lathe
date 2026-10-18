@@ -40,8 +40,8 @@ export const toasts = createStore<ToastMessage[]>([]);
 /** How long a toast stays, in milliseconds. The panel's toaster runs the timer, so hover and focus pause it. */
 const lifetime = 5_000;
 
-/** At most this many show at once; a new one pushes out the oldest. */
-const visible = 3;
+/** The toaster shows three and folds the rest into "N more"; past this many the oldest goes. */
+const kept = 20;
 
 function show(type: ToastType, message: string, options: ToastOptions = {}): void {
   const id = nextId++;
@@ -53,7 +53,7 @@ function show(type: ToastType, message: string, options: ToastOptions = {}): voi
     ...(options.links === undefined ? {} : { links: options.links }),
     timeout: options.duration ?? (type === 'error' ? 0 : lifetime),
   };
-  toasts.set([...toasts.get(), next].slice(-visible));
+  toasts.set([...toasts.get(), next].slice(-kept));
 }
 
 export function dismissToast(id: number): void {

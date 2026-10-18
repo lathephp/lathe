@@ -13,6 +13,7 @@
     ":count exports deleted.": ":count exports deleted.",
     ":count fields need a change before you can save": ":count fields need a change before you can save",
     ":count imports deleted.": ":count imports deleted.",
+    ":count more": ":count more",
     ":count resource(s) deleted.": ":count resource(s) deleted.",
     ":count resource(s) permanently deleted.": ":count resource(s) permanently deleted.",
     ":count resource(s) restored.": ":count resource(s) restored.",

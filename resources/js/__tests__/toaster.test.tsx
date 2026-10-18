@@ -49,23 +49,89 @@ describe('Toaster', () => {
     expect(screen.queryByText('Not saved')).toBeNull();
   });
 
-  it('pushes out the oldest of four toasts', async () => {
+  it('folds the oldest of four toasts into "1 more" and of five into "2 more"', async () => {
     render(<Toaster />);
 
     act(() => {
-      toast.info('One');
-      toast.info('Two');
-      toast.warning('Three');
+      toast.success('One');
+      toast.success('Two');
+      toast.success('Three');
       toast.success('Four');
     });
 
-    expect(await screen.findByText('Four')).toBeTruthy();
-    expect(screen.getAllByRole('status').map((element) => element.textContent).sort()).toEqual([
-      expect.stringContaining('Four'),
-      expect.stringContaining('Three'),
-      expect.stringContaining('Two'),
-    ]);
-    expect(screen.queryByText('One')).toBeNull();
+    expect(await screen.findByText('1 more')).toBeTruthy();
+    const shown = (texts: string[]) =>
+      screen
+        .getAllByRole('status')
+        .filter((element) => !element.hasAttribute('data-limited'))
+        .map((element) => texts.find((text) => element.textContent?.includes(text)))
+        .sort();
+    expect(shown(['One', 'Two', 'Three', 'Four'])).toEqual(['Four', 'Three', 'Two']);
+    expect(screen.getByText('One').closest('[data-limited]')).not.toBeNull();
+
+    act(() => {
+      toast.success('Five');
+    });
+
+    expect(await screen.findByText('2 more')).toBeTruthy();
+    expect(screen.queryByText('1 more')).toBeNull();
+    expect(shown(['One', 'Two', 'Three', 'Four', 'Five'])).toEqual(['Five', 'Four', 'Three']);
+  });
+
+  it('keeps a success toast past 5 seconds while the pointer is on the stack', async () => {
+    vi.useFakeTimers({ shouldAdvanceTime: true });
+    render(<Toaster />);
+
+    act(() => {
+      toast.success('Saved');
+    });
+
+    await screen.findByText('Saved');
+    fireEvent.mouseEnter(screen.getByRole('region', { name: 'Notifications' }));
+    await advance(6_000);
+    expect(screen.queryByText('Saved')).not.toBeNull();
+  });
+
+  it('closes a success toast after 5 seconds without hover', async () => {
+    vi.useFakeTimers({ shouldAdvanceTime: true });
+    render(<Toaster />);
+
+    act(() => {
+      toast.success('Saved');
+    });
+
+    await screen.findByText('Saved');
+    await advance(5_100);
+    expect(screen.queryByText('Saved')).toBeNull();
+  });
+
+  it('keeps an error and a toast with duration 0 after a minute', async () => {
+    vi.useFakeTimers({ shouldAdvanceTime: true });
+    render(<Toaster />);
+
+    act(() => {
+      toast.error('Not saved');
+      toast.info('Exporting orders', { duration: 0 });
+    });
+
+    await screen.findByText('Exporting orders');
+    await advance(60_000);
+    expect(screen.queryByText('Not saved')).not.toBeNull();
+    expect(screen.queryByText('Exporting orders')).not.toBeNull();
+  });
+
+  it('gives a success toast the status role and an error the alert role', async () => {
+    render(<Toaster />);
+
+    act(() => {
+      toast.success('Saved');
+      toast.error('Not saved');
+    });
+
+    expect((await screen.findByRole('status')).textContent).toContain('Saved');
+    expect(screen.getByRole('alert').textContent).toContain('Not saved');
+    expect(screen.getAllByRole('status')).toHaveLength(1);
+    expect(screen.getAllByRole('alert')).toHaveLength(1);
   });
 
   it('runs an action and follows a link, and each dismisses the toast', async () => {
