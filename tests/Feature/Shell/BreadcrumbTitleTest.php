@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Gate;
 use Inertia\Testing\AssertableInertia;
+use Workbench\App\Models\Order as OrderModel;
 use Workbench\App\Models\OrderItem as OrderItemModel;
 use Workbench\App\Models\User;
 use Workbench\Database\Seeders\DemoSeeder;
@@ -28,4 +29,12 @@ it('names the parent record by its title on a child breadcrumb', function () {
 
     $this->get('/lathe/resources/order-items/'.$item->getKey())->assertInertia(fn (AssertableInertia $page) => $page
         ->where('breadcrumbs.2.label', 'ORD-00099454'));
+});
+
+it('keeps the key of a parent the user may not view', function () {
+    $item = OrderItemModel::query()->forceCreate(['order_id' => 12, 'product_id' => 1, 'quantity' => 2, 'price_cents' => 500]);
+    Gate::before(fn ($user, string $ability, array $arguments) => $ability === 'view' && ($arguments[0] ?? null) instanceof OrderModel ? false : null);
+
+    $this->get('/lathe/resources/order-items/'.$item->getKey())->assertInertia(fn (AssertableInertia $page) => $page
+        ->where('breadcrumbs.2.label', '#12'));
 });

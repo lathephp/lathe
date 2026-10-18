@@ -681,7 +681,7 @@ abstract class Resource
             return null;
         }
 
-        // The parent's key is read from the child's foreign key, so no query runs.
+        // The parent's key is read from the child's foreign key.
         $parentKey = $this->model->getAttribute($relation->getForeignKeyName());
 
         if (! is_scalar($parentKey)) {
@@ -690,10 +690,12 @@ abstract class Resource
 
         $field = $parent::make()->fieldsFor(FieldContext::Detail, $request)->first(fn (Field $field) => $field->attribute() === $relationship);
         $payload = app(RecordPayload::class);
+        // The parent shows by its title only to a user who may view it, else by its key.
         $parentModel = $parent::newModel()->newQuery()->find($parentKey);
+        $titled = $parentModel !== null && app(ResourceAuthorization::class)->allows($request->user(), $parent, 'view', $parentModel);
 
         return $payload->breadcrumbs($parent, [
-            ['label' => $parentModel !== null ? $parent::make($parentModel)->breadcrumbLabel() : '#'.$parentKey, 'href' => $payload->href('resources/'.$parent::uriKey().'/'.$parentKey)],
+            ['label' => $titled ? $parent::make($parentModel)->breadcrumbLabel() : '#'.$parentKey, 'href' => $payload->href('resources/'.$parent::uriKey().'/'.$parentKey)],
             ['label' => $field instanceof Field ? $field->label() : static::label(), 'href' => null],
             ['label' => $this->breadcrumbLabel(), 'href' => null],
         ]);
