@@ -85,6 +85,8 @@ class IndexPayload
         }
         $threshold = $resource->definition()->getFilterRemoteThreshold();
         $filters = $this->request->query('filter');
+        $definitions = array_map(fn (Filter $filter) => $filter->definition($this->request, $threshold), $available);
+        $applied = (new FilterApplicator($resource, $lens !== null ? $available : null))->values($this->request, is_array($filters) ? $filters : []);
         $active = $query->activeGroup();
         $group = $active['group'] ?? null;
         // Rows of an index with inline cells carry the stale-edit token each cell edit sends back.
@@ -116,8 +118,9 @@ class IndexPayload
             ],
             'groups' => $this->groups($resource, $active, $lens),
             'filters' => [
-                'available' => array_map(fn (Filter $filter) => $filter->definition($this->request, $threshold), $available),
-                'applied' => (new FilterApplicator($resource, $lens !== null ? $available : null))->values($this->request, is_array($filters) ? $filters : []),
+                'available' => $definitions,
+                'applied' => $applied,
+                'labels' => $this->remoteLabels($available, $definitions, $applied),
             ],
             'tabs' => [
                 'items' => $lens !== null ? [] : array_map(fn (Tab $tab) => $tab->toArray(), $query->tabs()),
@@ -149,6 +152,33 @@ class IndexPayload
             : $resource->fieldsFor(FieldContext::Index, $this->request);
 
         return array_values($fields->forContext(FieldContext::Index, $this->request)->authorized($this->request)->all());
+    }
+
+    /**
+     * The labels of the values each applied remote filter holds, for its chip: the URL carries
+     * only the keys. A filter with options sends them already, so it needs none.
+     *
+     * @param  list<Filter>  $available
+     * @param  list<array<string, mixed>>  $definitions
+     * @param  array<string, mixed>  $applied
+     * @return array<string, array<array-key, string>>
+     */
+    protected function remoteLabels(array $available, array $definitions, array $applied): array
+    {
+        $labels = [];
+
+        foreach ($available as $index => $filter) {
+            $value = $applied[$filter->key()] ?? null;
+
+            if (($definitions[$index]['remote'] ?? false) !== true || $value === null || $value === '' || $value === []) {
+                continue;
+            }
+
+            $values = array_values(array_map(fn (mixed $item) => is_scalar($item) ? (string) $item : '', is_array($value) ? $value : [$value]));
+            $labels[$filter->key()] = $filter->labels($this->request, $values);
+        }
+
+        return $labels;
     }
 
     /**

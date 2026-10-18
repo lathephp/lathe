@@ -72,6 +72,26 @@ abstract class Filter
     }
 
     /**
+     * The label of each value a remote filter holds, for its chip on the index. The default reads
+     * options(); a filter over a large table overrides it with a lookup of those values alone.
+     *
+     * @param  list<string>  $values
+     * @return array<array-key, string> value => label
+     */
+    public function labels(LatheRequest $request, array $values): array
+    {
+        $labels = [];
+
+        foreach ($this->options($request) as $label => $value) {
+            if (is_scalar($value) && in_array((string) $value, $values, true)) {
+                $labels[(string) $value] = (string) $label;
+            }
+        }
+
+        return $labels;
+    }
+
+    /**
      * What the index and the filters endpoint send about this filter. A remote one sends no options.
      *
      * @return array<string, mixed>

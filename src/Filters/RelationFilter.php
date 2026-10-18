@@ -78,6 +78,28 @@ class RelationFilter extends Filter
     }
 
     /**
+     * @param  list<string>  $values
+     * @return array<array-key, string>
+     */
+    public function labels(LatheRequest $request, array $values): array
+    {
+        $query = $this->relatedQuery($request);
+
+        if ($query === null || $this->field instanceof MorphToField) {
+            return parent::labels($request, $values);
+        }
+
+        $labels = [];
+
+        foreach ($query->scoped()->whereKey($values)->get() as $model) {
+            $key = $model->getKey();
+            $labels[is_scalar($key) ? (string) $key : ''] = $this->field->displayFor($model);
+        }
+
+        return $labels;
+    }
+
+    /**
      * Remote once the related table holds more rows than the threshold, counted without loading them.
      */
     public function isRemote(LatheRequest $request, int $threshold): bool

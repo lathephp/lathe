@@ -49,6 +49,17 @@ class OrderCustomer extends Filter
             ->all());
     }
 
+    public function labels(LatheRequest $request, array $values): array
+    {
+        $labels = [];
+
+        foreach (Customer::whereKey($values)->get(['id', 'name']) as $customer) {
+            $labels[(string) $customer->id] = $customer->name;
+        }
+
+        return $labels;
+    }
+
     // customer_id is a bigint: PostgreSQL answers 500 for "abc" or a number past its range.
     protected function acceptsRemoteValue(string $value): bool
     {
