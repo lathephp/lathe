@@ -63,7 +63,7 @@ it('shows the owner the status of an import', function () {
 
     expect(array_keys($json))->toBe([
         'id', 'status', 'mode', 'total_rows', 'processed_rows', 'created_rows', 'updated_rows', 'skipped_rows',
-        'failed_rows', 'errors_url', 'exception', 'first_errors',
+        'failed_rows', 'errors_url', 'exception', 'first_errors', 'resource_label',
     ])
         ->and(array_slice($json, 0, 9))->toBe([
             'id' => $import->id, 'status' => 'completed', 'mode' => 'dry_run', 'total_rows' => 30, 'processed_rows' => 30,
@@ -72,7 +72,8 @@ it('shows the owner the status of an import', function () {
         ->and($json['errors_url'])->toContain("/lathe/api/imports/{$import->id}/download-errors?expires=")
         ->and($json['exception'])->toBeNull()
         ->and($json['first_errors'])->toHaveCount(20)
-        ->and($json['first_errors'][0])->toBe(['row_number' => 2, 'errors' => ['price' => ['The price field must be a number.']]]);
+        ->and($json['first_errors'][0])->toBe(['row_number' => 2, 'errors' => ['price' => ['The price field must be a number.']]])
+        ->and($json['resource_label'])->toBe('Products');
 });
 
 it('gives no errors url without an error file and 404 to another user', function () {

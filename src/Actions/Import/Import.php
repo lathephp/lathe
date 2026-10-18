@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\URL;
+use Lathe\Lathe;
 use Lathe\Support\ConfigStore;
 
 /**
@@ -117,6 +118,8 @@ class Import extends Model
      */
     public function toStatusArray(): array
     {
+        $resource = Lathe::resources()->forModel($this->model_class);
+
         return [
             'id' => $this->id,
             'status' => $this->status,
@@ -132,6 +135,8 @@ class Import extends Model
             'first_errors' => $this->failedRows()->orderBy('row_number')->limit(20)->get(['row_number', 'errors'])
                 ->map(fn (FailedImportRow $row) => ['row_number' => $row->row_number, 'errors' => $row->errors])
                 ->all(),
+            // The toast says "2,388 of 2,400 products imported"; null once the model has no resource.
+            'resource_label' => $resource === null ? null : $resource::label(),
         ];
     }
 }
