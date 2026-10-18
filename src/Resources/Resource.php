@@ -770,6 +770,8 @@ abstract class Resource
 
     /**
      * What a breadcrumb calls this record: its title, or #id when the title is empty.
+     *
+     * @internal
      */
     public function breadcrumbLabel(): string
     {
