@@ -1,6 +1,6 @@
 import { Link, router, usePage } from '@inertiajs/react';
 import { shortcutsEnabled, useShortcut, useTranslation } from '@lathephp/core';
-import { Filters } from './FilterPanel';
+import { Filters } from './Filters';
 import { GroupMenu } from './GroupMenu';
 import { LensSelector } from './LensSelector';
 import { PollingToggle } from './PollingToggle';

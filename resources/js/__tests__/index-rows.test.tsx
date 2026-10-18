@@ -1,9 +1,15 @@
 import { router } from '@inertiajs/react';
 import { __panel } from '@lathephp/core';
 import { fireEvent, screen, waitFor, within } from '@testing-library/react';
-import { afterEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeAll, describe, expect, it, vi } from 'vitest';
 import type { SharedProps } from '../types';
 import { renderPage } from './support';
+import { RowMenuPanel } from '../index/lazy';
+
+// The row menu loads its list on the first open; loaded once, it draws on the click itself.
+beforeAll(async () => {
+  await RowMenuPanel.preload();
+});
 
 afterEach(() => {
   vi.restoreAllMocks();

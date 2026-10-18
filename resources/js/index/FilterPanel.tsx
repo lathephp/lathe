@@ -1,19 +1,14 @@
-import { usePage } from '@inertiajs/react';
 import { __panel, useTranslation } from '@lathephp/core';
-import { ListFilter } from 'lucide-react';
 import { type ComponentType, useId, useState } from 'react';
 import { Button } from '../components/ui/Button';
-import { Card } from '../components/ui/Card';
-import type { SharedProps } from '../types';
 import { DateFilter } from './filters/DateFilter';
 import { Select } from '../components/ui/Select';
 import { MultiSelectFilter } from './filters/MultiSelectFilter';
 import { RangeFilter } from './filters/RangeFilter';
 import { RemotePicker } from './filters/RemotePicker';
 import { SelectFilter } from './filters/SelectFilter';
-import { IndexBanner } from './IndexBanner';
-import type { AvailableFilter, FilterControlProps, IndexProps } from './types';
-import { type FilterValue, type IndexUrlState, parseQuery } from './useIndexState';
+import type { AvailableFilter, FilterControlProps } from './types';
+import type { FilterValue, IndexUrlState } from './useIndexState';
 
 // A boolean filter takes the list of checked options, the same shape as a multi-select.
 const controls: Record<string, ComponentType<FilterControlProps>> = {
@@ -104,60 +99,5 @@ export function FilterPanel({ resource, endpoint, available, softDeletes, state,
         </div>
       )}
     </div>
-  );
-}
-
-/** The toolbar's Filters button, its panel, and the banner for a link with removed filters. */
-export function Filters({ visit }: { visit: (changes: IndexUrlState) => void }) {
-  const { __ } = useTranslation();
-  const page = usePage<IndexProps & SharedProps>();
-  const { resource, filters, staleFilters = [], basePath } = page.props;
-  const [open, setOpen] = useState(false);
-  const panelId = useId();
-  const state = parseQuery(page.url.split('?')[1] ?? '');
-  const filter = Object.fromEntries(Object.entries(state.filter ?? {}).filter(([key]) => !staleFilters.includes(key)));
-  const available = filters?.available ?? [];
-  const softDeletes = resource.softDeletes;
-
-  return (
-    <>
-      {(available.length > 0 || softDeletes) && (
-        <Button
-          variant="outline"
-          aria-expanded={open}
-          aria-controls={panelId}
-          onClick={() => {
-            setOpen(!open);
-          }}
-        >
-          <ListFilter aria-hidden="true" className="size-4" />
-          {__('Filters')}
-        </Button>
-      )}
-      {staleFilters.length > 0 && (
-        <div className="basis-full">
-          <IndexBanner
-            message={__('This link is out of date')}
-            onReset={() => {
-              visit({ filter });
-            }}
-          />
-        </div>
-      )}
-      {open && (
-        <Card id={panelId} className="basis-full p-4">
-          {/* A new URL starts a fresh draft from it. */}
-          <FilterPanel
-            key={page.url}
-            resource={resource.uriKey}
-            endpoint={`${basePath}/api/resources/${resource.uriKey}/filters`}
-            available={available}
-            softDeletes={softDeletes}
-            state={{ ...state, filter }}
-            visit={visit}
-          />
-        </Card>
-      )}
-    </>
   );
 }

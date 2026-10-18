@@ -1,7 +1,13 @@
 import { router } from '@inertiajs/react';
 import { fireEvent, screen, waitFor } from '@testing-library/react';
-import { afterEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeAll, describe, expect, it, vi } from 'vitest';
 import { renderPage } from './support';
+import { RowMenuPanel } from '../index/lazy';
+
+// The row menu loads its list on the first open; loaded once, it draws on the click itself.
+beforeAll(async () => {
+  await RowMenuPanel.preload();
+});
 
 afterEach(() => {
   vi.restoreAllMocks();

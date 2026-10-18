@@ -1,10 +1,16 @@
 import { router } from '@inertiajs/react';
 import { QueryClientProvider, queryClient } from '@lathephp/core';
 import { fireEvent, render, screen, within } from '@testing-library/react';
-import { afterEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeAll, describe, expect, it, vi } from 'vitest';
 import { FilterPanel } from '../index/FilterPanel';
+import { FilterPanel as LazyFilterPanel } from '../index/lazy';
 import type { AvailableFilter } from '../index/types';
 import { choose, optionLabels, renderPage } from './support';
+
+// The toolbar loads the panel on the first press; loaded once, it draws on the press itself.
+beforeAll(async () => {
+  await LazyFilterPanel.preload();
+});
 
 afterEach(() => {
   vi.restoreAllMocks();
