@@ -6,7 +6,7 @@ import { Button } from '../components/ui/Button';
 import { Card } from '../components/ui/Card';
 import type { SharedProps } from '../types';
 import { DateFilter } from './filters/DateFilter';
-import { fieldClass } from './filters/FilterFieldset';
+import { Select } from '../components/ui/Select';
 import { MultiSelectFilter } from './filters/MultiSelectFilter';
 import { RangeFilter } from './filters/RangeFilter';
 import { RemotePicker } from './filters/RemotePicker';
@@ -76,19 +76,19 @@ export function FilterPanel({ resource, endpoint, available, softDeletes, state,
             <label htmlFor={trashedId} className="text-sm font-medium">
               {__('Trashed')}
             </label>
-            <select
+            <Select
               id={trashedId}
-              name="trashed"
-              className={fieldClass}
+              className="w-full"
               value={state.trashed ?? ''}
-              onChange={(event) => {
-                visit({ trashed: event.target.value });
+              options={[
+                { value: '', label: __('Without trashed') },
+                { value: 'with', label: __('With trashed') },
+                { value: 'only', label: __('Only trashed') },
+              ]}
+              onChange={(trashed) => {
+                visit({ trashed });
               }}
-            >
-              <option value="">{__('Without trashed')}</option>
-              <option value="with">{__('With trashed')}</option>
-              <option value="only">{__('Only trashed')}</option>
-            </select>
+            />
           </div>
         )}
       </div>

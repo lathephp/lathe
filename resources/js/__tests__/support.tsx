@@ -1,5 +1,6 @@
 import { App } from '@inertiajs/react';
-import { render } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { expect } from 'vitest';
 import type { ComponentProps, ComponentType } from 'react';
 import { panelLayout } from '../layout/panelLayout';
 import type { SharedProps } from '../types';
@@ -96,3 +97,30 @@ export function visibleStrings(root: HTMLElement = document.body): string[] {
 
 export const bracketed = (key: string, replace: Record<string, string | number> = {}) =>
   `[${Object.entries(replace).reduce((text, [name, value]) => text.replaceAll(`:${name}`, String(value)), key)}]`;
+
+/** Opens a panel Select and picks the option with this label, as a person would with the pointer. */
+export async function choose(trigger: HTMLElement, label: string): Promise<void> {
+  fireEvent.mouseDown(trigger, { button: 0 });
+  fireEvent.mouseUp(trigger, { button: 0 });
+  const option = await screen.findByRole('option', { name: label });
+
+  // Base UI ignores a click in the first moments after the press that opened the list.
+  await waitFor(() => {
+    fireEvent.click(option);
+    expect(screen.queryByRole('listbox')).toBeNull();
+  });
+}
+
+/** Opens a panel Select, reads its option labels and closes it with Escape. */
+export async function optionLabels(trigger: HTMLElement): Promise<string[]> {
+  fireEvent.mouseDown(trigger, { button: 0 });
+  fireEvent.mouseUp(trigger, { button: 0 });
+  const list = await screen.findByRole('listbox');
+  const labels = screen.getAllByRole('option').map((option) => option.textContent);
+  fireEvent.keyDown(list, { key: 'Escape' });
+  await waitFor(() => {
+    expect(screen.queryByRole('listbox')).toBeNull();
+  });
+
+  return labels;
+}

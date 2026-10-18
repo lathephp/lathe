@@ -1,7 +1,7 @@
 import { router } from '@inertiajs/react';
-import { fireEvent, screen, within } from '@testing-library/react';
+import { screen, within } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { renderPage } from './support';
+import { choose, optionLabels, renderPage } from './support';
 
 afterEach(() => {
   vi.restoreAllMocks();
@@ -32,36 +32,37 @@ function renderOrders(lenses: { uriKey: string; name: string }[], lens: { uriKey
 }
 
 describe('lens selector', () => {
-  it('lists the Resource and its lenses and marks the Resource as current', () => {
+  it('lists the Resource and its lenses and marks the Resource as current', async () => {
     renderOrders([pending]);
 
-    const select = screen.getByRole<HTMLSelectElement>('combobox', { name: 'View' });
+    const select = screen.getByRole('combobox', { name: 'View' });
 
-    expect(Array.from(select.options).map((option) => option.text)).toEqual(['Orders', 'Pending Orders']);
-    expect(select.value).toBe('');
+    expect(select.textContent).toBe('Orders');
+    expect(await optionLabels(select)).toEqual(['Orders', 'Pending Orders']);
   });
 
   it('marks the open lens as current and heads the page with its name and a back link', () => {
     renderOrders([pending], pending);
 
-    expect(screen.getByRole<HTMLSelectElement>('combobox', { name: 'View' }).value).toBe('pending-orders');
+    expect(screen.getByRole('combobox', { name: 'View' }).textContent).toBe('Pending Orders');
     expect(screen.getByRole('heading', { level: 1 }).textContent).toBe('Pending Orders');
     const heading = screen.getByRole('heading', { level: 1 }).parentElement as HTMLElement;
 
     expect(within(heading).getByRole('link', { name: 'Orders' }).getAttribute('href')).toBe('/lathe/resources/orders');
   });
 
-  it('visits the lens URL and back to the Resource URL', () => {
+  it('visits the lens URL and back to the Resource URL', async () => {
     const visit = vi.spyOn(router, 'visit').mockImplementation(() => undefined);
 
-    renderOrders([pending]);
-    fireEvent.change(screen.getByRole('combobox', { name: 'View' }), { target: { value: 'pending-orders' } });
-
-    expect(visit).toHaveBeenLastCalledWith('/lathe/resources/orders/lens/pending-orders');
-
-    fireEvent.change(screen.getByRole('combobox', { name: 'View' }), { target: { value: '' } });
+    renderOrders([pending], pending);
+    await choose(screen.getByRole('combobox', { name: 'View' }), 'Orders');
 
     expect(visit).toHaveBeenLastCalledWith('/lathe/resources/orders');
+
+    renderOrders([pending]);
+    await choose(screen.getAllByRole('combobox', { name: 'View' })[1] as HTMLElement, 'Pending Orders');
+
+    expect(visit).toHaveBeenLastCalledWith('/lathe/resources/orders/lens/pending-orders');
   });
 
   it('shows no switcher when the Resource has no lenses', () => {

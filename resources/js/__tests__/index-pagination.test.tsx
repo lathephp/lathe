@@ -1,7 +1,7 @@
 import { router } from '@inertiajs/react';
 import { act, fireEvent, screen, waitFor, within } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi, type MockInstance } from 'vitest';
-import { renderPage } from './support';
+import { choose, renderPage } from './support';
 
 afterEach(() => {
   vi.restoreAllMocks();
@@ -153,11 +153,11 @@ describe('load-more pagination', () => {
 });
 
 describe('per-page menu', () => {
-  it('visits page 1 with the chosen size', () => {
+  it('visits page 1 with the chosen size', async () => {
     const visit = vi.spyOn(router, 'visit').mockImplementation(() => undefined);
     renderOrders({ url: '/lathe/resources/orders?page=3', rows: rows(25, 51), state: { page: 3, perPage: 25, hasMorePages: true } });
 
-    fireEvent.change(screen.getByLabelText('Per page'), { target: { value: '100' } });
+    await choose(screen.getByLabelText('Per page'), '100');
 
     expect(visit.mock.calls[0]?.[1]).toMatchObject({ data: { per_page: 100 } });
   });

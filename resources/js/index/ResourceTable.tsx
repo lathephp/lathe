@@ -119,7 +119,9 @@ export function ResourceTable({ resource, table, state, loading, selection, sort
   }
 
   function clickRow(event: MouseEvent<HTMLTableRowElement>, row: Row) {
-    if (event.target instanceof Element && event.target.closest(ownClick) !== null) {
+    // A click inside a portal, such as an inline select's list, reaches the row through
+    // React's tree but not the page's, so the row is not where it landed.
+    if (!(event.target instanceof Node) || !event.currentTarget.contains(event.target) || (event.target instanceof Element && event.target.closest(ownClick) !== null)) {
       return;
     }
 

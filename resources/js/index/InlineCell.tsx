@@ -1,5 +1,6 @@
 import { ApiError, request, toast, useLathe, useTranslation } from '@lathephp/core';
 import { Suspense, useId, useState, type KeyboardEvent } from 'react';
+import { Select } from '../components/ui/Select';
 import type { Cell, FieldSchema } from '../fields/types';
 import { stringValue } from '../fields/registry';
 import { isBelongsToValue } from '../fields/relation/BelongsToField';
@@ -134,26 +135,34 @@ export function InlineCell({ uriKey, rowId, column, cell, token, onRow }: Inline
     const multiple = column.component === 'multi-select-field';
     const current = Array.isArray(shown.value) ? shown.value.map(stringValue) : stringValue(shown.value);
 
-    control = (
-      <select
-        aria-label={column.label}
-        aria-describedby={describedBy}
-        aria-invalid={error !== null || undefined}
-        multiple={multiple}
-        disabled={busy}
-        value={current}
-        onChange={(event) => {
-          void commit(multiple ? [...event.target.selectedOptions].map((option) => option.value) : event.target.value);
+    const common = {
+      'aria-label': column.label,
+      'aria-describedby': describedBy,
+      'aria-invalid': error !== null || undefined,
+      disabled: busy,
+      size: 'sm' as const,
+      className: 'max-w-full',
+    };
+
+    control = multiple ? (
+      <Select
+        multiple
+        {...common}
+        value={Array.isArray(current) ? current : []}
+        options={options}
+        onChange={(values) => {
+          void commit(values);
         }}
-        className="h-8 max-w-full rounded-md border border-input bg-background px-2 text-sm"
-      >
-        {multiple ? null : <option value="">{'—'}</option>}
-        {options.map((option) => (
-          <option key={option.value} value={option.value}>
-            {option.label}
-          </option>
-        ))}
-      </select>
+      />
+    ) : (
+      <Select
+        {...common}
+        value={typeof current === 'string' ? current : ''}
+        options={[{ value: '', label: '—' }, ...options]}
+        onChange={(value) => {
+          void commit(value);
+        }}
+      />
     );
   } else if (column.component === 'belongs-to-field' || column.component === 'morph-to-field') {
     const common = { id: pickerId, describedBy, invalid: error !== null, disabled: busy, record: { uriKey, id: rowId } };

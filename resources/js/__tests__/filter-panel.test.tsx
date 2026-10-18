@@ -4,7 +4,7 @@ import { fireEvent, render, screen, within } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { FilterPanel } from '../index/FilterPanel';
 import type { AvailableFilter } from '../index/types';
-import { renderPage } from './support';
+import { choose, optionLabels, renderPage } from './support';
 
 afterEach(() => {
   vi.restoreAllMocks();
@@ -84,12 +84,12 @@ function visitData(visit: ReturnType<typeof mockVisit>, call = 0): unknown {
 }
 
 describe('filter panel', () => {
-  it('changes nothing until Apply, then visits with the chosen status', () => {
+  it('changes nothing until Apply, then visits with the chosen status', async () => {
     const visit = mockVisit();
     renderIndex({ url: '/lathe/resources/orders?page=3' });
 
     fireEvent.click(screen.getByRole('button', { name: 'Filters' }));
-    fireEvent.change(screen.getByLabelText('Status'), { target: { value: 'pending' } });
+    await choose(screen.getByLabelText('Status'), 'Pending');
 
     expect(visit).not.toHaveBeenCalled();
 
@@ -99,26 +99,24 @@ describe('filter panel', () => {
     expect(visitData(visit)).toEqual({ filter: { status: 'pending' } });
   });
 
-  it('visits on each change of an immediate filter', () => {
+  it('visits on each change of an immediate filter', async () => {
     const visit = mockVisit();
     renderIndex({ available: [status, region], url: '/lathe/resources/orders?filter[status]=paid' });
 
     fireEvent.click(screen.getByRole('button', { name: 'Filters' }));
-    fireEvent.change(screen.getByLabelText('Region'), { target: { value: 'asia' } });
+    await choose(screen.getByLabelText('Region'), 'Asia');
 
     expect(visitData(visit)).toEqual({ filter: { status: 'paid', region: 'asia' } });
   });
 
-  it('visits trashed=only for Only trashed on a soft-deleting Resource', () => {
+  it('visits trashed=only for Only trashed on a soft-deleting Resource', async () => {
     const visit = mockVisit();
     renderIndex({ softDeletes: true });
 
     fireEvent.click(screen.getByRole('button', { name: 'Filters' }));
-    const trashed = screen.getByLabelText<HTMLSelectElement>('Trashed');
+    expect(await optionLabels(screen.getByLabelText('Trashed'))).toEqual(['Without trashed', 'With trashed', 'Only trashed']);
 
-    expect(Array.from(trashed.options, (option) => option.text)).toEqual(['Without trashed', 'With trashed', 'Only trashed']);
-
-    fireEvent.change(trashed, { target: { value: 'only' } });
+    await choose(screen.getByLabelText('Trashed'), 'Only trashed');
 
     expect(visitData(visit)).toEqual({ trashed: 'only' });
   });

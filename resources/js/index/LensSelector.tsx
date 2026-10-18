@@ -1,5 +1,6 @@
 import { router } from '@inertiajs/react';
 import { useTranslation } from '@lathephp/core';
+import { Select } from '../components/ui/Select';
 import type { LensEntry } from './types';
 
 interface LensSelectorProps {
@@ -14,21 +15,13 @@ export function LensSelector({ resourcePath, label, lens, lenses }: LensSelector
   const { __ } = useTranslation();
 
   return (
-    <select
+    <Select
       aria-label={__('View')}
       value={lens?.uriKey ?? ''}
-      className="h-9 rounded-md border border-border bg-background px-2 text-sm outline-none focus-visible:ring-2 focus-visible:ring-ring"
-      onChange={(event) => {
-        const key = event.target.value;
+      options={[{ value: '', label }, ...lenses.map((item) => ({ value: item.uriKey, label: item.name }))]}
+      onChange={(key) => {
         router.visit(key === '' ? resourcePath : `${resourcePath}/lens/${key}`);
       }}
-    >
-      <option value="">{label}</option>
-      {lenses.map((item) => (
-        <option key={item.uriKey} value={item.uriKey}>
-          {item.name}
-        </option>
-      ))}
-    </select>
+    />
   );
 }

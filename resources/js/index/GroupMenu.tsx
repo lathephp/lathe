@@ -1,5 +1,6 @@
 import { useTranslation } from '@lathephp/core';
 import { usePage } from '@inertiajs/react';
+import { Select } from '../components/ui/Select';
 import type { IndexProps } from './types';
 import type { IndexUrlState } from './useIndexState';
 
@@ -26,24 +27,21 @@ export function GroupMenu({ visit }: GroupMenuProps) {
       <label htmlFor="group-by" className="text-muted-foreground">
         {__('Group')}
       </label>
-      <select
+      <Select
         id="group-by"
+        size="sm"
         value={active}
-        className="h-8 rounded-md border border-border bg-background px-2 outline-none focus-visible:ring-2 focus-visible:ring-ring"
-        onChange={(event) => {
-          visit({ group: event.target.value });
+        options={[
+          { value: ungrouped, label: __('None') },
+          ...groups.available.flatMap((group) => [
+            { value: `${group.id}:asc`, label: __(':group ascending', { group: group.label }) },
+            { value: `${group.id}:desc`, label: __(':group descending', { group: group.label }) },
+          ]),
+        ]}
+        onChange={(group) => {
+          visit({ group });
         }}
-      >
-        <option value={ungrouped}>{__('None')}</option>
-        {groups.available.flatMap((group) => [
-          <option key={`${group.id}:asc`} value={`${group.id}:asc`}>
-            {__(':group ascending', { group: group.label })}
-          </option>,
-          <option key={`${group.id}:desc`} value={`${group.id}:desc`}>
-            {__(':group descending', { group: group.label })}
-          </option>,
-        ])}
-      </select>
+      />
     </div>
   );
 }

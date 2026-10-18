@@ -1,7 +1,7 @@
 import { __panel } from '@lathephp/core';
 import { act, fireEvent, screen, waitFor } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { renderPage } from './support';
+import { choose, renderPage } from './support';
 
 afterEach(() => {
   vi.restoreAllMocks();
@@ -59,10 +59,10 @@ describe('inline cells', () => {
     );
     renderRows();
 
-    fireEvent.change(screen.getByRole('combobox', { name: 'Status' }), { target: { value: 'shipped' } });
+    await choose(screen.getByRole('combobox', { name: 'Status' }), 'shipped');
 
     await waitFor(() => {
-      expect(screen.getByRole<HTMLSelectElement>('combobox', { name: 'Status' }).value).toBe('shipped');
+      expect(screen.getByRole('combobox', { name: 'Status' }).textContent).toBe('shipped');
     });
     expect(fetch.mock.calls[0]?.[0]).toBe('/lathe/api/resources/orders/12/field/status');
     expect(bodies(fetch)[0]).toEqual({ value: 'shipped', _updated_at: '2026-10-14T09:00:00.000Z' });
@@ -122,12 +122,12 @@ describe('inline cells', () => {
     vi.spyOn(globalThis, 'fetch').mockResolvedValue(reply(500, { message: 'Server Error' }));
     renderRows();
 
-    fireEvent.change(screen.getByRole('combobox', { name: 'Status' }), { target: { value: 'shipped' } });
+    await choose(screen.getByRole('combobox', { name: 'Status' }), 'shipped');
 
     await waitFor(() => {
       expect(__panel.toasts.get().map((toast) => toast.message)).toContain('Something went wrong. Please try again.');
     });
-    expect(screen.getByRole<HTMLSelectElement>('combobox', { name: 'Status' }).value).toBe('pending');
+    expect(screen.getByRole('combobox', { name: 'Status' }).textContent).toBe('pending');
   });
 
   it('refreshes the row from a 409 and sends its new token next time', async () => {
@@ -137,12 +137,12 @@ describe('inline cells', () => {
       .mockResolvedValueOnce(reply(200, { field: 'status', fields: { status: { value: 'pending', display: 'pending' } }, updatedAt: '2026-10-14T09:00:06.000Z' }));
     renderRows();
 
-    fireEvent.change(screen.getByRole('combobox', { name: 'Status' }), { target: { value: 'pending' } });
+    await choose(screen.getByRole('combobox', { name: 'Status' }), 'shipped');
     await waitFor(() => {
-      expect(screen.getByRole<HTMLSelectElement>('combobox', { name: 'Status' }).value).toBe('shipped');
+      expect(screen.getByRole('combobox', { name: 'Status' }).textContent).toBe('shipped');
     });
 
-    fireEvent.change(screen.getByRole('combobox', { name: 'Status' }), { target: { value: 'pending' } });
+    await choose(screen.getByRole('combobox', { name: 'Status' }), 'pending');
     await waitFor(() => {
       expect(fetch).toHaveBeenCalledTimes(2);
     });

@@ -1,7 +1,7 @@
 import { useTranslation } from '@lathephp/core';
 import { useId } from 'react';
+import { Select } from '../../components/ui/Select';
 import type { FilterControlProps } from '../types';
-import { fieldClass } from './FilterFieldset';
 
 export function SelectFilter({ filter, value, onChange }: FilterControlProps) {
   const { __ } = useTranslation();
@@ -12,22 +12,13 @@ export function SelectFilter({ filter, value, onChange }: FilterControlProps) {
       <label htmlFor={id} className="text-sm font-medium">
         {filter.name}
       </label>
-      <select
+      <Select
         id={id}
-        name={filter.key}
-        className={fieldClass}
+        className="w-full"
         value={typeof value === 'string' ? value : ''}
-        onChange={(event) => {
-          onChange(event.target.value);
-        }}
-      >
-        <option value="">{__('Any')}</option>
-        {filter.options?.map((option) => (
-          <option key={option.value} value={option.value}>
-            {option.label}
-          </option>
-        ))}
-      </select>
+        options={[{ value: '', label: __('Any') }, ...(filter.options ?? [])]}
+        onChange={onChange}
+      />
     </div>
   );
 }

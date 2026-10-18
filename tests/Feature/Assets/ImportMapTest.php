@@ -4,11 +4,11 @@ use Illuminate\Support\Facades\File;
 use Lathe\Lathe;
 use Workbench\App\Models\User;
 
-// The 22 @lathephp/ui entries a plugin loads only when it imports them.
+// The 24 @lathephp/ui entries a plugin loads only when it imports them.
 const IMPORT_MAP_UI_SUBPATHS = [
     'breadcrumb', 'button-group', 'calendar', 'chart', 'code-editor', 'collapsible', 'combobox', 'command',
     'direction', 'empty', 'field', 'hover-card', 'input-group', 'item', 'otp-field', 'pagination',
-    'scroll-area', 'shimmer-bar', 'sidebar', 'sonner', 'toggle', 'toggle-group',
+    'popover', 'scroll-area', 'select', 'shimmer-bar', 'sidebar', 'sonner', 'toggle', 'toggle-group',
 ];
 
 beforeEach(function () {
@@ -45,6 +45,7 @@ it('maps each @lathephp/ui subpath to its own file under the asset hash', functi
             ->and($imports["@lathephp/ui/{$name}"])->toBe("/lathe/assets/abcd1234/lathephp-ui-{$name}-12345678.js");
     }
 
-    // The plan counts 28 entries; react/compiler-runtime, which the React Compiler output imports, makes 29.
-    expect($imports)->toHaveCount(29);
+    // The plan counted 28 entries; react/compiler-runtime, which the React Compiler output imports,
+    // made 29, and the popover and select subpaths of m9-copper make 31.
+    expect($imports)->toHaveCount(31);
 });

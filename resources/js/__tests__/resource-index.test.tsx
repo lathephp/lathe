@@ -3,7 +3,7 @@ import { __panel } from '@lathephp/core';
 import { act, fireEvent, screen, within } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import type { SharedProps } from '../types';
-import { bracketed, renderPage, visibleStrings } from './support';
+import { bracketed, choose, optionLabels, renderPage, visibleStrings } from './support';
 
 afterEach(() => {
   vi.restoreAllMocks();
@@ -252,16 +252,14 @@ describe('orders pagination', () => {
     expect(visit.mock.calls[0]?.[1]).toMatchObject({ data: {} });
   });
 
-  it('changes the page size from the resource options and starts at page 1', () => {
+  it('changes the page size from the resource options and starts at page 1', async () => {
     const visit = vi.spyOn(router, 'visit').mockImplementation(() => undefined);
     renderOrders({ rows: rows(25, 26), state: { page: 2, perPage: 25, hasMorePages: true } });
 
-    const select = screen.getByLabelText<HTMLSelectElement>('Per page');
+    expect(screen.getByLabelText('Per page').textContent).toBe('25');
+    expect(await optionLabels(screen.getByLabelText('Per page'))).toEqual(['25', '50', '100']);
 
-    expect([...select.options].map((option) => option.value)).toEqual(['25', '50', '100']);
-    expect(select.value).toBe('25');
-
-    fireEvent.change(select, { target: { value: '50' } });
+    await choose(screen.getByLabelText('Per page'), '50');
 
     expect(visit.mock.calls[0]?.[1]).toMatchObject({ data: { per_page: 50 } });
   });

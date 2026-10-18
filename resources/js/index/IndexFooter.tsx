@@ -1,5 +1,6 @@
 import { Deferred } from '@inertiajs/react';
 import { formatNumber, useTranslation } from '@lathephp/core';
+import { Select } from '../components/ui/Select';
 import { Pagination } from './Pagination';
 import type { Count, IndexProps } from './types';
 import type { IndexUrlState } from './useIndexState';
@@ -50,20 +51,15 @@ export function IndexFooter({ resource, state, count, rowCount, hasMorePages, lo
         <label htmlFor="per-page" className="text-muted-foreground">
           {__('Per page')}
         </label>
-        <select
+        <Select
           id="per-page"
-          value={state.perPage}
-          className="h-8 rounded-md border border-border bg-background px-2 outline-none focus-visible:ring-2 focus-visible:ring-ring"
-          onChange={(event) => {
-            visit({ per_page: Number(event.target.value) });
+          size="sm"
+          value={String(state.perPage)}
+          options={resource.perPageOptions.map((option) => ({ value: String(option), label: String(option) }))}
+          onChange={(option) => {
+            visit({ per_page: Number(option) });
           }}
-        >
-          {resource.perPageOptions.map((option) => (
-            <option key={option} value={option}>
-              {option}
-            </option>
-          ))}
-        </select>
+        />
         <Pagination
           type={resource.definition.paginationType}
           page={state.page}

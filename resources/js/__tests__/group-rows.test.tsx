@@ -1,7 +1,7 @@
 import { router } from '@inertiajs/react';
 import { fireEvent, screen, within } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { renderPage } from './support';
+import { choose, optionLabels, renderPage } from './support';
 
 afterEach(() => {
   vi.restoreAllMocks();
@@ -119,12 +119,12 @@ describe('group rows', () => {
 });
 
 describe('group menu', () => {
-  it('visits group=status:desc for Status descending and group=_none for None', () => {
+  it('visits group=status:desc for Status descending and group=_none for None', async () => {
     const visit = vi.spyOn(router, 'visit').mockImplementation(() => undefined);
     renderGrouped({ url: '/lathe/resources/orders?group=status:asc&page=2' });
     const menu = screen.getByRole('combobox', { name: 'Group' });
 
-    expect(within(menu).getAllByRole('option').map((option) => option.textContent)).toEqual([
+    expect(await optionLabels(menu)).toEqual([
       'None',
       'Status ascending',
       'Status descending',
@@ -132,8 +132,8 @@ describe('group menu', () => {
       'Placed descending',
     ]);
 
-    fireEvent.change(menu, { target: { value: 'status:desc' } });
-    fireEvent.change(menu, { target: { value: '_none' } });
+    await choose(screen.getByRole('combobox', { name: 'Group' }), 'Status descending');
+    await choose(screen.getByRole('combobox', { name: 'Group' }), 'None');
 
     expect((visit.mock.calls[0]?.[1] as { data: Record<string, unknown> }).data).toEqual({ group: 'status:desc' });
     expect((visit.mock.calls[1]?.[1] as { data: Record<string, unknown> }).data).toEqual({ group: '_none' });

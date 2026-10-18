@@ -15,8 +15,8 @@ class AssetManifest
         '@lathephp/ui/code-editor', '@lathephp/ui/collapsible', '@lathephp/ui/combobox', '@lathephp/ui/command',
         '@lathephp/ui/direction', '@lathephp/ui/empty', '@lathephp/ui/field', '@lathephp/ui/hover-card',
         '@lathephp/ui/input-group', '@lathephp/ui/item', '@lathephp/ui/otp-field', '@lathephp/ui/pagination',
-        '@lathephp/ui/scroll-area', '@lathephp/ui/shimmer-bar', '@lathephp/ui/sidebar', '@lathephp/ui/sonner',
-        '@lathephp/ui/toggle', '@lathephp/ui/toggle-group',
+        '@lathephp/ui/popover', '@lathephp/ui/scroll-area', '@lathephp/ui/select', '@lathephp/ui/shimmer-bar',
+        '@lathephp/ui/sidebar', '@lathephp/ui/sonner', '@lathephp/ui/toggle', '@lathephp/ui/toggle-group',
     ];
 
     public const string ENTRY = 'resources/js/app.tsx';
