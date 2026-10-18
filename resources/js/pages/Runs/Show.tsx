@@ -107,7 +107,7 @@ export default function Show({ type, id }: RunPageProps) {
               )}
               {imported?.errors_url != null && imported.failed_rows > 0 && (
                 <a href={imported.errors_url} target="_blank" rel="noopener noreferrer" className={linkClass}>
-                  {__('Download Failed Rows')}
+                  {__('Download failed rows')}
                 </a>
               )}
               {imported !== null && imported.status === 'failed' && (

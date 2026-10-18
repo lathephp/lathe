@@ -46,7 +46,7 @@ describe('the run page', () => {
     renderPage('Runs/Show', { type: 'import', id: 5 });
 
     expect(await screen.findByText('2 created, 0 updated, 0 skipped, 1 failed.')).toBeTruthy();
-    expect(screen.getByRole('link', { name: 'Download Failed Rows' }).getAttribute('href')).toBe(importStatus.errors_url);
+    expect(screen.getByRole('link', { name: 'Download failed rows' }).getAttribute('href')).toBe(importStatus.errors_url);
   });
 
   it('resumes a failed import', async () => {

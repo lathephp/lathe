@@ -70,6 +70,6 @@ test('each_run_status_endpoint_has_its_documented_shape', function () {
 
     expect(jsonShape($this->getJson("/lathe/api/bulk-runs/{$bulk->id}")->assertOk()->json()))->toBe(['failed', 'processed', 'skipped', 'status', 'total'])
         ->and(jsonShape($this->getJson("/lathe/api/exports/{$export->id}")->assertOk()->json()))->toBe(['download_url', 'exception', 'id', 'processed_rows', 'status', 'total_rows'])
-        ->and(jsonShape($this->getJson("/lathe/api/imports/{$import->id}")->assertOk()->json()))->toBe(['created_rows', 'errors_url', 'exception', 'failed_rows', 'first_errors', 'id', 'mode', 'processed_rows', 'skipped_rows', 'status', 'total_rows', 'updated_rows'])
+        ->and(jsonShape($this->getJson("/lathe/api/imports/{$import->id}")->assertOk()->json()))->toBe(['created_rows', 'errors_url', 'exception', 'failed_rows', 'first_errors', 'id', 'mode', 'processed_rows', 'resource_label', 'skipped_rows', 'status', 'total_rows', 'updated_rows'])
         ->and(jsonShape($this->getJson('/lathe/api/resources/action-events')->assertOk()->json()))->toContain('table', 'resource');
 })->group('regression');

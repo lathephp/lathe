@@ -226,7 +226,7 @@ it('imports with notifications off and keeps the result for the run page', funct
     Notification::assertNothingSent();
 });
 
-it('imports products-bad.csv with a warning and a Download Failed Rows button', function () use ($productsMap) {
+it('imports products-bad.csv with a warning and a Download failed rows button', function () use ($productsMap) {
     Notification::fake();
     $import = uploadedImport(fixtureCsv('products-bad.csv'), $productsMap);
 
@@ -243,7 +243,7 @@ it('imports products-bad.csv with a warning and a Download Failed Rows button', 
             && $array['message'] === 'Your import has completed.'
             && $array['body'] === '2 created, 0 updated, 0 skipped, 1 failed.'
             && count($array['actions']) === 1
-            && [$action['text'], $action['style'], $action['openInNewTab']] === ['Download Failed Rows', 'button', true]
+            && [$action['text'], $action['style'], $action['openInNewTab']] === ['Download failed rows', 'button', true]
             && str_contains($action['url'], "/lathe/api/imports/{$import->id}/download-errors?expires=");
     });
 });

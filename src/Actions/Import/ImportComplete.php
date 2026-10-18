@@ -29,7 +29,7 @@ class ImportComplete extends LatheNotification
         $errorsUrl = $import->errorsUrl();
 
         if ($errorsUrl !== null) {
-            $this->actionButton(Lathe::__('Download Failed Rows'), $errorsUrl)->openInNewTab();
+            $this->actionButton(Lathe::__('Download failed rows'), $errorsUrl)->openInNewTab();
         }
 
         if ($import->status === 'failed') {
