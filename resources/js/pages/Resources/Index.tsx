@@ -10,6 +10,7 @@ import { IndexFooter } from '../../index/IndexFooter';
 import { IndexHeader, IndexToolbar, toolbarRow } from '../../index/IndexToolbar';
 import { useLoadMore } from '../../index/Pagination';
 import { usePolling, usePollingChoice } from '../../index/PollingToggle';
+import { PhoneCards } from '../../index/PhoneCards';
 import { ResourceTable, rowHeights } from '../../index/ResourceTable';
 import { TabBar, tabBand } from '../../index/TabBar';
 import type { IndexProps } from '../../index/types';
@@ -130,8 +131,10 @@ function IndexPage({ resource, table, state, count, error, lens, lenses, actions
           />
         ) : (
           <>
+            <PhoneCards resource={resource} table={{ ...table, rows: more.rows }} />
             <ResourceTable
               resource={resource}
+              cards={table.phoneCard !== undefined}
               table={{ ...table, rows: more.rows }}
               state={state}
               loading={index.loading}

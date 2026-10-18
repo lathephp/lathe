@@ -46,6 +46,8 @@ interface ResourceTableProps extends Pick<IndexProps, 'resource' | 'table' | 'st
   /** The ?sort= of the URL, `-total_cents,placed_at`. */
   sort: string | undefined;
   onSort: (sort: string) => void;
+  /** Whether the page draws the rows as cards below 768 px, so the table hides there. */
+  cards?: boolean;
 }
 
 /**
@@ -89,7 +91,7 @@ export function direction(sort: string | undefined, key: string): 'ascending' | 
   return tokens.includes(key) ? 'ascending' : tokens.includes(`-${key}`) ? 'descending' : 'none';
 }
 
-export function ResourceTable({ resource, table, state, loading, selection, sort, onSort }: ResourceTableProps) {
+export function ResourceTable({ resource, table, state, loading, selection, sort, onSort, cards }: ResourceTableProps) {
   const { __ } = useTranslation();
   const { props: { basePath, tableStyle }, onceProps } = usePage<SharedProps>();
   const { clickAction, showColumnBorders } = resource.definition;
@@ -272,7 +274,8 @@ export function ResourceTable({ resource, table, state, loading, selection, sort
     // Relative, so the visually hidden header labels stay inside the scroll box on a narrow screen.
     <div
       ref={scroller}
-      className="relative overflow-x-auto"
+      // Below 768 px the page shows the rows as cards instead.
+      className={cn('relative overflow-x-auto', cards === true && 'max-md:hidden')}
       role="region"
       aria-label={__(':resource table', { resource: resource.label })}
       tabIndex={0}

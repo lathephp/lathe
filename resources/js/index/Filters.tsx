@@ -9,7 +9,7 @@ import { activeFilters, cancelFilterVisit } from './FilterChips';
 import { IndexBanner } from './IndexBanner';
 import { countText } from './IndexFooter';
 import { FilterPanel } from './lazy';
-import type { IndexProps } from './types';
+import type { Count, IndexProps } from './types';
 import { type IndexUrlState, parseQuery } from './useIndexState';
 
 /** The toolbar's Filter button, its popover, and the banner for a link with removed filters. */
@@ -25,6 +25,10 @@ export function Filters({ visit }: { visit: (changes: IndexUrlState) => void }) 
   const available = filters?.available ?? [];
   const softDeletes = resource.softDeletes;
   const box = useRef<HTMLDivElement>(null);
+  const matches = (found: Count) => ({
+    count: countText(found),
+    resource: (found.value === 1 && !found.capped && !found.estimated ? resource.singularLabel : resource.label).toLowerCase(),
+  });
 
   // Escape or a press outside closes the popover. A select's list draws in a portal, so a press in a listbox stays inside.
   useEffect(() => {
@@ -81,12 +85,24 @@ export function Filters({ visit }: { visit: (changes: IndexUrlState) => void }) 
             )}
           </Button>
           {open && (
+            <button
+              type="button"
+              tabIndex={-1}
+              aria-label={__('Close')}
+              className="fixed inset-0 z-40 bg-scrim md:hidden"
+              onClick={() => {
+                setOpen(false);
+              }}
+            />
+          )}
+          {open && (
             // Absolute, so opening it moves nothing under the toolbar.
             <div
               id={panelId}
               role="dialog"
               aria-label={__('Filters')}
-              className="absolute end-0 top-full z-10 mt-1 w-[340px] max-w-[calc(100vw-2rem)] overflow-hidden rounded-lg border border-border bg-background shadow-lg"
+              // Below 768 px a bottom sheet over a scrim, its foot a button that closes it.
+              className="absolute end-0 top-full z-10 mt-1 w-[340px] max-w-[calc(100vw-2rem)] overflow-hidden rounded-lg border border-border bg-background shadow-lg max-md:fixed max-md:inset-x-0 max-md:top-auto max-md:bottom-0 max-md:z-50 max-md:w-auto max-md:max-w-none max-md:rounded-b-none max-md:rounded-t-2xl"
             >
               <div className="flex h-11 items-center justify-between border-b border-border px-4">
                 <span className="text-sm font-semibold">{__('Filters')}</span>
@@ -118,14 +134,21 @@ export function Filters({ visit }: { visit: (changes: IndexUrlState) => void }) 
               </div>
               {/* The index's own deferred count, which the live visit brings: no request of its own. */}
               {count !== null && (
-                <div data-lathe-filter-count="" className="flex h-10 items-center border-t border-border bg-muted px-4 text-sm text-muted-foreground tabular-nums">
+                <div data-lathe-filter-count="" className="flex h-10 items-center border-t border-border bg-muted px-4 text-sm text-muted-foreground tabular-nums max-md:h-auto max-md:py-3">
                   {count === undefined ? (
                     <span data-placeholder="" aria-hidden="true" className={`h-3 w-24 ${skeletonBar}`} />
                   ) : (
-                    __(':count :resource', {
-                      count: countText(count),
-                      resource: (count.value === 1 && !count.capped && !count.estimated ? resource.singularLabel : resource.label).toLowerCase(),
-                    })
+                    <>
+                      <span className="max-md:hidden">{__(':count :resource', matches(count))}</span>
+                      <Button
+                        className="w-full md:hidden"
+                        onClick={() => {
+                          setOpen(false);
+                        }}
+                      >
+                        {__('Show :count :resource', matches(count))}
+                      </Button>
+                    </>
                   )}
                 </div>
               )}

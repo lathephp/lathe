@@ -316,6 +316,7 @@
     "Service unavailable": "Service unavailable",
     "Settings saved.": "Settings saved.",
     "Show": "Show",
+    "Show :count :resource": "Show :count :resource",
     "Show Content": "Show Content",
     "Show all": "Show all",
     "Show count": "Show count",

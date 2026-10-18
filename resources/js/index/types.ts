@@ -134,6 +134,8 @@ export interface IndexProps {
     columnChoice?: ColumnChoice | null;
     /** Every index column in code order; empty on a lens, which has no picker. */
     allColumns?: { key: string; label: string }[];
+    /** The columns a row's card shows below 768 px; a null title means the row's own title. */
+    phoneCard?: { title: string | null; badge: string | null; value: string | null; meta: string | null };
   };
   /** The open lens; null on the plain index. */
   lens?: LensEntry | null;
