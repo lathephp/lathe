@@ -161,3 +161,47 @@ describe('request that needs a password confirmation', () => {
     expect(vi.mocked(fetch)).toHaveBeenCalledOnce();
   });
 });
+
+describe('write listener', () => {
+  afterEach(() => {
+    __panel.setWriteListener(undefined);
+  });
+
+  it.each(['POST', 'PUT', 'PATCH', 'DELETE'])('hears a %s answered 200 or 204 once, with its URL', async (method) => {
+    const listener = vi.fn();
+    __panel.setWriteListener(listener);
+
+    respond(200, '{"ok":true}');
+    await request('/lathe/api/resources/orders', { method });
+    respond(204, '');
+    await request('/lathe/api/resources/orders/1', { method });
+
+    expect(listener.mock.calls).toEqual([['/lathe/api/resources/orders'], ['/lathe/api/resources/orders/1']]);
+  });
+
+  it('stays quiet for a GET', async () => {
+    const listener = vi.fn();
+    __panel.setWriteListener(listener);
+    respond(200, '{}');
+
+    await request('/lathe/api/resources/orders');
+
+    expect(listener).not.toHaveBeenCalled();
+  });
+
+  it.each([422, 500])('stays quiet for a %i', async (status) => {
+    const listener = vi.fn();
+    __panel.setWriteListener(listener);
+    respond(status, '{}');
+
+    await request('/lathe/api/resources/orders', { method: 'POST', toastOnError: false }).catch(() => undefined);
+
+    expect(listener).not.toHaveBeenCalled();
+  });
+
+  it('does nothing without a listener', async () => {
+    respond(200, '{}');
+
+    await expect(request('/x', { method: 'POST' })).resolves.toEqual({});
+  });
+});

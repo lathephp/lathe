@@ -31,6 +31,13 @@ export function setPasswordConfirmer(confirmer: (() => Promise<boolean>) | undef
   passwordConfirmer = confirmer;
 }
 
+let writeListener: ((url: string) => void) | undefined;
+
+/** The panel's hook for a successful write: called with the request URL after a 2xx non-GET answer. */
+export function setWriteListener(listener: ((url: string) => void) | undefined): void {
+  writeListener = listener;
+}
+
 function xsrfToken(): string | null {
   if (typeof document === 'undefined') {
     return null;
@@ -86,6 +93,10 @@ export async function request<T = unknown>(input: string, options: RequestOption
   // 423: the server wants a recent password confirmation. Once confirmed, the request goes again, once.
   if (response.status === 423 && (await passwordConfirmer?.())) {
     response = await send();
+  }
+
+  if (response.ok && (options.method ?? 'GET').toUpperCase() !== 'GET') {
+    writeListener?.(input);
   }
 
   if (response.status === 204) {
