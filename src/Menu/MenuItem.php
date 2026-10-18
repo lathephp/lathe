@@ -29,7 +29,11 @@ class MenuItem implements JsonSerializable
 
     protected ?bool $active = null;
 
-    /** The Inertia page a dashboard link opens; a resource link's page follows from its path. */
+    /**
+     * The Inertia page a dashboard link opens; a resource link's page follows from its path.
+     *
+     * @internal
+     */
     protected ?string $component = null;
 
     /** @var (Closure(Request): bool)|null */

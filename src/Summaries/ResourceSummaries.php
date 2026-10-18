@@ -42,6 +42,8 @@ class ResourceSummaries
     /**
      * The fields that carry a summary, which decide whether the footer exists at all.
      *
+     * @internal
+     *
      * @param  array<mixed>  $fields
      * @return list<Field>
      */
