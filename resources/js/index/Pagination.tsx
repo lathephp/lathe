@@ -36,7 +36,9 @@ export function Pagination({ type, page, perPage = 1, count, hasMorePages, loadi
   const known = type === 'links' && count != null && !count.capped && !count.estimated;
   const loading = type === 'links' && count === undefined;
   const last = known ? Math.ceil(count.value / perPage) : 0;
-  const pages = type === 'simple' ? [] : [...new Set([1, page - 1, page, page + 1, ...(known ? [last] : [2, 3])])].filter((n) => n >= 1 && (!known || n <= last)).sort((x, y) => x - y);
+  // Without a known last page the window stops at the next page, when there is one.
+  const end = known ? last : hasMorePages ? page + 1 : page;
+  const pages = type === 'simple' ? [] : [...new Set([1, page - 1, page, page + 1, ...(known ? [last] : [2])])].filter((n) => n >= 1 && n <= end).sort((x, y) => x - y);
 
   function go(label: string, target: number, disabled: boolean, Icon: typeof ChevronLeft) {
     return (
@@ -58,7 +60,7 @@ export function Pagination({ type, page, perPage = 1, count, hasMorePages, loadi
           </Button>
         </Fragment>
       ))}
-      {pages.length > 0 && !known && <span aria-hidden>…</span>}
+      {pages.length > 0 && !known && hasMorePages && <span aria-hidden>…</span>}
       {go(__('Next page'), page + 1, !hasMorePages, ChevronRight)}
       {(known || loading) && go(__('Last page'), last, loading || page >= last, ChevronsRight)}
     </div>

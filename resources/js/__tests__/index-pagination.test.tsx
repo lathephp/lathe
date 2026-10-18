@@ -116,6 +116,15 @@ describe('links pagination', () => {
     expect(screen.queryByRole('button', { name: '400' })).toBeNull();
   });
 
+  it('numbers no page past the next one when the last page is unknown', () => {
+    renderOrders({ count: { value: 10000, exact: false, capped: true, estimated: false }, state: { page: 4, perPage: 25, hasMorePages: false } });
+
+    expect(screen.getByRole('button', { name: '4' }).getAttribute('aria-current')).toBe('page');
+    expect(screen.queryByRole('button', { name: '5' })).toBeNull();
+    // 1 2 3 4, with no gap after the last page there is.
+    expect(screen.queryAllByText('…')).toHaveLength(0);
+  });
+
   it('reads 50 rows per page from the count', () => {
     renderOrders({ rows: rows(50), state: { page: 1, perPage: 50, hasMorePages: true } });
 
