@@ -1,7 +1,7 @@
 import { Link, router } from '@inertiajs/react';
 import { useTranslation } from '@lathephp/core';
 import { LogOut } from 'lucide-react';
-import { lazy, Suspense, useState } from 'react';
+import { lazy, Suspense, useEffect, useRef, useState } from 'react';
 import { cn } from '../lib/cn';
 import type { NavigationItem } from '../types';
 
@@ -25,13 +25,31 @@ function initials(name: string): string {
     .join('');
 }
 
-/** The signed-in user at the foot of the sidebar, with the Log out entry. */
+/** The signed-in user at the foot of the sidebar, with the Sign out entry. */
 export function UserMenu({ user, items, logoutPath, collapsed }: UserMenuProps) {
   const { __ } = useTranslation();
   const [open, setOpen] = useState(false);
+  const root = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!open) {
+      return undefined;
+    }
+
+    const onPointerDown = (event: PointerEvent) => {
+      if (event.target instanceof Node && root.current?.contains(event.target) !== true) {
+        setOpen(false);
+      }
+    };
+    document.addEventListener('pointerdown', onPointerDown);
+
+    return () => {
+      document.removeEventListener('pointerdown', onPointerDown);
+    };
+  }, [open]);
 
   return (
-    <div className="relative border-t border-border p-2">
+    <div ref={root} className="relative border-t border-sidebar-border p-2">
       {open && (
         <div
           id="lathe-user-menu"
@@ -77,7 +95,7 @@ export function UserMenu({ user, items, logoutPath, collapsed }: UserMenuProps) 
             }}
           >
             <LogOut aria-hidden="true" className="size-4" />
-            {__('Log out')}
+            {__('Sign out')}
           </button>
         </div>
       )}
@@ -97,7 +115,10 @@ export function UserMenu({ user, items, logoutPath, collapsed }: UserMenuProps) 
         >
           {initials(user.name)}
         </span>
-        <span className={cn('truncate', collapsed && 'md:sr-only')}>{user.name}</span>
+        <span className={cn('grid min-w-0', collapsed && 'md:sr-only')}>
+          <span className="truncate font-medium">{user.name}</span>
+          <span className="truncate text-xs text-muted-foreground">{user.email}</span>
+        </span>
       </button>
     </div>
   );

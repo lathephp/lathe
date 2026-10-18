@@ -14,9 +14,11 @@ All notable changes to Lathe are listed here. The format follows [Keep a Changel
 - [api] The default theme is Lathe's copper design in light and dark. Apps that set `theme.colors` keep their colours. New public tokens: `brand`, `focus`, `skeleton`, `scrim`, `chart-other`, `sidebar-hover`, a `-subtle` and `-subtle-foreground` pair for `primary`, `success`, `warning`, `info` and `destructive`, and `shadow-xs` to `shadow-lg`.
 - [api] The 16 new colour tokens are `theme.colors` keys and `Lathe\Theme\Color` cases. When an app sets its own colours, each new token it did not set follows them: `brand`, `focus` and `link` take `primary`, and each `-subtle` pair is a tint of its colour with text at 4.5:1.
 - [api] Toasts render with Base UI Toast. A toast stays 5 seconds, its timer pauses on hover and focus, and an error stays until it is dismissed. The `@lathephp/ui/sonner` subpath is removed; `@lathephp/ui/toast` replaces it, and sonner is no longer a dependency. `ToastMessage` gains a `timeout` field.
+- [api] The user menu's "Log out" reads "Sign out"; an app that translates the panel moves its `Log out` string to `Sign out`. The menu's trigger shows the email under the name.
 
 ### Fixed
 
+- On a phone, the open menu has a Close menu button and closes on Escape, and the user menu closes on a click outside it.
 - A record's breadcrumb names it by its title instead of `#id`; the id stays only when the title is empty.
 
 ## [1.0.0-beta.2] - Unreleased

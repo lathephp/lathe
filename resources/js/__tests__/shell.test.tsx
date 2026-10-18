@@ -149,6 +149,19 @@ describe('sidebar', () => {
 
     expect(sidebar().dataset.mobile).toBe('closed');
   });
+
+  it('closes the phone menu with Escape and puts the focus back on Open menu', () => {
+    renderPage('Dashboard', dashboard);
+    const opener = screen.getByRole('button', { name: 'Open menu' });
+
+    fireEvent.click(opener);
+    expect(within(sidebar()).getByRole('button', { name: 'Close menu' })).toBeTruthy();
+
+    fireEvent.keyDown(document, { key: 'Escape' });
+
+    expect(sidebar().dataset.mobile).toBe('closed');
+    expect(document.activeElement).toBe(opener);
+  });
 });
 
 describe('layout', () => {
@@ -242,9 +255,9 @@ describe('user menu', () => {
 
     fireEvent.click(within(sidebar()).getByRole('button', { name: /Ada Lovelace/ }));
 
-    expect(screen.getByText('ada@example.com')).toBeTruthy();
+    expect(within(screen.getByRole('menu', { name: 'User menu' })).getByText('ada@example.com')).toBeTruthy();
 
-    fireEvent.click(screen.getByRole('menuitem', { name: 'Log out' }));
+    fireEvent.click(screen.getByRole('menuitem', { name: 'Sign out' }));
 
     expect(post).toHaveBeenCalledWith('/lathe/logout');
   });
@@ -359,7 +372,7 @@ describe('translation', () => {
 
     expect(strings).toContain('[Skip to content]');
     expect(strings).toContain('[No widgets yet]');
-    expect(strings).toContain('[Log out]');
+    expect(strings).toContain('[Sign out]');
     expect(strings.filter((text) => !data.has(text) && !/^\[.+\]$/.test(text))).toEqual([]);
   });
 

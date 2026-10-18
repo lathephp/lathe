@@ -77,7 +77,8 @@ function NavItem({ item, context }: { item: NavLink; context: NavContext }) {
     'aria-describedby': text === '' ? undefined : id,
     'data-active': active,
     className:
-      'flex h-8 items-center gap-2 rounded-md px-2 text-sm outline-none hover:bg-background focus-visible:ring-2 focus-visible:ring-ring aria-[current=page]:bg-background aria-[current=page]:font-medium',
+      // The current page wears the sidebar accent and a 3 px brand bar at its start.
+      'relative flex h-8 items-center gap-2 rounded-md px-2 text-sm outline-none hover:bg-sidebar-hover focus-visible:ring-2 focus-visible:ring-ring aria-[current=page]:bg-sidebar-accent aria-[current=page]:font-medium aria-[current=page]:text-sidebar-accent-foreground aria-[current=page]:before:absolute aria-[current=page]:before:inset-y-1.5 aria-[current=page]:before:start-0 aria-[current=page]:before:w-[3px] aria-[current=page]:before:rounded-full aria-[current=page]:before:bg-brand',
   };
   const content = (
     <>

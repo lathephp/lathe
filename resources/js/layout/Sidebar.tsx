@@ -1,4 +1,5 @@
 import { __panel, useTranslation } from '@lathephp/core';
+import { X } from 'lucide-react';
 import { cn } from '../lib/cn';
 import type { SharedProps } from '../types';
 import { NavSection, type NavBadge, type NavBlock } from './NavSection';
@@ -11,9 +12,10 @@ interface SidebarProps {
   url: string;
   expanded: boolean;
   mobileOpen: boolean;
+  onClose: () => void;
 }
 
-export function Sidebar({ props, url, expanded, mobileOpen }: SidebarProps) {
+export function Sidebar({ props, url, expanded, mobileOpen, onClose }: SidebarProps) {
   const { __ } = useTranslation();
   const { appName, brand, versionLabel, navigation, basePath, layout, auth } = props;
   const collapsed = !expanded;
@@ -30,7 +32,7 @@ export function Sidebar({ props, url, expanded, mobileOpen }: SidebarProps) {
       data-state={expanded ? 'expanded' : 'collapsed'}
       data-mobile={mobileOpen ? 'open' : 'closed'}
       className={cn(
-        'fixed inset-y-0 start-0 z-40 flex w-(--sidebar-width) flex-col border-e border-border bg-muted transition-[width,translate] md:sticky md:top-0 md:h-svh md:translate-x-0',
+        'fixed inset-y-0 start-0 z-40 flex w-(--sidebar-width) flex-col border-e border-sidebar-border bg-sidebar text-sidebar-foreground transition-[width,translate] md:sticky md:top-0 md:h-svh md:translate-x-0',
         !mobileOpen && 'max-md:-translate-x-full max-md:rtl:translate-x-full',
         expanded && 'md:w-(--sidebar-width)',
         collapsed && layout.sidebar.collapsible === 'icon' && 'md:w-(--sidebar-width-icon)',
@@ -55,6 +57,16 @@ export function Sidebar({ props, url, expanded, mobileOpen }: SidebarProps) {
           <p className="truncate text-sm font-semibold">{appName}</p>
           {versionLabel !== null && <p className="truncate text-xs text-muted-foreground">{versionLabel}</p>}
         </div>
+        {mobileOpen && (
+          <button
+            type="button"
+            aria-label={__('Close menu')}
+            className="ms-auto grid size-11 shrink-0 place-items-center rounded-md outline-none hover:bg-sidebar-hover focus-visible:ring-2 focus-visible:ring-ring md:hidden"
+            onClick={onClose}
+          >
+            <X aria-hidden="true" className="size-4" />
+          </button>
+        )}
       </div>
       <RenderHook position="sidebar:before" />
       <nav aria-label={__('Main')} className="flex-1 overflow-y-auto p-2">

@@ -1,7 +1,7 @@
 import { usePage } from '@inertiajs/react';
 import { __panel, addShortcut, QueryClientProvider, queryClient, shortcutsEnabled, useTranslation } from '@lathephp/core';
 import { Menu, PanelLeft, Search } from 'lucide-react';
-import { lazy, Suspense, useEffect, useState, type CSSProperties, type ReactNode } from 'react';
+import { lazy, Suspense, useEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react';
 import { Button } from '../components/ui/Button';
 import { cn } from '../lib/cn';
 import type { SharedProps } from '../types';
@@ -35,6 +35,29 @@ export function AppLayout({ children }: { children: ReactNode }) {
   const notifications = props.notifications;
   const searchOn = search?.enabled === true;
   const [searching, setSearching] = useState(false);
+  const opener = useRef<HTMLButtonElement>(null);
+
+  function closeSheet() {
+    setSheetUrl(null);
+    opener.current?.focus();
+  }
+
+  useEffect(() => {
+    if (!mobileOpen) {
+      return undefined;
+    }
+
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        closeSheet();
+      }
+    };
+    document.addEventListener('keydown', onKeyDown);
+
+    return () => {
+      document.removeEventListener('keydown', onKeyDown);
+    };
+  }, [mobileOpen]);
 
   useEffect(() => {
     if (!searchOn) {
@@ -68,16 +91,10 @@ export function AppLayout({ children }: { children: ReactNode }) {
       </a>
       <RenderHook position="head" />
       {mobileOpen && (
-        <button
-          type="button"
-          aria-label={__('Close menu')}
-          className="fixed inset-0 z-30 bg-black/50 md:hidden"
-          onClick={() => {
-            setSheetUrl(null);
-          }}
-        />
+        // The scrim takes a pointer's click; the keyboard closes the menu with Escape or its Close menu button.
+        <div aria-hidden="true" className="fixed inset-0 z-30 bg-scrim md:hidden" onClick={closeSheet} />
       )}
-      <Sidebar props={props} url={url} expanded={expanded} mobileOpen={mobileOpen} />
+      <Sidebar props={props} url={url} expanded={expanded} mobileOpen={mobileOpen} onClose={closeSheet} />
       <div className="flex min-w-0 flex-1 flex-col">
         {props.impersonating !== null && (
           // The placeholder holds the banner's height, so the page does not jump when it loads.
@@ -94,6 +111,7 @@ export function AppLayout({ children }: { children: ReactNode }) {
             )}
           >
             <Button
+              ref={opener}
               variant="ghost"
               size="icon"
               className="md:hidden"
@@ -131,6 +149,9 @@ export function AppLayout({ children }: { children: ReactNode }) {
                   }}
                 >
                   <Search aria-hidden="true" className="size-4" />
+                  <span aria-hidden="true" className="font-normal text-muted-foreground max-md:hidden">
+                    {__('Search…')}
+                  </span>
                   {shortcutsEnabled() && (
                     <kbd aria-hidden="true" className="text-xs text-muted-foreground max-md:hidden">
                       {/mac/i.test(navigator.platform) ? '⌘K' : 'Ctrl K'}

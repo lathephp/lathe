@@ -26,7 +26,25 @@ describe('user menu', () => {
     expect(screen.queryByRole('menu', { name: 'User menu' })).toBeNull();
   });
 
-  it('lists the identity, the items, Security, the appearance slot and Log out in that order', () => {
+  it('shows the name and email at the foot of the sidebar', () => {
+    renderPage('Dashboard', dashboard);
+    const trigger = within(screen.getByRole('complementary')).getByRole('button', { name: /Ada Lovelace/ });
+
+    expect(trigger.textContent).toContain('ada@example.com');
+  });
+
+  it('closes on Escape and on a click outside it', () => {
+    renderPage('Dashboard', dashboard);
+
+    fireEvent.keyDown(openMenu(), { key: 'Escape' });
+    expect(screen.queryByRole('menu', { name: 'User menu' })).toBeNull();
+
+    openMenu();
+    fireEvent.pointerDown(document.body);
+    expect(screen.queryByRole('menu', { name: 'User menu' })).toBeNull();
+  });
+
+  it('lists the identity, the items, Security, the appearance slot and Sign out in that order', () => {
     renderPage('Dashboard', dashboard, {
       shared: {
         userMenu: [
@@ -43,15 +61,15 @@ describe('user menu', () => {
       Array.from(menu.querySelectorAll('[role="menuitem"], [data-lathe-appearance-slot]')).map((node) =>
         node.hasAttribute('data-lathe-appearance-slot') ? 'slot' : node.textContent,
       ),
-    ).toEqual(['Profile', 'Security', 'slot', 'Log out']);
+    ).toEqual(['Profile', 'Security', 'slot', 'Sign out']);
     expect(menu.textContent.startsWith('Ada Lovelaceada@example.com')).toBe(true);
   });
 
-  it('logs out with a POST to the panel path', () => {
+  it('signs out with a POST to the panel path', () => {
     const post = vi.spyOn(router, 'post').mockImplementation(() => undefined);
     renderPage('Dashboard', dashboard);
 
-    fireEvent.click(within(openMenu()).getByRole('menuitem', { name: 'Log out' }));
+    fireEvent.click(within(openMenu()).getByRole('menuitem', { name: 'Sign out' }));
 
     expect(post).toHaveBeenCalledWith('/lathe/logout');
   });
