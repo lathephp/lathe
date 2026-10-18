@@ -164,9 +164,13 @@ function IndexSkeleton({ title, hint }: { title: string; hint?: IndexSkeletonHin
             <div className={`h-8 w-64 ${skeletonBar}`} />
           </div>
         )}
-        <div className="flex items-center gap-3">
-          <h1 className="text-2xl font-semibold">{title}</h1>
-          <div aria-hidden="true" className={`ms-auto h-9 w-56 ${skeletonBar}`} />
+        <div data-lathe-toolbar className="flex flex-col gap-3">
+          <div>
+            <h1 className="text-2xl font-semibold">{title}</h1>
+          </div>
+          <div aria-hidden="true" className="flex justify-end">
+            <div className={`h-9 w-96 max-w-full ${skeletonBar}`} />
+          </div>
         </div>
         <Card aria-hidden="true" className="overflow-hidden">
           {hint?.actions === true && (

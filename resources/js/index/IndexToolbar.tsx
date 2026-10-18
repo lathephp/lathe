@@ -31,7 +31,8 @@ export function IndexToolbar({ resource, lens, lenses, q, visit, polling }: Inde
   );
 
   return (
-    <div data-lathe-toolbar className="flex flex-wrap items-center justify-between gap-3">
+    // The title has a row of its own and the controls the row below, so a page and its skeleton are as tall.
+    <div data-lathe-toolbar className="flex flex-col gap-3">
       <div>
         {lens != null && (
           <Link href={resourcePath} className="text-sm text-muted-foreground hover:underline">
@@ -40,7 +41,7 @@ export function IndexToolbar({ resource, lens, lenses, q, visit, polling }: Inde
         )}
         <h1 className="text-2xl font-semibold">{lens?.name ?? resource.label}</h1>
       </div>
-      <div className="flex flex-wrap items-center gap-3">
+      <div className="flex flex-wrap items-center justify-end gap-3">
         {lenses !== undefined && lenses.length > 0 && (
           <LensSelector resourcePath={resourcePath} label={resource.label} lens={lens ?? null} lenses={lenses} />
         )}

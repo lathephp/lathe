@@ -103,6 +103,18 @@ describe('an instant visit from the sidebar', () => {
     expect(document.querySelectorAll('[data-skeleton-actions]')).toHaveLength(1);
   });
 
+  it('lays its header out as the page does: the title on a row, the controls below', async () => {
+    clickInSidebar('Products');
+    await act(() => vi.advanceTimersByTimeAsync(110));
+    const rows = document.querySelectorAll('[data-lathe-toolbar] > div');
+
+    // A column, so the controls never share the title's row, however many there are.
+    expect(document.querySelector('[data-lathe-toolbar]')?.className).toContain('flex-col');
+
+    expect(rows).toHaveLength(2);
+    expect(rows[0]?.querySelector('h1')?.textContent).toBe('Products');
+  });
+
   it('leaves out the tab band of an index without tabs', async () => {
     clickInSidebar('Products');
     await act(() => vi.advanceTimersByTimeAsync(110));

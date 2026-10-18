@@ -273,4 +273,16 @@ describe('filtered empty state', () => {
     expect(screen.getByText('No orders yet')).toBeTruthy();
     expect(screen.queryByRole('button', { name: 'Clear filters' })).toBeNull();
   });
+
+  it('puts the title on a row of its own, with the controls on the row below', () => {
+    renderOrders();
+    const rows = document.querySelectorAll('[data-lathe-toolbar] > div');
+
+    // A column, so the controls never share the title's row, however many there are.
+    expect(document.querySelector('[data-lathe-toolbar]')?.className).toContain('flex-col');
+
+    expect(rows).toHaveLength(2);
+    expect(rows[0]?.querySelector('h1')?.textContent).toBe('Orders');
+    expect(rows[1]?.querySelector('input[type="search"]')).toBeTruthy();
+  });
 });
