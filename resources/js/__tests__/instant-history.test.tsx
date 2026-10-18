@@ -16,11 +16,18 @@ const navigation = [
 
 afterEach(() => {
   vi.unstubAllGlobals();
+  vi.restoreAllMocks();
 });
 
-it('goes Back from an instant visit to the previous page without asking the server again', async () => {
+it('goes Back from an instant visit to the previous page and its scroll, without asking the server again', async () => {
   const requests = fakeInertiaServer();
+  const scrollTo = vi.spyOn(window, 'scrollTo').mockImplementation(() => undefined);
   renderPage('Dashboard', dashboard('Home'), { url: '/lathe', shared: { navigation } });
+
+  // The person has read down the page before leaving it.
+  vi.spyOn(window, 'scrollY', 'get').mockReturnValue(640);
+  window.dispatchEvent(new Event('scroll'));
+  await act(() => new Promise((resolve) => setTimeout(resolve, 200)));
 
   fireEvent.click(within(screen.getByRole('complementary')).getByRole('link', { name: 'Orders' }));
   await vi.waitFor(() => {
@@ -39,5 +46,6 @@ it('goes Back from an instant visit to the previous page without asking the serv
 
   expect(window.location.pathname).toBe('/lathe');
   expect(screen.getByRole('heading', { name: 'Home' })).toBeTruthy();
+  expect(scrollTo).toHaveBeenLastCalledWith(0, 640);
   expect(requests).toHaveLength(1);
 });
