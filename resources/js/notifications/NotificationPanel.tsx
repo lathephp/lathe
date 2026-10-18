@@ -1,6 +1,8 @@
 import { useTranslation } from '@lathephp/core';
 import { Button } from '@lathephp/ui';
 import { X } from 'lucide-react';
+import { useEffect, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import { NotificationItem } from './NotificationItem';
 import type { NotificationData, useNotifications } from './useNotifications';
 
@@ -43,12 +45,42 @@ export function NotificationPanel({ state, onClose }: Props) {
   const day = new Date().toDateString();
   const today = items.filter((item) => item.createdAt !== null && new Date(item.createdAt).toDateString() === day);
   const earlier = items.filter((item) => !today.includes(item));
+  const panel = useRef<HTMLDivElement>(null);
+  const close = useRef(onClose);
 
-  return (
+  useEffect(() => {
+    close.current = onClose;
+  }, [onClose]);
+
+  // The panel takes the focus, Escape closes it, and the focus goes back to the bell that opened it.
+  useEffect(() => {
+    const opener = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    panel.current?.focus();
+
+    function onKeyDown(event: KeyboardEvent) {
+      // A dialog over the panel takes its own Escape.
+      if (event.key === 'Escape' && !event.defaultPrevented && document.querySelector('[data-lathe-modal]') === null) {
+        event.preventDefault();
+        close.current();
+      }
+    }
+
+    document.addEventListener('keydown', onKeyDown);
+
+    return () => {
+      document.removeEventListener('keydown', onKeyDown);
+      opener?.focus();
+    };
+  }, []);
+
+  // On the body, out of the sticky header's stacking layer, so no page content paints over it.
+  return createPortal(
     <div
+      ref={panel}
       role="dialog"
       aria-label={__('Notifications')}
-      className="fixed inset-y-0 end-0 z-40 flex w-full max-w-sm flex-col border-s border-border bg-background shadow-lg"
+      tabIndex={-1}
+      className="fixed inset-y-0 end-0 z-40 flex w-full max-w-sm flex-col border-s border-border bg-background shadow-lg outline-none"
     >
       <div className="flex items-center gap-2 border-b border-border p-3">
         <h2 className="flex-1 font-medium">{__('Notifications')}</h2>
@@ -57,6 +89,8 @@ export function NotificationPanel({ state, onClose }: Props) {
           size="sm"
           disabled={unread === 0}
           onClick={() => {
+            // The button disables once nothing is unread; the panel keeps the focus.
+            panel.current?.focus();
             void state.markAllRead();
           }}
         >
@@ -84,6 +118,7 @@ export function NotificationPanel({ state, onClose }: Props) {
           <List title={__('Earlier')} rows={earlier} state={state} />
         </div>
       )}
-    </div>
+    </div>,
+    document.body,
   );
 }

@@ -376,6 +376,24 @@ describe('grouping and buttons', () => {
     expect(bell().querySelector('[data-testid="unread-dot"]')).toBeNull();
   });
 
+  it('opens above the page with the focus in it, and Escape gives the focus back to the bell', async () => {
+    mount();
+    bell().focus();
+    fireEvent.click(bell());
+    await settle();
+    const dialog = screen.getByRole('dialog', { name: 'Notifications' });
+
+    // On the body, out of the sticky header's layer, so nothing on the page paints over it.
+    expect(dialog.parentElement).toBe(document.body);
+    expect(dialog.contains(document.activeElement)).toBe(true);
+
+    fireEvent.keyDown(document.activeElement ?? document.body, { key: 'Escape' });
+    await settle();
+
+    expect(screen.queryByRole('dialog', { name: 'Notifications' })).toBeNull();
+    expect(document.activeElement).toBe(bell());
+  });
+
   it('reads No notifications when empty', async () => {
     mount();
     await openPanel();
