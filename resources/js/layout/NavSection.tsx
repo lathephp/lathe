@@ -34,6 +34,8 @@ export interface NavContext {
   collapsed: boolean;
   /** Lazy badge values by item href, sent apart from the navigation on every visit. */
   badges: Record<string, NavBadge>;
+  /** Marks a link active while its visit is on the way; null gives the state back. */
+  press: (href: string | null) => void;
 }
 
 const tones: Record<string, string> = {
@@ -95,7 +97,30 @@ function NavItem({ item, context }: { item: NavLink; context: NavContext }) {
 
   return (
     <li className="relative" onMouseEnter={show} onMouseLeave={hide} onFocus={show} onBlur={hide}>
-      {item.rel === undefined ? <Link {...link}>{content}</Link> : <a {...link}>{content}</a>}
+      {item.rel === undefined ? (
+        // A hover of 75 ms fetches the page, kept 30 s or until a write to its resource flushes the tag.
+        <Link
+          {...link}
+          prefetch
+          cacheFor="30s"
+          cacheTags={item.cacheTag}
+          onPointerDown={(event) => {
+            if (event.button === 0 && !event.metaKey && !event.ctrlKey && !event.shiftKey) {
+              context.press(item.href);
+            }
+          }}
+          onPointerLeave={(event) => {
+            // Dragged off with the button held, the press will not click.
+            if (event.buttons !== 0) {
+              context.press(null);
+            }
+          }}
+        >
+          {content}
+        </Link>
+      ) : (
+        <a {...link}>{content}</a>
+      )}
       {text !== '' && (
         <span
           role="tooltip"

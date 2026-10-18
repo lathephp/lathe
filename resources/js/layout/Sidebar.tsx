@@ -1,5 +1,6 @@
 import { __panel, useTranslation } from '@lathephp/core';
 import { X } from 'lucide-react';
+import { useState } from 'react';
 import { cn } from '../lib/cn';
 import type { SharedProps } from '../types';
 import { NavSection, type NavBadge, type NavBlock } from './NavSection';
@@ -22,7 +23,17 @@ export function Sidebar({ props, url, expanded, mobileOpen, onClose }: SidebarPr
   // Labels hide from the rail but stay for screen readers and the mobile sheet.
   const railHidden = collapsed && 'md:sr-only';
   const sections: NavBlock[] = navigation;
-  const context = { url, basePath, collapsed, badges: (props.navigationBadges ?? {}) as Record<string, NavBadge> };
+  // The pressed link is the active one until the visit it starts lands somewhere.
+  const [pressed, setPressed] = useState<{ href: string; from: string } | null>(null);
+  const context = {
+    url: pressed?.from === url ? pressed.href : url,
+    basePath,
+    collapsed,
+    badges: (props.navigationBadges ?? {}) as Record<string, NavBadge>,
+    press: (href: string | null) => {
+      setPressed(href === null ? null : { href, from: url });
+    },
+  };
 
   return (
     <aside

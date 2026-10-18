@@ -150,6 +150,8 @@ export function fakeInertiaServer(): FakeRequest[] {
   }
 
   vi.stubGlobal('XMLHttpRequest', FakeXhr);
+  // A visit in an earlier test moved the address, and Inertia never prefetches the page it is on.
+  window.history.replaceState(null, '', '/');
 
   return requests;
 }
