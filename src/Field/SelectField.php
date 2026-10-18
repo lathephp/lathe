@@ -44,6 +44,14 @@ class SelectField extends Field implements FilterableField
     }
 
     /**
+     * Whether the values show as badges.
+     */
+    public function hasBadges(): bool
+    {
+        return $this->badges !== null;
+    }
+
+    /**
      * @return array<string, mixed>
      */
     public function jsonSerialize(): array

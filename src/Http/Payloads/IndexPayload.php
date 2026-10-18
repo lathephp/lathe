@@ -22,6 +22,7 @@ use Lathe\Lenses\Lens;
 use Lathe\Preferences\ColumnChoice;
 use Lathe\Preferences\UserPreference;
 use Lathe\Query\ResourceQuery;
+use Lathe\Resources\PhoneCard;
 use Lathe\Resources\Resource;
 use Lathe\Resources\TrafficCop;
 use Lathe\SavedTabs\SavedTab;
@@ -111,6 +112,7 @@ class IndexPayload
                 ])->values()->all(),
                 'columnChoice' => $choice,
                 'allColumns' => $lens !== null ? [] : array_map(fn (Field $field) => ['key' => $field->key(), 'label' => $field->label()], $fields),
+                'phoneCard' => PhoneCard::pick($fields, $resource->definition()->getPhoneCard()),
             ],
             'groups' => $this->groups($resource, $active, $lens),
             'filters' => [

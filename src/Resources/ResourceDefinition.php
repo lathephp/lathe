@@ -33,6 +33,9 @@ class ResourceDefinition
     /** @var string|Closure(Model): string */
     protected string|Closure $subtitle = '';
 
+    /** @var array{title?: string|null, badge?: string|null, value?: string|null, meta?: string|null} */
+    protected array $phoneCard = [];
+
     /** @var list<string> */
     protected array $with = [];
 
@@ -127,6 +130,15 @@ class ResourceDefinition
     public function subtitle(string|Closure $subtitle): static
     {
         return $this->set(fn () => $this->subtitle = $subtitle);
+    }
+
+    /**
+     * The index columns a row's card shows below 768 px, by field key. A slot left out is picked
+     * from the index: the record's title, the first badge, the first number and the first relation.
+     */
+    public function phoneCard(?string $title = null, ?string $badge = null, ?string $value = null, ?string $meta = null): static
+    {
+        return $this->set(fn () => $this->phoneCard = array_filter(['title' => $title, 'badge' => $badge, 'value' => $value, 'meta' => $meta], fn (?string $key) => $key !== null));
     }
 
     /**
@@ -442,6 +454,14 @@ class ResourceDefinition
     public function getSubtitle(): string|Closure
     {
         return $this->subtitle;
+    }
+
+    /**
+     * @return array{title?: string|null, badge?: string|null, value?: string|null, meta?: string|null}
+     */
+    public function getPhoneCard(): array
+    {
+        return $this->phoneCard;
     }
 
     /**

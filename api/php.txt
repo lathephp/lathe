@@ -2179,6 +2179,7 @@ Lathe\Field\SelectField::Closure|array|string $optionSource  [protected]
 Lathe\Field\SelectField::Closure|bool $searchable  [protected]
 Lathe\Field\SelectField::badges(array $tones): static
 Lathe\Field\SelectField::bool $displayUsingLabels  [protected]
+Lathe\Field\SelectField::hasBadges(): bool
 Lathe\Field\SelectField::impliedRules(): array  [protected]
 Lathe\Field\SelectField::jsonSerialize(): array
 Lathe\Field\SelectField::string $component  [protected]
@@ -3321,6 +3322,7 @@ Lathe\Query\SelectionResolver::selectionLens(): ?Lathe\Lenses\Lens  [protected]
 Lathe\Resources\Concerns\HasMeta::array $meta  [protected]
 Lathe\Resources\Concerns\HasMeta::meta(): array
 Lathe\Resources\Concerns\HasMeta::withMeta(array $meta): static
+Lathe\Resources\PhoneCard::pick(array $fields, array $chosen): array  [static]
 Lathe\Resources\RecordDeleter::chunk(Lathe\Http\Requests\LatheRequest $request, string $class, string $ability, Illuminate\Support\Collection $models, bool $authorized = false): array
 Lathe\Resources\RecordDeleter::delete(Lathe\Http\Requests\LatheRequest $request, string $class, Illuminate\Database\Eloquent\Model $model): void
 Lathe\Resources\RecordDeleter::forceDelete(Lathe\Http\Requests\LatheRequest $request, string $class, Illuminate\Database\Eloquent\Model $model): void
@@ -3427,6 +3429,7 @@ Lathe\Resources\ResourceDefinition::allowAll(bool $allow = true): static
 Lathe\Resources\ResourceDefinition::allowsAll(): bool
 Lathe\Resources\ResourceDefinition::applyClassAttributes(string $class): static
 Lathe\Resources\ResourceDefinition::array $limits  [protected]
+Lathe\Resources\ResourceDefinition::array $phoneCard  [protected]
 Lathe\Resources\ResourceDefinition::array $searchable  [protected]
 Lathe\Resources\ResourceDefinition::array $with  [protected]
 Lathe\Resources\ResourceDefinition::bool $allowAll  [protected]
@@ -3470,6 +3473,7 @@ Lathe\Resources\ResourceDefinition::getNavigationLabel(): ?string
 Lathe\Resources\ResourceDefinition::getPaginationType(): Lathe\Enums\PaginationType
 Lathe\Resources\ResourceDefinition::getParent(): ?array
 Lathe\Resources\ResourceDefinition::getPerPage(): ?array
+Lathe\Resources\ResourceDefinition::getPhoneCard(): array
 Lathe\Resources\ResourceDefinition::getPickerResults(): int
 Lathe\Resources\ResourceDefinition::getPolling(): ?int
 Lathe\Resources\ResourceDefinition::getScoutSearchResults(): int
@@ -3503,6 +3507,7 @@ Lathe\Resources\ResourceDefinition::options(): array
 Lathe\Resources\ResourceDefinition::paginationType(Lathe\Enums\PaginationType $type): static
 Lathe\Resources\ResourceDefinition::parent(string $parent, string $relationship): static
 Lathe\Resources\ResourceDefinition::perPage(array $options): static
+Lathe\Resources\ResourceDefinition::phoneCard(?string $title = NULL, ?string $badge = NULL, ?string $value = NULL, ?string $meta = NULL): static
 Lathe\Resources\ResourceDefinition::pickerResults(int $results): static
 Lathe\Resources\ResourceDefinition::polling(int $seconds): static
 Lathe\Resources\ResourceDefinition::savedTabs(bool $enabled = true): static
@@ -4888,6 +4893,7 @@ class Lathe\Query\PivotVia
 class Lathe\Query\ResourceQuery
 class Lathe\Query\Selection
 class Lathe\Query\SelectionResolver
+class Lathe\Resources\PhoneCard
 class Lathe\Resources\RecordDeleter
 class Lathe\Resources\Resource
 class Lathe\Resources\ResourceDefinition

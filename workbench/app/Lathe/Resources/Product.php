@@ -20,6 +20,7 @@ class Product extends Resource
         return $definition->model(ProductModel::class)
             ->title('name')
             ->subtitle('sku')
+            ->phoneCard(title: 'name', value: 'price_cents')
             ->searchable(['name', 'sku'])
             ->icon('Package');
     }
