@@ -42,7 +42,7 @@ function badgeText(counts: TabCount | undefined, fallback: string | number | nul
 function TabBadge({ text, type, deferred = false, pending = false }: { text: string | null; type: BadgeType | null; deferred?: boolean; pending?: boolean }) {
   if (text === null) {
     return deferred && pending ? (
-      <span aria-hidden="true" data-badge-placeholder="" className="h-4 w-6 animate-pulse rounded-full bg-skeleton motion-reduce:animate-none" />
+      <span aria-hidden="true" data-badge-placeholder="" className="h-4 w-12 animate-pulse rounded-full bg-skeleton motion-reduce:animate-none" />
     ) : null;
   }
 
@@ -51,7 +51,8 @@ function TabBadge({ text, type, deferred = false, pending = false }: { text: str
       className={cn(
         'rounded-full px-1.5 text-xs font-medium tabular-nums',
         type === null ? 'bg-muted' : badgeColours[type],
-        deferred && 'animate-in fade-in duration-[160ms] motion-reduce:animate-none',
+        // A count keeps at least its placeholder's width, so the tabs after it do not move.
+        deferred && 'min-w-12 text-center animate-in fade-in duration-[160ms] motion-reduce:animate-none',
       )}
     >
       {text}

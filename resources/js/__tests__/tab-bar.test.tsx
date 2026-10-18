@@ -135,6 +135,17 @@ describe('tab strip', () => {
     expect(tabTexts()).toEqual(['All', 'Pending10,000+', 'Paid10,000+', 'Paid10,000+', 'Cancelled']);
   });
 
+  it('gives a count the width its placeholder held, so the tabs after it stay put', () => {
+    const { unmount } = renderOrders({ deferred: ['pending'] });
+    const placeholder = document.querySelector('[data-tab="pending"] [data-badge-placeholder]');
+    expect(placeholder?.className).toContain('w-12');
+    unmount();
+
+    renderOrders({ deferred: ['pending'], tabCounts: { pending: { count: { value: 2424, capped: false } } } });
+
+    expect(document.querySelector('[data-tab="pending"] span:last-child')?.className).toContain('min-w-12');
+  });
+
   it('clears tab when the first tab is chosen and keeps the filters', () => {
     const visit = vi.spyOn(router, 'visit').mockImplementation(() => undefined);
     renderOrders({ url: '/lathe/resources/orders?tab=pending&filter[status]=paid' });
