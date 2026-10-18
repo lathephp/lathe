@@ -68,6 +68,15 @@ function header(name: string): HTMLElement {
 }
 
 describe('toolbar search', () => {
+  it('lets the toolbar row grow to a second line rather than spill under the header', () => {
+    renderOrders();
+    const toolbar = document.querySelector('[data-lathe-toolbar]');
+
+    expect(toolbar?.classList.contains('flex-wrap')).toBe(true);
+    expect(toolbar?.classList.contains('min-h-14')).toBe(true);
+    expect(toolbar?.classList.contains('h-14')).toBe(false);
+  });
+
   it('opens the box at 260 px on a wide screen and to its icon on a narrow one', () => {
     renderOrders();
     const box = screen.getByRole('searchbox');

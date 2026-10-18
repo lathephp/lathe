@@ -12,8 +12,8 @@ import type { IndexUrlState } from './useIndexState';
 import type { RowSelection } from './useRowSelection';
 import type { SharedProps } from '../types';
 
-/** The card's toolbar row; the selection bar takes the same row, so the header row below never moves. */
-export const toolbarRow = 'flex h-14 items-center gap-2 border-b border-border px-4 max-md:h-auto max-md:min-h-14 max-md:flex-wrap max-md:py-2';
+/** The card's toolbar row; the selection bar takes the same row, so the header row stays put. A narrow window wraps it to a second line. */
+export const toolbarRow = 'flex min-h-14 flex-wrap items-center gap-2 border-b border-border px-4 py-2';
 
 /** The page title, on a row of its own above the table card. */
 export function IndexHeader({ resource, lens }: Pick<IndexProps, 'resource' | 'lens'>) {
