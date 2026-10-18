@@ -32,7 +32,8 @@ export function PhoneCards({ resource, table }: Pick<IndexProps, 'resource' | 't
               {part(row, card.badge)}
             </span>
             <span className="flex items-center justify-between gap-2 text-muted-foreground">
-              <span className="truncate">{part(row, card.meta)}</span>
+              {/* The relation as text: its own link inside the card's would open the related record instead. */}
+              <span className="truncate">{card.meta === null ? null : row.cells[card.meta]?.display}</span>
               <span className="text-foreground tabular-nums">{part(row, card.value)}</span>
             </span>
           </Link>

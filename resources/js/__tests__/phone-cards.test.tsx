@@ -17,13 +17,13 @@ const columns = [
   { key: 'name', label: 'Name', component: 'text', sortable: false, sortKey: 'name' },
   { key: 'status', label: 'Status', component: 'text', sortable: false, sortKey: 'status' },
   { key: 'total_cents', label: 'Total', component: 'text', sortable: false, sortKey: 'total_cents' },
-  { key: 'customer', label: 'Customer', component: 'text', sortable: false, sortKey: 'customer' },
+  { key: 'customer', label: 'Customer', component: 'belongs-to-field', sortable: false, sortKey: 'customer' },
 ];
 const cell = (display: string) => ({ value: display, display });
 const row = {
   id: 7,
   title: 'ORD-00007',
-  cells: { number: cell('ORD-00007'), name: cell('Blue mug'), status: cell('Paid'), total_cents: cell('$171.16'), customer: cell('Gerard Reichert') },
+  cells: { number: cell('ORD-00007'), name: cell('Blue mug'), status: cell('Paid'), total_cents: cell('$171.16'), customer: { value: { value: 3, display: 'Gerard Reichert', href: '/lathe/resources/customers/3' }, display: 'Gerard Reichert' } },
   abilities: { view: true },
 };
 
@@ -55,6 +55,8 @@ describe('phone cards', () => {
     expect(card.textContent).toContain('Paid');
     expect(card.textContent).toContain('$171.16');
     expect(card.textContent).toContain('Gerard Reichert');
+    // The card is the one link: a relation's own link inside it would open the related record instead.
+    expect(card.querySelectorAll('a')).toHaveLength(0);
   });
 
   it('takes the title phoneCard() names', () => {
