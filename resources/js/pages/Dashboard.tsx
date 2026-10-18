@@ -97,6 +97,7 @@ function DashboardPage({ dashboard, widgets }: DashboardProps) {
           valueUrl={`${apiPath}/dashboards/${dashboard.uriKey}/widgets`}
           range={range}
           reloads={reloads}
+          menus
           // Each card's value is its own deferred prop, so the cards fill in one by one.
           deferred={(uriKey) => ({
             value: page.props[`widgetValue:${uriKey}`] as WidgetValue | undefined,

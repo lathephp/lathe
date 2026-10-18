@@ -14,6 +14,8 @@ export interface WidgetDescriptor {
   onlyOnDetail: boolean;
   requestsValue: boolean;
   ranges: { value: number | string; label: string }[];
+  /** Whether the card downloads as CSV, on a dashboard. */
+  csv?: boolean;
   [option: string]: unknown;
 }
 
@@ -25,6 +27,8 @@ export interface WidgetValue {
   value: unknown;
   /** On a dashboard: the card's own range, when it does not offer the one picked. */
   fallbackRange?: { value: number | string; label: string };
+  /** Where the card's Open records goes, when the user may list those records. */
+  link?: string;
 }
 
 /** What every renderer gets: the card and the value field of its response. */

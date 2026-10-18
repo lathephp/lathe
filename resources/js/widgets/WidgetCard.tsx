@@ -9,6 +9,7 @@ import { filterParams } from './filterParams';
 import { cellClass } from './layout';
 import { widgetRenderers } from './registry';
 import type { WidgetDescriptor, WidgetValue } from './types';
+import { WidgetMenu } from './WidgetMenu';
 
 /** The skeleton stays this long at least, so a fast answer does not flash. */
 const skeletonFloor = 300;
@@ -31,9 +32,11 @@ export interface WidgetCardProps {
   register?: (reload: () => void) => () => void;
   /** The range the host picked for every card, as a dashboard's header does; the card then has no picker of its own. */
   range?: string;
+  /** Gives the card its ⋯ menu, as a dashboard does. */
+  menu?: boolean;
 }
 
-export function WidgetCard({ widget, url, params, deferred, register, range: hostRange }: WidgetCardProps) {
+export function WidgetCard({ widget, url, params, deferred, register, range: hostRange, menu = false }: WidgetCardProps) {
   const { __ } = useTranslation();
   const Renderer = widgetRenderers[widget.component];
   const fetches = widget.requestsValue && Renderer !== undefined;
@@ -178,8 +181,9 @@ export function WidgetCard({ widget, url, params, deferred, register, range: hos
   );
 
   return (
-    <Card data-lathe-widget={widget.uriKey} aria-busy={refreshing || undefined} className={cn('relative flex flex-col gap-2 overflow-hidden p-4', cellClass(widget))}>
-      {refreshing && <span aria-hidden="true" className="absolute inset-x-0 top-0 h-0.5 bg-brand" />}
+    // The card does not clip, so its menu can open past its edge; its body clips instead.
+    <Card data-lathe-widget={widget.uriKey} aria-busy={refreshing || undefined} className={cn('relative flex flex-col gap-2 p-4', cellClass(widget))}>
+      {refreshing && <span aria-hidden="true" className="absolute inset-x-0 top-0 h-0.5 rounded-t-[inherit] bg-brand" />}
       <div className="flex items-center justify-between gap-2">
         <div className="flex min-w-0 items-center gap-1">
           <h2 className="truncate text-sm font-medium text-muted-foreground">{widget.name}</h2>
@@ -202,8 +206,18 @@ export function WidgetCard({ widget, url, params, deferred, register, range: hos
             }}
           />
         )}
+        {menu && fetches && (
+          <WidgetMenu
+            name={widget.name}
+            link={value?.link ?? null}
+            csv={widget.csv === true ? `${url}/csv${range === null ? '' : `?${new URLSearchParams({ range }).toString()}`}` : null}
+            onRefresh={() => {
+              load();
+            }}
+          />
+        )}
       </div>
-      <div className={cn('min-h-0 flex-1', refreshing && 'opacity-60')}>
+      <div className={cn('min-h-0 flex-1 overflow-hidden', refreshing && 'opacity-60')}>
         {error ? (
           <div className="flex flex-col items-start gap-1 text-sm">
             <p className="font-medium text-destructive-subtle-foreground">{__(':title could not load', { title: widget.name })}</p>
