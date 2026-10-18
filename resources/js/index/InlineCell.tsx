@@ -66,8 +66,11 @@ export function InlineCell({ uriKey, rowId, column, cell, token, onRow }: Inline
     });
   }
 
-  /** Saves the value the cell had before as a new change; a record changed since opens the conflict dialog. */
-  async function undo(before: unknown, updatedAt: string | null | undefined = latest.current.token) {
+  /**
+   * Saves the value the cell had before as a new change, against the token its own save returned:
+   * a record changed since, even one a poll already showed, opens the conflict dialog.
+   */
+  async function undo(before: unknown, updatedAt: string | null | undefined) {
     setPending({ value: before, display: displayOf(before) });
 
     try {
@@ -115,7 +118,7 @@ export function InlineCell({ uriKey, rowId, column, cell, token, onRow }: Inline
           const display = reply.fields[column.key]?.display ?? displayOf(value);
 
           toast.success(__(':field changed to :value.', { field: column.label, value: display }), {
-            action: { label: __('Undo'), onClick: () => void undo(before) },
+            action: { label: __('Undo'), onClick: () => void undo(before, reply.updatedAt) },
           });
         }
       }

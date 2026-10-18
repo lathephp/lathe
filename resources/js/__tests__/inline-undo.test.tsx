@@ -1,3 +1,4 @@
+import { router } from '@inertiajs/react';
 import { __panel } from '@lathephp/core';
 import { act, fireEvent, screen, waitFor } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
@@ -75,6 +76,33 @@ describe('undoing an inline edit', () => {
 
     await waitFor(() => {
       expect(screen.getByRole('combobox', { name: 'Status' }).textContent).toBe('paid');
+    });
+    expect(bodies(fetch)[1]).toEqual({ value: 'paid', _updated_at: '2026-10-14T09:00:02.000Z' });
+  });
+
+  it('undoes with its own save\'s token, so a newer row from a poll still meets the conflict', async () => {
+    const fetch = vi.spyOn(globalThis, 'fetch').mockResolvedValueOnce(saved('shipped', '2026-10-14T09:00:02.000Z')).mockResolvedValueOnce(saved('paid', '2026-10-14T09:00:09.000Z'));
+    renderOrder();
+
+    await choose(screen.getByRole('combobox', { name: 'Status' }), 'shipped');
+    await waitFor(() => {
+      expect(__panel.toasts.get()[0]?.action).toBeDefined();
+    });
+
+    // A poll brings the row as someone else left it.
+    act(() => {
+      router.replaceProp('table.rows', [{ id: 12, title: 'ORD-00012', cells: { status: { value: 'cancelled', display: 'cancelled' } }, abilities: { view: true, update: true }, updatedAt: '2026-10-14T09:00:05.000Z' }]);
+    });
+    await waitFor(() => {
+      expect(screen.getByRole('combobox', { name: 'Status' }).textContent).toBe('cancelled');
+    });
+
+    act(() => {
+      __panel.toasts.get()[0]?.action?.onClick();
+    });
+
+    await waitFor(() => {
+      expect(fetch).toHaveBeenCalledTimes(2);
     });
     expect(bodies(fetch)[1]).toEqual({ value: 'paid', _updated_at: '2026-10-14T09:00:02.000Z' });
   });
