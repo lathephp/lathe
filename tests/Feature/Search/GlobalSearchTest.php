@@ -452,3 +452,9 @@ it('skips a provider that throws, reports it, lists its title and returns the ot
         ->and(array_column($response->json('groups'), 'resourceName'))->toBe(['customers', 'orders', 'help']);
     Exceptions::assertReported(fn (RuntimeException $e) => $e->getMessage() === 'help index is down');
 });
+
+it('counts a search group up to 1,000 matches, so a common fragment stays cheap on a large table', function () {
+    $groups = array_column($this->getJson('/lathe/api/search?q=ord')->assertOk()->json('groups'), null, 'resourceName');
+
+    expect($groups['orders']['count'])->toBe(['value' => 1000, 'exact' => false, 'capped' => true, 'estimated' => false]);
+});

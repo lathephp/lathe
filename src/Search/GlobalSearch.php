@@ -117,7 +117,7 @@ class GlobalSearch
 
     /**
      * One Resource's rows through its scoped query in the Search context, and the count of
-     * every match in the Resource's count mode when there are more than the rows.
+     * every match, up to 1,000, when there are more than the rows.
      *
      * @param  ManifestEntry  $entry
      * @return array{list<Row>, array{value: int, exact: bool, capped: bool, estimated: bool}|null}
@@ -136,7 +136,7 @@ class GlobalSearch
         $query = new ResourceQuery($resource, $request, QueryContext::Search);
         // One row past the limit tells whether the group has more without counting.
         $models = $query->searchResults($limit + 1);
-        $count = $models->count() > $limit ? $query->count()?->toArray() : null;
+        $count = $models->count() > $limit ? $query->searchCount()?->toArray() : null;
         $models = $models->take($limit);
 
         // A title or subtitle closure may read the relations the Resource eager loads.

@@ -434,6 +434,19 @@ class ResourceQuery
     }
 
     /**
+     * How many rows match a palette search: never more than 1,000 (or the Resource's own cap),
+     * so a common fragment over a large table stops early; null when the Resource counts nothing.
+     *
+     * @internal
+     */
+    public function searchCount(): ?Count
+    {
+        $definition = $this->resource->definition();
+
+        return $definition->getCountStrategy() === CountStrategy::None ? null : $this->cappedCount(min($definition->getCountCap(), 1000));
+    }
+
+    /**
      * One query limited to the cap plus one, so a huge table is never counted in full.
      *
      * @param  Builder<Model>|null  $counted

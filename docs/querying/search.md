@@ -179,7 +179,7 @@ Each Resource returns up to `global_search.results` rows (5 by default). Change 
 ->globalSearchResults(10)
 ```
 
-or with `#[GlobalSearchResults(10)]`. When a Resource has more matches than it shows, the group ends with "Show all 20 orders", which opens the Resource's index searched for the term. The number is the index's count, capped the same way; a Resource that counts nothing (`CountStrategy::None`) shows no link.
+or with `#[GlobalSearchResults(10)]`. When a Resource has more matches than it shows, the group ends with "Show all 20 orders", which opens the Resource's index searched for the term. The number stops at 1,000 (or the Resource's lower count cap) and then reads "Show all 1,000+ orders", so a short term over a large table stays quick; a Resource that counts nothing (`CountStrategy::None`) shows no link.
 
 The other `global_search` keys are `enabled` and `debounce`; both are in [Configuration](../getting-started/configuration.md). Set `global_search.enabled` to `false` to remove the palette.
 
