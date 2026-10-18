@@ -7,7 +7,7 @@ pest()->group('frontend');
 
 beforeEach(fn () => holdBuildLock());
 
-it('keeps the filter panel and the row menu\'s list out of the index\'s first load', function () {
+it('keeps the filter panel, the row menu\'s list and the column picker out of the index\'s first load', function () {
     $root = dirname(__DIR__, 3);
 
     if (! is_file("{$root}/dist/manifest.json")) {
@@ -19,7 +19,7 @@ it('keeps the filter panel and the row menu\'s list out of the index\'s first lo
     $routes = array_column(json_decode($process->getOutput(), true), 'files', 'route');
     $manifest = json_decode((string) file_get_contents("{$root}/dist/manifest.json"), true);
 
-    foreach (['resources/js/index/FilterPanel.tsx', 'resources/js/index/RowMenuPanel.tsx'] as $key) {
+    foreach (['resources/js/index/FilterPanel.tsx', 'resources/js/index/RowMenuPanel.tsx', 'resources/js/index/ColumnPicker.tsx'] as $key) {
         expect($manifest)->toHaveKey($key)
             ->and($routes['/lathe/resources/orders'])->not->toContain($manifest[$key]['file']);
     }

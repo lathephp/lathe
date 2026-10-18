@@ -1,12 +1,12 @@
 import { useTranslation } from '@lathephp/core';
 import { cn } from '../lib/cn';
-import type { Column, SummaryValue } from './types';
+import type { Column, ColumnPin, SummaryValue } from './types';
 
 interface GroupSummaryRowProps {
   columns: Column[];
   values: Record<string, SummaryValue[] | undefined>;
-  /** The sticky class of the table's first column, so the row title stays with it. */
-  firstColumn: string;
+  /** Each column's sticky class and offset, so the title and the pinned totals stay with their columns. */
+  pins: ColumnPin[];
   /** The class of the checkbox column before the fields, which the subtotal leaves empty. */
   leading: string;
   /** Whether a row menu column follows the fields. */
@@ -14,7 +14,7 @@ interface GroupSummaryRowProps {
 }
 
 /** The subtotal under a group, each total under its own column. */
-export function GroupSummaryRow({ columns, values, firstColumn, leading, trailing }: GroupSummaryRowProps) {
+export function GroupSummaryRow({ columns, values, pins, leading, trailing }: GroupSummaryRowProps) {
   const { __ } = useTranslation();
 
   const totals = (column: Column) =>
@@ -30,12 +30,12 @@ export function GroupSummaryRow({ columns, values, firstColumn, leading, trailin
       <td className={leading} />
       {columns.map((column, index) =>
         index === 0 ? (
-          <th key={column.key} scope="row" className={cn('px-3 text-start whitespace-nowrap', firstColumn)}>
+          <th key={column.key} scope="row" className={cn('px-3 text-start whitespace-nowrap', pins[0]?.className)}>
             {__('Subtotal')}
             {totals(column)}
           </th>
         ) : (
-          <td key={column.key} className="px-3 whitespace-nowrap">
+          <td key={column.key} className={cn('px-3 whitespace-nowrap', pins[index]?.className)} style={pins[index]?.style}>
             {totals(column)}
           </td>
         ),

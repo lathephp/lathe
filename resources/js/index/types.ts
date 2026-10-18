@@ -1,3 +1,4 @@
+import type { CSSProperties } from 'react';
 import type { ActionList } from '../actions/types';
 import type { Cell } from '../table/cells';
 import type { FilterValue } from './useIndexState';
@@ -13,6 +14,21 @@ export interface Column {
   inline?: boolean;
   textAlign?: 'left' | 'center' | 'right';
   wrapping?: boolean;
+  /** Sent only when the user saved a column choice; missing means not pinned. */
+  pinned?: boolean;
+}
+
+/** How a column stays in view as the table scrolls sideways: its sticky class and start offset. */
+export interface ColumnPin {
+  className: string;
+  style?: CSSProperties;
+}
+
+/** A user's saved columns of an index, as the server cleaned them against the code's columns. */
+export interface ColumnChoice {
+  order: string[];
+  hidden: string[];
+  pinned: string[];
 }
 
 export interface LensEntry {
@@ -109,7 +125,16 @@ export interface IndexProps {
     /** What the Resource's additionalInformation() returns for this request. */
     extra?: Record<string, unknown>;
   };
-  table: { columns: Column[]; sortKeys: string[]; rows: Row[]; rowKey: string };
+  table: {
+    columns: Column[];
+    sortKeys: string[];
+    rows: Row[];
+    rowKey: string;
+    /** Null when the user saved no choice; the error page sends neither this nor allColumns. */
+    columnChoice?: ColumnChoice | null;
+    /** Every index column in code order; empty on a lens, which has no picker. */
+    allColumns?: { key: string; label: string }[];
+  };
   /** The open lens; null on the plain index. */
   lens?: LensEntry | null;
   /** The lenses the user may see. */

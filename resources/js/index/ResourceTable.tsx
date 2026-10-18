@@ -1,7 +1,7 @@
 import { useTranslation } from '@lathephp/core';
 import { Link, router, usePage } from '@inertiajs/react';
-import { ArrowDown, ArrowUp, ArrowUpRight, Eye, Pencil } from 'lucide-react';
-import { Fragment, Suspense, useRef, useState, type MouseEvent } from 'react';
+import { ArrowDown, ArrowUp, ArrowUpRight, Columns3, Eye, Pencil } from 'lucide-react';
+import { Fragment, Suspense, useLayoutEffect, useRef, useState, type MouseEvent } from 'react';
 import type { FieldSchema } from '../fields/types';
 import { PreviewModal } from '../fields/relation/lazy';
 import { cn } from '../lib/cn';
@@ -11,12 +11,11 @@ import type { SharedProps } from '../types';
 import { GroupHeaderRow } from './GroupHeaderRow';
 import { GroupSummaryRow } from './GroupSummaryRow';
 import { InlineCell } from './InlineCell';
-
+import { ColumnPicker } from './lazy';
 import { hasRowMenu, RowMenu } from './RowMenu';
 import { TableSummaryPlaceholder, TableSummaryRow } from './TableSummaryRow';
-import type { IndexProps, Row } from './types';
+import type { ColumnPin, IndexProps, Row } from './types';
 import type { RowSelection } from './useRowSelection';
-
 
 // A row's height at each table density; a loading row takes the same.
 export const rowHeights = { compact: 'h-8', comfortable: 'h-10', spacious: 'h-12' };
@@ -24,6 +23,13 @@ export const rowHeights = { compact: 'h-8', comfortable: 'h-10', spacious: 'h-12
 // Under 768 px the table scrolls inside its card; the checkbox and the first column stay as the row's anchor.
 const checkboxColumn = 'sticky start-0 w-10 bg-background px-3';
 const firstColumn = 'sticky start-10 bg-background';
+// A pinned column stays in view too, at the offset the header cells before it add up to.
+const pinnedColumn = 'sticky bg-background';
+// The row menu stays at the end.
+const menuColumn = 'sticky end-0 bg-background';
+// Each edge of the pinned blocks casts a shadow while columns scroll beneath it.
+const startEdge = 'shadow-[6px_0_8px_-6px_rgb(0_0_0/0.2)] rtl:shadow-[-6px_0_8px_-6px_rgb(0_0_0/0.2)]';
+const endEdge = 'shadow-[-6px_0_8px_-6px_rgb(0_0_0/0.2)] rtl:shadow-[6px_0_8px_-6px_rgb(0_0_0/0.2)]';
 
 // View and Edit sit in the DOM at rest so the cell keeps its width; the row's hover or focus shows them.
 const rowLink =
@@ -99,14 +105,90 @@ export function ResourceTable({ resource, table, state, loading, selection, sort
   );
   const border = showColumnBorders && 'border-e border-border last:border-e-0';
   const previews = resource.preview === true;
-  const withMenu = previews || table.rows.some((row) => hasRowMenu(row) || row.abilities.view === true || row.abilities.update === true);
+  // A lens has no picker, nor the error page, which sends no allColumns.
+  const picker = (table.allColumns ?? []).length > 0;
+  const withMenu = picker || previews || table.rows.some((row) => hasRowMenu(row) || row.abilities.view === true || row.abilities.update === true);
+  // The title column first, then the pinned ones, then the rest, as the server ordered each.
+  const [title, ...rest] = table.columns;
+  const pinned = rest.filter((column) => column.pinned === true);
+  const columns = title === undefined ? [] : [title, ...pinned, ...rest.filter((column) => column.pinned !== true)];
+  const stuck = columns.length === 0 ? 0 : pinned.length + 1;
+  const header = useRef<HTMLTableRowElement>(null);
+  const scroller = useRef<HTMLDivElement>(null);
+  // Where each stuck column starts, measured from the header cells.
+  const [offsets, setOffsets] = useState<number[]>([]);
+  // Whether columns sit scrolled beneath the start block, and beyond the row menu at the end.
+  const [edges, setEdges] = useState({ start: false, end: false });
+
+  function measureEdges() {
+    const box = scroller.current;
+
+    if (box !== null) {
+      const scrolled = Math.abs(box.scrollLeft);
+      const start = scrolled > 0;
+      const end = box.scrollWidth - box.clientWidth - scrolled > 1;
+      setEdges((current) => (current.start === start && current.end === end ? current : { start, end }));
+    }
+  }
+
+  useLayoutEffect(() => {
+    const row = header.current;
+    const box = scroller.current;
+
+    if (row === null || box === null) {
+      return;
+    }
+
+    const cells = Array.from(row.cells).slice(0, stuck + 1);
+    const measure = () => {
+      let start = 0;
+      const next = cells.map((cell) => {
+        const at = start;
+        start += cell.offsetWidth;
+
+        return at;
+      });
+      next.shift();
+      setOffsets((current) => (current.join() === next.join() ? current : next));
+      measureEdges();
+    };
+
+    measure();
+
+    // jsdom has no ResizeObserver.
+    if (typeof ResizeObserver === 'undefined') {
+      return;
+    }
+
+    const observer = new ResizeObserver(measure);
+    observer.observe(box);
+    cells.forEach((cell) => {
+      observer.observe(cell);
+    });
+
+    return () => {
+      observer.disconnect();
+    };
+  }, [stuck, table.columns]);
+
+  // The sticky class and offset of each column, by its place in `columns`.
+  const pins: ColumnPin[] = columns.map((_, index) => {
+    const edge = index === stuck - 1 && edges.start && startEdge;
+
+    if (index === 0) {
+      return { className: cn(firstColumn, edge) };
+    }
+
+    return index < stuck ? { className: cn(pinnedColumn, edge), style: { insetInlineStart: offsets[index] } } : { className: '' };
+  });
+  const menuClass = cn(menuColumn, edges.end && endEdge);
   // The row whose preview modal is open.
   const [previewing, setPreviewing] = useState<Row['id'] | null>(null);
   // Cells and tokens an inline save sent back, by row, over the row the page had loaded; a reload's newer row wins.
   const [saved, setSaved] = useState<Record<string, { over: Row; cells: Row['cells']; updatedAt: string | null | undefined }>>({});
   // Each column's cell classes, worked out once per render rather than once per cell.
-  const cellClasses = table.columns.map((column, index) => {
-    const base = cn('max-w-80 px-3 whitespace-nowrap', alignClass(column), index === 0 && firstColumn, border);
+  const cellClasses = columns.map((column, index) => {
+    const base = cn('max-w-80 px-3 whitespace-nowrap', alignClass(column), pins[index]?.className, border);
 
     return { plain: cn(base, 'truncate'), inline: base };
   });
@@ -177,10 +259,17 @@ export function ResourceTable({ resource, table, state, loading, selection, sort
   return (
     // Focusable, so a keyboard user can scroll a wide table sideways.
     // Relative, so the visually hidden header labels stay inside the scroll box on a narrow screen.
-    <div className="relative overflow-x-auto" role="region" aria-label={__(':resource table', { resource: resource.label })} tabIndex={0}>
+    <div
+      ref={scroller}
+      className="relative overflow-x-auto"
+      role="region"
+      aria-label={__(':resource table', { resource: resource.label })}
+      tabIndex={0}
+      onScroll={measureEdges}
+    >
       <table data-lathe-table className="w-full text-sm">
         <thead>
-          <tr className="h-10 border-b border-border text-start text-muted-foreground">
+          <tr ref={header} className="h-10 border-b border-border text-start text-muted-foreground">
             <th scope="col" className={cn(checkboxColumn, border)}>
               <input
                 type="checkbox"
@@ -197,7 +286,7 @@ export function ResourceTable({ resource, table, state, loading, selection, sort
                 }}
               />
             </th>
-            {table.columns.map((column, index) => {
+            {columns.map((column, index) => {
               const sortable = column.sortable && table.sortKeys.includes(column.sortKey);
               const sorted = sortable ? direction(sort, column.sortKey) : 'none';
 
@@ -206,8 +295,8 @@ export function ResourceTable({ resource, table, state, loading, selection, sort
                   key={column.key}
                   scope="col"
                   aria-sort={sortable ? sorted : undefined}
-                  style={columnWidth(column)}
-                  className={cn('px-3 font-medium whitespace-nowrap', alignClass(column), index === 0 && firstColumn, border)}
+                  style={{ ...columnWidth(column), ...pins[index]?.style }}
+                  className={cn('px-3 font-medium whitespace-nowrap', alignClass(column), pins[index]?.className, border)}
                 >
                   {sortable ? (
                     <button
@@ -228,8 +317,9 @@ export function ResourceTable({ resource, table, state, loading, selection, sort
               );
             })}
             {withMenu && (
-              <th scope="col" className={cn('w-12 px-3', border)}>
+              <th scope="col" className={cn('w-12 px-3', menuClass, border)}>
                 <span className="sr-only">{__('Actions')}</span>
+                {picker && <ColumnsButton uriKey={resource.uriKey} table={table} />}
               </th>
             )}
           </tr>
@@ -239,7 +329,7 @@ export function ResourceTable({ resource, table, state, loading, selection, sort
             ? Array.from({ length: state.perPage }, (_, index) => (
                 <tr key={index} data-skeleton="" aria-hidden="true" className={rowClass}>
                   <td className={cn(checkboxColumn, border)} />
-                  {table.columns.map((column) => (
+                  {columns.map((column) => (
                     <td key={column.key} className={cn('px-3', border)}>
                       <span className="block h-3 animate-pulse rounded bg-muted motion-reduce:animate-none" />
                     </td>
@@ -262,7 +352,7 @@ export function ResourceTable({ resource, table, state, loading, selection, sort
                     {group !== undefined && table.rows[position - 1]?.group?.key !== group.key && (
                       <GroupHeaderRow
                         group={group}
-                        colSpan={table.columns.length + 1 + (withMenu ? 1 : 0)}
+                        colSpan={columns.length + 1 + (withMenu ? 1 : 0)}
                         collapsible={groups?.active?.collapsible ?? false}
                         expanded={!folded}
                         onToggle={() => {
@@ -288,7 +378,7 @@ export function ResourceTable({ resource, table, state, loading, selection, sort
                             }}
                           />
                         </td>
-                        {table.columns.map((column, index) => {
+                        {columns.map((column, index) => {
                           const kept = saved[String(row.id)];
                           const fresh = kept?.over === row ? kept : undefined;
                           const cell = (fresh?.cells ?? row.cells)[column.key];
@@ -298,6 +388,7 @@ export function ResourceTable({ resource, table, state, loading, selection, sort
                             <td
                               key={column.key}
                               className={inline ? cellClasses[index]?.inline : cellClasses[index]?.plain}
+                              style={pins[index]?.style}
                               onMouseEnter={
                                 index === 0
                                   ? () => {
@@ -337,7 +428,7 @@ export function ResourceTable({ resource, table, state, loading, selection, sort
                           );
                         })}
                         {withMenu && (
-                          <td data-row-menu="" className={cn('px-3', border)}>
+                          <td data-row-menu="" className={cn('px-3', menuClass, border)}>
                             <div className="flex items-center justify-end gap-1">
                               {row.abilities.view === true && (
                                 <Link
@@ -377,9 +468,9 @@ export function ResourceTable({ resource, table, state, loading, selection, sort
                     )}
                     {subtotal !== undefined && (
                       <GroupSummaryRow
-                        columns={table.columns}
+                        columns={columns}
                         values={subtotal}
-                        firstColumn={firstColumn}
+                        pins={pins}
                         leading={cn(checkboxColumn, border)}
                         trailing={withMenu}
                       />
@@ -390,7 +481,7 @@ export function ResourceTable({ resource, table, state, loading, selection, sort
         </tbody>
         {!loading && summaries === undefined && resource.hasSummaries === true && (
           <TableSummaryPlaceholder
-            columns={table.columns}
+            columns={columns}
             // A paged table totals the page and all records, an unpaged one only the records.
             rows={state.hasMorePages || state.page > 1 ? 2 : 1}
             leading={cn(checkboxColumn, border)}
@@ -399,9 +490,9 @@ export function ResourceTable({ resource, table, state, loading, selection, sort
         )}
         {!loading && summaries !== undefined && summaries !== null && (
           <TableSummaryRow
-            columns={table.columns}
+            columns={columns}
             summaries={summaries}
-            firstColumn={firstColumn}
+            pins={pins}
             leading={cn(checkboxColumn, border)}
             trailing={withMenu}
           />
@@ -414,6 +505,47 @@ export function ResourceTable({ resource, table, state, loading, selection, sort
             id={previewing}
             onClose={() => {
               setPreviewing(null);
+            }}
+          />
+        </Suspense>
+      )}
+    </div>
+  );
+}
+
+/** The Columns button at the header's end; the picker's code loads on the first press, and pointing at the button starts it early. */
+function ColumnsButton({ uriKey, table }: { uriKey: string; table: IndexProps['table'] }) {
+  const { __ } = useTranslation();
+  const [open, setOpen] = useState(false);
+  const [trigger, setTrigger] = useState<HTMLButtonElement | null>(null);
+
+  return (
+    <div className="relative flex justify-end">
+      <button
+        ref={setTrigger}
+        type="button"
+        aria-label={__('Columns')}
+        aria-haspopup="dialog"
+        aria-expanded={open}
+        className="grid size-7 place-items-center rounded-md text-foreground outline-none hover:bg-muted focus-visible:ring-2 focus-visible:ring-ring"
+        onPointerEnter={() => {
+          void ColumnPicker.preload();
+        }}
+        onClick={() => {
+          setOpen(!open);
+        }}
+      >
+        <Columns3 aria-hidden="true" className="size-4" />
+      </button>
+      {open && (
+        <Suspense fallback={null}>
+          <ColumnPicker
+            uriKey={uriKey}
+            columns={table.allColumns ?? []}
+            choice={table.columnChoice ?? null}
+            trigger={trigger}
+            onClose={() => {
+              setOpen(false);
             }}
           />
         </Suspense>

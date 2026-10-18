@@ -1,12 +1,12 @@
 import { useTranslation } from '@lathephp/core';
 import { cn } from '../lib/cn';
-import type { Column, Summaries, SummaryValue } from './types';
+import type { Column, ColumnPin, Summaries, SummaryValue } from './types';
 
 interface TableSummaryRowProps {
   columns: Column[];
   summaries: Summaries;
-  /** The sticky class of the table's first column, so the row title stays with it. */
-  firstColumn: string;
+  /** Each column's sticky class and offset, so the title and the pinned totals stay with their columns. */
+  pins: ColumnPin[];
   /** The class of the checkbox column before the fields, which the footer leaves empty. */
   leading: string;
   /** Whether a row menu column follows the fields. */
@@ -30,7 +30,7 @@ export function TableSummaryPlaceholder({ columns, rows, leading, trailing }: Pi
 }
 
 /** The footer rows "This page" and "All records", each total under its own column. */
-export function TableSummaryRow({ columns, summaries, firstColumn, leading, trailing }: TableSummaryRowProps) {
+export function TableSummaryRow({ columns, summaries, pins, leading, trailing }: TableSummaryRowProps) {
   const { __ } = useTranslation();
   const rowClass = 'h-10 border-t border-border font-medium';
 
@@ -47,12 +47,12 @@ export function TableSummaryRow({ columns, summaries, firstColumn, leading, trai
       <td className={leading} />
       {columns.map((column, index) =>
         index === 0 ? (
-          <th key={column.key} scope="row" className={cn('px-3 text-start whitespace-nowrap', firstColumn)}>
+          <th key={column.key} scope="row" className={cn('px-3 text-start whitespace-nowrap', pins[0]?.className)}>
             {title}
             {totals(values[column.key])}
           </th>
         ) : (
-          <td key={column.key} className="px-3 whitespace-nowrap">
+          <td key={column.key} className={cn('px-3 whitespace-nowrap', pins[index]?.className)} style={pins[index]?.style}>
             {totals(values[column.key])}
           </td>
         ),
@@ -68,7 +68,7 @@ export function TableSummaryRow({ columns, summaries, firstColumn, leading, trai
       {summaries.allRecords === null && summaries.message !== null && (
         <tr className={rowClass}>
           <td className={leading} />
-          <th scope="row" className={cn('px-3 text-start whitespace-nowrap', firstColumn)}>
+          <th scope="row" className={cn('px-3 text-start whitespace-nowrap', pins[0]?.className)}>
             {__('All records')}
           </th>
           <td colSpan={Math.max(columns.length - 1, 1) + (trailing ? 1 : 0)} className="px-3 text-muted-foreground">

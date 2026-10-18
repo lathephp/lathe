@@ -9,6 +9,8 @@ export const FilterPanel = lazyNamed(() => import('./FilterPanel').then((module)
 export const RowMenuPanel = lazyNamed(() => import('./RowMenuPanel').then((module) => module.RowMenuPanel));
 // The edit-conflict dialog loads when an undo finds the record changed.
 export const ConflictDialog = lazyNamed(() => import('../records/ConflictDialog').then((module) => module.ConflictDialog));
+// The column picker loads on the first press of Columns.
+export const ColumnPicker = lazyNamed(() => import('./ColumnPicker').then((module) => module.ColumnPicker));
 
 /** Loads both dialogs now, so the next first render does not suspend. */
 export async function preloadTabDialogs(): Promise<void> {
