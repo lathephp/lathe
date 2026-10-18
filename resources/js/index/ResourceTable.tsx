@@ -12,7 +12,7 @@ import { GroupSummaryRow } from './GroupSummaryRow';
 import { InlineCell } from './InlineCell';
 
 import { hasRowMenu, RowMenu } from './RowMenu';
-import { TableSummaryRow } from './TableSummaryRow';
+import { TableSummaryPlaceholder, TableSummaryRow } from './TableSummaryRow';
 import type { IndexProps, Row } from './types';
 import type { RowSelection } from './useRowSelection';
 
@@ -329,6 +329,15 @@ export function ResourceTable({ resource, table, state, loading, selection, sort
                 );
               })}
         </tbody>
+        {!loading && summaries === undefined && resource.hasSummaries === true && (
+          <TableSummaryPlaceholder
+            columns={table.columns}
+            // A paged table totals the page and all records, an unpaged one only the records.
+            rows={state.hasMorePages || state.page > 1 ? 2 : 1}
+            leading={cn(checkboxColumn, border)}
+            trailing={withMenu}
+          />
+        )}
         {!loading && summaries !== undefined && summaries !== null && (
           <TableSummaryRow
             columns={table.columns}

@@ -101,6 +101,8 @@ export interface IndexProps {
     abilities: { create: boolean };
     /** Rows get a preview button: some field shows in the Preview context. */
     preview?: boolean;
+    /** Some column is summarized, so the deferred summaries will not be null. */
+    hasSummaries?: boolean;
     definition: ResourceDefinition;
     /** The Resource's withMeta() values. */
     meta?: Record<string, unknown>;
@@ -140,6 +142,8 @@ export interface Tab {
   icon: string | null;
   badge: string | number | null;
   badgeType: BadgeType | null;
+  /** The badge arrives with the deferred tabCounts. */
+  deferredBadge?: boolean;
 }
 
 export interface SavedTab {

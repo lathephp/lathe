@@ -28,6 +28,8 @@ interface Options {
   url?: string;
   saved?: SavedTab[];
   tabCounts?: Record<string, unknown>;
+  /** Which developer tabs load their badge with the counts. */
+  deferred?: string[];
 }
 
 function renderOrders(options: Options = {}) {
@@ -46,9 +48,9 @@ function renderOrders(options: Options = {}) {
     count: null,
     tabs: {
       items: [
-        { key: 'all', name: 'All', icon: null, badge: null, badgeType: null },
-        { key: 'pending', name: 'Pending', icon: null, badge: null, badgeType: 'warning' },
-        { key: 'paid', name: 'Paid', icon: null, badge: null, badgeType: null },
+        { key: 'all', name: 'All', icon: null, badge: null, badgeType: null, deferredBadge: false },
+        { key: 'pending', name: 'Pending', icon: null, badge: null, badgeType: 'warning', deferredBadge: options.deferred?.includes('pending') ?? false },
+        { key: 'paid', name: 'Paid', icon: null, badge: null, badgeType: null, deferredBadge: options.deferred?.includes('paid') ?? false },
       ],
       active: 'pending',
       saved: options.saved ?? [paid, cancelled],
@@ -111,6 +113,26 @@ describe('tab strip', () => {
     renderOrders({ tabCounts: { pending: { count: capped }, 'saved:7': { count: { value: 1234, exact: true, capped: false, estimated: false } } } });
 
     expect(tabTexts()).toEqual(['All', 'Pending10,000+', 'Paid', 'Paid1,234', 'Cancelled']);
+  });
+
+  it('holds a placeholder badge in each counting tab until the counts arrive', () => {
+    const { unmount } = renderOrders({ deferred: ['pending', 'paid'] });
+    const placeholders = (name: string) => Array.from(document.querySelectorAll(`[data-tab="${name}"] [data-badge-placeholder]`));
+
+    // Pending and Paid count, All does not; of the saved tabs only Paid shows its count.
+    expect(placeholders('all')).toHaveLength(0);
+    expect(placeholders('pending')).toHaveLength(1);
+    expect(placeholders('paid')).toHaveLength(1);
+    expect(placeholders('saved:7')).toHaveLength(1);
+    expect(placeholders('saved:8')).toHaveLength(0);
+    expect(placeholders('pending')[0]?.getAttribute('aria-hidden')).toBe('true');
+    expect(tabTexts()).toEqual(['All', 'Pending', 'Paid', 'Paid', 'Cancelled']);
+    unmount();
+
+    renderOrders({ deferred: ['pending', 'paid'], tabCounts: { pending: { count: capped }, paid: { count: capped }, 'saved:7': { count: capped } } });
+
+    expect(document.querySelectorAll('[data-badge-placeholder]')).toHaveLength(0);
+    expect(tabTexts()).toEqual(['All', 'Pending10,000+', 'Paid10,000+', 'Paid10,000+', 'Cancelled']);
   });
 
   it('clears tab when the first tab is chosen and keeps the filters', () => {

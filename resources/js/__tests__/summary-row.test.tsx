@@ -22,7 +22,7 @@ const rows = Array.from({ length: 25 }, (_, index) => ({
   abilities: {},
 }));
 
-function renderSummaries(summaries: unknown) {
+function renderSummaries(summaries: unknown, hasSummaries = false) {
   return renderPage(
     'Resources/Index',
     {
@@ -31,6 +31,7 @@ function renderSummaries(summaries: unknown) {
         label: 'Orders',
         singularLabel: 'Order',
         perPageOptions: [25],
+        hasSummaries,
         abilities: { create: false },
         definition: {
           debounce: 0.5,
@@ -96,6 +97,29 @@ describe('summary rows', () => {
 
   it('draws no footer before the summaries arrive', () => {
     renderSummaries(undefined);
+
+    expect(screen.getAllByRole('rowgroup')).toHaveLength(2);
+  });
+
+  it('holds a placeholder footer of the final height until the summaries arrive', () => {
+    const { unmount } = renderSummaries(undefined, true);
+    const footer = document.querySelector('tfoot') as HTMLElement;
+
+    // The page has more rows, so the footer will have two rows.
+    expect(footer.getAttribute('aria-hidden')).toBe('true');
+    expect(footer.querySelectorAll('tr')).toHaveLength(2);
+    expect(footer.querySelector('tr')?.className).toContain('h-10');
+    unmount();
+
+    renderSummaries({ allRecords: { total_cents: [{ label: 'Revenue', value: '1234.50' }] }, page: { total_cents: [{ label: 'Revenue', value: '250.00' }] }, message: null }, true);
+
+    expect(document.querySelector('tfoot[aria-hidden]')).toBeNull();
+    expect(footerRows()).toHaveLength(2);
+    expect(footerRows()[1]).toEqual(['', 'All records', '', 'Revenue1234.50', '']);
+  });
+
+  it('draws no placeholder when the Resource has no summaries', () => {
+    renderSummaries(null, true);
 
     expect(screen.getAllByRole('rowgroup')).toHaveLength(2);
   });

@@ -35,12 +35,28 @@ function badgeText(counts: TabCount | undefined, fallback: string | number | nul
   return badge === null ? null : String(badge);
 }
 
-function TabBadge({ text, type }: { text: string | null; type: BadgeType | null }) {
+/**
+ * A badge whose count is deferred holds a placeholder of the badge's height (text-xs, 1rem) until the counts
+ * arrive, then the value fades in over 160 ms.
+ */
+function TabBadge({ text, type, deferred = false, pending = false }: { text: string | null; type: BadgeType | null; deferred?: boolean; pending?: boolean }) {
   if (text === null) {
-    return null;
+    return deferred && pending ? (
+      <span aria-hidden="true" data-badge-placeholder="" className="h-4 w-6 animate-pulse rounded-full bg-muted motion-reduce:animate-none" />
+    ) : null;
   }
 
-  return <span className={cn('rounded-full px-1.5 text-xs font-medium tabular-nums', type === null ? 'bg-muted' : badgeColours[type])}>{text}</span>;
+  return (
+    <span
+      className={cn(
+        'rounded-full px-1.5 text-xs font-medium tabular-nums',
+        type === null ? 'bg-muted' : badgeColours[type],
+        deferred && 'animate-in fade-in duration-[160ms] motion-reduce:animate-none',
+      )}
+    >
+      {text}
+    </span>
+  );
 }
 
 const tabClass = (current: boolean) =>
@@ -112,7 +128,7 @@ export function TabBar({ resource, state, visit }: TabBarProps) {
               >
                 {tab.icon !== null && <NavIcon name={tab.icon} />}
                 {tab.name}
-                <TabBadge text={badgeText(tabCounts?.[tab.key], tab.badge)} type={tab.badgeType} />
+                <TabBadge text={badgeText(tabCounts?.[tab.key], tab.badge)} type={tab.badgeType} deferred={tab.deferredBadge} pending={tabCounts === undefined} />
               </button>
             </li>
           ))}
@@ -168,7 +184,7 @@ export function TabBar({ resource, state, visit }: TabBarProps) {
               >
                 {/* A long name ends in an ellipsis so the tab's menu stays on screen. */}
                 <span className="max-w-40 truncate">{tab.name}</span>
-                <TabBadge text={badgeText(tabCounts?.[`saved:${String(tab.id)}`])} type={tab.badgeType} />
+                <TabBadge text={badgeText(tabCounts?.[`saved:${String(tab.id)}`])} type={tab.badgeType} deferred={tab.showCount} pending={tabCounts === undefined} />
               </button>
               <button
                 type="button"
