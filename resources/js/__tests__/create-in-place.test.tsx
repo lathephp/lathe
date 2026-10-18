@@ -187,6 +187,17 @@ describe('creating a related record from the picker', () => {
     expect(posts(fetch)).toEqual([]);
   });
 
+  it('opens the picker with an empty search after the sheet is dismissed', async () => {
+    server();
+    render(<OrderForm onChange={() => undefined} />);
+
+    await openSheet();
+    fireEvent.keyDown(document, { key: 'Escape' });
+    fireEvent.click(screen.getByRole('button', { name: 'Customer' }));
+
+    expect(screen.getByRole('searchbox', { name: 'Search' })).toHaveProperty('value', '');
+  });
+
   it('shows a 422 inside the sheet and leaves the order form alone', async () => {
     server(reply({ errors: { email: ['The email has already been taken.'] } }, 422));
     const onChange = vi.fn();

@@ -87,6 +87,8 @@ export function RelationPicker({ field, value, onChange, id, describedBy, invali
 
   function create() {
     close();
+    // The sheet takes the text; the next search starts empty, as after a pick.
+    setTerm('');
     onCreate?.(typed);
   }
 
