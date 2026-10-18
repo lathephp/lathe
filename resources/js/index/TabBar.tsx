@@ -1,12 +1,11 @@
 import { usePage } from '@inertiajs/react';
 import { formatNumber, useTranslation } from '@lathephp/core';
 import { Ellipsis, GripVertical, Plus } from 'lucide-react';
-import { useId, useState, type KeyboardEvent } from 'react';
+import { Suspense, useId, useState, type KeyboardEvent } from 'react';
 import { Button } from '../components/ui/Button';
 import { NavIcon } from '../components/NavIcon';
 import { cn } from '../lib/cn';
-import { RenameTabDialog } from './RenameTabDialog';
-import { SaveTabDialog } from './SaveTabDialog';
+import { RenameTabDialog, SaveTabDialog } from './lazy';
 import type { BadgeType, IndexProps, SavedTab, TabCount } from './types';
 import type { IndexUrlState } from './useIndexState';
 import { useSavedTabs } from './useSavedTabs';
@@ -247,33 +246,35 @@ export function TabBar({ resource, state, visit }: TabBarProps) {
       <p aria-live="polite" className="sr-only">
         {announcement}
       </p>
-      {dialog?.kind === 'save' && (
-        <SaveTabDialog
-          onSave={(values) =>
-            saved.create({
-              name: values.name,
-              filters: state.filter ?? {},
-              q: state.q ?? null,
-              sort: state.sort ?? null,
-              trashed: state.trashed ?? null,
-              show_count: values.showCount,
-              badge_type: values.badgeType,
-            })
-          }
-          onClose={() => {
-            setDialog(null);
-          }}
-        />
-      )}
-      {dialog?.kind === 'rename' && (
-        <RenameTabDialog
-          name={dialog.tab.name}
-          onSave={(name) => saved.update(dialog.tab.id, { name })}
-          onClose={() => {
-            setDialog(null);
-          }}
-        />
-      )}
+      <Suspense fallback={null}>
+        {dialog?.kind === 'save' && (
+          <SaveTabDialog
+            onSave={(values) =>
+              saved.create({
+                name: values.name,
+                filters: state.filter ?? {},
+                q: state.q ?? null,
+                sort: state.sort ?? null,
+                trashed: state.trashed ?? null,
+                show_count: values.showCount,
+                badge_type: values.badgeType,
+              })
+            }
+            onClose={() => {
+              setDialog(null);
+            }}
+          />
+        )}
+        {dialog?.kind === 'rename' && (
+          <RenameTabDialog
+            name={dialog.tab.name}
+            onSave={(name) => saved.update(dialog.tab.id, { name })}
+            onClose={() => {
+              setDialog(null);
+            }}
+          />
+        )}
+      </Suspense>
       {dialog?.kind === 'delete' && (
         <div className="fixed inset-0 z-50 flex items-start justify-center bg-black/50 p-4 pt-[15vh]">
           <div
