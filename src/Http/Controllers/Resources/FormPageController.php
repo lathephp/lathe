@@ -59,7 +59,7 @@ class FormPageController
             'id' => $model->getKey(),
             'title' => $class::make($model)->title(),
             'breadcrumbs' => $payload->breadcrumbs($class, [
-                ['label' => '#'.$resourceId, 'href' => $payload->href('resources/'.$class::uriKey().'/'.$resourceId)],
+                ['label' => $class::make($model)->breadcrumbLabel(), 'href' => $payload->href('resources/'.$class::uriKey().'/'.$resourceId)],
                 ['label' => Lathe::__('Edit'), 'href' => null],
             ]),
             'form' => $payload->updateFields($class, $model),
@@ -80,7 +80,7 @@ class FormPageController
             'id' => $model->getKey(),
             'title' => $class::createButtonLabel(),
             'breadcrumbs' => $payload->breadcrumbs($class, [
-                ['label' => '#'.$resourceId, 'href' => $payload->href('resources/'.$class::uriKey().'/'.$resourceId)],
+                ['label' => $class::make($model)->breadcrumbLabel(), 'href' => $payload->href('resources/'.$class::uriKey().'/'.$resourceId)],
                 ['label' => Lathe::__('Replicate'), 'href' => null],
             ]),
             'form' => $payload->replicateFields($class, $model),

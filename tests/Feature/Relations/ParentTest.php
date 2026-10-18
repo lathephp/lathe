@@ -31,9 +31,9 @@ it('leads the breadcrumbs of a child through its parent', function () {
             ->where('breadcrumbs', [
                 ['label' => 'Dashboard', 'href' => '/lathe'],
                 ['label' => 'Orders', 'href' => '/lathe/resources/orders'],
-                ['label' => '#12', 'href' => '/lathe/resources/orders/12'],
+                ['label' => 'ORD-00099454', 'href' => '/lathe/resources/orders/12'],
                 ['label' => 'Items', 'href' => null],
-                ['label' => '#'.$item->getKey(), 'href' => null],
+                ['label' => (string) $item->getKey(), 'href' => null],
             ]));
 });
 
@@ -44,6 +44,6 @@ it('keeps the plain breadcrumbs for a Resource without a parent', function () {
             ->where('breadcrumbs', [
                 ['label' => 'Dashboard', 'href' => '/lathe'],
                 ['label' => 'Customers', 'href' => '/lathe/resources/customers'],
-                ['label' => '#12', 'href' => null],
+                ['label' => 'Douglas Monahan', 'href' => null],
             ]));
 });

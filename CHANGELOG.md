@@ -12,6 +12,10 @@ All notable changes to Lathe are listed here. The format follows [Keep a Changel
 
 - [api] The default theme is Lathe's copper design in light and dark. Apps that set `theme.colors` keep their colours. New public tokens: `brand`, `focus`, `skeleton`, `scrim`, `chart-other`, `sidebar-hover`, a `-subtle` and `-subtle-foreground` pair for `primary`, `success`, `warning`, `info` and `destructive`, and `shadow-xs` to `shadow-lg`.
 
+### Fixed
+
+- A record's breadcrumb names it by its title instead of `#id`; the id stays only when the title is empty.
+
 ## [1.0.0-beta.2] - Unreleased
 
 ### Fixed

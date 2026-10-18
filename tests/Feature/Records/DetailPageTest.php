@@ -54,7 +54,7 @@ it('shows an order with its fields, layout, abilities and default breadcrumbs', 
             ->where('breadcrumbs', [
                 ['label' => 'Dashboard', 'href' => '/lathe'],
                 ['label' => 'Orders', 'href' => '/lathe/resources/orders'],
-                ['label' => '#12', 'href' => null],
+                ['label' => 'ORD-00099454', 'href' => null],
             ])
             ->where('actions.actions', fn ($actions) => collect($actions)->map(fn ($action) => [$action['uriKey'], $action['authorizedToRun']])->all() === [
                 ['export', true], ['hold-order', true], ['mark-shipped', true], ['cancel-order', true],

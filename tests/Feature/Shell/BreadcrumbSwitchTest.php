@@ -17,7 +17,7 @@ it('pins the edit breadcrumbs ending with Edit', function () {
         ->assertInertia(fn (AssertableInertia $page) => $page
             ->where('breadcrumbs.0.href', '/lathe')
             ->where('breadcrumbs.1.label', 'Orders')
-            ->where('breadcrumbs.2.label', '#12')
+            ->where('breadcrumbs.2.label', 'ORD-00099454')
             ->where('breadcrumbs.3', ['label' => 'Edit', 'href' => null]));
 });
 

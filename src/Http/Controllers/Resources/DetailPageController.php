@@ -33,7 +33,7 @@ class DetailPageController
         abort_unless($authorization->allows($request->user(), $class, 'view', $model), 403, $authorization->denialMessage($class));
 
         $breadcrumbs = $class::make($model)->detailBreadcrumbs($request) ?? $payload->breadcrumbs($class, [
-            ['label' => '#'.$resourceId, 'href' => null],
+            ['label' => $class::make($model)->breadcrumbLabel(), 'href' => null],
         ]);
 
         return Inertia::render('Resources/Detail', [

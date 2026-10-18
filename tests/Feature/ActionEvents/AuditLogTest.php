@@ -184,8 +184,8 @@ it('leads the breadcrumbs of an event through its record', function () {
             ->where('breadcrumbs', [
                 ['label' => 'Dashboard', 'href' => '/lathe'],
                 ['label' => 'Orders', 'href' => '/lathe/resources/orders'],
-                ['label' => '#12', 'href' => '/lathe/resources/orders/12'],
-                ['label' => '#'.$event->id, 'href' => null],
+                ['label' => 'ORD-00099454', 'href' => '/lathe/resources/orders/12'],
+                ['label' => (string) $event->id, 'href' => null],
             ]));
 });
 
@@ -200,7 +200,7 @@ it('keeps the plain breadcrumbs when the record or its Resource is gone', functi
                 ->where('breadcrumbs', [
                     ['label' => 'Dashboard', 'href' => '/lathe'],
                     ['label' => 'Action Events', 'href' => '/lathe/resources/action-events'],
-                    ['label' => '#'.$event->id, 'href' => null],
+                    ['label' => (string) $event->id, 'href' => null],
                 ]));
     }
 });

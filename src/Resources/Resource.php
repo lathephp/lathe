@@ -667,8 +667,8 @@ abstract class Resource
     }
 
     /**
-     * The detail page's breadcrumbs; null keeps Dashboard / Resource / #id. A child declared
-     * with parent() leads through its parent: Dashboard / Orders / #12 / Items / #3.
+     * The detail page's breadcrumbs; null keeps Dashboard / Resource / title. A child declared
+     * with parent() leads through its parent: Dashboard / Orders / ORD-12 / Items / title.
      *
      * @return list<array{label: string, href: string|null}>|null
      */
@@ -690,11 +690,12 @@ abstract class Resource
 
         $field = $parent::make()->fieldsFor(FieldContext::Detail, $request)->first(fn (Field $field) => $field->attribute() === $relationship);
         $payload = app(RecordPayload::class);
+        $parentModel = $parent::newModel()->newQuery()->find($parentKey);
 
         return $payload->breadcrumbs($parent, [
-            ['label' => '#'.$parentKey, 'href' => $payload->href('resources/'.$parent::uriKey().'/'.$parentKey)],
+            ['label' => $parentModel !== null ? $parent::make($parentModel)->breadcrumbLabel() : '#'.$parentKey, 'href' => $payload->href('resources/'.$parent::uriKey().'/'.$parentKey)],
             ['label' => $field instanceof Field ? $field->label() : static::label(), 'href' => null],
-            ['label' => '#'.static::keyOf($this), 'href' => null],
+            ['label' => $this->breadcrumbLabel(), 'href' => null],
         ]);
     }
 
@@ -765,6 +766,16 @@ abstract class Resource
     public function title(): string
     {
         return $this->resolveText($this->definition()->getTitle());
+    }
+
+    /**
+     * What a breadcrumb calls this record: its title, or #id when the title is empty.
+     */
+    public function breadcrumbLabel(): string
+    {
+        $title = $this->title();
+
+        return $title !== '' ? $title : '#'.static::keyOf($this);
     }
 
     public function subtitle(): string

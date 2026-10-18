@@ -186,7 +186,7 @@ it('renders the edit page with the update fields and the update label', function
             ->where('breadcrumbs', [
                 ['label' => 'Dashboard', 'href' => '/lathe'],
                 ['label' => 'Orders', 'href' => '/lathe/resources/orders'],
-                ['label' => '#12', 'href' => '/lathe/resources/orders/12'],
+                ['label' => 'ORD-00099454', 'href' => '/lathe/resources/orders/12'],
                 ['label' => 'Edit', 'href' => null],
             ]));
 });

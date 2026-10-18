@@ -92,8 +92,8 @@ class ActionEventResource extends Resource
         $payload = app(RecordPayload::class);
 
         return $payload->breadcrumbs($parent, [
-            ['label' => '#'.ActionEvent::keyOf($actionable), 'href' => $payload->href('resources/'.$parent::uriKey().'/'.ActionEvent::keyOf($actionable))],
-            ['label' => '#'.ActionEvent::keyOf($event), 'href' => null],
+            ['label' => $parent::make($actionable)->breadcrumbLabel(), 'href' => $payload->href('resources/'.$parent::uriKey().'/'.ActionEvent::keyOf($actionable))],
+            ['label' => $this->breadcrumbLabel(), 'href' => null],
         ]);
     }
 
