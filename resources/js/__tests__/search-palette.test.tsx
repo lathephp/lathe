@@ -86,6 +86,11 @@ function box(): HTMLInputElement {
   return screen.getByRole<HTMLInputElement>('combobox');
 }
 
+/** Matches the element that holds the whole text, though marked words split it into nodes. */
+function whole(content: string) {
+  return (_: string, element: Element | null) => element?.textContent === content && ![...element.children].some((child) => child.textContent === content);
+}
+
 async function typeTerm(term: string) {
   fireEvent.change(box(), { target: { value: term } });
   await wait(500);
@@ -158,7 +163,7 @@ describe('typing', () => {
     await typeTerm('ann');
 
     expect(calls).toHaveLength(1);
-    expect(screen.getByText('Annette Fox')).toBeTruthy();
+    expect(screen.getByText(whole('Annette Fox'))).toBeTruthy();
   });
 });
 
@@ -194,7 +199,7 @@ describe('states', () => {
     await wait(0);
 
     expect(screen.queryByText('Search failed')).toBeNull();
-    expect(screen.getByText('Annette Fox')).toBeTruthy();
+    expect(screen.getByText(whole('Annette Fox'))).toBeTruthy();
   });
 
   it('says why the server refused a term instead of offering a Retry that cannot work', async () => {
@@ -205,6 +210,15 @@ describe('states', () => {
 
     expect(screen.getByRole('alert').textContent).toBe('The search term may not be longer than 100 characters.');
     expect(screen.queryByRole('button', { name: 'Retry' })).toBeNull();
+  });
+
+  it('marks the words that match in titles and subtitles', async () => {
+    answer({ groups: [{ resourceName: 'orders', label: 'Orders', results: [row('orders', 7, 'ORD-0007', 'Prof. Warren Shields II · Oct 17, 2026')] }], skipped: [] });
+    renderPalette();
+
+    await typeTerm('warren');
+
+    expect([...document.querySelectorAll('mark')].map((mark) => mark.textContent)).toEqual(['Warren']);
   });
 
   it('warns when a Resource was skipped', async () => {
@@ -232,7 +246,7 @@ describe('results', () => {
 
     expect(customers).toHaveLength(2);
     expect(within(customers[0] as HTMLElement).getByText('AT')).toBeTruthy();
-    expect(within(customers[0] as HTMLElement).getByText('ann@example.com')).toBeTruthy();
+    expect(within(customers[0] as HTMLElement).getByText(whole('ann@example.com'))).toBeTruthy();
     expect(customers[1]?.querySelector('img')?.getAttribute('src')).toBe('https://cdn.test/annette.png');
     expect(within(within(groups[1] as HTMLElement).getByRole('option')).getByText('OR')).toBeTruthy();
   });
@@ -254,7 +268,7 @@ describe('results', () => {
 
     const group = screen.getByRole('group', { name: 'Orders' });
 
-    expect(within(within(group).getAllByRole('option')[0] as HTMLElement).getByText('Prof. Warren Shields II · Oct 17, 2026 · $1,234.00')).toBeTruthy();
+    expect(within(within(group).getAllByRole('option')[0] as HTMLElement).getByText(whole('Prof. Warren Shields II · Oct 17, 2026 · $1,234.00'))).toBeTruthy();
     expect(screen.queryByRole('link', { name: /Show all .* customers/ })).toBeNull();
 
     const all = within(group).getByRole('link', { name: 'Show all 20 orders' });
@@ -338,7 +352,7 @@ describe('keyboard', () => {
     const visit = vi.spyOn(router, 'visit').mockImplementation(() => undefined);
 
     await ready();
-    fireEvent.click(screen.getByText('Annette Fox'));
+    fireEvent.click(screen.getByText(whole('Annette Fox')));
 
     expect(visit).toHaveBeenCalledWith('/lathe/resources/customers/14');
   });

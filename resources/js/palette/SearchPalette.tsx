@@ -33,6 +33,25 @@ function Avatar({ result }: { result: SearchResult }) {
  * The search palette. It mounts when it opens and unmounts when it closes, so mounting
  * pauses the shortcuts, takes the focus and (on unmount) gives it back to the opener.
  */
+/** The text with each word of the term marked where it occurs, ignoring case. */
+function Marked({ text, term }: { text: string; term: string }) {
+  const words = term.split(/\s+/).filter((word) => word !== '').map((word) => word.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'));
+
+  if (words.length === 0) {
+    return text;
+  }
+
+  return text.split(new RegExp(`(${words.join('|')})`, 'gi')).map((part, index) =>
+    index % 2 === 1 ? (
+      <mark key={index} className="rounded-sm bg-primary-subtle text-primary-subtle-foreground">
+        {part}
+      </mark>
+    ) : (
+      part
+    ),
+  );
+}
+
 export function SearchPalette({ basePath, debounce, onClose }: Props) {
   const { __ } = useTranslation();
   const listId = useId();
@@ -149,11 +168,13 @@ export function SearchPalette({ basePath, debounce, onClose }: Props) {
       >
         <Avatar result={result} />
         <span className="min-w-0">
-          <span className="block truncate text-sm font-medium">{result.title}</span>
+          <span className="block truncate text-sm font-medium">
+            <Marked text={result.title} term={term} />
+          </span>
           {/* On the highlighted row's muted background the muted text falls under 4.5:1. */}
           {result.subTitle !== null && (
             <span className={cn('block truncate text-xs', index === current ? 'text-foreground/80' : 'text-muted-foreground')}>
-              {result.subTitle}
+              <Marked text={result.subTitle} term={term} />
             </span>
           )}
         </span>
