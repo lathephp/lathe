@@ -1,4 +1,5 @@
 import { ApiError, csrfHeaders, request } from '@lathephp/core';
+import { flushResourceOf } from '../lib/cacheTags';
 import type { SelectionDescriptor } from '../index/useRowSelection';
 import type { ActionRun } from './types';
 
@@ -46,6 +47,9 @@ export async function runAction(url: string, action: string, selection: Selectio
   if (!response.ok) {
     throw new ApiError(response.status, data);
   }
+
+  // This fetch skips request(), so it drops the resource's prefetched pages itself.
+  flushResourceOf(url);
 
   return data as ActionRun;
 }
