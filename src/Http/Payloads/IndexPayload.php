@@ -19,6 +19,8 @@ use Lathe\Filters\FilterApplicator;
 use Lathe\Groups\Group;
 use Lathe\Http\Requests\LatheRequest;
 use Lathe\Lenses\Lens;
+use Lathe\Preferences\ColumnChoice;
+use Lathe\Preferences\UserPreference;
 use Lathe\Query\ResourceQuery;
 use Lathe\Resources\Resource;
 use Lathe\Resources\TrafficCop;
@@ -88,11 +90,13 @@ class IndexPayload
         $tokens = $resource->definition()->usesTrafficCop() && array_filter($fields, fn (Field $field) => $field->isInlineEditable($this->request)) !== [];
         $menu = new ActionMenu($this->request, $this->authorization);
         $rowActions = $menu->forRows($class);
+        // A lens keeps its code columns: the saved choice is the Resource index's only.
+        $choice = $lens === null ? $this->columnChoice($class, $fields) : null;
 
         return [
             'resource' => $this->resource($class),
             'table' => [
-                'columns' => $fields,
+                'columns' => $choice === null ? $fields : $this->chosenColumns($fields, $choice),
                 'sortKeys' => $query->sortKeys(),
                 'rowKey' => $rowKey,
                 'rows' => $rows->map(fn (Model $model) => [
@@ -105,6 +109,8 @@ class IndexPayload
                     ...($softDeletes ? ['trashed' => method_exists($model, 'trashed') && $model->trashed() === true] : []),
                     ...($group !== null ? ['group' => ['key' => $group->keyFor($model), 'title' => $group->titleFor($model), 'description' => $group->descriptionFor($model)]] : []),
                 ])->values()->all(),
+                'columnChoice' => $choice,
+                'allColumns' => $lens !== null ? [] : array_map(fn (Field $field) => ['key' => $field->key(), 'label' => $field->label()], $fields),
             ],
             'groups' => $this->groups($resource, $active, $lens),
             'filters' => [
@@ -141,6 +147,41 @@ class IndexPayload
             : $resource->fieldsFor(FieldContext::Index, $this->request);
 
         return array_values($fields->forContext(FieldContext::Index, $this->request)->authorized($this->request)->all());
+    }
+
+    /**
+     * The signed-in user's saved columns of this index, aged against the code's columns, or null when they saved none.
+     *
+     * @param  class-string<\Lathe\Resources\Resource>  $class
+     * @param  list<Field>  $fields
+     * @return array{order: list<string>, hidden: list<string>, pinned: list<string>}|null
+     */
+    protected function columnChoice(string $class, array $fields): ?array
+    {
+        $row = UserPreference::where('user_id', UserPreference::userId($this->request))->where('key', ColumnChoice::key($class::uriKey()))->first();
+
+        return $row === null ? null : ColumnChoice::age(array_map(fn (Field $field) => $field->key(), $fields), $row->value);
+    }
+
+    /**
+     * The shown columns in the chosen order, each marked pinned or not.
+     *
+     * @param  list<Field>  $fields
+     * @param  array{order: list<string>, hidden: list<string>, pinned: list<string>}  $choice
+     * @return list<array<string, mixed>>
+     */
+    protected function chosenColumns(array $fields, array $choice): array
+    {
+        $byKey = [];
+
+        foreach ($fields as $field) {
+            $byKey[$field->key()] = $field;
+        }
+
+        return array_map(
+            fn (string $key) => [...$byKey[$key]->jsonSerialize(), 'pinned' => in_array($key, $choice['pinned'], true)],
+            ColumnChoice::visible(array_keys($byKey), $choice),
+        );
     }
 
     /**

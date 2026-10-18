@@ -34,6 +34,7 @@ use Lathe\Http\Controllers\Resources\ActionLookupController;
 use Lathe\Http\Controllers\Resources\ActionRunController;
 use Lathe\Http\Controllers\Resources\AssociatableController;
 use Lathe\Http\Controllers\Resources\BatchDeleteController;
+use Lathe\Http\Controllers\Resources\ColumnPreferenceController;
 use Lathe\Http\Controllers\Resources\CountController;
 use Lathe\Http\Controllers\Resources\DeleteController;
 use Lathe\Http\Controllers\Resources\DependencyController;
@@ -190,6 +191,8 @@ class PanelRoutes
             $router->put('resources/{resource}/saved-tabs/reorder', [SavedTabController::class, 'reorder'])->name('resources.savedTabs.reorder');
             $router->put('resources/{resource}/saved-tabs/{savedTab}', [SavedTabController::class, 'update'])->name('resources.savedTabs.update');
             $router->delete('resources/{resource}/saved-tabs/{savedTab}', [SavedTabController::class, 'destroy'])->name('resources.savedTabs.destroy');
+            $router->put('resources/{resource}/columns', [ColumnPreferenceController::class, 'update'])->name('resources.columns.update');
+            $router->delete('resources/{resource}/columns', [ColumnPreferenceController::class, 'destroy'])->name('resources.columns.destroy');
             // Before the {resourceId} routes, so a lens path never reads as a record id.
             $router->get('resources/{resource}/lenses/{lens}', [LensController::class, 'index'])->name('resources.lenses.index');
             $router->get('resources/{resource}/lenses/{lens}/count', [LensController::class, 'count'])->name('resources.lenses.count');
