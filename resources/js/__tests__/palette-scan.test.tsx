@@ -11,8 +11,8 @@ const allowed: Record<string, string> = {
   'widgets/charts/RadialCard.tsx:102': 'label over series fills',
 };
 
-// The tests are left out, and so is fields/date, which has its own pass.
-const sources = import.meta.glob<string>(['../**/*.tsx', '!../__tests__/**', '!../fields/date/**'], { eager: true, query: '?raw', import: 'default' });
+// The tests are left out.
+const sources = import.meta.glob<string>(['../**/*.tsx', '!../__tests__/**'], { eager: true, query: '?raw', import: 'default' });
 
 describe('panel colours', () => {
   it('use theme tokens, not palette classes', () => {
