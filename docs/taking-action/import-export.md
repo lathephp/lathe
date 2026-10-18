@@ -154,7 +154,7 @@ public function actions(LatheRequest $request): array
 
 1. **Upload.** The user picks a CSV or XLSX file. It uploads in chunks, up to `imports.max_file_size_mb` (50 MB). Lathe reads only the header and five preview rows. Other file types are refused. An empty file shows "The file is empty and has no headers."
 2. **Map.** The modal lists each header with a menu of your columns. Lathe pre-selects the best match. The user can pick **Skip** for a header. Continue stays off while a column with a `required` rule has no header.
-3. **Check.** A dry run reads the whole file, validates it, and writes nothing. It reports how many rows would be created, updated, skipped or fail, shows the first 20 errors, and links a CSV of the failed rows.
+3. **Check.** The button names how many rows the file holds, such as "Check 2,400 rows". A dry run reads the whole file, validates it, and writes nothing. It reports how many rows would be created, updated, skipped or fail, shows the first 20 errors, and links a CSV of the failed rows.
 4. **Import.** The same job runs for real. It always runs in the queue, so it needs a queue worker. See [Deployment](../getting-started/deployment.md).
 
 The user sees a progress toast and a run page at `/lathe/runs/import/{id}`. When the job ends, a notification gives the counts: created, updated, skipped and failed. If rows failed, it links a CSV of those rows with the errors in a `_errors` column.

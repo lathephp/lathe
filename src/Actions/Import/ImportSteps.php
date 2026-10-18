@@ -47,7 +47,7 @@ class ImportSteps
     }
 
     /**
-     * Move the user's complete upload to the imports disk and read its header and first rows.
+     * Move the user's complete upload to the imports disk, read its header and first rows and count its rows.
      */
     protected function upload(LatheRequest $request, ImportAction $action): ActionResult
     {
@@ -66,7 +66,8 @@ class ImportSteps
         }
 
         $this->uploads->cancel($upload);
-        $read = (new ImportReader(Storage::disk($disk)->path($path)))->preview();
+        $reader = new ImportReader(Storage::disk($disk)->path($path));
+        $read = $reader->preview();
 
         if ($read['headers'] === []) {
             Storage::disk($disk)->delete($path);
@@ -86,6 +87,8 @@ class ImportSteps
         return ActionResult::emit('import:headers-detected', [
             'import_id' => $import->id,
             'original_name' => $import->original_name,
+            // The Check button names how many rows it will read.
+            'total_rows' => $reader->count(),
             'headers' => $read['headers'],
             'preview' => $read['preview'],
             'columns' => $action->getColumns(),

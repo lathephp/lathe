@@ -1,4 +1,4 @@
-import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { act, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { IMPORT_POLL_MS, ImportModal } from '../actions/ImportModal';
 import type { ActionMeta } from '../actions/types';
@@ -84,6 +84,7 @@ function server() {
               data: {
                 import_id: 7,
                 original_name: 'products.csv',
+                total_rows: 2400,
                 headers: ['Name', 'SKU', 'Price'],
                 preview: [
                   ['Trail Mug', 'SKU-90001', '12.50'],
@@ -134,6 +135,12 @@ describe('import modal', () => {
     window.addEventListener('lathe:import-started', started);
     const { container } = render(<ImportModal base="/lathe/api/resources/products" action={action} selection={selection} onClose={onClose} />);
 
+    // The steps name where the import is; the dialog is the large size.
+    const current = () => within(screen.getByRole('list', { name: 'Steps' })).getAllByRole('listitem').find((item) => item.getAttribute('aria-current') === 'step')?.textContent;
+    expect(within(screen.getByRole('list', { name: 'Steps' })).getAllByRole('listitem').map((item) => item.textContent)).toEqual(['File', 'Map columns', 'Check', 'Import']);
+    expect(current()).toBe('File');
+    expect(screen.getByRole('dialog').className).toContain('max-w-[720px]');
+
     // 1. Choose the file: it uploads in chunks, then the upload step reads its headers.
     expect(container.querySelector('input[type="file"]')).toBeNull();
     const file = new File(['Name,SKU,Price\n'], 'products.csv', { type: 'text/csv' });
@@ -154,6 +161,7 @@ describe('import modal', () => {
     // 2. The mapping comes prefilled; a column mapped by another row shows but cannot be
     // picked, and a required column set to Skip holds Continue back.
     expect((await screen.findByLabelText('Name')).textContent).toBe('Name');
+    expect(current()).toBe('Map columns');
     expect(screen.getByLabelText('SKU').textContent).toBe('Sku');
     expect(screen.getByLabelText('Price').textContent).toBe('Price');
     expect(screen.getByText('Camp Kettle')).toBeTruthy();
@@ -181,8 +189,9 @@ describe('import modal', () => {
     // The status poll runs on timers, so the test drives them from here.
     vi.useFakeTimers({ toFake: ['setTimeout', 'setInterval', 'clearTimeout', 'clearInterval'] });
 
-    // 3. Validate runs the dry run and polls the import until it ends.
-    fireEvent.click(screen.getByRole('button', { name: 'Validate' }));
+    // 3. Check runs the dry run over every row and polls the import until it ends.
+    expect(current()).toBe('Check');
+    fireEvent.click(screen.getByRole('button', { name: 'Check 2,400 rows' }));
     await flush();
     expect(step('dry_run')?.body).toEqual({ action: 'import', selection, fields: { import_step: 'dry_run', import_id: 7, column_map: ['name', 'sku', 'price'] } });
 
@@ -196,7 +205,7 @@ describe('import modal', () => {
     });
     expect(IMPORT_POLL_MS).toBe(2000);
     expect(screen.getByText('2 will be created, 1 will be updated, 0 failed')).toBeTruthy();
-    expect(screen.queryByRole('link', { name: 'Download Failed Rows' })).toBeNull();
+    expect(screen.queryByRole('link', { name: 'Download failed rows' })).toBeNull();
 
     // 4. Import runs the real import, hands it to the progress toast and closes.
     fireEvent.click(screen.getByRole('button', { name: 'Import' }));

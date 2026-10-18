@@ -19,14 +19,14 @@ export function ConflictDialog({ onRefresh, onOverride, onClose }: ConflictDialo
         {__('This record has changed')}
       </h2>
       <p className="text-sm text-muted-foreground">
-        {__('Someone else saved this record after you opened it. Refresh to load their changes, or override to save yours over them.')}
+        {__('Someone else saved this record after you opened it. Load their version, or save yours over theirs.')}
       </p>
       <div className="flex justify-end gap-2">
         <button type="button" className="h-9 rounded-md border border-input px-4 text-sm" onClick={onRefresh}>
-          {__('Refresh')}
+          {__('Load their version')}
         </button>
         <button type="button" className="h-9 rounded-md bg-destructive px-4 text-sm font-medium text-destructive-foreground" onClick={onOverride}>
-          {__('Override')}
+          {__('Save mine over theirs')}
         </button>
       </div>
     </Modal>

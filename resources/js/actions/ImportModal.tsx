@@ -1,4 +1,4 @@
-import { ApiError, request, toast, useLathe, useTranslation } from '@lathephp/core';
+import { ApiError, formatNumber, request, toast, useLathe, useTranslation } from '@lathephp/core';
 import { Button } from '@lathephp/ui';
 import { useEffect, useId, useRef, useState } from 'react';
 import { Modal } from '../components/Modal';
@@ -22,6 +22,7 @@ interface ImportColumn {
 interface Detected {
   import_id: number;
   original_name: string;
+  total_rows: number;
   headers: string[];
   preview: unknown[][];
   columns: ImportColumn[];
@@ -179,13 +180,22 @@ export function ImportModal({ base, action, selection, onClose }: ImportModalPro
   }
 
   const missing = detected?.columns.filter((column) => column.required && !map.includes(column.name)) ?? [];
+  const steps = [__('File'), __('Map columns'), __('Check'), __('Import')];
+  const current = detected === null ? 0 : !mapped ? 1 : report?.status === 'completed' ? 3 : 2;
 
   return (
-    <Modal labelledBy={titleId} onClose={onClose} className="relative w-full max-w-3xl overflow-y-auto rounded-lg border border-border bg-background p-4 text-foreground shadow-lg">
+    <Modal labelledBy={titleId} onClose={onClose} className="relative w-full max-w-[720px] overflow-y-auto rounded-lg border border-border bg-background p-4 text-foreground shadow-lg">
       <div className="space-y-4">
         <h2 id={titleId} className="text-base font-semibold">
           {action.name}
         </h2>
+        <ol aria-label={__('Steps')} className="flex flex-wrap gap-4 text-xs text-muted-foreground">
+          {steps.map((label, index) => (
+            <li key={label} aria-current={index === current ? 'step' : undefined} className={index === current ? 'font-medium text-foreground' : undefined}>
+              {label}
+            </li>
+          ))}
+        </ol>
         {error !== null && (
           <p role="alert" className="text-sm text-destructive">
             {error}
@@ -282,7 +292,7 @@ export function ImportModal({ base, action, selection, onClose }: ImportModalPro
 
         {detected !== null && mapped && (
           <div className="space-y-2 text-sm">
-            {report === null && <p className="text-muted-foreground">{busy ? __('Validating the file…') : __('Validate the file before importing. Nothing is saved.')}</p>}
+            {report === null && <p className="text-muted-foreground">{busy ? __('Checking the file…') : __('Check the file before importing. Nothing is saved.')}</p>}
             {report?.status === 'failed' && (
               <p role="alert" className="text-destructive">
                 {report.exception ?? __('Something went wrong. Please try again.')}
@@ -308,7 +318,7 @@ export function ImportModal({ base, action, selection, onClose }: ImportModalPro
                 )}
                 {report.failed_rows > 0 && report.errors_url !== null && (
                   <a href={report.errors_url} target="_blank" rel="noopener" className="text-primary underline">
-                    {__('Download Failed Rows')}
+                    {__('Download failed rows')}
                   </a>
                 )}
               </>
@@ -347,7 +357,7 @@ export function ImportModal({ base, action, selection, onClose }: ImportModalPro
                 {__('Back')}
               </Button>
               <Button type="button" size="sm" disabled={busy} onClick={() => void validate()}>
-                {__('Validate')}
+                {__('Check :count rows', { count: formatNumber(detected.total_rows) })}
               </Button>
               {report?.status === 'completed' && (
                 <Button type="button" size="sm" disabled={busy} onClick={() => void runImport()}>

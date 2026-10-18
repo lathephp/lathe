@@ -119,6 +119,7 @@ it('stores the uploaded file and answers its headers, preview and mapping', func
             'data' => [
                 'import_id' => $import->id,
                 'original_name' => 'products.csv',
+                'total_rows' => 3,
                 'headers' => ['Name', 'SKU', 'Price'],
                 'preview' => [
                     ['Trail Mug', 'SKU-90001', '12.50'],
@@ -135,13 +136,13 @@ it('stores the uploaded file and answers its headers, preview and mapping', func
         ]);
 });
 
-it('previews only the first 5 rows', function () {
+it('previews only the first 5 rows and counts them all', function () {
     $rows = implode('', array_map(fn (int $i) => "Item {$i},SKU-7000{$i},{$i}.00\n", range(1, 8)));
     $id = sendImportFile('many.csv', "Name,SKU,Price\n".$rows);
 
-    $preview = importStep(['import_step' => 'upload', 'file' => $id])->assertOk()->json('result.effect.data.preview');
+    $data = importStep(['import_step' => 'upload', 'file' => $id])->assertOk()->json('result.effect.data');
 
-    expect($preview)->toBe([
+    expect($data['total_rows'])->toBe(8)->and($data['preview'])->toBe([
         ['Item 1', 'SKU-70001', '1.00'],
         ['Item 2', 'SKU-70002', '2.00'],
         ['Item 3', 'SKU-70003', '3.00'],

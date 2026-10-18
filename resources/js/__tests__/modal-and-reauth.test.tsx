@@ -357,7 +357,7 @@ describe('conflict dialog', () => {
     });
   }
 
-  it('opens on 409; Override resubmits with the returned token', async () => {
+  it('opens on 409; Save mine over theirs resubmits with the returned token', async () => {
     const bodies: Record<string, unknown>[] = [];
     vi.spyOn(globalThis, 'fetch').mockImplementation((_input, init) => {
       bodies.push(JSON.parse(typeof init?.body === 'string' ? init.body : '{}') as Record<string, unknown>);
@@ -369,7 +369,7 @@ describe('conflict dialog', () => {
 
     fireEvent.change(screen.getByLabelText(/Name/), { target: { value: 'shipped' } });
     fireEvent.click(screen.getByRole('button', { name: 'Update Order' }));
-    fireEvent.click(await screen.findByRole('button', { name: 'Override' }));
+    fireEvent.click(await screen.findByRole('button', { name: 'Save mine over theirs' }));
 
     await waitFor(() => {
       expect(visit).toHaveBeenCalledWith('/lathe/resources/orders/12');
@@ -378,7 +378,7 @@ describe('conflict dialog', () => {
     expect(bodies[1]?.name).toBe('shipped');
   });
 
-  it('Refresh reloads the stored values and drops the draft', async () => {
+  it('Load their version reloads the stored values and drops the draft', async () => {
     window.sessionStorage.setItem(`lathe-draft:${window.location.pathname}`, JSON.stringify({ name: 'typed' }));
     vi.spyOn(globalThis, 'fetch').mockImplementation((input) =>
       Promise.resolve(
@@ -390,7 +390,7 @@ describe('conflict dialog', () => {
     renderEdit();
 
     fireEvent.click(screen.getByRole('button', { name: 'Update Order' }));
-    fireEvent.click(await screen.findByRole('button', { name: 'Refresh' }));
+    fireEvent.click(await screen.findByRole('button', { name: 'Load their version' }));
 
     await waitFor(() => {
       expect(screen.getByLabelText<HTMLInputElement>(/Name/).value).toBe('paid');

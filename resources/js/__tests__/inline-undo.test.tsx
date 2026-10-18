@@ -107,7 +107,7 @@ describe('undoing an inline edit', () => {
     expect(bodies(fetch)[1]).toEqual({ value: 'paid', _updated_at: '2026-10-14T09:00:02.000Z' });
   });
 
-  it('opens the conflict dialog when someone else changed the record, and Refresh keeps their value', async () => {
+  it('opens the conflict dialog when someone else changed the record, and Load their version keeps their value', async () => {
     const conflict = new Response(JSON.stringify({ error: 'conflict', fields: { status: { value: 'cancelled', display: 'cancelled' } }, updatedAt: '2026-10-14T09:00:05.000Z' }), { status: 409 });
     const fetch = vi.spyOn(globalThis, 'fetch').mockResolvedValueOnce(saved('shipped', '2026-10-14T09:00:02.000Z')).mockResolvedValueOnce(conflict);
     renderOrder();
@@ -123,7 +123,7 @@ describe('undoing an inline edit', () => {
     expect(await screen.findByText('This record has changed')).toBeTruthy();
     expect(screen.getByRole('combobox', { name: 'Status' }).textContent).toBe('cancelled');
 
-    fireEvent.click(screen.getByRole('button', { name: 'Refresh' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Load their version' }));
 
     await waitFor(() => {
       expect(screen.queryByText('This record has changed')).toBeNull();
