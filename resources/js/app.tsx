@@ -14,7 +14,7 @@ import { assetHashFromUrl, markBuildStale, setEntryHash } from './lib/assets';
 // Registers the write listener that drops a resource's prefetched pages.
 import './lib/instant';
 import { DirectionProvider } from './lib/direction';
-import { pages } from './lib/pages';
+import { pages, preloadPanelPages } from './lib/pages';
 import { pageTitle } from './lib/title';
 import { showFlash } from './lib/visits';
 import type { SharedProps } from './types';
@@ -102,5 +102,16 @@ void createInertiaApp({
         </DirectionProvider>
       </QueryClientProvider>,
     );
+    // While the browser is idle, the pages a click most often opens load, so the first click on
+    // a sidebar link or a row has no chunk to wait for before it shows the page.
+    if ('requestIdleCallback' in window) {
+      window.requestIdleCallback(() => {
+        void preloadPanelPages();
+      });
+    } else {
+      setTimeout(() => {
+        void preloadPanelPages();
+      }, 1000);
+    }
   },
 });
