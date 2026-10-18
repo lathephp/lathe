@@ -137,6 +137,20 @@ describe('live filters', () => {
     expect(visitData(visit)).toEqual({});
   });
 
+  it('drops a change still waiting once the person goes to another page', async () => {
+    const visit = mockVisit();
+    renderIndex('/lathe/resources/orders', paidCount);
+
+    fireEvent.click(screen.getByRole('button', { name: 'Filter' }));
+    vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout'] });
+    fireEvent.change(screen.getByLabelText('Min'), { target: { value: '100' } });
+    // A click on a row starts a visit to the record before the 300 ms are up.
+    document.dispatchEvent(new CustomEvent('inertia:start', { detail: { visit: { url: new URL('http://localhost/lathe/resources/orders/7'), prefetch: false, async: false } } }));
+    await advance(400);
+
+    expect(visit).not.toHaveBeenCalled();
+  });
+
   it('closes the popover on Escape and on a press outside it', () => {
     renderIndex('/lathe/resources/orders', paidCount);
 

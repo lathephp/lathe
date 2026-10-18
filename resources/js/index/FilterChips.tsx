@@ -1,4 +1,4 @@
-import { usePage } from '@inertiajs/react';
+import { router, usePage } from '@inertiajs/react';
 import { formatNumber, useTranslation } from '@lathephp/core';
 import { X } from 'lucide-react';
 import type { SharedProps } from '../types';
@@ -7,16 +7,30 @@ import { type FilterValue, type IndexUrlState, parseQuery } from './useIndexStat
 
 // The filter panel's change still waiting to be sent; a chip or Reset that visits first drops it.
 let pending: ReturnType<typeof setTimeout> | undefined;
+let stopWatching: (() => void) | undefined;
 
 /** Sends a filter change after the wait, replacing one still waiting. */
 export function deferFilterVisit(send: () => void, wait: number): void {
-  clearTimeout(pending);
-  pending = setTimeout(send, wait);
+  cancelFilterVisit();
+  // A visit to another page meanwhile drops it too, so the wait cannot pull the person back.
+  stopWatching = router.on('start', (event) => {
+    const { visit } = event.detail;
+
+    if (!visit.prefetch && !visit.async && visit.url.pathname !== window.location.pathname) {
+      cancelFilterVisit();
+    }
+  });
+  pending = setTimeout(() => {
+    cancelFilterVisit();
+    send();
+  }, wait);
 }
 
 /** Drops the filter change still waiting, so it cannot undo a visit made since. */
 export function cancelFilterVisit(): void {
   clearTimeout(pending);
+  stopWatching?.();
+  stopWatching = undefined;
 }
 
 /** The URL's filters without the keys the server dropped as stale. */
