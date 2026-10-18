@@ -3906,6 +3906,7 @@ Lathe\Theme\Color::Accent
 Lathe\Theme\Color::AccentForeground
 Lathe\Theme\Color::Background
 Lathe\Theme\Color::Border
+Lathe\Theme\Color::Brand
 Lathe\Theme\Color::Card
 Lathe\Theme\Color::CardForeground
 Lathe\Theme\Color::Chart1
@@ -3913,11 +3914,17 @@ Lathe\Theme\Color::Chart2
 Lathe\Theme\Color::Chart3
 Lathe\Theme\Color::Chart4
 Lathe\Theme\Color::Chart5
+Lathe\Theme\Color::ChartOther
 Lathe\Theme\Color::Destructive
 Lathe\Theme\Color::DestructiveForeground
+Lathe\Theme\Color::DestructiveSubtle
+Lathe\Theme\Color::DestructiveSubtleForeground
+Lathe\Theme\Color::Focus
 Lathe\Theme\Color::Foreground
 Lathe\Theme\Color::Info
 Lathe\Theme\Color::InfoForeground
+Lathe\Theme\Color::InfoSubtle
+Lathe\Theme\Color::InfoSubtleForeground
 Lathe\Theme\Color::Input
 Lathe\Theme\Color::Link
 Lathe\Theme\Color::LinkHover
@@ -3927,7 +3934,10 @@ Lathe\Theme\Color::Popover
 Lathe\Theme\Color::PopoverForeground
 Lathe\Theme\Color::Primary
 Lathe\Theme\Color::PrimaryForeground
+Lathe\Theme\Color::PrimarySubtle
+Lathe\Theme\Color::PrimarySubtleForeground
 Lathe\Theme\Color::Ring
+Lathe\Theme\Color::Scrim
 Lathe\Theme\Color::Secondary
 Lathe\Theme\Color::SecondaryForeground
 Lathe\Theme\Color::Sidebar
@@ -3935,13 +3945,19 @@ Lathe\Theme\Color::SidebarAccent
 Lathe\Theme\Color::SidebarAccentForeground
 Lathe\Theme\Color::SidebarBorder
 Lathe\Theme\Color::SidebarForeground
+Lathe\Theme\Color::SidebarHover
 Lathe\Theme\Color::SidebarPrimary
 Lathe\Theme\Color::SidebarPrimaryForeground
 Lathe\Theme\Color::SidebarRing
+Lathe\Theme\Color::Skeleton
 Lathe\Theme\Color::Success
 Lathe\Theme\Color::SuccessForeground
+Lathe\Theme\Color::SuccessSubtle
+Lathe\Theme\Color::SuccessSubtleForeground
 Lathe\Theme\Color::Warning
 Lathe\Theme\Color::WarningForeground
+Lathe\Theme\Color::WarningSubtle
+Lathe\Theme\Color::WarningSubtleForeground
 Lathe\Theme\Color::string $name
 Lathe\Theme\Color::string $value
 Lathe\Theme\Color::utility(): string

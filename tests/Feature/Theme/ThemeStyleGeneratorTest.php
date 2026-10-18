@@ -69,8 +69,12 @@ it('derives the new tokens from an app primary', function () {
 
     // The tints are color-mix(in oklch, <primary> 14%, <copper background oklch(0.985 0.003 70)>), worked out by hand.
     expect($css)->toStartWith(':root{--radius:0.625rem;--primary:#2563eb;--link:#2563eb;--link-hover:color-mix(in oklch, #2563eb 85%, black);--brand:#2563eb;--focus:#2563eb;--primary-subtle:color-mix(in oklch, #2563eb 14%, var(--background));--primary-subtle-foreground:')
-        ->and($css)->not->toContain('.dark')
         ->and(Contrast::ratio((string) themeVariable($css, ':root', 'primary-subtle-foreground'), 'oklch(0.9236 0.0327 46.60)'))->toBeGreaterThanOrEqual(4.5);
+
+    // The tint follows the dark background, so the text gets a dark value of its own:
+    // the tint there is color-mix(in oklch, #2563eb 14%, oklch(0.165 0.006 60)).
+    expect(themeVariable($css, '.dark', 'primary'))->toBeNull()
+        ->and(Contrast::ratio((string) themeVariable($css, '.dark', 'primary-subtle-foreground'), 'oklch(0.2184 0.0353 38.00)'))->toBeGreaterThanOrEqual(4.5);
 
     $light = (new ThemeStyleGenerator)->generate('0.625rem', ['primary' => '#60a5fa']);
 

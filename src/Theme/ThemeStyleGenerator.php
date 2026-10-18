@@ -93,7 +93,10 @@ class ThemeStyleGenerator
         foreach (['primary', 'success', 'warning', 'info', 'destructive'] as $name) {
             if (isset($set[$name])) {
                 $derived["{$name}-subtle"] = $this->map($set[$name], fn (string $c): string => "color-mix(in oklch, {$c} 14%, var(--background))");
-                $derived["{$name}-subtle-foreground"] = $this->map($set[$name], fn (string $c, string $mode): string => $this->subtleForeground($c, $mode, $set['background'] ?? null));
+                // The text gets a dark value even from a single colour: the tint follows the dark
+                // background, so the light text would be too faint on it.
+                $both = [$set[$name][0], $set[$name][1] ?? $set[$name][0]];
+                $derived["{$name}-subtle-foreground"] = $this->map($both, fn (string $c, string $mode): string => $this->subtleForeground($c, $mode, $set['background'] ?? null));
             }
         }
 
@@ -112,8 +115,7 @@ class ThemeStyleGenerator
 
     /**
      * The colour at 4.5:1 on its -subtle tint, worked out here because CSS cannot search
-     * for a contrast. A single-string colour sits in :root, so it is measured on the light
-     * ground. Without an app background the ground is copper's, from resources/css/app.css.
+     * for a contrast. Without an app background the ground is copper's, from resources/css/app.css.
      *
      * @param  array{string, ?string}|null  $background
      */
