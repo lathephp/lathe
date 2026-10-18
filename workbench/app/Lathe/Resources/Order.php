@@ -48,7 +48,7 @@ class Order extends Resource
                 Field::text('Number')->required()->sortable()->showOnPreview(),
                 $this->status()->showOnPreview(),
                 Field::dateTime('Placed', 'placed_at')->sortable()->required()->showOnPreview(),
-                Field::make('Created', 'created_at')->onlyOnDetail()->canSee(fn (LatheRequest $request) => $request->user() instanceof User && $request->user()->email === 'admin@lathephp.com'),
+                Field::dateTime('Created', 'created_at')->onlyOnDetail()->canSee(fn (LatheRequest $request) => $request->user() instanceof User && $request->user()->email === 'admin@lathephp.com'),
             ]),
             Section::make('Customer', [
                 Field::belongsTo('Customer')->searchable()->creatable()->modalSize('lg'),
