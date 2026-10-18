@@ -140,6 +140,8 @@ export interface DetailRecord {
   id: string | number;
   title: string;
   subtitle: string;
+  /** The field keys the header shows: a badge beside the title and the meta line. */
+  header?: { badge: string | null; meta: string | null };
   avatar: { url: string | null; initials: string | null; rounded: boolean } | null;
   fields: DetailFieldData[];
   layout: LayoutBlock[];

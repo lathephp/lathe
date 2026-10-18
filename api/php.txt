@@ -3334,6 +3334,7 @@ Lathe\Resources\RecordDeleter::purgeAttachments(Lathe\Http\Requests\LatheRequest
 Lathe\Resources\RecordDeleter::restore(Lathe\Http\Requests\LatheRequest $request, string $class, Illuminate\Database\Eloquent\Model $model): void
 Lathe\Resources\RecordDeleter::run(Lathe\Http\Requests\LatheRequest $request, string $class, Illuminate\Database\Eloquent\Model $model, string $hook, Closure $write, string $event, bool $purge = false): void  [protected]
 Lathe\Resources\RecordDeleter::trashed(Illuminate\Database\Eloquent\Model $model): bool  [protected]
+Lathe\Resources\RecordHeader::pick(array $fields, array $chosen): array  [static]
 Lathe\Resources\Resource::?Illuminate\Database\Eloquent\Model $model  [protected]
 Lathe\Resources\Resource::?string $policy
 Lathe\Resources\Resource::__construct(?Illuminate\Database\Eloquent\Model $model = NULL)
@@ -3433,6 +3434,7 @@ Lathe\Resources\ResourceDefinition::allowsAll(): bool
 Lathe\Resources\ResourceDefinition::applyClassAttributes(string $class): static
 Lathe\Resources\ResourceDefinition::array $limits  [protected]
 Lathe\Resources\ResourceDefinition::array $phoneCard  [protected]
+Lathe\Resources\ResourceDefinition::array $recordHeader  [protected]
 Lathe\Resources\ResourceDefinition::array $searchable  [protected]
 Lathe\Resources\ResourceDefinition::array $with  [protected]
 Lathe\Resources\ResourceDefinition::bool $allowAll  [protected]
@@ -3479,6 +3481,7 @@ Lathe\Resources\ResourceDefinition::getPerPage(): ?array
 Lathe\Resources\ResourceDefinition::getPhoneCard(): array
 Lathe\Resources\ResourceDefinition::getPickerResults(): int
 Lathe\Resources\ResourceDefinition::getPolling(): ?int
+Lathe\Resources\ResourceDefinition::getRecordHeader(): array
 Lathe\Resources\ResourceDefinition::getScoutSearchResults(): int
 Lathe\Resources\ResourceDefinition::getSearchTermChars(): int
 Lathe\Resources\ResourceDefinition::getSearchTermWords(): int
@@ -3513,6 +3516,7 @@ Lathe\Resources\ResourceDefinition::perPage(array $options): static
 Lathe\Resources\ResourceDefinition::phoneCard(?string $title = NULL, ?string $badge = NULL, ?string $value = NULL, ?string $meta = NULL): static
 Lathe\Resources\ResourceDefinition::pickerResults(int $results): static
 Lathe\Resources\ResourceDefinition::polling(int $seconds): static
+Lathe\Resources\ResourceDefinition::recordHeader(?string $badge = NULL, ?string $meta = NULL): static
 Lathe\Resources\ResourceDefinition::savedTabs(bool $enabled = true): static
 Lathe\Resources\ResourceDefinition::scoutSearchResults(int $results): static
 Lathe\Resources\ResourceDefinition::searchTermChars(int $chars): static
@@ -4898,6 +4902,7 @@ class Lathe\Query\Selection
 class Lathe\Query\SelectionResolver
 class Lathe\Resources\PhoneCard
 class Lathe\Resources\RecordDeleter
+class Lathe\Resources\RecordHeader
 class Lathe\Resources\Resource
 class Lathe\Resources\ResourceDefinition
 class Lathe\Resources\ResourceRegistry

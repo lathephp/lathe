@@ -62,6 +62,16 @@ it('shows an order with its fields, layout, abilities and default breadcrumbs', 
             ->where('widgets', []));
 });
 
+it('names the header badge and meta fields: the first badge by default, the meta when named', function () {
+    $this->actingAs(User::where('email', 'admin@lathephp.com')->firstOrFail());
+
+    $this->get('/lathe/resources/orders/12')
+        ->assertInertia(fn (AssertableInertia $page) => $page->where('record.header', ['badge' => 'status', 'meta' => 'placed_at']));
+
+    $this->get('/lathe/resources/customers/1')
+        ->assertInertia(fn (AssertableInertia $page) => $page->where('record.header', ['badge' => null, 'meta' => null]));
+});
+
 it('uses detailBreadcrumbs() in place of the default trail', function () {
     Lathe::registerResources(ShopOrder::class);
     $this->actingAs(User::where('email', 'admin@lathephp.com')->firstOrFail());

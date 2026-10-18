@@ -36,6 +36,9 @@ class ResourceDefinition
     /** @var array{title?: string|null, badge?: string|null, value?: string|null, meta?: string|null} */
     protected array $phoneCard = [];
 
+    /** @var array{badge?: string|null, meta?: string|null} */
+    protected array $recordHeader = [];
+
     /** @var list<string> */
     protected array $with = [];
 
@@ -139,6 +142,15 @@ class ResourceDefinition
     public function phoneCard(?string $title = null, ?string $badge = null, ?string $value = null, ?string $meta = null): static
     {
         return $this->set(fn () => $this->phoneCard = array_filter(['title' => $title, 'badge' => $badge, 'value' => $value, 'meta' => $meta], fn (?string $key) => $key !== null));
+    }
+
+    /**
+     * The detail fields a record page's header shows, by field key: the badge beside the title
+     * (the first badge when left out) and the meta line, "<Label> <value>" in place of the subtitle.
+     */
+    public function recordHeader(?string $badge = null, ?string $meta = null): static
+    {
+        return $this->set(fn () => $this->recordHeader = array_filter(['badge' => $badge, 'meta' => $meta], fn (?string $key) => $key !== null));
     }
 
     /**
@@ -462,6 +474,14 @@ class ResourceDefinition
     public function getPhoneCard(): array
     {
         return $this->phoneCard;
+    }
+
+    /**
+     * @return array{badge?: string|null, meta?: string|null}
+     */
+    public function getRecordHeader(): array
+    {
+        return $this->recordHeader;
     }
 
     /**

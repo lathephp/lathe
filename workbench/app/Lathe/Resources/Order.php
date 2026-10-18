@@ -36,6 +36,7 @@ class Order extends Resource
             ->globallySearchable()
             ->with(['customer'])
             ->icon('ShoppingCart')
+            ->recordHeader(meta: 'placed_at')
             ->savedTabs()
             ->polling(10)
             ->showPollingToggle();

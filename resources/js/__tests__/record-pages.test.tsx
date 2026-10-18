@@ -155,6 +155,32 @@ describe('detail page', () => {
     expect(screen.getByRole('link', { name: 'Edit' }).getAttribute('href')).toBe('/lathe/resources/orders/12/edit');
   });
 
+  it('shows the header badge beside the title and the meta field as one line in place of the subtitle', () => {
+    renderPage('Resources/Detail', {
+      resource: { ...resource, uriKey: 'orders', label: 'Orders', singularLabel: 'Order' },
+      breadcrumbs: [],
+      record: {
+        id: 12,
+        title: 'ORD-00012',
+        subtitle: 'unused',
+        header: { badge: 'status', meta: 'placed_at' },
+        avatar: null,
+        fields: [
+          { ...schema('status', { component: 'select-field', options: [{ value: 'paid', label: 'Paid' }], badges: { paid: 'success' } }), value: 'paid', display: 'Paid' },
+          { ...schema('placed_at', { label: 'Placed' }), value: 'Oct 17, 2026, 23:12', display: 'Oct 17, 2026, 23:12' },
+        ],
+        layout: [panel(['status', 'placed_at'])],
+        abilities: { view: true, update: false, delete: false, replicate: false, restore: false, forceDelete: false },
+        trashed: false,
+      },
+    });
+
+    const header = screen.getByRole('heading', { level: 1 }).closest('header') as HTMLElement;
+    expect(within(header).getByText('Paid')).toBeDefined();
+    expect(within(header).getByTestId('record-meta').textContent).toBe('Placed Oct 17, 2026, 23:12');
+    expect(within(header).queryByText('unused')).toBeNull();
+  });
+
   it('hides Edit when update is denied', () => {
     renderPage('Resources/Detail', {
       resource,
