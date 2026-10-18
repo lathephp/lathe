@@ -15,6 +15,8 @@ beforeEach(function () {
     $this->app->register(FortifyServiceProvider::class);
     $this->app->register(InertiaServiceProvider::class);
     $this->loadLaravelMigrations();
+    // A host runs Lathe's own migrations at install; the dashboard reads the preferences table.
+    $this->loadMigrationsFrom(dirname(__DIR__, 3).'/database/migrations');
 
     $this->admin = User::factory()->create(['email' => 'admin@lathephp.com']);
     $this->editor = User::factory()->create(['email' => 'editor@lathephp.com']);
