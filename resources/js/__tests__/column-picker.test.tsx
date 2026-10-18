@@ -167,6 +167,9 @@ describe('column picker', () => {
     expect(cells[3]?.classList.contains('sticky')).toBe(false);
     expect(headers()[5]?.className).toContain('sticky end-0');
     expect(cells[5]?.className).toContain('sticky end-0');
+    // A sticky cell holds its popover in its own stacking context, so the cell rises over the cells after it.
+    expect(headers()[5]?.classList.contains('z-20')).toBe(true);
+    expect(cells[5]?.classList.contains('focus-within:z-10')).toBe(true);
   });
 
   it('resets to the default columns', async () => {

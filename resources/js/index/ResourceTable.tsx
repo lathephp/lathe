@@ -25,7 +25,8 @@ const checkboxColumn = 'sticky start-0 w-10 bg-background px-3';
 const firstColumn = 'sticky start-10 bg-background';
 // A pinned column stays in view too, at the offset the header cells before it add up to.
 const pinnedColumn = 'sticky bg-background';
-// The row menu stays at the end.
+// The row menu stays at the end. A sticky cell holds its popover in its own stacking context, so the
+// picker's cell sits above the rows, and a row menu's cell rises while its menu is in use.
 const menuColumn = 'sticky end-0 bg-background';
 // Each edge of the pinned blocks casts a shadow while columns scroll beneath it.
 const startEdge = 'shadow-[6px_0_8px_-6px_rgb(0_0_0/0.2)] rtl:shadow-[-6px_0_8px_-6px_rgb(0_0_0/0.2)]';
@@ -317,7 +318,7 @@ export function ResourceTable({ resource, table, state, loading, selection, sort
               );
             })}
             {withMenu && (
-              <th scope="col" className={cn('w-12 px-3', menuClass, border)}>
+              <th scope="col" className={cn('z-20 w-12 px-3', menuClass, border)}>
                 <span className="sr-only">{__('Actions')}</span>
                 {picker && <ColumnsButton uriKey={resource.uriKey} table={table} />}
               </th>
@@ -428,7 +429,7 @@ export function ResourceTable({ resource, table, state, loading, selection, sort
                           );
                         })}
                         {withMenu && (
-                          <td data-row-menu="" className={cn('px-3', menuClass, border)}>
+                          <td data-row-menu="" className={cn('px-3 hover:z-10 focus-within:z-10', menuClass, border)}>
                             <div className="flex items-center justify-end gap-1">
                               {row.abilities.view === true && (
                                 <Link
