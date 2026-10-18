@@ -19,7 +19,7 @@ it('publishes the migrations with their fixed stamps', function () {
 
     $this->artisan('vendor:publish', ['--tag' => 'lathe-migrations', '--force' => true])->assertSuccessful();
 
-    expect(glob("{$path}/migrations/2026_01_01_0000*_create_*.php"))->toHaveCount(10);
+    expect(glob("{$path}/migrations/2026_01_01_0000*_create_*.php"))->toHaveCount(11);
 
     File::deleteDirectory($path);
 });
