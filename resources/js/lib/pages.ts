@@ -7,8 +7,3 @@ export const pages = import.meta.glob<{ default: ComponentType }>('../pages/**/*
 export function preloadPage(name: string): void {
   void pages[`../pages/${name}.tsx`]?.().catch(() => undefined);
 }
-
-/** The props an instant visit renders with: the shell's shared props and the title the link knows. */
-export function instantProps(title: string) {
-  return (_current: Record<string, unknown>, shared: Record<string, unknown>) => ({ ...shared, title });
-}

@@ -11,7 +11,7 @@ import { PasswordConfirmHost } from './components/PasswordConfirmHost';
 import { Toaster } from './components/Toaster';
 import { panelLayout } from './layout/panelLayout';
 import { assetHashFromUrl, markBuildStale, setEntryHash } from './lib/assets';
-import { flushResourceOf } from './lib/cacheTags';
+import { flushResourceOf } from './lib/instant';
 import { DirectionProvider } from './lib/direction';
 import { pages } from './lib/pages';
 import { pageTitle } from './lib/title';

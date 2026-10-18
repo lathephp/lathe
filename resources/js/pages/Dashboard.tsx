@@ -1,6 +1,6 @@
 import { Head, usePage } from '@inertiajs/react';
 import { useLathe, useTranslation } from '@lathephp/core';
-import { AfterDelay, skeletonBar } from '../components/AfterDelay';
+import { AfterDelay, skeletonBar } from '../lib/instant';
 import { Card } from '../components/ui/Card';
 import type { WidgetDescriptor, WidgetValue } from '../widgets/types';
 import { WidgetGrid } from '../widgets/WidgetGrid';

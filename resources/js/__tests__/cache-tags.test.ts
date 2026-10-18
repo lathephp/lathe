@@ -1,7 +1,7 @@
 import { router } from '@inertiajs/react';
 import { afterEach, beforeEach, describe, expect, it, vi, type MockInstance } from 'vitest';
 import { runAction } from '../actions/runAction';
-import { flushResourceOf } from '../lib/cacheTags';
+import { flushResourceOf } from '../lib/instant';
 
 let flush: MockInstance<typeof router.flushByCacheTags>;
 

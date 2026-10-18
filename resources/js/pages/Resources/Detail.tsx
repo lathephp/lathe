@@ -1,7 +1,7 @@
 import { Head, router, usePage } from '@inertiajs/react';
 import { lazy, Suspense } from 'react';
 import { useShortcut, useTranslation } from '@lathephp/core';
-import { AfterDelay, skeletonBar } from '../../components/AfterDelay';
+import { AfterDelay, skeletonBar } from '../../lib/instant';
 import { Card } from '../../components/ui/Card';
 import { DetailField } from '../../fields/registry';
 import type { DetailFieldData, DetailProps } from '../../fields/types';

@@ -5,7 +5,7 @@ import { Fragment, Suspense, useRef, useState, type MouseEvent } from 'react';
 import type { FieldSchema } from '../fields/types';
 import { PreviewModal } from '../fields/relation/lazy';
 import { cn } from '../lib/cn';
-import { instantProps } from '../lib/pages';
+import { instantProps } from '../lib/instant';
 import { TableCell } from '../table/cells';
 import type { SharedProps } from '../types';
 import { GroupHeaderRow } from './GroupHeaderRow';

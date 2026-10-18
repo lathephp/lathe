@@ -1,5 +1,5 @@
 import { ApiError, csrfHeaders, request } from '@lathephp/core';
-import { flushResourceOf } from '../lib/cacheTags';
+import { flushResourceOf } from '../lib/instant';
 import type { SelectionDescriptor } from '../index/useRowSelection';
 import type { ActionRun } from './types';
 

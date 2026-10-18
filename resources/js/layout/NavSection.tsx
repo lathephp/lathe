@@ -2,7 +2,8 @@ import { Link } from '@inertiajs/react';
 import { useId, useState } from 'react';
 import { NavIcon } from '../components/NavIcon';
 import { cn } from '../lib/cn';
-import { instantProps, preloadPage } from '../lib/pages';
+import { instantProps } from '../lib/instant';
+import { preloadPage } from '../lib/pages';
 import type { NavigationItem } from '../types';
 
 export interface NavBadge {
