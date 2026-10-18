@@ -19,6 +19,20 @@ interface ColumnPickerProps {
 const iconButton =
   'grid size-6 shrink-0 place-items-center rounded text-muted-foreground outline-none hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring';
 
+// The saves still to reach the server, one after another.
+let queue: Promise<void> = Promise.resolve();
+
+/** Sends once every save before it has settled. */
+function inTurn<T>(send: () => Promise<T>): Promise<T> {
+  const sent = queue.then(send);
+  queue = sent.then(
+    () => undefined,
+    () => undefined,
+  );
+
+  return sent;
+}
+
 /**
  * The index's columns: show, hide, reorder and pin each, saved for the signed-in user at once.
  * The first code column is the row's title, so it always shows, stays first and stays pinned.
@@ -64,13 +78,13 @@ export function ColumnPicker({ uriKey, columns, choice, trigger, onClose }: Colu
     };
   }, [trigger, onClose]);
 
-  // The picker shows the change at once; a failed save puts the old choice back.
+  // The picker shows the change at once; a failed save puts the old choice back. Each save waits
+  // for the one before, so two quick changes reach the server in the order they were made.
   async function save(next: ColumnChoice, method: 'PUT' | 'DELETE' = 'PUT') {
     const before = current;
     setCurrent(next);
-
     try {
-      await request(url, method === 'PUT' ? { method, body: next, toastOnError: false } : { method, toastOnError: false });
+      await inTurn(() => request(url, method === 'PUT' ? { method, body: next, toastOnError: false } : { method, toastOnError: false }));
     } catch {
       setCurrent(before);
       toast.error(__('Something went wrong. Please try again.'));

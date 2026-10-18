@@ -152,6 +152,30 @@ describe('column picker', () => {
     expect(within(picker).getByRole('button', { name: 'Pin Total' }).getAttribute('aria-pressed')).toBe('true');
   });
 
+  it('sends a second change only once the first has saved, so they land in order', async () => {
+    vi.spyOn(router, 'reload').mockImplementation(() => undefined);
+    let finish: (response: Response) => void = () => undefined;
+    const fetch = vi
+      .spyOn(globalThis, 'fetch')
+      .mockImplementationOnce(() => new Promise<Response>((resolve) => (finish = resolve)))
+      .mockImplementation(() => Promise.resolve(new Response('{}', { status: 200 })));
+    renderOrders();
+
+    const picker = openPicker();
+    fireEvent.click(within(picker).getByRole('checkbox', { name: 'Customer' }));
+    fireEvent.click(within(picker).getByRole('checkbox', { name: 'Status' }));
+    await new Promise((resolve) => setTimeout(resolve, 20));
+
+    expect(fetch).toHaveBeenCalledTimes(1);
+
+    finish(new Response('{}', { status: 200 }));
+
+    await waitFor(() => {
+      expect(fetch).toHaveBeenCalledTimes(2);
+    });
+    expect(calls(fetch)[1]?.body).toEqual({ order: keys, hidden: ['customer', 'status'], pinned: [] });
+  });
+
   it('puts a pinned column after the first and keeps it and the row menu in view', () => {
     renderOrders({
       columns: [column('number', 'Number', false), column('status', 'Status', false), column('total_cents', 'Total', true), column('placed_at', 'Placed', false)],
