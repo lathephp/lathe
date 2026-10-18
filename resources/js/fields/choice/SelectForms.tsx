@@ -67,7 +67,7 @@ export function SelectForm(props: FormFieldProps & { remote?: RemoteSource }) {
       <Select
         id={id}
         value={current}
-        options={[{ value: '', label: field.placeholder ?? '' }, ...visible]}
+        options={[{ value: '', label: field.placeholder ?? '—' }, ...visible]}
         onFocus={remote?.onFocus}
         aria-describedby={describedBy}
         aria-invalid={invalid || undefined}

@@ -96,7 +96,7 @@ describe('select-field', () => {
 
     expect(container.querySelector('select')).toBeNull();
     expect(trigger.textContent).toBe('Pending');
-    expect(await optionLabels(trigger)).toEqual(['', 'Pending', 'Paid', 'Shipped', 'Cancelled']);
+    expect(await optionLabels(trigger)).toEqual(['—', 'Pending', 'Paid', 'Shipped', 'Cancelled']);
 
     await choose(screen.getByRole('combobox'), 'Shipped');
     expect(onChange).toHaveBeenCalledWith('shipped');
@@ -108,7 +108,7 @@ describe('select-field', () => {
 
     expect(screen.getByRole('combobox').textContent).toBe('Beta');
 
-    await choose(screen.getByRole('combobox'), '');
+    await choose(screen.getByRole('combobox'), '—');
     expect(onChange).toHaveBeenCalledWith(null);
   });
 
@@ -140,7 +140,7 @@ describe('select-field', () => {
 
     fireEvent.change(screen.getByRole('searchbox'), { target: { value: 'alp' } });
 
-    expect(await optionLabels(screen.getByRole('combobox'))).toEqual(['', 'Alpha', 'Gamma']);
+    expect(await optionLabels(screen.getByRole('combobox'))).toEqual(['—', 'Alpha', 'Gamma']);
   });
 
   it('groups options by their group', async () => {
