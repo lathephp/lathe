@@ -1,6 +1,5 @@
 import { formatNumber } from '@lathephp/core';
 import { cn } from '../lib/cn';
-import { useAnimatedNumber } from './animate';
 import { formatMetric } from './number';
 import type { ProgressResult, WidgetRendererProps } from './types';
 
@@ -14,12 +13,11 @@ const colors: Record<ProgressResult['color'], string> = {
 /** How far a number has come towards its target, as a bar. */
 export function ProgressCard({ value }: WidgetRendererProps) {
   const result = value as ProgressResult;
-  const shown = useAnimatedNumber(result.value);
 
   return (
     <div className="space-y-2">
       <div className="flex items-baseline justify-between gap-3">
-        <p className="truncate text-3xl font-semibold tracking-tight tabular-nums">{formatMetric(shown, result)}</p>
+        <p className="truncate text-3xl font-semibold tracking-tight tabular-nums">{formatMetric(result.value, result)}</p>
         <p className="text-sm font-medium tabular-nums">{formatNumber(result.percentage / 100, { style: 'percent', maximumFractionDigits: 2 })}</p>
       </div>
       <div

@@ -2,7 +2,6 @@ import { formatNumber, toast, useTranslation } from '@lathephp/core';
 import { ArrowDownRight, ArrowRight, ArrowUpRight, Copy } from 'lucide-react';
 import { lazy, Suspense } from 'react';
 import { cn } from '../lib/cn';
-import { useAnimatedNumber } from './animate';
 import { formatMetric } from './number';
 import type { ValueResult, WidgetRendererProps } from './types';
 
@@ -13,7 +12,6 @@ export function ValueCard({ widget, value }: WidgetRendererProps) {
   const { __ } = useTranslation();
   const result = value as ValueResult | null;
   const number = result?.value ?? null;
-  const shown = useAnimatedNumber(number);
   const icon = typeof widget.icon === 'string' ? widget.icon : null;
 
   if (result === null || (number === 0 && !result.allowZeroResult)) {
@@ -34,7 +32,7 @@ export function ValueCard({ widget, value }: WidgetRendererProps) {
               <WidgetIcon name={icon} />
             </Suspense>
           )}
-          <p className="truncate text-3xl font-semibold tracking-tight tabular-nums">{formatMetric(shown, result)}</p>
+          <p className="truncate text-3xl font-semibold tracking-tight tabular-nums">{formatMetric(number, result)}</p>
           {result.copyable && (
             <button
               type="button"

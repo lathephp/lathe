@@ -167,9 +167,12 @@ describe('the copy button', () => {
   });
 });
 
-describe('the number animation', () => {
-  function motion(reduce: boolean) {
-    vi.stubGlobal('matchMedia', (query: string) => ({ matches: reduce && query === '(prefers-reduced-motion: reduce)' }));
+describe('the final number', () => {
+  const progressValue = { value: 1581, target: 2000, percentage: 79, avoid: false, color: 'success', caption: 'of target', prefix: null, suffix: null, suffixInflection: true, format: null };
+
+  function allowMotion() {
+    vi.useFakeTimers();
+    vi.stubGlobal('matchMedia', () => ({ matches: false }));
   }
 
   afterEach(() => {
@@ -177,23 +180,30 @@ describe('the number animation', () => {
     vi.useRealTimers();
   });
 
-  it('counts up to the number on load', () => {
-    vi.useFakeTimers();
-    motion(false);
-    showValue({ value: 1000, allowZeroResult: true });
+  it('shows a value card number on the first render and never another', () => {
+    allowMotion();
+    const frame = vi.spyOn(globalThis, 'requestAnimationFrame');
+    showValue({ value: 1581 });
 
-    expect(screen.getByText('0')).toBeTruthy();
+    expect(screen.getByText('1,581')).toBeTruthy();
     act(() => {
       vi.advanceTimersByTime(1000);
     });
-    expect(screen.getByText('1,000')).toBeTruthy();
+    expect(screen.getByText('1,581')).toBeTruthy();
+    expect(frame).not.toHaveBeenCalled();
   });
 
-  it('shows the number at once when reduced motion is asked for', () => {
-    motion(true);
-    showValue({ value: 1000 });
+  it('shows a progress card number on the first render and never another', () => {
+    allowMotion();
+    const frame = vi.spyOn(globalThis, 'requestAnimationFrame');
+    render(<ProgressCard widget={{ ...widget, component: 'progress-widget' }} value={progressValue} />);
 
-    expect(screen.getByText('1,000')).toBeTruthy();
+    expect(screen.getByText('1,581')).toBeTruthy();
+    act(() => {
+      vi.advanceTimersByTime(1000);
+    });
+    expect(screen.getByText('1,581')).toBeTruthy();
+    expect(frame).not.toHaveBeenCalled();
   });
 });
 
