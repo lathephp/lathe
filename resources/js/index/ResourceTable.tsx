@@ -21,10 +21,11 @@ import type { RowSelection } from './useRowSelection';
 export const rowHeights = { compact: 'h-8', comfortable: 'h-10', spacious: 'h-12' };
 
 // Under 768 px the table scrolls inside its card; the checkbox and the first column stay as the row's anchor.
-const checkboxColumn = 'sticky start-0 w-10 bg-background px-3';
-const firstColumn = 'sticky start-10 bg-background';
+// A stuck cell sits a layer up, so the cells scrolling beneath it, an inline select included, never paint over it.
+const checkboxColumn = 'sticky start-0 z-[1] w-10 bg-background px-3';
+const firstColumn = 'sticky start-10 z-[1] bg-background';
 // A pinned column stays in view too, at the offset the header cells before it add up to.
-const pinnedColumn = 'sticky bg-background';
+const pinnedColumn = 'sticky z-[1] bg-background';
 // The row menu stays at the end. A sticky cell holds its popover in its own stacking context, so the
 // picker's cell sits above the rows, and a row menu's cell rises while its menu is in use.
 const menuColumn = 'sticky end-0 bg-background';
@@ -444,7 +445,7 @@ export function ResourceTable({ resource, table, state, loading, selection, sort
                           );
                         })}
                         {withMenu && (
-                          <td data-row-menu="" className={cn('px-3 hover:z-10 focus-within:z-10', menuClass, border)}>
+                          <td data-row-menu="" className={cn('z-[1] px-3 hover:z-10 focus-within:z-10', menuClass, border)}>
                             <div className="flex items-center justify-end gap-1">
                               {row.abilities.view === true && (
                                 <Link

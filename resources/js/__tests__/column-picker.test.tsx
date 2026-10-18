@@ -194,6 +194,10 @@ describe('column picker', () => {
     // A sticky cell holds its popover in its own stacking context, so the cell rises over the cells after it.
     expect(headers()[5]?.classList.contains('z-20')).toBe(true);
     expect(cells[5]?.classList.contains('focus-within:z-10')).toBe(true);
+    // The stuck cells sit above the cells that scroll beneath them, an inline select's button included.
+    for (const cell of [cells[0], cells[1], cells[2], cells[5]]) {
+      expect(cell?.classList.contains('z-[1]')).toBe(true);
+    }
   });
 
   it('resets to the default columns', async () => {
