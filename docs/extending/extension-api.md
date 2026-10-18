@@ -188,7 +188,7 @@ toast.info('Syncing in the background.');
 toast.warning('Some records were skipped.');
 ```
 
-Each takes a message and an optional second argument with `duration` in milliseconds (4,000 by default), an `action` (`{ label, onClick }`, such as Retry) and `links` (`{ label, href, newTab }`). At most three toasts show at once.
+Each takes a message and an optional second argument with `duration` in milliseconds (5,000 by default; an error stays until it is dismissed), an `action` (`{ label, onClick }`, such as Retry) and `links` (`{ label, href, newTab }`). At most three toasts show at once.
 
 ## The event bus
 
