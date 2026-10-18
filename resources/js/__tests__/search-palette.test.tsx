@@ -197,6 +197,16 @@ describe('states', () => {
     expect(screen.getByText('Annette Fox')).toBeTruthy();
   });
 
+  it('says why the server refused a term instead of offering a Retry that cannot work', async () => {
+    answer({ message: 'The search term may not be longer than 100 characters.', errors: { q: ['The search term may not be longer than 100 characters.'] } }, 422);
+    renderPalette();
+
+    await typeTerm('a'.repeat(150));
+
+    expect(screen.getByRole('alert').textContent).toBe('The search term may not be longer than 100 characters.');
+    expect(screen.queryByRole('button', { name: 'Retry' })).toBeNull();
+  });
+
   it('warns when a Resource was skipped', async () => {
     answer({ ...found, skipped: ['Users'] });
     renderPalette();

@@ -1,5 +1,5 @@
 import { router } from '@inertiajs/react';
-import { pauseShortcuts, queryKeys, request, resumeShortcuts, useQuery, useTranslation } from '@lathephp/core';
+import { ApiError, pauseShortcuts, queryKeys, request, resumeShortcuts, useQuery, useTranslation } from '@lathephp/core';
 import { Button } from '@lathephp/ui';
 import { Search, X } from 'lucide-react';
 import { useEffect, useId, useRef, useState, type KeyboardEvent } from 'react';
@@ -81,6 +81,8 @@ export function SearchPalette({ basePath, debounce, onClose }: Props) {
   const searching = wanted !== '';
   const loading = searching && (wanted !== term || query.isPending);
   const failed = searching && !loading && query.isError;
+  // A 422 refuses the term itself (too long, too many words): say why, since Retry cannot help.
+  const refused = query.error instanceof ApiError && query.error.status === 422 ? ((query.error.data as { message?: string } | null)?.message ?? null) : null;
   const groups = searching && !loading ? (query.data?.groups ?? []) : [];
   const options = searching ? groups.flatMap((group) => group.results) : recents;
   const current = Math.min(active, options.length - 1);
@@ -225,7 +227,12 @@ export function SearchPalette({ basePath, debounce, onClose }: Props) {
               ))}
             </div>
           )}
-          {failed && (
+          {failed && refused !== null && (
+            <p role="alert" className="px-2 py-3 text-sm">
+              {refused}
+            </p>
+          )}
+          {failed && refused === null && (
             <div className="flex items-center justify-between gap-2 px-2 py-3 text-sm">
               <span role="alert">{__('Search failed')}</span>
               <Button
