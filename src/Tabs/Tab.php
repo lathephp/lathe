@@ -143,7 +143,7 @@ class Tab
     }
 
     /**
-     * @return array{key: string, name: string, icon: string|null, badge: string|int|null, badgeType: string|null}
+     * @return array{key: string, name: string, icon: string|null, badge: string|int|null, badgeType: string|null, deferredBadge: bool}
      */
     public function toArray(): array
     {
@@ -153,6 +153,8 @@ class Tab
             'icon' => $this->icon,
             'badge' => $this->badge instanceof Closure ? null : $this->badge,
             'badgeType' => $this->badgeType,
+            // The count or closure badge arrives with tabCounts, so the page reserves its room.
+            'deferredBadge' => $this->hasCount() || $this->hasBadgeClosure(),
         ];
     }
 }

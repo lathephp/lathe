@@ -176,3 +176,10 @@ it('sends no tabCounts on the first visit and both counts on one partial visit',
         ->and($props['tabCounts']['pending']['count']['value'])->toBe(OrderModel::where('status', 'pending')->count())
         ->and($props)->not->toHaveKey('table');
 });
+
+it('flags the tabs whose badge loads with the counts', function () {
+    expect(Tab::make('Counted')->withCount()->toArray()['deferredBadge'])->toBeTrue()
+        ->and(Tab::make('Closure')->badge(fn (Builder $query) => $query->count())->toArray()['deferredBadge'])->toBeTrue()
+        ->and(Tab::make('Fixed')->badge(3)->toArray()['deferredBadge'])->toBeFalse()
+        ->and(Tab::make('Plain')->toArray()['deferredBadge'])->toBeFalse();
+});

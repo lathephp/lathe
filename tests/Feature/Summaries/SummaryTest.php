@@ -6,8 +6,10 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Schema;
+use Lathe\Auth\ResourceAuthorization;
 use Lathe\Field\Field;
 use Lathe\Http\Middleware\HandleInertiaRequests;
+use Lathe\Http\Payloads\IndexPayload;
 use Lathe\Http\Requests\LatheRequest;
 use Lathe\Query\ResourceQuery;
 use Lathe\Resources\Resource;
@@ -291,4 +293,17 @@ it('joins a to-one path and subselects a to-many path', function () {
             'items' => [['label' => 'Sum', 'value' => '9']],
         ])
         ->and($summaries['page'])->toBe(['customer' => [['label' => 'Sum', 'value' => '20.5']]]);
+});
+
+it('flags a Resource with summarized fields so the page can reserve the footer', function () {
+    $this->seed(DemoSeeder::class);
+    summaryThings();
+    SummarizedThings::$fields = [Field::make('Name', 'name')];
+    test()->actingAs(User::where('email', 'admin@lathephp.com')->firstOrFail());
+    $payload = new IndexPayload(LatheRequest::createFrom(Request::create('/')), app(ResourceAuthorization::class));
+
+    expect($payload->resource(SummarizedOrders::class)['hasSummaries'])->toBeTrue()
+        ->and($payload->resource(SummarizedThings::class)['hasSummaries'])->toBeFalse()
+        ->and(summarize(SummarizedOrders::class)['summaries'])->not->toBeNull()
+        ->and(summarize(SummarizedThings::class)['summaries'])->toBeNull();
 });

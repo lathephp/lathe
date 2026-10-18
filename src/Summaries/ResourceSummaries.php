@@ -40,6 +40,20 @@ class ResourceSummaries
     }
 
     /**
+     * The fields that carry a summary, which decide whether the footer exists at all.
+     *
+     * @param  array<mixed>  $fields
+     * @return list<Field>
+     */
+    public static function summarized(array $fields): array
+    {
+        return array_values(array_filter(
+            $fields,
+            fn (mixed $field) => $field instanceof Field && $field->getSummaries() !== [],
+        ));
+    }
+
+    /**
      * Null when no field is summarized. Above the cap only the page is totalled.
      *
      * @param  Collection<int, Model>  $rows
@@ -47,10 +61,7 @@ class ResourceSummaries
      */
     public function compute(Collection $rows, bool $paged): ?array
     {
-        $fields = array_values(array_filter(
-            $this->fields,
-            fn (mixed $field) => $field instanceof Field && $field->getSummaries() !== [],
-        ));
+        $fields = static::summarized($this->fields);
 
         if ($fields === []) {
             return null;
