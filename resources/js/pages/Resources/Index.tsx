@@ -4,6 +4,7 @@ import { __panel, emit, useShortcut } from '@lathephp/core';
 import { AfterDelay, skeletonBar } from '../../lib/instant';
 import { Card } from '../../components/ui/Card';
 import { EmptyState } from '../../index/EmptyState';
+import { FilterChips } from '../../index/FilterChips';
 import { IndexBanner } from '../../index/IndexBanner';
 import { IndexFooter } from '../../index/IndexFooter';
 import { IndexHeader, IndexToolbar, toolbarRow } from '../../index/IndexToolbar';
@@ -97,7 +98,7 @@ function IndexPage({ resource, table, state, count, error, lens, lenses, actions
           <ResourceWidgets widgets={widgets} path={lens == null ? `resources/${resource.uriKey}` : `resources/${resource.uriKey}/lenses/${lens.uriKey}`} />
         </Suspense>
       )}
-      {/* One card: the tab band, the toolbar row (the selection bar while rows are ticked), then the table. */}
+      {/* One card: the tab band, the toolbar row (the selection bar while rows are ticked), the filter chips, then the table. */}
       <Card data-lathe-card className="overflow-hidden">
         <TabBar resource={resource} state={index.state} visit={visit} />
         <IndexToolbar
@@ -112,6 +113,7 @@ function IndexPage({ resource, table, state, count, error, lens, lenses, actions
           hasMorePages={more.hasMorePages}
           actions={actionMenus}
         />
+        <FilterChips visit={visit} />
         {error !== undefined ? (
           <div className="p-4">
             <IndexBanner message={error.message} onReset={index.reset} />

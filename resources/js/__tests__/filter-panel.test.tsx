@@ -90,18 +90,16 @@ function visitData(visit: ReturnType<typeof mockVisit>, call = 0): unknown {
 }
 
 describe('filter panel', () => {
-  it('changes nothing until Apply, then visits with the chosen status', async () => {
+  it('visits with the chosen status on its own, back on the first page', async () => {
     const visit = mockVisit();
     renderIndex({ url: '/lathe/resources/orders?page=3' });
 
-    fireEvent.click(screen.getByRole('button', { name: 'Filters' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Filter' }));
     await choose(screen.getByLabelText('Status'), 'Pending');
 
-    expect(visit).not.toHaveBeenCalled();
-
-    fireEvent.click(screen.getByRole('button', { name: 'Apply' }));
-
-    expect(visit).toHaveBeenCalledTimes(1);
+    await vi.waitFor(() => {
+      expect(visit).toHaveBeenCalledTimes(1);
+    });
     expect(visitData(visit)).toEqual({ filter: { status: 'pending' } });
   });
 
@@ -109,7 +107,7 @@ describe('filter panel', () => {
     const visit = mockVisit();
     renderIndex({ available: [status, region], url: '/lathe/resources/orders?filter[status]=paid' });
 
-    fireEvent.click(screen.getByRole('button', { name: 'Filters' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Filter 1' }));
     await choose(screen.getByLabelText('Region'), 'Asia');
 
     expect(visitData(visit)).toEqual({ filter: { status: 'paid', region: 'asia' } });
@@ -119,7 +117,7 @@ describe('filter panel', () => {
     const visit = mockVisit();
     renderIndex({ softDeletes: true });
 
-    fireEvent.click(screen.getByRole('button', { name: 'Filters' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Filter' }));
     expect(await optionLabels(screen.getByLabelText('Trashed'))).toEqual(['Without trashed', 'With trashed', 'Only trashed']);
 
     await choose(screen.getByLabelText('Trashed'), 'Only trashed');
@@ -130,7 +128,7 @@ describe('filter panel', () => {
   it('offers no trashed choice when the Resource does not soft delete', () => {
     renderIndex();
 
-    fireEvent.click(screen.getByRole('button', { name: 'Filters' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Filter' }));
 
     expect(screen.queryByLabelText('Trashed')).toBeNull();
   });
@@ -152,18 +150,20 @@ describe('filter panel', () => {
 describe('date filter', () => {
   const placed: AvailableFilter = { ...status, key: 'placed', name: 'Placed', component: 'date-filter', options: null };
 
-  it('takes a typed day in each side and draws no native date input', () => {
+  it('takes a typed day in each side and draws no native date input', async () => {
     const visit = mockVisit();
     const { container } = renderIndex({ available: [placed] });
 
-    fireEvent.click(screen.getByRole('button', { name: 'Filters' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Filter' }));
     expect(container.querySelector('input[type=date]')).toBeNull();
 
     const from = screen.getByLabelText('From');
     fireEvent.change(from, { target: { value: 'Oct 17, 2026' } });
     fireEvent.blur(from);
-    fireEvent.click(screen.getByRole('button', { name: 'Apply' }));
 
+    await vi.waitFor(() => {
+      expect(visit).toHaveBeenCalledTimes(1);
+    });
     expect(visitData(visit)).toEqual({ filter: { placed: { from: '2026-10-17' } } });
   });
 });

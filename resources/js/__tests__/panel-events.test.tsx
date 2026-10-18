@@ -83,7 +83,7 @@ describe('panel events', () => {
     const stop = on('filters:changed', heard);
     renderOrders(0, '/lathe/resources/orders?filter%5Bstatus%5D=paid');
 
-    fireEvent.click(screen.getByRole('button', { name: 'Clear filters' }));
+    fireEvent.click(within(screen.getByText('No results match your filters').parentElement as HTMLElement).getByRole('button', { name: 'Clear filters' }));
 
     expect(heard).toHaveBeenCalledWith({ resource: 'orders', filters: {} });
     stop();

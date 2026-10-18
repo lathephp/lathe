@@ -238,7 +238,9 @@ describe('filtered empty state', () => {
     expect(screen.queryByText('No orders yet')).toBeNull();
     expect(screen.queryByRole('link', { name: 'Create' })).toBeNull();
 
-    fireEvent.click(screen.getByRole('button', { name: 'Clear filters' }));
+    // The empty state's button, not the one that ends the chips row.
+    const empty = screen.getByText('No results match your filters').parentElement as HTMLElement;
+    fireEvent.click(within(empty).getByRole('button', { name: 'Clear filters' }));
 
     expect((visit.mock.calls[0]?.[1] as { data: Record<string, unknown> }).data).toEqual({ sort: '-total_cents' });
   });

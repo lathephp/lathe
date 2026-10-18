@@ -115,7 +115,12 @@ export interface IndexProps {
   /** The lenses the user may see. */
   lenses?: LensEntry[];
   state: { page: number; perPage: number; hasMorePages: boolean; sort: string };
-  filters?: { available: AvailableFilter[]; applied: Record<string, unknown> };
+  filters?: {
+    available: AvailableFilter[];
+    applied: Record<string, unknown>;
+    /** The option labels of the applied remote filters, by filter key then value; the URL holds only the values. */
+    labels?: Record<string, Record<string, string> | undefined>;
+  };
   /** Filter keys in the URL that the Resource no longer declares; the server dropped them. */
   staleFilters?: string[];
   /** Null when the Resource counts nothing. */
