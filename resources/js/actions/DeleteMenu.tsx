@@ -1,4 +1,3 @@
-import { router } from '@inertiajs/react';
 import { request, toast, useLathe, useTranslation } from '@lathephp/core';
 import { Button } from '@lathephp/ui';
 import { ChevronDown } from 'lucide-react';
@@ -7,6 +6,7 @@ import type { Row } from '../index/types';
 import type { IndexUrlState } from '../index/useIndexState';
 import type { RowSelection } from '../index/useRowSelection';
 import { batchOperations, type BatchOperation } from './batchOperations';
+import { reloadIndexRows } from '../lib/instant';
 
 
 interface DeleteMenuProps {
@@ -98,7 +98,7 @@ export function DeleteMenu({ uriKey, lens, softDeletes, selection, rows, total, 
       restore: __(':count resource(s) restored.', { count: done }),
     };
     toast.success(messages[operation]);
-    router.reload({ only: ['table', 'count'] });
+    reloadIndexRows();
   }
 
   return (

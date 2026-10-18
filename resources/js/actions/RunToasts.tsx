@@ -3,6 +3,7 @@ import { router } from '@inertiajs/react';
 import { X } from 'lucide-react';
 import { useEffect, useRef, useState, useSyncExternalStore } from 'react';
 import { runStore, type RunVerb, type StartedRun } from './runStore';
+import { reloadIndexRows } from '../lib/instant';
 
 /** How often a running run asks the server for its progress, in milliseconds. */
 export const RUN_POLL_MS = 2_000;
@@ -57,7 +58,7 @@ function refreshIndex(resource: string, basePath: string): void {
   router.flushByCacheTags(`resource:${resource}`);
 
   if (new RegExp(`^${basePath}/resources/${resource}(/lens/[^/]+)?/?$`).test(window.location.pathname)) {
-    router.reload({ only: ['table', 'count', 'tabCounts', 'summaries'] });
+    reloadIndexRows();
   }
 }
 

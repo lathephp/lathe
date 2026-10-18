@@ -264,7 +264,7 @@ describe('row menu', () => {
     fireEvent.click(within(dialog).getByRole('button', { name: 'Delete' }));
 
     await waitFor(() => {
-      expect(reload).toHaveBeenCalledWith({ only: ['table', 'count'] });
+      expect(reload).toHaveBeenCalledWith({ only: ['table', 'count', 'tabCounts', 'summaries'] });
     });
     expect(fetch.mock.calls[0]?.[0]).toBe('/lathe/api/resources/orders/12');
     expect(fetch.mock.calls[0]?.[1]).toMatchObject({ method: 'DELETE' });
@@ -294,7 +294,7 @@ describe('row menu', () => {
     fireEvent.click(screen.getByRole('menuitem', { name: 'Restore' }));
 
     await waitFor(() => {
-      expect(reload).toHaveBeenCalledWith({ only: ['table', 'count'] });
+      expect(reload).toHaveBeenCalledWith({ only: ['table', 'count', 'tabCounts', 'summaries'] });
     });
     expect(fetch.mock.calls[0]?.[0]).toBe('/lathe/api/resources/orders/12/restore');
     expect(fetch.mock.calls[0]?.[1]).toMatchObject({ method: 'PUT' });

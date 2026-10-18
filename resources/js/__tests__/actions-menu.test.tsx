@@ -177,7 +177,7 @@ describe('the action modal', () => {
     const [url, init] = fetch.mock.calls[1] ?? [];
     expect(url).toBe('/lathe/api/resources/orders/action');
     expect(JSON.parse(init?.body as string)).toMatchObject({ action: 'mark-shipped', selection: { mode: 'ids', ids: [1, 2, 3] }, fields: {} });
-    expect(reload).toHaveBeenCalled();
+    expect(reload).toHaveBeenCalledWith({ only: ['table', 'count', 'tabCounts', 'summaries'] });
     expect(screen.queryByRole('dialog')).toBeNull();
   });
 

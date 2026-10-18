@@ -109,7 +109,7 @@ describe('the delete menu', () => {
     expect(url).toBe('/lathe/api/resources/posts/batch');
     expect(init?.method).toBe('DELETE');
     expect(JSON.parse(init?.body as string)).toMatchObject({ selection: { mode: 'ids', ids: [1, 3] } });
-    expect(reload).toHaveBeenCalled();
+    expect(reload).toHaveBeenCalledWith({ only: ['table', 'count', 'tabCounts', 'summaries'] });
   });
 
   it('toasts a failure with Retry', async () => {

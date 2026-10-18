@@ -1,4 +1,3 @@
-import { router } from '@inertiajs/react';
 import { request, useLathe } from '@lathephp/core';
 import { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
@@ -6,6 +5,7 @@ import type { Row } from '../index/types';
 import { recordSelection } from './selection';
 import type { ActionList, ActionMeta } from './types';
 import { useActionRunner } from './useActionRunner';
+import { reloadIndexRows } from '../lib/instant';
 
 interface InlineRowActionsProps {
   uriKey: string;
@@ -27,7 +27,7 @@ export function InlineRowActions({ uriKey, row, menu, itemClass, onChoose }: Inl
   const runner = useActionRunner({
     base: `${apiPath}/resources/${uriKey}`,
     onDone: () => {
-      router.reload({ only: ['table', 'count'] });
+      reloadIndexRows();
     },
   });
 

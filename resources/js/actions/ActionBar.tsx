@@ -1,4 +1,3 @@
-import { router } from '@inertiajs/react';
 import { useLathe, useTranslation } from '@lathephp/core';
 import { Button } from '@lathephp/ui';
 import { ChevronDown } from 'lucide-react';
@@ -10,6 +9,7 @@ import type { RowSelection } from '../index/useRowSelection';
 import { cn } from '../lib/cn';
 import type { ActionList, ActionMeta } from './types';
 import { useActionRunner } from './useActionRunner';
+import { reloadIndexRows } from '../lib/instant';
 interface ActionBarProps {
   uriKey: string;
   /** The lens the index shows, whose routes the run goes through. */
@@ -45,7 +45,7 @@ export function ActionBar({ uriKey, lens, list, selection, rows, total, state }:
         selection.clear();
       }
 
-      router.reload({ only: ['table', 'count'] });
+      reloadIndexRows();
     },
   });
 

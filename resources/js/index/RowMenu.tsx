@@ -1,10 +1,11 @@
-import { Link, router, usePage } from '@inertiajs/react';
+import { Link, usePage } from '@inertiajs/react';
 import { request, toast, useTranslation } from '@lathephp/core';
 import { EllipsisVertical } from 'lucide-react';
 import { lazy, Suspense, useId, useState } from 'react';
 import { Button } from '../components/ui/Button';
 import type { SharedProps } from '../types';
 import type { Row } from './types';
+import { reloadIndexRows } from '../lib/instant';
 
 type MenuAction = 'view' | 'edit' | 'replicate' | 'delete' | 'restore' | 'forceDelete';
 type WriteAction = Exclude<MenuAction, 'view' | 'edit' | 'replicate'>;
@@ -90,7 +91,7 @@ export function RowMenu({ uriKey, row }: { uriKey: string; row: Row }) {
       return;
     }
 
-    router.reload({ only: ['table', 'count'] });
+    reloadIndexRows();
     toast.success(done);
   }
 

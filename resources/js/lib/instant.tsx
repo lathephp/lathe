@@ -28,6 +28,11 @@ export function flushResourceOf(url: string): void {
   }
 }
 
+/** After a write on an index, reloads its rows with the counts, tab counts and totals they change. */
+export function reloadIndexRows(): void {
+  router.reload({ only: ['table', 'count', 'tabCounts', 'summaries'] });
+}
+
 // Every write through the panel's client drops its resource's prefetched pages.
 __panel.setWriteListener(flushResourceOf);
 
