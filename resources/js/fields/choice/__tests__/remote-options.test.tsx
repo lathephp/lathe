@@ -1,5 +1,6 @@
 import { __panel } from '@lathephp/core';
 import { act, fireEvent, render, screen } from '@testing-library/react';
+import { optionLabels } from '../../../__tests__/support';
 import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 import { FormField } from '../../registry';
 import type { FieldSchema } from '../../types';
@@ -92,7 +93,9 @@ describe('remote options', () => {
 
     expect(urls().at(-1)).toBe(`${endpoint}?q=ord&page=1`);
 
-    const shown = screen.getAllByRole('option').map((option) => option.textContent);
+    // The designed list draws its options once it opens; its helpers wait on real timers.
+    vi.useRealTimers();
+    const shown = await optionLabels(screen.getByRole('combobox'));
 
     // The saved value shows as itself with no lookup, beside the items the server found.
     expect(shown).toEqual(expect.arrayContaining(['admin', 'record 1', 'record 2']));
