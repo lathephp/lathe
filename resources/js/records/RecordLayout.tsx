@@ -1,6 +1,6 @@
 import { useTranslation } from '@lathephp/core';
 import { ChevronDown } from 'lucide-react';
-import { lazy, Suspense, useState, type ReactNode } from 'react';
+import { Fragment, lazy, Suspense, useState, type ReactNode } from 'react';
 import { Card } from '../components/ui/Card';
 import { SafeHtml } from '../components/SafeHtml';
 import type { DetailFieldData, LayoutBlock, PanelBlock, RelationFieldSchema, TabData, TabGroupBlock } from '../fields/types';
@@ -31,8 +31,8 @@ const badgeClass: Record<string, string> = {
 
 export interface RecordLayoutProps {
   blocks: LayoutBlock[];
-  /** Draws one field of a panel, by key; null when the key has no field here. */
-  renderField: (key: string) => ReactNode;
+  /** Draws one field of a panel, by key; null when the key has no field here. A form learns which field opens its panel. */
+  renderField: (key: string, first?: boolean) => ReactNode;
   /** The field keys a failed submit marked; their tabs get a dot and the first one opens. */
   errorKeys?: ReadonlySet<string>;
   /** The Resource's borderless(): no divider lines anywhere. */
@@ -145,9 +145,16 @@ function Panel({ panel, renderField, borderless, detail }: RecordLayoutProps & {
       {panel.help === null ? null : <SafeHtml html={panel.help} className="text-sm text-muted-foreground" />}
       <Card id={bodyId} hidden={!open} className={cn('divide-y divide-border', (borderless === true || panel.borderless) && 'divide-y-0')}>
         {panel.headingInCard ? <div className="px-4 pt-3">{heading}</div> : null}
-        {keys.map((key) => (
-          <div key={key}>{renderField(key)}</div>
-        ))}
+        {detail === true ? (
+          keys.map((key) => <div key={key}>{renderField(key)}</div>)
+        ) : (
+          // A form lays its fields in one column below 1024 px and two from there; each row is a grid item.
+          <div className="grid lg:grid-cols-2">
+            {keys.map((key, index) => (
+              <Fragment key={key}>{renderField(key, index === 0)}</Fragment>
+            ))}
+          </div>
+        )}
         {limited ? (
           <div className="px-4 py-3">
             <button

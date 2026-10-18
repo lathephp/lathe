@@ -6,6 +6,7 @@ import { Breadcrumbs } from '../../records/Breadcrumbs';
 import { ConflictDialog } from '../../records/ConflictDialog';
 import { FormFields } from '../../records/FormFields';
 import { ReauthModal } from '../../records/ReauthModal';
+import { useLeaveGuard } from '../../records/useLeaveGuard';
 import { useRecordForm, type SubmitIntent } from '../../records/useRecordForm';
 import type { SharedProps } from '../../types';
 
@@ -28,6 +29,7 @@ export default function Form({ resource, mode, id, title, breadcrumbs, form, sub
     const [parentKey, parentId, relationship] = via.split('/');
     router.visit(`${basePath}/resources/${parentKey ?? ''}/${parentId ?? ''}?tab=${encodeURIComponent(relationship ?? '')}`);
   });
+  useLeaveGuard(record.isDirty);
   const updating = mode === 'update';
   const cancelHref = updating ? `${basePath}/resources/${resource.uriKey}/${String(id)}` : `${basePath}/resources/${resource.uriKey}`;
 
@@ -43,47 +45,60 @@ export default function Form({ resource, mode, id, title, breadcrumbs, form, sub
   }
 
   return (
-    <div className="space-y-6">
+    <div>
       <Head title={title} />
-      <Breadcrumbs items={breadcrumbs} />
-      <h1 className="text-xl font-semibold">{title}</h1>
+      <div className="mx-auto w-full max-w-[880px] space-y-6">
+        <Breadcrumbs items={breadcrumbs} />
+        <h1 className="text-xl font-semibold">{title}</h1>
+      </div>
       <form
         ref={formRef}
         data-lathe-form
         noValidate
-        className="space-y-6"
+        className="mt-6"
         onSubmit={(event) => {
           event.preventDefault();
           submit('default');
         }}
       >
-        <FormFields uriKey={resource.uriKey} mode={mode} id={id} record={record} />
-        <div className="flex flex-wrap items-center justify-end gap-2">
-          {record.draft.restored ? (
-            <button type="button" className="me-auto h-9 rounded-md px-4 text-sm" onClick={record.draft.discard}>
-              {__('Discard draft')}
+        <div className="mx-auto w-full max-w-[880px]">
+          <FormFields uriKey={resource.uriKey} mode={mode} id={id} record={record} />
+        </div>
+        {/* The window scrolls the shell, so the bar stays at the bottom of the viewport while the form does. */}
+        <div data-lathe-form-footer className="sticky bottom-0 z-10 mt-6 border-t border-border bg-background py-3">
+          <div className="mx-auto flex w-full max-w-[880px] flex-wrap items-center justify-end gap-2">
+            {record.dirty ? (
+              <span className="me-auto flex items-center gap-2 text-sm text-muted-foreground">
+                <span aria-hidden="true" className="size-2 rounded-full bg-warning" />
+                {__('Unsaved changes')}
+              </span>
+            ) : null}
+            {record.draft.restored ? (
+              <button type="button" className="h-9 rounded-md px-4 text-sm" onClick={record.draft.discard}>
+                {__('Discard draft')}
+              </button>
+            ) : null}
+            <Link href={cancelHref} className="inline-flex h-9 items-center rounded-md px-4 text-sm">
+              {__('Cancel')}
+            </Link>
+            <button
+              type="button"
+              disabled={record.busy}
+              className="inline-flex h-9 items-center rounded-md border border-input px-4 text-sm font-medium disabled:opacity-60"
+              onClick={() => {
+                submit(updating ? 'continue' : 'another');
+              }}
+            >
+              {updating ? __('Update & Continue Editing') : __('Create & Add Another')}
             </button>
-          ) : null}
-          <Link href={cancelHref} className="inline-flex h-9 items-center rounded-md px-4 text-sm">
-            {__('Cancel')}
-          </Link>
-          <button
-            type="button"
-            disabled={record.busy}
-            className="inline-flex h-9 items-center rounded-md border border-input px-4 text-sm font-medium disabled:opacity-60"
-            onClick={() => {
-              submit(updating ? 'continue' : 'another');
-            }}
-          >
-            {updating ? __('Update & Continue Editing') : __('Create & Add Another')}
-          </button>
-          <button
-            type="submit"
-            disabled={record.busy}
-            className="inline-flex h-9 items-center rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground disabled:opacity-60"
-          >
-            {submitLabel}
-          </button>
+            <button
+              type="submit"
+              disabled={record.busy}
+              className="inline-flex h-9 items-center rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground disabled:opacity-60"
+            >
+              {submitLabel}
+            </button>
+          </div>
         </div>
       </form>
       {record.conflict ? (

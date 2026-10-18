@@ -45,7 +45,7 @@ export function FormFields({ uriKey, mode, id, record, idPrefix = 'field' }: For
         blocks={record.payload.layout}
         borderless={record.payload.borderless === true}
         errorKeys={errorKeys}
-        renderField={(key) => {
+        renderField={(key, first) => {
           const field = byKey.get(key);
 
           const patch = patches[key] ?? {};
@@ -66,6 +66,7 @@ export function FormFields({ uriKey, mode, id, record, idPrefix = 'field' }: For
           return (
             <FormRow
               field={decided}
+              wide={first}
               idPrefix={idPrefix}
               value={record.values[field.attribute]}
               values={record.values}
@@ -82,17 +83,20 @@ export function FormFields({ uriKey, mode, id, record, idPrefix = 'field' }: For
   );
 }
 
-/** One field of a form: its label, control, help and first error. */
-export function FormRow({ field, idPrefix, value, values, error, onChange }: { field: FormFieldData; idPrefix: string; value: unknown; values: Record<string, unknown>; error: string | undefined; onChange: (value: unknown) => void }) {
+/**
+ * One field of a form: its label above its control, help and first error. In a form panel's
+ * two-column grid a wide row, a stacked one or a full-width one spans both columns.
+ */
+export function FormRow({ field, wide = false, idPrefix, value, values, error, onChange }: { field: FormFieldData; wide?: boolean; idPrefix: string; value: unknown; values: Record<string, unknown>; error: string | undefined; onChange: (value: unknown) => void }) {
   const id = `${idPrefix}-${field.attribute}`;
   const helpId = field.help === null ? undefined : `${id}-help`;
   const errorId = error === undefined ? undefined : `${id}-error`;
   const describedBy = [helpId, errorId].filter((part) => part !== undefined).join(' ') || undefined;
 
   return (
-    <div className={cn('gap-2 px-4 py-3 text-sm', field.stacked ? 'flex flex-col' : 'grid md:grid-cols-[minmax(0,1fr)_minmax(0,3fr)]')}>
+    <div className={cn('flex flex-col gap-2 px-4 py-3 text-sm', (wide || field.stacked || field.fullWidth) && 'lg:col-span-2')}>
       {field.compact ? null : (
-        <label htmlFor={id} className="pt-2 font-medium">
+        <label htmlFor={id} className="font-medium">
           {field.label}
           {field.required === true ? (
             <span aria-hidden="true" className="ms-0.5 text-destructive">

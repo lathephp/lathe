@@ -1,5 +1,5 @@
 import { ApiError, request, toast, useLathe, useTranslation } from '@lathephp/core';
-import { useState } from 'react';
+import { useCallback, useRef, useState } from 'react';
 import { draftIdOf } from '../fields/rich/drafts';
 import { asFile } from '../fields/upload/file';
 import { persistable, readDraft, useFormDraft } from './useFormDraft';
@@ -72,11 +72,21 @@ export function useRecordForm(
   const [conflict, setConflict] = useState<{ intent: SubmitIntent; updatedAt: string | null } | null>(null);
   const stored = useFormDraft(values, attributes, saved !== null);
   const draft = drafts ? stored : { restored: false, touch: () => undefined, clear: () => undefined };
+  // Typed or restored values not yet saved. The ref answers at once, so the redirect a save starts
+  // in the same tick already reads clean; the state redraws the footer.
+  const [dirty, setDirtyState] = useState(saved !== null);
+  const dirtyRef = useRef(saved !== null);
+  const setDirty = (next: boolean) => {
+    dirtyRef.current = next;
+    setDirtyState(next);
+  };
+  const isDirty = useCallback(() => dirtyRef.current, []);
   const base = `${apiPath}/resources/${resource.uriKey}`;
   const updating = mode === 'update';
 
   const setValue = (attribute: string, value: unknown) => {
     draft.touch();
+    setDirty(true);
     setValues((current) => ({ ...current, [attribute]: value }));
   };
 
@@ -92,6 +102,7 @@ export function useRecordForm(
         });
 
         draft.clear();
+        setDirty(false);
 
         if (intent === 'another' && !updating) {
           setValues(initialValues(form.fields));
@@ -137,12 +148,16 @@ export function useRecordForm(
     setValue,
     errors,
     busy,
+    dirty,
+    /** The dirty flag as of now, for a handler that runs before the next render. */
+    isDirty,
     submit,
     reauth,
     draft: {
       restored: draft.restored,
       discard: () => {
         draft.clear();
+        setDirty(false);
         setValues(initialValues(payload.fields));
       },
     },
@@ -163,6 +178,7 @@ export function useRecordForm(
     refresh: async () => {
       setConflict(null);
       draft.clear();
+      setDirty(false);
       const fresh = await request<FormPayload>(`${base}/${String(id)}/update-fields`);
 
       if (fresh !== null) {
