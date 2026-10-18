@@ -69,9 +69,10 @@ it('runs the same pinned query count for an order with one item and with five', 
 
     expect($one)->toBe($budget)->and($five)->toBe($budget);
 })->with([
-    // Detail: the order and its customer; the items load in their panel. Edit: the order,
-    // its customer and one query for the repeater's items, however many.
-    'detail' => ['/lathe/resources/orders/{id}', 2],
+    // Detail: the order, its customer and one count of its items for the Items tab; the
+    // items load in their panel. Edit: the order, its customer and one query for the
+    // repeater's items, however many.
+    'detail' => ['/lathe/resources/orders/{id}', 3],
     'edit' => ['/lathe/resources/orders/{id}/edit', 3],
     'creation-fields' => ['/lathe/api/resources/budget-orders/creation-fields', 0],
 ]);

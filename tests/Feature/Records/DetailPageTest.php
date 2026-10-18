@@ -2,6 +2,7 @@
 
 namespace Lathe\Tests\Feature\Records;
 
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 use Inertia\Testing\AssertableInertia;
 use Lathe\Http\Requests\LatheRequest;
@@ -70,6 +71,19 @@ it('names the header badge and meta fields: the first badge by default, the meta
 
     $this->get('/lathe/resources/customers/1')
         ->assertInertia(fn (AssertableInertia $page) => $page->where('record.header', ['badge' => null, 'meta' => null]));
+});
+
+it('counts each withCount relation and names the title field', function () {
+    $this->actingAs(User::where('email', 'admin@lathephp.com')->firstOrFail());
+    DB::table('order_items')->where('order_id', 12)->delete();
+    foreach (range(1, 3) as $line) {
+        DB::table('order_items')->insert(['order_id' => 12, 'product_id' => $line, 'quantity' => 1, 'price_cents' => 100]);
+    }
+
+    $this->get('/lathe/resources/orders/12')
+        ->assertInertia(fn (AssertableInertia $page) => $page
+            ->where('record.counts', ['items' => 3])
+            ->where('record.titleKey', 'number'));
 });
 
 it('uses detailBreadcrumbs() in place of the default trail', function () {

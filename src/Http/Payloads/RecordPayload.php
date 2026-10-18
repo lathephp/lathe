@@ -8,6 +8,7 @@ use Lathe\Auth\Impersonation;
 use Lathe\Auth\ResourceAuthorization;
 use Lathe\Field\Field;
 use Lathe\Field\FieldContext;
+use Lathe\Field\Relations\RelationField;
 use Lathe\Http\Requests\LatheRequest;
 use Lathe\Lathe;
 use Lathe\Plugins\ResourcePlugin;
@@ -17,6 +18,7 @@ use Lathe\Resources\Resource;
 use Lathe\Resources\TrafficCop;
 use Lathe\Resources\Via;
 use Lathe\Support\ConfigStore;
+use Lathe\Support\ResourceRelationCountPreloader;
 
 /**
  * The detail page and the create and edit forms of one record, shared by the pages and the JSON API.
@@ -38,24 +40,38 @@ class RecordPayload
      * The detail page's record: its fields with their values, the layout and the abilities.
      *
      * @param  class-string<\Lathe\Resources\Resource>  $class
-     * @return array{id: mixed, title: string, subtitle: string, header: array{badge: string|null, meta: string|null}, avatar: array{url: string|null, initials: string|null, style: array<string, mixed>, rounded: bool}|null, fields: list<array<string, mixed>>, layout: list<array<string, mixed>>, resourcePlugins: list<array<string, mixed>>, abilities: array<string, bool>, trashed: bool}
+     * @return array{id: mixed, title: string, subtitle: string, header: array{badge: string|null, meta: string|null}, titleKey: string|null, avatar: array{url: string|null, initials: string|null, style: array<string, mixed>, rounded: bool}|null, fields: list<array<string, mixed>>, counts: array<string, int>, layout: list<array<string, mixed>>, resourcePlugins: list<array<string, mixed>>, abilities: array<string, bool>, trashed: bool}
      */
     public function detail(string $class, Model $model): array
     {
         $resource = $class::make($model);
         $user = $this->request->user();
         $fields = $this->fields($class, FieldContext::Detail, $model);
+        $title = $resource->definition()->getTitle();
+        // One query counts every withCount relation, so a relation tab shows its count before its panel loads.
+        $counted = array_values(array_filter($fields, fn (Field $field) => $field instanceof RelationField && $field->showsCount()));
+        $cells = array_map(
+            fn (Field $field) => [...$field->schema(FieldContext::Detail, $this->request, $model), ...$field->cell($model)],
+            $fields,
+        );
+        ResourceRelationCountPreloader::preload(collect([$model]), array_map(fn (Field $field) => $field->attribute(), $counted));
+        $counts = [];
+
+        foreach ($counted as $field) {
+            $count = $model->getAttribute($field->attribute().'_count');
+            $counts[$field->key()] = is_numeric($count) ? (int) $count : 0;
+        }
 
         return [
             'id' => $model->getKey(),
             'title' => $resource->title(),
             'subtitle' => $resource->subtitle(),
             'header' => RecordHeader::pick($fields, $resource->definition()->getRecordHeader()),
+            // The detail page leaves the title field out of its Details card; a closure title names none.
+            'titleKey' => is_string($title) ? $title : null,
             'avatar' => $resource->resolveAvatar()?->jsonSerialize(),
-            'fields' => array_map(
-                fn (Field $field) => [...$field->schema(FieldContext::Detail, $this->request, $model), ...$field->cell($model)],
-                $fields,
-            ),
+            'fields' => $cells,
+            'counts' => $counts,
             'layout' => $resource->layoutFor(FieldContext::Detail, $this->request, $model),
             'resourcePlugins' => array_map(
                 fn (ResourcePlugin $plugin) => $this->resourcePlugin($class, $plugin),
