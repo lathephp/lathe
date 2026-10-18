@@ -1,6 +1,6 @@
 import { useTranslation } from '@lathephp/core';
 import { EllipsisVertical } from 'lucide-react';
-import { Suspense, useId, useState } from 'react';
+import { Suspense, useId, useRef, useState } from 'react';
 import { RowMenuPanel } from './lazy';
 import type { Row } from './types';
 
@@ -26,10 +26,12 @@ export function RowMenu({ uriKey, row }: { uriKey: string; row: Row }) {
   // Set on the first open; the menu then stays mounted, so the row's actions keep their state.
   const [opened, setOpened] = useState(false);
   const menuId = useId();
+  const trigger = useRef<HTMLButtonElement>(null);
 
   return (
     <div className="relative flex justify-end">
       <button
+        ref={trigger}
         type="button"
         aria-haspopup="menu"
         aria-expanded={open}
@@ -54,6 +56,8 @@ export function RowMenu({ uriKey, row }: { uriKey: string; row: Row }) {
             open={open}
             menuId={menuId}
             onClose={() => {
+              // A closing menu hands the focus back to its button, also when an entry opens a dialog.
+              trigger.current?.focus();
               setOpen(false);
             }}
           />

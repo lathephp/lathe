@@ -1,7 +1,7 @@
 import { useLathe, useQueryClient, useTranslation } from '@lathephp/core';
 import { Button } from '@lathephp/ui';
 import { ChevronDown } from 'lucide-react';
-import { useId, useState } from 'react';
+import { useId, useRef, useState } from 'react';
 import type { SelectionDescriptor } from '../index/useRowSelection';
 import { cn } from '../lib/cn';
 import type { ActionMeta } from './types';
@@ -29,6 +29,7 @@ export function PivotActionMenu({ resource, via, actions, ids, queryKey }: Pivot
   const queryClient = useQueryClient();
   const menuId = useId();
   const [open, setOpen] = useState(false);
+  const trigger = useRef<HTMLButtonElement>(null);
   const runner = useActionRunner({
     base: `${apiPath}/resources/${resource}`,
     onDone: () => {
@@ -40,6 +41,7 @@ export function PivotActionMenu({ resource, via, actions, ids, queryKey }: Pivot
   return (
     <div className="relative">
       <Button
+        ref={trigger}
         variant="outline"
         aria-haspopup="menu"
         aria-expanded={open}
@@ -61,6 +63,7 @@ export function PivotActionMenu({ resource, via, actions, ids, queryKey }: Pivot
               disabled={!action.standalone && ids.length === 0}
               className={cn(itemClass, action.destructive && 'text-destructive')}
               onClick={() => {
+                trigger.current?.focus();
                 setOpen(false);
                 runner.start(action, selection, ids.length);
               }}

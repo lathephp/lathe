@@ -1,7 +1,7 @@
 import { request, toast, useLathe, useTranslation } from '@lathephp/core';
 import { Button } from '@lathephp/ui';
 import { ChevronDown } from 'lucide-react';
-import { useId, useState } from 'react';
+import { useId, useRef, useState } from 'react';
 import type { Row } from '../index/types';
 import type { IndexUrlState } from '../index/useIndexState';
 import type { RowSelection } from '../index/useRowSelection';
@@ -36,6 +36,7 @@ export function DeleteMenu({ uriKey, lens, softDeletes, selection, rows, total, 
   const menuId = useId();
   const titleId = useId();
   const [open, setOpen] = useState(false);
+  const trigger = useRef<HTMLButtonElement>(null);
   const [confirming, setConfirming] = useState<BatchOperation | null>(null);
   const operations = batchOperations(softDeletes, selection, rows);
   const count = selection.all ? (total ?? 0) : selection.selected.size;
@@ -104,6 +105,7 @@ export function DeleteMenu({ uriKey, lens, softDeletes, selection, rows, total, 
   return (
     <div className="relative">
       <Button
+        ref={trigger}
         variant="outline"
         size="sm"
         aria-haspopup="menu"
@@ -125,6 +127,7 @@ export function DeleteMenu({ uriKey, lens, softDeletes, selection, rows, total, 
           className="absolute end-0 top-full z-20 mt-1 w-56 rounded-lg border border-border bg-background p-1 shadow-lg"
           onKeyDown={(event) => {
             if (event.key === 'Escape') {
+              trigger.current?.focus();
               setOpen(false);
             }
           }}
@@ -136,6 +139,7 @@ export function DeleteMenu({ uriKey, lens, softDeletes, selection, rows, total, 
               role="menuitem"
               className={operation === 'restore' ? itemClass : `${itemClass} text-destructive`}
               onClick={() => {
+                trigger.current?.focus();
                 setOpen(false);
                 setConfirming(operation);
               }}

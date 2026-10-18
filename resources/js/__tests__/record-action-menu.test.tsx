@@ -49,6 +49,33 @@ describe('the detail action menu', () => {
   });
 });
 
+describe('the detail action menu and its dialog', () => {
+  it('gives the focus back to Actions when the dialog an item opened closes', async () => {
+    vi.spyOn(globalThis, 'fetch').mockResolvedValueOnce(json({ fields: [], confirmText: 'Cancel order ORD-12?' }));
+    renderPage('Resources/Detail', {
+      resource: { uriKey: 'orders', label: 'Orders', singularLabel: 'Order', abilities: { create: false } },
+      record: { id: 12, title: 'ORD-12', subtitle: '', avatar: null, fields: [], layout: [], abilities: { view: true }, trashed: false },
+      breadcrumbs: [],
+      actions: { actions: [meta('cancel-order', 'Cancel order', { destructive: true, withoutConfirmation: false, cancelButtonText: 'Keep order', authorizedToRun: true })], pivotActions: [], counts: {} },
+    });
+    const trigger = await screen.findByRole('button', { name: 'Actions' });
+    trigger.focus();
+    fireEvent.click(trigger);
+    // A click on a button focuses it in a browser, so the item holds the focus as the menu closes.
+    const item = within(screen.getByRole('menu', { name: 'Actions' })).getByRole('menuitem', { name: 'Cancel order' });
+    item.focus();
+    fireEvent.click(item);
+    await screen.findByRole('dialog', { name: 'Cancel order ORD-12?' });
+
+    fireEvent.keyDown(document.activeElement ?? document.body, { key: 'Escape' });
+
+    await waitFor(() => {
+      expect(screen.queryByRole('dialog')).toBeNull();
+    });
+    expect(document.activeElement).toBe(screen.getByRole('button', { name: 'Actions' }));
+  });
+});
+
 describe('inline row actions', () => {
   it('puts the row\'s actions above Delete, which stays the menu\'s last entry', async () => {
     vi.spyOn(globalThis, 'fetch').mockResolvedValueOnce(json({ actions: [meta('hold-order', 'Hold order', { showOnTableRow: true })], pivotActions: [], counts: {} }));

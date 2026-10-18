@@ -2,7 +2,7 @@ import { router } from '@inertiajs/react';
 import { useLathe, useTranslation } from '@lathephp/core';
 import { Button } from '@lathephp/ui';
 import { ChevronDown } from 'lucide-react';
-import { useId, useState } from 'react';
+import { useId, useRef, useState } from 'react';
 import { cn } from '../lib/cn';
 import { recordSelection } from './selection';
 import type { ActionMeta } from './types';
@@ -17,6 +17,7 @@ export function RecordActionMenu({ uriKey, id, actions }: { uriKey: string; id: 
   const { apiPath } = useLathe();
   const menuId = useId();
   const [open, setOpen] = useState(false);
+  const trigger = useRef<HTMLButtonElement>(null);
   const runner = useActionRunner({
     base: `${apiPath}/resources/${uriKey}`,
     onDone: () => {
@@ -31,6 +32,7 @@ export function RecordActionMenu({ uriKey, id, actions }: { uriKey: string; id: 
   return (
     <div className="relative">
       <Button
+        ref={trigger}
         variant="outline"
         size="sm"
         aria-haspopup="menu"
@@ -52,6 +54,7 @@ export function RecordActionMenu({ uriKey, id, actions }: { uriKey: string; id: 
           className="absolute end-0 top-full z-20 mt-1 w-64 rounded-lg border border-border bg-background p-1 shadow-lg"
           onKeyDown={(event) => {
             if (event.key === 'Escape') {
+              trigger.current?.focus();
               setOpen(false);
             }
           }}
@@ -64,6 +67,8 @@ export function RecordActionMenu({ uriKey, id, actions }: { uriKey: string; id: 
               disabled={action.authorizedToRun === false}
               className={cn(itemClass, action.destructive && 'text-destructive')}
               onClick={() => {
+                // The focus goes back to Actions as the menu closes, so a dialog the item opens returns it there.
+                trigger.current?.focus();
                 setOpen(false);
                 runner.start(action, recordSelection(id), 1);
               }}

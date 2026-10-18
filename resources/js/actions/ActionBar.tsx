@@ -1,7 +1,7 @@
 import { useLathe, useTranslation } from '@lathephp/core';
 import { Button } from '@lathephp/ui';
 import { ChevronDown } from 'lucide-react';
-import { Fragment, useId, useState } from 'react';
+import { Fragment, useId, useRef, useState } from 'react';
 import { NavIcon } from '../components/NavIcon';
 import type { Row } from '../index/types';
 import type { IndexUrlState } from '../index/useIndexState';
@@ -35,6 +35,7 @@ export function ActionBar({ uriKey, lens, list, selection, rows, total, state }:
   const { apiPath } = useLathe();
   const menuId = useId();
   const [open, setOpen] = useState(false);
+  const trigger = useRef<HTMLButtonElement>(null);
   const base = lens === null ? `${apiPath}/resources/${uriKey}` : `${apiPath}/resources/${uriKey}/lenses/${lens}`;
   const ticked = selection.all ? (total ?? Number.POSITIVE_INFINITY) : selection.selected.size;
   const tickedRows = rows.filter((row) => selection.isSelected(row.id));
@@ -71,6 +72,11 @@ export function ActionBar({ uriKey, lens, list, selection, rows, total, state }:
   }
 
   function choose(action: ActionMeta) {
+    // From the menu, the focus goes back to Actions, so the dialog the action opens returns it there.
+    if (open) {
+      trigger.current?.focus();
+    }
+
     setOpen(false);
     runner.start(action, selection.descriptor(state, lens), Number.isFinite(ticked) ? ticked : 0);
   }
@@ -95,6 +101,7 @@ export function ActionBar({ uriKey, lens, list, selection, rows, total, state }:
       ))}
       <div className="relative">
         <Button
+          ref={trigger}
           variant="outline"
           size="sm"
           aria-haspopup="menu"
@@ -116,6 +123,7 @@ export function ActionBar({ uriKey, lens, list, selection, rows, total, state }:
             className="absolute end-0 top-full z-20 mt-1 w-72 rounded-lg border border-border bg-background p-1 shadow-lg"
             onKeyDown={(event) => {
               if (event.key === 'Escape') {
+                trigger.current?.focus();
                 setOpen(false);
               }
             }}
