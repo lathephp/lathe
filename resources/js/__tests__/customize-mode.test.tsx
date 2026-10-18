@@ -83,6 +83,13 @@ describe('customize mode', () => {
       ['Full12 of 12', 'false'],
     ]);
     expect(within(menu).getByRole('menuitem').textContent).toBe('Hide from this dashboard');
+
+    // Escape closes the menu from any focus inside it and hands the focus back to its button.
+    const button = within(card('orders')).getByRole('button', { name: 'Menu for Orders' });
+    button.focus();
+    fireEvent.keyDown(button, { key: 'Escape' });
+    expect(within(card('orders')).queryByRole('menu')).toBeNull();
+    expect(document.activeElement).toBe(button);
   });
 
   it('has no Customize and no Hide on a dashboard that is not customizable', async () => {

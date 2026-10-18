@@ -2,6 +2,7 @@ import { router } from '@inertiajs/react';
 import { request, toast, useLathe, useTranslation } from '@lathephp/core';
 import { type KeyboardEvent, type PointerEvent, useEffect, useId, useRef, useState, useSyncExternalStore } from 'react';
 import { Button } from '../../components/ui/Button';
+import { useMenuKeys } from '../menuKeys';
 import type { LayoutDraft, WidgetDescriptor } from '../types';
 import { addBack, hide, move, resize, sizeColumns, toPayload } from './draft';
 
@@ -248,6 +249,9 @@ function SizeMenu({ widget, change }: { widget: WidgetDescriptor; change: Change
   const [open, setOpen] = useState(false);
   const menuId = useId();
   const root = useRef<HTMLDivElement>(null);
+  useMenuKeys(root, open, () => {
+    setOpen(false);
+  });
   const sizes = [
     ['1/4', __('Small')],
     ['1/3', __('Medium')],
@@ -300,11 +304,6 @@ function SizeMenu({ widget, change }: { widget: WidgetDescriptor; change: Change
           role="menu"
           tabIndex={-1}
           className="absolute end-0 top-full z-10 mt-1 w-56 rounded-lg border border-border bg-background p-1 shadow-lg"
-          onKeyDown={(event) => {
-            if (event.key === 'Escape') {
-              setOpen(false);
-            }
-          }}
         >
           {sizes.map(([width, label]) => (
             <button

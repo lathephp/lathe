@@ -1,6 +1,7 @@
 import { Link } from '@inertiajs/react';
 import { useTranslation } from '@lathephp/core';
 import { useEffect, useId, useRef, useState } from 'react';
+import { useMenuKeys } from './menuKeys';
 
 const itemClass =
   'flex w-full items-center rounded-md px-2 py-1.5 text-start text-sm outline-none hover:bg-muted focus-visible:ring-2 focus-visible:ring-ring';
@@ -21,6 +22,9 @@ export function WidgetMenu({ name, onRefresh, link, csv }: WidgetMenuProps) {
   const [open, setOpen] = useState(false);
   const menuId = useId();
   const root = useRef<HTMLDivElement>(null);
+  useMenuKeys(root, open, () => {
+    setOpen(false);
+  });
 
   // A press anywhere outside the menu closes it.
   useEffect(() => {
@@ -67,11 +71,6 @@ export function WidgetMenu({ name, onRefresh, link, csv }: WidgetMenuProps) {
           role="menu"
           tabIndex={-1}
           className="absolute end-0 top-full z-10 mt-1 w-44 rounded-lg border border-border bg-background p-1 shadow-lg"
-          onKeyDown={(event) => {
-            if (event.key === 'Escape') {
-              setOpen(false);
-            }
-          }}
         >
           <button
             type="button"

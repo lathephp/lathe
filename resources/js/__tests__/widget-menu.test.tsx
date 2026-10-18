@@ -111,10 +111,31 @@ describe('a dashboard widget menu', () => {
     expect(screen.queryByRole('menu')).toBeNull();
   });
 
-  it('closes on Escape', async () => {
-    renderDashboard([descriptor('orders')], { orders: value('orders', 12) });
+  it('takes focus into the menu, moves it with the arrow keys and closes on Escape back on its button', async () => {
+    renderDashboard([descriptor('orders-per-day', { csv: true })], { 'orders-per-day': value('orders-per-day', 12, '/lathe/resources/orders') });
 
-    fireEvent.keyDown(await openMenu('orders', 'Orders'), { key: 'Escape' });
+    const menu = await openMenu('orders-per-day', 'Orders per day');
+    const [refresh, open] = within(menu).getAllByRole('menuitem');
+
+    expect(document.activeElement).toBe(refresh);
+    fireEvent.keyDown(document.activeElement ?? document.body, { key: 'ArrowDown' });
+    expect(document.activeElement).toBe(open);
+    fireEvent.keyDown(document.activeElement ?? document.body, { key: 'ArrowUp' });
+    expect(document.activeElement).toBe(refresh);
+
+    fireEvent.keyDown(document.activeElement ?? document.body, { key: 'Escape' });
+
+    expect(screen.queryByRole('menu')).toBeNull();
+    expect(document.activeElement).toBe(within(card('orders-per-day')).getByRole('button', { name: 'Menu for Orders per day' }));
+  });
+
+  it('closes on Escape while its button has focus', async () => {
+    renderDashboard([descriptor('orders')], { orders: value('orders', 12) });
+    await openMenu('orders', 'Orders');
+    const button = within(card('orders')).getByRole('button', { name: 'Menu for Orders' });
+    button.focus();
+
+    fireEvent.keyDown(button, { key: 'Escape' });
 
     expect(screen.queryByRole('menu')).toBeNull();
   });
