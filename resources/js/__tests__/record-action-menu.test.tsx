@@ -50,6 +50,32 @@ describe('the detail action menu', () => {
 });
 
 describe('inline row actions', () => {
+  it('puts the row\'s actions above Delete, which stays the menu\'s last entry', async () => {
+    vi.spyOn(globalThis, 'fetch').mockResolvedValueOnce(json({ actions: [meta('hold-order', 'Hold order', { showOnTableRow: true })], pivotActions: [], counts: {} }));
+    renderPage(
+      'Resources/Index',
+      {
+        resource: {
+          uriKey: 'orders', label: 'Orders', singularLabel: 'Order', perPageOptions: [25], searchable: false, softDeletes: false, abilities: { create: false },
+          definition: { debounce: 0.5, paginationType: 'links', clickAction: 'detail', polling: null, showPollingToggle: false, tableStyle: 'default', showColumnBorders: false, softDeletes: false },
+        },
+        table: {
+          columns: [{ key: 'number', label: 'Number', component: 'text', sortable: false, sortKey: 'number' }],
+          sortKeys: [],
+          rows: [{ id: 7, title: 'ORD-7', cells: { number: { value: 'ORD-7', display: 'ORD-7' } }, abilities: { view: true, delete: true }, actions: ['hold-order'] }],
+          rowKey: 'id',
+        },
+        state: { page: 1, perPage: 25, hasMorePages: false, sort: '' },
+      },
+      { url: '/lathe/resources/orders' },
+    );
+
+    fireEvent.click(screen.getByRole('button', { name: 'Actions for ORD-7' }));
+    await screen.findByRole('menuitem', { name: 'Hold order' });
+
+    expect(screen.getAllByRole('menuitem').map((item) => item.textContent)).toEqual(['View', 'Hold order', 'Delete']);
+  });
+
   it('loads the table-row actions on first open and runs one on its row', async () => {
     vi.spyOn(router, 'reload').mockImplementation(() => undefined);
     const fetch = vi

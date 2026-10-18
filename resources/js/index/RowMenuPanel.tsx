@@ -125,7 +125,6 @@ export function RowMenuPanel({ uriKey, row, open, menuId, onClose }: RowMenuPane
       {open && (
         <div
           id={menuId}
-          ref={setMenu}
           role="menu"
           tabIndex={-1}
           className="absolute end-0 top-full z-10 mt-1 w-40 rounded-lg border border-border bg-background p-1 shadow-lg"
