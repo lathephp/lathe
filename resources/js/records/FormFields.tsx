@@ -1,6 +1,8 @@
 import { useMemo, useState } from 'react';
 import { FieldError } from '../components/FieldError';
-import { passes } from '../fields/conditions';
+import { useTranslation } from '@lathephp/core';
+import { labelOf, optionsOf } from '../fields/choice/options';
+import { passes, type ConditionData } from '../fields/conditions';
 import { FormField, stringValue } from '../fields/registry';
 import { RepeaterErrorsContext } from '../fields/repeater/errors';
 import type { FormFieldData } from '../fields/types';
@@ -24,7 +26,22 @@ interface FormFieldsProps {
  * and first error.
  */
 export function FormFields({ uriKey, mode, id, record, idPrefix = 'field' }: FormFieldsProps) {
+  const { __ } = useTranslation();
   const byKey = new Map(record.payload.fields.map((field) => [field.key, field]));
+
+  // "Shown because Type is Company": the parent's label and the label of the value it shows for.
+  function reasonFor(condition: ConditionData): string | null {
+    const parent = 'field' in condition && (condition.op === 'eq' || condition.op === 'in') ? record.payload.fields.find((field) => field.attribute === condition.field) : undefined;
+
+    if (parent === undefined || !('value' in condition)) {
+      return null;
+    }
+
+    const values = Array.isArray(condition.value) ? condition.value : [condition.value];
+    const shown = values.map((value) => labelOf(optionsOf(parent), stringValue(value))).join(' / ');
+
+    return __('Shown because :field is :value', { field: parent.label, value: shown });
+  }
   // The attributes the user typed in: a dependsOn patch never overwrites them.
   const [dirty, setDirty] = useState<ReadonlySet<string>>(() => new Set());
   const patches = useDependentFields({
@@ -67,6 +84,7 @@ export function FormFields({ uriKey, mode, id, record, idPrefix = 'field' }: For
             <FormRow
               field={decided}
               wide={first}
+              reason={field.visibleWhen == null ? undefined : reasonFor(field.visibleWhen)}
               idPrefix={idPrefix}
               value={record.values[field.attribute]}
               values={record.values}
@@ -87,7 +105,7 @@ export function FormFields({ uriKey, mode, id, record, idPrefix = 'field' }: For
  * One field of a form: its label above its control, help and first error. In a form panel's
  * two-column grid a wide row, a stacked one or a full-width one spans both columns.
  */
-export function FormRow({ field, wide = false, idPrefix, value, values, error, onChange }: { field: FormFieldData; wide?: boolean; idPrefix: string; value: unknown; values: Record<string, unknown>; error: string | undefined; onChange: (value: unknown) => void }) {
+export function FormRow({ field, wide = false, reason, idPrefix, value, values, error, onChange }: { field: FormFieldData; wide?: boolean; reason?: string | null; idPrefix: string; value: unknown; values: Record<string, unknown>; error: string | undefined; onChange: (value: unknown) => void }) {
   const id = `${idPrefix}-${field.attribute}`;
   const helpId = field.help === null ? undefined : `${id}-help`;
   const errorId = error === undefined ? undefined : `${id}-error`;
@@ -96,13 +114,16 @@ export function FormRow({ field, wide = false, idPrefix, value, values, error, o
   return (
     <div
       data-readonly={field.readonly === true ? '' : undefined}
+      data-dependent={reason === undefined ? undefined : ''}
       className={cn(
         'flex flex-col gap-2 px-4 py-3 text-sm',
+        // A field shown by another sits under it on its own row, on the muted ground, with the reason.
+        reason !== undefined && 'rounded-md bg-muted',
         // Readonly reads as a settled value: muted ground, dashed edge. Any other disabled control is dimmed.
         field.readonly === true
           ? '[&_button]:border-dashed [&_button]:bg-muted [&_input]:border-dashed [&_input]:bg-muted [&_select]:border-dashed [&_select]:bg-muted [&_textarea]:border-dashed [&_textarea]:bg-muted'
           : '[&_:disabled]:opacity-50',
-        (wide || field.stacked || field.fullWidth) && 'lg:col-span-2',
+        (wide || reason !== undefined || field.stacked || field.fullWidth) && 'lg:col-span-2',
       )}
     >
       {field.compact ? null : (
@@ -126,6 +147,7 @@ export function FormRow({ field, wide = false, idPrefix, value, values, error, o
           invalid={error !== undefined}
           disabled={field.readonly === true}
         />
+        {reason == null ? null : <p className="text-xs text-muted-foreground">{reason}</p>}
         {helpId === undefined ? null : (
           <p id={helpId} className="text-xs text-muted-foreground">
             {field.help}
