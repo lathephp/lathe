@@ -2511,6 +2511,7 @@ Lathe\Http\Controllers\Resources\FormFieldsController::update(Lathe\Http\Request
 Lathe\Http\Controllers\Resources\FormPageController::create(Lathe\Http\Requests\LatheRequest $request, Lathe\Auth\ResourceAuthorization $authorization, Lathe\Http\Payloads\IndexPayload $index, Lathe\Http\Payloads\RecordPayload $payload): Symfony\Component\HttpFoundation\Response
 Lathe\Http\Controllers\Resources\FormPageController::edit(Lathe\Http\Requests\LatheRequest $request, Lathe\Auth\ResourceAuthorization $authorization, Lathe\Http\Payloads\IndexPayload $index, Lathe\Http\Payloads\RecordPayload $payload, string $resource, string $resourceId): Symfony\Component\HttpFoundation\Response
 Lathe\Http\Controllers\Resources\FormPageController::replicate(Lathe\Http\Requests\LatheRequest $request, Lathe\Auth\ResourceAuthorization $authorization, Lathe\Http\Payloads\IndexPayload $index, Lathe\Http\Payloads\RecordPayload $payload, string $resource, string $resourceId): Symfony\Component\HttpFoundation\Response
+Lathe\Http\Controllers\Resources\HistoryController::__invoke(Lathe\Http\Requests\LatheRequest $request, Lathe\Auth\ResourceAuthorization $authorization, string $resource, string $resourceId): Illuminate\Http\JsonResponse
 Lathe\Http\Controllers\Resources\IndexController::__invoke(Lathe\Http\Requests\LatheRequest $request, Lathe\Auth\ResourceAuthorization $authorization, Lathe\Http\Payloads\IndexPayload $payload): Illuminate\Http\JsonResponse
 Lathe\Http\Controllers\Resources\IndexPageController::__invoke(Lathe\Http\Requests\LatheRequest $request, Lathe\Auth\ResourceAuthorization $authorization, Lathe\Http\Payloads\IndexPayload $payload): Symfony\Component\HttpFoundation\Response
 Lathe\Http\Controllers\Resources\InlineUpdateController::__invoke(Lathe\Http\Requests\LatheRequest $request, Lathe\Auth\ResourceAuthorization $authorization, string $resource, string $resourceId, string $field): Illuminate\Http\JsonResponse
@@ -4832,6 +4833,7 @@ class Lathe\Http\Controllers\Resources\FieldPreviewController
 class Lathe\Http\Controllers\Resources\FilterController
 class Lathe\Http\Controllers\Resources\FormFieldsController
 class Lathe\Http\Controllers\Resources\FormPageController
+class Lathe\Http\Controllers\Resources\HistoryController
 class Lathe\Http\Controllers\Resources\IndexController
 class Lathe\Http\Controllers\Resources\IndexPageController
 class Lathe\Http\Controllers\Resources\InlineUpdateController

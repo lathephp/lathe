@@ -45,6 +45,7 @@ use Lathe\Http\Controllers\Resources\FieldPreviewController;
 use Lathe\Http\Controllers\Resources\FilterController;
 use Lathe\Http\Controllers\Resources\FormFieldsController;
 use Lathe\Http\Controllers\Resources\FormPageController;
+use Lathe\Http\Controllers\Resources\HistoryController;
 use Lathe\Http\Controllers\Resources\IndexController;
 use Lathe\Http\Controllers\Resources\IndexPageController;
 use Lathe\Http\Controllers\Resources\InlineUpdateController;
@@ -213,6 +214,7 @@ class PanelRoutes
             $router->get('resources/{resource}/{resourceId}/{field}/associatable', [AssociatableController::class, 'record'])->name('resources.record.associatable');
             $router->get('resources/{resource}/{resourceId}/{relationship}/pivot-fields', [RelationAttachController::class, 'pivotFieldsForAttach'])->name('resources.relation.pivotFields');
             $router->get('resources/{resource}/{resourceId}/{relationship}/{relatedId}/pivot-fields', [RelationAttachController::class, 'pivotFieldValues'])->name('resources.relation.pivotFieldValues');
+            $router->get('resources/{resource}/{resourceId}/history', HistoryController::class)->name('resources.history');
             $router->get('resources/{resource}/{resourceId}/peek', [PeekController::class, 'peek'])->name('resources.peek');
             $router->get('resources/{resource}/{resourceId}/preview', [PeekController::class, 'preview'])->name('resources.preview');
             $router->put('resources/{resource}/{resourceId}', [RecordController::class, 'update'])->name('resources.update');
