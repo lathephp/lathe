@@ -6,6 +6,8 @@ import { lazyNamed } from '../../lib/lazy';
 export interface SelectOption {
   value: string;
   label: string;
+  /** Options in a row with the same group show under its heading. */
+  group?: string;
 }
 
 interface CommonProps {
@@ -19,6 +21,8 @@ interface CommonProps {
   'aria-labelledby'?: string;
   'aria-describedby'?: string;
   'aria-invalid'?: boolean;
+  /** Called when the trigger takes the focus, such as to load remote options. */
+  onFocus?: () => void;
 }
 
 export interface SingleSelectProps extends CommonProps {
@@ -90,7 +94,7 @@ type TriggerProps = SelectProps & {
 
 function SelectTrigger(props: TriggerProps) {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars -- value, options, multiple and onChange are read through selectedText
-  const { value, options, multiple, onChange, id, placeholder, size = 'default', disabled, className, onPreload, onOpen, ...aria } = props;
+  const { value, options, multiple, onChange, id, placeholder, size = 'default', disabled, className, onPreload, onOpen, onFocus, ...aria } = props;
   const label = selectedText(props);
 
   // The list is not in the page until it loads, so there is nothing for aria-controls to
@@ -108,7 +112,10 @@ function SelectTrigger(props: TriggerProps) {
       data-size={size}
       className={cn(triggerClass, className)}
       onPointerEnter={onPreload}
-      onFocus={onPreload}
+      onFocus={() => {
+        onPreload?.();
+        onFocus?.();
+      }}
       // As Base UI's trigger: a mouse opens on the press, touch and pen on the click.
       onMouseDown={(event) => {
         if (event.button === 0) {

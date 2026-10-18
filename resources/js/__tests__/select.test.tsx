@@ -55,3 +55,34 @@ describe('Select', () => {
     });
   });
 });
+
+describe('Select groups', () => {
+  it('shows grouped options under their heading', async () => {
+    render(
+      <Select
+        aria-label="Food"
+        value={null}
+        options={[
+          { value: 'apple', label: 'Apple', group: 'Fruit' },
+          { value: 'pear', label: 'Pear', group: 'Fruit' },
+          { value: 'kale', label: 'Kale', group: 'Greens' },
+        ]}
+        onChange={vi.fn()}
+      />,
+    );
+
+    fireEvent.mouseDown(screen.getByRole('combobox', { name: 'Food' }), { button: 0 });
+    await screen.findByRole('listbox');
+
+    expect(screen.getAllByRole('group').map((group) => group.textContent)).toEqual(['FruitApplePear', 'GreensKale']);
+  });
+
+  it('calls onFocus when the trigger takes the focus', () => {
+    const onFocus = vi.fn();
+    render(<Select aria-label="Food" value={null} options={[]} onChange={vi.fn()} onFocus={onFocus} />);
+
+    screen.getByRole('combobox', { name: 'Food' }).focus();
+
+    expect(onFocus).toHaveBeenCalled();
+  });
+});
