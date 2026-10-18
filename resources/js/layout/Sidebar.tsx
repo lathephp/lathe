@@ -15,7 +15,7 @@ interface SidebarProps {
 
 export function Sidebar({ props, url, expanded, mobileOpen }: SidebarProps) {
   const { __ } = useTranslation();
-  const { appName, versionLabel, navigation, basePath, layout, auth } = props;
+  const { appName, brand, versionLabel, navigation, basePath, layout, auth } = props;
   const collapsed = !expanded;
   // Labels hide from the rail but stay for screen readers and the mobile sheet.
   const railHidden = collapsed && 'md:sr-only';
@@ -38,12 +38,19 @@ export function Sidebar({ props, url, expanded, mobileOpen }: SidebarProps) {
       )}
     >
       <div className="flex items-center gap-2 p-2">
-        <span
-          aria-hidden="true"
-          className="grid size-8 shrink-0 place-items-center rounded-md bg-primary text-sm font-semibold text-primary-foreground"
-        >
-          {appName.charAt(0).toUpperCase()}
-        </span>
+        {brand ? (
+          <>
+            <img src={brand.logo} alt={appName} className={cn('size-8 shrink-0 object-contain', brand.logoDark && 'dark:hidden')} />
+            {brand.logoDark && <img src={brand.logoDark} alt={appName} className="hidden size-8 shrink-0 object-contain dark:block" />}
+          </>
+        ) : (
+          <span
+            aria-hidden="true"
+            className="grid size-8 shrink-0 place-items-center rounded-md bg-primary text-sm font-semibold text-primary-foreground"
+          >
+            {appName.charAt(0).toUpperCase()}
+          </span>
+        )}
         <div className={cn('min-w-0', railHidden)}>
           <p className="truncate text-sm font-semibold">{appName}</p>
           {versionLabel !== null && <p className="truncate text-xs text-muted-foreground">{versionLabel}</p>}

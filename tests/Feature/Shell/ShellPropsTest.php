@@ -64,6 +64,16 @@ it('shares the layout and table settings', function () {
     ])->and($props['tableStyle'])->toBe(['density' => 'compact', 'striped' => true]);
 });
 
+it('shares the brand logo when one is configured and null without one', function () {
+    expect(shellProps()['brand'])->toBeNull();
+
+    config(['lathe.brand.logo' => '/logo.svg']);
+    expect(shellProps()['brand'])->toBe(['logo' => '/logo.svg', 'logoDark' => null]);
+
+    config(['lathe.brand.logo_dark' => 'https://cdn.example.test/logo-dark.svg']);
+    expect(shellProps()['brand'])->toBe(['logo' => '/logo.svg', 'logoDark' => 'https://cdn.example.test/logo-dark.svg']);
+});
+
 it('shares whether the palette is on and how long typing waits', function () {
     expect(shellProps()['globalSearch'])->toBe(['enabled' => true, 'debounce' => 0.5]);
 

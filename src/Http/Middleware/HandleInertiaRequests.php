@@ -89,6 +89,9 @@ class HandleInertiaRequests extends Middleware
                 ? []
                 : app(Navigation::class)->build($request)),
             'appName' => fn () => Lathe::name(),
+            'brand' => fn () => is_string($logo = Lathe::config()->get('brand.logo')) && $logo !== ''
+                ? ['logo' => $logo, 'logoDark' => Lathe::config()->get('brand.logo_dark')]
+                : null,
             'basePath' => fn () => '/'.trim(Lathe::path(), '/'),
             'versionLabel' => fn () => Lathe::versionLabel(),
             'keyboardShortcuts' => fn () => Lathe::config()->boolean('keyboard_shortcuts.enabled'),

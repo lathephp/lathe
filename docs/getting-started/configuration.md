@@ -28,6 +28,8 @@ Only these variables are read: `LATHE_APP_NAME`, `LATHE_DOMAIN_NAME`, `LATHE_GUA
 |---|---|---|
 | `name` | `LATHE_APP_NAME`, then `APP_NAME`, then `'Lathe'` | The sidebar title and the page `<title>`. |
 | `version` | `null` | The version label in the sidebar. `null` shows the package version, a string replaces it, `false` hides it. |
+| `brand.logo` | `null` | A path or URL of an image. The sidebar shows it in place of the first-letter tile, with the name beside it. `null` keeps the tile. |
+| `brand.logo_dark` | `null` | A path or URL of the logo for the dark theme. `null` shows `brand.logo` in both themes. |
 | `domain` | `LATHE_DOMAIN_NAME` (`null`) | When set, every page, auth and API route registers on that domain only. Other hosts get 404. |
 | `path` | `'/lathe'` | The URI prefix of the panel. JSON endpoints live under `{path}/api`. |
 | `guard` | `LATHE_GUARD` (`null`) | The auth guard of the panel. `null` uses the app's default guard. |

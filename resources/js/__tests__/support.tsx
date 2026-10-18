@@ -25,6 +25,7 @@ export function sharedProps(overrides: Partial<SharedProps> = {}): SharedProps {
     userMenu: [],
     sidebarOpen: true,
     appName: 'Acme',
+    brand: null,
     basePath: '/lathe',
     versionLabel: 'v1.0.0',
     footer: { text: 'Powered by Lathe', href: 'https://lathephp.com' },

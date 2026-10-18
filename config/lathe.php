@@ -21,6 +21,17 @@ return [
 
     'version' => null,
 
+    /*
+    | A logo replaces the first-letter tile in the sidebar; the name stays beside
+    | it. Each is a path or a URL. The dark logo shows in the dark theme, and the
+    | light logo covers both themes when it is null.
+    */
+
+    'brand' => [
+        'logo' => null,
+        'logo_dark' => null,
+    ],
+
     'domain' => env('LATHE_DOMAIN_NAME'),
 
     'path' => '/lathe',

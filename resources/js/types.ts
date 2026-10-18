@@ -13,6 +13,8 @@ export interface SharedProps {
   navigation: NavigationSection[];
   sidebarOpen: boolean;
   appName: string;
+  /** Null shows the app name as text; a logo shows beside the name. */
+  brand: { logo: string; logoDark: string | null } | null;
   basePath: string;
   versionLabel: string | null;
   /** The default is a text and a link; a callback's HTML arrives sanitized. */

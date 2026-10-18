@@ -101,6 +101,8 @@ class ConfigValidator
             'name' => $string,
             'version' => fn (mixed $v) => $v === null || $v === false || is_string($v)
                 ? null : 'must be null, false or a string; got '.$this->show($v).'. Use null for the installed version or false to hide it.',
+            'brand.logo' => $nullableString,
+            'brand.logo_dark' => $nullableString,
             'domain' => $nullableString,
             'path' => fn (mixed $v) => is_string($v) && str_starts_with($v, '/')
                 ? null : 'must be a path that starts with /; got '.$this->show($v).". Set it to a path such as '/lathe'.",

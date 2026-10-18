@@ -60,6 +60,31 @@ describe('sidebar', () => {
     expect(nav.getByRole('link', { name: 'Dashboard' }).getAttribute('aria-current')).toBeNull();
   });
 
+  it('shows the logo image beside the app name when a logo is set', () => {
+    renderPage('Dashboard', dashboard, { shared: { brand: { logo: '/logo.svg', logoDark: null } } });
+    const nav = within(sidebar());
+
+    expect(nav.getByRole('img', { name: 'Acme' }).getAttribute('src')).toBe('/logo.svg');
+    expect(nav.getByText('Acme')).toBeTruthy();
+    expect(nav.queryByText('A')).toBeNull();
+  });
+
+  it('swaps in the dark logo with the dark class when one is set', () => {
+    renderPage('Dashboard', dashboard, { shared: { brand: { logo: '/logo.svg', logoDark: '/logo-dark.svg' } } });
+    const images = within(sidebar()).getAllByRole('img', { hidden: true });
+
+    expect(images.map((img) => img.getAttribute('src'))).toEqual(['/logo.svg', '/logo-dark.svg']);
+    expect(images[0]?.classList.contains('dark:hidden')).toBe(true);
+    expect(images[1]?.classList.contains('hidden')).toBe(true);
+    expect(images[1]?.classList.contains('dark:block')).toBe(true);
+  });
+
+  it('shows no image without a logo', () => {
+    renderPage('Dashboard', dashboard);
+
+    expect(within(sidebar()).queryByRole('img', { hidden: true })).toBeNull();
+  });
+
   it('shows the app name beside its first letter and the version label', () => {
     renderPage('Dashboard', dashboard);
     const nav = within(sidebar());
