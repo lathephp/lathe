@@ -47,3 +47,17 @@ it('lists all 8 styles in the published config comment and defaults to nova', fu
     expect((string) file_get_contents($path))->toContain("| null keeps the style's own value. The style is one of nova (the default),\n    | vega, lyra, maia, mira, luma, rhea or sera.")
         ->and((require $path)['theme']['style'])->toBe('nova');
 });
+
+it('draws every variant of the kit Button and Badge in each style', function (string $style) {
+    $root = dirname(__DIR__, 3);
+    $css = (string) file_get_contents("{$root}/resources/css/styles/style-{$style}.css");
+
+    foreach (['button' => 'packages/ui/src/button.tsx', 'badge' => 'packages/ui/src/badge.tsx'] as $component => $source) {
+        preg_match_all("/'(cn-{$component}-variant-[a-z-]+)'/", (string) file_get_contents("{$root}/{$source}"), $variants);
+
+        expect($variants[1])->not->toBeEmpty();
+        foreach ($variants[1] as $variant) {
+            expect($css)->toContain(".{$variant} {");
+        }
+    }
+})->with(['nova', 'vega', 'lyra', 'maia', 'mira', 'luma', 'rhea', 'sera']);
