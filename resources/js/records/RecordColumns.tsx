@@ -130,7 +130,7 @@ export function RecordColumns({ record, parent }: { record: DetailRecord; parent
   const detailsCard =
     details.length === 0 ? null : (
       <FieldCard label={__('Details')}>
-        <dl className="grid grid-cols-[minmax(0,1fr)_minmax(0,2fr)] gap-x-4 gap-y-3 px-4 py-3 text-sm">
+        <dl className="grid grid-cols-[auto_minmax(0,1fr)] gap-x-4 gap-y-2.5 px-5 py-4 text-[13px] leading-[18px]">
           {details.map((field) => (
             <div key={field.key} className="contents">
               <dt className="text-muted-foreground">{field.label}</dt>
@@ -155,7 +155,7 @@ export function RecordColumns({ record, parent }: { record: DetailRecord; parent
         ) : null}
         {wide.map((field) => (
           <FieldCard key={field.key} label={field.label}>
-            <div className="min-w-0 break-words px-4 py-3 text-sm">
+            <div className="min-w-0 break-words px-5 py-4 text-sm">
               <DetailField field={field} />
             </div>
           </FieldCard>
@@ -170,7 +170,7 @@ export function RecordColumns({ record, parent }: { record: DetailRecord; parent
             <RecordLayout key={card.field.key} blocks={[card.block]} detailFields={new Map([[card.field.key, card.field]])} renderField={() => null} />
           ) : (
             <FieldCard key={card.field.key} label={card.field.label}>
-              <div className="min-w-0 break-words px-4 py-3 text-sm">
+              <div className="min-w-0 break-words px-5 py-4 text-sm">
                 <DetailField field={card.field} />
               </div>
             </FieldCard>
@@ -195,12 +195,15 @@ export function RecordColumns({ record, parent }: { record: DetailRecord; parent
   );
 }
 
+/** A card of the record page: its heading in a header row over a bottom border, then its body. */
 function FieldCard({ label, children }: { label: string; children: ReactNode }) {
   return (
-    <section aria-label={label} className="space-y-2">
-      <h2 className="text-base font-semibold">{label}</h2>
-      <Card>{children}</Card>
-    </section>
+    <Card role="region" aria-label={label}>
+      <header className="border-b border-border px-5 py-3.5">
+        <h2 className="text-base font-semibold">{label}</h2>
+      </header>
+      {children}
+    </Card>
   );
 }
 
@@ -212,52 +215,63 @@ function initialTab(tabs: RelationFieldSchema[]): number {
   return Math.max(index, 0);
 }
 
+/**
+ * The main card: a row of pill tabs with their counts, the open panel's buttons at its end, then
+ * the open panel's table.
+ */
 function RelationTabs({ parent, tabs, counts, active, opened, onSelect }: { parent: Parent; tabs: RelationFieldSchema[]; counts: Record<string, number>; active: number; opened: ReadonlySet<number>; onSelect: (index: number) => void }) {
   const id = useId();
+  // The open panel draws its Create or Attach button into this end of the tab row.
+  const [actions, setActions] = useState<HTMLDivElement | null>(null);
 
   return (
-    <div className="space-y-3">
-      <div role="tablist" aria-orientation="horizontal" className="flex gap-1 border-b border-border">
-        {tabs.map((field, index) => {
-          const count = field.withCount ? counts[field.key] : undefined;
+    <Card className="overflow-hidden">
+      <div className="flex items-center gap-2 border-b border-border px-4 pt-2.5 pb-2">
+        <div role="tablist" aria-orientation="horizontal" className="flex min-w-0 flex-wrap gap-1">
+          {tabs.map((field, index) => {
+            const count = field.withCount ? counts[field.key] : undefined;
 
-          return (
-            <button
-              key={field.key}
-              id={`${id}-tab-${field.key}`}
-              type="button"
-              role="tab"
-              aria-selected={index === active}
-              aria-controls={`${id}-panel-${field.key}`}
-              className={cn(
-                '-mb-px flex items-center gap-2 border-b-2 px-3 py-2 text-sm',
-                index === active ? 'border-primary font-medium' : 'border-transparent text-muted-foreground',
-              )}
-              onClick={() => {
-                onSelect(index);
-              }}
-            >
-              {field.label}
-              {count === undefined ? null : (
-                <>
-                  {' '}
-                  <span className="rounded-full bg-muted px-2 text-xs font-medium text-muted-foreground">{String(count)}</span>
-                </>
-              )}
-            </button>
-          );
-        })}
+            return (
+              <button
+                key={field.key}
+                id={`${id}-tab-${field.key}`}
+                type="button"
+                role="tab"
+                aria-selected={index === active}
+                aria-controls={`${id}-panel-${field.key}`}
+                className={cn(
+                  'inline-flex h-7 items-center gap-1.5 rounded-md px-2.5 text-[13px] font-medium outline-none focus-visible:ring-2 focus-visible:ring-focus',
+                  index === active ? 'bg-accent text-accent-foreground' : 'text-muted-foreground hover:text-foreground',
+                )}
+                onClick={() => {
+                  onSelect(index);
+                }}
+              >
+                {field.label}
+                {count === undefined ? null : (
+                  <>
+                    {' '}
+                    <span className={cn('inline-flex h-5 items-center rounded-full px-1.5 text-[11px] font-semibold text-muted-foreground tabular-nums', index === active ? 'bg-card' : 'bg-muted')}>
+                      {String(count)}
+                    </span>
+                  </>
+                )}
+              </button>
+            );
+          })}
+        </div>
+        <div ref={setActions} className="ms-auto flex shrink-0 items-center gap-2 empty:hidden" />
       </div>
       {tabs.map((field, index) => (
         <div key={field.key} id={`${id}-panel-${field.key}`} role="tabpanel" aria-labelledby={`${id}-tab-${field.key}`} hidden={index !== active}>
           {opened.has(index) ? (
             <Suspense fallback={null}>
               {/* A tab shows its panel open; collapsed() folds it only outside a tab. */}
-              <RelationPanel parent={parent} field={{ ...field, collapsed: false }} />
+              <RelationPanel parent={parent} field={{ ...field, collapsed: false }} tab={{ actions: index === active ? actions : null }} />
             </Suspense>
           ) : null}
         </div>
       ))}
-    </div>
+    </Card>
   );
 }

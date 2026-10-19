@@ -30,6 +30,15 @@ describe('history card', () => {
     expect(screen.getByRole('heading', { name: 'History' })).toBeDefined();
   });
 
+  it('marks each event with the icon of its kind', async () => {
+    answer([event(2, 'Changed Status', '2026-10-17T21:00:00Z'), { ...event(1, 'Created', '2026-10-17T09:00:00Z'), type: 'create' }]);
+
+    render(<HistoryCard uriKey="orders" id={12} onShowAll={() => {}} />);
+
+    const items = await screen.findAllByRole('listitem');
+    expect(items.map((item) => item.querySelector('svg')?.getAttribute('class'))).toEqual(['lucide lucide-pencil size-3', 'lucide lucide-plus size-3']);
+  });
+
   it('says "No changes yet" for a record with no events', async () => {
     answer([]);
 

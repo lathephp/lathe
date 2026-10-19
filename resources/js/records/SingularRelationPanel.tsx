@@ -29,16 +29,18 @@ export function SingularRelationPanel({ field }: { field: DetailFieldData }) {
       : null;
 
   return (
-    <section aria-label={field.label} className="space-y-2">
-      <h2 className="text-base font-semibold">{field.label}</h2>
-      <Card className="flex items-center justify-between gap-4 px-4 py-3 text-sm">
+    <Card role="region" aria-label={field.label}>
+      <header className="border-b border-border px-5 py-3.5">
+        <h2 className="text-base font-semibold">{field.label}</h2>
+      </header>
+      <div className="flex items-center justify-between gap-4 px-5 py-4 text-sm">
         {record === null ? (
           <>
             <span className="text-muted-foreground">{__('No :resource yet', { resource: label })}</span>
             {field.canAdd === true && createHref !== null ? (
               <Link
                 href={createHref}
-                className="inline-flex h-9 items-center rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground"
+                className="lathe-button lathe-button-default lathe-button-size-default"
               >
                 {__('Create :resource', { resource: label })}
               </Link>
@@ -51,7 +53,7 @@ export function SingularRelationPanel({ field }: { field: DetailFieldData }) {
             {record.title}
           </Link>
         )}
-      </Card>
-    </section>
+      </div>
+    </Card>
   );
 }

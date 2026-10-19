@@ -1,8 +1,9 @@
 import { Link, router } from '@inertiajs/react';
 import { ApiError, QueryClientProvider, queryClient, request, toast, useLathe, useQuery, useTranslation } from '@lathephp/core';
 import { Button, Card } from '@lathephp/ui';
-import { ArrowDown, ArrowUp, ChevronDown, ListFilter } from 'lucide-react';
+import { ArrowDown, ArrowUp, ChevronDown, ListFilter, Plus } from 'lucide-react';
 import { lazy, Suspense, useId, useState, type MouseEvent } from 'react';
+import { createPortal } from 'react-dom';
 import type { RelationFieldSchema } from '../fields/types';
 import { FilterPanel } from '../index/FilterPanel';
 import { countText } from '../index/IndexFooter';
@@ -37,22 +38,28 @@ interface RelationPanelProps {
   /** The record whose detail page holds the panel. */
   parent: { uriKey: string; id: string | number };
   field: RelationFieldSchema;
+  /**
+   * Set when the panel fills a tab of the detail page's main card: the card draws the frame, the
+   * tab names the panel, and the panel's buttons go into `actions` at the end of the tab row
+   * (null while the tab is not the open one).
+   */
+  tab?: { actions: HTMLElement | null };
 }
 
 /**
  * A relation field's rows on a detail page, read from the sub-resource endpoint. Search, sort,
  * filters and paging change only the request, never the page. A folded panel loads nothing.
  */
-export function RelationPanel({ parent, field }: RelationPanelProps) {
+export function RelationPanel({ parent, field, tab }: RelationPanelProps) {
   const [open, setOpen] = useState(!field.collapsed);
   const bodyId = useId();
 
   return (
     // The panel reads through the shared client even where no provider wraps the page.
     <QueryClientProvider client={queryClient}>
-      <section aria-label={field.label} className="space-y-2">
+      <section aria-label={field.label} className={tab === undefined ? 'space-y-2' : undefined}>
         {open ? (
-          <PanelBody parent={parent} field={field} bodyId={bodyId} onToggle={setOpen} />
+          <PanelBody parent={parent} field={field} bodyId={bodyId} onToggle={setOpen} tab={tab} />
         ) : (
           <>
             <Heading field={field} open={false} bodyId={bodyId} count={null} onToggle={setOpen} />
@@ -90,7 +97,7 @@ function Heading({ field, open, bodyId, count, onToggle }: { field: RelationFiel
   );
 }
 
-function PanelBody({ parent, field, bodyId, onToggle }: RelationPanelProps & { bodyId: string; onToggle: (open: boolean) => void }) {
+function PanelBody({ parent, field, bodyId, onToggle, tab }: RelationPanelProps & { bodyId: string; onToggle: (open: boolean) => void }) {
   const { __ } = useTranslation();
   const { basePath, apiPath } = useLathe();
   const [state, setState] = useState<IndexUrlState>({});
@@ -161,28 +168,50 @@ function PanelBody({ parent, field, bodyId, onToggle }: RelationPanelProps & { b
   const create = (
     <Link
       href={createHref}
-      className="inline-flex h-9 items-center rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground outline-none hover:bg-primary/90 focus-visible:ring-2 focus-visible:ring-ring"
+      className={
+        tab === undefined
+          ? 'inline-flex h-9 items-center rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground outline-none hover:bg-primary/90 focus-visible:ring-2 focus-visible:ring-ring'
+          : 'inline-flex h-7 items-center gap-1 rounded-md border border-border bg-card px-2.5 text-[13px] font-medium outline-none hover:bg-accent focus-visible:ring-2 focus-visible:ring-focus'
+      }
     >
+      {tab === undefined ? null : <Plus aria-hidden="true" className="size-3.5" />}
       {__('Create')}
     </Link>
   );
+  const buttons = (
+    <>
+      {canCreate && !(empty && !filtered) ? create : null}
+      {canAttach ? (
+        <Button
+          size={tab === undefined ? 'default' : 'sm'}
+          onClick={() => {
+            setAttaching(true);
+          }}
+        >
+          {__('Attach')}
+        </Button>
+      ) : null}
+    </>
+  );
+  // Inside a tab the card and the tab row frame the table; the heading stays for screen readers.
+  const Frame = tab === undefined ? Card : 'div';
 
   return (
     <>
-      <div className="flex flex-wrap items-center justify-between gap-2">
-        <Heading field={field} open bodyId={bodyId} count={count} onToggle={onToggle} />
-        {canCreate && !(empty && !filtered) ? create : null}
-        {canAttach ? (
-          <Button
-            onClick={() => {
-              setAttaching(true);
-            }}
-          >
-            {__('Attach')}
-          </Button>
-        ) : null}
-      </div>
-      <Card id={bodyId} className="overflow-hidden">
+      {tab === undefined ? (
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <Heading field={field} open bodyId={bodyId} count={count} onToggle={onToggle} />
+          {buttons}
+        </div>
+      ) : (
+        <>
+          <div className="sr-only">
+            <Heading field={{ ...field, collapsible: false }} open bodyId={bodyId} count={count} onToggle={onToggle} />
+          </div>
+          {tab.actions === null ? null : createPortal(buttons, tab.actions)}
+        </>
+      )}
+      <Frame id={bodyId} className="overflow-hidden">
         {(data?.searchable === true || available.length > 0 || (data?.pivotActions?.length ?? 0) > 0) && (
           <div className="flex flex-wrap items-center gap-2 border-b border-border p-3">
             {data?.searchable === true && (
@@ -240,9 +269,9 @@ function PanelBody({ parent, field, bodyId, onToggle }: RelationPanelProps & { b
           </div>
         ) : (
           <div className="relative overflow-x-auto" role="region" aria-label={__(':resource table', { resource: field.label })} tabIndex={0}>
-            <table className="w-full text-sm">
+            <table className="w-full text-sm [&_tr>*:first-child]:ps-5 [&_tr>*:last-child]:pe-5">
               <thead>
-                <tr className="h-10 border-b border-border text-start text-muted-foreground">
+                <tr className="h-10 border-b border-border bg-muted text-start text-[11px] font-semibold tracking-[0.04em] text-muted-foreground uppercase">
                   <th scope="col" className="w-10 px-3">
                     <input
                       type="checkbox"
@@ -264,11 +293,11 @@ function PanelBody({ parent, field, bodyId, onToggle }: RelationPanelProps & { b
                     const sorted = sortable ? direction(state.sort, column.sortKey) : 'none';
 
                     return (
-                      <th key={column.key} scope="col" aria-sort={sortable ? sorted : undefined} className={cn('px-3 font-medium whitespace-nowrap', alignClass(column))}>
+                      <th key={column.key} scope="col" aria-sort={sortable ? sorted : undefined} className={cn('px-3 whitespace-nowrap', alignClass(column))}>
                         {sortable ? (
                           <button
                             type="button"
-                            className="-mx-1 inline-flex items-center gap-1 rounded px-1 font-medium outline-none hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring"
+                            className="-mx-1 inline-flex items-center gap-1 rounded px-1 uppercase outline-none hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring"
                             onClick={() => {
                               change({ sort: nextSort(state.sort, column.sortKey, false) });
                             }}
@@ -294,7 +323,7 @@ function PanelBody({ parent, field, bodyId, onToggle }: RelationPanelProps & { b
                 {rows.map((row) => (
                   <tr
                     key={row.id}
-                    className="h-10 cursor-pointer border-b border-border last:border-0 hover:bg-muted/50"
+                    className="h-12 cursor-pointer border-b border-border last:border-0 hover:bg-muted/50"
                     onClick={(event) => {
                       clickRow(event, row);
                     }}
@@ -378,7 +407,7 @@ function PanelBody({ parent, field, bodyId, onToggle }: RelationPanelProps & { b
             />
           </div>
         )}
-      </Card>
+      </Frame>
       {attaching ? (
         <AttachRelationModal
           parent={parent}

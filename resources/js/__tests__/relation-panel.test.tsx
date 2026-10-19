@@ -269,6 +269,22 @@ describe('relation panel', () => {
     expect(listCalls(fetch)).toEqual(['/lathe/api/resources/orders/12/items']);
   });
 
+  it('draws its tab row and table in one card, with Create at the end of the tab row', async () => {
+    answer();
+    renderDetail([relationBlock()]);
+    await screen.findByText('Autem blanditiis');
+
+    const tabRow = screen.getByRole('tablist').parentElement as HTMLElement;
+    const card = tabRow.parentElement as HTMLElement;
+
+    await waitFor(() => {
+      expect(within(tabRow).getByRole('link', { name: 'Create' }).getAttribute('href')).toBe('/lathe/resources/order-items/new?via=orders/12/items');
+    });
+    expect(within(tabRow).queryByRole('region', { name: 'Items table' })).toBeNull();
+    expect(within(card).getByRole('region', { name: 'Items table' })).toBeTruthy();
+    expect(screen.getAllByRole('link', { name: 'Create' })).toHaveLength(1);
+  });
+
   it('shows the count in the header with withCount', async () => {
     answer();
     renderDetail([relationBlock({ withCount: true })]);
