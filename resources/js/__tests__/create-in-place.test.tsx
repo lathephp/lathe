@@ -165,7 +165,7 @@ describe('creating a related record from the picker', () => {
     render(<OrderForm onChange={onChange} />);
 
     const dialog = await openSheet();
-    fireEvent.click(within(dialog).getByRole('button', { name: 'Create' }));
+    fireEvent.click(within(dialog).getByRole('button', { name: 'Create customer' }));
 
     await waitFor(() => {
       expect(screen.queryByRole('dialog')).toBeNull();
@@ -204,7 +204,7 @@ describe('creating a related record from the picker', () => {
     render(<OrderForm onChange={onChange} />);
 
     const dialog = await openSheet();
-    fireEvent.click(within(dialog).getByRole('button', { name: 'Create' }));
+    fireEvent.click(within(dialog).getByRole('button', { name: 'Create customer' }));
 
     expect(await within(dialog).findByText('The email has already been taken.')).toBeDefined();
     expect(screen.getByRole('dialog', { name: 'Create customer' })).toBe(dialog);
