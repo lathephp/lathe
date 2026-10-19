@@ -146,7 +146,15 @@ function Panel({ panel, renderField, borderless, detail }: RecordLayoutProps & {
   return (
     <section aria-label={panel.name} className="space-y-2">
       {panel.help === null ? null : <SafeHtml html={panel.help} className="text-sm text-muted-foreground" />}
-      <Card id={bodyId} className={cn('divide-y divide-border', (borderless === true || panel.borderless) && 'divide-y-0')}>
+      <Card
+        id={bodyId}
+        className={cn(
+          'divide-y divide-border',
+          (borderless === true || panel.borderless) && 'divide-y-0',
+          // A phone draws a form's fields straight on the page, as the phone form board does.
+          detail !== true && 'max-md:divide-y-0 max-md:rounded-none max-md:border-0 max-md:bg-transparent max-md:shadow-none max-md:[&>*]:px-0 max-md:[&>header]:pt-0 max-md:[&>header]:pb-3',
+        )}
+      >
         {heading === null ? null : <header className="flex items-center justify-between px-5 py-4">{heading}</header>}
         {detail === true ? (
           <div id={fieldsId} hidden={!open} className={cn('divide-y divide-border', (borderless === true || panel.borderless) && 'divide-y-0')}>
@@ -156,7 +164,7 @@ function Panel({ panel, renderField, borderless, detail }: RecordLayoutProps & {
           </div>
         ) : (
           // A form lays its fields in one column below 1024 px and two from there; each row is a grid item.
-          <div id={fieldsId} hidden={!open} className="grid gap-x-5 gap-y-4 p-5 lg:grid-cols-2">
+          <div id={fieldsId} hidden={!open} className="grid gap-x-5 gap-y-4 p-5 max-md:py-0 lg:grid-cols-2">
             {keys.map((key, index) => (
               <Fragment key={key}>{renderField(key, index === 0)}</Fragment>
             ))}
