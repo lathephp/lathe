@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
+use Lathe\Doctor\Doctor;
 
 function migrateLathe(): void
 {
@@ -161,3 +162,15 @@ it('works with an integer, UUID, ULID or string user key', function (string $key
     'ulid key' => ['ulid', fn () => (string) Str::ulid()],
     'string key' => ['string', fn () => 'ada-lovelace'],
 ]);
+
+it('has lathe:doctor check every table the migrations create', function () {
+    $created = [];
+
+    foreach (glob(dirname(__DIR__, 3).'/database/migrations/*.php') ?: [] as $migration) {
+        preg_match_all("/Schema::create\\('([^']+)'/", (string) file_get_contents($migration), $tables);
+        array_push($created, ...$tables[1]);
+    }
+
+    expect($created)->not->toBeEmpty()
+        ->and(Doctor::TABLES)->toEqualCanonicalizing($created);
+});

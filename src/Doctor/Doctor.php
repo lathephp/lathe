@@ -51,6 +51,7 @@ class Doctor
     public const array TABLES = [
         'lathe_pending_uploads', 'lathe_action_events', 'lathe_bulk_runs', 'lathe_saved_tabs', 'notifications',
         'lathe_exports', 'lathe_imports', 'lathe_failed_import_rows', 'lathe_field_attachments', 'lathe_plugin_settings',
+        'lathe_user_preferences',
     ];
 
     /**

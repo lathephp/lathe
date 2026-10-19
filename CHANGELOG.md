@@ -61,6 +61,7 @@ All notable changes to Lathe are listed here. The format follows [Keep a Changel
 
 ### Fixed
 
+- `lathe:doctor` checks the `lathe_user_preferences` table, so an app that updated without running `php artisan migrate` gets a FAIL there instead of 0 FAIL and a broken index.
 - On a phone, the open menu has a Close menu button and closes on Escape, and the user menu closes on a click outside it.
 - A record's breadcrumb names it by its title instead of `#id`; the id stays only when the title is empty.
 - When a queued bulk action, delete or restore ends, the index it ran on reloads its rows in place.

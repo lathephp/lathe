@@ -169,7 +169,7 @@ it('skips every table check when the database is unreachable', function () {
     [$code, $lines] = doctor();
 
     expect($code)->toBe(1)
-        ->and(array_filter($lines, fn ($line) => str_starts_with($line, 'SKIP Table ')))->toHaveCount(10);
+        ->and(array_filter($lines, fn ($line) => str_starts_with($line, 'SKIP Table ')))->toHaveCount(11);
 });
 
 it('fails on a plugin requirement, a missing range and a range that misses the installed version', function () {
