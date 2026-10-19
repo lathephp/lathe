@@ -29,6 +29,12 @@ export const ChevronDownIcon = icon(<path d="m6 9 6 6 6-6" />);
 export const ChevronLeftIcon = icon(<path d="m15 18-6-6 6-6" />);
 export const ChevronRightIcon = icon(<path d="m9 18 6-6-6-6" />);
 export const ChevronUpIcon = icon(<path d="m18 15-6-6-6 6" />);
+export const ChevronsUpDownIcon = icon(
+  <>
+    <path d="m7 15 5 5 5-5" />
+    <path d="m7 9 5-5 5 5" />
+  </>,
+);
 export const CircleCheckIcon = icon(
   <>
     <circle cx="12" cy="12" r="10" />

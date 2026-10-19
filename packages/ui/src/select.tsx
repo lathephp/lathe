@@ -2,7 +2,7 @@ import * as React from 'react';
 import { Select as SelectPrimitive } from '@base-ui/react/select';
 import { cn } from './lib/utils';
 
-import { CheckIcon, ChevronDownIcon, ChevronUpIcon } from './lib/icons';
+import { CheckIcon, ChevronDownIcon, ChevronsUpDownIcon, ChevronUpIcon } from './lib/icons';
 
 const Select = SelectPrimitive.Root;
 
@@ -33,7 +33,7 @@ function SelectTrigger({
       {...props}
     >
       {children}
-      <SelectPrimitive.Icon render={<ChevronDownIcon className="cn-select-trigger-icon pointer-events-none" />} />
+      <SelectPrimitive.Icon render={<ChevronsUpDownIcon strokeWidth={1.75} className="cn-select-trigger-icon pointer-events-none" />} />
     </SelectPrimitive.Trigger>
   );
 }

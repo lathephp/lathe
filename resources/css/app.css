@@ -22,6 +22,27 @@
 
 @theme {
   --font-sans: "Inter Variable", ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+  /* A skeleton's light sweeps across it; a bar of unknown length slides along its track. */
+  --animate-lathe-shimmer: lathe-shimmer 1.6s ease-in-out infinite;
+  --animate-lathe-indeterminate: lathe-indeterminate 1.4s ease-in-out infinite;
+
+  @keyframes lathe-shimmer {
+    from {
+      background-position: 100% 0;
+    }
+    to {
+      background-position: -100% 0;
+    }
+  }
+
+  @keyframes lathe-indeterminate {
+    from {
+      transform: translateX(-100%);
+    }
+    to {
+      transform: translateX(250%);
+    }
+  }
 }
 
 /* dark: utilities follow the dark class on <html>. The styles use not-dark:,
@@ -309,6 +330,39 @@
   body {
     background-color: var(--color-background);
     color: var(--color-foreground);
+  }
+}
+
+/* The panel's first-paint Button (components/ui/Button.tsx): the kit's nova button looks, kept
+   here so its first-load script carries only the class names. They sit below the utilities, so
+   a className on the button still wins. */
+@layer components {
+  .lathe-button {
+    @apply inline-flex shrink-0 items-center justify-center rounded-md border border-transparent font-medium whitespace-nowrap outline-none focus-visible:ring-2 focus-visible:ring-focus focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:pointer-events-none disabled:opacity-50;
+  }
+
+  .lathe-button-default {
+    @apply bg-primary text-primary-foreground shadow-xs hover:brightness-92 active:shadow-[inset_0_1px_2px_#0000003d] active:brightness-85;
+  }
+
+  .lathe-button-outline {
+    @apply border-border bg-card shadow-xs hover:bg-accent hover:text-accent-foreground active:bg-muted active:shadow-[inset_0_1px_2px_#0000001f];
+  }
+
+  .lathe-button-ghost {
+    @apply hover:bg-accent hover:text-accent-foreground active:bg-muted;
+  }
+
+  .lathe-button-size-default {
+    @apply h-[34px] gap-1.5 px-3 text-sm leading-5;
+  }
+
+  .lathe-button-size-sm {
+    @apply h-7 gap-1 px-2.5 text-[13px] leading-[18px];
+  }
+
+  .lathe-button-size-icon {
+    @apply size-[34px];
   }
 }
 

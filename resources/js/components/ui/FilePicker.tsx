@@ -35,7 +35,7 @@ export function FilePicker({ accept, onPick, children, variant = 'outline', size
         input.click();
       }}
     >
-      <Upload aria-hidden="true" className="size-4" />
+      <Upload aria-hidden="true" strokeWidth={1.75} className="size-4" />
       {children}
     </Button>
   );

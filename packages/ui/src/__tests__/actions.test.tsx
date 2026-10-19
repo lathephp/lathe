@@ -67,6 +67,18 @@ describe('Badge, Kbd and Spinner', () => {
     expect(screen.getByRole('link', { name: 'New' }).getAttribute('href')).toBe('/lathe/tags/new');
   });
 
+  it('draws a status badge and a solid destructive button for confirm dialogs', () => {
+    render(
+      <>
+        <Badge variant="warning">Pending</Badge>
+        <Button variant="destructive-solid">Delete order</Button>
+      </>,
+    );
+
+    expect(screen.getByText('Pending').className).toContain('cn-badge-variant-warning');
+    expect(screen.getByRole('button', { name: 'Delete order' }).className).toContain('cn-button-variant-destructive-solid');
+  });
+
   it('render keys and a labelled spinner', () => {
     render(
       <>

@@ -5,5 +5,5 @@ import type { ComponentProps } from 'react';
 export type CardProps = ComponentProps<'div'>;
 
 export function Card({ className, ...props }: CardProps) {
-  return <div className={['rounded-lg border border-border bg-background', className].join(' ')} {...props} />;
+  return <div className={['rounded-lg border border-border bg-card text-card-foreground shadow-sm', className].join(' ')} {...props} />;
 }

@@ -13,6 +13,7 @@ const buttonVariants = cva(
         secondary: 'cn-button-variant-secondary',
         ghost: 'cn-button-variant-ghost',
         destructive: 'cn-button-variant-destructive',
+        'destructive-solid': 'cn-button-variant-destructive-solid',
         link: 'cn-button-variant-link',
       },
       size: {

@@ -4,7 +4,7 @@ import { cn } from './lib/utils';
 
 import { Button } from './button';
 import { InputGroup, InputGroupAddon, InputGroupButton, InputGroupInput } from './input-group';
-import { CheckIcon, ChevronDownIcon, XIcon } from './lib/icons';
+import { CheckIcon, ChevronsUpDownIcon, XIcon } from './lib/icons';
 
 const Combobox = ComboboxPrimitive.Root;
 
@@ -16,7 +16,7 @@ function ComboboxTrigger({ className, children, ...props }: ComboboxPrimitive.Tr
   return (
     <ComboboxPrimitive.Trigger data-slot="combobox-trigger" className={cn('cn-combobox-trigger', className)} {...props}>
       {children}
-      <ChevronDownIcon className="cn-combobox-trigger-icon pointer-events-none" />
+      <ChevronsUpDownIcon strokeWidth={1.75} className="cn-combobox-trigger-icon pointer-events-none" />
     </ComboboxPrimitive.Trigger>
   );
 }

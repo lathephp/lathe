@@ -1,4 +1,4 @@
-import { ChevronDown } from 'lucide-react';
+import { ChevronsUpDown } from 'lucide-react';
 import { Suspense, useState, type KeyboardEvent, type ReactNode } from 'react';
 import { cn } from '../../lib/cn';
 import { lazyNamed } from '../../lib/lazy';
@@ -152,7 +152,7 @@ function SelectTrigger(props: TriggerProps) {
       <span data-slot="select-value" {...(label === undefined ? { 'data-placeholder': '' } : {})}>
         {content}
       </span>
-      <ChevronDown aria-hidden="true" className="cn-select-trigger-icon pointer-events-none" />
+      <ChevronsUpDown aria-hidden="true" strokeWidth={1.75} className="cn-select-trigger-icon pointer-events-none" />
     </button>
   );
 }
