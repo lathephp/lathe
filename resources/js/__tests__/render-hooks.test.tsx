@@ -121,7 +121,7 @@ describe('render hooks on resource pages', () => {
     renderDetail();
 
     await shows('detail:header-actions', 'orders #12');
-    expect(hook('detail:header-actions')?.closest('header')).not.toBeNull();
+    expect(hook('detail:header-actions')?.closest('[data-lathe-header]')).not.toBeNull();
   });
 
   it('renders auth:after-form under the sign-in form', async () => {

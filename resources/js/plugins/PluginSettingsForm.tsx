@@ -1,6 +1,7 @@
 import { ApiError, request, toast, useLathe, useTranslation } from '@lathephp/core';
 import { useEffect, useState } from 'react';
 import type { FieldSchema, LayoutBlock } from '../fields/types';
+import { PageHeader } from '../layout/PageHeader';
 import { FormRow } from '../records/FormFields';
 import { RecordLayout } from '../records/RecordLayout';
 import { firstErrors } from '../records/useRecordForm';
@@ -62,7 +63,7 @@ export default function PluginSettingsForm({ pluginKey, title }: PluginSettingsF
 
   return (
     <div className="space-y-6">
-      <h1 className="text-xl font-semibold">{__(':plugin settings', { plugin: title })}</h1>
+      <PageHeader title={__(':plugin settings', { plugin: title })} />
       {payload === null ? (
         <div aria-hidden="true" className="h-64 rounded-xl bg-muted" />
       ) : (

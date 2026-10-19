@@ -6,7 +6,7 @@ const palette =
 // file:line entries that keep a palette colour on purpose, each with its reason.
 const allowed: Record<string, string> = {
   // A QR code must stay dark on white to scan, in either theme.
-  'pages/Security.tsx:158': 'QR code ground',
+  'pages/Security.tsx:159': 'QR code ground',
   // The label sits on bars filled with server-chosen or series colours, so no one token reads on all of them.
   'widgets/charts/RadialCard.tsx:102': 'label over series fills',
 };

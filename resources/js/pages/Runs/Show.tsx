@@ -3,6 +3,7 @@ import { formatNumber, request, toast, useLathe, useTranslation } from '@latheph
 import { Button, Card } from '@lathephp/ui';
 import { useEffect, useState } from 'react';
 import { RUN_POLL_MS, type ExportStatus, type ImportStatus } from '../../actions/RunToasts';
+import { PageHeader } from '../../layout/PageHeader';
 
 interface RunPageProps {
   type: 'export' | 'import';
@@ -69,7 +70,7 @@ export default function Show({ type, id }: RunPageProps) {
   return (
     <div className="space-y-6">
       <Head title={title} />
-      <h1 className="text-2xl font-semibold">{title}</h1>
+      <PageHeader title={title} />
       <Card className="space-y-3 p-4 text-sm">
         {status === null ? (
           <p className="text-muted-foreground">{__('Loading')}</p>

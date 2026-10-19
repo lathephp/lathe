@@ -2,17 +2,17 @@ import { Head, Link, router, usePage } from '@inertiajs/react';
 import { useTranslation } from '@lathephp/core';
 import { useEffect, useRef } from 'react';
 import type { FormProps } from '../../fields/types';
-import { Breadcrumbs } from '../../records/Breadcrumbs';
 import { ConflictDialog } from '../../records/ConflictDialog';
 import { ErrorSummary } from '../../records/ErrorSummary';
 import { FormFields } from '../../records/FormFields';
 import { ReauthModal } from '../../records/ReauthModal';
 import { useLeaveGuard } from '../../records/useLeaveGuard';
 import { useRecordForm, type SubmitIntent } from '../../records/useRecordForm';
+import { PageHeader } from '../../layout/PageHeader';
 import type { SharedProps } from '../../types';
 
 /** The create and edit form of a Resource. */
-export default function Form({ resource, mode, id, title, breadcrumbs, form, submitLabel }: FormProps) {
+export default function Form({ resource, mode, id, title, form, submitLabel }: FormProps) {
   const { __ } = useTranslation();
   const page = usePage<SharedProps>();
   const { basePath, auth } = page.props;
@@ -51,9 +51,8 @@ export default function Form({ resource, mode, id, title, breadcrumbs, form, sub
   return (
     <div>
       <Head title={title} />
-      <div className="mx-auto w-full max-w-[880px] space-y-6">
-        <Breadcrumbs items={breadcrumbs} />
-        <h1 className="text-xl font-semibold">{title}</h1>
+      <div className="mx-auto w-full max-w-[880px]">
+        <PageHeader title={title} />
       </div>
       <form
         ref={formRef}

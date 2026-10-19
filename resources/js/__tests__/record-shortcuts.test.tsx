@@ -1,6 +1,6 @@
 import { router } from '@inertiajs/react';
 import { __panel, pauseShortcuts, resumeShortcuts } from '@lathephp/core';
-import { fireEvent, screen } from '@testing-library/react';
+import { fireEvent, screen, within } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { renderPage } from './support';
 
@@ -40,10 +40,11 @@ describe('c and e', () => {
     const visit = vi.spyOn(router, 'visit').mockImplementation(() => undefined);
     const { unmount } = renderIndex(true, 3);
 
-    const create = screen.getByRole('link', { name: /Create Order/ });
+    // The page header's button; the phone's top bar repeats it as an icon.
+    const header = screen.getByRole('heading', { level: 1 }).closest('[data-lathe-header]') as HTMLElement;
+    const create = within(header).getByRole('link', { name: 'Create order' });
     expect(create.getAttribute('href')).toBe('/lathe/resources/orders/new');
     expect(create.getAttribute('aria-keyshortcuts')).toBe('c');
-    expect(create.querySelector('kbd')?.textContent).toBe('C');
 
     fireEvent.keyDown(document.body, { key: 'c' });
     expect(visit).toHaveBeenCalledWith('/lathe/resources/orders/new');
@@ -51,7 +52,7 @@ describe('c and e', () => {
     unmount();
     visit.mockClear();
     renderIndex(false, 3);
-    expect(screen.queryByRole('link', { name: /Create Order/ })).toBeNull();
+    expect(screen.queryByRole('link', { name: 'Create order' })).toBeNull();
     fireEvent.keyDown(document.body, { key: 'c' });
     expect(visit).not.toHaveBeenCalled();
   });

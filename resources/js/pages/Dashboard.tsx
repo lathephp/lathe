@@ -9,6 +9,7 @@ import { Card } from '../components/ui/Card';
 import { AddPanel, CustomizeHeader, EditCardHeader, preloadCustomize } from '../widgets/customize/lazy';
 import type { LayoutDraft, WidgetDescriptor, WidgetValue } from '../widgets/types';
 import { WidgetGrid } from '../widgets/WidgetGrid';
+import { PageHeader } from '../layout/PageHeader';
 
 export interface DashboardPayload {
   uriKey: string;
@@ -94,46 +95,48 @@ function DashboardPage({ dashboard, widgets, hiddenWidgets = [] }: DashboardProp
   return (
     <div className="space-y-6">
       <Head title={dashboard.name} />
-      <div className="flex flex-wrap items-center gap-x-3 gap-y-3">
-        <div className={cn('min-w-0', draft === null && 'flex-1')}>
-          <h1 className="text-2xl font-semibold">{dashboard.name}</h1>
-          {dashboard.description !== null && <p className="text-sm text-muted-foreground">{dashboard.description}</p>}
-        </div>
-        {draft !== null && (
-          <Suspense fallback={null}>
-            <CustomizeHeader
-              uriKey={dashboard.uriKey}
-              draft={draft}
-              onDone={() => {
-                setDraft(null);
-              }}
-            />
-          </Suspense>
-        )}
-        {draft === null && widgets.length > 0 && (
+      <PageHeader
+        title={dashboard.name}
+        subtitle={dashboard.description !== null && <p className="lathe-page-subtitle">{dashboard.description}</p>}
+        actions={
           <>
-            {dashboard.ranges.length > 0 && <RangePicker ranges={dashboard.ranges} value={range} onPick={pick} />}
-            <UpdatedAgo at={updatedAt} />
-            <Button variant="outline" size="icon" aria-label={__('Refresh')} onClick={refresh}>
-              <RefreshCw aria-hidden="true" className="size-4" />
-            </Button>
+            {draft !== null && (
+              <Suspense fallback={null}>
+                <CustomizeHeader
+                  uriKey={dashboard.uriKey}
+                  draft={draft}
+                  onDone={() => {
+                    setDraft(null);
+                  }}
+                />
+              </Suspense>
+            )}
+            {draft === null && widgets.length > 0 && (
+              <>
+                <UpdatedAgo at={updatedAt} />
+                <Button variant="outline" size="icon" aria-label={__('Refresh')} onClick={refresh}>
+                  <RefreshCw aria-hidden="true" className="size-4" />
+                </Button>
+                {dashboard.ranges.length > 0 && <RangePicker ranges={dashboard.ranges} value={range} onPick={pick} />}
+              </>
+            )}
+            {/* A user who hid every card still has a saved layout, and Customize to undo it. */}
+            {draft === null && dashboard.customizable && (widgets.length > 0 || hiddenWidgets.length > 0 || dashboard.customized) && (
+              <Button
+                variant="outline"
+                onPointerEnter={() => {
+                  void preloadCustomize();
+                }}
+                onClick={() => {
+                  void customize();
+                }}
+              >
+                {__('Customize')}
+              </Button>
+            )}
           </>
-        )}
-        {/* A user who hid every card still has a saved layout, and Customize to undo it. */}
-        {draft === null && dashboard.customizable && (widgets.length > 0 || hiddenWidgets.length > 0 || dashboard.customized) && (
-          <Button
-            variant="outline"
-            onPointerEnter={() => {
-              void preloadCustomize();
-            }}
-            onClick={() => {
-              void customize();
-            }}
-          >
-            {__('Customize')}
-          </Button>
-        )}
-      </div>
+        }
+      />
       {(shown.length > 0 || draft !== null) && (
         // One wrapper in both modes, so the grid keeps its cards, and their values, on entering Customize.
         <div className="flex flex-col gap-5 xl:flex-row xl:items-start">
@@ -214,7 +217,7 @@ function RangePicker({ ranges, value, onPick }: { ranges: RangeOption[]; value: 
     <div
       role="radiogroup"
       aria-label={__('Range')}
-      className="order-last grid basis-full auto-cols-fr grid-flow-col gap-0.5 rounded-lg border bg-muted p-0.5 md:order-none md:inline-grid md:basis-auto"
+      className="inline-grid auto-cols-fr grid-flow-col gap-0.5 rounded-lg border bg-muted p-0.5"
     >
       {ranges.map((option, at) => {
         const checked = String(option.value) === value;
@@ -275,7 +278,7 @@ function DashboardSkeleton({ title }: { title: string }) {
     <AfterDelay>
       <Head title={title} />
       <div aria-busy="true" className="space-y-6">
-        <h1 className="text-2xl font-semibold">{title}</h1>
+        <PageHeader title={title} />
         <div aria-hidden="true" className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
           {[0, 1, 2, 3].map((frame) => (
             <Card key={frame} data-skeleton-frame="" className="h-32 p-4">

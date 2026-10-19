@@ -5,6 +5,7 @@ import { useState, type SubmitEvent } from 'react';
 import { FieldError } from '../components/FieldError';
 import { TotpInput } from '../components/TotpInput';
 import { authInputClass } from '../layout/AuthLayout';
+import { PageHeader } from '../layout/PageHeader';
 import type { SharedProps } from '../types';
 
 type TwoFactorState = 'off' | 'pending' | 'on';
@@ -292,7 +293,7 @@ export default function Security({ features, twoFactor }: SecurityProps) {
   return (
     <div className="mx-auto w-full max-w-3xl space-y-6 p-6">
       <Head title={__('Security')} />
-      <h1 className="text-2xl font-semibold">{__('Security')}</h1>
+      <PageHeader title={__('Security')} />
       {features.updatePasswords && <PasswordCard />}
       {features.twoFactorAuthentication && <TwoFactorCard state={twoFactor} />}
     </div>

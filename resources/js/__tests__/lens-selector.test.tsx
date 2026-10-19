@@ -46,9 +46,9 @@ describe('lens tabs', () => {
 
     expect(within(screen.getByRole('navigation', { name: 'Tabs' })).getByRole('link', { name: 'Pending Orders' }).getAttribute('aria-current')).toBe('page');
     expect(screen.getByRole('heading', { level: 1 }).textContent).toBe('Pending Orders');
-    const heading = screen.getByRole('heading', { level: 1 }).parentElement as HTMLElement;
+    const crumbs = within(screen.getByRole('banner')).getByRole('navigation', { name: 'Breadcrumb' });
 
-    expect(within(heading).getByRole('link', { name: 'Orders' }).getAttribute('href')).toBe('/lathe/resources/orders');
+    expect(within(crumbs).getByRole('link', { name: 'Orders' }).getAttribute('href')).toBe('/lathe/resources/orders');
   });
 
   it('draws no lens tab and no view switcher when the Resource has no lenses', () => {

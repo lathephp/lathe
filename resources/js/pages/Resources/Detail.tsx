@@ -4,9 +4,9 @@ import { useShortcut, useTranslation } from '@lathephp/core';
 import { AfterDelay, skeletonBar } from '../../lib/instant';
 import { Card } from '../../components/ui/Card';
 import type { DetailProps } from '../../fields/types';
-import { Breadcrumbs } from '../../records/Breadcrumbs';
 import { DetailHeader } from '../../records/DetailHeader';
 import { RecordColumns } from '../../records/RecordColumns';
+import { PageHeader } from '../../layout/PageHeader';
 import type { SharedProps } from '../../types';
 import type { WidgetDescriptor } from '../../widgets/types';
 
@@ -23,7 +23,7 @@ export default function Detail(props: DetailPageProps | { title: string; record?
   return props.record === undefined ? <RecordSkeleton title={props.title} /> : <DetailPage {...props} />;
 }
 
-function DetailPage({ resource, record, breadcrumbs, actions, widgets = [] }: DetailPageProps) {
+function DetailPage({ resource, record, actions, widgets = [] }: DetailPageProps) {
   const { id, title, abilities } = record;
   const { __ } = useTranslation();
   const { basePath } = usePage<SharedProps>().props;
@@ -40,7 +40,6 @@ function DetailPage({ resource, record, breadcrumbs, actions, widgets = [] }: De
   return (
     <div className="space-y-6">
       <Head title={title} />
-      <Breadcrumbs items={breadcrumbs} />
       <DetailHeader resource={resource} record={record} actions={actions} />
       {record.trashed ? (
         <div role="status" data-lathe-banner className="rounded-md border border-warning bg-warning-subtle px-4 py-3 text-sm font-medium text-warning-subtle-foreground">
@@ -76,11 +75,7 @@ function RecordSkeleton({ title }: { title: string }) {
     <AfterDelay>
       <Head title={title} />
       <div aria-busy="true" className="space-y-6">
-        <div aria-hidden="true" className={`h-4 w-48 ${skeletonBar}`} />
-        <div className="flex items-center gap-3">
-          <h1 className="truncate text-xl font-semibold">{title}</h1>
-          <div aria-hidden="true" className={`ms-auto h-9 w-40 ${skeletonBar}`} />
-        </div>
+        <PageHeader title={title} actions={<div aria-hidden="true" className={`h-[34px] w-40 ${skeletonBar}`} />} />
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
           <div className="min-w-0 space-y-6 lg:col-span-2">
             <div aria-hidden="true" className={`h-9 w-full ${skeletonBar}`} />

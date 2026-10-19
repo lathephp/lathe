@@ -150,7 +150,7 @@ describe('detail page', () => {
     renderPage('Resources/Detail', props);
 
     expect(screen.getByRole('heading', { level: 1 }).textContent).toBe('ORD-00012');
-    expect(screen.getByRole('navigation', { name: 'Breadcrumb' }).textContent).toBe('Dashboard/Orders/#12');
+    expect(Array.from(screen.getByRole('navigation', { name: 'Breadcrumb' }).querySelectorAll('li'), (item) => item.textContent)).toEqual(['Dashboard', 'Orders', '#12']);
     expect(within(screen.getByRole('region', { name: 'Details' })).getByText('paid')).toBeDefined();
     expect(screen.getByRole('link', { name: 'Edit' }).getAttribute('href')).toBe('/lathe/resources/orders/12/edit');
   });
@@ -175,7 +175,7 @@ describe('detail page', () => {
       },
     });
 
-    const header = screen.getByRole('heading', { level: 1 }).closest('header') as HTMLElement;
+    const header = screen.getByRole('heading', { level: 1 }).closest('[data-lathe-header]') as HTMLElement;
     expect(within(header).getByText('Paid')).toBeDefined();
     expect(within(header).getByTestId('record-meta').textContent).toBe('Placed Oct 17, 2026, 23:12');
     expect(within(header).queryByText('unused')).toBeNull();

@@ -1,5 +1,5 @@
-import { Link, router, usePage } from '@inertiajs/react';
-import { shortcutsEnabled, useShortcut, useTranslation } from '@lathephp/core';
+import { router, usePage } from '@inertiajs/react';
+import { useShortcut, useTranslation } from '@lathephp/core';
 import type { ReactNode } from 'react';
 import { Button } from '../components/ui/Button';
 import { Filters } from './Filters';
@@ -14,22 +14,6 @@ import type { SharedProps } from '../types';
 
 /** The card's toolbar row; the selection bar takes the same row, so the header row stays put. A narrow window wraps it to a second line. */
 export const toolbarRow = 'flex min-h-14 flex-wrap items-center gap-2 border-b border-border px-4 py-2';
-
-/** The page title, on a row of its own above the table card. */
-export function IndexHeader({ resource, lens }: Pick<IndexProps, 'resource' | 'lens'>) {
-  const { basePath } = usePage<SharedProps>().props;
-
-  return (
-    <div data-lathe-header="">
-      {lens != null && (
-        <Link href={`${basePath}/resources/${resource.uriKey}`} className="text-sm text-muted-foreground hover:underline">
-          {resource.label}
-        </Link>
-      )}
-      <h1 className="text-2xl font-semibold">{lens?.name ?? resource.label}</h1>
-    </div>
-  );
-}
 
 interface IndexToolbarProps extends Pick<IndexProps, 'resource' | 'lens'> {
   q: string | undefined;
@@ -108,18 +92,6 @@ export function IndexToolbar({ resource, lens, q, visit, polling, selection, cou
           <>
             <Filters visit={visit} />
             {polling !== null && <PollingToggle on={polling.on} onToggle={polling.onToggle} />}
-            {canCreate && (
-              <Link
-                href={`${resourcePath}/new`}
-                aria-keyshortcuts="c"
-                className="inline-flex h-9 items-center gap-2 rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground outline-none hover:bg-primary/90 focus-visible:ring-2 focus-visible:ring-ring"
-              >
-                {__('Create :resource', { resource: resource.singularLabel })}
-                {shortcutsEnabled() && (
-                  <kbd aria-hidden="true" className="text-xs opacity-80 max-md:hidden">{'c'.toUpperCase()}</kbd>
-                )}
-              </Link>
-            )}
           </>
         )}
       </div>

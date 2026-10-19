@@ -1,13 +1,14 @@
-import { Head, usePage } from '@inertiajs/react';
+import { Head, Link, usePage } from '@inertiajs/react';
 import { lazy, Suspense } from 'react';
-import { __panel, emit, useShortcut } from '@lathephp/core';
+import { __panel, emit, useShortcut, useTranslation } from '@lathephp/core';
+import { Plus } from 'lucide-react';
 import { AfterDelay, skeletonBar } from '../../lib/instant';
 import { Card } from '../../components/ui/Card';
 import { EmptyState } from '../../index/EmptyState';
 import { FilterChips } from '../../index/FilterChips';
 import { IndexBanner } from '../../index/IndexBanner';
 import { IndexFooter } from '../../index/IndexFooter';
-import { IndexHeader, IndexToolbar, toolbarRow } from '../../index/IndexToolbar';
+import { IndexToolbar, toolbarRow } from '../../index/IndexToolbar';
 import { useLoadMore } from '../../index/Pagination';
 import { usePolling, usePollingChoice } from '../../index/PollingToggle';
 import { PhoneCards } from '../../index/PhoneCards';
@@ -19,6 +20,7 @@ import { useIndexState } from '../../index/useIndexState';
 import { useRowSelection } from '../../index/useRowSelection';
 import type { IndexSkeletonHint, SharedProps } from '../../types';
 import type { WidgetDescriptor } from '../../widgets/types';
+import { PageHeader } from '../../layout/PageHeader';
 
 // The menus load after the rows, so the action code stays out of the index's first load.
 const ActionBar = lazy(() => import('../../actions/ActionBar').then((module) => ({ default: module.ActionBar })));
@@ -35,7 +37,11 @@ export default function Index(props: IndexPageProps | { title: string; skeleton?
 }
 
 function IndexPage({ resource, table, state, count, error, lens, actions, widgets = [] }: IndexPageProps) {
+  const { __ } = useTranslation();
   const { basePath } = usePage<SharedProps>().props;
+  const createHref = resource.abilities.create && lens == null ? `${basePath}/resources/${resource.uriKey}/new` : null;
+  // Sentence case: a capitalised word lowers its first letter, an acronym such as API keeps its case.
+  const createLabel = __('Create :resource', { resource: resource.singularLabel.replace(/\b[A-Z](?=[a-z])/g, (letter) => letter.toLowerCase()) });
   const index = useIndexState({ perPage: resource.perPageOptions[0] ?? state.perPage });
   const filtered = index.state.q !== undefined || index.state.filter !== undefined;
   const { polling, showPollingToggle } = resource.definition;
@@ -90,10 +96,29 @@ function IndexPage({ resource, table, state, count, error, lens, actions, widget
   );
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-5">
       <Head title={lens?.name ?? resource.label} />
-      <IndexHeader resource={resource} lens={lens} />
-      <RenderHook position="index:header-actions" resource={resource.uriKey} className="flex flex-wrap justify-end gap-2" />
+      <PageHeader
+        title={lens?.name ?? resource.label}
+        actions={
+          <>
+            <RenderHook position="index:header-actions" resource={resource.uriKey} className="flex gap-2" />
+            {createHref !== null && (
+              <Link href={createHref} aria-keyshortcuts="c" className="lathe-button lathe-button-default lathe-button-size-default ps-2.5 max-md:hidden">
+                <Plus aria-hidden="true" className="size-4" />
+                {createLabel}
+              </Link>
+            )}
+          </>
+        }
+        phoneAction={
+          createHref !== null && (
+            <Link href={createHref} aria-label={createLabel} className="lathe-button lathe-button-default lathe-page-bar-action">
+              <Plus aria-hidden="true" className="size-4" />
+            </Link>
+          )
+        }
+      />
       {widgets.length > 0 && (
         <Suspense fallback={<div aria-hidden="true" className="min-h-40" />}>
           <ResourceWidgets widgets={widgets} path={lens == null ? `resources/${resource.uriKey}` : `resources/${resource.uriKey}/lenses/${lens.uriKey}`} />
@@ -123,7 +148,7 @@ function IndexPage({ resource, table, state, count, error, lens, actions, widget
           <EmptyState
             label={resource.label}
             filtered={filtered}
-            createHref={resource.abilities.create && lens == null ? `${basePath}/resources/${resource.uriKey}/new` : null}
+            createHref={createHref}
             onClear={() => {
               visit({ q: undefined, filter: undefined });
             }}
@@ -172,10 +197,8 @@ function IndexSkeleton({ title, hint }: { title: string; hint?: IndexSkeletonHin
   return (
     <AfterDelay>
       <Head title={title} />
-      <div aria-busy="true" className="space-y-6">
-        <div data-lathe-header="">
-          <h1 className="text-2xl font-semibold">{title}</h1>
-        </div>
+      <div aria-busy="true" className="space-y-5">
+        <PageHeader title={title} />
         <Card aria-hidden="true" data-lathe-card="" className="overflow-hidden">
           {hint?.tabs === true && (
             <div data-skeleton-tabs="" className={tabBand}>

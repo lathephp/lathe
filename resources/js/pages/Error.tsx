@@ -31,7 +31,7 @@ export default function ErrorPage({ status, message, shell }: ErrorProps) {
     <div className="mx-auto max-w-md space-y-4 py-16 text-center">
       <Head title={copy[0]} />
       <p className="text-sm font-medium text-muted-foreground">{status}</p>
-      <h1 className="text-2xl font-semibold">{copy[0]}</h1>
+      <h1 className="text-[22px] leading-7 font-[650] tracking-[-0.01em]">{copy[0]}</h1>
       <p className="text-sm text-muted-foreground">{message ?? copy[1]}</p>
       <div className="flex flex-wrap justify-center gap-2">
         {status === 419 && (

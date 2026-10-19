@@ -6,6 +6,10 @@ import { Button } from '../components/ui/Button';
 import { cn } from '../lib/cn';
 import type { SharedProps } from '../types';
 import { SafeHtml } from '../components/SafeHtml';
+import type { Breadcrumb } from '../fields/types';
+import { Breadcrumbs } from '../records/Breadcrumbs';
+import { navTrail } from './NavSection';
+import { PageBar } from './PageHeader';
 import { Sidebar } from './Sidebar';
 
 // The palette opens on demand, so it loads after first paint.
@@ -22,6 +26,8 @@ const NotificationCenter = lazy(() => import('../notifications/NotificationCente
 
 /** The panel shell: sidebar, header, content and footer around a page. */
 export function AppLayout({ children }: { children: ReactNode }) {
+  'use no memo';
+
   const { __ } = useTranslation();
   const { props, url } = usePage<SharedProps>();
   const { layout, footer } = props;
@@ -36,6 +42,7 @@ export function AppLayout({ children }: { children: ReactNode }) {
   const searchOn = search?.enabled === true;
   const [searching, setSearching] = useState(false);
   const opener = useRef<HTMLButtonElement>(null);
+  const [pageBar, setPageBar] = useState<HTMLElement | null>(null);
 
   function closeSheet() {
     setSheetUrl(null);
@@ -104,13 +111,7 @@ export function AppLayout({ children }: { children: ReactNode }) {
           </Suspense>
         )}
         <Slot name="shell.header">
-          <header
-            data-lathe-header
-            className={cn(
-              'flex h-14 items-center gap-2 border-b border-border bg-background px-4',
-              layout.header.sticky && 'sticky top-0 z-20',
-            )}
-          >
+          <header data-lathe-header className={cn('lathe-topbar', layout.header.sticky && 'sticky top-0 z-20')}>
             <Button
               ref={opener}
               variant="ghost"
@@ -138,11 +139,15 @@ export function AppLayout({ children }: { children: ReactNode }) {
                 <PanelLeft aria-hidden="true" className="size-4 rtl:rotate-180" />
               </Button>
             )}
-            <div className="ms-auto flex items-center gap-2">
+            {/* A page sends its own trail; an index sends none, so the menu says where it sits. */}
+            <Breadcrumbs items={(props as { breadcrumbs?: Breadcrumb[] }).breadcrumbs ?? navTrail(props.navigation, { url, basePath: props.basePath })} />
+            {/* The phone shows the page title and its primary action here; PageHeader puts them in. */}
+            <div ref={setPageBar} className="contents md:hidden" />
+            <div className="lathe-topbar-end">
               {searchOn && layout.header.search && (
-                <Button
-                  variant="outline"
-                  size="sm"
+                <button
+                  type="button"
+                  className="lathe-topbar-search"
                   aria-label={__('Search')}
                   aria-keyshortcuts="Control+K Meta+K"
                   onClick={() => {
@@ -150,15 +155,9 @@ export function AppLayout({ children }: { children: ReactNode }) {
                   }}
                 >
                   <Search aria-hidden="true" className="size-4" />
-                  <span aria-hidden="true" className="font-normal text-muted-foreground max-md:hidden">
-                    {__('Search…')}
-                  </span>
-                  {shortcutsEnabled() && (
-                    <kbd aria-hidden="true" className="text-xs text-muted-foreground max-md:hidden">
-                      {/mac/i.test(navigator.platform) ? '⌘K' : 'Ctrl K'}
-                    </kbd>
-                  )}
-                </Button>
+                  <span aria-hidden="true">{__('Search or jump to…')}</span>
+                  {shortcutsEnabled() && <kbd aria-hidden="true">{/mac/i.test(navigator.platform) ? '⌘K' : 'Ctrl K'}</kbd>}
+                </button>
               )}
               {notifications?.enabled === true && (
                 <Suspense fallback={null}>
@@ -175,9 +174,9 @@ export function AppLayout({ children }: { children: ReactNode }) {
         </Slot>
         <main id="content" data-lathe-content tabIndex={-1} className="flex-1 p-6 outline-none">
           <div className={cn(layout.content.width === 'contained' && 'mx-auto max-w-384')}>
-            <RenderHook position="page:before" className="mb-6 flex flex-wrap gap-2" />
-            {children}
-            <RenderHook position="page:after" className="mt-6 flex flex-wrap gap-2" />
+            <RenderHook position="page:before" className="mb-6 flex flex-wrap gap-2 empty:hidden" />
+            <PageBar value={pageBar}>{children}</PageBar>
+            <RenderHook position="page:after" className="mt-6 flex flex-wrap gap-2 empty:hidden" />
           </div>
         </main>
         {footer === null && <RenderHook position="footer:before" />}
