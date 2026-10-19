@@ -100,7 +100,7 @@ class Order extends Resource
     {
         return Field::select('Status')
             ->options(['pending' => 'Pending', 'paid' => 'Paid', 'shipped' => 'Shipped', 'cancelled' => 'Cancelled'])
-            ->badges(['pending' => 'warning', 'paid' => 'success', 'shipped' => 'info', 'cancelled' => 'neutral'])
+            ->badges(['pending' => 'warning', 'paid' => 'info', 'shipped' => 'success', 'cancelled' => 'neutral'])
             ->inline();
     }
 

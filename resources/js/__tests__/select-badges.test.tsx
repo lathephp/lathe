@@ -52,6 +52,13 @@ describe('select badges', () => {
     expect(badge(paid)?.className).toContain('bg-success-subtle');
   });
 
+  it('marks each status with a dot in its solid colour', () => {
+    const dot = (value: string) => badge(render(<IndexField field={status} cell={{ value, display: value }} />).container)?.querySelector('[data-lathe-badge-dot]')?.className;
+
+    expect(dot('pending')).toContain('bg-warning');
+    expect(dot('cancelled')).toContain('bg-chart-other');
+  });
+
   it('shows the badge on the detail page and plain text without badges()', () => {
     expect(badge(render(<DetailField field={{ ...status, value: 'shipped', display: 'shipped' }} />).container)?.textContent).toBe('Shipped');
     expect(render(<IndexField field={{ ...status, badges: null }} cell={{ value: 'paid', display: 'paid' }} />).container.textContent).toBe('paid');

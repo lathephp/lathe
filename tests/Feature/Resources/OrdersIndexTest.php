@@ -68,7 +68,7 @@ it('draws Placed as a date-time and Status as labelled badges', function () {
     expect($columns['placed_at']['component'])->toBe('date-time-field')
         ->and($columns['status']['component'])->toBe('select-field')
         ->and(array_column($columns['status']['options'], 'label', 'value'))->toBe(['pending' => 'Pending', 'paid' => 'Paid', 'shipped' => 'Shipped', 'cancelled' => 'Cancelled'])
-        ->and($columns['status']['badges'])->toBe(['pending' => 'warning', 'paid' => 'success', 'shipped' => 'info', 'cancelled' => 'neutral']);
+        ->and($columns['status']['badges'])->toBe(['pending' => 'warning', 'paid' => 'info', 'shipped' => 'success', 'cancelled' => 'neutral']);
 });
 
 it('pages by the allowed sizes', function (string $query, int $rows, int $firstId) {

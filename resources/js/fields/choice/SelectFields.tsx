@@ -22,7 +22,11 @@ export function SelectBadge({ field, value }: { field: FieldSchema; value: unkno
 
   const tone = badges[stringValue(value)];
 
-  return <Badge tone={isBadgeTone(tone) ? tone : 'neutral'}>{text}</Badge>;
+  return (
+    <Badge tone={isBadgeTone(tone) ? tone : 'neutral'} dot>
+      {text}
+    </Badge>
+  );
 }
 
 export function SelectIndex({ field, cell }: IndexFieldProps) {
