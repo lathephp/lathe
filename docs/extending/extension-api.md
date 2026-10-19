@@ -128,7 +128,7 @@ function Footer({ slotVersion }: SlotProps) {
 registry.replace('shell.footer', Footer);
 ```
 
-The keys are `shell.header`, `shell.sidebar`, `shell.footer`, `auth.login`, and a kind plus a component key written as `kind:key`. The kinds are `field.index`, `field.detail`, `field.form`, `filter`, `widget` and `action-modal`, for example `field.index:badge-field`. The replacement gets the props of the part it replaces, plus `slotVersion`, a number that changes only in a major release. An unknown key throws in development and logs a warning in production.
+The keys are `shell.header`, `shell.sidebar`, `shell.footer`, `auth.login`, and a kind plus a component key written as `kind:key`. The kinds are `field.index`, `field.detail`, `field.form`, `filter`, `widget` and `action-modal`, for example `field.index:badge-field`. The replacement gets the props of the part it replaces, plus `slotVersion`, a number that changes only in a major release. A `shell.header` replacement also gets `breadcrumbs`, the page's trail as a list of `label` and `href`, and `pageBarRef`, a ref callback for the element where a phone shows the page title and its main action; a page whose header has no page bar keeps both in the page. An unknown key throws in development and logs a warning in production.
 
 ## Make requests
 

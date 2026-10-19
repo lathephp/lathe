@@ -446,7 +446,12 @@
   }
 
   .lathe-page-title {
-    @apply truncate text-[22px] leading-7 font-[650] tracking-[-0.01em] max-md:sr-only;
+    @apply truncate text-[22px] leading-7 font-[650] tracking-[-0.01em];
+  }
+
+  /* The top bar shows a phone's title; the h1 stays for screen readers. */
+  [data-page-bar] .lathe-page-title {
+    @apply max-md:sr-only;
   }
 
   .lathe-page-subtitle {
@@ -460,8 +465,8 @@
 
   /* A phone's header that holds only the title, which the top bar shows, takes no room; the h1 stays
      for screen readers. */
-  .lathe-page-heading:has(> div:only-child > h1:only-child),
-  .lathe-page-header:has(> .lathe-page-heading > div:only-child > h1:only-child):has(> .lathe-page-actions:empty) {
+  [data-page-bar] > .lathe-page-heading:has(> div:only-child > h1:only-child),
+  .lathe-page-header[data-page-bar]:has(> .lathe-page-heading > div:only-child > h1:only-child):has(> .lathe-page-actions:empty) {
     @apply max-md:absolute;
   }
 

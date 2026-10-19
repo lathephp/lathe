@@ -6,6 +6,7 @@ All notable changes to Lathe are listed here. The format follows [Keep a Changel
 
 ### Added
 
+- [api] A `shell.header` replacement gets the page's `breadcrumbs` and a `pageBarRef` for the phone's page title and main action, now that the default top bar carries both; without a page bar, a page keeps its title and main action on a phone.
 - [api] The `@lathephp/ui` Button gains the `destructive-solid` variant for a confirm dialog's button, and `destructive` turns outlined in the nova style; Badge gains `success`, `warning` and `info`. Every style draws them.
 - [api] `ProgressResult::tone()` keeps a progress bar in one colour (primary, info, success, warning or destructive) at any percentage, for a share that measures a state rather than a goal, and `ProgressResult::label()` replaces the words after the share. The workbench's Shipped card uses both.
 

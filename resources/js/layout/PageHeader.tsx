@@ -24,7 +24,8 @@ export function PageHeader({ title, badge, subtitle, actions, phoneAction }: Pag
   const bar = use(PageBar);
 
   return (
-    <div data-lathe-header="" className="lathe-page-header">
+    // Without the top bar's page bar (a replaced shell.header), a phone keeps the title and the action here.
+    <div data-lathe-header="" data-page-bar={bar !== null ? '' : undefined} className="lathe-page-header">
       <div className="lathe-page-heading">
         <div className="flex min-w-0 items-center gap-2.5">
           <h1 className="lathe-page-title">{title}</h1>
@@ -32,7 +33,10 @@ export function PageHeader({ title, badge, subtitle, actions, phoneAction }: Pag
         </div>
         {subtitle}
       </div>
-      <div className="lathe-page-actions">{actions}</div>
+      <div className="lathe-page-actions">
+        {actions}
+        {bar === null && phoneAction !== undefined && <span className="contents md:hidden">{phoneAction}</span>}
+      </div>
       {bar !== null &&
         createPortal(
           <>

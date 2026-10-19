@@ -44,6 +44,8 @@ export function AppLayout({ children }: { children: ReactNode }) {
   const [searching, setSearching] = useState(false);
   const opener = useRef<HTMLButtonElement>(null);
   const [pageBar, setPageBar] = useState<HTMLElement | null>(null);
+  // A page sends its own trail; an index sends none, so the menu says where it sits.
+  const trail = (props as { breadcrumbs?: Breadcrumb[] }).breadcrumbs ?? navTrail(props.navigation, { url, basePath: props.basePath });
 
   function closeSheet() {
     setSheetUrl(null);
@@ -111,7 +113,8 @@ export function AppLayout({ children }: { children: ReactNode }) {
             <ImpersonationBanner name={props.impersonating.name} basePath={props.basePath} />
           </Suspense>
         )}
-        <Slot name="shell.header">
+        {/* A replacement gets the trail and the phone page bar's ref, so it can show both where it likes. */}
+        <Slot name="shell.header" breadcrumbs={trail} pageBarRef={setPageBar}>
           <header data-lathe-header className={cn('lathe-topbar', layout.header.sticky && 'sticky top-0 z-20')}>
             <Button
               ref={opener}
@@ -140,8 +143,7 @@ export function AppLayout({ children }: { children: ReactNode }) {
                 <PanelLeft aria-hidden="true" className="size-4 rtl:rotate-180" />
               </Button>
             )}
-            {/* A page sends its own trail; an index sends none, so the menu says where it sits. */}
-            <Breadcrumbs items={(props as { breadcrumbs?: Breadcrumb[] }).breadcrumbs ?? navTrail(props.navigation, { url, basePath: props.basePath })} />
+            <Breadcrumbs items={trail} />
             {/* The phone shows the page title and its primary action here; PageHeader puts them in. */}
             <div ref={setPageBar} className="contents md:hidden" />
             <div className="lathe-topbar-end">

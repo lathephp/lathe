@@ -1,3 +1,4 @@
+import { registry } from '@lathephp/core';
 import { screen, within } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
 import { renderPage } from './support';
@@ -74,5 +75,28 @@ describe('page header', () => {
 
     expect(within(header).getByRole('link', { name: 'Create order' }).getAttribute('href')).toBe('/lathe/resources/orders/new');
     expect(document.querySelector('[data-lathe-toolbar]')?.textContent).not.toContain('Create');
+  });
+});
+
+describe('a replaced top bar', () => {
+  it('hands the replacement the trail and keeps the title and Create in the page', () => {
+    let trail: unknown;
+    registry.replace('shell.header', (props: { slotVersion?: number; breadcrumbs?: unknown }) => {
+      trail = props.breadcrumbs;
+
+      return <header>Custom header</header>;
+    });
+
+    renderOrders();
+    const header = document.querySelector<HTMLElement>('[data-lathe-header=""]');
+    if (header === null) throw new Error('no page header');
+
+    expect(trail).toEqual([
+      { label: 'Store', href: null },
+      { label: 'Orders', href: null },
+    ]);
+    // With no top bar to show them on a phone, the title stays visible and the icon-only Create sits in the page.
+    expect(header.hasAttribute('data-page-bar')).toBe(false);
+    expect(within(header).getAllByRole('link', { name: 'Create order' })).toHaveLength(2);
   });
 });
