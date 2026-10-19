@@ -3,6 +3,7 @@
 namespace Lathe\Widgets\Results;
 
 use Closure;
+use InvalidArgumentException;
 use JsonSerializable;
 use Lathe\Lathe;
 
@@ -21,6 +22,10 @@ class ProgressResult implements JsonSerializable
     public string|array|null $format = null;
 
     protected bool $avoid = false;
+
+    protected ?string $tone = null;
+
+    protected ?string $label = null;
 
     protected ?Closure $transformCallback = null;
 
@@ -83,6 +88,31 @@ class ProgressResult implements JsonSerializable
     }
 
     /**
+     * A fixed colour in place of the target colours, for a share that measures a state rather than
+     * a goal: primary, info, success, warning or destructive.
+     */
+    public function tone(string $tone): static
+    {
+        if (! in_array($tone, ['primary', 'info', 'success', 'warning', 'destructive'], true)) {
+            throw new InvalidArgumentException("A progress tone is primary, info, success, warning or destructive, not [{$tone}].");
+        }
+
+        $this->tone = $tone;
+
+        return $this;
+    }
+
+    /**
+     * The words after the share, in place of "of target".
+     */
+    public function label(string $label): static
+    {
+        $this->label = $label;
+
+        return $this;
+    }
+
+    /**
      * Runs on the value on the server.
      *
      * @param  callable(int|float): mixed  $callback
@@ -107,10 +137,15 @@ class ProgressResult implements JsonSerializable
     }
 
     /**
-     * Destructive below 33%, warning from 33% to below 66%, success from 66%; the other way round when avoiding.
+     * The tone when one is set; else destructive below 33%, warning from 33% to below 66%, success
+     * from 66%, the other way round when avoiding.
      */
     public function color(): string
     {
+        if ($this->tone !== null) {
+            return $this->tone;
+        }
+
         $percentage = $this->percentage();
 
         if ($percentage < 33) {
@@ -126,6 +161,10 @@ class ProgressResult implements JsonSerializable
 
     public function caption(): string
     {
+        if ($this->label !== null) {
+            return $this->label;
+        }
+
         return $this->avoid ? Lathe::__('Lower is better') : Lathe::__('of target');
     }
 

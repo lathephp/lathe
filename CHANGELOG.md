@@ -4,6 +4,10 @@ All notable changes to Lathe are listed here. The format follows [Keep a Changel
 
 ## [Unreleased]
 
+### Added
+
+- [api] `ProgressResult::tone()` keeps a progress bar in one colour (primary, info, success, warning or destructive) at any percentage, for a share that measures a state rather than a goal, and `ProgressResult::label()` replaces the words after the share. The workbench's Shipped card uses both.
+
 ### Changed
 
 - [api] Changed English strings since 1.0.0-beta.3, for an app that translates the panel; move each override to its new key: `Create & Add Another` reads `Create and add another`, and `Other` reads `:count more` (the rest row of a pie drawn as bars, such as "15 more"). `Create :resource` keeps its key and fills in the resource name in sentence case, so the create form's title, crumb and button read "Create order".

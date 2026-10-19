@@ -5,6 +5,8 @@ import type { ProgressResult, WidgetRendererProps } from './types';
 
 // Literal class names, so Tailwind finds them.
 const colors: Record<ProgressResult['color'], string> = {
+  primary: 'bg-primary',
+  info: 'bg-info',
   destructive: 'bg-destructive',
   warning: 'bg-warning',
   success: 'bg-success',

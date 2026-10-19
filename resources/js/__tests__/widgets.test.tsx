@@ -228,6 +228,8 @@ describe('the progress card', () => {
     ['success', 'bg-success'],
     ['warning', 'bg-warning'],
     ['destructive', 'bg-destructive'],
+    ['primary', 'bg-primary'],
+    ['info', 'bg-info'],
   ])('shows a %s bar and the percentage', (color, token) => {
     render(<ProgressCard widget={{ ...widget, component: 'progress-widget' }} value={progress({ color })} />);
 

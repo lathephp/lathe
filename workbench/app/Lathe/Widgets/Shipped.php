@@ -18,6 +18,9 @@ class Shipped extends ProgressWidget
         /** @var Builder<Model> $placed */
         $placed = Order::where('placed_at', '>=', now()->subDays((int) $request->query('range', '30')));
 
-        return $this->count($request, $placed, fn (Builder $query) => $query->where('status', 'shipped'));
+        // A share of a state, not a goal: it keeps the shipped colour at any percentage.
+        return $this->count($request, $placed, fn (Builder $query) => $query->where('status', 'shipped'))
+            ->tone('success')
+            ->label('of orders placed in the range');
     }
 }

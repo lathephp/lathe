@@ -85,6 +85,17 @@ it('captions a plain progress "of target"', function () {
     expect(progressOf(progressProbe(new ProgressResult(30, 100))))->toMatchArray(['caption' => 'of target', 'avoid' => false]);
 });
 
+it('keeps a fixed tone and a label in place of the target colours and caption', function () {
+    $result = (new ProgressResult(25, 100))->tone('success')->label('of orders placed in the range');
+
+    expect(progressOf(progressProbe($result)))->toMatchArray(['color' => 'success', 'caption' => 'of orders placed in the range'])
+        ->and((new ProgressResult(90, 100))->tone('primary')->color())->toBe('primary');
+});
+
+it('refuses a tone that is not a colour of the kit', function () {
+    (new ProgressResult(25, 100))->tone('copper');
+})->throws(InvalidArgumentException::class);
+
 it('sends the value, the target and the percentage', function () {
     expect(progressOf(progressProbe(new ProgressResult(45, 90))))->toMatchArray(['value' => 45, 'target' => 90, 'percentage' => 50.0])
         ->and(progressOf(progressProbe(new ProgressResult(200, 100))))->toMatchArray(['value' => 200, 'target' => 200, 'percentage' => 100.0]);

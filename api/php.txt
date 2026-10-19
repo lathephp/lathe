@@ -4288,8 +4288,10 @@ Lathe\Widgets\Results\PieResult::segments(array $data): array  [protected]
 Lathe\Widgets\Results\PieResult::showLabels(bool $show = true): static
 Lathe\Widgets\Results\PieResult::withSeries(array $series): static
 Lathe\Widgets\Results\ProgressResult::?Closure $transformCallback  [protected]
+Lathe\Widgets\Results\ProgressResult::?string $label  [protected]
 Lathe\Widgets\Results\ProgressResult::?string $prefix
 Lathe\Widgets\Results\ProgressResult::?string $suffix
+Lathe\Widgets\Results\ProgressResult::?string $tone  [protected]
 Lathe\Widgets\Results\ProgressResult::__construct(int|float $value, int|float $target = 100)
 Lathe\Widgets\Results\ProgressResult::array|string|null $format
 Lathe\Widgets\Results\ProgressResult::avoid(): static
@@ -4303,9 +4305,11 @@ Lathe\Widgets\Results\ProgressResult::format(array|string $format): static
 Lathe\Widgets\Results\ProgressResult::int|float $target
 Lathe\Widgets\Results\ProgressResult::int|float $value
 Lathe\Widgets\Results\ProgressResult::jsonSerialize(): array
+Lathe\Widgets\Results\ProgressResult::label(string $label): static
 Lathe\Widgets\Results\ProgressResult::percentage(): float
 Lathe\Widgets\Results\ProgressResult::prefix(string $prefix): static
 Lathe\Widgets\Results\ProgressResult::suffix(string $suffix): static
+Lathe\Widgets\Results\ProgressResult::tone(string $tone): static
 Lathe\Widgets\Results\ProgressResult::transform(callable $callback): static
 Lathe\Widgets\Results\ProgressResult::withoutSuffixInflection(): static
 Lathe\Widgets\Results\RadarResult::?array $polarRadius  [protected]

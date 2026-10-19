@@ -66,6 +66,6 @@ export interface ProgressResult extends NumberDisplay {
   target: number;
   percentage: number;
   avoid: boolean;
-  color: 'destructive' | 'warning' | 'success';
+  color: 'primary' | 'info' | 'destructive' | 'warning' | 'success';
   caption: string;
 }

@@ -449,7 +449,7 @@ class PaidOrders extends ProgressWidget
 }
 ```
 
-To set the numbers yourself, return `new ProgressResult($value, $target)`. The bar uses the destructive colour below 33 percent, the warning colour below 66 percent and the success colour above. For a number that should stay low, such as open bugs, call `avoid()` on the result. The colours reverse and the caption reads "Lower is better". The result also has `prefix()`, `suffix()`, `dollars()`, `euros()`, `format()` and `transform()`.
+To set the numbers yourself, return `new ProgressResult($value, $target)`. The bar uses the destructive colour below 33 percent, the warning colour below 66 percent and the success colour above. For a number that should stay low, such as open bugs, call `avoid()` on the result. The colours reverse and the caption reads "Lower is better". When the share measures a state rather than a goal, such as shipped orders out of all orders, call `tone()` with `primary`, `info`, `success`, `warning` or `destructive` to keep one colour at any percentage, and `label()` to replace the words after the share. The result also has `prefix()`, `suffix()`, `dollars()`, `euros()`, `format()` and `transform()`.
 
 ## Radar widgets
 
