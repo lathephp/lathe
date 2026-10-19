@@ -902,12 +902,12 @@
 
     .lathe-footer > div,
     .lathe-pager {
-      @apply contents;
+      @apply contents!;
     }
 
     .lathe-footer > div > div,
     .lathe-pager > :not([data-step]) {
-      @apply hidden;
+      @apply hidden!;
     }
 
     .lathe-pager > [data-step] {
