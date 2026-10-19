@@ -13,6 +13,7 @@ class OrderItem extends Resource
     protected function configure(ResourceDefinition $definition): ResourceDefinition
     {
         return $definition->model(OrderItemModel::class)
+            ->group('Store')
             ->title('id')
             ->icon('Receipt')
             ->parent(Order::class, 'items');

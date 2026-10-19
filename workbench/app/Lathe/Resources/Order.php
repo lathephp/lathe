@@ -10,7 +10,10 @@ use Lathe\Field\Field;
 use Lathe\Field\SelectField;
 use Lathe\Groups\Group;
 use Lathe\Http\Requests\LatheRequest;
+use Lathe\Enums\Icon;
 use Lathe\Layout\Section;
+use Lathe\Menu\Badge;
+use Lathe\Menu\MenuItem;
 use Lathe\Resources\Resource;
 use Lathe\Resources\ResourceDefinition;
 use Lathe\Search\SearchableRelation;
@@ -31,6 +34,7 @@ class Order extends Resource
     protected function configure(ResourceDefinition $definition): ResourceDefinition
     {
         return $definition->model(OrderModel::class)
+            ->group('Store')
             ->title('number')
             ->globalSearchSubtitle(function (Model $order) {
                 assert($order instanceof OrderModel);
@@ -85,6 +89,15 @@ class Order extends Resource
             $this->total()->summarize(Summary::sum()->label('Revenue')->format(fn (int|float|string $cents) => (string) $this->total()->formatMoney((float) $cents / 100))),
             Field::dateTime('Placed', 'placed_at')->sortable(),
         ];
+    }
+
+    /**
+     * The sidebar entry counts the orders that wait, cached per user for a minute.
+     */
+    public static function menu(LatheRequest $request): ?MenuItem
+    {
+        return MenuItem::resource('orders')->icon(Icon::ShoppingCart)
+            ->withBadge(fn () => number_format(OrderModel::query()->where('status', 'pending')->count()), 60, Badge::WARNING);
     }
 
     public static function replicateExcept(): array

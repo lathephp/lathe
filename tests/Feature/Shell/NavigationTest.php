@@ -60,9 +60,9 @@ it('orders the dashboards, the Navigation group, the sections, the plugin sectio
 
     $navigation = navigationFor('admin@lathephp.com');
 
-    expect(array_column($navigation, 'label'))->toBe(['Dashboards', 'Navigation', 'Insights', 'Insights', 'Hello Plugin', 'Heartbeat', 'Gauge', 'Content', 'Resources'])
+    expect(array_column($navigation, 'label'))->toBe(['Dashboards', 'Navigation', 'Insights', 'Insights', 'Hello Plugin', 'Heartbeat', 'Gauge', 'Content', 'Catalog', 'Store', 'Resources'])
         ->and($navigation[1]['items'])->toBe([['label' => 'Docs', 'href' => '/docs', 'icon' => null]])
-        ->and($navigation[7]['items'])->toBe([['label' => 'News', 'href' => '/lathe/resources/articles', 'icon' => 'FileText', 'component' => 'Resources/Index', 'cacheTag' => 'resource:articles', 'skeleton' => ['tabs' => false, 'actions' => false]]]);
+        ->and($navigation[7]['items'])->toContain(['label' => 'News', 'href' => '/lathe/resources/articles', 'icon' => 'FileText', 'component' => 'Resources/Index', 'cacheTag' => 'resource:articles', 'skeleton' => ['tabs' => false, 'actions' => false]]);
 });
 
 it('lists the dashboard and the Resources', function () {
@@ -78,15 +78,21 @@ it('lists the dashboard and the Resources', function () {
         ]],
         ['label' => 'Hello Plugin', 'icon' => null, 'items' => [['label' => 'Settings', 'href' => '/lathe/plugins/hello-plugin/settings', 'icon' => null]]],
         ['label' => 'Heartbeat', 'icon' => null, 'items' => [['label' => 'Heartbeat', 'href' => '/lathe/plugins/heartbeat', 'icon' => 'Activity']]],
-        ['label' => 'Resources', 'icon' => null, 'items' => [
+        ['label' => 'Catalog', 'icon' => null, 'items' => [
             ['label' => 'Categories', 'href' => '/lathe/resources/categories', 'icon' => 'Folder', 'component' => 'Resources/Index', 'cacheTag' => 'resource:categories', 'skeleton' => ['tabs' => false, 'actions' => false]],
+            ['label' => 'Products', 'href' => '/lathe/resources/products', 'icon' => 'Package', 'component' => 'Resources/Index', 'cacheTag' => 'resource:products', 'skeleton' => ['tabs' => false, 'actions' => true]],
+            ['label' => 'Tags', 'href' => '/lathe/resources/tags', 'icon' => 'Tag', 'component' => 'Resources/Index', 'cacheTag' => 'resource:tags', 'skeleton' => ['tabs' => false, 'actions' => true]],
+        ]],
+        ['label' => 'Content', 'icon' => null, 'items' => [
             ['label' => 'Comments', 'href' => '/lathe/resources/comments', 'icon' => 'MessageSquare', 'component' => 'Resources/Index', 'cacheTag' => 'resource:comments', 'skeleton' => ['tabs' => false, 'actions' => false]],
+            ['label' => 'Posts', 'href' => '/lathe/resources/posts', 'icon' => 'FileText', 'component' => 'Resources/Index', 'cacheTag' => 'resource:posts', 'skeleton' => ['tabs' => false, 'actions' => false]],
+        ]],
+        ['label' => 'Store', 'icon' => null, 'items' => [
             ['label' => 'Customers', 'href' => '/lathe/resources/customers', 'icon' => 'Users', 'component' => 'Resources/Index', 'cacheTag' => 'resource:customers', 'skeleton' => ['tabs' => false, 'actions' => false]],
             ['label' => 'Order Items', 'href' => '/lathe/resources/order-items', 'icon' => 'Receipt', 'component' => 'Resources/Index', 'cacheTag' => 'resource:order-items', 'skeleton' => ['tabs' => false, 'actions' => false]],
             ['label' => 'Orders', 'href' => '/lathe/resources/orders', 'icon' => 'ShoppingCart', 'component' => 'Resources/Index', 'cacheTag' => 'resource:orders', 'skeleton' => ['tabs' => true, 'actions' => true]],
-            ['label' => 'Posts', 'href' => '/lathe/resources/posts', 'icon' => null, 'component' => 'Resources/Index', 'cacheTag' => 'resource:posts', 'skeleton' => ['tabs' => false, 'actions' => false]],
-            ['label' => 'Products', 'href' => '/lathe/resources/products', 'icon' => 'Package', 'component' => 'Resources/Index', 'cacheTag' => 'resource:products', 'skeleton' => ['tabs' => false, 'actions' => true]],
-            ['label' => 'Tags', 'href' => '/lathe/resources/tags', 'icon' => 'Tag', 'component' => 'Resources/Index', 'cacheTag' => 'resource:tags', 'skeleton' => ['tabs' => false, 'actions' => true]],
+        ]],
+        ['label' => 'Resources', 'icon' => null, 'items' => [
             ['label' => 'Users', 'href' => '/lathe/resources/users', 'icon' => null, 'component' => 'Resources/Index', 'cacheTag' => 'resource:users', 'skeleton' => ['tabs' => false, 'actions' => false]],
         ]],
     ]);
@@ -141,7 +147,7 @@ it('builds one Resource definition for the sidebar and the Orders index among 50
     Lathe::resources()->flush();
     Lathe::resourcePlugins()->flush();
     $this->get('/lathe/resources/orders')->assertOk()
-        ->assertInertia(fn (AssertableInertia $page) => $page->where('navigation', fn ($navigation) => count(collect($navigation)->firstWhere('label', 'Resources')['items']) === 9));
+        ->assertInertia(fn (AssertableInertia $page) => $page->where('navigation', fn ($navigation) => count(collect($navigation)->firstWhere('label', 'Resources')['items']) === 1));
 
     // Orders, and Customers for the titles its Customer column shows; never the 499 others.
     expect(Lathe::resources()->definitionsBuilt())->toBe(2)

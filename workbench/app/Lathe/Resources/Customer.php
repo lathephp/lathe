@@ -15,6 +15,7 @@ class Customer extends Resource
     protected function configure(ResourceDefinition $definition): ResourceDefinition
     {
         return $definition->model(CustomerModel::class)
+            ->group('Store')
             ->title('name')
             ->subtitle('email')
             ->searchable(['name', LikeSearch::contains('email')])

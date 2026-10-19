@@ -13,6 +13,7 @@ class Comment extends Resource
     protected function configure(ResourceDefinition $definition): ResourceDefinition
     {
         return $definition->model(CommentModel::class)
+            ->group('Content')
             ->title('body')
             ->searchable(['body'])
             ->icon('MessageSquare');

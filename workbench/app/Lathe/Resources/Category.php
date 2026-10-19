@@ -13,6 +13,7 @@ class Category extends Resource
     protected function configure(ResourceDefinition $definition): ResourceDefinition
     {
         return $definition->model(CategoryModel::class)
+            ->group('Catalog')
             ->title('name')
             ->searchable(['name'])
             ->icon('Folder');

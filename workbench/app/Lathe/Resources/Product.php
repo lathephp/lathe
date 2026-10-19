@@ -18,6 +18,7 @@ class Product extends Resource
     protected function configure(ResourceDefinition $definition): ResourceDefinition
     {
         return $definition->model(ProductModel::class)
+            ->group('Catalog')
             ->title('name')
             ->subtitle('sku')
             ->phoneCard(title: 'name', value: 'price_cents')

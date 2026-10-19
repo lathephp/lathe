@@ -15,6 +15,8 @@ class Post extends Resource
     protected function configure(ResourceDefinition $definition): ResourceDefinition
     {
         return $definition->model(PostModel::class)
+            ->icon('FileText')
+            ->group('Content')
             ->title('title');
     }
 

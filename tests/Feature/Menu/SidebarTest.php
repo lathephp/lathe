@@ -175,6 +175,9 @@ it('replaces a Resource default entry with its own menu() item', function () {
     Gate::policy(ArticleModel::class, ActionEventPolicy::class);
     Lathe::registerResources(SidebarTestArticle::class);
 
-    expect(collect(sidebarProps()['navigation'])->firstWhere('label', 'Content')['items'])
-        ->toBe([['label' => 'Drafts', 'href' => '/lathe/resources/sidebar-test-articles?status=draft', 'icon' => 'FileText', 'component' => 'Resources/Index', 'cacheTag' => 'resource:sidebar-test-articles', 'skeleton' => ['tabs' => false, 'actions' => false]]]);
+    // The workbench's Posts and Comments share the Content group; the article's own item stands in for its default entry.
+    $items = collect(sidebarProps()['navigation'])->firstWhere('label', 'Content')['items'];
+
+    expect($items)->toContain(['label' => 'Drafts', 'href' => '/lathe/resources/sidebar-test-articles?status=draft', 'icon' => 'FileText', 'component' => 'Resources/Index', 'cacheTag' => 'resource:sidebar-test-articles', 'skeleton' => ['tabs' => false, 'actions' => false]])
+        ->and(array_column($items, 'href'))->not->toContain('/lathe/resources/sidebar-test-articles');
 });
