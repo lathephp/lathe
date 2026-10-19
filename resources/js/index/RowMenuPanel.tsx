@@ -3,7 +3,7 @@ import { request, toast, useTranslation } from '@lathephp/core';
 import { Copy, Eye, Pencil, RotateCcw, Trash2 } from 'lucide-react';
 import { lazy, Suspense, useId, useState } from 'react';
 import { createPortal } from 'react-dom';
-import { Modal } from '../components/Modal';
+import { Modal, modalFooter } from '../components/Modal';
 import { Button } from '../components/ui/Button';
 import { reloadIndexRows } from '../lib/instant';
 import type { SharedProps } from '../types';
@@ -180,7 +180,7 @@ export function RowMenuPanel({ uriKey, row, open, menuId, onClose }: RowMenuPane
             {confirming === 'delete' ? __('Delete :title?', { title: row.title }) : __('Force delete :title?', { title: row.title })}
           </h2>
           {confirming === 'forceDelete' && <p className="text-sm whitespace-normal text-muted-foreground">{__('This cannot be undone.')}</p>}
-          <div className="flex justify-end gap-2">
+          <div className={modalFooter}>
             <Button
               variant="outline"
               onClick={() => {
@@ -189,9 +189,8 @@ export function RowMenuPanel({ uriKey, row, open, menuId, onClose }: RowMenuPane
             >
               {__('Cancel')}
             </Button>
-            {/* The panel Button in the destructive colours: a utility beats the variant's layered classes. */}
             <Button
-              className="bg-destructive text-destructive-foreground"
+              variant="destructive-solid"
               onClick={() => {
                 void run(confirming);
               }}
