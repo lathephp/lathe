@@ -3,6 +3,7 @@ import { ChartContainer, ChartLegend, ChartLegendContent, Label, LabelList, Pie,
 import { chartFormatter } from '../number';
 import type { NumberDisplay, WidgetRendererProps } from '../types';
 import { ChartFrame, NoData } from './ChartFrame';
+import { seriesColor } from './palette';
 import { useChartTooltip } from './tooltip';
 
 export interface Segment {
@@ -130,31 +131,29 @@ export function PieCard({ widget, value }: WidgetRendererProps) {
   );
 }
 
-/** The five largest slices as bars against the largest, then the rest as one Other row without a bar. */
+/** The five largest slices as bars against the largest, in the chart colours by rank, then the rest as one row without a bar. */
 function SliceBars({ name, segments, format }: { name: string; segments: Segment[]; format: (value: number) => string }) {
   const { __ } = useTranslation();
   const top = [...segments].sort((a, b) => b.value - a.value).slice(0, maxSlices - 1);
-  const rest = segments.filter((segment) => !top.includes(segment)).reduce((sum, segment) => sum + segment.value, 0);
+  const rest = segments.filter((segment) => !top.includes(segment));
   const largest = Math.max(...top.map((segment) => segment.value), 1);
+  const row = 'grid grid-cols-[minmax(0,8.125rem)_minmax(0,1fr)_auto] items-center gap-3';
 
   return (
-    <ul aria-label={name} className="space-y-2 text-xs">
-      {top.map((segment) => (
-        <li key={segment.label} className="grid grid-cols-[minmax(0,7rem)_minmax(0,1fr)_auto] items-center gap-2.5">
+    <ul aria-label={name} className="flex flex-col gap-2.5 text-[13px]">
+      {top.map((segment, rank) => (
+        <li key={segment.label} className={row}>
           <span className="truncate">{segment.label}</span>
-          <span className="h-2 rounded-[2px] bg-muted">
-            <span data-bar="" className="block h-full rounded-[2px]" style={{ width: `${String((segment.value / largest) * 100)}%`, backgroundColor: segment.color }} />
+          <span className="h-2.5 rounded-[2px] bg-muted">
+            <span data-bar="" className="block h-full rounded-[2px]" style={{ width: `${String((segment.value / largest) * 100)}%`, backgroundColor: seriesColor(rank) }} />
           </span>
           <span className="text-end font-medium tabular-nums">{format(segment.value)}</span>
         </li>
       ))}
-      <li className="grid grid-cols-[minmax(0,7rem)_minmax(0,1fr)_auto] items-center gap-2.5 text-muted-foreground">
-        <span className="flex items-center gap-1.5">
-          <span aria-hidden="true" className="size-2 rounded-[2px] bg-chart-other" />
-          {__('Other')}
-        </span>
-        <span />
-        <span className="text-end font-medium tabular-nums">{format(rest)}</span>
+      <li className={row}>
+        <span className="truncate">{__(':count more', { count: rest.length })}</span>
+        <span className="h-2.5 rounded-[2px] bg-muted" />
+        <span className="text-end font-medium tabular-nums">{format(rest.reduce((sum, segment) => sum + segment.value, 0))}</span>
       </li>
     </ul>
   );

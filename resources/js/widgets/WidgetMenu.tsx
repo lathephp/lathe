@@ -4,7 +4,7 @@ import { useEffect, useId, useRef, useState } from 'react';
 import { useMenuKeys } from './menuKeys';
 
 const itemClass =
-  'flex w-full items-center rounded-md px-2 py-1.5 text-start text-sm outline-none hover:bg-muted focus-visible:ring-2 focus-visible:ring-ring';
+  'flex h-8 w-full items-center rounded-md px-2 text-start text-sm text-popover-foreground outline-none hover:bg-accent focus-visible:bg-accent';
 
 interface WidgetMenuProps {
   name: string;
@@ -46,14 +46,14 @@ export function WidgetMenu({ name, onRefresh, link, csv }: WidgetMenuProps) {
   }, [open]);
 
   return (
-    <div ref={root} className="relative -me-1 shrink-0">
+    <div ref={root} className="relative -my-1 -me-1 shrink-0">
       <button
         type="button"
         aria-haspopup="menu"
         aria-expanded={open}
         aria-controls={open ? menuId : undefined}
         aria-label={__('Menu for :title', { title: name })}
-        className="grid size-7 place-items-center rounded-md text-muted-foreground outline-none hover:bg-muted hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring"
+        className="grid size-[26px] place-items-center rounded-md text-muted-foreground outline-none hover:bg-muted hover:text-foreground focus-visible:ring-2 focus-visible:ring-focus"
         onClick={() => {
           setOpen(!open);
         }}
@@ -70,7 +70,7 @@ export function WidgetMenu({ name, onRefresh, link, csv }: WidgetMenuProps) {
           id={menuId}
           role="menu"
           tabIndex={-1}
-          className="absolute end-0 top-full z-10 mt-1 w-44 rounded-lg border border-border bg-background p-1 shadow-lg"
+          className="absolute end-0 top-full z-10 mt-1 w-52 rounded-[12px] border border-border bg-popover p-1 shadow-md"
         >
           <button
             type="button"

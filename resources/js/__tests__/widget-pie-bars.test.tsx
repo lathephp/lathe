@@ -21,10 +21,10 @@ const widget: WidgetDescriptor = {
 };
 
 const slices = (count: number): Segment[] =>
-  Array.from({ length: count }, (_, index) => ({ label: `Category ${String(index + 1)}`, value: 100 - index, percentage: 5, color: `var(--chart-${String((index % 5) + 1)})` }));
+  Array.from({ length: count }, (_, index) => ({ label: `Category ${String(index + 1)}`, value: 100 - index, percentage: 5, color: index === 0 ? '#ef4444' : `var(--chart-${String((index % 5) + 1)})` }));
 
 describe('a pie with many slices', () => {
-  it('draws 20 slices as the top five bars and the rest as Other', () => {
+  it('draws 20 slices as the top five bars in the chart colours and the rest as one row', () => {
     render(<PieCard widget={widget} value={{ value: slices(20), innerRadius: 0 }} />);
 
     const list = screen.getByRole('list', { name: 'Products by category' });
@@ -37,9 +37,16 @@ describe('a pie with many slices', () => {
       'Category 497',
       'Category 596',
       // 95 down to 81, the fifteen slices past the fifth.
-      'Other1,320',
+      '15 more1,320',
     ]);
     expect(rows[5]?.querySelector('[data-bar]')).toBeNull();
+    expect(rows.slice(0, 5).map((row) => row.querySelector<HTMLElement>('[data-bar]')?.style.backgroundColor)).toEqual([
+      'var(--chart-1)',
+      'var(--chart-2)',
+      'var(--chart-3)',
+      'var(--chart-4)',
+      'var(--chart-5)',
+    ]);
     expect(rows[0]?.querySelector('[data-bar]')).not.toBeNull();
     expect(document.querySelector('svg.recharts-surface')).toBeNull();
   });

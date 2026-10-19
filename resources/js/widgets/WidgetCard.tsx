@@ -7,6 +7,7 @@ import { cn } from '../lib/cn';
 import { HelpTooltip } from './HelpTooltip';
 import { filterParams } from './filterParams';
 import { cellClass } from './layout';
+import { WidgetMeta } from './meta';
 import { widgetRenderers } from './registry';
 import type { WidgetDescriptor, WidgetValue } from './types';
 import { WidgetMenu } from './WidgetMenu';
@@ -54,6 +55,12 @@ export function WidgetCard({ widget, url, params, deferred, register, range: hos
   // The filters of the last filters:changed, sent with every later request.
   const filters = useRef<[string, string][]>([]);
   const editing = edit !== undefined;
+  // The header's right-hand slot, where a renderer puts a line such as a trend's latest value.
+  const [meta, setMeta] = useState<HTMLSpanElement | null>(null);
+  // A value or progress card is one number under a muted title; any other card has a heading.
+  const compact = widget.component === 'value-widget' || widget.component === 'progress-widget';
+  // A table runs to the card's edges, so the card pads only its header.
+  const flush = widget.component === 'table-widget';
 
   // Asks for the value and keeps the number on screen until the answer: a poll or an event.
   const send = (nextRange: string | null) => {
@@ -179,9 +186,10 @@ export function WidgetCard({ widget, url, params, deferred, register, range: hos
   const refreshing = !error && hostRange !== undefined && pending && value !== undefined;
   const loading = !error && !refreshing && (held || pending || (fetches && value === undefined));
   const skeleton = (
-    <div role="status" aria-label={__('Loading')} className="space-y-2">
-      <div className="h-8 w-24 animate-pulse rounded bg-muted" />
-      <div className="h-3 w-16 animate-pulse rounded bg-muted" />
+    <div role="status" aria-label={__('Loading')} className="flex flex-col gap-2.5">
+      <div className="h-[26px] w-[70%] animate-pulse rounded-md bg-muted" />
+      <div className="h-3.5 w-1/2 animate-pulse rounded bg-muted" />
+      <div className="h-6 w-full animate-pulse rounded bg-muted" />
     </div>
   );
 
@@ -190,13 +198,18 @@ export function WidgetCard({ widget, url, params, deferred, register, range: hos
     <Card
       data-lathe-widget={widget.uriKey}
       aria-busy={refreshing || undefined}
-      className={cn('relative flex flex-col gap-2 p-4', editing && 'border-dashed border-ring', cellClass(widget))}
+      className={cn(
+        'relative flex flex-col',
+        editing ? 'gap-2 border-dashed border-ring px-3 pt-2.5 pb-3' : flush ? 'gap-2 pt-3 md:gap-3 md:pt-[18px]' : 'p-3 md:px-5 md:py-[18px]',
+        !editing && !flush && (compact ? 'gap-1 md:gap-1.5' : 'gap-2 md:gap-3'),
+        cellClass(widget),
+      )}
     >
-      {refreshing && <span aria-hidden="true" className="absolute inset-x-0 top-0 h-0.5 rounded-t-[inherit] bg-brand" />}
+      {refreshing && <span aria-hidden="true" className="absolute start-0 top-0 h-0.5 w-[55%] rounded-ss-[inherit] bg-brand" />}
       {edit ?? (
-        <div className="flex items-center justify-between gap-2">
+        <div className={cn('flex min-h-[18px] items-center justify-between gap-2', flush && 'px-3 md:px-5')}>
           <div className="flex min-w-0 items-center gap-1">
-            <h2 className="truncate text-sm font-medium text-muted-foreground">{widget.name}</h2>
+            <h2 className={cn('truncate', compact ? 'text-xs font-medium text-muted-foreground md:text-[13px]' : 'text-sm font-semibold')}>{widget.name}</h2>
             {widget.help !== null && <HelpTooltip text={widget.help} width={widget.helpWidth} />}
           </div>
           {refreshing ? (
@@ -204,6 +217,14 @@ export function WidgetCard({ widget, url, params, deferred, register, range: hos
           ) : (
             value?.fallbackRange !== undefined && <span className="shrink-0 text-xs text-muted-foreground">{value.fallbackRange.label}</span>
           )}
+          {/* Always mounted, so a renderer's portal never loses its node; hidden while the header says something else. */}
+          <span
+            ref={setMeta}
+            className={cn(
+              'ms-auto min-w-0 truncate text-xs text-muted-foreground tabular-nums empty:hidden',
+              (refreshing || value?.fallbackRange !== undefined) && 'hidden',
+            )}
+          />
           {hostRange === undefined && widget.ranges.length > 0 && (
             <Select
               aria-label={__('Range')}
@@ -228,10 +249,19 @@ export function WidgetCard({ widget, url, params, deferred, register, range: hos
           )}
         </div>
       )}
-      <div inert={editing} className={cn('min-h-0 flex-1 overflow-hidden', refreshing && 'opacity-60', editing && 'pointer-events-none opacity-55')}>
+      <div
+        inert={editing}
+        className={cn('min-h-0 flex-1 overflow-hidden', flush && !editing && (error || loading) && 'px-3 pb-3 md:px-5 md:pb-[18px]', refreshing && 'opacity-60', editing && 'pointer-events-none opacity-55')}>
         {error ? (
-          <div className="flex flex-col items-start gap-1 text-sm">
-            <p className="font-medium text-destructive-subtle-foreground">{__(':title could not load', { title: widget.name })}</p>
+          <div className="flex flex-col items-start gap-1.5 text-[13px]">
+            <p className="flex items-center gap-1.5 font-medium text-destructive-subtle-foreground">
+              {/* Drawn here: lucide's CircleAlert would split into a chunk the index's first load then fetches. */}
+              <svg aria-hidden="true" viewBox="0 0 24 24" className="size-3.5 shrink-0 fill-none stroke-current stroke-2 [stroke-linecap:round]">
+                <circle cx="12" cy="12" r="10" />
+                <path d="M12 8v4M12 16h.01" />
+              </svg>
+              {__(':title could not load', { title: widget.name })}
+            </p>
             <p className="text-xs text-muted-foreground">{__('The other widgets are not affected.')}</p>
             {Renderer !== undefined && (
               <Button
@@ -251,7 +281,9 @@ export function WidgetCard({ widget, url, params, deferred, register, range: hos
         ) : (
           // A lazy renderer, such as a chart, keeps the skeleton up while its chunk loads.
           <Suspense fallback={skeleton}>
-            <Renderer widget={widget} value={value?.value ?? null} />
+            <WidgetMeta value={meta}>
+              <Renderer widget={widget} value={value?.value ?? null} />
+            </WidgetMeta>
           </Suspense>
         )}
       </div>

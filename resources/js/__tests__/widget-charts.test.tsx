@@ -303,7 +303,8 @@ describe('the chart cards', () => {
     reduceMotion();
     render(<TrendCard widget={widgetOf('trend-widget')} value={trend} />);
 
-    expect(screen.getByText('$7', { selector: 'p' }).className).toContain('text-3xl');
+    // Outside a card's header, the headline is a muted line: the last bucket, then its value.
+    expect(screen.getByText('$7', { selector: 'strong' }).closest('p')?.textContent).toBe('Oct 14, 14:00 $7 · Oct 14, 13:00 – Oct 14, 14:00');
     expect(svg().querySelector('.recharts-area')).not.toBeNull();
     expect(svg().querySelector('.recharts-line')).toBeNull();
     expect(hiddenRows()).toEqual([

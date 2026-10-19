@@ -42,16 +42,21 @@ export function TableCard({ value }: WidgetRendererProps) {
   const result = value as TablePayload | null;
 
   if (result === null || result.rows.length === 0) {
-    return <p className="py-6 text-center text-sm text-muted-foreground">{result?.emptyText}</p>;
+    return <p className="px-3 py-6 text-center text-sm text-muted-foreground md:px-5">{result?.emptyText}</p>;
   }
 
   return (
-    <table className="w-full text-sm">
+    // The card leaves the table its edges; the first and last cells pad it to the card's 20 px.
+    <table className="w-full text-sm [&_td:first-child]:ps-3 [&_td:last-child]:pe-3 md:[&_td:first-child]:ps-5 md:[&_td:last-child]:pe-5 [&_th:first-child]:ps-3 [&_th:last-child]:pe-3 md:[&_th:first-child]:ps-5 md:[&_th:last-child]:pe-5">
       {result.columns.length > 0 && (
         <thead>
-          <tr className="border-b border-border">
+          <tr className="bg-muted">
             {result.columns.map((column) => (
-              <th key={column.key} scope="col" className={cn('h-9 px-2 text-xs font-semibold text-muted-foreground', aligns[column.align ?? 'left'])}>
+              <th
+                key={column.key}
+                scope="col"
+                className={cn('h-8 px-2 text-[11px] font-semibold tracking-[0.04em] text-muted-foreground uppercase', aligns[column.align ?? 'left'])}
+              >
                 {column.label}
               </th>
             ))}
@@ -61,7 +66,7 @@ export function TableCard({ value }: WidgetRendererProps) {
       <tbody>
         {result.rows.map((row, index) =>
           isMetricRow(row) ? (
-            <tr key={index} className="border-b border-border last:border-b-0">
+            <tr key={index} className="border-t border-border first:border-t-0">
               <td colSpan={result.columns.length || undefined} className="px-2 py-2">
                 <div className="flex items-center gap-3">
                   {row.icon !== undefined && (
@@ -92,9 +97,9 @@ export function TableCard({ value }: WidgetRendererProps) {
               </td>
             </tr>
           ) : (
-            <tr key={index} className="border-b border-border last:border-b-0">
-              {result.columns.map((column) => (
-                <td key={column.key} className={cn('px-2 py-2', aligns[column.align ?? 'left'])}>
+            <tr key={index} className="h-10 border-t border-border">
+              {result.columns.map((column, at) => (
+                <td key={column.key} className={cn('px-2 tabular-nums', at === 0 ? 'max-w-0 truncate font-medium' : 'w-px ps-10 whitespace-nowrap', aligns[column.align ?? 'left'])}>
                   {cell(row[column.key])}
                 </td>
               ))}

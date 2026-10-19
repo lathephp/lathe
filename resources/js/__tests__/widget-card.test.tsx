@@ -378,7 +378,7 @@ describe('the card', () => {
     );
 
     expect(card('w3').parentElement?.className).toContain('grid-cols-12');
-    expect(card('w3').parentElement?.className).toContain('gap-5');
+    expect(card('w3').parentElement?.className).toContain('md:gap-5');
 
     for (const columns of [3, 4, 6, 8, 9, 12]) {
       const classes = card(`w${String(columns)}`).className.split(' ');
@@ -390,8 +390,8 @@ describe('the card', () => {
   it('is at least 160 px high, 320 px when double and sized to content when dynamic', () => {
     renderDashboard([descriptor('fixed'), descriptor('double', { height: 'double' }), descriptor('dynamic', { height: 'dynamic' })], {});
 
-    expect(card('fixed').className.split(' ')).toContain('min-h-40');
-    expect(card('double').className.split(' ')).toContain('min-h-80');
+    expect(card('fixed').className.split(' ')).toContain('md:min-h-40');
+    expect(card('double').className.split(' ')).toContain('md:min-h-80');
     expect(card('dynamic').className).not.toMatch(/\bh-(40|80)\b/);
   });
 });

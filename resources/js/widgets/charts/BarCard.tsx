@@ -1,6 +1,6 @@
 import { useTranslation } from '@lathephp/core';
 import { Bar, BarChart, CartesianGrid, ChartContainer, ChartLegend, ChartLegendContent, LabelList, Rectangle, ReferenceLine, XAxis, YAxis, type BarShapeProps } from '@lathephp/ui/chart';
-import { chartFormatter } from '../number';
+import { chartFormatter, formatMetric } from '../number';
 import type { NumberDisplay, WidgetRendererProps } from '../types';
 import { ChartFrame, NoData } from './ChartFrame';
 import { seriesColor } from './palette';
@@ -20,6 +20,8 @@ export function BarCard({ widget, value }: WidgetRendererProps) {
   const { __ } = useTranslation();
   const result = value as BarPayload | null;
   const format = chartFormatter(result);
+  // The value axis abbreviates; the tooltip shows every digit.
+  const short = (number: number) => formatMetric(number, { prefix: result?.prefix ?? null, suffix: result?.suffix ?? null, suffixInflection: result?.suffixInflection ?? true, format: 'a' });
   const names = Object.keys(result?.series ?? {});
   const horizontal = result?.horizontal === true;
   const showLabels = widget.showLabels === true;
@@ -62,15 +64,15 @@ export function BarCard({ widget, value }: WidgetRendererProps) {
   const categoryAxis = horizontal ? (
     <YAxis dataKey="label" type="category" tickLine={false} axisLine={false} width={90} hide={insideLabels} />
   ) : (
-    <XAxis dataKey="label" tickLine={false} axisLine={false} />
+    <XAxis dataKey="label" tickLine={false} axisLine={false} tickMargin={6} fontSize={11} />
   );
-  const valueAxis = horizontal ? <XAxis type="number" hide /> : <YAxis hide />;
+  const valueAxis = horizontal ? <XAxis type="number" hide /> : <YAxis tickLine={false} axisLine={false} tickCount={3} width={36} fontSize={11} tickFormatter={short} />;
 
   return (
-    <ChartFrame name={widget.name} columns={[__('Label'), ...(names.length > 0 ? names : [__('Value')])]} rows={rows}>
+    <ChartFrame name={widget.name} columns={[__('Label'), ...(names.length > 0 ? names : [__('Value')])]} rows={rows} className={horizontal ? undefined : 'min-h-[160px] md:min-h-[190px]'}>
       <ChartContainer className="h-full w-full">
         <BarChart accessibilityLayer data={data} layout={horizontal ? 'vertical' : 'horizontal'} margin={{ top: showLabels ? 20 : 4, right: horizontal ? 16 : 0, bottom: 0, left: 0 }}>
-          <CartesianGrid vertical={horizontal} horizontal={!horizontal} strokeDasharray="3 3" />
+          <CartesianGrid vertical={horizontal} horizontal={!horizontal} />
           {categoryAxis}
           {valueAxis}
           {result.negativeColor !== undefined && <ReferenceLine {...(horizontal ? { x: 0 } : { y: 0 })} />}
@@ -90,7 +92,7 @@ export function BarCard({ widget, value }: WidgetRendererProps) {
               ))}
             </>
           ) : (
-            <Bar dataKey="value" name={__('Value')} radius={4} shape={shape}>
+            <Bar dataKey="value" name={__('Value')} radius={4} maxBarSize={40} shape={shape}>
               {insideLabels && horizontal && <LabelList dataKey="label" position="insideLeft" offset={8} className="fill-background" fontSize={12} />}
               {(showLabels || insideLabels) && (
                 <LabelList dataKey="value" position={horizontal ? 'right' : 'top'} offset={8} className="fill-foreground" fontSize={12} formatter={(label) => (typeof label === 'number' ? format(label) : String(label))} />

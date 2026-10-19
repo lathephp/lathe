@@ -32,7 +32,7 @@ describe('a value card', () => {
     showValue({ value: 1948466.99, previous: 1852565.92, change: 5.18, prefix: '$' });
 
     expect(screen.getByText('$1,948,466.99')).toBeTruthy();
-    expect(screen.getByText('+5.18%').closest('[data-change]')?.getAttribute('data-change')).toBe('up');
+    expect(screen.getByText('+5.2%').closest('[data-change]')?.getAttribute('data-change')).toBe('up');
     expect(screen.getByText('vs $1,852,565.92')).toBeTruthy();
   });
 
@@ -48,7 +48,7 @@ describe('a value card', () => {
   it('shows a rise in the destructive subtle colour when lower is better', () => {
     showValue({ value: 382, previous: 344, change: 11, lowerIsBetter: true });
 
-    const badge = screen.getByText('+11%').closest('[data-change]');
+    const badge = screen.getByText('+11.0%').closest('[data-change]');
     expect(badge?.className).toContain('bg-destructive-subtle');
     expect(badge?.className).toContain('text-destructive-subtle-foreground');
   });
@@ -56,7 +56,7 @@ describe('a value card', () => {
   it('shows a fall in the success subtle colour when lower is better', () => {
     showValue({ value: 300, previous: 344, change: -12.79, lowerIsBetter: true });
 
-    expect(screen.getByText('-12.79%').closest('[data-change]')?.className).toContain('bg-success-subtle');
+    expect(screen.getByText('-12.8%').closest('[data-change]')?.className).toContain('bg-success-subtle');
   });
 
   it('says there is nothing to compare with when the range before was empty', () => {
@@ -67,14 +67,16 @@ describe('a value card', () => {
 });
 
 describe('a card cell', () => {
-  it('stretches to its row with height as a minimum', () => {
-    expect(cellClass(widget).split(' ')).toContain('min-h-40');
-    expect(cellClass({ ...widget, height: 'double' }).split(' ')).toContain('min-h-80');
+  it('stretches to its row with height as a minimum, from 768 px for a value card', () => {
+    expect(cellClass(widget).split(' ')).toContain('md:min-h-40');
+    expect(cellClass({ ...widget, component: 'trend-widget' }).split(' ')).toContain('min-h-40');
+    expect(cellClass({ ...widget, height: 'double' }).split(' ')).toContain('md:min-h-80');
     expect(cellClass(widget)).not.toMatch(/(^|\s)h-40\b/);
   });
 
-  it('sits a value card two across below 768 px and any other card full width', () => {
+  it('sits a value or progress card two across below 768 px and any other card full width', () => {
     expect(cellClass(widget).split(' ')).toContain('col-span-6');
+    expect(cellClass({ ...widget, component: 'progress-widget' }).split(' ')).toContain('col-span-6');
     expect(cellClass({ ...widget, component: 'trend-widget' }).split(' ')).toContain('col-span-12');
   });
 });

@@ -289,7 +289,6 @@
     "Optional": "Optional",
     "Options for :name": "Options for :name",
     "Original": "Original",
-    "Other": "Other",
     "Page not found": "Page not found",
     "Pass a preset code, such as a5ONTE, or use --interactive. Missing argument: preset.": "Pass a preset code, such as a5ONTE, or use --interactive. Missing argument: preset.",
     "Password": "Password",
@@ -520,6 +519,7 @@
     "Your session has expired": "Your session has expired",
     "config/lathe.php is not published. Run php artisan lathe:install first.": "config/lathe.php is not published. Run php artisan lathe:install first.",
     "esc": "esc",
+    "of :total": "of :total",
     "of target": "of target",
     "shadcn answered :status for that preset.": "shadcn answered :status for that preset.",
     "vs :value": "vs :value"

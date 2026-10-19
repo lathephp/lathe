@@ -114,9 +114,9 @@ describe('value display rules', () => {
 
 describe('the change badge', () => {
   it.each([
-    [50, 'up', '+50%'],
-    [-10, 'down', '-10%'],
-    [0, 'flat', '0%'],
+    [50, 'up', '+50.0%'],
+    [-10, 'down', '-10.0%'],
+    [0, 'flat', '0.0%'],
   ])('shows %s as a %s arrow', (change, direction, shown) => {
     showValue({ value: 150, previous: 100, change });
 
@@ -236,6 +236,14 @@ describe('the progress card', () => {
     expect(bar.querySelector(`.${token}`)).not.toBeNull();
     expect(screen.getByText('75%')).toBeTruthy();
     expect(screen.getByText('of target')).toBeTruthy();
+  });
+
+  it('shows the number of its target, then the share with the caption', () => {
+    render(<ProgressCard widget={{ ...widget, component: 'progress-widget' }} value={progress({ value: 400, target: 1581, percentage: 25.3 })} />);
+
+    expect(screen.getByText('400')).toBeTruthy();
+    expect(screen.getByText('of 1,581')).toBeTruthy();
+    expect(screen.getByText('25.3%')).toBeTruthy();
   });
 
   it('shows the caption the server sends for a number to keep low', () => {
