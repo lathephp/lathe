@@ -263,6 +263,16 @@ describe('row hover actions', () => {
 });
 
 describe('row menu', () => {
+  it('leads each record entry with its icon', () => {
+    renderOrders({ rows: [row(1, { view: true, update: true, replicate: true, delete: true })] });
+    menuItems('ORD-00001');
+    const icon = (name: string) => screen.getByRole('menuitem', { name }).querySelector('svg')?.getAttribute('class') ?? '';
+
+    expect(icon('View')).toContain('lucide-eye');
+    expect(icon('Edit')).toContain('lucide-pencil');
+    expect(icon('Replicate')).toContain('lucide-copy');
+    expect(icon('Delete')).toContain('lucide-trash-2');
+  });
 
   it('offers Delete on a live row the user may delete', () => {
     renderOrders({ rows: [row(1, { view: true, delete: true, restore: true, forceDelete: true }, false)] });

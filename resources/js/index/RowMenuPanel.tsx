@@ -1,5 +1,6 @@
 import { Link, usePage } from '@inertiajs/react';
 import { request, toast, useTranslation } from '@lathephp/core';
+import { Copy, Eye, Pencil, RotateCcw, Trash2 } from 'lucide-react';
 import { lazy, Suspense, useId, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { Modal } from '../components/Modal';
@@ -26,7 +27,10 @@ const startImpersonating = (basePath: string, resource: string, resourceId: stri
   import('../layout/impersonate').then((module) => module.impersonate(basePath, { resource, resourceId }));
 
 const itemClass =
-  'flex w-full items-center rounded-md px-2 py-1.5 text-start text-sm outline-none hover:bg-muted focus-visible:ring-2 focus-visible:ring-ring';
+  'flex h-8 w-full items-center gap-2 rounded-md px-2 text-start text-sm outline-none hover:bg-accent focus-visible:ring-2 focus-visible:ring-ring [&>svg]:size-4 [&>svg]:text-muted-foreground';
+
+// Each record entry leads with its icon; Delete's takes the destructive colour with its text.
+const icons = { view: Eye, edit: Pencil, replicate: Copy, delete: Trash2, restore: RotateCcw, forceDelete: Trash2 };
 
 interface RowMenuPanelProps {
   uriKey: string;
@@ -103,8 +107,11 @@ export function RowMenuPanel({ uriKey, row, open, menuId, onClose }: RowMenuPane
   const safe = actions.filter((action) => action !== 'delete' && action !== 'forceDelete');
 
   function entry(action: MenuAction) {
+    const Icon = icons[action];
+
     return isLink(action) ? (
       <Link key={action} role="menuitem" href={`${basePath}/resources/${uriKey}/${String(row.id)}${links[action]}`} className={itemClass}>
+        <Icon aria-hidden="true" />
         {labels[action]}
       </Link>
     ) : (
@@ -112,11 +119,12 @@ export function RowMenuPanel({ uriKey, row, open, menuId, onClose }: RowMenuPane
         key={action}
         type="button"
         role="menuitem"
-        className={action === 'restore' ? itemClass : `${itemClass} text-destructive`}
+        className={action === 'restore' ? itemClass : `${itemClass} text-destructive [&>svg]:text-current`}
         onClick={() => {
           choose(action);
         }}
       >
+        <Icon aria-hidden="true" />
         {labels[action]}
       </button>
     );
@@ -129,7 +137,7 @@ export function RowMenuPanel({ uriKey, row, open, menuId, onClose }: RowMenuPane
           id={menuId}
           role="menu"
           tabIndex={-1}
-          className="absolute end-0 top-full z-10 mt-1 w-40 rounded-lg border border-border bg-background p-1 shadow-lg"
+          className="absolute end-0 top-full z-10 mt-1 w-60 rounded-[12px] border border-border bg-popover p-1 text-popover-foreground shadow-md"
           onKeyDown={(event) => {
             if (event.key === 'Escape') {
               onClose();
