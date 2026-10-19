@@ -116,7 +116,7 @@ export function NotificationItem({ item, onRead, onUnread, onDelete }: Props) {
           {item.createdAtHuman}
         </p>
       </div>
-      <div className="flex shrink-0 items-start gap-0.5 opacity-0 group-focus-within:opacity-100 group-hover:opacity-100">
+      <div className="flex shrink-0 items-start gap-0.5 opacity-0 group-focus-within:opacity-100 group-hover:opacity-100 max-md:opacity-100">
         <button type="button" aria-label={label} title={label} className={cn(focus, 'inline-flex size-7 items-center justify-center rounded-md text-muted-foreground hover:bg-muted hover:text-foreground')} onClick={unread ? () => void onRead() : onUnread}>
           <Toggle aria-hidden="true" className="size-[15px]" />
         </button>
