@@ -52,18 +52,10 @@ it('lists the api entries of the newest release since the one before', function 
         ->not->toContain('A fix with no API change');
 })->group('frontend');
 
-it('tells a 1.0.0-beta.2 app every token, string and option that changes in 1.0.0-beta.3', function () {
+it('tells a 1.0.0-beta.3 app every API and string that changes in 1.0.0-beta.4', function () {
     $guide = File::get(dirname(__DIR__, 3).'/docs/getting-started/upgrade.md');
-    $tokens = ['brand', 'focus', 'skeleton', 'scrim', 'chart-other', 'sidebar-hover'];
 
-    foreach (['primary', 'success', 'warning', 'info', 'destructive'] as $tone) {
-        array_push($tokens, "{$tone}-subtle", "{$tone}-subtle-foreground");
-    }
-
-    expect($guide)->toContain('## From 1.0.0-beta.2 to 1.0.0-beta.3', 'copper', '`link` and `link-hover`', '`Lathe\Theme\Color`')
-        ->toContain(...array_map(fn (string $token) => "`{$token}`", $tokens))
-        ->toContain('`Refresh` reads `Load their version`', '`Validate` reads `Check :count rows`', '"Sign out"', '24-hour clock')
-        ->toContain('range dropdown', '`lathe_user_preferences`', 'php artisan migrate')
-        ->toContain('`ResourceDefinition::phoneCard(', '`ValueResult::lowerIsBetter()`', '`Dashboard::customizable(false)`', '`Widget::link()`', '`Dashboard::ranges()`', '`brand.logo`', '`brand.logo_dark`')
-        ->toContain('`@lathephp/ui/sonner` subpath is removed', '`SelectField::badges()`');
+    expect($guide)->toContain('## From 1.0.0-beta.3 to 1.0.0-beta.4')
+        ->toContain('`ProgressResult::tone()`', '`ProgressResult::label()`', '`destructive-solid`', '`shell.header`', '`pageBarRef`')
+        ->toContain('`Create & Add Another` reads `Create and add another`', '`Other` reads `:count more`', '`:Resource`');
 })->group('frontend');

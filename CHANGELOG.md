@@ -4,6 +4,8 @@ All notable changes to Lathe are listed here. The format follows [Keep a Changel
 
 ## [Unreleased]
 
+## [1.0.0-beta.4] - Unreleased
+
 ### Added
 
 - [api] A `shell.header` replacement gets the page's `breadcrumbs` and a `pageBarRef` for the phone's page title and main action, now that the default top bar carries both; without a page bar, a page keeps its title and main action on a phone.
@@ -12,6 +14,7 @@ All notable changes to Lathe are listed here. The format follows [Keep a Changel
 
 ### Changed
 
+- The panel follows the approved design throughout. The sidebar has uppercase group headings that fold, and the top bar carries the breadcrumb and a "Search or jump to…" button. Every page has a one-row header with its actions on the right, such as an index's "Create order". Tables have a muted header row, 48 px rows (56 px when spacious), status badges that open inline edit, related names in the text colour and ghost toolbar buttons. Forms sit in cards with "Optional" beside the fields that may stay empty, in place of a mark on the required ones, and a sticky footer. Record pages, dashboards, dialogs, toasts, notifications and the search palette follow their boards, and a phone keeps a 12 px gutter. Only the default nova style changes; the other styles keep their look.
 - [api] Changed English strings since 1.0.0-beta.3, for an app that translates the panel; move each override to its new key: `Create & Add Another` reads `Create and add another`, and `Other` reads `:count more` (the rest row of a pie drawn as bars, such as "15 more"). `Create :resource` keeps its key and fills in the resource name in sentence case, so the create form's title, crumb and button read "Create order"; a translation that starts with the name, or a language that capitalises nouns, writes `:Resource`.
 
 ## [1.0.0-beta.3] - 2026-10-19
