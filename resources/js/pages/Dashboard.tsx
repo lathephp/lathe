@@ -1,6 +1,6 @@
 import { Head, router, usePage } from '@inertiajs/react';
 import { useLathe, useTranslation } from '@lathephp/core';
-import { RefreshCw } from 'lucide-react';
+import { RefreshCw, SlidersHorizontal } from 'lucide-react';
 import { type KeyboardEvent, Suspense, useEffect, useState } from 'react';
 import { AfterDelay, skeletonBar } from '../lib/instant';
 import { cn } from '../lib/cn';
@@ -130,10 +130,10 @@ function DashboardPage({ dashboard, widgets, hiddenWidgets = [] }: DashboardProp
             )}
             {/* A user who hid every card still has a saved layout, and Customize to undo it. */}
             {draft === null && dashboard.customizable && (widgets.length > 0 || hiddenWidgets.length > 0 || dashboard.customized) && (
-              // The phone design leaves Customize out: arranging cards needs the wide grid.
+              // A phone shows Customize as an icon, so the range keeps its row and the button stays reachable.
               <Button
                 variant="outline"
-                className="max-md:hidden"
+                className="max-md:px-2.5"
                 onPointerEnter={() => {
                   void preloadCustomize();
                 }}
@@ -141,7 +141,8 @@ function DashboardPage({ dashboard, widgets, hiddenWidgets = [] }: DashboardProp
                   void customize();
                 }}
               >
-                {__('Customize')}
+                <SlidersHorizontal aria-hidden="true" className="size-4 md:hidden" />
+                <span className="max-md:sr-only">{__('Customize')}</span>
               </Button>
             )}
           </div>
