@@ -33,7 +33,7 @@ if (!current) {
 } else if (current.api.length === 0) {
   body = `${current.version} changes no public API since ${previous.version}. Run \`composer update lathe/lathe\` and you are done.`;
 } else {
-  body = [`These public API changes happen between ${previous.version} and ${current.version}. Check each one against your code before you update.`, '', `## ${previous.version} to ${current.version}`, '', ...current.api].join('\n');
+  body = [`These public API changes happen between ${previous.version} and ${current.version}. Check each one against your code before you update.`, '', `## From ${previous.version} to ${current.version}`, '', ...current.api].join('\n');
 }
 
 writeFileSync(

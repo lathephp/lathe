@@ -4,6 +4,8 @@ All notable changes to Lathe are listed here. The format follows [Keep a Changel
 
 ## [Unreleased]
 
+## [1.0.0-beta.3] - Unreleased
+
 ### Added
 
 - [api] The testing kit's `DashboardTester` gains `csv()`, `saveLayout()` and `resetLayout()` for the new dashboard routes.
@@ -12,7 +14,7 @@ All notable changes to Lathe are listed here. The format follows [Keep a Changel
 - [api] A dashboard's trend, bar, partition, pie, radar and table cards download as CSV from `GET api/dashboards/{dashboard}/widgets/{widget}/csv`, with plain numbers and `YYYY-MM-DD` dates; a widget's descriptor gains `csv`. `Widget::link()` sets where a card's Open records goes, and a card whose aggregates read one model links to that model's Resource index for a user who may list it, as `link` in the value response. The bar, partition, pie and radar helpers now apply the host Resource's row scope and tell the cache which tables they read.
 - [api] `SelectField::badges()` shows each value as a badge in a tone: neutral, primary, info, success, warning or danger. The workbench's order statuses use it.
 - [api] The `@lathephp/ui/popover` and `@lathephp/ui/select` subpaths, so a page can load the popover or the select without the whole kit.
-- The config keys `brand.logo` and `brand.logo_dark` put your logo at the top of the sidebar, with a separate image for the dark theme.
+- [api] The config keys `brand.logo` and `brand.logo_dark` put your logo at the top of the sidebar, with a separate image for the dark theme.
 - [api] Each user's column choices on a resource index (shown, hidden, order, pinned) are saved on the server in the new `lathe_user_preferences` table, through `PUT` and `DELETE` on `api/resources/{resource}/columns`. A column removed from code drops out of a saved choice, and a new one shows at the end. Run `php artisan migrate` after upgrading.
 - [api] `GET api/resources/{resource}/{resourceId}/history/latest` answers a record's newest five action events (who, what and when) for its History card, behind the same `viewAny` of the action log as the Action Events panel.
 - [api] A record page's header shows a badge beside the title and one meta line. `ResourceDefinition::recordHeader(badge:, meta:)` names their detail fields: the badge defaults to the first field with badges, and a named meta field shows as "<Label> <value>" in place of the subtitle.
@@ -35,7 +37,7 @@ All notable changes to Lathe are listed here. The format follows [Keep a Changel
 - Each dashboard card has a ⋯ menu with Refresh, Open records when the card links to records the user may list, and Download CSV for chart and table cards.
 - [api] Dashboard cards in one row share the tallest card's height, and `height()` is now a minimum. A value card shows every digit on a desktop and a short form on a phone, the change as a signed badge, then "vs" and the earlier value; with no earlier data it says so. `ValueResult::lowerIsBetter()` shows a rise in the destructive colour and a fall in the success colour. The grid gap is 20 px, and below 768 px value cards sit two across.
 - A pie widget with more than six slices draws as bars: the five largest against the largest, then the rest added up as one Other row.
-- [api] The default theme is Lathe's copper design in light and dark. Apps that set `theme.colors` keep their colours. New public tokens: `brand`, `focus`, `skeleton`, `scrim`, `chart-other`, `sidebar-hover`, a `-subtle` and `-subtle-foreground` pair for `primary`, `success`, `warning`, `info` and `destructive`, and `shadow-xs` to `shadow-lg`.
+- [api] The default theme is Lathe's copper design in light and dark. Apps that set `theme.colors` keep their colours. New public tokens: `brand`, `focus`, `skeleton`, `scrim`, `chart-other`, `sidebar-hover`, the tints `primary-subtle`, `success-subtle`, `warning-subtle`, `info-subtle` and `destructive-subtle` with their text colours `primary-subtle-foreground`, `success-subtle-foreground`, `warning-subtle-foreground`, `info-subtle-foreground` and `destructive-subtle-foreground`, and `shadow-xs` to `shadow-lg`. The existing `link` and `link-hover` tokens are copper where they were blue.
 - [api] The 16 new colour tokens are `theme.colors` keys and `Lathe\Theme\Color` cases. When an app sets any colour of its own, every token it did not set keeps its value from before copper, so the app keeps its look; `brand` and `focus` take `primary` at 3:1 on the page, and each `-subtle` pair is a tint of its colour with text at 4.5:1.
 - [api] Toasts render with Base UI Toast. A toast stays 5 seconds, its timer pauses on hover and focus, and an error stays until it is dismissed. The `@lathephp/ui/sonner` subpath is removed; `@lathephp/ui/toast` replaces it, and sonner is no longer a dependency. `ToastMessage` gains a `timeout` field.
 - [api] Date-times read on the 24-hour clock, such as `Oct 17, 2026, 23:12`, where they read `11:12 PM` before.
@@ -53,13 +55,17 @@ All notable changes to Lathe are listed here. The format follows [Keep a Changel
 
 - [api] `RelationField::modalSize()` is still accepted but no longer sizes anything: the create sheet is always 480 px wide.
 
+### Removed
+
+- [api] A dashboard card no longer has a range dropdown of its own: the one range picker in the dashboard's header sets every card's range, from `Dashboard::ranges()`. A widget's own `ranges()` now only says which of those ranges it can show.
+
 ### Fixed
 
 - On a phone, the open menu has a Close menu button and closes on Escape, and the user menu closes on a click outside it.
 - A record's breadcrumb names it by its title instead of `#id`; the id stays only when the title is empty.
 - When a queued bulk action, delete or restore ends, the index it ran on reloads its rows in place.
 
-## [1.0.0-beta.2] - Unreleased
+## [1.0.0-beta.2] - 2026-10-16
 
 ### Fixed
 

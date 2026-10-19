@@ -3,14 +3,15 @@
 use Illuminate\Support\Facades\Process;
 
 /**
- * The [api] lines of the changelog's Unreleased section, which the upgrade guide lists at release.
+ * The [api] lines above the newest dated release: the Unreleased section and the next release's
+ * section, which the upgrade guide lists at release.
  *
  * @return list<string>
  */
 function unreleasedApiLines(): array
 {
     $changelog = (string) file_get_contents(dirname(__DIR__, 3).'/CHANGELOG.md');
-    $unreleased = explode("\n## [", explode('## [Unreleased]', $changelog, 2)[1] ?? '', 2)[0];
+    $unreleased = preg_split('/^## \[[^\]]+\] - \d{4}-\d{2}-\d{2}$/m', $changelog, 2)[0];
 
     return array_values(array_filter(explode("\n", $unreleased), fn (string $line) => str_starts_with($line, '- [api] ')));
 }

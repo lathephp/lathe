@@ -46,25 +46,24 @@ it('lists the api entries of the newest release since the one before', function 
         - [api] Older change.
         MD);
 
-    expect($page)->toContain('## 1.0.0 to 1.1.0', '- `Field::help()` takes a closure.')
+    expect($page)->toContain('## From 1.0.0 to 1.1.0', '- `Field::help()` takes a closure.')
         ->not->toContain('Older change')
         ->not->toContain('Not released yet')
         ->not->toContain('A fix with no API change');
 })->group('frontend');
 
-it('lists the copper round changes once the unreleased entries ship', function () {
-    $root = dirname(__DIR__, 3);
-    $next = str_replace('## [Unreleased]', "## [Unreleased]\n\n## [1.0.0-beta.3] - 2026-10-30", File::get("{$root}/CHANGELOG.md"));
+it('tells a 1.0.0-beta.2 app every token, string and option that changes in 1.0.0-beta.3', function () {
+    $guide = File::get(dirname(__DIR__, 3).'/docs/getting-started/upgrade.md');
+    $tokens = ['brand', 'focus', 'skeleton', 'scrim', 'chart-other', 'sidebar-hover'];
 
-    expect(upgradeGuide($next))->toContain(
-        '## 1.0.0-beta.2 to 1.0.0-beta.3',
-        'copper',
-        '`brand`, `focus`',
-        '`@lathephp/ui/sonner` subpath is removed',
-        '`@lathephp/ui/select`',
-        '"Sign out"',
-        '`SelectField::badges()`',
-        '24-hour clock',
-        '`Lathe\Theme\Color`',
-    );
+    foreach (['primary', 'success', 'warning', 'info', 'destructive'] as $tone) {
+        array_push($tokens, "{$tone}-subtle", "{$tone}-subtle-foreground");
+    }
+
+    expect($guide)->toContain('## From 1.0.0-beta.2 to 1.0.0-beta.3', 'copper', '`link` and `link-hover`', '`Lathe\Theme\Color`')
+        ->toContain(...array_map(fn (string $token) => "`{$token}`", $tokens))
+        ->toContain('`Refresh` reads `Load their version`', '`Validate` reads `Check :count rows`', '"Sign out"', '24-hour clock')
+        ->toContain('range dropdown', '`lathe_user_preferences`', 'php artisan migrate')
+        ->toContain('`ResourceDefinition::phoneCard(', '`ValueResult::lowerIsBetter()`', '`Dashboard::customizable(false)`', '`Widget::link()`', '`Dashboard::ranges()`', '`brand.logo`', '`brand.logo_dark`')
+        ->toContain('`@lathephp/ui/sonner` subpath is removed', '`SelectField::badges()`');
 })->group('frontend');
