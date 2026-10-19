@@ -1,0 +1,1 @@
+export{n as createRoot,t as default,r as hydrateRoot,i as version}from"./client-bham9xkf.js";

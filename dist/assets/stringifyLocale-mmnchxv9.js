@@ -1,0 +1,1 @@
+import{g as e,x as t,y as n}from"./reason-parts-j6ybicnl.js";function r(r){return r==null?n:r.type.startsWith(`key`)?e:r.type.startsWith(`mouse`)||r.type.startsWith(`pointer`)?t:n}function i(e){return Array.isArray(e)?e.map(e=>i(e)).join(`,`):e==null?``:String(e)}export{r as n,i as t};

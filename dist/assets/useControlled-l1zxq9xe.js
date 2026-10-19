@@ -1,0 +1,1 @@
+import{A as e,S as t,U as n,W as r}from"./_lathe-vendor_react-oaj751s7.js";t();function i({controlled:t,default:i,name:a,state:o=`value`}){let{current:s}=n(t!==void 0),[c,l]=r(()=>i);return[s&&t!==void 0?t:c,e(e=>{s||l(e)},[])]}export{i as t};
