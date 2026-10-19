@@ -1,6 +1,7 @@
 import { Link, usePage } from '@inertiajs/react';
 import { request, toast, useTranslation } from '@lathephp/core';
 import { lazy, Suspense, useId, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { Modal } from '../components/Modal';
 import { Button } from '../components/ui/Button';
 import { reloadIndexRows } from '../lib/instant';
@@ -157,14 +158,15 @@ export function RowMenuPanel({ uriKey, row, open, menuId, onClose }: RowMenuPane
           {destructive.map((action) => entry(action))}
         </div>
       )}
-      {confirming !== null && (
+      {/* On the body, so its scrim covers the top bar: the row menu's sticky cell is a stacking context. */}
+      {confirming !== null &&
+        createPortal(
         <Modal
           role="alertdialog"
           labelledBy={titleId}
           onClose={() => {
             setConfirming(null);
           }}
-          className="relative w-full max-w-sm space-y-4 rounded-lg border border-border bg-background p-4 text-start shadow-lg"
         >
           <h2 id={titleId} className="text-base font-semibold whitespace-normal">
             {confirming === 'delete' ? __('Delete :title?', { title: row.title }) : __('Force delete :title?', { title: row.title })}
@@ -173,26 +175,25 @@ export function RowMenuPanel({ uriKey, row, open, menuId, onClose }: RowMenuPane
           <div className="flex justify-end gap-2">
             <Button
               variant="outline"
-              size="sm"
               onClick={() => {
                 setConfirming(null);
               }}
             >
               {__('Cancel')}
             </Button>
-            {/* The ui Button has no destructive variant, and its classes do not merge with an override. */}
-            <button
-              type="button"
-              className="inline-flex h-8 items-center rounded-md bg-destructive px-3 text-sm font-medium text-destructive-foreground outline-none hover:bg-destructive/90 focus-visible:ring-2 focus-visible:ring-ring"
+            {/* The panel Button in the destructive colours: a utility beats the variant's layered classes. */}
+            <Button
+              className="bg-destructive text-destructive-foreground"
               onClick={() => {
                 void run(confirming);
               }}
             >
               {labels[confirming]}
-            </button>
+            </Button>
           </div>
-        </Modal>
-      )}
+        </Modal>,
+          document.body,
+        )}
       {inline && (
         <Suspense fallback={null}>
           <InlineRowActions

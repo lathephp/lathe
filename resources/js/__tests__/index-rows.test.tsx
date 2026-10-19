@@ -340,6 +340,15 @@ describe('row menu', () => {
     expect(document.activeElement).toBe(screen.getByRole('button', { name: 'Actions for ORD-00012' }));
   });
 
+  it('opens the confirm on the body, outside the table, so its scrim covers the top bar', () => {
+    renderOrders({ rows: [row(12, { view: true, delete: true })] });
+    fireEvent.click(screen.getByRole('button', { name: 'Actions for ORD-00012' }));
+    fireEvent.click(screen.getByRole('menuitem', { name: 'Delete' }));
+
+    expect(screen.getByRole('alertdialog').closest('table')).toBeNull();
+    expect(within(screen.getByRole('alertdialog')).getByRole('button', { name: 'Delete' }).className).toContain('lathe-button-size-default');
+  });
+
   it('sends nothing when the confirm is cancelled', () => {
     const fetch = vi.spyOn(globalThis, 'fetch');
     renderOrders({ rows: [row(12, { view: true, delete: true })] });
