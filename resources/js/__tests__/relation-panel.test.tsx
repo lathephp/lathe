@@ -158,6 +158,17 @@ describe('relation panel', () => {
     expect(listCalls(fetch)).toEqual(['/lathe/api/resources/orders/12/items']);
   });
 
+  it('draws no empty toolbar when the relation has no search, filters or pivot actions', async () => {
+    answer({ searchable: false });
+    renderDetail([relationBlock()]);
+    await screen.findByText('Autem blanditiis');
+
+    const card = screen.getByRole('region', { name: 'Items table' }).parentElement;
+    const empty = Array.from(card?.children ?? []).filter((child) => child.childElementCount === 0 && child.textContent === '');
+
+    expect(empty).toEqual([]);
+  });
+
   it('waits for its tab to open before it loads', async () => {
     const fetch = answer();
     renderDetail([notesBlock, inTabs(relationBlock())]);

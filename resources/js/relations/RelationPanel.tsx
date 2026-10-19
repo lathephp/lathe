@@ -183,54 +183,56 @@ function PanelBody({ parent, field, bodyId, onToggle }: RelationPanelProps & { b
         ) : null}
       </div>
       <Card id={bodyId} className="overflow-hidden">
-        <div className="flex flex-wrap items-center gap-2 border-b border-border p-3">
-          {data?.searchable === true && (
-            <ToolbarSearch
-              label={field.label}
-              value={state.q ?? ''}
-              debounce={0.3}
-              onSearch={(q) => {
-                change({ q });
-              }}
-            />
-          )}
-          {available.length > 0 && (
-            <Button
-              variant="outline"
-              aria-expanded={filtersOpen}
-              aria-controls={filtersId}
-              onClick={() => {
-                setFiltersOpen(!filtersOpen);
-              }}
-            >
-              <ListFilter aria-hidden="true" className="size-4" />
-              {__('Filters')}
-            </Button>
-          )}
-          {(data?.pivotActions?.length ?? 0) > 0 && (
-            <Suspense fallback={null}>
-              <PivotActionMenu
-                resource={field.resource}
-                via={`${parent.uriKey}/${String(parent.id)}/${field.relationship}`}
-                actions={data?.pivotActions ?? []}
-                ids={[...selection.selected]}
-                queryKey={['relation', parent.uriKey, String(parent.id), field.relationship]}
+        {(data?.searchable === true || available.length > 0 || (data?.pivotActions?.length ?? 0) > 0) && (
+          <div className="flex flex-wrap items-center gap-2 border-b border-border p-3">
+            {data?.searchable === true && (
+              <ToolbarSearch
+                label={field.label}
+                value={state.q ?? ''}
+                debounce={0.3}
+                onSearch={(q) => {
+                  change({ q });
+                }}
               />
-            </Suspense>
-          )}
-          {filtersOpen && available.length > 0 && (
-            <div id={filtersId} className="basis-full pt-2">
-              <FilterPanel
-                resource={field.resource}
-                endpoint={`${apiPath}/resources/${field.resource}/filters`}
-                available={available}
-                softDeletes={false}
-                state={state}
-                visit={change}
-              />
-            </div>
-          )}
-        </div>
+            )}
+            {available.length > 0 && (
+              <Button
+                variant="outline"
+                aria-expanded={filtersOpen}
+                aria-controls={filtersId}
+                onClick={() => {
+                  setFiltersOpen(!filtersOpen);
+                }}
+              >
+                <ListFilter aria-hidden="true" className="size-4" />
+                {__('Filters')}
+              </Button>
+            )}
+            {(data?.pivotActions?.length ?? 0) > 0 && (
+              <Suspense fallback={null}>
+                <PivotActionMenu
+                  resource={field.resource}
+                  via={`${parent.uriKey}/${String(parent.id)}/${field.relationship}`}
+                  actions={data?.pivotActions ?? []}
+                  ids={[...selection.selected]}
+                  queryKey={['relation', parent.uriKey, String(parent.id), field.relationship]}
+                />
+              </Suspense>
+            )}
+            {filtersOpen && available.length > 0 && (
+              <div id={filtersId} className="basis-full pt-2">
+                <FilterPanel
+                  resource={field.resource}
+                  endpoint={`${apiPath}/resources/${field.resource}/filters`}
+                  available={available}
+                  softDeletes={false}
+                  state={state}
+                  visit={change}
+                />
+              </div>
+            )}
+          </div>
+        )}
         {empty ? (
           <div className="space-y-4 p-12 text-center text-sm text-muted-foreground">
             <p>{filtered ? __('No results match your filters') : __('No :resource yet', { resource: field.label })}</p>
