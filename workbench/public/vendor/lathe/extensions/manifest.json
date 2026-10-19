@@ -1,7 +1,7 @@
 {
-  "entry": "boot-nT5bbFiZ.js",
+  "entry": "boot-DX3LB-h2.js",
   "styles": [
-    "boot-C8ww2APM.css"
+    "boot-5x4i_mR7.css"
   ],
   "components": {
     "widget": [
@@ -14,11 +14,11 @@
     "plugin": [
       "insights"
     ],
-    "field": [
-      "workbench-star-rating"
-    ],
     "filter": [
       "workbench-price-tier"
+    ],
+    "field": [
+      "workbench-star-rating"
     ]
   }
 }

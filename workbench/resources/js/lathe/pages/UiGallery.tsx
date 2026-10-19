@@ -79,6 +79,7 @@ import {
   TooltipTrigger,
 } from '@lathephp/ui';
 import { Suspense, useEffect, useState, type ReactNode } from 'react';
+import { PrimitiveBoards } from './PrimitiveBoards';
 import { DemoFallback, subpathDemos } from './subpathDemos';
 
 /** One component of the kit, found by its module name in data-component. */
@@ -114,6 +115,10 @@ export default function UiGallery() {
         <h1 className="text-2xl font-semibold">{__('UI Gallery')}</h1>
         <p className="mt-2 text-sm text-muted-foreground">{__('Every @lathephp/ui component on one page.')}</p>
       </header>
+
+      <PrimitiveBoards />
+
+      <h2 className="mt-10 text-[22px] leading-7 font-[650] tracking-[-0.01em]">{__('Every component')}</h2>
 
       <Card>
         <CardHeader>
@@ -157,7 +162,7 @@ export default function UiGallery() {
               </AlertDialogHeader>
               <AlertDialogFooter>
                 <AlertDialogCancel>{__('Cancel')}</AlertDialogCancel>
-                <AlertDialogAction variant="destructive">{__('Delete')}</AlertDialogAction>
+                <AlertDialogAction variant="destructive-solid">{__('Delete')}</AlertDialogAction>
               </AlertDialogFooter>
             </AlertDialogContent>
           </AlertDialog>
