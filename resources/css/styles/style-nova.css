@@ -43,11 +43,11 @@
 
   /* MARK: Alert Dialog */
   .cn-alert-dialog-overlay {
-    @apply data-open:animate-in data-closed:animate-out data-closed:fade-out-0 data-open:fade-in-0 bg-black/10 duration-100 supports-backdrop-filter:backdrop-blur-xs;
+    @apply data-open:animate-in data-closed:animate-out data-closed:fade-out-0 data-open:fade-in-0 bg-scrim duration-100;
   }
 
   .cn-alert-dialog-content {
-    @apply data-open:animate-in data-closed:animate-out data-closed:fade-out-0 data-open:fade-in-0 data-closed:zoom-out-95 data-open:zoom-in-95 bg-popover text-popover-foreground ring-foreground/10 gap-4 rounded-xl p-4 ring-1 duration-100 data-[size=default]:max-w-xs data-[size=sm]:max-w-xs data-[size=default]:sm:max-w-sm;
+    @apply data-open:animate-in data-closed:animate-out data-closed:fade-out-0 data-open:fade-in-0 data-closed:zoom-out-95 data-open:zoom-in-95 bg-popover text-popover-foreground border-border gap-5 rounded-2xl border px-6 py-5 shadow-lg duration-100 data-[size=default]:max-w-[calc(100%-2rem)] data-[size=sm]:max-w-xs data-[size=default]:sm:max-w-[400px];
   }
 
   .cn-alert-dialog-header {
@@ -59,7 +59,7 @@
   }
 
   .cn-alert-dialog-title {
-    @apply text-base font-medium sm:group-data-[size=default]/alert-dialog-content:group-has-data-[slot=alert-dialog-media]/alert-dialog-content:col-start-2;
+    @apply text-base leading-[22px] font-semibold sm:group-data-[size=default]/alert-dialog-content:group-has-data-[slot=alert-dialog-media]/alert-dialog-content:col-start-2;
   }
 
   .cn-alert-dialog-description {
@@ -67,7 +67,7 @@
   }
 
   .cn-alert-dialog-footer {
-    @apply bg-muted/50 -mx-4 -mb-4 rounded-b-xl border-t p-4;
+    @apply gap-2;
   }
 
   /* MARK: Avatar */
@@ -373,27 +373,27 @@
 
   /* MARK: Command */
   .cn-command {
-    @apply bg-popover text-popover-foreground rounded-xl! p-1;
+    @apply bg-popover text-popover-foreground rounded-xl!;
   }
 
   .cn-command-dialog {
-    @apply rounded-xl!;
+    @apply rounded-xl! border border-border shadow-lg sm:max-w-[640px];
   }
 
   .cn-command-input-wrapper {
-    @apply p-1 pb-0;
+    @apply border-border border-b;
   }
 
   .cn-command-input-group {
-    @apply bg-input/30 border-input/30 h-8! rounded-lg! shadow-none! *:data-[slot=input-group-addon]:pl-2!;
+    @apply h-[52px]! rounded-none! border-0! bg-transparent! px-2! shadow-none! *:data-[slot=input-group-addon]:pl-2!;
   }
 
   .cn-command-input-icon {
-    @apply size-4 shrink-0 opacity-50;
+    @apply text-muted-foreground size-[18px] shrink-0;
   }
 
   .cn-command-input {
-    @apply w-full text-sm;
+    @apply w-full text-base;
   }
 
   .cn-command-list {
@@ -405,7 +405,7 @@
   }
 
   .cn-command-group {
-    @apply text-foreground **:[[cmdk-group-heading]]:text-muted-foreground overflow-hidden p-1 **:[[cmdk-group-heading]]:px-2 **:[[cmdk-group-heading]]:py-1.5 **:[[cmdk-group-heading]]:text-xs **:[[cmdk-group-heading]]:font-medium;
+    @apply text-foreground **:[[cmdk-group-heading]]:text-muted-foreground overflow-hidden px-1.5 pb-1 **:[[cmdk-group-heading]]:px-2.5 **:[[cmdk-group-heading]]:pt-2.5 **:[[cmdk-group-heading]]:pb-1 **:[[cmdk-group-heading]]:text-xs **:[[cmdk-group-heading]]:font-semibold **:[[cmdk-group-heading]]:tracking-[0.04em] **:[[cmdk-group-heading]]:uppercase;
   }
 
   .cn-command-separator {
@@ -413,7 +413,7 @@
   }
 
   .cn-command-item {
-    @apply data-selected:bg-muted data-selected:text-foreground data-selected:*:[svg]:text-foreground relative flex cursor-default items-center gap-2 rounded-sm px-2 py-1.5 text-sm outline-hidden select-none in-data-[slot=dialog-content]:rounded-lg! [&_svg:not([class*='size-'])]:size-4;
+    @apply data-selected:bg-accent data-selected:text-foreground data-selected:*:[svg]:text-foreground relative flex min-h-11 cursor-default items-center gap-3 rounded-md px-2.5 py-1.5 text-sm outline-hidden select-none [&_svg:not([class*='size-'])]:size-4;
   }
 
   .cn-command-shortcut {
@@ -471,27 +471,27 @@
 
   /* MARK: Dialog */
   .cn-dialog-overlay {
-    @apply data-open:animate-in data-closed:animate-out data-closed:fade-out-0 data-open:fade-in-0 bg-black/10 duration-100 supports-backdrop-filter:backdrop-blur-xs;
+    @apply data-open:animate-in data-closed:animate-out data-closed:fade-out-0 data-open:fade-in-0 bg-scrim duration-100;
   }
 
   .cn-dialog-content {
-    @apply bg-popover text-popover-foreground data-open:animate-in data-closed:animate-out data-closed:fade-out-0 data-open:fade-in-0 data-closed:zoom-out-95 data-open:zoom-in-95 ring-foreground/10 grid max-w-[calc(100%-2rem)] gap-4 rounded-xl p-4 text-sm ring-1 duration-100 sm:max-w-sm;
+    @apply bg-popover text-popover-foreground data-open:animate-in data-closed:animate-out data-closed:fade-out-0 data-open:fade-in-0 data-closed:zoom-out-95 data-open:zoom-in-95 border-border grid max-w-[calc(100%-2rem)] gap-5 rounded-2xl border px-6 py-5 text-sm shadow-lg duration-100 sm:max-w-[400px];
   }
 
   .cn-dialog-close {
-    @apply absolute top-2 right-2;
+    @apply absolute top-3.5 right-3.5;
   }
 
   .cn-dialog-header {
-    @apply gap-2;
+    @apply gap-1.5;
   }
 
   .cn-dialog-footer {
-    @apply bg-muted/50 -mx-4 -mb-4 rounded-b-xl border-t p-4;
+    @apply gap-2;
   }
 
   .cn-dialog-title {
-    @apply text-base leading-none font-medium;
+    @apply text-base leading-[22px] font-semibold;
   }
 
   .cn-dialog-description {
@@ -1049,27 +1049,27 @@
 
   /* MARK: Sheet */
   .cn-sheet-overlay {
-    @apply bg-black/10 supports-backdrop-filter:backdrop-blur-xs;
+    @apply bg-scrim;
   }
 
   .cn-sheet-content {
-    @apply bg-popover text-popover-foreground fixed z-50 flex flex-col gap-4 bg-clip-padding text-sm shadow-lg transition duration-200 ease-in-out data-[side=bottom]:inset-x-0 data-[side=bottom]:bottom-0 data-[side=bottom]:h-auto data-[side=bottom]:border-t data-[side=left]:inset-y-0 data-[side=left]:left-0 data-[side=left]:h-full data-[side=left]:w-3/4 data-[side=left]:border-r data-[side=right]:inset-y-0 data-[side=right]:right-0 data-[side=right]:h-full data-[side=right]:w-3/4 data-[side=right]:border-l data-[side=top]:inset-x-0 data-[side=top]:top-0 data-[side=top]:h-auto data-[side=top]:border-b data-[side=left]:sm:max-w-sm data-[side=right]:sm:max-w-sm;
+    @apply bg-popover text-popover-foreground border-border fixed z-50 flex flex-col bg-clip-padding text-sm shadow-lg transition duration-200 ease-in-out data-[side=bottom]:inset-x-0 data-[side=bottom]:bottom-0 data-[side=bottom]:h-auto data-[side=bottom]:rounded-t-2xl data-[side=bottom]:border-t data-[side=left]:inset-y-0 data-[side=left]:left-0 data-[side=left]:h-full data-[side=left]:w-3/4 data-[side=left]:rounded-r-2xl data-[side=left]:border-r data-[side=right]:inset-y-0 data-[side=right]:right-0 data-[side=right]:h-full data-[side=right]:w-full data-[side=right]:rounded-l-2xl data-[side=right]:border-l data-[side=top]:inset-x-0 data-[side=top]:top-0 data-[side=top]:h-auto data-[side=top]:rounded-b-2xl data-[side=top]:border-b data-[side=left]:sm:max-w-sm data-[side=right]:sm:max-w-[480px];
   }
 
   .cn-sheet-close {
-    @apply absolute top-3 right-3;
+    @apply absolute top-[18px] right-[18px];
   }
 
   .cn-sheet-header {
-    @apply gap-0.5 p-4;
+    @apply border-border gap-1 border-b py-5 ps-6 pe-14;
   }
 
   .cn-sheet-footer {
-    @apply gap-2 p-4;
+    @apply border-border gap-2 border-t px-6 py-4 sm:flex-row sm:justify-end;
   }
 
   .cn-sheet-title {
-    @apply text-foreground text-base font-medium;
+    @apply text-foreground text-base leading-[22px] font-semibold;
   }
 
   .cn-sheet-description {
