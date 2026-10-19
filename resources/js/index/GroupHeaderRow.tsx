@@ -15,7 +15,7 @@ export function GroupHeaderRow({ group, colSpan, collapsible, expanded, onToggle
   const Chevron = expanded ? ChevronDown : ChevronRight;
 
   return (
-    <tr className="h-10 border-b border-border bg-muted/50">
+    <tr className="h-11 border-b border-border bg-background">
       <th scope="colgroup" colSpan={colSpan} className="px-3 text-start font-medium whitespace-nowrap">
         {collapsible ? (
           <button

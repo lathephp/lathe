@@ -722,8 +722,12 @@
     @apply hidden;
   }
 
+  .lathe-group:has(b) {
+    @apply bg-accent;
+  }
+
   .lathe-group b {
-    @apply font-medium text-foreground;
+    @apply -ms-1.5 font-medium text-foreground;
   }
 
   .lathe-group b::before {
@@ -734,12 +738,17 @@
     @apply h-10 border-b border-border bg-muted;
   }
 
-  [data-lathe-table] th {
+  [data-lathe-table] thead th {
     @apply text-[11px] leading-4 font-semibold tracking-[0.04em] text-muted-foreground uppercase;
   }
 
   [data-lathe-table] tbody tr {
     @apply bg-card;
+  }
+
+  /* The totals close the table on the muted ground, their figures in weight 600. */
+  [data-lathe-table] tfoot tr {
+    @apply bg-muted text-[13px] font-semibold tabular-nums;
   }
 
   /* A ticked row takes the selection tint. */

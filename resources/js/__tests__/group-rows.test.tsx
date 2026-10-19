@@ -73,6 +73,14 @@ function bodyRows(): string[][] {
 }
 
 describe('group rows', () => {
+  it('draws each group header 44 px tall on the page ground, between the white rows', () => {
+    renderGrouped();
+    const header = screen.getByRole('button', { name: 'Status: paid' }).closest('tr');
+
+    expect(header?.className).toContain('h-11');
+    expect(header?.className).toContain('bg-background');
+  });
+
   it('draws a header and a subtotal for each group, and a collapsed group hides both its rows and its subtotal', () => {
     renderGrouped();
 
