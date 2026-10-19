@@ -9,7 +9,7 @@ import type { FormProps } from '../types';
 type Tab = 'write' | 'preview';
 
 const tabClass =
-  'rounded-md px-3 py-1 text-sm font-medium outline-none focus-visible:ring-2 focus-visible:ring-ring aria-selected:bg-muted aria-selected:text-foreground text-muted-foreground';
+  'inline-flex h-7 items-center rounded-[6px] px-2.5 text-[13px] font-medium text-muted-foreground outline-none focus-visible:ring-2 focus-visible:ring-ring aria-selected:bg-card aria-selected:text-foreground aria-selected:shadow-xs';
 
 export interface MarkdownEditorProps extends FormFieldProps {
   /** Uploads a chosen image and returns its URL. Without it, the editor has no image button. */
@@ -55,46 +55,50 @@ export default function MarkdownEditor({ field, value, onChange, id, describedBy
     }
   }
 
+  // One box: a muted toolbar row with the tabs and the image button, then the textarea or the preview.
   return (
-    <div className="space-y-2">
-      {uploadImage !== undefined && (
-        <FilePicker
-          variant="ghost"
-          accept="image/png,image/jpeg,image/gif,image/webp"
-          disabled={disabled}
-          onPick={(file) => {
-            void addImage(file, uploadImage);
-          }}
-          className="float-right text-muted-foreground hover:text-foreground"
-        >
-          {__('Upload image')}
-        </FilePicker>
-      )}
-      <div role="tablist" className="flex gap-1">
-        <button
-          type="button"
-          role="tab"
-          id={`${id}-write`}
-          aria-selected={tab === 'write'}
-          className={tabClass}
-          onClick={() => {
-            setTab('write');
-          }}
-        >
-          {__('Write')}
-        </button>
-        <button
-          type="button"
-          role="tab"
-          id={`${id}-preview`}
-          aria-selected={tab === 'preview'}
-          className={tabClass}
-          onClick={() => {
-            void showPreview();
-          }}
-        >
-          {__('Preview')}
-        </button>
+    <div className="overflow-hidden rounded-md border border-input bg-card has-aria-[invalid]:border-destructive">
+      <div className="flex h-[38px] items-center gap-0.5 border-b border-border bg-muted px-1.5">
+        <div role="tablist" className="flex gap-0.5">
+          <button
+            type="button"
+            role="tab"
+            id={`${id}-write`}
+            aria-selected={tab === 'write'}
+            className={tabClass}
+            onClick={() => {
+              setTab('write');
+            }}
+          >
+            {__('Write')}
+          </button>
+          <button
+            type="button"
+            role="tab"
+            id={`${id}-preview`}
+            aria-selected={tab === 'preview'}
+            className={tabClass}
+            onClick={() => {
+              void showPreview();
+            }}
+          >
+            {__('Preview')}
+          </button>
+        </div>
+        {uploadImage !== undefined && (
+          <FilePicker
+            variant="ghost"
+            size="sm"
+            accept="image/png,image/jpeg,image/gif,image/webp"
+            disabled={disabled}
+            onPick={(file) => {
+              void addImage(file, uploadImage);
+            }}
+            className="ms-auto text-muted-foreground hover:text-foreground"
+          >
+            {__('Upload image')}
+          </FilePicker>
+        )}
       </div>
       <textarea
         ref={textarea}
@@ -111,10 +115,10 @@ export default function MarkdownEditor({ field, value, onChange, id, describedBy
         onChange={(event) => {
           onChange(event.target.value);
         }}
-        className="w-full rounded-md border border-input bg-background px-3 py-2 font-mono text-sm outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:opacity-60 aria-[invalid]:border-destructive"
+        className="block w-full resize-y bg-card px-3 py-2.5 font-mono text-[13px] leading-5 outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset disabled:opacity-60"
       />
       {tab === 'preview' && (
-        <div role="tabpanel" aria-labelledby={`${id}-preview`} className="min-h-24 rounded-md border border-input px-3 py-2">
+        <div role="tabpanel" aria-labelledby={`${id}-preview`} className="min-h-24 px-3 py-2.5">
           {failed ? (
             <p className="text-sm text-destructive">{__('The preview could not be loaded.')}</p>
           ) : preview === null ? (

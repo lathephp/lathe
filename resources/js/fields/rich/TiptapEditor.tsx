@@ -55,7 +55,7 @@ function Tool({ label, icon: Icon, disabled, onClick }: ToolProps) {
       aria-label={label}
       title={label}
       disabled={disabled}
-      className="rounded-md p-1.5 text-muted-foreground outline-none hover:bg-muted hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring disabled:opacity-60"
+      className="inline-flex size-7 items-center justify-center rounded-[6px] text-muted-foreground outline-none hover:bg-card hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring disabled:opacity-60"
       onClick={onClick}
     >
       <Icon aria-hidden="true" className="size-4" />
@@ -103,7 +103,7 @@ export default function TiptapEditor({ field, value, onChange, id, describedBy, 
         ...(describedBy === undefined ? {} : { 'aria-describedby': describedBy }),
         ...(invalid ? { 'aria-invalid': 'true' } : {}),
         class:
-          'prose max-w-none min-h-32 rounded-md border border-input bg-background px-3 py-2 text-sm outline-none focus-visible:ring-2 focus-visible:ring-ring aria-[invalid]:border-destructive',
+          'prose max-w-none min-h-32 bg-card px-3.5 py-3 text-sm outline-none',
       },
     },
     onUpdate: ({ editor: current }) => {
@@ -112,8 +112,9 @@ export default function TiptapEditor({ field, value, onChange, id, describedBy, 
   });
 
   return (
-    <div className="space-y-2">
-      <div role="toolbar" aria-label={__('Formatting')} className="flex gap-1">
+    // One box: a muted toolbar row over the text, as the rich text board draws it.
+    <div className="overflow-hidden rounded-md border border-input bg-card focus-within:border-ring focus-within:ring-1 focus-within:ring-ring has-aria-[invalid]:border-destructive">
+      <div role="toolbar" aria-label={__('Formatting')} className="flex h-[38px] items-center gap-0.5 border-b border-border bg-muted px-1.5">
         <Tool label={__('Bold')} icon={Bold} disabled={disabled} onClick={() => editor.chain().focus().toggleBold().run()} />
         <Tool label={__('Italic')} icon={Italic} disabled={disabled} onClick={() => editor.chain().focus().toggleItalic().run()} />
         <Tool label={__('Bulleted list')} icon={List} disabled={disabled} onClick={() => editor.chain().focus().toggleBulletList().run()} />

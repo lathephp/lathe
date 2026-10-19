@@ -124,6 +124,15 @@ describe('markdown-field', () => {
     expect(textarea.value).toBe('**bold**');
   });
 
+  it('frames the tabs in a toolbar row above the textarea, in one box', async () => {
+    renderForm('');
+    const textarea = await screen.findByLabelText<HTMLTextAreaElement>(/Body/);
+    const toolbar = screen.getByRole('tablist').parentElement as HTMLElement;
+
+    expect(toolbar.contains(textarea)).toBe(false);
+    expect(toolbar.nextElementSibling).toBe(textarea);
+  });
+
   it('previews the typed source through the create preview endpoint', async () => {
     const fetch = respond('<p><strong>bold</strong></p>');
     renderForm('');

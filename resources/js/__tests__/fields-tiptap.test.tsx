@@ -85,6 +85,15 @@ describe('tiptap-field', () => {
     expect(warn.mock.calls.flat().join(' ')).not.toContain('Duplicate extension');
   });
 
+  it('frames the toolbar row and the text in one box, the toolbar on the muted ground', async () => {
+    renderForm('<p>one</p>');
+    await editorOf();
+    const toolbar = screen.getByRole('toolbar', { name: 'Formatting' });
+
+    expect(toolbar.className).toContain('bg-muted');
+    expect(toolbar.parentElement?.className).toContain('rounded-md border');
+  });
+
   it('renders the sanitized detail value with the prose class', () => {
     const container = renderDetail(html('<p>Hi</p><img src="x">'), 'Hi');
 
