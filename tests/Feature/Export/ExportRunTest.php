@@ -102,6 +102,8 @@ beforeEach(function () {
 });
 
 it('reports a queued run to its owner only, with a signed download link once finished', function () {
+    // The notification's link and the status link are signed apart; a second between them changed expires.
+    $this->freezeTime();
     $export = startQueuedExport($this);
 
     $this->getJson("/lathe/api/exports/{$export->id}")->assertOk()->assertExactJson([
