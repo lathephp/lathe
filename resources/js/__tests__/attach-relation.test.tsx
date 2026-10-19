@@ -230,7 +230,7 @@ describe('attaching to a pivot relation', () => {
     });
     expect(api.asked('/products/1/tags', 'POST').map((call) => call.body)).toEqual([{ related_id: 9, pivot: { position: '1' } }]);
     expect(screen.getByRole('dialog')).toBe(dialog);
-    expect(within(dialog).getByRole('button', { name: 'Tag' }).textContent).toBe('Select Tag');
+    expect(within(dialog).getByRole('button', { name: 'Tag' }).textContent).toBe('Select tag');
     expect(within(dialog).getByRole('spinbutton', { name: 'Position' })).toHaveProperty('value', '');
     expect(api.asked('/pivot-fields')).toHaveLength(1);
   });
