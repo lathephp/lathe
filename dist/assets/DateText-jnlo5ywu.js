@@ -1,0 +1,1 @@
+export{t as DateText}from"./DateText-da0w77qy.js";

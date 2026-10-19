@@ -1,0 +1,1 @@
+import{s as e}from"./dist-dda3y816.js";import{request as t}from"@lathephp/core";async function n(n,r){let i=(await t(`${n}/api/impersonate`,{method:r===void 0?`DELETE`:`POST`,body:r}))?.redirect??n,a=new URL(i,location.href);a.origin===location.origin&&(a.pathname===n||a.pathname.startsWith(`${n}/`))?e.visit(i):location.assign(i)}export{n as t};

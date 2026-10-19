@@ -1,0 +1,1 @@
+import{o as e}from"./shadowDom-cn6bc348.js";var t=typeof CSS<`u`&&!!CSS.supports?.(`-webkit-backdrop-filter:none`),n=!t&&e.includes(`firefox`);!t&&e.includes(`chrom`);export{t as n,n as t};

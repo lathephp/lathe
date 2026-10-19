@@ -1,0 +1,1 @@
+import{t as e}from"./tableIcons-c8gj5rjr.js";import{createElement as t}from"react";function n({name:n}){return t(e(n),{"aria-hidden":!0,className:`size-5 shrink-0 text-muted-foreground`})}export{n as default};
