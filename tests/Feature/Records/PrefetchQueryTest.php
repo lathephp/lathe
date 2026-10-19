@@ -22,7 +22,8 @@ it('runs only the first-page query when an index is prefetched', function () {
 
     $sql = [];
     DB::listen(function ($query) use (&$sql) {
-        $sql[] = strtolower($query->sql);
+        // MySQL and MariaDB quote names with backticks.
+        $sql[] = str_replace('`', '"', strtolower($query->sql));
     });
 
     $response = $this->get('/lathe/resources/orders', [
