@@ -1,7 +1,8 @@
 import { Link, router } from '@inertiajs/react';
 import { useTranslation } from '@lathephp/core';
-import { LogOut } from 'lucide-react';
+import { ChevronsUpDown, LogOut } from 'lucide-react';
 import { lazy, Suspense, useEffect, useRef, useState } from 'react';
+import { NavIcon } from '../components/NavIcon';
 import { cn } from '../lib/cn';
 import type { NavigationItem } from '../types';
 
@@ -14,7 +15,7 @@ interface UserMenuProps {
   collapsed: boolean;
 }
 
-const rowClass = 'flex items-center gap-2 rounded-md px-2 py-1.5 text-sm outline-none hover:bg-muted focus-visible:ring-2 focus-visible:ring-ring';
+const rowClass = 'lathe-menu-row';
 
 function initials(name: string): string {
   return name
@@ -27,10 +28,17 @@ function initials(name: string): string {
 
 /** The signed-in user at the foot of the sidebar, with the Sign out entry. */
 export function UserMenu({ user, items, logoutPath, collapsed }: UserMenuProps) {
+  'use no memo';
+
   const { __ } = useTranslation();
   const [open, setOpen] = useState(false);
   const root = useRef<HTMLDivElement>(null);
   const trigger = useRef<HTMLButtonElement>(null);
+  const avatar = (
+    <span aria-hidden="true" className="lathe-avatar">
+      {initials(user.name)}
+    </span>
+  );
 
   useEffect(() => {
     if (!open) {
@@ -61,18 +69,21 @@ export function UserMenu({ user, items, logoutPath, collapsed }: UserMenuProps) 
   }, [open]);
 
   return (
-    <div ref={root} className="relative border-t border-sidebar-border p-2">
+    <div ref={root} className="relative">
       {open && (
         <div
           id="lathe-user-menu"
           role="menu"
           aria-label={__('User menu')}
           tabIndex={-1}
-          className="absolute start-2 bottom-full z-10 mb-2 w-56 rounded-lg border border-border bg-background p-1 shadow-lg"
+          className="lathe-user-menu"
         >
-          <div role="none" className="px-2 py-1.5 text-sm">
-            <p className="font-medium">{user.name}</p>
-            <p className="text-muted-foreground">{user.email}</p>
+          <div role="none" className="lathe-user">
+            {avatar}
+            <span className="grid min-w-0">
+              <span className="truncate font-semibold">{user.name}</span>
+              <span className="truncate text-xs text-muted-foreground">{user.email}</span>
+            </span>
           </div>
           {items.map((item) => (
             <Link
@@ -84,19 +95,20 @@ export function UserMenu({ user, items, logoutPath, collapsed }: UserMenuProps) 
                 setOpen(false);
               }}
             >
+              {item.icon !== null && <NavIcon name={item.icon} />}
               {item.label}
             </Link>
           ))}
           {/* Lazy: the switcher is only needed once the menu is open. The fallback has its final height. */}
           <div data-lathe-appearance-slot>
-            <Suspense fallback={<div className="h-[6.625rem]" />}>
+            <Suspense fallback={<div className="h-[4.75rem]" />}>
               <AppearanceSwitcher />
             </Suspense>
           </div>
           <button
             type="button"
             role="menuitem"
-            className={cn('w-full', rowClass)}
+            className={rowClass}
             onClick={() => {
               router.post(logoutPath);
             }}
@@ -112,21 +124,17 @@ export function UserMenu({ user, items, logoutPath, collapsed }: UserMenuProps) 
         aria-haspopup="menu"
         aria-expanded={open}
         aria-controls={open ? 'lathe-user-menu' : undefined}
-        className="flex w-full items-center gap-2 rounded-md p-1 text-start text-sm outline-none hover:bg-muted focus-visible:ring-2 focus-visible:ring-ring"
+        className="lathe-user lathe-user-trigger"
         onClick={() => {
           setOpen(!open);
         }}
       >
-        <span
-          aria-hidden="true"
-          className="grid size-8 shrink-0 place-items-center rounded-md bg-muted text-xs font-medium"
-        >
-          {initials(user.name)}
+        {avatar}
+        <span className={cn('grid min-w-0 flex-1', collapsed && 'md:sr-only')}>
+          <span className="truncate font-medium text-foreground">{user.name}</span>
+          <span className="truncate text-xs text-muted-foreground max-md:text-[13px]">{user.email}</span>
         </span>
-        <span className={cn('grid min-w-0', collapsed && 'md:sr-only')}>
-          <span className="truncate font-medium">{user.name}</span>
-          <span className="truncate text-xs text-muted-foreground">{user.email}</span>
-        </span>
+        <ChevronsUpDown aria-hidden="true" className={cn('size-4 shrink-0 text-muted-foreground', collapsed && 'md:hidden')} />
       </button>
     </div>
   );

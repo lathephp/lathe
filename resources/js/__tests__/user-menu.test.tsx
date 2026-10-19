@@ -74,7 +74,7 @@ describe('user menu', () => {
         node.hasAttribute('data-lathe-appearance-slot') ? 'slot' : node.textContent,
       ),
     ).toEqual(['Profile', 'Security', 'slot', 'Sign out']);
-    expect(menu.textContent.startsWith('Ada Lovelaceada@example.com')).toBe(true);
+    expect(menu.textContent.startsWith('ALAda Lovelaceada@example.com')).toBe(true);
   });
 
   it('signs out with a POST to the panel path', () => {

@@ -366,6 +366,206 @@
   }
 }
 
+/* The shell: the top bar, the page header and the sidebar. The looks live here, so the
+   first-load script of every page carries only the class names. */
+@layer components {
+  .lathe-topbar {
+    @apply flex h-14 items-center gap-1 border-b border-border bg-background px-2 md:gap-3 md:ps-4 md:pe-6;
+  }
+
+  /* The collapse button and the bell: 32 px and muted, 44 px touch targets on a phone. */
+  .lathe-topbar .lathe-button-size-icon {
+    @apply size-11 rounded-md text-muted-foreground md:size-8;
+  }
+
+  .lathe-topbar .lathe-button-size-icon > .lucide-bell {
+    @apply size-[18px];
+  }
+
+  .lathe-topbar [data-testid="unread-dot"] {
+    @apply end-[7px] top-1.5 shadow-[0_0_0_2px_var(--color-background)] max-md:end-3 max-md:top-[11px];
+  }
+
+  .lathe-topbar-end {
+    @apply ms-auto flex items-center gap-1 md:gap-3;
+  }
+
+  .lathe-topbar-search {
+    @apply flex size-11 items-center justify-center gap-2 rounded-md text-muted-foreground outline-none focus-visible:ring-2 focus-visible:ring-focus md:h-8 md:w-65 md:justify-start md:border md:border-border md:bg-card md:ps-2.5 md:pe-1.5 md:text-[13px] md:leading-[18px];
+  }
+
+  .lathe-topbar-search > span {
+    @apply flex-1 text-start max-md:hidden;
+  }
+
+  .lathe-topbar-search > kbd {
+    @apply rounded-[4px] border border-border bg-muted px-[5px] font-mono text-[11px] leading-4 font-medium max-md:hidden;
+  }
+
+  .lathe-crumbs {
+    @apply min-w-0 text-[13px] leading-[18px] text-muted-foreground max-md:hidden;
+  }
+
+  .lathe-crumbs ol,
+  .lathe-crumbs li {
+    @apply flex items-center gap-1.5;
+  }
+
+  .lathe-crumbs a {
+    @apply rounded-sm outline-none hover:text-foreground focus-visible:ring-2 focus-visible:ring-focus;
+  }
+
+  .lathe-crumbs [aria-current="page"] {
+    @apply font-medium text-foreground;
+  }
+
+  .lathe-page-bar-title {
+    @apply me-auto min-w-0 truncate text-[17px] leading-6 font-[650];
+  }
+
+  /* The phone's icon-only primary sits last in the top bar, after the bell. */
+  .lathe-page-bar-action {
+    @apply order-last mx-1 size-9 rounded-md shadow-none;
+  }
+
+  .lathe-page-header {
+    @apply flex items-center gap-4;
+  }
+
+  .lathe-page-heading {
+    @apply flex min-w-0 flex-col gap-1;
+  }
+
+  .lathe-page-title {
+    @apply truncate text-[22px] leading-7 font-[650] tracking-[-0.01em] max-md:sr-only;
+  }
+
+  .lathe-page-subtitle {
+    @apply text-[13px] leading-[18px] text-muted-foreground;
+  }
+
+  /* One row on a wide screen; a phone, whose title sits in the top bar, may wrap the controls. */
+  .lathe-page-actions {
+    @apply ms-auto flex shrink-0 items-center gap-2 empty:hidden max-md:shrink max-md:flex-wrap;
+  }
+
+  .lathe-sidebar-brand {
+    @apply flex h-14 shrink-0 items-center gap-2.5 border-b border-sidebar-border ps-4 pe-1 md:pe-4;
+  }
+
+  .lathe-sidebar-mark {
+    @apply grid size-7 shrink-0 place-items-center rounded-md bg-sidebar-primary text-sm font-[650] text-sidebar-primary-foreground;
+  }
+
+  .lathe-nav-section,
+  .lathe-nav-section > ul {
+    @apply flex flex-col gap-0.5 max-md:gap-0;
+  }
+
+  /* An uppercase group heading; a collapsible one is a button with the chevron at its end. */
+  .lathe-nav-heading {
+    @apply flex h-6 items-center px-2 text-[11px] leading-4 font-semibold tracking-[0.06em] text-muted-foreground uppercase max-md:px-2.5;
+  }
+
+  .lathe-nav-heading > button {
+    @apply flex h-full flex-1 items-center justify-end gap-1.5 rounded-sm tracking-[inherit] uppercase outline-none focus-visible:ring-2 focus-visible:ring-sidebar-ring max-md:h-11;
+  }
+
+  .lathe-nav-heading > button:first-child {
+    @apply justify-between;
+  }
+
+  .lathe-nav-heading > button > span {
+    @apply ms-auto font-medium tracking-normal;
+  }
+
+  .lathe-nav-heading > button[aria-expanded="false"] > svg {
+    @apply -rotate-90 rtl:rotate-90;
+  }
+
+  .lathe-nav-item {
+    @apply relative flex h-8 items-center gap-2 rounded-sm px-2 text-sm font-medium text-sidebar-foreground outline-none hover:bg-sidebar-hover focus-visible:ring-2 focus-visible:ring-sidebar-ring max-md:h-11 max-md:gap-2.5 max-md:rounded-md max-md:px-2.5 max-md:text-[15px];
+  }
+
+  .lathe-nav-item > svg {
+    @apply text-muted-foreground;
+  }
+
+  .lathe-nav-item[aria-current="page"] {
+    @apply bg-sidebar-accent text-sidebar-accent-foreground;
+  }
+
+  .lathe-nav-item[aria-current="page"] > svg {
+    @apply text-current;
+  }
+
+  /* The 3 px brand bar sits on the nav's edge, 8 px before the link. */
+  .lathe-nav-item[aria-current="page"]::before {
+    @apply absolute -start-2 top-2 h-4 w-[3px] rounded-e-[3px] bg-brand content-[''] max-md:top-3 max-md:h-5;
+  }
+
+  .lathe-nav-badge {
+    @apply ms-auto inline-flex h-5 items-center rounded-sm bg-muted px-1.5 text-xs font-medium text-muted-foreground tabular-nums;
+  }
+
+  .lathe-nav-item[aria-current="page"] > .lathe-nav-badge {
+    @apply bg-card font-semibold text-sidebar-accent-foreground;
+  }
+
+  .lathe-nav-badge[data-badge-type="success"] {
+    @apply bg-success-subtle text-success-subtle-foreground;
+  }
+
+  .lathe-nav-badge[data-badge-type="warning"] {
+    @apply bg-warning-subtle text-warning-subtle-foreground;
+  }
+
+  .lathe-nav-badge[data-badge-type="destructive"] {
+    @apply bg-destructive-subtle text-destructive-subtle-foreground;
+  }
+
+  .lathe-avatar {
+    @apply grid size-8 shrink-0 place-items-center rounded-full bg-primary-subtle text-xs font-semibold text-primary-subtle-foreground;
+  }
+
+  .lathe-user {
+    @apply flex items-center gap-2.5 p-2 text-start text-sm leading-5;
+  }
+
+  /* The user row at the foot: 8 px in from the sidebar's edges, with its rule on top. */
+  .lathe-user-trigger {
+    @apply m-2 w-[calc(100%-1rem)] rounded-md border-t border-sidebar-border outline-none hover:bg-sidebar-hover focus-visible:ring-2 focus-visible:ring-sidebar-ring aria-expanded:bg-sidebar-hover max-md:p-2.5 max-md:text-[15px] max-md:[&>.lathe-avatar]:size-9 max-md:[&>.lathe-avatar]:text-[13px];
+  }
+
+  .lathe-user-menu {
+    @apply absolute inset-x-2 bottom-full z-10 flex flex-col rounded-xl border border-border bg-popover p-1 text-popover-foreground shadow-md;
+  }
+
+  .lathe-user-menu > .lathe-user {
+    @apply border-b border-border pb-3;
+  }
+
+  .lathe-menu-row {
+    @apply flex h-8 w-full items-center gap-2 rounded-sm px-2 text-sm outline-none hover:bg-accent focus-visible:ring-2 focus-visible:ring-focus;
+  }
+
+  .lathe-menu-row > svg {
+    @apply size-4 text-muted-foreground;
+  }
+
+  .lathe-appearance {
+    @apply my-1 flex flex-col gap-1.5 border-y border-border px-2 py-2.5 text-xs text-muted-foreground;
+  }
+
+  .lathe-appearance > div {
+    @apply grid grid-cols-3 gap-0.5 rounded-md bg-muted p-0.5;
+  }
+
+  .lathe-appearance button {
+    @apply inline-flex h-[26px] items-center justify-center gap-1.5 rounded-sm text-[13px] font-medium outline-none focus-visible:ring-2 focus-visible:ring-focus aria-checked:bg-card aria-checked:text-foreground aria-checked:shadow-xs;
+  }
+}
+
 /* Only @lathephp/ui uses this class. The build test counts it in the built
    stylesheet to prove the package sources are scanned. */
 @utility lathe-probe-class {

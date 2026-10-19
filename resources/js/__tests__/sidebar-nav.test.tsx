@@ -106,7 +106,7 @@ describe('sidebar badges and tooltips', () => {
     const badge = nav.getByText('4');
 
     expect(badge.dataset.badgeType).toBe('warning');
-    expect(badge.className).toContain('bg-warning');
+    expect(badge.className).toContain('lathe-nav-badge');
   });
 
   it('shows a badge tooltip on hover and on focus', () => {

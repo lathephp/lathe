@@ -1,9 +1,11 @@
 import { Link, usePage } from '@inertiajs/react';
+import { ChevronDown } from 'lucide-react';
 import { useId, useState } from 'react';
 import { NavIcon } from '../components/NavIcon';
 import { cn } from '../lib/cn';
 import { instantProps } from '../lib/instant';
 import { preloadPage } from '../lib/pages';
+import type { Breadcrumb } from '../fields/types';
 import type { NavigationItem } from '../types';
 
 export interface NavBadge {
@@ -40,18 +42,35 @@ export interface NavContext {
   press: (href: string | null) => void;
 }
 
-const tones: Record<string, string> = {
-  info: 'bg-info text-info-foreground',
-  success: 'bg-success text-success-foreground',
-  warning: 'bg-warning text-warning-foreground',
-  destructive: 'bg-destructive text-destructive-foreground',
-};
+type Place = Pick<NavContext, 'url' | 'basePath'>;
+
+const pathOf = (url: string) => url.split(/[?#]/)[0] ?? url;
 
 /** A server override wins. The panel root is active on its own path only, any other link also below it. */
-function isActive(item: NavLink, { url, basePath }: NavContext): boolean {
-  const path = url.split(/[?#]/)[0] ?? url;
+function isActive(item: NavLink, { url, basePath }: Place): boolean {
+  const path = pathOf(url);
 
   return item.active ?? (item.href === basePath ? path === item.href : path === item.href || path.startsWith(`${item.href}/`));
+}
+
+/** The menu groups around the current page's link, then the link: the top bar's trail when a page sends none. */
+export function navTrail(blocks: NavBlock[], place: Place): Breadcrumb[] {
+  for (const block of blocks) {
+    for (const entry of block.items) {
+      const tail =
+        'items' in entry
+          ? navTrail([entry], place)
+          : isActive(entry, place)
+            ? [{ label: entry.label, href: pathOf(place.url) === entry.href ? null : entry.href }]
+            : [];
+
+      if (tail.length > 0) {
+        return block.label === null ? tail : [{ label: block.label, href: block.href ?? null }, ...tail];
+      }
+    }
+  }
+
+  return [];
 }
 
 function holdsActive(block: NavBlock, context: NavContext): boolean {
@@ -79,19 +98,15 @@ function NavItem({ item, context }: { item: NavLink; context: NavContext }) {
     'aria-current': active ? ('page' as const) : undefined,
     'aria-describedby': text === '' ? undefined : id,
     'data-active': active,
-    className:
-      // The current page wears the sidebar accent and a 3 px brand bar at its start.
-      'relative flex h-8 items-center gap-2 rounded-md px-2 text-sm outline-none hover:bg-sidebar-hover focus-visible:ring-2 focus-visible:ring-ring aria-[current=page]:bg-sidebar-accent aria-[current=page]:font-medium aria-[current=page]:text-sidebar-accent-foreground aria-[current=page]:before:absolute aria-[current=page]:before:inset-y-1.5 aria-[current=page]:before:start-0 aria-[current=page]:before:w-[3px] aria-[current=page]:before:rounded-full aria-[current=page]:before:bg-brand',
+    // The current page wears the sidebar accent and a 3 px brand bar at the nav's edge (app.css).
+    className: 'lathe-nav-item',
   };
   const content = (
     <>
       <NavIcon name={item.icon} />
       <span className={cn('truncate', context.collapsed && 'md:sr-only')}>{item.label}</span>
       {badge !== undefined && (
-        <span
-          data-badge-type={badge.type}
-          className={cn('ms-auto rounded-full px-1.5 text-xs font-medium', tones[badge.type], context.collapsed && 'md:sr-only')}
-        >
+        <span data-badge-type={badge.type} className={cn('lathe-nav-badge', context.collapsed && 'md:sr-only')}>
           {badge.value}
         </span>
       )}
@@ -156,26 +171,30 @@ export function NavSection({ block, context }: { block: NavBlock; context: NavCo
   const Heading = block.kind === 'group' ? 'h3' : 'h2';
 
   return (
-    <div className={block.kind === 'group' ? 'mt-1' : 'mb-4'}>
+    <div className="lathe-nav-section">
       {block.label !== null && (
-        <Heading className={cn('flex items-center px-2 pb-1 text-xs font-medium text-muted-foreground', context.collapsed && 'md:sr-only')}>
-          {block.href === undefined ? block.label : <Link href={block.href}>{block.label}</Link>}
-          {block.collapsible === true && (
+        <Heading className={cn('lathe-nav-heading', context.collapsed && 'md:sr-only')}>
+          {block.href !== undefined && <Link href={block.href}>{block.label}</Link>}
+          {block.collapsible === true ? (
             <button
               type="button"
-              aria-label={block.label}
+              aria-label={block.href === undefined ? undefined : block.label}
               aria-expanded={open}
               onClick={() => {
                 setOpen(!open);
               }}
-              className="ms-auto rounded-sm px-1 transition-transform aria-expanded:rotate-90 rtl:not-aria-expanded:rotate-180"
             >
-              ›
+              {block.href === undefined && block.label}
+              {/* A closed group says how many entries it holds. */}
+              {!open && <span aria-hidden="true">{block.items.length}</span>}
+              <ChevronDown aria-hidden="true" className="size-3.5" />
             </button>
+          ) : (
+            block.href === undefined && block.label
           )}
         </Heading>
       )}
-      <ul hidden={!open} className="space-y-0.5">
+      <ul hidden={!open}>
         {block.items.map((entry) =>
           'items' in entry ? (
             <li key={entry.label}>

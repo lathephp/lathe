@@ -17,6 +17,8 @@ interface SidebarProps {
 }
 
 export function Sidebar({ props, url, expanded, mobileOpen, onClose }: SidebarProps) {
+  'use no memo';
+
   const { __ } = useTranslation();
   const { appName, brand, versionLabel, navigation, basePath, layout, auth } = props;
   const collapsed = !expanded;
@@ -48,36 +50,33 @@ export function Sidebar({ props, url, expanded, mobileOpen, onClose }: SidebarPr
       data-state={expanded ? 'expanded' : 'collapsed'}
       data-mobile={mobileOpen ? 'open' : 'closed'}
       className={cn(
-        'fixed inset-y-0 start-0 z-40 flex w-(--sidebar-width) flex-col border-e border-sidebar-border bg-sidebar text-sidebar-foreground transition-[width,translate] md:sticky md:top-0 md:h-svh md:translate-x-0',
-        !mobileOpen && 'max-md:-translate-x-full max-md:rtl:translate-x-full',
+        'fixed inset-y-0 start-0 z-40 flex w-(--sidebar-width) flex-col max-md:w-76 border-e border-sidebar-border bg-sidebar text-sidebar-foreground transition-[width,translate] md:sticky md:top-0 md:h-svh md:translate-x-0',
+        mobileOpen ? 'shadow-lg' : 'max-md:-translate-x-full max-md:rtl:translate-x-full',
         expanded && 'md:w-(--sidebar-width)',
         collapsed && layout.sidebar.collapsible === 'icon' && 'md:w-(--sidebar-width-icon)',
         collapsed && layout.sidebar.collapsible === 'offcanvas' && 'md:w-0 md:overflow-hidden md:border-0',
       )}
     >
-      <div className="flex items-center gap-2 p-2">
+      <div className="lathe-sidebar-brand">
         {brand ? (
           <>
-            <img src={brand.logo} alt={appName} className={cn('size-8 shrink-0 object-contain', brand.logoDark && 'dark:hidden')} />
-            {brand.logoDark && <img src={brand.logoDark} alt={appName} className="hidden size-8 shrink-0 object-contain dark:block" />}
+            <img src={brand.logo} alt={appName} className={cn('size-7 shrink-0 object-contain', brand.logoDark && 'dark:hidden')} />
+            {brand.logoDark && <img src={brand.logoDark} alt={appName} className="hidden size-7 shrink-0 object-contain dark:block" />}
           </>
         ) : (
-          <span
-            aria-hidden="true"
-            className="grid size-8 shrink-0 place-items-center rounded-md bg-primary text-sm font-semibold text-primary-foreground"
-          >
+          <span aria-hidden="true" className="lathe-sidebar-mark">
             {appName.charAt(0).toUpperCase()}
           </span>
         )}
         <div className={cn('min-w-0', railHidden)}>
-          <p className="truncate text-sm font-semibold">{appName}</p>
+          <p className="truncate text-sm leading-5 font-semibold text-foreground max-md:text-[15px]">{appName}</p>
           {versionLabel !== null && <p className="truncate text-xs text-muted-foreground">{versionLabel}</p>}
         </div>
         {mobileOpen && (
           <button
             type="button"
             aria-label={__('Close menu')}
-            className="ms-auto grid size-11 shrink-0 place-items-center rounded-md outline-none hover:bg-sidebar-hover focus-visible:ring-2 focus-visible:ring-ring md:hidden"
+            className="ms-auto grid size-11 shrink-0 place-items-center rounded-md text-muted-foreground outline-none hover:bg-sidebar-hover focus-visible:ring-2 focus-visible:ring-ring md:hidden"
             onClick={onClose}
           >
             <X aria-hidden="true" className="size-4" />
@@ -85,7 +84,7 @@ export function Sidebar({ props, url, expanded, mobileOpen, onClose }: SidebarPr
         )}
       </div>
       <RenderHook position="sidebar:before" />
-      <nav aria-label={__('Main')} className="flex-1 overflow-y-auto p-2">
+      <nav aria-label={__('Main')} className="flex flex-1 flex-col gap-4 overflow-y-auto px-2 py-3 max-md:gap-3.5">
         {sections.map((section, index) => (
           <NavSection key={section.label ?? index} block={section} context={context} />
         ))}
