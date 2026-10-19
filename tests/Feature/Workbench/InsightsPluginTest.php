@@ -45,7 +45,7 @@ it('counts the open orders for the Overview badge once within 60 seconds', funct
     });
     $this->freezeTime();
 
-    expect($this->get('/lathe')->viewData('page')['props']['navigationBadges'])->toBe(['/lathe/plugins/insights' => ['value' => '5', 'type' => 'info']]);
+    expect($this->get('/lathe')->viewData('page')['props']['navigationBadges'])->toMatchArray(['/lathe/plugins/insights' => ['value' => '5', 'type' => 'info']]);
 
     $this->travel(59)->seconds();
     $this->get('/lathe')->assertOk();

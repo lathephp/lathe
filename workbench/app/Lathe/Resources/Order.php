@@ -144,13 +144,14 @@ class Order extends Resource
     public function tabs(LatheRequest $request): array
     {
         return [
-            Tab::make('All'),
+            Tab::make('All')->withCount(),
             Tab::make('Pending')
                 ->modifyQueryUsing(fn (Builder $query) => $query->where($query->qualifyColumn('status'), 'pending'))
                 ->withCount()
                 ->badgeType('warning'),
             Tab::make('Paid')
-                ->modifyQueryUsing(fn (Builder $query) => $query->where($query->qualifyColumn('status'), 'paid')),
+                ->modifyQueryUsing(fn (Builder $query) => $query->where($query->qualifyColumn('status'), 'paid'))
+                ->withCount(),
         ];
     }
 }

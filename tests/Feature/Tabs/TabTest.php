@@ -109,8 +109,9 @@ it('counts the Pending badge without the user filters', function () {
 
     $props = $this->get('/lathe/resources/orders?filter[status]=paid', tabTestPartial('tabCounts'))->assertOk()->json('props');
 
+    // Every counted tab ignores the user's filters: All still counts every order under a Paid filter.
     expect($props['tabCounts']['pending']['count'])->toMatchArray(['value' => $pending, 'capped' => false])
-        ->and($props['tabCounts'])->not->toHaveKeys(['all', 'paid']);
+        ->and($props['tabCounts']['all']['count']['value'])->toBe(OrderModel::count());
 });
 
 it('caps a badge above the cap', function () {
