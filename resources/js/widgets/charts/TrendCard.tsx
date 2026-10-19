@@ -105,7 +105,7 @@ export function TrendCard({ widget, value }: WidgetRendererProps) {
           <Chart accessibilityLayer data={data} margin={{ top: widget.showLabels === true ? 20 : 4, right: 4, bottom: 0, left: showAxes ? 0 : 4 }} stackOffset={expand ? 'expand' : undefined}>
             <CartesianGrid vertical={false} />
             <XAxis dataKey="label" hide={!showAxes} tickLine={false} axisLine={false} tickMargin={8} interval="preserveStartEnd" minTickGap={60} fontSize={11} />
-            <YAxis hide={!showAxes} tickLine={false} axisLine={false} tickMargin={8} tickCount={3} width={44} domain={showAxes ? ['auto', 'auto'] : undefined} fontSize={11} tickFormatter={short} className="max-md:hidden" />
+            <YAxis hide={!showAxes} tickLine={false} axisLine={false} tickMargin={8} tickCount={3} width={44} domain={showAxes ? ['auto', 'auto'] : undefined} fontSize={11} tickFormatter={short} />
             {tooltip}
             {names.length > 0 && <ChartLegend content={<ChartLegendContent />} />}
             {lines.map((line) =>
