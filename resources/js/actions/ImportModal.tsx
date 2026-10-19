@@ -189,13 +189,13 @@ export function ImportModal({ base, action, selection, onClose }: ImportModalPro
           {action.name}
         </h2>
         {/* The number in each dot is CSS content, so a step reads as its name alone. */}
-        <ol aria-label={__('Steps')} className="flex items-center gap-3">
+        <ol aria-label={__('Steps')} className="flex items-center gap-3 max-md:flex-wrap max-md:gap-x-4 max-md:gap-y-2">
           {steps.map((label, index) => (
             <li
               key={label}
               aria-current={index === current ? 'step' : undefined}
               className={cn(
-                "flex flex-1 items-center gap-2 text-[13px] font-medium whitespace-nowrap after:ms-1 after:h-px after:flex-1 after:bg-border after:content-[''] last:flex-none last:after:hidden",
+                "flex flex-1 items-center gap-2 text-[13px] font-medium whitespace-nowrap after:ms-1 after:h-px after:flex-1 after:bg-border after:content-[''] last:flex-none last:after:hidden max-md:flex-none max-md:after:hidden",
                 index <= current ? 'text-foreground' : 'text-muted-foreground',
               )}
             >
