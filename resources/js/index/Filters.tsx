@@ -1,6 +1,6 @@
 import { usePage } from '@inertiajs/react';
 import { useTranslation } from '@lathephp/core';
-import { ListFilter } from 'lucide-react';
+import { ChevronDown, Funnel } from 'lucide-react';
 import { Suspense, useEffect, useId, useRef, useState } from 'react';
 import { Button } from '../components/ui/Button';
 import { skeletonBar } from '../lib/instant';
@@ -62,7 +62,9 @@ export function Filters({ visit }: { visit: (changes: IndexUrlState) => void }) 
       {(available.length > 0 || softDeletes) && (
         <div ref={box} className="relative">
           <Button
-            variant="outline"
+            variant="ghost"
+            size="sm"
+            className="lathe-filter"
             aria-expanded={open}
             aria-controls={open ? panelId : undefined}
             // The panel's code loads on the first press; pointing at the button starts it early.
@@ -73,16 +75,17 @@ export function Filters({ visit }: { visit: (changes: IndexUrlState) => void }) 
               setOpen(!open);
             }}
           >
-            <ListFilter aria-hidden="true" className="size-4" />
+            <Funnel aria-hidden="true" className="size-3.5" />
             {__('Filter')}
             {active > 0 && (
               <>
                 {' '}
-                <span className="inline-flex h-4.5 min-w-4.5 items-center justify-center rounded-full bg-primary px-1 text-xs font-semibold text-primary-foreground tabular-nums">
+                <span className="inline-flex h-4.5 min-w-4.5 items-center justify-center rounded-full bg-primary px-1 text-[11px] font-semibold text-primary-foreground tabular-nums">
                   {active}
                 </span>
               </>
             )}
+            <ChevronDown aria-hidden="true" className="size-3.5" />
           </Button>
           {open && (
             <button

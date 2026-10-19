@@ -109,7 +109,7 @@ describe('an instant visit from the sidebar', () => {
 
     expect(document.querySelector('[data-lathe-header] h1')?.textContent).toBe('Products');
     expect(toolbar?.parentElement?.hasAttribute('data-lathe-card')).toBe(true);
-    expect(toolbar?.className).toContain('h-14');
+    expect(toolbar?.className).toContain('lathe-toolbar');
   });
 
   it('leaves out the tab band of an index without tabs', async () => {

@@ -115,6 +115,15 @@ describe('tab strip', () => {
     expect(tabTexts()).toEqual(['All', 'Pending10,000+', 'Paid', 'Paid1,234', 'Cancelled']);
   });
 
+  it('draws each count as a pill in its tone', () => {
+    renderOrders({ tabCounts: { pending: { count: capped }, 'saved:7': { count: capped } } });
+    const pill = (name: string) => document.querySelector(`[data-tab="${name}"] .lathe-tab-count`);
+
+    expect(pill('pending')?.getAttribute('data-badge-type')).toBe('warning');
+    expect(pill('saved:7')?.getAttribute('data-badge-type')).toBe('success');
+    expect(document.querySelector('[data-tab="all"]')?.className).toBe('lathe-tab');
+  });
+
   it('holds a placeholder badge in each counting tab until the counts arrive', () => {
     const { unmount } = renderOrders({ deferred: ['pending', 'paid'] });
     const placeholders = (name: string) => Array.from(document.querySelectorAll(`[data-tab="${name}"] [data-badge-placeholder]`));

@@ -138,7 +138,8 @@ class Order extends Resource
             Tab::make('All'),
             Tab::make('Pending')
                 ->modifyQueryUsing(fn (Builder $query) => $query->where($query->qualifyColumn('status'), 'pending'))
-                ->withCount(),
+                ->withCount()
+                ->badgeType('warning'),
             Tab::make('Paid')
                 ->modifyQueryUsing(fn (Builder $query) => $query->where($query->qualifyColumn('status'), 'paid')),
         ];

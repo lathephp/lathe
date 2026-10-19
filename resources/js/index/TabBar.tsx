@@ -1,6 +1,6 @@
 import { Link, usePage } from '@inertiajs/react';
 import { formatNumber, useTranslation } from '@lathephp/core';
-import { Ellipsis, GripVertical, Plus } from 'lucide-react';
+import { Bookmark, Ellipsis, GripVertical } from 'lucide-react';
 import { Suspense, useId, useState, type KeyboardEvent } from 'react';
 import { Button } from '../components/ui/Button';
 import { NavIcon } from '../components/NavIcon';
@@ -17,13 +17,6 @@ interface TabBarProps extends Pick<IndexProps, 'resource'> {
 }
 
 type Dialog = { kind: 'save' } | { kind: 'rename'; tab: SavedTab } | { kind: 'delete'; tab: SavedTab };
-
-const badgeColours: Record<BadgeType, string> = {
-  info: 'bg-info-subtle text-info-subtle-foreground',
-  success: 'bg-success-subtle text-success-subtle-foreground',
-  warning: 'bg-warning-subtle text-warning-subtle-foreground',
-  danger: 'bg-destructive-subtle text-destructive-subtle-foreground',
-};
 
 /** A capped count reads "10,000+". */
 function badgeText(counts: TabCount | undefined, fallback: string | number | null = null): string | null {
@@ -43,17 +36,18 @@ function badgeText(counts: TabCount | undefined, fallback: string | number | nul
 function TabBadge({ text, type, deferred = false, pending = false }: { text: string | null; type: BadgeType | null; deferred?: boolean; pending?: boolean }) {
   if (text === null) {
     return deferred && pending ? (
-      <span aria-hidden="true" data-badge-placeholder="" className="h-4 w-12 animate-pulse rounded-full bg-skeleton motion-reduce:animate-none" />
+      <span aria-hidden="true" data-badge-placeholder="" className="h-5 w-12 animate-pulse rounded-full bg-skeleton motion-reduce:animate-none" />
     ) : null;
   }
 
   return (
     <span
+      // The tone's colours live in app.css by data-badge-type.
+      data-badge-type={type ?? undefined}
       className={cn(
-        'rounded-full px-1.5 text-xs font-medium tabular-nums',
-        type === null ? 'bg-muted' : badgeColours[type],
+        'lathe-tab-count',
         // A count keeps at least its placeholder's width, so the tabs after it do not move.
-        deferred && 'min-w-12 text-center animate-in fade-in duration-[160ms] motion-reduce:animate-none',
+        deferred && 'min-w-12 animate-in fade-in duration-[160ms] motion-reduce:animate-none',
       )}
     >
       {text}
@@ -64,11 +58,8 @@ function TabBadge({ text, type, deferred = false, pending = false }: { text: str
 /** The tab band at the top of the table card. */
 export const tabBand = 'flex flex-wrap items-center gap-1 border-b border-border px-4 pt-3 pb-2';
 
-const tabClass = (current: boolean) =>
-  cn(
-    'inline-flex h-8 items-center gap-1.5 rounded-md px-2.5 text-sm font-medium outline-none hover:bg-muted focus-visible:ring-2 focus-visible:ring-ring',
-    current ? 'bg-muted text-foreground' : 'text-muted-foreground',
-  );
+// The current tab, marked by aria-current, takes the accent ground in app.css.
+const tabClass = 'lathe-tab';
 
 /** The developer tabs, then the user's saved tabs, in one strip above the toolbar. */
 export function TabBar({ resource, state, visit }: TabBarProps) {
@@ -128,7 +119,7 @@ export function TabBar({ resource, state, visit }: TabBarProps) {
                 type="button"
                 data-tab={tab.key}
                 aria-current={tab.key === active ? 'page' : undefined}
-                className={tabClass(tab.key === active)}
+                className={tabClass}
                 onClick={() => {
                   // The first tab is the default view, so it leaves tab out of the URL.
                   visit({ tab: index === 0 ? undefined : tab.key, saved_tab: undefined });
@@ -180,7 +171,7 @@ export function TabBar({ resource, state, visit }: TabBarProps) {
                 data-tab={`saved:${String(tab.id)}`}
                 aria-current={tab.id === activeSaved ? 'page' : undefined}
                 aria-keyshortcuts="Alt+ArrowLeft Alt+ArrowRight"
-                className={tabClass(tab.id === activeSaved)}
+                className={tabClass}
                 onClick={() => {
                   // A saved tab opens exactly as saved, so the filters, search and sort on screen go.
                   visit({ saved_tab: String(tab.id), tab: undefined, filter: undefined, q: undefined, sort: undefined, trashed: undefined, group: undefined });
@@ -259,7 +250,7 @@ export function TabBar({ resource, state, visit }: TabBarProps) {
               <Link
                 href={`${basePath}/resources/${resource.uriKey}/lens/${item.uriKey}`}
                 aria-current={item.uriKey === lens?.uriKey ? 'page' : undefined}
-                className={tabClass(item.uriKey === lens?.uriKey)}
+                className={tabClass}
               >
                 <NavIcon name="Scan" />
                 {item.name}
@@ -268,16 +259,16 @@ export function TabBar({ resource, state, visit }: TabBarProps) {
           ))}
         </ul>
         {resource.definition.savedTabs && (
-          <Button
-            variant="ghost"
-            size="sm"
+          <button
+            type="button"
+            className="lathe-tab lathe-save-view"
             onClick={() => {
               setDialog({ kind: 'save' });
             }}
           >
-            <Plus aria-hidden="true" className="size-4" />
+            <Bookmark aria-hidden="true" className="size-3.5" />
             {__('Save view')}
-          </Button>
+          </button>
         )}
       </nav>
       <p aria-live="polite" className="sr-only">

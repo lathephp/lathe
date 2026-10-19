@@ -72,17 +72,16 @@ describe('toolbar search', () => {
     renderOrders();
     const toolbar = document.querySelector('[data-lathe-toolbar]');
 
-    expect(toolbar?.classList.contains('flex-wrap')).toBe(true);
-    expect(toolbar?.classList.contains('min-h-14')).toBe(true);
-    expect(toolbar?.classList.contains('h-14')).toBe(false);
+    // lathe-toolbar in app.css: flex-wrap with min-h-14, never a fixed h-14.
+    expect(toolbar?.className).toBe('lathe-toolbar');
   });
 
   it('opens the box at 260 px on a wide screen and to its icon on a narrow one', () => {
     renderOrders();
     const box = screen.getByRole('searchbox');
 
-    expect(box.className).toContain('w-[260px]');
-    expect(box.className).toContain('max-md:w-9');
+    // lathe-search in app.css: w-[260px], and its icon's 30 px under 768 px.
+    expect(box.parentElement?.className).toBe('lathe-search');
   });
 
   it('waits 500 ms after the last keystroke, then visits once with q trimmed', () => {

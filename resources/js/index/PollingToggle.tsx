@@ -2,7 +2,6 @@ import { router } from '@inertiajs/react';
 import { useTranslation } from '@lathephp/core';
 import { RefreshCw } from 'lucide-react';
 import { useEffect, useState } from 'react';
-import { cn } from '../lib/cn';
 
 function storageKey(uriKey: string): string {
   return `lathe-polling:${uriKey}`;
@@ -75,13 +74,10 @@ export function PollingToggle({ on, onToggle }: { on: boolean; onToggle: () => v
       type="button"
       role="switch"
       aria-checked={on}
-      className={cn(
-        'inline-flex h-8 items-center gap-2 rounded-md border border-border px-3 text-sm outline-none hover:bg-muted focus-visible:ring-2 focus-visible:ring-ring',
-        on ? 'text-foreground' : 'text-muted-foreground',
-      )}
+      className="lathe-button lathe-button-ghost lathe-button-size-sm lathe-polling"
       onClick={onToggle}
     >
-      <RefreshCw aria-hidden="true" className={cn('size-4', on && 'text-primary')} />
+      <RefreshCw aria-hidden="true" className="size-3.5" />
       {__('Auto refresh')}
     </button>
   );

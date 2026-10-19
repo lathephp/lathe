@@ -578,6 +578,116 @@
 /* The resource index: its table card, the tab band, the toolbar, the table and the pager. The
    looks live here, so the index's first-load script carries only the class names. */
 @layer components {
+  .lathe-tab {
+    @apply inline-flex h-7 items-center gap-1.5 rounded-md px-2.5 text-[13px] leading-[18px] font-medium whitespace-nowrap text-muted-foreground outline-none hover:bg-accent focus-visible:ring-2 focus-visible:ring-ring aria-[current=page]:bg-accent aria-[current=page]:text-foreground;
+  }
+
+  .lathe-tab-count {
+    @apply inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-muted px-1.5 text-[11px] font-semibold text-muted-foreground tabular-nums;
+  }
+
+  [aria-current="page"] > .lathe-tab-count:not([data-badge-type]) {
+    @apply bg-card;
+  }
+
+  .lathe-tab-count[data-badge-type="info"] {
+    @apply bg-info-subtle text-info-subtle-foreground;
+  }
+
+  .lathe-tab-count[data-badge-type="success"] {
+    @apply bg-success-subtle text-success-subtle-foreground;
+  }
+
+  .lathe-tab-count[data-badge-type="warning"] {
+    @apply bg-warning-subtle text-warning-subtle-foreground;
+  }
+
+  .lathe-tab-count[data-badge-type="danger"] {
+    @apply bg-destructive-subtle text-destructive-subtle-foreground;
+  }
+
+  /* Save view sits after a 16 px rule, 8 px from the tabs on each side. */
+  .lathe-save-view {
+    @apply relative ms-[9px] before:absolute before:-start-[5px] before:top-1.5 before:h-4 before:w-px before:bg-border before:content-[''];
+  }
+
+  /* 56 px; a narrow window wraps it to a second line. The selection bar takes the same row. */
+  .lathe-toolbar {
+    @apply flex min-h-14 flex-wrap items-center gap-1 border-b border-border px-4 py-2;
+  }
+
+  .lathe-toolbar[data-selecting] {
+    @apply bg-primary-subtle;
+  }
+
+  .lathe-selection {
+    @apply flex flex-wrap items-center gap-2 text-sm font-semibold text-primary-subtle-foreground tabular-nums;
+  }
+
+  .lathe-selection > button {
+    @apply rounded-sm text-[13px] font-medium outline-none hover:underline focus-visible:ring-2 focus-visible:ring-ring;
+  }
+
+  /* The toolbar's ghost buttons: 30 px, 13 px text, a muted 14 px icon. */
+  .lathe-toolbar .lathe-button-size-sm {
+    @apply h-[30px] gap-1.5 rounded-md px-2.5;
+  }
+
+  /* The Actions menu's kit button reads as a ghost too, until rows are ticked. */
+  .lathe-toolbar:not([data-selecting]) .cn-button {
+    @apply h-[30px] border-transparent bg-transparent px-2.5 text-[13px] shadow-none hover:bg-accent aria-expanded:bg-accent;
+  }
+
+  .lathe-toolbar .lathe-button > svg {
+    @apply text-muted-foreground;
+  }
+
+  .lathe-filter {
+    @apply pe-2 aria-expanded:bg-accent;
+  }
+
+  .lathe-filter[aria-expanded="true"] > svg:last-child {
+    @apply rotate-180;
+  }
+
+  .lathe-polling[aria-checked="false"] {
+    @apply text-muted-foreground;
+  }
+
+  .lathe-polling[aria-checked="true"] > svg {
+    @apply text-primary;
+  }
+
+  /* The search box: 260 x 30 with the / key at its end. A phone shows only its icon until it has focus or text. */
+  .lathe-search {
+    @apply mx-1 flex h-[30px] w-[260px] items-center gap-2 rounded-md border border-input bg-card px-2 text-muted-foreground focus-within:ring-2 focus-within:ring-ring max-md:w-[30px] max-md:has-[input:focus]:w-44 max-md:has-[input:not(:placeholder-shown)]:w-44;
+  }
+
+  .lathe-search > input {
+    @apply min-w-0 flex-1 bg-transparent text-[13px] leading-[18px] text-foreground outline-none placeholder:text-muted-foreground max-md:placeholder:text-transparent;
+  }
+
+  .lathe-search > kbd {
+    @apply rounded-[4px] border border-border bg-muted px-[5px] font-mono text-[11px] leading-4 font-medium max-md:hidden;
+  }
+
+  /* Group is a ghost button over the select; a chosen grouping reads "Group: Status ascending". */
+  .lathe-group {
+    @apply h-[30px] gap-1.5 border-0 bg-transparent px-2.5 text-[13px] font-medium text-muted-foreground shadow-none hover:bg-accent aria-expanded:bg-accent;
+  }
+
+  .lathe-group > svg {
+    @apply hidden;
+  }
+
+  .lathe-group b {
+    @apply font-medium text-foreground;
+  }
+
+  .lathe-group b::before {
+    @apply text-muted-foreground content-[':_'];
+  }
+
   [data-lathe-table] thead tr {
     @apply h-10 border-b border-border bg-muted;
   }

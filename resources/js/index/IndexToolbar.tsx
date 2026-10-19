@@ -1,5 +1,6 @@
 import { router, usePage } from '@inertiajs/react';
 import { useShortcut, useTranslation } from '@lathephp/core';
+import { X } from 'lucide-react';
 import type { ReactNode } from 'react';
 import { Button } from '../components/ui/Button';
 import { Filters } from './Filters';
@@ -13,7 +14,7 @@ import type { RowSelection } from './useRowSelection';
 import type { SharedProps } from '../types';
 
 /** The card's toolbar row; the selection bar takes the same row, so the header row stays put. A narrow window wraps it to a second line. */
-export const toolbarRow = 'flex min-h-14 flex-wrap items-center gap-2 border-b border-border px-4 py-2';
+export const toolbarRow = 'lathe-toolbar';
 
 interface IndexToolbarProps extends Pick<IndexProps, 'resource' | 'lens'> {
   q: string | undefined;
@@ -46,10 +47,10 @@ export function IndexToolbar({ resource, lens, q, visit, polling, selection, cou
   );
 
   return (
-    <div data-lathe-toolbar="" className={toolbarRow}>
+    <div data-lathe-toolbar="" data-selecting={selecting || undefined} className={toolbarRow}>
       {selecting ? (
-        <div role="status" className="flex flex-wrap items-center gap-3 text-sm">
-          <span className="font-semibold tabular-nums">
+        <div role="status" className="lathe-selection">
+          <span>
             {selection.all
               ? total === null
                 ? __('All matching rows selected')
@@ -57,17 +58,13 @@ export function IndexToolbar({ resource, lens, q, visit, polling, selection, cou
               : __(':count selected', { count: selection.selected.size })}
           </span>
           {!selection.all && more && (
-            <button
-              type="button"
-              className="rounded-sm font-medium text-primary tabular-nums outline-none hover:underline focus-visible:ring-2 focus-visible:ring-ring"
-              onClick={selection.selectAllMatching}
-            >
+            <button type="button" onClick={selection.selectAllMatching}>
               {total === null ? __('Select all matching rows') : __('Select all :count', { count: total })}
             </button>
           )}
         </div>
       ) : (
-        <div className="flex flex-wrap items-center gap-3">
+        <div className="flex flex-wrap items-center gap-1">
           {resource.searchable && (
             <ToolbarSearch
               label={resource.label}
@@ -82,10 +79,11 @@ export function IndexToolbar({ resource, lens, q, visit, polling, selection, cou
           <GroupMenu visit={visit} />
         </div>
       )}
-      <div className="ms-auto flex flex-wrap items-center justify-end gap-3">
+      <div className="ms-auto flex flex-wrap items-center justify-end gap-1">
         {actions}
         {selecting ? (
           <Button variant="ghost" size="sm" onClick={selection.clear}>
+            <X aria-hidden="true" className="size-3.5" />
             {__('Clear')}
           </Button>
         ) : (
