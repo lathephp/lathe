@@ -28,6 +28,7 @@ function initials(name: string): string {
 
 /** The signed-in user at the foot of the sidebar, with the Sign out entry. */
 export function UserMenu({ user, items, logoutPath, collapsed }: UserMenuProps) {
+  // The shell renders once per visit, so the compiler's cache would only add first-load bytes.
   'use no memo';
 
   const { __ } = useTranslation();

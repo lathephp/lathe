@@ -17,6 +17,7 @@ interface SidebarProps {
 }
 
 export function Sidebar({ props, url, expanded, mobileOpen, onClose }: SidebarProps) {
+  // The shell renders once per visit, so the compiler's cache would only add first-load bytes.
   'use no memo';
 
   const { __ } = useTranslation();

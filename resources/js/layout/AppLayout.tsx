@@ -26,6 +26,7 @@ const NotificationCenter = lazy(() => import('../notifications/NotificationCente
 
 /** The panel shell: sidebar, header, content and footer around a page. */
 export function AppLayout({ children }: { children: ReactNode }) {
+  // The shell renders once per visit, so the compiler's cache would only add first-load bytes.
   'use no memo';
 
   const { __ } = useTranslation();
