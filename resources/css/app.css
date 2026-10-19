@@ -815,9 +815,9 @@
     @apply bg-primary-subtle;
   }
 
-  /* A related record's name reads as the row's text, in weight 500; it still links to that record. */
-  [data-lathe-table] td > a,
-  [data-lathe-table] td > span > a {
+  /* A related record's name reads as the row's text, in weight 500; it still links to that record.
+     Other links in a cell, such as a URL or a download, keep the link colour. */
+  [data-lathe-table] a[data-related] {
     @apply font-medium text-foreground!;
   }
 

@@ -21,7 +21,7 @@ export function RelatedName({ field, value }: { field: FieldSchema; value: unkno
 
   const name =
     typeof value.href === 'string' ? (
-      <Link href={value.href} className="text-primary hover:underline">
+      <Link href={value.href} data-related="" className="text-primary hover:underline">
         {value.display}
       </Link>
     ) : (
