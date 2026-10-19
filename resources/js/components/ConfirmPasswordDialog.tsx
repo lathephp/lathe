@@ -1,7 +1,7 @@
 import { ApiError, request, useLathe, useTranslation } from '@lathephp/core';
 import { useEffect, useId, useRef, useState } from 'react';
 import { FieldError } from './FieldError';
-import { Modal } from './Modal';
+import { Modal, ModalClose, modalFooter, modalInput, outlineButton, primaryButton } from './Modal';
 
 /** The confirm password form over the page: onDone(true) once confirmed, onDone(false) on Escape or Cancel. */
 export function ConfirmPasswordDialog({ onDone }: { onDone: (confirmed: boolean) => void }) {
@@ -52,17 +52,18 @@ export function ConfirmPasswordForm({ titleId, onDone }: { titleId: string; onDo
   return (
     <form
       noValidate
-      className="space-y-4"
+      // Its own column, so it keeps the dialog's spacing in place of any modal's content.
+      className="flex flex-col gap-5"
       onSubmit={(event) => {
         event.preventDefault();
         void confirm();
       }}
     >
-      <h2 id={titleId} className="text-base font-semibold">
+      <h2 id={titleId} className="-mb-3.5 text-base font-semibold">
         {__('Confirm your password')}
       </h2>
       <p className="text-sm text-muted-foreground">{__('For your security, please confirm your password to continue.')}</p>
-      <div className="space-y-1">
+      <div className="flex flex-col gap-1.5">
         <label htmlFor={`${id}-password`} className="text-sm font-medium">
           {__('Password')}
         </label>
@@ -77,24 +78,29 @@ export function ConfirmPasswordForm({ titleId, onDone }: { titleId: string; onDo
           onChange={(event) => {
             setPassword(event.target.value);
           }}
-          className="h-9 w-full rounded-md border border-input bg-background px-3 text-sm"
+          className={modalInput}
         />
         <FieldError id={`${id}-error`} message={error} />
       </div>
-      <div className="flex justify-end gap-2 max-md:flex-col-reverse">
+      <div className={modalFooter}>
         <button
           type="button"
-          className="h-9 rounded-md px-4 text-sm max-md:h-11"
+          className={outlineButton}
           onClick={() => {
             onDone(false);
           }}
         >
           {__('Cancel')}
         </button>
-        <button type="submit" disabled={busy} className="h-9 rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground disabled:opacity-60 max-md:h-11">
+        <button type="submit" disabled={busy} className={primaryButton}>
           {__('Confirm')}
         </button>
       </div>
+      <ModalClose
+        onClick={() => {
+          onDone(false);
+        }}
+      />
     </form>
   );
 }

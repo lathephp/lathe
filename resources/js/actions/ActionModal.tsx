@@ -1,6 +1,6 @@
 import { ApiError, request, toast, useTranslation } from '@lathephp/core';
 import { useEffect, useId, useState } from 'react';
-import { Modal } from '../components/Modal';
+import { Modal, ModalClose, modalFooter, modalPanel, outlineButton, primaryButton } from '../components/Modal';
 import { AssociatableEndpoint } from '../fields/relation/useAssociatable';
 import type { FormFieldData } from '../fields/types';
 import { cn } from '../lib/cn';
@@ -101,12 +101,12 @@ export function ActionModal({ base, action, count, resourceId, onClose, onRun }:
       locked={busy}
       className={cn(
         // The overlay scrolls a tall form, so a picker's list can hang below the dialog unclipped.
-        'relative w-full rounded-lg border border-border bg-background p-4 text-foreground shadow-lg',
+        modalPanel,
         action.style === 'fullscreen' ? 'h-[85vh] max-w-none overflow-y-auto' : (sizes[action.size] ?? sizes.medium),
       )}
     >
       <form
-        className="space-y-4"
+        className="contents"
         onSubmit={(event) => {
           event.preventDefault();
           void submit();
@@ -124,7 +124,8 @@ export function ActionModal({ base, action, count, resourceId, onClose, onRun }:
         {form !== null && form.fields.length > 0 && (
           // A relation field looks its options up through the action, which declares it.
           <AssociatableEndpoint value={(attribute) => `${base}/action/associatable?${new URLSearchParams({ action: action.uriKey, field: attribute }).toString()}`}>
-            <div className="-mx-4 divide-y divide-border">
+            {/* The rows bring 16 px sides; here they sit 14 px apart with the label 6 px over its control. */}
+            <div className="-mx-4 -my-[7px] flex flex-col [&>*]:gap-1.5 [&>*]:py-[7px]">
               {form.fields.map((field) => (
                 <FormRow
                   key={field.attribute}
@@ -143,28 +144,17 @@ export function ActionModal({ base, action, count, resourceId, onClose, onRun }:
             </div>
           </AssociatableEndpoint>
         )}
-        {/* On a phone the buttons stack 44 px tall with the action on top. */}
-        <div className="flex justify-end gap-2 max-md:flex-col-reverse">
-          {/* Plain buttons: the ui Button has no destructive variant, and its size classes win over an override. */}
-          <button
-            type="button"
-            className="inline-flex h-8 items-center justify-center rounded-md border border-input px-3 text-sm font-medium outline-none hover:bg-accent focus-visible:ring-2 focus-visible:ring-ring max-md:h-11"
-            onClick={onClose}
-          >
+        <div className={modalFooter}>
+          <button type="button" className={outlineButton} onClick={onClose}>
             {action.cancelButtonText}
           </button>
-          <button
-            type="submit"
-            disabled={busy || form === null}
-            className={cn(
-              'inline-flex h-8 items-center justify-center rounded-md px-3 text-sm font-medium outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:opacity-50 max-md:h-11',
-              action.destructive ? 'bg-destructive text-destructive-foreground hover:bg-destructive/90' : 'bg-primary text-primary-foreground hover:bg-primary/90',
-            )}
-          >
+          {/* A destructive action confirms with the solid destructive button. */}
+          <button type="submit" disabled={busy || form === null} className={cn(primaryButton, action.destructive && 'bg-destructive text-destructive-foreground')}>
             {busy && action.asBlob ? __('Preparing file') : action.confirmButtonText}
           </button>
         </div>
       </form>
+      {form !== null && form.fields.length > 0 && <ModalClose onClick={onClose} />}
     </Modal>
   );
 }

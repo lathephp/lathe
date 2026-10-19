@@ -131,6 +131,18 @@ describe('the delete menu', () => {
     expect(document.activeElement).toBe(screen.getByRole('button', { name: 'Delete' }));
   });
 
+  it('names the safe button for what it keeps, focuses it and confirms with the solid destructive button', async () => {
+    renderPosts([{ id: 1 }, { id: 2 }]);
+    tick(1, 2);
+    fireEvent.click(await screen.findByRole('button', { name: 'Delete' }));
+    fireEvent.click(screen.getByRole('menuitem', { name: 'Delete Selected' }));
+    const dialog = screen.getByRole('alertdialog', { name: 'Delete 2 resource(s)?' });
+
+    expect(within(dialog).getAllByRole('button').map((button) => button.textContent)).toEqual(['Keep 2 resource(s)', 'Delete Selected']);
+    expect(document.activeElement).toBe(within(dialog).getByRole('button', { name: 'Keep 2 resource(s)' }));
+    expect(within(dialog).getByRole('button', { name: 'Delete Selected' }).className).toContain('cn-button-variant-destructive-solid');
+  });
+
   it('toasts a failure with Retry', async () => {
     vi.spyOn(globalThis, 'fetch').mockResolvedValueOnce(json({ message: 'Server Error' }, 500));
     renderPosts([{ id: 1, trashed: true }]);

@@ -1,6 +1,6 @@
 import { router } from '@inertiajs/react';
 import { __panel, addShortcut, ApiError, request } from '@lathephp/core';
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { PasswordConfirmHost } from '../components/PasswordConfirmHost';
 import { bracketed, renderPage, visibleStrings } from './support';
@@ -99,6 +99,20 @@ describe('confirm password dialog', () => {
     expect(error).toMatchObject({ status: 423 });
     expect(screen.queryByRole('dialog')).toBeNull();
     expect(sent()).toEqual([['/lathe/api/thing', 'GET', undefined]]);
+  });
+
+  it('closes from its Close button like Cancel, rejecting with the 423', async () => {
+    respondInTurn(required, [200, '{}']);
+    render(<PasswordConfirmHost />);
+
+    const result = request('/lathe/api/thing').catch((e: unknown) => e);
+    const dialog = await openDialog();
+
+    expect(document.activeElement).toBe(screen.getByLabelText('Password'));
+    fireEvent.click(within(dialog).getByRole('button', { name: 'Close' }));
+
+    expect(await result).toMatchObject({ status: 423 });
+    expect(screen.queryByRole('dialog')).toBeNull();
   });
 
   it('keeps page shortcuts from firing while it is open', async () => {

@@ -483,8 +483,9 @@ describe('the action modal', () => {
     // Keep order comes first in the markup and the column reverses, so Cancel order sits on top.
     expect(keep.parentElement?.className).toContain('max-md:flex-col-reverse');
     expect(keep.compareDocumentPosition(cancel) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
-    expect(keep.className).toContain('max-md:h-11');
-    expect(cancel.className).toContain('max-md:h-11');
+    // The footer sizes every button in it.
+    expect(keep.parentElement?.className).toContain('max-md:[&>*]:h-11');
+    expect(cancel.parentElement).toBe(keep.parentElement);
   });
 
   it('titles a form by the action name, 520 px wide', async () => {
@@ -497,6 +498,21 @@ describe('the action modal', () => {
 
     const dialog = await screen.findByRole('dialog', { name: 'Mark shipped' });
     expect(dialog.className).toContain('max-w-[520px]');
+  });
+
+  it('gives a form a Close button after its fields, so the focus still opens on the first field', async () => {
+    vi.spyOn(globalThis, 'fetch').mockResolvedValueOnce(
+      json({ fields: [{ key: 'note', attribute: 'note', label: 'Note', component: 'text-field', value: null, stacked: false, compact: false, help: null, required: true }], confirmText: null }),
+    );
+    renderOrders([meta('mark-shipped', 'Mark shipped', { confirmButtonText: 'Mark shipped', size: 'medium' })], rows(1, ['mark-shipped']));
+    tick(1);
+    fireEvent.click(within(await openMenu()).getByRole('menuitem', { name: 'Mark shipped' }));
+
+    const dialog = await screen.findByRole('dialog', { name: 'Mark shipped' });
+    const close = await within(dialog).findByRole('button', { name: 'Close' });
+    expect(within(dialog).getAllByRole('button').at(-1)).toBe(close);
+    fireEvent.click(close);
+    expect(screen.queryByRole('dialog')).toBeNull();
   });
 
   it('keeps the modal open with the message under its field on a 422', async () => {

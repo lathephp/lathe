@@ -1,7 +1,7 @@
 import { ApiError, request, useLathe, useTranslation } from '@lathephp/core';
 import { Suspense, useId, useState } from 'react';
 import { FieldError } from '../components/FieldError';
-import { Modal } from '../components/Modal';
+import { Modal, modalFooter, modalInput, outlineButton, primaryButton } from '../components/Modal';
 import { lazyNamed } from '../lib/lazy';
 import { firstErrors } from './useRecordForm';
 
@@ -65,7 +65,7 @@ export function ReauthModal({ email: initialEmail, onSignedIn, onOtherUser, onCl
     <Modal labelledBy={`${id}-title`} onClose={onClose}>
       <form
         noValidate
-        className="space-y-4"
+        className="contents"
         onSubmit={(event) => {
           event.preventDefault();
           void signIn();
@@ -77,7 +77,7 @@ export function ReauthModal({ email: initialEmail, onSignedIn, onOtherUser, onCl
         {codeStep ? (
           <>
             <p className="text-sm text-muted-foreground">{recovery ? __('Enter one of your recovery codes.') : __('Enter the 6-digit code from your authenticator app.')}</p>
-            <div className="space-y-1">
+            <div className="flex flex-col gap-1.5">
               {recovery ? (
                 <>
                   <label htmlFor={`${id}-recovery`} className="text-sm font-medium">
@@ -94,7 +94,7 @@ export function ReauthModal({ email: initialEmail, onSignedIn, onOtherUser, onCl
                     onChange={(event) => {
                       setRecoveryCode(event.target.value);
                     }}
-                    className="h-9 w-full rounded-md border border-input bg-background px-3 text-sm"
+                    className={modalInput}
                   />
                 </>
               ) : (
@@ -111,7 +111,7 @@ export function ReauthModal({ email: initialEmail, onSignedIn, onOtherUser, onCl
             </div>
             <button
               type="button"
-              className="text-sm font-medium underline-offset-4 hover:underline"
+              className="self-start text-sm font-medium underline-offset-4 hover:underline"
               onClick={() => {
                 setRecovery(!recovery);
               }}
@@ -122,7 +122,7 @@ export function ReauthModal({ email: initialEmail, onSignedIn, onOtherUser, onCl
         ) : (
           <>
             <p className="text-sm text-muted-foreground">{__('Sign in again to save your changes.')}</p>
-            <div className="space-y-1">
+            <div className="flex flex-col gap-1.5">
               <label htmlFor={`${id}-email`} className="text-sm font-medium">
                 {__('Email')}
               </label>
@@ -134,10 +134,10 @@ export function ReauthModal({ email: initialEmail, onSignedIn, onOtherUser, onCl
                 onChange={(event) => {
                   setEmail(event.target.value);
                 }}
-                className="h-9 w-full rounded-md border border-input bg-background px-3 text-sm"
+                className={modalInput}
               />
             </div>
-            <div className="space-y-1">
+            <div className="flex flex-col gap-1.5">
               <label htmlFor={`${id}-password`} className="text-sm font-medium">
                 {__('Password')}
               </label>
@@ -151,17 +151,17 @@ export function ReauthModal({ email: initialEmail, onSignedIn, onOtherUser, onCl
                 onChange={(event) => {
                   setPassword(event.target.value);
                 }}
-                className="h-9 w-full rounded-md border border-input bg-background px-3 text-sm"
+                className={modalInput}
               />
               <FieldError id={`${id}-error`} message={error} />
             </div>
           </>
         )}
-        <div className="flex justify-end gap-2">
-          <button type="button" className="h-9 rounded-md px-4 text-sm" onClick={onClose}>
+        <div className={modalFooter}>
+          <button type="button" className={outlineButton} onClick={onClose}>
             {__('Cancel')}
           </button>
-          <button type="submit" disabled={busy} className="h-9 rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground disabled:opacity-60">
+          <button type="submit" disabled={busy} className={primaryButton}>
             {__('Sign in')}
           </button>
         </div>

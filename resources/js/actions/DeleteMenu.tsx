@@ -2,7 +2,7 @@ import { request, toast, useLathe, useTranslation } from '@lathephp/core';
 import { Button } from '@lathephp/ui';
 import { ChevronDown } from 'lucide-react';
 import { useId, useRef, useState } from 'react';
-import { Modal } from '../components/Modal';
+import { Modal, modalFooter } from '../components/Modal';
 import type { Row } from '../index/types';
 import type { IndexUrlState } from '../index/useIndexState';
 import type { RowSelection } from '../index/useRowSelection';
@@ -157,31 +157,28 @@ export function DeleteMenu({ uriKey, lens, softDeletes, selection, rows, total, 
           onClose={() => {
             setConfirming(null);
           }}
-          className="relative w-full max-w-sm space-y-4 rounded-lg border border-border bg-background p-4 shadow-lg"
         >
           <h2 id={titleId} className="text-base font-semibold">
             {questions[confirming]}
           </h2>
-          <div className="flex justify-end gap-2">
+          <div className={modalFooter}>
+            {/* Before a delete the safe button says what it keeps; it comes first, so it holds the focus. */}
             <Button
               variant="outline"
-              size="sm"
               onClick={() => {
                 setConfirming(null);
               }}
             >
-              {__('Cancel')}
+              {confirming === 'restore' ? __('Cancel') : __('Keep :count resource(s)', { count })}
             </Button>
-            {/* The ui Button has no destructive variant, and its classes do not merge with an override. */}
-            <button
-              type="button"
-              className="inline-flex h-8 items-center rounded-md bg-destructive px-3 text-sm font-medium text-destructive-foreground outline-none hover:bg-destructive/90 focus-visible:ring-2 focus-visible:ring-ring"
+            <Button
+              variant={confirming === 'restore' ? 'default' : 'destructive-solid'}
               onClick={() => {
                 void run(confirming);
               }}
             >
               {labels[confirming]}
-            </button>
+            </Button>
           </div>
         </Modal>
       )}
