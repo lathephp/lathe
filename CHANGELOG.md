@@ -12,7 +12,7 @@ All notable changes to Lathe are listed here. The format follows [Keep a Changel
 
 ### Changed
 
-- [api] Changed English strings since 1.0.0-beta.3, for an app that translates the panel; move each override to its new key: `Create & Add Another` reads `Create and add another`, and `Other` reads `:count more` (the rest row of a pie drawn as bars, such as "15 more"). `Create :resource` keeps its key and fills in the resource name in sentence case, so the create form's title, crumb and button read "Create order".
+- [api] Changed English strings since 1.0.0-beta.3, for an app that translates the panel; move each override to its new key: `Create & Add Another` reads `Create and add another`, and `Other` reads `:count more` (the rest row of a pie drawn as bars, such as "15 more"). `Create :resource` keeps its key and fills in the resource name in sentence case, so the create form's title, crumb and button read "Create order"; a translation that starts with the name, or a language that capitalises nouns, writes `:Resource`.
 
 ## [1.0.0-beta.3] - 2026-10-19
 
