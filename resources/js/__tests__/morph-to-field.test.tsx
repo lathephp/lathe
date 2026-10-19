@@ -106,7 +106,7 @@ describe('morphTo form field', () => {
     await flush();
     expect(fetch).not.toHaveBeenCalled();
 
-    fireEvent.click(screen.getByRole('button', { name: 'Select Post' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Select post' }));
     await flush();
 
     expect(urls(fetch)).toEqual(['/lathe/api/resources/comments/associatable/commentable?type=posts&q=&page=1']);
@@ -118,7 +118,7 @@ describe('morphTo form field', () => {
     render(<Harness field={schema()} onChange={onChange} />);
 
     await choose(screen.getByLabelText('Commentable'), 'Post');
-    fireEvent.click(screen.getByRole('button', { name: 'Select Post' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Select post' }));
     await flush();
     fireEvent.click(screen.getByRole('option', { name: 'Hello world' }));
 
@@ -128,7 +128,7 @@ describe('morphTo form field', () => {
     await choose(screen.getByLabelText('Commentable'), 'Product');
 
     expect(onChange).toHaveBeenLastCalledWith({ type: 'products', id: null });
-    fireEvent.click(screen.getByRole('button', { name: 'Select Product' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Select product' }));
     await flush();
 
     expect(urls(fetch).at(-1)).toBe('/lathe/api/resources/comments/associatable/commentable?type=products&q=&page=1');
@@ -151,14 +151,14 @@ describe('morphTo form field', () => {
     render(<Harness field={schema({ defaultType: 'posts' })} onChange={() => undefined} />);
 
     expect(screen.getByLabelText('Commentable').textContent).toBe('Post');
-    expect(screen.getByRole('button', { name: 'Select Post' })).toBeDefined();
+    expect(screen.getByRole('button', { name: 'Select post' })).toBeDefined();
   });
 
   it('leaves out With trashed when the field turns it off', async () => {
     server();
     render(<Harness field={schema({ withTrashed: false, defaultType: 'posts' })} onChange={() => undefined} />);
 
-    fireEvent.click(screen.getByRole('button', { name: 'Select Post' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Select post' }));
     await flush();
 
     expect(screen.getByRole('listbox')).toBeDefined();

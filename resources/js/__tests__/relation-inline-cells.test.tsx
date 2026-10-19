@@ -100,7 +100,7 @@ describe('relation inline cells', () => {
     await flush();
     expect(fetch).not.toHaveBeenCalled();
 
-    fireEvent.click(screen.getByRole('button', { name: 'Select Product' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Select product' }));
     await flush();
     fireEvent.click(screen.getByRole('option', { name: 'Desk lamp' }));
     await flush();

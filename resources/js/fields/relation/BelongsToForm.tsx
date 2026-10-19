@@ -141,7 +141,7 @@ export function RelationPicker({
         }}
         className={`${inputClass} text-start`}
       >
-        {isBelongsToValue(value) ? value.display : <span className="text-muted-foreground">{field.placeholder ?? __('Select :title', { title: label })}</span>}
+        {isBelongsToValue(value) ? value.display : <span className="text-muted-foreground">{field.placeholder ?? __('Select :title', { title: label.replace(/\b[A-Z](?=[a-z])/g, (letter) => letter.toLowerCase()) })}</span>}
       </button>
       {open && (
         <div className="absolute z-20 mt-1 w-full rounded-md border border-border bg-background p-2 shadow-md">
@@ -275,7 +275,7 @@ function RelationSelect({ field, value, onChange, id, describedBy, invalid, disa
         id={id}
         value={current}
         options={[
-          { value: '', label: field.placeholder ?? __('Select :title', { title: label }) },
+          { value: '', label: field.placeholder ?? __('Select :title', { title: label.replace(/\b[A-Z](?=[a-z])/g, (letter) => letter.toLowerCase()) }) },
           ...(isBelongsToValue(value) && !items.some((item) => String(item.value) === current) ? [{ value: current, label: value.display }] : []),
           ...items.map((item) => ({ value: String(item.value), label: item.display })),
         ]}
