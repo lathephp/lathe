@@ -14,7 +14,7 @@ class Revenue extends ValueWidget
     public function calculate(LatheRequest $request): mixed
     {
         return $this->sum($request, Order::class, 'total_cents', 'placed_at')
-            ->transform(fn (int|float $cents) => round($cents / 100))
+            ->transform(fn (int|float $cents) => round($cents / 100, 2))
             ->dollars();
     }
 }

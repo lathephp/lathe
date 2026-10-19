@@ -2,13 +2,16 @@
 
 use Illuminate\Support\Facades\Gate;
 use Inertia\Testing\AssertableInertia;
+use Lathe\Enums\CardWidth;
 use Lathe\Lathe;
 use Lathe\Preferences\UserPreference;
 use Lathe\Tests\Fixtures\Dashboards\Cards;
 use Lathe\Tests\Fixtures\Dashboards\Fixed;
 use Lathe\Tests\Fixtures\Widgets\OrderCount;
+use Lathe\Tests\Fixtures\Widgets\TrendProbe;
 use Lathe\Tests\Fixtures\Widgets\ValueCustomers;
 use Lathe\Tests\Fixtures\Widgets\ValueOrders;
+use Lathe\Tests\Fixtures\Widgets\ValuePosts;
 use Workbench\App\Models\User;
 use Workbench\Database\Seeders\DemoSeeder;
 
@@ -17,6 +20,9 @@ beforeEach(function () {
     $this->seed(DemoSeeder::class);
     Gate::define('viewLathe', fn (User $user) => in_array($user->email, ['admin@lathephp.com', 'editor@lathephp.com'], true));
     config(['inertia.testing.ensure_pages_exist' => false]);
+    // The tests lay out a dashboard of their own: three thirds, a two-thirds card and a half.
+    Cards::$widgets = [new ValueOrders, new ValueCustomers, new ValuePosts, TrendProbe::make()->width(CardWidth::TwoThirds), OrderCount::make()->width(CardWidth::Half)];
+    Lathe::registerDashboards(Cards::class);
 });
 
 afterEach(function () {
@@ -31,16 +37,16 @@ function layoutAs(string $email): User
     return $user;
 }
 
-const LAYOUT_URL = '/lathe/api/dashboards/main/layout';
+const LAYOUT_URL = '/lathe/api/dashboards/cards/layout';
 
 function customLayout(): array
 {
     return ['widgets' => [
-        ['uriKey' => 'revenue', 'width' => '1/3', 'hidden' => false],
-        ['uriKey' => 'orders', 'width' => '1/3', 'hidden' => false],
-        ['uriKey' => 'paid-orders', 'width' => '1/3', 'hidden' => true],
-        ['uriKey' => 'orders-per-day', 'width' => '2/3', 'hidden' => false],
-        ['uriKey' => 'orders-by-status', 'width' => '1/2', 'hidden' => false],
+        ['uriKey' => 'value-customers', 'width' => '1/3', 'hidden' => false],
+        ['uriKey' => 'value-orders', 'width' => '1/3', 'hidden' => false],
+        ['uriKey' => 'value-posts', 'width' => '1/3', 'hidden' => true],
+        ['uriKey' => 'trend-probe', 'width' => '2/3', 'hidden' => false],
+        ['uriKey' => 'order-count', 'width' => '1/2', 'hidden' => false],
     ]];
 }
 
@@ -49,14 +55,14 @@ it('lays the page out as the user saved it and leaves hidden widgets out', funct
 
     $this->putJson(LAYOUT_URL, customLayout())->assertOk();
 
-    $this->get('/lathe')->assertInertia(fn (AssertableInertia $page) => $page
+    $this->get('/lathe/dashboards/cards')->assertInertia(fn (AssertableInertia $page) => $page
         ->where('dashboard.customized', true)
         ->where('dashboard.customizable', true)
-        ->where('widgets', fn ($widgets) => array_column($widgets->all(), 'uriKey') === ['revenue', 'orders', 'orders-per-day', 'orders-by-status'])
+        ->where('widgets', fn ($widgets) => array_column($widgets->all(), 'uriKey') === ['value-customers', 'value-orders', 'trend-probe', 'order-count'])
         ->where('widgets.3.columns', 6)
         ->where('widgets.3.width', '1/2')
-        ->where('hiddenWidgets', fn ($hidden) => array_column($hidden->all(), 'uriKey') === ['paid-orders'])
-        ->missing('widgetValue:paid-orders'));
+        ->where('hiddenWidgets', fn ($hidden) => array_column($hidden->all(), 'uriKey') === ['value-posts'])
+        ->missing('widgetValue:value-posts'));
 });
 
 it('gives another user the code layout', function () {
@@ -65,9 +71,9 @@ it('gives another user the code layout', function () {
 
     layoutAs('editor@lathephp.com');
 
-    $this->get('/lathe')->assertInertia(fn (AssertableInertia $page) => $page
+    $this->get('/lathe/dashboards/cards')->assertInertia(fn (AssertableInertia $page) => $page
         ->where('dashboard.customized', false)
-        ->where('widgets', fn ($widgets) => array_column($widgets->all(), 'uriKey') === ['orders', 'revenue', 'paid-orders', 'orders-per-day', 'orders-by-status'])
+        ->where('widgets', fn ($widgets) => array_column($widgets->all(), 'uriKey') === ['value-orders', 'value-customers', 'value-posts', 'trend-probe', 'order-count'])
         ->where('hiddenWidgets', []));
 });
 
@@ -78,9 +84,9 @@ it('resets to the code layout on delete', function () {
     $this->deleteJson(LAYOUT_URL)->assertNoContent();
 
     expect(UserPreference::count())->toBe(0);
-    $this->get('/lathe')->assertInertia(fn (AssertableInertia $page) => $page
+    $this->get('/lathe/dashboards/cards')->assertInertia(fn (AssertableInertia $page) => $page
         ->where('dashboard.customized', false)
-        ->where('widgets', fn ($widgets) => array_column($widgets->all(), 'uriKey') === ['orders', 'revenue', 'paid-orders', 'orders-per-day', 'orders-by-status'])
+        ->where('widgets', fn ($widgets) => array_column($widgets->all(), 'uriKey') === ['value-orders', 'value-customers', 'value-posts', 'trend-probe', 'order-count'])
         ->where('widgets.3.columns', 8)
         ->where('hiddenWidgets', []));
 });
@@ -110,18 +116,18 @@ it('stores the second of two saves and answers both', function () {
     $this->putJson(LAYOUT_URL, $first)->assertOk()->assertJsonPath('layout.0.hidden', false);
     $this->putJson(LAYOUT_URL, $second)->assertOk()->assertJsonPath('layout.0.hidden', true);
 
-    expect(UserPreference::where('key', 'dashboard:main')->count())->toBe(1)
-        ->and(UserPreference::where('key', 'dashboard:main')->first()->value[0]['hidden'])->toBeTrue();
+    expect(UserPreference::where('key', 'dashboard:cards')->count())->toBe(1)
+        ->and(UserPreference::where('key', 'dashboard:cards')->first()->value[0]['hidden'])->toBeTrue();
 });
 
 it('answers the layout aged against the code', function () {
     layoutAs('admin@lathephp.com');
 
-    $this->putJson(LAYOUT_URL, ['widgets' => [['uriKey' => 'revenue', 'width' => 'full', 'hidden' => false], ['uriKey' => 'nope', 'width' => 'full', 'hidden' => false]]])
+    $this->putJson(LAYOUT_URL, ['widgets' => [['uriKey' => 'value-customers', 'width' => 'full', 'hidden' => false], ['uriKey' => 'nope', 'width' => 'full', 'hidden' => false]]])
         ->assertOk()
-        ->assertJsonPath('layout.0', ['uriKey' => 'revenue', 'width' => 'full', 'hidden' => false])
+        ->assertJsonPath('layout.0', ['uriKey' => 'value-customers', 'width' => 'full', 'hidden' => false])
         ->assertJsonCount(5, 'layout')
-        ->assertJsonPath('layout.1', ['uriKey' => 'orders', 'width' => '1/3', 'hidden' => false]);
+        ->assertJsonPath('layout.1', ['uriKey' => 'value-orders', 'width' => '1/3', 'hidden' => false]);
 });
 
 it('refuses a dashboard that is not customizable', function () {

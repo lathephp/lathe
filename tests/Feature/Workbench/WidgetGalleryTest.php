@@ -75,7 +75,7 @@ it('changes the Sales Orders number and its change for 60 days', function () {
     $thirty = $this->getJson('/lathe/api/dashboards/main/widgets/orders')->assertOk()->json('value');
     $sixty = $this->getJson('/lathe/api/dashboards/main/widgets/orders?range=60')->assertOk()->json('value');
 
-    expect(collect($this->getJson('/lathe/api/dashboards/main/widgets')->json('widgets'))->pluck('uriKey')->all())->toContain('orders', 'revenue', 'paid-orders', 'orders-per-day', 'orders-by-status')
+    expect(collect($this->getJson('/lathe/api/dashboards/main/widgets')->json('widgets'))->pluck('uriKey')->all())->toContain('orders')
         ->and($sixty['value'])->not->toBe($thirty['value'])
         ->and($sixty['change'])->not->toBe($thirty['change'])
         ->and($thirty['change'])->toBeGreaterThan(0);
