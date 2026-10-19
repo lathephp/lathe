@@ -1236,7 +1236,7 @@
   }
 
   .cn-table-header {
-    @apply [&_tr]:border-b;
+    @apply bg-muted [&_tr]:border-b;
   }
 
   .cn-table-body {
@@ -1248,15 +1248,38 @@
   }
 
   .cn-table-row {
-    @apply hover:bg-muted/50 data-[state=selected]:bg-muted border-b transition-colors;
+    @apply hover:bg-accent data-[state=selected]:bg-primary-subtle border-b transition-colors;
   }
 
   .cn-table-head {
-    @apply text-foreground h-10 px-2 text-left align-middle font-medium whitespace-nowrap [&:has([role=checkbox])]:pr-0;
+    @apply text-muted-foreground h-10 px-3 text-left align-middle text-[11px] leading-4 font-semibold tracking-[0.04em] uppercase whitespace-nowrap [&:has([role=checkbox])]:pr-0;
   }
 
   .cn-table-cell {
-    @apply p-2 align-middle whitespace-nowrap [&:has([role=checkbox])]:pr-0;
+    @apply h-12 px-3 py-2 align-middle whitespace-nowrap [&:has([role=checkbox])]:pr-0;
+  }
+
+  /* An inline status in the index: the badge itself is the trigger, 24 px with its dot and a chevron. */
+  [data-inline-cell] .cn-select-trigger:has([data-lathe-badge-tone]) {
+    @apply h-auto rounded-[6px] border-0 bg-transparent p-0 shadow-none aria-expanded:ring-2 aria-expanded:ring-primary aria-expanded:ring-offset-2 aria-expanded:ring-offset-card focus-visible:ring-2 focus-visible:ring-ring;
+  }
+
+  [data-inline-cell] .cn-select-trigger:has([data-lathe-badge-tone]) > svg {
+    @apply hidden;
+  }
+
+  /* Nova sits in the base layer, so these beat the badge's own utilities with !important. */
+  [data-inline-cell] [data-lathe-badge-tone] {
+    @apply h-6! gap-1! pr-1! pl-2!;
+  }
+
+  /* The chevron is drawn with two borders: the panel's CSP allows no data: images for a mask. */
+  [data-inline-cell] [data-lathe-badge-tone]::after {
+    @apply mx-[3.5px] -mt-[3px] size-[7px] rotate-45 border-r-[1.5px] border-b-[1.5px] border-current content-[''];
+  }
+
+  [data-inline-cell] [aria-expanded="true"] [data-lathe-badge-tone]::after {
+    @apply mt-[3px] rotate-[225deg];
   }
 
   .cn-table-caption {

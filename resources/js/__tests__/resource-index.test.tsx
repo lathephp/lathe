@@ -181,8 +181,8 @@ describe('orders table', () => {
 
   it.each([
     ['compact', 'h-8'],
-    ['comfortable', 'h-10'],
-    ['spacious', 'h-12'],
+    ['comfortable', 'h-12'],
+    ['spacious', 'h-14'],
   ] as const)('gives %s rows the %s height', (density, height) => {
     renderOrders({ tableStyle: { density, striped: false } });
 

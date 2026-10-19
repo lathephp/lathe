@@ -1,6 +1,6 @@
 import { useTranslation } from '@lathephp/core';
 import { Link, router, usePage } from '@inertiajs/react';
-import { ArrowDown, ArrowUp, ArrowUpRight, Columns3, Eye, Pencil } from 'lucide-react';
+import { Columns3, Eye, Pencil, ScanEye } from 'lucide-react';
 import { Fragment, Suspense, useLayoutEffect, useRef, useState, type MouseEvent } from 'react';
 import type { FieldSchema } from '../fields/types';
 import { PreviewModal } from '../fields/relation/lazy';
@@ -18,24 +18,24 @@ import type { ColumnPin, IndexProps, Row } from './types';
 import type { RowSelection } from './useRowSelection';
 
 // A row's height at each table density; a loading row takes the same.
-export const rowHeights = { compact: 'h-8', comfortable: 'h-10', spacious: 'h-12' };
+export const rowHeights = { compact: 'h-8', comfortable: 'h-12', spacious: 'h-14' };
 
 // Under 768 px the table scrolls inside its card; the checkbox and the first column stay as the row's anchor.
 // A stuck cell sits a layer up, so the cells scrolling beneath it, an inline select included, never paint over it.
-const checkboxColumn = 'sticky start-0 z-[1] w-10 bg-background px-3';
-const firstColumn = 'sticky start-10 z-[1] bg-background';
+// It takes its row's colour: the muted header, a hovered or a ticked row.
+const checkboxColumn = 'sticky start-0 z-[1] w-14 bg-inherit ps-6 pe-4';
+const firstColumn = 'sticky start-14 z-[1] bg-inherit';
 // A pinned column stays in view too, at the offset the header cells before it add up to.
-const pinnedColumn = 'sticky z-[1] bg-background';
+const pinnedColumn = 'sticky z-[1] bg-inherit';
 // The row menu stays at the end. A sticky cell holds its popover in its own stacking context, so the
 // picker's cell sits above the rows, and a row menu's cell rises while its menu is in use.
-const menuColumn = 'sticky end-0 bg-background';
+const menuColumn = 'sticky end-0 bg-inherit';
 // Each edge of the pinned blocks casts a shadow while columns scroll beneath it.
 const startEdge = 'shadow-[6px_0_8px_-6px_rgb(0_0_0/0.2)] rtl:shadow-[-6px_0_8px_-6px_rgb(0_0_0/0.2)]';
 const endEdge = 'shadow-[-6px_0_8px_-6px_rgb(0_0_0/0.2)] rtl:shadow-[6px_0_8px_-6px_rgb(0_0_0/0.2)]';
 
 // View and Edit sit in the DOM at rest so the cell keeps its width; the row's hover or focus shows them.
-const rowLink =
-  'rounded-sm p-1 text-muted-foreground opacity-0 outline-none group-hover:opacity-100 group-focus-within:opacity-100 hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring';
+const rowLink = 'lathe-row-button opacity-0 group-hover:opacity-100 group-focus-within:opacity-100';
 
 // A click on these does its own thing, never the row's click action.
 const ownClick = 'a, button, input, label, select, [data-row-menu], [data-inline-cell]';
@@ -284,7 +284,7 @@ export function ResourceTable({ resource, table, state, loading, selection, sort
     >
       <table data-lathe-table className="w-full text-sm">
         <thead>
-          <tr ref={header} className="h-10 border-b border-border text-start text-muted-foreground">
+          <tr ref={header}>
             <th scope="col" className={cn(checkboxColumn, border)}>
               <input
                 type="checkbox"
@@ -311,21 +311,22 @@ export function ResourceTable({ resource, table, state, loading, selection, sort
                   scope="col"
                   aria-sort={sortable ? sorted : undefined}
                   style={{ ...columnWidth(column), ...pins[index]?.style }}
-                  className={cn('px-3 font-medium whitespace-nowrap', alignClass(column), pins[index]?.className, border)}
+                  className={cn('px-3 whitespace-nowrap', alignClass(column), pins[index]?.className, border)}
                 >
                   {sortable ? (
                     <button
                       type="button"
-                      className="group/sort -mx-1 inline-flex items-center gap-1 rounded px-1 font-medium outline-none hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring"
+                      className="lathe-sort"
                       onClick={(event) => {
                         onSort(nextSort(sort, column.sortKey, event.shiftKey));
                       }}
                     >
                       {column.label}
-                      {sorted === 'ascending' && <ArrowUp aria-hidden="true" className="size-3.5" />}
-                      {sorted === 'descending' && <ArrowDown aria-hidden="true" className="size-3.5" />}
-                      {/* An unsorted column shows its arrow only under the pointer. */}
-                      {sorted === 'none' && <ArrowUp aria-hidden="true" className="size-3.5 opacity-0 group-hover/sort:opacity-50 group-focus-visible/sort:opacity-50" />}
+                      {/* Both arrows always; the one of the current direction is drawn in the text colour. */}
+                      <svg aria-hidden="true" width="8" height="14" viewBox="0 0 8 14">
+                        <path d="M4 1 7.5 5.5h-7z" />
+                        <path d="M4 13 .5 8.5h7z" />
+                      </svg>
                     </button>
                   ) : (
                     column.label
@@ -379,7 +380,7 @@ export function ResourceTable({ resource, table, state, loading, selection, sort
                     )}
                     {!folded && (
                       <tr
-                        className={cn('group', rowClass, opens && 'cursor-pointer hover:bg-muted/50')}
+                        className={cn('group', rowClass, opens && 'cursor-pointer hover:bg-accent')}
                         onClick={(event) => {
                           clickRow(event, row);
                         }}
@@ -446,14 +447,14 @@ export function ResourceTable({ resource, table, state, loading, selection, sort
                         })}
                         {withMenu && (
                           <td data-row-menu="" className={cn('z-[1] px-3 hover:z-10 focus-within:z-10', menuClass, border)}>
-                            <div className="flex items-center justify-end gap-1">
+                            <div className="flex items-center justify-end gap-0.5">
                               {row.abilities.view === true && (
                                 <Link
                                   href={`${basePath}/resources/${resource.uriKey}/${String(row.id)}`}
                                   aria-label={__('View :title', { title: row.title })}
                                   className={rowLink}
                                 >
-                                  <ArrowUpRight aria-hidden="true" className="size-4" />
+                                  <Eye aria-hidden="true" className="size-4" />
                                 </Link>
                               )}
                               {row.abilities.update === true && (
@@ -469,12 +470,12 @@ export function ResourceTable({ resource, table, state, loading, selection, sort
                                 <button
                                   type="button"
                                   aria-label={__('Preview :title', { title: row.title })}
-                                  className="rounded-sm p-1 text-muted-foreground outline-none hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring"
+                                  className={rowLink}
                                   onClick={() => {
                                     setPreviewing(row.id);
                                   }}
                                 >
-                                  <Eye aria-hidden="true" className="size-4" />
+                                  <ScanEye aria-hidden="true" className="size-4" />
                                 </button>
                               )}
                               {hasRowMenu(row) && <RowMenu uriKey={resource.uriKey} row={row} />}
@@ -539,7 +540,7 @@ function ColumnsButton({ uriKey, table }: { uriKey: string; table: IndexProps['t
         aria-label={__('Columns')}
         aria-haspopup="dialog"
         aria-expanded={open}
-        className="grid size-7 place-items-center rounded-md text-foreground outline-none hover:bg-muted focus-visible:ring-2 focus-visible:ring-ring"
+        className="lathe-row-button"
         onPointerEnter={() => {
           void ColumnPicker.preload();
         }}

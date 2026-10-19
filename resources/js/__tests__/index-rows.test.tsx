@@ -417,6 +417,16 @@ describe('table visuals', () => {
     expect(bodyRows().every((element) => element.classList.contains('h-8') && !element.classList.contains('h-12'))).toBe(true);
   });
 
+  it('paints the stuck cells in the colour of their row, so the header and a hovered row read edge to edge', () => {
+    renderOrders({ rows: [row(1, { view: true, update: true })] });
+
+    const cells = [...screen.getAllByRole('columnheader'), ...within(bodyRows()[0] as HTMLElement).getAllByRole('cell')];
+    const stuck = cells.filter((cell) => cell.classList.contains('sticky'));
+
+    expect(stuck.length).toBe(6);
+    expect(stuck.every((cell) => cell.classList.contains('bg-inherit'))).toBe(true);
+  });
+
   it('draws vertical borders on rows and header with showColumnBorders', () => {
     const { unmount } = renderOrders({ definition: { showColumnBorders: true } });
 

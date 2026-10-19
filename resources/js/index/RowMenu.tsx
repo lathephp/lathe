@@ -1,5 +1,5 @@
 import { useTranslation } from '@lathephp/core';
-import { EllipsisVertical } from 'lucide-react';
+import { Ellipsis } from 'lucide-react';
 import { Suspense, useId, useRef, useState } from 'react';
 import { RowMenuPanel } from './lazy';
 import type { Row } from './types';
@@ -37,7 +37,7 @@ export function RowMenu({ uriKey, row }: { uriKey: string; row: Row }) {
         aria-expanded={open}
         aria-controls={open ? menuId : undefined}
         aria-label={__('Actions for :title', { title: row.title })}
-        className="grid size-7 place-items-center rounded-md outline-none hover:bg-muted focus-visible:ring-2 focus-visible:ring-ring"
+        className="lathe-row-button"
         onPointerEnter={() => {
           void RowMenuPanel.preload();
         }}
@@ -46,7 +46,7 @@ export function RowMenu({ uriKey, row }: { uriKey: string; row: Row }) {
           setOpened(true);
         }}
       >
-        <EllipsisVertical aria-hidden="true" className="size-4" />
+        <Ellipsis aria-hidden="true" className="size-4" />
       </button>
       {opened && (
         <Suspense fallback={null}>

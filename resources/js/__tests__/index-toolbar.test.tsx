@@ -178,13 +178,13 @@ describe('search box and the URL', () => {
 });
 
 describe('sort headers', () => {
-  it('shows an unsorted column\'s arrow only under the pointer, and the sorted one\'s always', () => {
+  it('draws both arrows on every sortable column, the sorted one marked by its aria-sort', () => {
     renderOrders({ url: '/lathe/resources/orders?sort=number' });
-    const arrow = (name: string) => header(name).querySelector('svg')?.getAttribute('class') ?? '';
+    const arrows = (name: string) => header(name).querySelectorAll('.lathe-sort > svg > path').length;
 
-    expect(arrow('Total')).toContain('opacity-0');
-    expect(arrow('Total')).toContain('group-hover/sort:opacity-50');
-    expect(arrow('Number')).not.toContain('opacity-0');
+    expect(arrows('Total')).toBe(2);
+    expect(arrows('Number')).toBe(2);
+    expect(header('Number').getAttribute('aria-sort')).toBe('ascending');
   });
 
   it('sorts Total ascending on the first click and descending on the second', () => {

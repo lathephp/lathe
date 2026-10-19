@@ -575,6 +575,65 @@
   }
 }
 
+/* The resource index: its table card, the tab band, the toolbar, the table and the pager. The
+   looks live here, so the index's first-load script carries only the class names. */
+@layer components {
+  [data-lathe-table] thead tr {
+    @apply h-10 border-b border-border bg-muted;
+  }
+
+  [data-lathe-table] th {
+    @apply text-[11px] leading-4 font-semibold tracking-[0.04em] text-muted-foreground uppercase;
+  }
+
+  [data-lathe-table] tbody tr {
+    @apply bg-card;
+  }
+
+  /* A ticked row takes the selection tint. */
+  [data-lathe-table] tbody tr:has(> td > input:checked) {
+    @apply bg-primary-subtle;
+  }
+
+  /* A related record's name reads as the row's text, in weight 500; it still links to that record. */
+  [data-lathe-table] td > a,
+  [data-lathe-table] td > span > a {
+    @apply font-medium text-foreground!;
+  }
+
+  [data-lathe-table] input[type="checkbox"] {
+    @apply accent-primary;
+  }
+
+  /* A sortable header shows both arrows; the current direction's arrow is in the text colour. */
+  .lathe-sort {
+    @apply -mx-1 inline-flex items-center gap-1.5 rounded-sm px-1 tracking-[inherit] uppercase outline-none focus-visible:ring-2 focus-visible:ring-ring;
+  }
+
+  .lathe-sort path {
+    @apply fill-input;
+  }
+
+  [data-lathe-table] th:has(> .lathe-sort:hover) {
+    @apply bg-accent text-foreground;
+  }
+
+  [data-lathe-table] th[aria-sort="ascending"],
+  [data-lathe-table] th[aria-sort="descending"] {
+    @apply text-foreground;
+  }
+
+  [aria-sort="ascending"] > .lathe-sort path:first-child,
+  [aria-sort="descending"] > .lathe-sort path:last-child {
+    @apply fill-foreground;
+  }
+
+  /* View, Edit, Preview, the row menu and the Columns button: 28 px, muted, in the row's last cell. */
+  .lathe-row-button {
+    @apply grid size-7 place-items-center rounded-[6px] text-muted-foreground outline-none hover:bg-muted hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring aria-expanded:bg-muted aria-expanded:text-foreground;
+  }
+}
+
 /* Only @lathephp/ui uses this class. The build test counts it in the built
    stylesheet to prove the package sources are scanned. */
 @utility lathe-probe-class {
