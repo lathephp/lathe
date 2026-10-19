@@ -1,7 +1,11 @@
-import { screen, within } from '@testing-library/react';
-import { describe, expect, it } from 'vitest';
+import { fireEvent, screen, within } from '@testing-library/react';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import type { FieldSchema, FormFieldData } from '../fields/types';
 import { renderPage } from './support';
+
+afterEach(() => {
+  vi.restoreAllMocks();
+});
 
 const resource = { uriKey: 'customers', label: 'Customers', singularLabel: 'Customer', abilities: { create: true } };
 
@@ -64,6 +68,22 @@ function renderForm() {
     submitLabel: 'Create customer',
   });
 }
+
+describe('the form errors look', () => {
+  it('leads the summary and each field error with the alert icon', async () => {
+    vi.spyOn(globalThis, 'fetch').mockResolvedValue(new Response(JSON.stringify({ message: 'Invalid', errors: { name: ['Enter a name.'] } }), { status: 422, headers: { 'Content-Type': 'application/json' } }));
+    renderForm();
+
+    fireEvent.click(screen.getByRole('button', { name: 'Create customer' }));
+
+    const summary = await screen.findByRole('alert');
+    const error = document.getElementById('field-name-error');
+
+    expect(summary.firstElementChild?.tagName).toBe('svg');
+    expect(error?.firstElementChild?.tagName).toBe('svg');
+    expect(error?.textContent).toBe('Enter a name.');
+  });
+});
 
 describe('the form look', () => {
   it('heads each section inside its card', () => {

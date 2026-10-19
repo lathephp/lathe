@@ -1,5 +1,4 @@
 import { useMemo, useState } from 'react';
-import { FieldError } from '../components/FieldError';
 import { useTranslation } from '@lathephp/core';
 import { labelOf, optionsOf } from '../fields/choice/options';
 import { passes, type ConditionData } from '../fields/conditions';
@@ -8,6 +7,7 @@ import { RepeaterErrorsContext } from '../fields/repeater/errors';
 import { RepeaterFailuresContext } from '../fields/repeater/failures';
 import type { FormFieldData } from '../fields/types';
 import { cn } from '../lib/cn';
+import { AlertIcon } from './ErrorSummary';
 import { RecordLayout } from './RecordLayout';
 import { useDependentFields } from './useDependentFields';
 import type { useRecordForm } from './useRecordForm';
@@ -122,7 +122,7 @@ export function FormRow({ field, wide = false, reason, idPrefix, value, values, 
       data-dependent={reason === undefined ? undefined : ''}
       className={cn(
         // The label and its Optional mark share the first line; the control and its notes wrap below.
-        'flex flex-wrap items-baseline gap-x-2 gap-y-1.5 text-sm',
+        'flex flex-wrap content-start items-baseline gap-x-2 gap-y-1.5 text-sm',
         // A field shown by another sits under it on its own row, on the muted ground, with the reason.
         reason !== undefined && 'rounded-md bg-muted p-3',
         // Readonly reads as a settled value: muted ground, dashed edge. Any other disabled control is dimmed.
@@ -158,7 +158,12 @@ export function FormRow({ field, wide = false, reason, idPrefix, value, values, 
             {field.help}
           </p>
         )}
-        {errorId === undefined ? null : <FieldError id={errorId} message={error} />}
+        {errorId === undefined ? null : (
+          <p id={errorId} className="flex gap-1 text-[13px] leading-[18px] text-destructive-subtle-foreground">
+            <AlertIcon className="mt-0.5 size-3.5 shrink-0" />
+            {error}
+          </p>
+        )}
       </div>
     </div>
   );
