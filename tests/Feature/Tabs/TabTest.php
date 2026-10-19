@@ -5,7 +5,9 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Validation\ValidationException;
 use Inertia\Testing\AssertableInertia;
+use Lathe\Auth\ResourceAuthorization;
 use Lathe\Http\Middleware\HandleInertiaRequests;
+use Lathe\Http\Payloads\IndexPayload;
 use Lathe\Http\Requests\LatheRequest;
 use Lathe\Query\ResourceQuery;
 use Lathe\Resources\ResourceDefinition;
@@ -112,6 +114,16 @@ it('counts the Pending badge without the user filters', function () {
     // Every counted tab ignores the user's filters: All still counts every order under a Paid filter.
     expect($props['tabCounts']['pending']['count'])->toMatchArray(['value' => $pending, 'capped' => false])
         ->and($props['tabCounts']['all']['count']['value'])->toBe(OrderModel::count());
+});
+
+it('counts only the tabs that ask for a count', function () {
+    TabbedOrder::$tabs = [
+        Tab::make('All'),
+        Tab::make('Pending')->modifyQueryUsing(fn (Builder $q) => $q->where($q->qualifyColumn('status'), 'pending'))->withCount(),
+    ];
+    $payload = new IndexPayload(LatheRequest::createFrom(Request::create('/lathe/api/resources/orders')), app(ResourceAuthorization::class));
+
+    expect($payload->tabCounts(TabbedOrder::class))->toHaveKey('pending')->not->toHaveKey('all');
 });
 
 it('caps a badge above the cap', function () {
