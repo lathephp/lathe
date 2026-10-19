@@ -27,7 +27,7 @@ function Toast({ className, ...props }: ToastPrimitive.Root.Props) {
     <ToastPrimitive.Root
       data-slot="toast"
       className={cn(
-        'flex items-start gap-3 rounded-lg border bg-popover p-3 text-sm text-popover-foreground shadow-md outline-none focus-visible:ring-2 focus-visible:ring-ring data-limited:hidden',
+        'flex items-start gap-2.5 rounded-xl border border-border bg-popover py-3 ps-3.5 pe-3 text-sm text-popover-foreground shadow-md outline-none focus-visible:ring-2 focus-visible:ring-focus data-limited:hidden',
         className,
       )}
       {...props}
@@ -36,7 +36,7 @@ function Toast({ className, ...props }: ToastPrimitive.Root.Props) {
 }
 
 function ToastDescription({ className, ...props }: ToastPrimitive.Description.Props) {
-  return <ToastPrimitive.Description data-slot="toast-description" className={cn('flex-1', className)} {...props} />;
+  return <ToastPrimitive.Description data-slot="toast-description" className={cn('leading-5 font-medium', className)} {...props} />;
 }
 
 export { createToastManager, Toast, ToastDescription, ToastProvider, ToastViewport, useToastManager };

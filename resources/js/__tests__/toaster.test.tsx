@@ -1,4 +1,4 @@
-import { toast } from '@lathephp/core';
+import { __panel, toast } from '@lathephp/core';
 import { act, fireEvent, render, screen, within } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { Toaster } from '../components/Toaster';
@@ -22,6 +22,28 @@ describe('Toaster', () => {
     });
 
     expect((await screen.findByRole('status')).textContent).toContain('Saved');
+  });
+
+  it('marks each toast with its kind on a solid dot and a running task with a spinner', async () => {
+    render(<Toaster />);
+
+    act(() => {
+      toast.success('Saved');
+      toast.error('Not saved');
+    });
+
+    const saved = (await screen.findByText('Saved')).closest('[data-slot="toast"]') as HTMLElement;
+    const failed = screen.getByRole('alert');
+    expect(saved.querySelector('[data-toast-icon]')?.className).toContain('bg-success text-success-foreground');
+    expect(failed.querySelector('[data-toast-icon]')?.className).toContain('bg-destructive text-destructive-foreground');
+    // The kind shows in the dot, so an error's text keeps the foreground colour.
+    expect(failed.className).not.toContain('text-destructive');
+
+    act(() => {
+      __panel.putToast({ type: 'info', message: 'Marking 3 orders shipped', timeout: 0, dismissible: false });
+    });
+    const running = (await screen.findByText('Marking 3 orders shipped')).closest('[data-slot="toast"]') as HTMLElement;
+    expect(running.querySelector('[data-toast-icon]')?.className).toContain('animate-spin');
   });
 
   it('keeps an error until it is dismissed and closes a success after 5 seconds', async () => {
