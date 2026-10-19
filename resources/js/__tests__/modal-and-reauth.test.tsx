@@ -388,6 +388,16 @@ describe('conflict dialog', () => {
     expect(within(dialog).getAllByRole('button').map((button) => button.textContent)).toEqual(['Save mine over theirs', 'Load their version']);
   });
 
+  it('opens on Load their version, so Enter never writes over the other save', async () => {
+    vi.spyOn(globalThis, 'fetch').mockResolvedValue(json(409, { error: 'conflict', message: 'Changed.', updatedAt: '2026-10-14T09:00:02.000Z' }));
+    renderEdit();
+
+    fireEvent.click(screen.getByRole('button', { name: 'Update Order' }));
+    const dialog = await screen.findByRole('dialog', { name: 'This record has changed' });
+
+    expect(document.activeElement).toBe(within(dialog).getByRole('button', { name: 'Load their version' }));
+  });
+
   it('Load their version reloads the stored values and drops the draft', async () => {
     window.sessionStorage.setItem(`lathe-draft:${window.location.pathname}`, JSON.stringify({ name: 'typed' }));
     vi.spyOn(globalThis, 'fetch').mockImplementation((input) =>

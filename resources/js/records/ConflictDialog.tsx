@@ -34,7 +34,8 @@ export function ConflictDialog({ onRefresh, onOverride, onClose }: ConflictDialo
         <button type="button" className={`${outlineButton} text-destructive-subtle-foreground`} onClick={onOverride}>
           {__('Save mine over theirs')}
         </button>
-        <button type="button" className={primaryButton} onClick={onRefresh}>
+        {/* Rightmost as the primary, and focused, so a second Enter never writes over their save. */}
+        <button type="button" data-autofocus className={primaryButton} onClick={onRefresh}>
           {__('Load their version')}
         </button>
       </div>

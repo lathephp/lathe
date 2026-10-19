@@ -120,7 +120,8 @@ export function Modal({ labelledBy, onClose, children, className, locked = false
     stack.push(id);
     pauseShortcuts();
     document.body.style.overflow = 'hidden';
-    panel.current?.querySelector<HTMLElement>(focusable)?.focus();
+    // A dialog may name the control that takes the focus, such as the safe choice that is not first.
+    (panel.current?.querySelector<HTMLElement>('[data-autofocus]') ?? panel.current?.querySelector<HTMLElement>(focusable))?.focus();
 
     function onKeyDown(event: KeyboardEvent) {
       if (stack.at(-1) !== id) {
