@@ -314,11 +314,28 @@ The design system tokens:
 
 - `brand`: copper for marks that carry no text, such as the active menu bar and `chart-1`. Text on a copper fill uses `primary`.
 - `focus`: the focus ring.
-- `primary-subtle`, `success-subtle`, `warning-subtle`, `info-subtle` and `destructive-subtle`, each with a `-foreground` partner: the quiet fills of badges and banners, with their text.
+- `primary-subtle`, `success-subtle`, `warning-subtle`, `info-subtle` and `destructive-subtle`: the quiet fills of badges and banners. Each has a text partner: `primary-subtle-foreground`, `success-subtle-foreground`, `warning-subtle-foreground`, `info-subtle-foreground` and `destructive-subtle-foreground`.
 - `skeleton`: the fill of loading placeholders.
 - `scrim`: the shade behind a dialog or the phone menu.
 - `chart-other`: the "Other" slice of a chart.
 - `sidebar-hover`: a menu item under the pointer.
+
+Set one like any other token. This makes the success badge a deeper green and keeps its text readable:
+
+```php
+'theme' => [
+    'colors' => [
+        'success-subtle' => [
+            'light' => 'oklch(0.95 0.05 150)',
+            'dark' => 'oklch(0.3 0.06 150)',
+        ],
+        'success-subtle-foreground' => [
+            'light' => 'oklch(0.4 0.12 150)',
+            'dark' => 'oklch(0.85 0.1 150)',
+        ],
+    ],
+],
+```
 
 When you set any colour of your own, or ran `lathe:preset`, the panel keeps your look and wears no copper. Each of the 40 tokens you did not set keeps the neutral value it had before the copper theme, and the new tokens follow your palette:
 

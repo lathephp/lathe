@@ -259,6 +259,32 @@ $columns = Post::make()->searchableColumns();
 return $definition->model(\App\Models\Order::class)->polling(10)->showPollingToggle();
 ```
 
+### Choose columns
+
+At the right end of the table header, the Columns picker lets each user show, hide, reorder and pin columns. A pinned column stays in view when the table scrolls sideways. The first column, the title, is always shown and always first. Lathe saves the choice per user, on the server, in the `lathe_user_preferences` table, so it follows the user to another browser.
+
+A column you remove from code drops out of a saved choice. A column you add shows at the end. Reset to default in the picker deletes the saved choice.
+
+Two routes keep the choice. `PUT api/resources/{resource}/columns` saves it, and `DELETE api/resources/{resource}/columns` answers 204 and removes it. The `PUT` body has three lists of field keys, and all three must be present:
+
+```json
+{"order": ["number", "customer", "total_cents"], "hidden": ["customer"], "pinned": ["number"]}
+```
+
+The route names no user, so each user writes only their own choice.
+
+### Phone cards
+
+Below 768 px, each index row is a card. A card shows a title, a badge, a value and one line of meta. Call `phoneCard()` to name the index column for each slot, by field key:
+
+```php
+return $definition
+    ->model(\App\Models\Product::class)
+    ->phoneCard(title: 'name', value: 'price_cents', meta: 'category');
+```
+
+A slot you leave out is picked from the index: the record's title, the first badge, the first number and the first relation. A key that is not an index column is ignored, and Lathe picks instead.
+
 ### Soft deletes, saved tabs and borders
 
 - Lathe detects the `SoftDeletes` trait on the model and adds a filter for trashed rows. Call `softDeletes(false)` to turn that off.

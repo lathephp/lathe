@@ -228,9 +228,13 @@ public function ranges(): array
 
 On a value card, a number key means the last N days, compared with the N days before. The constants `TODAY`, `YESTERDAY`, `THIS_WEEK`, `MTD`, `QTD`, `YTD` and `ALL` compare against the matching earlier period. `defaultRange()` picks the choice that shows first. Return an empty array to hide the selector. The selected key reaches your code as `$request->query('range')`.
 
+### The card menu
+
+On a dashboard, each card has a ⋯ menu. Refresh is always there and reloads the card. Open records and Download CSV show only when they apply, as the next two sections say.
+
 ### Open records
 
-A card's menu offers Open records when the card has a link. When every aggregate helper the card ran reads the same model, and a Resource has that model, the link is that Resource's index, shown only to a user who may list it. Set your own link with `link()`, shown as given:
+The menu offers Open records when the card has a link. When every aggregate helper the card ran reads the same model, and a Resource has that model, the link is that Resource's index, shown only to a user who may list it. Set your own link with `link()`, shown as given:
 
 ```php
 NewUsers::make()->link('/lathe/resources/users?filter[status]=new'),
