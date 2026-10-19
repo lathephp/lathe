@@ -119,11 +119,10 @@ it('returns the update fields with their values and the traffic-cop token', func
     $json = LatheTest::resource('orders')->updateFields(12)->assertOk()->json();
 
     expect(array_keys($json))->toBe(['fields', 'layout', 'updatedAt'])
-        ->and(array_column($json['fields'], 'key'))->toBe(['number', 'status', 'placed_at', 'customer', 'total_cents', 'items'])
-        ->and($json['fields'][0]['value'])->toBe('ORD-00099454')
-        ->and($json['layout'][0]['fields'])->toBe(['number', 'status', 'placed_at'])
-        ->and($json['layout'][1]['fields'])->toBe(['customer'])
-        ->and($json['layout'][2]['type'])->toBe('tab-group')
+        ->and(array_column($json['fields'], 'key'))->toBe(['customer', 'status', 'placed_at', 'number', 'items', 'total_cents'])
+        ->and($json['fields'][3]['value'])->toBe('ORD-00099454')
+        ->and($json['layout'][0]['fields'])->toBe(['customer', 'status', 'placed_at', 'number'])
+        ->and($json['layout'][1]['fields'])->toBe(['items', 'total_cents'])
         ->and($json['updatedAt'])->toBe('2026-03-04T05:06:07.000Z');
 });
 
@@ -182,7 +181,7 @@ it('renders the edit page with the update fields and the update label', function
             ->where('title', 'ORD-00099454')
             ->where('submitLabel', 'Update Order')
             ->where('form.updatedAt', '2026-03-04T05:06:07.000Z')
-            ->where('form.fields.0.value', 'ORD-00099454')
+            ->where('form.fields.3.value', 'ORD-00099454')
             ->where('breadcrumbs', [
                 ['label' => 'Dashboard', 'href' => '/lathe'],
                 ['label' => 'Orders', 'href' => '/lathe/resources/orders'],

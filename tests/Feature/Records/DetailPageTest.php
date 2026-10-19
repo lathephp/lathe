@@ -46,12 +46,12 @@ it('shows an order with its fields, layout, abilities and default breadcrumbs', 
             ->where('record.title', 'ORD-00099454')
             ->where('record.subtitle', '')
             ->where('record.avatar', null)
-            ->where('record.fields', fn ($fields) => collect($fields)->pluck('key')->all() === ['number', 'status', 'placed_at', 'created_at', 'customer', 'total_cents', 'items', 'actions'])
-            ->where('record.fields.0.label', 'Number')
-            ->where('record.fields.0.value', 'ORD-00099454')
-            ->where('record.fields.0.display', 'ORD-00099454')
-            ->where('record.fields.0.readonly', false)
-            ->where('record.layout.0.fields', ['number', 'status', 'placed_at', 'created_at'])
+            ->where('record.fields', fn ($fields) => collect($fields)->pluck('key')->all() === ['customer', 'status', 'placed_at', 'number', 'created_at', 'items', 'total_cents', 'actions'])
+            ->where('record.fields.3.label', 'Number')
+            ->where('record.fields.3.value', 'ORD-00099454')
+            ->where('record.fields.3.display', 'ORD-00099454')
+            ->where('record.fields.3.readonly', false)
+            ->where('record.layout.0.fields', ['customer', 'status', 'placed_at', 'number', 'created_at'])
             ->where('record.abilities', ['view' => true, 'update' => true, 'delete' => true, 'replicate' => true, 'restore' => false, 'forceDelete' => false])
             ->where('record.trashed', false)
             ->where('breadcrumbs', [
@@ -117,7 +117,7 @@ it('hides the canSee order field from the editor', function () {
         ->assertOk()
         ->assertInertia(fn (AssertableInertia $page) => $page
             ->component('Resources/Detail', false)
-            ->where('record.fields', fn ($fields) => collect($fields)->pluck('key')->all() === ['number', 'status', 'placed_at', 'customer', 'total_cents', 'items', 'actions'])
+            ->where('record.fields', fn ($fields) => collect($fields)->pluck('key')->all() === ['customer', 'status', 'placed_at', 'number', 'items', 'total_cents', 'actions'])
             ->where('record.abilities.update', false));
 });
 

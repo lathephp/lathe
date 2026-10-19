@@ -11,7 +11,6 @@ use Lathe\Field\SelectField;
 use Lathe\Groups\Group;
 use Lathe\Http\Requests\LatheRequest;
 use Lathe\Layout\Section;
-use Lathe\Layout\Tab as LayoutTab;
 use Lathe\Resources\Resource;
 use Lathe\Resources\ResourceDefinition;
 use Lathe\Search\SearchableRelation;
@@ -53,25 +52,22 @@ class Order extends Resource
     public function fields(LatheRequest $request): array
     {
         return [
+            // The form's two cards: the order, with its customer first and full width, then its items.
             Section::make('Order', [
-                Field::text('Number')->required()->sortable()->showOnPreview(),
-                $this->status()->showOnPreview(),
+                Field::belongsTo('Customer')->searchable()->creatable(),
+                $this->status()->required()->default('pending')->showOnPreview(),
                 Field::dateTime('Placed', 'placed_at')->sortable()->required()->showOnPreview(),
+                Field::text('Number')->required()->sortable()->showOnPreview(),
                 Field::dateTime('Created', 'created_at')->onlyOnDetail()->canSee(fn (LatheRequest $request) => $request->user() instanceof User && $request->user()->email === 'admin@lathephp.com'),
             ]),
-            Section::make('Customer', [
-                Field::belongsTo('Customer')->searchable()->creatable(),
-            ]),
-            LayoutTab::group(null, [
-                LayoutTab::make('Billing', [$this->total()->required()->showOnPreview()]),
-                // The form edits the items in a repeater; detail lists them in the Items panel.
-                LayoutTab::make('Items', [
-                    Field::hasMany('Items')->withCount()->collapsible(),
-                    Field::repeater('Items')->asHasMany('items')->onlyOnForms()->fields([
-                        Field::number('Quantity')->min(1)->required(),
-                        Field::currency('Price', 'price_cents')->asMinorUnits()->required(),
-                    ])->addable(false)->confirmRemoval()->rowLabel('quantity', 'Item #{{index}}'),
-                ]),
+            // Detail lists the items in the Items tab; the form edits them in the repeater below.
+            Field::hasMany('Items')->withCount()->collapsible(),
+            Section::make('Items', [
+                Field::repeater('Items')->asHasMany('items')->onlyOnForms()->fields([
+                    Field::number('Quantity')->min(1)->required(),
+                    Field::currency('Price', 'price_cents')->asMinorUnits()->required(),
+                ])->addable(false)->confirmRemoval()->grid(2)->rowLabel('quantity', 'Item #{{index}}'),
+                $this->total()->required()->showOnPreview(),
             ]),
             ActivityTimeline::make()->heading('Activity timeline'),
         ];
