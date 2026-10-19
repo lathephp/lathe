@@ -217,4 +217,19 @@ describe('import modal', () => {
     expect(onClose).toHaveBeenCalled();
     window.removeEventListener('lathe:import-started', started);
   });
+
+  it('names the file with its rows and columns, and maps each column beside its first row', async () => {
+    server();
+    render(<ImportModal base="/lathe/api/resources/products" action={action} selection={selection} onClose={vi.fn()} />);
+    pickFile(screen.getByLabelText('File'), new File(['Name,SKU,Price\n'], 'products.csv', { type: 'text/csv' }));
+
+    const map = (await screen.findByRole('columnheader', { name: 'First row' })).closest('table');
+    expect(screen.getByText('2,400 rows · 3 columns')).toBeTruthy();
+    expect(within(map as HTMLElement).getAllByRole('row').map((row) => within(row).queryAllByRole('cell').slice(0, 2).map((cell) => cell.textContent))).toEqual([
+      [],
+      ['Name', 'Trail Mug'],
+      ['SKU', 'SKU-90001'],
+      ['Price', '12.50'],
+    ]);
+  });
 });
