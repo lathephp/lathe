@@ -35,9 +35,8 @@ it('sets a design system token in a theme.colors example', function () {
 
 it('documents the column picker and its routes on the index page', function () {
     expect(newFeaturePage('your-first-resource/defining-resources.md'))
-        ->toContain('api/resources/{resource}/columns')
-        ->toContain('pin')
-        ->toContain('lathe_user_preferences');
+        ->toContain('api/resources/{resource}/columns', 'lathe_user_preferences')
+        ->toMatch('/```json\n\{"order": \[[^\n]*"hidden": \[[^\n]*"pinned": \[/');
 })->group('frontend');
 
 it('shows phoneCard() on the resource page', function () {

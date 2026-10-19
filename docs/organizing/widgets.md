@@ -230,7 +230,7 @@ On a value card, a number key means the last N days, compared with the N days be
 
 ### The card menu
 
-On a dashboard, each card has a ⋯ menu. Refresh is always there and reloads the card. Open records and Download CSV show only when they apply, as the next two sections say.
+On a dashboard, each card that loads its value from the server has a ⋯ menu; a `CustomWidget` draws its own content and has none. Refresh is always in the menu and reloads the card. Open records and Download CSV show only when they apply, as the next two sections say.
 
 ### Open records
 

@@ -1,0 +1,18 @@
+<?php
+
+it('shows Orders in light and dark at the top of the README, each image at most 300 KB', function () {
+    $root = dirname(__DIR__, 3);
+
+    expect((string) file_get_contents("{$root}/README.md"))
+        ->toContain('<source media="(prefers-color-scheme: dark)" srcset="docs/images/orders-dark.png">')
+        ->toContain('<img src="docs/images/orders-light.png"');
+
+    foreach (['orders-light.png', 'orders-dark.png'] as $image) {
+        $path = "{$root}/docs/images/{$image}";
+        // A PNG's width sits in its IHDR chunk, 16 bytes in.
+        $width = unpack('N', (string) file_get_contents($path, length: 4, offset: 16))[1];
+
+        expect(filesize($path))->toBeLessThanOrEqual(300_000, "{$image} is over 300 KB")
+            ->and($width)->toBe(1440);
+    }
+});
