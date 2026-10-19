@@ -1,7 +1,7 @@
 import { router } from '@inertiajs/react';
 import { ApiError, pauseShortcuts, queryKeys, request, resumeShortcuts, useQuery, useTranslation } from '@lathephp/core';
 import { Button } from '@lathephp/ui';
-import { Search, X } from 'lucide-react';
+import { ArrowDown, ArrowUp, CornerDownLeft, History, Search, X } from 'lucide-react';
 import { useEffect, useId, useRef, useState, type KeyboardEvent } from 'react';
 import { cn } from '../lib/cn';
 import { initials, type SearchResponse, type SearchResult } from './results';
@@ -14,19 +14,23 @@ interface Props {
   onClose: () => void;
 }
 
-function Avatar({ result }: { result: SearchResult }) {
-  const shape = result.rounded ? 'rounded-full' : 'rounded-md';
+// A key hint: 20 px, bordered, 11 px text.
+const kbd = 'inline-flex h-5 min-w-5 items-center justify-center rounded border border-border bg-background px-[5px] text-[11px] leading-none font-medium text-muted-foreground';
 
-  return result.avatar === null ? (
-    <span
-      aria-hidden="true"
-      className={cn('flex size-8 shrink-0 items-center justify-center bg-muted text-xs font-medium', shape)}
-    >
-      {initials(result.title)}
-    </span>
-  ) : (
-    <img src={result.avatar} alt="" className={cn('size-8 shrink-0 object-cover', shape)} />
-  );
+/** A row's 28 px picture, its initials, or for a recent search the history mark. A phone shows none. */
+function Avatar({ result, recent }: { result: SearchResult; recent: boolean }) {
+  const shape = result.rounded ? 'rounded-full' : 'rounded-lg';
+  const box = 'size-7 shrink-0 max-md:hidden';
+
+  if (recent || result.avatar === null) {
+    return (
+      <span aria-hidden="true" className={cn(box, 'flex items-center justify-center bg-muted text-[11px] font-medium text-muted-foreground', recent ? 'rounded-lg' : shape)}>
+        {recent ? <History className="size-3.5" /> : initials(result.title)}
+      </span>
+    );
+  }
+
+  return <img src={result.avatar} alt="" className={cn(box, 'object-cover', shape)} />;
 }
 
 /**
@@ -43,7 +47,7 @@ function Marked({ text, term }: { text: string; term: string }) {
 
   return text.split(new RegExp(`(${words.join('|')})`, 'gi')).map((part, index) =>
     index % 2 === 1 ? (
-      <mark key={index} className="rounded-sm bg-primary-subtle text-primary-subtle-foreground">
+      <mark key={index} className="rounded-xs bg-warning-subtle text-inherit">
         {part}
       </mark>
     ) : (
@@ -145,7 +149,9 @@ export function SearchPalette({ basePath, debounce, onClose }: Props) {
     }
   }
 
-  function option(result: SearchResult, index: number) {
+  function option(result: SearchResult, index: number, recent = false) {
+    const active = index === current;
+
     return (
       // Options never take focus: the input drives them with aria-activedescendant, so the keys live there.
       // eslint-disable-next-line jsx-a11y/click-events-have-key-events
@@ -154,10 +160,11 @@ export function SearchPalette({ basePath, debounce, onClose }: Props) {
         id={optionId(index)}
         role="option"
         tabIndex={-1}
-        aria-selected={index === current}
+        aria-selected={active}
+        // 44 px rows inset 6 px; on a phone, full-width 56 px rows split by rules.
         className={cn(
-          'flex min-w-0 flex-1 cursor-pointer items-center gap-3 rounded-md px-2 py-2',
-          index === current && 'bg-muted',
+          'mx-1.5 flex min-h-11 min-w-0 flex-1 cursor-pointer items-center gap-3 rounded-md px-2.5 py-1.5 max-md:mx-0 max-md:min-h-14 max-md:rounded-none max-md:border-b max-md:border-border max-md:px-4',
+          active && 'bg-accent max-md:bg-transparent',
         )}
         onClick={() => {
           choose(result);
@@ -166,26 +173,33 @@ export function SearchPalette({ basePath, debounce, onClose }: Props) {
           setActive(index);
         }}
       >
-        <Avatar result={result} />
+        <Avatar result={result} recent={recent} />
         <span className="min-w-0">
-          <span className="block truncate text-sm font-medium">
+          <span className="block truncate text-sm leading-5 font-medium max-md:text-[15px]">
             <Marked text={result.title} term={term} />
           </span>
-          {/* On the highlighted row's muted background the muted text falls under 4.5:1. */}
+          {/* On the highlighted row's accent ground the muted text falls under 4.5:1. */}
           {result.subTitle !== null && (
-            <span className={cn('block truncate text-xs', index === current ? 'text-foreground/80' : 'text-muted-foreground')}>
+            <span className={cn('block truncate text-xs leading-4 max-md:text-[13px]', active ? 'text-foreground/80' : 'text-muted-foreground')}>
               <Marked text={result.subTitle} term={term} />
             </span>
           )}
         </span>
+        {active && (
+          <kbd aria-hidden="true" className={cn(kbd, 'ms-auto max-md:hidden')}>
+            <CornerDownLeft className="size-3" />
+          </kbd>
+        )}
       </div>
     );
   }
 
+  // The group heads: uppercase 12 px, a little apart.
+  const head = 'px-4 pt-2.5 pb-1 text-xs font-semibold tracking-[0.04em] text-muted-foreground uppercase max-md:pt-3.5 max-md:pb-1.5';
   let offset = 0;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-start justify-center p-4 pt-[10vh] max-md:p-0">
+    <div className="fixed inset-0 z-50 flex items-start justify-center p-4 pt-[72px] max-md:p-0">
       <button
         type="button"
         tabIndex={-1}
@@ -201,60 +215,70 @@ export function SearchPalette({ basePath, debounce, onClose }: Props) {
         aria-modal="true"
         aria-label={__('Search')}
         // On a phone the palette takes the whole screen and closes with Cancel.
-        className="relative flex max-h-[70vh] w-full max-w-[640px] flex-col overflow-hidden rounded-lg border border-border bg-background text-foreground shadow-lg max-md:h-dvh max-md:max-h-none max-md:max-w-none max-md:rounded-none max-md:border-0"
+        className="relative flex max-h-[70vh] w-full max-w-[640px] flex-col overflow-hidden rounded-xl border border-border bg-popover text-popover-foreground shadow-lg max-md:h-dvh max-md:max-h-none max-md:max-w-none max-md:rounded-none max-md:border-0 max-md:bg-background"
         onKeyDown={onKeyDown}
       >
-        <div className="flex items-center gap-2 border-b border-border px-3">
-          <Search aria-hidden="true" className="size-4 shrink-0 text-muted-foreground" />
-          <input
-            ref={input}
-            type="text"
-            role="combobox"
-            aria-label={__('Search')}
-            aria-expanded="true"
-            aria-controls={`${listId}-list`}
-            aria-activedescendant={options.length > 0 ? optionId(current) : undefined}
-            aria-autocomplete="list"
-            autoComplete="off"
-            placeholder={__('Search…')}
-            value={text}
-            className="h-12 min-w-0 flex-1 bg-transparent text-sm outline-none"
-            onChange={(event) => {
-              setText(event.target.value);
-              setActive(0);
-            }}
-          />
-          <button type="button" className="h-11 shrink-0 rounded-md px-2 text-sm font-medium outline-none focus-visible:ring-2 focus-visible:ring-ring md:hidden" onClick={onClose}>
+        <div className="flex h-[52px] shrink-0 items-center gap-2.5 border-b border-border px-4 max-md:h-auto max-md:gap-2 max-md:py-2 max-md:ps-4 max-md:pe-2">
+          {/* On a phone the field sits in a 44 px muted well. */}
+          <div className="flex min-w-0 flex-1 items-center gap-2.5 max-md:h-11 max-md:gap-2 max-md:rounded-[10px] max-md:bg-muted max-md:px-3">
+            <Search aria-hidden="true" strokeWidth={1.75} className="size-[18px] shrink-0 text-muted-foreground" />
+            <input
+              ref={input}
+              type="text"
+              role="combobox"
+              aria-label={__('Search')}
+              aria-expanded="true"
+              aria-controls={`${listId}-list`}
+              aria-activedescendant={options.length > 0 ? optionId(current) : undefined}
+              aria-autocomplete="list"
+              autoComplete="off"
+              placeholder={__('Search…')}
+              value={text}
+              className="min-w-0 flex-1 bg-transparent text-base leading-[22px] outline-none placeholder:text-muted-foreground"
+              onChange={(event) => {
+                setText(event.target.value);
+                setActive(0);
+              }}
+            />
+          </div>
+          <kbd aria-hidden="true" className={cn(kbd, 'max-md:hidden')}>
+            {__('esc')}
+          </kbd>
+          <button type="button" className="h-11 shrink-0 rounded-md px-2 text-base font-medium text-link outline-none focus-visible:ring-2 focus-visible:ring-focus md:hidden" onClick={onClose}>
             {__('Cancel')}
           </button>
         </div>
         {/* Focusable, so a keyboard user can scroll a long result list. */}
-        <div className="overflow-y-auto p-2" role="region" tabIndex={0} aria-label={__('Search results')}>
+        <div className="overflow-y-auto pb-2 outline-none max-md:flex-1" role="region" tabIndex={0} aria-label={__('Search results')}>
           {!searching && recents.length > 0 && (
-            <div className="flex items-center justify-between px-2 pb-1 text-xs text-muted-foreground">
+            <div className={cn(head, 'flex items-center justify-between')}>
               <span>{__('Recent searches')}</span>
-              <Button variant="ghost" size="sm" onClick={clear}>
+              <button type="button" className="rounded-sm text-xs font-medium tracking-normal text-link normal-case outline-none hover:text-link-hover focus-visible:ring-2 focus-visible:ring-focus" onClick={clear}>
                 {__('Clear')}
-              </Button>
+              </button>
             </div>
           )}
           {loading && (
-            <div aria-busy="true" className="space-y-2">
+            <div aria-busy="true" className="flex flex-col gap-3.5 p-4">
               <p role="status" className="sr-only">
                 {__('Searching…')}
               </p>
-              {[0, 1, 2].map((slot) => (
-                <div key={slot} data-skeleton="" className="h-12 animate-pulse rounded-md bg-muted" />
+              <div data-skeleton="" className="h-3 w-[30%] animate-pulse rounded bg-skeleton" />
+              {['60%', '45%'].map((width) => (
+                <div key={width} data-skeleton="" className="flex items-center gap-3">
+                  <div className="size-7 animate-pulse rounded-lg bg-skeleton" />
+                  <div className="h-3 animate-pulse rounded bg-skeleton" style={{ width }} />
+                </div>
               ))}
             </div>
           )}
           {failed && refused !== null && (
-            <p role="alert" className="px-2 py-3 text-sm">
+            <p role="alert" className="px-4 py-3 text-sm">
               {refused}
             </p>
           )}
           {failed && refused === null && (
-            <div className="flex items-center justify-between gap-2 px-2 py-3 text-sm">
+            <div className="flex items-center justify-between gap-2 px-4 py-3 text-sm">
               <span role="alert">{__('Search failed')}</span>
               <Button
                 variant="outline"
@@ -268,9 +292,10 @@ export function SearchPalette({ basePath, debounce, onClose }: Props) {
             </div>
           )}
           {searching && !loading && !failed && groups.length === 0 && (
-            <p className="px-2 py-6 text-center text-sm text-muted-foreground">
-              {__('No results for ":term"', { term: wanted })}
-            </p>
+            <div className="flex flex-col gap-1 px-4 pt-5 pb-3 text-center">
+              <p className="text-sm font-medium">{__('No results for ":term"', { term: wanted })}</p>
+              <p className="text-[13px] text-muted-foreground">{__('Check the spelling, or search one word of a name.')}</p>
+            </div>
           )}
           <div id={`${listId}-list`} role="listbox" aria-label={__('Search')}>
             {searching
@@ -283,14 +308,14 @@ export function SearchPalette({ basePath, debounce, onClose }: Props) {
 
                   return (
                     <div key={group.resourceName} role="group" aria-label={group.label}>
-                      <div aria-hidden="true" className="px-2 pt-2 pb-1 text-xs font-medium text-muted-foreground">
+                      <div aria-hidden="true" className={head}>
                         {group.label}
                       </div>
                       {group.results.map((result, index) => option(result, start + index))}
                       {group.count && (
                         <a
                           href={all}
-                          className="block rounded-md px-2 py-1.5 text-xs text-muted-foreground hover:bg-muted hover:text-foreground"
+                          className="mx-1.5 flex min-h-9 items-center rounded-md px-2.5 text-[13px] font-medium text-link hover:bg-accent hover:text-link-hover max-md:mx-0 max-md:min-h-12 max-md:rounded-none max-md:px-4 max-md:text-[15px]"
                           onClick={(event) => {
                             event.preventDefault();
                             router.visit(all);
@@ -307,8 +332,8 @@ export function SearchPalette({ basePath, debounce, onClose }: Props) {
                   );
                 })
               : recents.map((result, index) => (
-                  <div key={result.url} role="presentation" className="flex items-center">
-                    {option(result, index)}
+                  <div key={result.url} role="presentation" className="flex items-center pe-1.5">
+                    {option(result, index, true)}
                     <Button
                       variant="ghost"
                       size="icon"
@@ -324,9 +349,29 @@ export function SearchPalette({ basePath, debounce, onClose }: Props) {
                 ))}
           </div>
           {searching && !loading && !failed && (query.data?.skipped.length ?? 0) > 0 && (
-            <p className="px-2 pt-2 text-xs text-muted-foreground">{__('Some results are missing')}</p>
+            <p className="px-4 pt-2 text-xs text-muted-foreground">{__('Some results are missing')}</p>
           )}
         </div>
+        {/* The key hints show once there is a row to move to. */}
+        {searching && options.length > 0 && (
+          <div aria-hidden="true" className="flex h-10 shrink-0 items-center gap-4 border-t border-border px-4 text-xs text-muted-foreground max-md:hidden">
+            <span className="inline-flex items-center gap-1.5">
+              <kbd className={kbd}>
+                <ArrowUp className="size-3" />
+              </kbd>
+              <kbd className={kbd}>
+                <ArrowDown className="size-3" />
+              </kbd>
+              {__('Move')}
+            </span>
+            <span className="inline-flex items-center gap-1.5">
+              <kbd className={kbd}>
+                <CornerDownLeft className="size-3" />
+              </kbd>
+              {__('Open')}
+            </span>
+          </div>
+        )}
       </div>
     </div>
   );

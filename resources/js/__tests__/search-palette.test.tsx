@@ -184,6 +184,18 @@ describe('states', () => {
     await typeTerm('warrne');
 
     expect(screen.getByText('No results for "warrne"')).toBeTruthy();
+    expect(screen.getByText('Check the spelling, or search one word of a name.')).toBeTruthy();
+  });
+
+  it('marks matches on the warning-subtle ground and names the keys in its footer', async () => {
+    answer({ groups: [{ resourceName: 'orders', label: 'Orders', results: [row('orders', 7, 'ORD-0007', 'Prof. Warren Shields II · Oct 17, 2026')] }], skipped: [] });
+    renderPalette();
+
+    await typeTerm('warren');
+
+    expect(document.querySelector('mark')?.className).toContain('bg-warning-subtle');
+    expect(screen.getByText('Move')).toBeTruthy();
+    expect(screen.getByText('Open')).toBeTruthy();
   });
 
   it('shows a failure and retries it', async () => {
