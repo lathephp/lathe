@@ -110,6 +110,7 @@ export function FormFields({ uriKey, mode, id, record, idPrefix = 'field' }: For
  * two-column grid a wide row, a stacked one or a full-width one spans both columns.
  */
 export function FormRow({ field, wide = false, reason, idPrefix, value, values, error, onChange }: { field: FormFieldData; wide?: boolean; reason?: string | null; idPrefix: string; value: unknown; values: Record<string, unknown>; error: string | undefined; onChange: (value: unknown) => void }) {
+  const { __ } = useTranslation();
   const id = `${idPrefix}-${field.attribute}`;
   const helpId = field.help === null ? undefined : `${id}-help`;
   const errorId = error === undefined ? undefined : `${id}-error`;
@@ -120,9 +121,10 @@ export function FormRow({ field, wide = false, reason, idPrefix, value, values, 
       data-readonly={field.readonly === true ? '' : undefined}
       data-dependent={reason === undefined ? undefined : ''}
       className={cn(
-        'flex flex-col gap-2 px-4 py-3 text-sm',
+        // The label and its Optional mark share the first line; the control and its notes wrap below.
+        'flex flex-wrap items-baseline gap-x-2 gap-y-1.5 text-sm',
         // A field shown by another sits under it on its own row, on the muted ground, with the reason.
-        reason !== undefined && 'rounded-md bg-muted',
+        reason !== undefined && 'rounded-md bg-muted p-3',
         // Readonly reads as a settled value: muted ground, dashed edge. Any other disabled control is dimmed.
         field.readonly === true
           ? '[&_button]:border-dashed [&_button]:bg-muted [&_input]:border-dashed [&_input]:bg-muted [&_select]:border-dashed [&_select]:bg-muted [&_textarea]:border-dashed [&_textarea]:bg-muted'
@@ -131,16 +133,15 @@ export function FormRow({ field, wide = false, reason, idPrefix, value, values, 
       )}
     >
       {field.compact ? null : (
-        <label htmlFor={id} className="font-medium">
-          {field.label}
-          {field.required === true ? (
-            <span aria-hidden="true" className="ms-0.5 text-destructive">
-              *
-            </span>
-          ) : null}
-        </label>
+        <>
+          <label htmlFor={id} className="font-medium">
+            {field.label}
+          </label>
+          {/* A required field goes bare; the others say so beside the label. */}
+          {field.required === true || field.readonly === true ? null : <span className="text-xs text-muted-foreground">{__('Optional')}</span>}
+        </>
       )}
-      <div className="min-w-0 space-y-1">
+      <div className="w-full min-w-0 space-y-1.5">
         <FormField
           field={field}
           value={value}

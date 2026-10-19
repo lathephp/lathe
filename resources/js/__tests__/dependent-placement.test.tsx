@@ -37,7 +37,7 @@ describe('a dependent field on the form', () => {
 
     const input = await screen.findByLabelText('Company name');
     const row = input.closest('[data-dependent]') as HTMLElement;
-    const typeRow = type.closest('.flex.flex-col') as HTMLElement;
+    const typeRow = type.closest('.flex.flex-wrap') as HTMLElement;
     expect(row.className).toContain('bg-muted');
     expect(row.className).toContain('lg:col-span-2');
     expect(row.textContent).toContain('Shown because Type is Company');

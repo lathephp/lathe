@@ -15,7 +15,7 @@ export function slugify(text: string, separator: string): string {
 }
 
 const control =
-  'h-9 w-full rounded-md border border-input bg-background px-3 text-sm outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:opacity-60 aria-[invalid]:border-destructive';
+  'lathe-input';
 
 /**
  * A text input that follows the field named in `from` until the user types in it. An update

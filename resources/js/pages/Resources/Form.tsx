@@ -49,7 +49,7 @@ export default function Form({ resource, mode, id, title, form, submitLabel }: F
   }
 
   return (
-    <div>
+    <div className="flex flex-1 flex-col">
       <Head title={title} />
       <div className="mx-auto w-full max-w-[880px]">
         <PageHeader title={title} />
@@ -58,48 +58,44 @@ export default function Form({ resource, mode, id, title, form, submitLabel }: F
         ref={formRef}
         data-lathe-form
         noValidate
-        className="mt-6"
+        className="mt-5 flex flex-1 flex-col"
         onSubmit={(event) => {
           event.preventDefault();
           submit('default');
         }}
       >
-        <div className="mx-auto w-full max-w-[880px] space-y-6">
+        <div className="mx-auto mb-6 w-full max-w-[880px] space-y-5">
           <ErrorSummary ref={summaryRef} errors={record.errors} fields={record.payload.fields} idPrefix="field" />
           <FormFields uriKey={resource.uriKey} mode={mode} id={id} record={record} />
         </div>
         {/* The window scrolls the shell, so the bar stays at the bottom of the viewport while the form does. */}
-        <div data-lathe-form-footer className="sticky bottom-0 z-10 mt-6 border-t border-border bg-background py-3">
-          <div className="mx-auto flex w-full max-w-[880px] flex-wrap items-center justify-end gap-2">
+        <div data-lathe-form-footer className="lathe-form-footer sticky bottom-0 z-10">
+          <div>
             {record.dirty ? (
-              <span className="me-auto flex items-center gap-2 text-sm text-muted-foreground">
-                <span aria-hidden="true" className="size-2 rounded-full bg-warning" />
+              <span className="lathe-form-status">
+                <span aria-hidden="true" />
                 {__('Unsaved changes')}
               </span>
             ) : null}
             {record.draft.restored ? (
-              <button type="button" className="h-9 rounded-md px-4 text-sm" onClick={record.draft.discard}>
+              <button type="button" className="lathe-button lathe-button-ghost lathe-button-size-default" onClick={record.draft.discard}>
                 {__('Discard draft')}
               </button>
             ) : null}
-            <Link href={cancelHref} className="inline-flex h-9 items-center rounded-md px-4 text-sm">
+            <Link href={cancelHref} className="lathe-button lathe-button-ghost lathe-button-size-default">
               {__('Cancel')}
             </Link>
             <button
               type="button"
               disabled={record.busy}
-              className="inline-flex h-9 items-center rounded-md border border-input px-4 text-sm font-medium disabled:opacity-60"
+              className="lathe-button lathe-button-outline lathe-button-size-default"
               onClick={() => {
                 submit(updating ? 'continue' : 'another');
               }}
             >
               {updating ? __('Update & Continue Editing') : __('Create and add another')}
             </button>
-            <button
-              type="submit"
-              disabled={record.busy}
-              className="inline-flex h-9 items-center rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground disabled:opacity-60"
-            >
+            <button type="submit" disabled={record.busy} className="lathe-button lathe-button-default lathe-button-size-default">
               {submitLabel}
             </button>
           </div>

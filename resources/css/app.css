@@ -920,6 +920,59 @@
   }
 }
 
+/* Forms: the panel's own inputs and the create and edit page's save bar. The looks live here, so
+   the field code that every page loads carries one class name per control. */
+@layer components {
+  /* 34 px on a card ground; 44 px with 16 px text on a phone, so iOS does not zoom in. */
+  .lathe-input {
+    @apply h-[34px] w-full rounded-md border border-input bg-card px-2.5 text-sm text-foreground shadow-xs outline-none placeholder:text-muted-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-card disabled:opacity-60 aria-[invalid]:border-destructive max-md:h-11 max-md:text-base;
+  }
+
+  /* A short form still puts its bar at the foot of the content area: the page grows to fill it. */
+  [data-lathe-content]:has(.lathe-form-footer),
+  [data-lathe-content]:has(.lathe-form-footer) > div {
+    @apply flex flex-col;
+  }
+
+  [data-lathe-content]:has(.lathe-form-footer) > div {
+    @apply flex-1;
+  }
+
+  /* The bar spans the content area edge to edge, under the shell's 24 px padding. */
+  .lathe-form-footer {
+    @apply -mx-6 -mb-6 mt-auto border-t border-border bg-card px-6 max-md:px-4 max-md:pt-3 max-md:pb-5;
+  }
+
+  .lathe-form-footer > div {
+    @apply mx-auto flex w-full max-w-[880px] items-center justify-end gap-2 md:h-16;
+  }
+
+  .lathe-form-status {
+    @apply me-auto inline-flex items-center gap-1.5 text-[13px] leading-[18px] text-muted-foreground max-md:hidden;
+  }
+
+  .lathe-form-status > span {
+    @apply size-1.5 rounded-full bg-warning;
+  }
+
+  /* A phone keeps Cancel and the main button, 44 px tall, the main one filling the row. */
+  .lathe-form-footer .lathe-button {
+    @apply max-md:h-11 max-md:px-4 max-md:text-[15px];
+  }
+
+  .lathe-form-footer .lathe-button-ghost {
+    @apply max-md:border-border max-md:bg-card;
+  }
+
+  .lathe-form-footer .lathe-button-outline {
+    @apply max-md:hidden;
+  }
+
+  .lathe-form-footer .lathe-button-default {
+    @apply max-md:flex-1 max-md:font-semibold;
+  }
+}
+
 /* Only @lathephp/ui uses this class. The build test counts it in the built
    stylesheet to prove the package sources are scanned. */
 @utility lathe-probe-class {

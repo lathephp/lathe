@@ -166,7 +166,7 @@ describe('readonly and disabled looks', () => {
   it('dims a disabled control outside a readonly row', () => {
     const { container } = renderForm([field('reference', 'Reference', { readonly: true }), field('total_cents', 'Total')]);
 
-    const row = container.querySelector('#field-total_cents')?.closest('div.flex-col');
+    const row = container.querySelector('#field-total_cents')?.closest('div.flex-wrap');
     expect(row?.hasAttribute('data-readonly')).toBe(false);
     expect(row?.className).toContain('[&_:disabled]:opacity-50');
   });

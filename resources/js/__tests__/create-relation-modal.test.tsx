@@ -106,22 +106,22 @@ afterEach(() => {
 });
 
 describe('inline create from a belongsTo field', () => {
-  it('shows the plus only when the field is creatable', () => {
+  it('shows New customer only when the field is creatable', () => {
     const first = renderField(customerField({ creatable: false }));
 
-    expect(screen.queryByRole('button', { name: 'Create Customer' })).toBeNull();
+    expect(screen.queryByRole('button', { name: 'New customer' })).toBeNull();
     first.unmount();
 
     renderField(customerField());
 
-    expect(screen.getByRole('button', { name: 'Create Customer' })).toBeDefined();
+    expect(screen.getByRole('button', { name: 'New customer' })).toBeDefined();
   });
 
   it('opens the related create form in a 480 px sheet whatever the modal size, with one request', async () => {
     const fetch = server();
     renderField(customerField({ modalSize: 'lg' }));
 
-    fireEvent.click(screen.getByRole('button', { name: 'Create Customer' }));
+    fireEvent.click(screen.getByRole('button', { name: 'New customer' }));
 
     const dialog = await screen.findByRole('dialog');
     await screen.findByLabelText(/Name/);
@@ -136,7 +136,7 @@ describe('inline create from a belongsTo field', () => {
     const onChange = vi.fn();
     renderField(customerField(), onChange);
 
-    fireEvent.click(screen.getByRole('button', { name: 'Create Customer' }));
+    fireEvent.click(screen.getByRole('button', { name: 'New customer' }));
     fireEvent.change(await screen.findByLabelText(/Name/), { target: { value: 'Zed Inline' } });
     fireEvent.change(screen.getByLabelText('Email'), { target: { value: 'zed.inline@example.com' } });
     fireEvent.click(screen.getByRole('button', { name: 'Create' }));
@@ -159,7 +159,7 @@ describe('inline create from a belongsTo field', () => {
     const onChange = vi.fn();
     renderField(customerField(), onChange);
 
-    fireEvent.click(screen.getByRole('button', { name: 'Create Customer' }));
+    fireEvent.click(screen.getByRole('button', { name: 'New customer' }));
     fireEvent.change(await screen.findByLabelText(/Name/), { target: { value: 'Zed' } });
     fireEvent.click(screen.getByRole('button', { name: 'Create' }));
 
@@ -172,13 +172,13 @@ describe('inline create from a belongsTo field', () => {
     const fetch = server();
     renderField(customerField());
 
-    fireEvent.click(screen.getByRole('button', { name: 'Create Customer' }));
+    fireEvent.click(screen.getByRole('button', { name: 'New customer' }));
     await screen.findByLabelText(/Name/);
     fireEvent.keyDown(document, { key: 'Escape' });
 
     expect(screen.queryByRole('dialog')).toBeNull();
 
-    fireEvent.click(screen.getByRole('button', { name: 'Create Customer' }));
+    fireEvent.click(screen.getByRole('button', { name: 'New customer' }));
     await screen.findByLabelText(/Name/);
     fireEvent.click(screen.getByRole('button', { name: 'Cancel' }));
 

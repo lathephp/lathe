@@ -124,11 +124,12 @@ function Panel({ panel, renderField, borderless, detail }: RecordLayoutProps & {
   const limited = detail === true && panel.limit !== null && !all && panel.fields.length > panel.limit;
   const keys = limited ? panel.fields.slice(0, panel.limit ?? undefined) : panel.fields;
   const bodyId = `panel-${panel.attribute}`;
+  const fieldsId = `${bodyId}-fields`;
   const heading = panel.hideHeading ? null : panel.collapsible ? (
     <button
       type="button"
       aria-expanded={open}
-      aria-controls={bodyId}
+      aria-controls={fieldsId}
       className="flex items-center gap-1 text-base font-semibold"
       onClick={() => {
         setOpen(!open);
@@ -141,17 +142,21 @@ function Panel({ panel, renderField, borderless, detail }: RecordLayoutProps & {
     <h2 className="text-base font-semibold">{panel.name}</h2>
   );
 
+  // The heading sits in the card's header row; a collapsed panel keeps that row and hides its fields.
   return (
     <section aria-label={panel.name} className="space-y-2">
-      {panel.headingInCard ? null : heading}
       {panel.help === null ? null : <SafeHtml html={panel.help} className="text-sm text-muted-foreground" />}
-      <Card id={bodyId} hidden={!open} className={cn('divide-y divide-border', (borderless === true || panel.borderless) && 'divide-y-0')}>
-        {panel.headingInCard ? <div className="px-4 pt-3">{heading}</div> : null}
+      <Card id={bodyId} className={cn('divide-y divide-border', (borderless === true || panel.borderless) && 'divide-y-0')}>
+        {heading === null ? null : <header className="flex items-center justify-between px-5 py-4">{heading}</header>}
         {detail === true ? (
-          keys.map((key) => <div key={key}>{renderField(key)}</div>)
+          <div id={fieldsId} hidden={!open} className={cn('divide-y divide-border', (borderless === true || panel.borderless) && 'divide-y-0')}>
+            {keys.map((key) => (
+              <div key={key}>{renderField(key)}</div>
+            ))}
+          </div>
         ) : (
           // A form lays its fields in one column below 1024 px and two from there; each row is a grid item.
-          <div className="grid lg:grid-cols-2">
+          <div id={fieldsId} hidden={!open} className="grid gap-x-5 gap-y-4 p-5 lg:grid-cols-2">
             {keys.map((key, index) => (
               <Fragment key={key}>{renderField(key, index === 0)}</Fragment>
             ))}

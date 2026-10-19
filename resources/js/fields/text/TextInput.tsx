@@ -5,9 +5,6 @@ import { stringList } from './TextValue';
 
 export type InputKind = 'text' | 'email' | 'url' | 'password' | 'color' | 'textarea';
 
-const control =
-  'w-full rounded-md border border-input bg-background px-3 text-sm outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:opacity-60 aria-[invalid]:border-destructive';
-
 interface ControlProps extends Omit<FormFieldProps, 'value' | 'onChange'> {
   kind: InputKind;
   value: string;
@@ -46,7 +43,7 @@ function Control({ kind, field, value, onChange, id, describedBy, invalid, disab
           onChange={(event) => {
             edit(event.target.value);
           }}
-          className={`${control} py-2`}
+          className="lathe-input h-auto py-2"
         />
       ) : (
         <input
@@ -58,7 +55,7 @@ function Control({ kind, field, value, onChange, id, describedBy, invalid, disab
           onChange={(event) => {
             edit(event.target.value);
           }}
-          className={kind === 'color' ? 'h-9 w-16 cursor-pointer rounded-md border border-input bg-background p-1' : `${control} h-9`}
+          className={kind === 'color' ? 'lathe-input w-16 cursor-pointer p-1' : 'lathe-input'}
         />
       )}
       {listId !== undefined && (
