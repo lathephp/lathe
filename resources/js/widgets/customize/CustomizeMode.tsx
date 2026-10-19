@@ -29,7 +29,7 @@ function subscribe(listener: () => void) {
 }
 
 const itemClass =
-  'flex min-h-8 w-full items-center gap-2 rounded-md px-2 text-start text-sm outline-none hover:bg-muted focus-visible:ring-2 focus-visible:ring-ring';
+  'flex min-h-8 w-full items-center gap-2 rounded-md px-2 text-start text-sm text-popover-foreground outline-none hover:bg-accent hover:text-accent-foreground focus-visible:bg-accent';
 
 interface CustomizeHeaderProps {
   uriKey: string;
@@ -38,7 +38,7 @@ interface CustomizeHeaderProps {
   onDone: () => void;
 }
 
-/** The header in edit mode: the label, Reset to default, Cancel and Save layout, and the help line under them. */
+/** The header's buttons in edit mode: Reset to default, Cancel and Save layout. */
 export function CustomizeHeader({ uriKey, draft, onDone }: CustomizeHeaderProps) {
   const { __ } = useTranslation();
   const { apiPath } = useLathe();
@@ -71,7 +71,6 @@ export function CustomizeHeader({ uriKey, draft, onDone }: CustomizeHeaderProps)
 
   return (
     <>
-      <span className="me-auto text-sm text-muted-foreground">{__('Editing layout')}</span>
       <div className="flex items-center gap-2">
         <Button variant="ghost" disabled={busy} onClick={() => void send('DELETE', __('The layout could not be reset.'))}>
           {__('Reset to default')}
@@ -83,21 +82,29 @@ export function CustomizeHeader({ uriKey, draft, onDone }: CustomizeHeaderProps)
           {__('Save layout')}
         </Button>
       </div>
-      <p className="flex basis-full items-center gap-2.5 rounded-lg bg-muted px-3.5 py-2.5 text-sm text-muted-foreground">
-        <svg aria-hidden="true" viewBox="0 0 24 24" className="size-4 shrink-0 fill-none stroke-current stroke-[1.75]">
-          <circle cx="12" cy="12" r="10" />
-          <path d="M12 16v-4M12 8h.01" strokeLinecap="round" />
-        </svg>
-        <span>
-          {__(
-            'Drag a card by its handle to move it. Change its size or hide it from its ⋯ menu. With a keyboard, focus the handle, press Space, then use the arrow keys. The layout is saved for your account.',
-          )}
-        </span>
-      </p>
       <span aria-live="polite" className="sr-only">
         {announcement}
       </span>
     </>
+  );
+}
+
+/** The help line under the header in edit mode. */
+export function CustomizeBanner() {
+  const { __ } = useTranslation();
+
+  return (
+    <p className="flex items-center gap-2.5 rounded-lg bg-muted px-3.5 py-2.5 text-[13px] leading-[18px] text-muted-foreground">
+      <svg aria-hidden="true" viewBox="0 0 24 24" className="size-4 shrink-0 fill-none stroke-current stroke-[1.75]">
+        <circle cx="12" cy="12" r="10" />
+        <path d="M12 16v-4M12 8h.01" strokeLinecap="round" />
+      </svg>
+      <span>
+        {__(
+          'Drag a card by its handle to move it. Change its size or hide it from its ⋯ menu. With a keyboard, focus the handle, press Space, then use the arrow keys. The layout is saved for your account.',
+        )}
+      </span>
+    </p>
   );
 }
 
@@ -213,12 +220,12 @@ export function EditCardHeader({ widget, draft, change }: EditCardHeaderProps) {
   };
 
   return (
-    <div className="flex items-center gap-1.5">
+    <div className="flex h-7 items-center gap-1.5">
       <button
         type="button"
         aria-label={__('Move :name', { name })}
         className={[
-          '-ms-1.5 grid size-8 shrink-0 touch-none place-items-center rounded-md text-muted-foreground outline-none hover:bg-muted hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring',
+          '-ms-1 grid h-7 w-6 shrink-0 touch-none place-items-center rounded-md text-muted-foreground outline-none hover:bg-muted hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring',
           dragging ? 'cursor-grabbing' : 'cursor-grab',
           picked ? 'bg-muted text-foreground ring-2 ring-ring' : '',
         ].join(' ')}
@@ -237,7 +244,7 @@ export function EditCardHeader({ widget, draft, change }: EditCardHeaderProps) {
           <circle cx="9" cy="13" r="1.4" />
         </svg>
       </button>
-      <h2 className="min-w-0 flex-1 truncate text-sm font-medium">{name}</h2>
+      <h2 className="min-w-0 flex-1 truncate text-[13px] font-medium">{name}</h2>
       <SizeMenu widget={widget} change={change} />
     </div>
   );
@@ -287,7 +294,7 @@ function SizeMenu({ widget, change }: { widget: WidgetDescriptor; change: Change
         aria-expanded={open}
         aria-controls={open ? menuId : undefined}
         aria-label={__('Menu for :title', { title: widget.name })}
-        className="grid size-8 place-items-center rounded-md text-muted-foreground outline-none hover:bg-muted hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring"
+        className="grid size-[26px] place-items-center rounded-md text-muted-foreground outline-none hover:bg-muted hover:text-foreground focus-visible:ring-2 focus-visible:ring-focus"
         onClick={() => {
           setOpen(!open);
         }}
@@ -303,7 +310,7 @@ function SizeMenu({ widget, change }: { widget: WidgetDescriptor; change: Change
           id={menuId}
           role="menu"
           tabIndex={-1}
-          className="absolute end-0 top-full z-10 mt-1 w-56 rounded-lg border border-border bg-background p-1 shadow-lg"
+          className="absolute end-0 top-full z-10 mt-1 w-[220px] rounded-lg border border-border bg-popover p-1 shadow-md"
         >
           {sizes.map(([width, label]) => (
             <button
@@ -361,8 +368,8 @@ export function AddPanel({ name, draft, change }: AddPanelProps) {
   const headingId = useId();
 
   return (
-    <section aria-labelledby={headingId} className="rounded-lg border border-border bg-background p-4 shadow-xs xl:w-72 xl:shrink-0">
-      <h2 id={headingId} className="text-base font-semibold">
+    <section aria-labelledby={headingId} className="rounded-lg border border-border bg-card p-4 shadow-sm xl:w-[280px] xl:shrink-0">
+      <h2 id={headingId} className="text-[15px] leading-5 font-semibold">
         {__('Add a widget')}
       </h2>
       <p className="mt-1 mb-3 text-xs text-muted-foreground">{__('Widgets on :name that are hidden. A new card goes to the end of the page.', { name })}</p>

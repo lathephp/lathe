@@ -54,7 +54,8 @@ export function WidgetGrid({ widgets, valueUrl, params, deferred, showRefreshBut
           </Button>
         </div>
       )}
-      <div className={gridClass}>
+      {/* Customize mode packs its cards 16 px apart. */}
+      <div className={edit === undefined ? gridClass : 'grid grid-cols-12 gap-4'}>
         {widgets.map((widget) => (
           <WidgetCard
             key={widget.uriKey}

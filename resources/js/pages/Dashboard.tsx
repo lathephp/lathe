@@ -6,7 +6,7 @@ import { AfterDelay, skeletonBar } from '../lib/instant';
 import { cn } from '../lib/cn';
 import { Button } from '../components/ui/Button';
 import { Card } from '../components/ui/Card';
-import { AddPanel, CustomizeHeader, EditCardHeader, preloadCustomize } from '../widgets/customize/lazy';
+import { AddPanel, CustomizeBanner, CustomizeHeader, EditCardHeader, preloadCustomize } from '../widgets/customize/lazy';
 import type { LayoutDraft, WidgetDescriptor, WidgetValue } from '../widgets/types';
 import { WidgetGrid } from '../widgets/WidgetGrid';
 import { PageHeader } from '../layout/PageHeader';
@@ -93,13 +93,21 @@ function DashboardPage({ dashboard, widgets, hiddenWidgets = [] }: DashboardProp
   };
 
   return (
-    <div className="space-y-6">
+    <div className={draft === null ? 'space-y-5' : 'space-y-4'}>
       <Head title={dashboard.name} />
       <PageHeader
         title={dashboard.name}
+        badge={
+          draft !== null && (
+            <span className="inline-flex h-[22px] shrink-0 items-center rounded-md bg-primary-subtle px-2 text-xs font-semibold text-primary-subtle-foreground">
+              {__('Editing layout')}
+            </span>
+          )
+        }
         subtitle={dashboard.description !== null && <p className="lathe-page-subtitle">{dashboard.description}</p>}
         actions={
-          <>
+          // The canvas spaces the header's controls 12 px apart, wider than the header's own gap.
+          <div className="flex w-full items-center gap-3 max-md:flex-wrap">
             {draft !== null && (
               <Suspense fallback={null}>
                 <CustomizeHeader
@@ -114,7 +122,7 @@ function DashboardPage({ dashboard, widgets, hiddenWidgets = [] }: DashboardProp
             {draft === null && widgets.length > 0 && (
               <>
                 <UpdatedAgo at={updatedAt} />
-                <Button variant="outline" size="icon" aria-label={__('Refresh')} onClick={refresh}>
+                <Button variant="outline" size="icon" aria-label={__('Refresh')} className="text-muted-foreground max-md:order-last" onClick={refresh}>
                   <RefreshCw aria-hidden="true" className="size-4" />
                 </Button>
                 {dashboard.ranges.length > 0 && <RangePicker ranges={dashboard.ranges} value={range} onPick={pick} />}
@@ -134,9 +142,14 @@ function DashboardPage({ dashboard, widgets, hiddenWidgets = [] }: DashboardProp
                 {__('Customize')}
               </Button>
             )}
-          </>
+          </div>
         }
       />
+      {draft !== null && (
+        <Suspense fallback={null}>
+          <CustomizeBanner />
+        </Suspense>
+      )}
       {(shown.length > 0 || draft !== null) && (
         // One wrapper in both modes, so the grid keeps its cards, and their values, on entering Customize.
         <div className="flex flex-col gap-5 xl:flex-row xl:items-start">
@@ -217,7 +230,7 @@ function RangePicker({ ranges, value, onPick }: { ranges: RangeOption[]; value: 
     <div
       role="radiogroup"
       aria-label={__('Range')}
-      className="inline-grid auto-cols-fr grid-flow-col gap-0.5 rounded-lg border bg-muted p-0.5"
+      className="grid auto-cols-fr grid-flow-col gap-0.5 rounded-lg bg-muted p-0.5 max-md:w-full md:inline-grid md:border"
     >
       {ranges.map((option, at) => {
         const checked = String(option.value) === value;
@@ -230,7 +243,7 @@ function RangePicker({ ranges, value, onPick }: { ranges: RangeOption[]; value: 
             aria-checked={checked}
             tabIndex={checked ? 0 : -1}
             className={cn(
-              'h-9 rounded-md px-2.5 text-sm font-medium whitespace-nowrap md:h-7',
+              'h-9 rounded-md px-2.5 text-sm font-medium whitespace-nowrap md:h-7 md:text-[13px]',
               checked ? 'bg-card text-foreground shadow-xs' : 'text-muted-foreground hover:text-foreground',
             )}
             onClick={() => {
@@ -277,7 +290,7 @@ function DashboardSkeleton({ title }: { title: string }) {
   return (
     <AfterDelay>
       <Head title={title} />
-      <div aria-busy="true" className="space-y-6">
+      <div aria-busy="true" className="space-y-5">
         <PageHeader title={title} />
         <div aria-hidden="true" className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
           {[0, 1, 2, 3].map((frame) => (
