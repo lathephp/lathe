@@ -1,7 +1,7 @@
 import { Link } from '@inertiajs/react';
 import { request, useLathe, useTranslation } from '@lathephp/core';
 import { useEffect, useId, useState } from 'react';
-import { Modal } from '../components/Modal';
+import { Modal, modalPanel, outlineButton, primaryButton } from '../components/Modal';
 import { DetailField } from '../fields/registry';
 import type { DetailFieldData } from '../fields/types';
 
@@ -41,7 +41,7 @@ export function PreviewModal({ uriKey, id, onClose }: PreviewModalProps) {
   }, [apiPath, uriKey, id]);
 
   return (
-    <Modal labelledBy={titleId} onClose={onClose} className="relative w-full max-w-2xl space-y-4 rounded-lg border border-border bg-background p-4 text-foreground shadow-lg">
+    <Modal labelledBy={titleId} onClose={onClose} className={`${modalPanel} max-w-2xl`}>
       <div className="flex items-start justify-between gap-4">
         <div className="min-w-0">
           <h2 id={titleId} className="truncate text-base font-semibold">
@@ -49,7 +49,7 @@ export function PreviewModal({ uriKey, id, onClose }: PreviewModalProps) {
           </h2>
           {data !== null && data.subtitle !== '' ? <p className="text-sm text-muted-foreground">{data.subtitle}</p> : null}
         </div>
-        <button type="button" className="h-8 rounded-md px-3 text-sm" onClick={onClose}>
+        <button type="button" className={outlineButton} onClick={onClose}>
           {__('Close')}
         </button>
       </div>
@@ -67,7 +67,7 @@ export function PreviewModal({ uriKey, id, onClose }: PreviewModalProps) {
         </dl>
       )}
       <div className="flex justify-end">
-        <Link href={`${basePath}/resources/${uriKey}/${String(id)}`} className="inline-flex h-9 items-center rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground">
+        <Link href={`${basePath}/resources/${uriKey}/${String(id)}`} className={primaryButton}>
           {__('View')}
         </Link>
       </div>
