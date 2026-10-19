@@ -107,7 +107,7 @@ function DashboardPage({ dashboard, widgets, hiddenWidgets = [] }: DashboardProp
         subtitle={dashboard.description !== null && <p className="lathe-page-subtitle">{dashboard.description}</p>}
         actions={
           // The canvas spaces the header's controls 12 px apart, wider than the header's own gap.
-          <div className="flex w-full items-center gap-3 max-md:flex-wrap">
+          <div className="flex w-full items-center gap-3">
             {draft !== null && (
               <Suspense fallback={null}>
                 <CustomizeHeader
@@ -130,8 +130,10 @@ function DashboardPage({ dashboard, widgets, hiddenWidgets = [] }: DashboardProp
             )}
             {/* A user who hid every card still has a saved layout, and Customize to undo it. */}
             {draft === null && dashboard.customizable && (widgets.length > 0 || hiddenWidgets.length > 0 || dashboard.customized) && (
+              // The phone design leaves Customize out: arranging cards needs the wide grid.
               <Button
                 variant="outline"
+                className="max-md:hidden"
                 onPointerEnter={() => {
                   void preloadCustomize();
                 }}
@@ -230,7 +232,7 @@ function RangePicker({ ranges, value, onPick }: { ranges: RangeOption[]; value: 
     <div
       role="radiogroup"
       aria-label={__('Range')}
-      className="grid auto-cols-fr grid-flow-col gap-0.5 rounded-lg bg-muted p-0.5 max-md:w-full md:inline-grid md:border"
+      className="grid auto-cols-fr grid-flow-col gap-0.5 rounded-lg bg-muted p-0.5 max-md:flex-1 md:inline-grid md:border"
     >
       {ranges.map((option, at) => {
         const checked = String(option.value) === value;

@@ -173,7 +173,7 @@ export function AppLayout({ children }: { children: ReactNode }) {
             </div>
           </header>
         </Slot>
-        <main id="content" data-lathe-content tabIndex={-1} className="flex-1 p-6 outline-none">
+        <main id="content" data-lathe-content tabIndex={-1} className="flex-1 p-6 outline-none max-md:p-3">
           <div className={cn(layout.content.width === 'contained' && 'mx-auto max-w-384')}>
             <RenderHook position="page:before" className="mb-6 flex flex-wrap gap-2 empty:hidden" />
             <PageBar value={pageBar}>{children}</PageBar>

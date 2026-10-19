@@ -353,6 +353,15 @@
     @apply hover:bg-accent hover:text-accent-foreground active:bg-muted;
   }
 
+  /* Delete and cancel: outlined by default, solid only in a confirm dialog. */
+  .lathe-button-destructive {
+    @apply border-border bg-card text-destructive-subtle-foreground shadow-xs hover:bg-destructive-subtle active:bg-destructive-subtle active:shadow-[inset_0_1px_2px_#0000001f];
+  }
+
+  .lathe-button-destructive-solid {
+    @apply bg-destructive text-destructive-foreground shadow-xs hover:brightness-92 active:shadow-[inset_0_1px_2px_#0000003d] active:brightness-85;
+  }
+
   .lathe-button-size-default {
     @apply h-[34px] gap-1.5 px-3 text-sm leading-5;
   }
@@ -446,7 +455,14 @@
 
   /* One row on a wide screen; a phone, whose title sits in the top bar, may wrap the controls. */
   .lathe-page-actions {
-    @apply ms-auto flex shrink-0 items-center gap-2 empty:hidden max-md:shrink max-md:flex-wrap;
+    @apply ms-auto flex shrink-0 items-center gap-2 empty:hidden max-md:ms-0 max-md:w-full max-md:shrink max-md:flex-wrap;
+  }
+
+  /* A phone's header that holds only the title, which the top bar shows, takes no room; the h1 stays
+     for screen readers. */
+  .lathe-page-heading:has(> div:only-child > h1:only-child),
+  .lathe-page-header:has(> .lathe-page-heading > div:only-child > h1:only-child):has(> .lathe-page-actions:empty) {
+    @apply max-md:absolute;
   }
 
   .lathe-sidebar-brand {
@@ -833,9 +849,9 @@
   }
 
   /* The phone index: no card frame, the tabs and the toolbar flush under the top bar, as the
-     mobile board draws them. The main's 24 px padding is taken back here. */
+     mobile board draws them. The main's padding (12 px on a phone) is taken back here. */
   .lathe-index {
-    @apply space-y-5 max-md:-m-6 max-md:space-y-0;
+    @apply space-y-5 max-md:-m-3 max-md:space-y-0;
   }
 
   @media (width < 48rem) {
@@ -938,9 +954,9 @@
     @apply flex-1;
   }
 
-  /* The bar spans the content area edge to edge, under the shell's 24 px padding. */
+  /* The bar spans the content area edge to edge, under the shell's padding: 24 px, 12 px on a phone. */
   .lathe-form-footer {
-    @apply -mx-6 -mb-6 mt-auto border-t border-border bg-card px-6 max-md:px-4 max-md:pt-3 max-md:pb-5;
+    @apply -mx-6 -mb-6 mt-auto max-md:-mx-3 max-md:-mb-3 border-t border-border bg-card px-6 max-md:px-4 max-md:pt-3 max-md:pb-5;
   }
 
   .lathe-form-footer > div {
