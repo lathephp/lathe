@@ -32,7 +32,7 @@ function ordersSearch(string $term): array
 
 it('looks up the matching customers first, so a large orders table keeps its indexes', function () {
     [$queries, $ids] = ordersSearch('Annette');
-    $expected = Order::whereIn('customer_id', Customer::where('name', 'like', '%Annette%')->pluck('id'))->orderByDesc('id')->limit(100)->pluck('id')->all();
+    $expected = Order::whereIn('customer_id', Customer::whereRaw('lower(name) like ?', ['%annette%'])->pluck('id'))->orderByDesc('id')->limit(100)->pluck('id')->all();
 
     $orders = array_values(array_filter($queries, fn (string $sql) => str_contains($sql, 'from "orders"') || str_contains($sql, 'from `orders`')));
 
@@ -43,7 +43,7 @@ it('looks up the matching customers first, so a large orders table keeps its ind
 it('falls back to an exists subquery when more customers match than the id list cap', function () {
     config(['lathe.limits.id_list_max' => 2]);
     [$queries, $ids] = ordersSearch('Ann');
-    $expected = Order::whereIn('customer_id', Customer::where('name', 'like', '%Ann%')->pluck('id'))->orderByDesc('id')->limit(100)->pluck('id')->all();
+    $expected = Order::whereIn('customer_id', Customer::whereRaw('lower(name) like ?', ['%ann%'])->pluck('id'))->orderByDesc('id')->limit(100)->pluck('id')->all();
 
     expect($ids)->toBe($expected)
         ->and(implode("\n", $queries))->toContain('exists');

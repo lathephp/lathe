@@ -208,14 +208,22 @@ it('matches a JSON path by prefix with SearchableJson', function () {
 
 it('finds Orders by a part of their customer\'s name', function () {
     $this->seed(DemoSeeder::class);
-    $joanne = Customer::forceCreate(['name' => 'Joanne Banner', 'email' => 'jb@example.com']);
-    $found = Order::forceCreate(['customer_id' => $joanne->id, 'number' => 'ORD-JOANNE', 'status' => 'paid', 'total_cents' => 100, 'placed_at' => now()]);
+    // The seeded orders differ with the Faker version, so the test asserts on orders of its own,
+    // placed last so they lead the first page.
+    $order = function (string $name, string $number) {
+        $customer = Customer::forceCreate(['name' => $name, 'email' => strtolower($number).'@example.com']);
+
+        return Order::forceCreate(['customer_id' => $customer->id, 'number' => $number, 'status' => 'paid', 'total_cents' => 100, 'placed_at' => now()->addDay()])->id;
+    };
+    $ann = $order('Ann Zielinski', 'ORD-ANN');
+    $joanne = $order('Joanne Banner', 'ORD-JOANNE');
+    $bob = $order('Bob Smith', 'ORD-BOB');
 
     $ids = strategyIds('orders', 'ann');
     $names = Order::with('customer')->whereKey($ids)->get()->pluck('customer.name')->unique()->all();
 
-    expect($ids)->toContain($found->id)
-        ->and($names)->toContain('Ann Taylor', 'Anna Kowalski', 'Annette Fox', 'Joanne Banner')
+    expect($ids)->toContain($ann, $joanne)
+        ->not->toContain($bob)
         ->and(array_filter($names, fn (string $name) => ! str_contains(strtolower($name), 'ann')))->toBe([]);
 });
 

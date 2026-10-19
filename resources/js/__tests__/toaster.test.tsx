@@ -64,7 +64,7 @@ describe('Toaster', () => {
       screen
         .getAllByRole('status')
         .filter((element) => !element.hasAttribute('data-limited'))
-        .map((element) => texts.find((text) => element.textContent?.includes(text)))
+        .map((element) => texts.find((text) => element.textContent.includes(text)))
         .sort();
     expect(shown(['One', 'Two', 'Three', 'Four'])).toEqual(['Four', 'Three', 'Two']);
     expect(screen.getByText('One').closest('[data-limited]')).not.toBeNull();
