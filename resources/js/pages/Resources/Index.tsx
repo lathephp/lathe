@@ -95,8 +95,9 @@ function IndexPage({ resource, table, state, count, error, lens, actions, widget
     </div>
   );
 
+  // On a phone the card's content runs edge to edge under the top bar, as the mobile board draws it.
   return (
-    <div className="space-y-5">
+    <div className="lathe-index">
       <Head title={lens?.name ?? resource.label} />
       <PageHeader
         title={lens?.name ?? resource.label}

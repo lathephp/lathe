@@ -23,19 +23,17 @@ export function PhoneCards({ resource, table }: Pick<IndexProps, 'resource' | 't
   }
 
   return (
-    <ul data-lathe-cards="" className="space-y-2 p-3 md:hidden">
+    <ul data-lathe-cards="" className="lathe-cards md:hidden">
       {table.rows.map((row) => (
         <li key={row.id}>
-          <Link href={`${basePath}/resources/${resource.uriKey}/${String(row.id)}`} className="block space-y-1 rounded-lg border border-border p-3 text-sm outline-none focus-visible:ring-2 focus-visible:ring-ring">
-            <span className="flex items-center justify-between gap-2">
-              <span className="truncate font-medium">{card.title === null ? row.title : part(row, card.title)}</span>
+          <Link href={`${basePath}/resources/${resource.uriKey}/${String(row.id)}`}>
+            <span>
+              <b>{card.title === null ? row.title : part(row, card.title)}</b>
               {part(row, card.badge)}
             </span>
-            <span className="flex items-center justify-between gap-2 text-muted-foreground">
-              {/* The relation as text: its own link inside the card's would open the related record instead. */}
-              <span className="truncate">{card.meta === null ? null : row.cells[card.meta]?.display}</span>
-              <span className="text-foreground tabular-nums">{part(row, card.value)}</span>
-            </span>
+            {/* The relation as text: its own link inside the card's would open the related record instead. */}
+            {card.meta !== null && <span>{row.cells[card.meta]?.display}</span>}
+            <span>{part(row, card.value)}</span>
           </Link>
         </li>
       ))}

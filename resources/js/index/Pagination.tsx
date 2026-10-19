@@ -40,9 +40,10 @@ export function Pagination({ type, page, perPage = 1, count, hasMorePages, loadi
   const end = known ? last : hasMorePages ? page + 1 : page;
   const pages = type === 'simple' ? [] : [...new Set([1, page - 1, page, page + 1, ...(known ? [last] : [2])])].filter((n) => n >= 1 && n <= end).sort((x, y) => x - y);
 
-  function go(label: string, target: number, disabled: boolean, Icon: typeof ChevronLeft) {
+  // A phone keeps only previous and next, the ones marked data-step.
+  function go(label: string, target: number, disabled: boolean, Icon: typeof ChevronLeft, step?: string) {
     return (
-      <Button variant="outline" size="sm" aria-label={label} disabled={disabled} onClick={() => { onPage(target); }}>
+      <Button variant="outline" size="sm" data-step={step} aria-label={label} disabled={disabled} onClick={() => { onPage(target); }}>
         <Icon className="size-3.5" />
       </Button>
     );
@@ -52,7 +53,7 @@ export function Pagination({ type, page, perPage = 1, count, hasMorePages, loadi
     // One segmented group: the buttons share their borders, as in the tables boards.
     <div className="lathe-pager">
       {go(__('First page'), 1, page <= 1, ChevronsLeft)}
-      {go(__('Previous page'), page - 1, page <= 1, ChevronLeft)}
+      {go(__('Previous page'), page - 1, page <= 1, ChevronLeft, 'previous')}
       {pages.map((n, index) => (
         <Fragment key={n}>
           {n - (pages[index - 1] ?? n) > 1 && <span aria-hidden>…</span>}
@@ -62,7 +63,7 @@ export function Pagination({ type, page, perPage = 1, count, hasMorePages, loadi
         </Fragment>
       ))}
       {pages.length > 0 && !known && hasMorePages && <span aria-hidden>…</span>}
-      {go(__('Next page'), page + 1, !hasMorePages, ChevronRight)}
+      {go(__('Next page'), page + 1, !hasMorePages, ChevronRight, 'next')}
       {(known || loading) && go(__('Last page'), last, loading || page >= last, ChevronsRight)}
     </div>
   );

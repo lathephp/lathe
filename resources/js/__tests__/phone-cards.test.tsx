@@ -59,6 +59,19 @@ describe('phone cards', () => {
     expect(card.querySelectorAll('a')).toHaveLength(0);
   });
 
+  it('stacks the title and badge, the relation, then the value, as the mobile board does', () => {
+    renderOrders({ title: null, badge: 'status', value: 'total_cents', meta: 'customer' });
+    const card = within(document.querySelector<HTMLElement>('[data-lathe-cards]') as HTMLElement).getByRole('link', { name: /ORD-00007/ });
+
+    expect(Array.from(card.children, (line) => line.textContent)).toEqual(['ORD-00007Paid', 'Gerard Reichert', '$171.16']);
+  });
+
+  it('marks previous and next, the only pager buttons a phone keeps', () => {
+    renderOrders({ title: null, badge: 'status', value: 'total_cents', meta: 'customer' });
+
+    expect(Array.from(document.querySelectorAll('[data-step]'), (button) => button.getAttribute('data-step'))).toEqual(['previous', 'next']);
+  });
+
   it('takes the title phoneCard() names', () => {
     renderOrders({ title: 'name', badge: null, value: 'total_cents', meta: null });
 

@@ -620,6 +620,27 @@
     @apply ms-1 rounded-sm font-medium text-link outline-none hover:text-link-hover focus-visible:ring-2 focus-visible:ring-ring;
   }
 
+  /* Below 768 px each row is a card: number and badge, the relation, then the value. */
+  .lathe-cards {
+    @apply flex flex-col gap-2 px-3 pb-3;
+  }
+
+  .lathe-cards a {
+    @apply flex flex-col gap-1.5 rounded-[10px] border border-border bg-card px-3.5 py-3 text-sm text-muted-foreground outline-none focus-visible:ring-2 focus-visible:ring-ring;
+  }
+
+  .lathe-cards a > span:first-child {
+    @apply flex items-center justify-between gap-2;
+  }
+
+  .lathe-cards b {
+    @apply truncate text-[15px] leading-5 font-semibold text-foreground;
+  }
+
+  .lathe-cards a > span:last-child {
+    @apply text-[15px] leading-5 font-medium text-foreground tabular-nums;
+  }
+
   /* Nothing to list: a round icon badge, a 16 px title and the next steps, centred. */
   .lathe-empty {
     @apply flex flex-col items-center gap-3 px-6 py-12 text-center text-sm text-muted-foreground;
@@ -809,6 +830,93 @@
   /* View, Edit, Preview, the row menu and the Columns button: 28 px, muted, in the row's last cell. */
   .lathe-row-button {
     @apply grid size-7 place-items-center rounded-[6px] text-muted-foreground outline-none hover:bg-muted hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring aria-expanded:bg-muted aria-expanded:text-foreground;
+  }
+
+  /* The phone index: no card frame, the tabs and the toolbar flush under the top bar, as the
+     mobile board draws them. The main's 24 px padding is taken back here. */
+  .lathe-index {
+    @apply space-y-5 max-md:-m-6 max-md:space-y-0;
+  }
+
+  @media (width < 48rem) {
+    /* The ! beats the utilities the panel Card and the tab band carry. */
+    [data-lathe-card] {
+      @apply rounded-none! border-0! bg-transparent! shadow-none!;
+    }
+
+    [data-lathe-card] nav {
+      @apply flex-nowrap! overflow-x-auto px-3! py-2!;
+    }
+
+    [data-lathe-card] nav ul {
+      @apply flex-nowrap!;
+    }
+
+    .lathe-tab {
+      @apply h-8 text-sm;
+    }
+
+    .lathe-toolbar {
+      @apply flex-nowrap gap-2 border-0 p-3;
+    }
+
+    .lathe-toolbar > div:first-child {
+      @apply min-w-0 flex-1;
+    }
+
+    .lathe-search {
+      @apply mx-0 h-10 w-full! px-2.5 text-sm;
+    }
+
+    .lathe-search > input {
+      @apply text-sm placeholder:text-muted-foreground!;
+    }
+
+    /* Group, Actions and Auto refresh stay on the wide table; Filter is a 44 x 40 icon with its count. */
+    .lathe-group,
+    .lathe-polling,
+    .lathe-toolbar:not([data-selecting]) .cn-button,
+    .lathe-filter > svg:last-child {
+      @apply hidden!;
+    }
+
+    .lathe-filter > span:not([class]) {
+      @apply sr-only;
+    }
+
+    .lathe-filter {
+      @apply relative h-10! w-11 justify-center border border-border bg-card px-0!;
+    }
+
+    .lathe-filter > svg {
+      @apply size-[18px] text-foreground;
+    }
+
+    .lathe-filter > span[class] {
+      @apply absolute -end-1.5 -top-1.5;
+    }
+
+    .lathe-footer {
+      @apply min-h-[60px] flex-nowrap justify-between px-3;
+    }
+
+    .lathe-footer > div,
+    .lathe-pager {
+      @apply contents;
+    }
+
+    .lathe-footer > div > div,
+    .lathe-pager > :not([data-step]) {
+      @apply hidden;
+    }
+
+    .lathe-pager > [data-step] {
+      @apply h-10 w-11 rounded-md border border-border last:border-e;
+    }
+
+    .lathe-pager > [data-step="next"] {
+      @apply order-last;
+    }
   }
 }
 

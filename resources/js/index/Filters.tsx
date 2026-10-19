@@ -76,7 +76,7 @@ export function Filters({ visit }: { visit: (changes: IndexUrlState) => void }) 
             }}
           >
             <Funnel aria-hidden="true" className="size-3.5" />
-            {__('Filter')}
+            <span>{__('Filter')}</span>
             {active > 0 && (
               <>
                 {' '}
