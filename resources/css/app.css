@@ -893,10 +893,10 @@
       @apply text-sm placeholder:text-muted-foreground!;
     }
 
-    /* Group, Actions and Auto refresh stay on the wide table; Filter is a 44 x 40 icon with its count. */
+    /* Group and Auto refresh stay on the wide table; Filter is a 44 x 40 icon with its count. Actions
+       stays: its menu is the only way to a standalone action. */
     .lathe-group,
     .lathe-polling,
-    .lathe-toolbar:not([data-selecting]) .cn-button,
     .lathe-filter > svg:last-child {
       @apply hidden!;
     }
