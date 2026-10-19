@@ -399,6 +399,18 @@ describe('grouping and buttons', () => {
     await openPanel();
 
     expect(within(screen.getByRole('dialog')).getByText('No notifications')).toBeTruthy();
+    expect(within(screen.getByRole('dialog')).getByText('Exports, imports and long actions report here when they finish.')).toBeTruthy();
+  });
+
+  it('marks each unread notification with a brand dot and leaves a read one plain', async () => {
+    list = [item('a', 'Fresh'), item('b', 'Seen', { readAt: '2026-10-18T10:00:00.000Z' })];
+    count = 1;
+    mount();
+    await openPanel();
+    const row = (text: string) => within(screen.getByRole('dialog')).getByText(text).closest('li') as HTMLElement;
+
+    expect(row('Fresh').querySelector('[data-unread-dot]')?.className).toContain('bg-brand');
+    expect(row('Seen').querySelector('[data-unread-dot]')).toBeNull();
   });
 });
 

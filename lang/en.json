@@ -178,6 +178,7 @@
     "Export #:id": "Export #:id",
     "Export started.": "Export started.",
     "Exporting :n of :total": "Exporting :n of :total",
+    "Exports, imports and long actions report here when they finish.": "Exports, imports and long actions report here when they finish.",
     "File": "File",
     "File exceeds the :size MB limit": "File exceeds the :size MB limit",
     "Filename": "Filename",
