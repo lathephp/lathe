@@ -67,25 +67,33 @@ export function CreateRelationSheet({ field, record, text, onCreated, onClose }:
     onClose();
   }
 
+  // Sentence case, as the create form's title: a capitalised word lowers its first letter, an acronym keeps its case.
+  const title = __('Create :resource', { resource: label.replace(/\b[A-Z](?=[a-z])/g, (letter) => letter.toLowerCase()) });
+
   // The portal keeps the sheet's form out of the page's form in the DOM.
   return createPortal(
     <Modal
       labelledBy={titleId}
       onClose={onClose}
-      className="fixed inset-y-0 right-0 h-full w-full max-w-[480px] animate-in slide-in-from-right space-y-4 overflow-y-auto border-l border-border bg-background p-4 text-foreground shadow-lg duration-200"
+      className="fixed inset-y-0 right-0 flex h-full w-full max-w-[480px] animate-in flex-col rounded-s-2xl border-s border-border bg-popover text-popover-foreground shadow-lg duration-200 slide-in-from-right"
     >
-      <div className="flex items-center justify-between gap-2">
-        <h2 id={titleId} className="text-base font-semibold">
-          {__('Create :resource', { resource: label.toLowerCase() })}
+      <div className="flex items-start gap-3 border-b border-border px-6 py-5">
+        <h2 id={titleId} className="text-base leading-[22px] font-semibold">
+          {title}
         </h2>
-        <button type="button" aria-label={__('Close')} className="rounded-md p-1 hover:bg-muted" onClick={onClose}>
-          <X aria-hidden="true" className="size-4" />
+        <button
+          type="button"
+          aria-label={__('Close')}
+          className="ms-auto inline-flex size-[30px] shrink-0 items-center justify-center rounded-md text-muted-foreground outline-none hover:bg-accent hover:text-accent-foreground focus-visible:ring-2 focus-visible:ring-focus"
+          onClick={onClose}
+        >
+          <X aria-hidden="true" strokeWidth={1.75} className="size-4" />
         </button>
       </div>
       {form === null ? (
-        <p className="text-sm text-muted-foreground">{__('Loading…')}</p>
+        <p className="p-6 text-sm text-muted-foreground">{__('Loading…')}</p>
       ) : (
-        <CreateForm uriKey={uriKey} singularLabel={label} form={form} onSaved={select} onCancel={onClose} />
+        <CreateForm uriKey={uriKey} singularLabel={label} submitLabel={title} form={form} onSaved={select} onCancel={onClose} />
       )}
     </Modal>,
     document.body,
@@ -95,12 +103,13 @@ export function CreateRelationSheet({ field, record, text, onCreated, onClose }:
 interface CreateFormProps {
   uriKey: string;
   singularLabel: string;
+  submitLabel: string;
   form: FormPayload;
   onSaved: (id: string | number) => Promise<void>;
   onCancel: () => void;
 }
 
-function CreateForm({ uriKey, singularLabel, form, onSaved, onCancel }: CreateFormProps) {
+function CreateForm({ uriKey, singularLabel, submitLabel, form, onSaved, onCancel }: CreateFormProps) {
   const { __ } = useTranslation();
   const [saved, setSaved] = useState(false);
   const record = useRecordForm({ resource: { uriKey, label: singularLabel, singularLabel, abilities: { create: true } }, mode: 'create', id: null, form, drafts: false }, (_redirect, id) => {
@@ -111,7 +120,7 @@ function CreateForm({ uriKey, singularLabel, form, onSaved, onCancel }: CreateFo
   return (
     <form
       noValidate
-      className="space-y-4"
+      className="flex min-h-0 flex-1 flex-col"
       onSubmit={(event) => {
         event.preventDefault();
         // The sheet sits inside the page's form in the React tree, and a submit bubbles up it.
@@ -119,17 +128,15 @@ function CreateForm({ uriKey, singularLabel, form, onSaved, onCancel }: CreateFo
         void record.submit();
       }}
     >
-      <FormFields uriKey={uriKey} mode="create" id={null} record={record} idPrefix={`inline-${uriKey}`} />
-      <div className="flex justify-end gap-2">
-        <button type="button" className="h-9 rounded-md px-4 text-sm" onClick={onCancel}>
+      <div className="min-h-0 flex-1 overflow-y-auto p-6">
+        <FormFields uriKey={uriKey} mode="create" id={null} record={record} idPrefix={`inline-${uriKey}`} bare />
+      </div>
+      <div className="flex justify-end gap-2 border-t border-border px-6 py-4">
+        <button type="button" className="lathe-button lathe-button-outline lathe-button-size-default" onClick={onCancel}>
           {__('Cancel')}
         </button>
-        <button
-          type="submit"
-          disabled={record.busy || saved}
-          className="inline-flex h-9 items-center rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground disabled:opacity-60"
-        >
-          {__('Create')}
+        <button type="submit" disabled={record.busy || saved} className="lathe-button lathe-button-default lathe-button-size-default">
+          {submitLabel}
         </button>
       </div>
     </form>

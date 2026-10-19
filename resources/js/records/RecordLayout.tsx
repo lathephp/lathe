@@ -41,6 +41,8 @@ export interface RecordLayoutProps {
   borderless?: boolean;
   /** Detail pages cut a panel at its limit(); forms show every field. */
   detail?: boolean;
+  /** A form's sections without their cards, in one column, as in a sheet. */
+  bare?: boolean;
   /** The record of a detail page, whose relation panels list its related rows. */
   parent?: { uriKey: string; id: string | number };
   /** The detail page's fields by key, which the hasOne blocks draw from. */
@@ -117,7 +119,7 @@ function Block({ block, ...props }: RecordLayoutProps & { block: LayoutBlock }) 
   return detailField === undefined ? null : <SingularRelationPanel field={detailField} />;
 }
 
-function Panel({ panel, renderField, borderless, detail }: RecordLayoutProps & { panel: PanelBlock }) {
+function Panel({ panel, renderField, borderless, detail, bare }: RecordLayoutProps & { panel: PanelBlock }) {
   const { __ } = useTranslation();
   const [open, setOpen] = useState(!panel.collapsed);
   const [all, setAll] = useState(false);
@@ -125,6 +127,7 @@ function Panel({ panel, renderField, borderless, detail }: RecordLayoutProps & {
   const keys = limited ? panel.fields.slice(0, panel.limit ?? undefined) : panel.fields;
   const bodyId = `panel-${panel.attribute}`;
   const fieldsId = `${bodyId}-fields`;
+  const Frame = bare === true ? 'div' : Card;
   const heading = panel.hideHeading ? null : panel.collapsible ? (
     <button
       type="button"
@@ -146,14 +149,18 @@ function Panel({ panel, renderField, borderless, detail }: RecordLayoutProps & {
   return (
     <section aria-label={panel.name} className="space-y-2">
       {panel.help === null ? null : <SafeHtml html={panel.help} className="text-sm text-muted-foreground" />}
-      <Card
+      <Frame
         id={bodyId}
-        className={cn(
-          'divide-y divide-border',
-          (borderless === true || panel.borderless) && 'divide-y-0',
-          // A phone draws a form's fields straight on the page, as the phone form board does.
-          detail !== true && 'max-md:divide-y-0 max-md:rounded-none max-md:border-0 max-md:bg-transparent max-md:shadow-none max-md:[&>*]:px-0 max-md:[&>header]:pt-0 max-md:[&>header]:pb-3',
-        )}
+        className={
+          // A sheet lays the fields straight on its surface, and so does a phone, as the phone form board does.
+          bare === true
+            ? '[&>*]:p-0 [&>header]:pb-3'
+            : cn(
+                'divide-y divide-border',
+                (borderless === true || panel.borderless) && 'divide-y-0',
+                detail !== true && 'max-md:divide-y-0 max-md:rounded-none max-md:border-0 max-md:bg-transparent max-md:shadow-none max-md:[&>*]:px-0 max-md:[&>header]:pt-0 max-md:[&>header]:pb-3',
+              )
+        }
       >
         {heading === null ? null : <header className="flex items-center justify-between px-5 py-4">{heading}</header>}
         {detail === true ? (
@@ -164,7 +171,7 @@ function Panel({ panel, renderField, borderless, detail }: RecordLayoutProps & {
           </div>
         ) : (
           // A form lays its fields in one column below 1024 px and two from there; each row is a grid item.
-          <div id={fieldsId} hidden={!open} className="grid gap-x-5 gap-y-4 p-5 max-md:py-0 lg:grid-cols-2">
+          <div id={fieldsId} hidden={!open} className={bare === true ? 'grid gap-[18px] [&>*]:col-auto' : 'grid gap-x-5 gap-y-4 p-5 max-md:py-0 lg:grid-cols-2'}>
             {keys.map((key, index) => (
               <Fragment key={key}>{renderField(key, index === 0)}</Fragment>
             ))}
@@ -183,7 +190,7 @@ function Panel({ panel, renderField, borderless, detail }: RecordLayoutProps & {
             </button>
           </div>
         ) : null}
-      </Card>
+      </Frame>
     </section>
   );
 }

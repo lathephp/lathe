@@ -19,6 +19,8 @@ interface FormFieldsProps {
   record: ReturnType<typeof useRecordForm>;
   /** Prefixes the control ids, so a form inside a modal does not repeat the page's ids. */
   idPrefix?: string;
+  /** Lays the fields straight on the surface in one column, with no card per section, as in a sheet. */
+  bare?: boolean;
 }
 
 /**
@@ -26,7 +28,7 @@ interface FormFieldsProps {
  * or locks by its conditions and the server's dependsOn patches, and shows its label, help
  * and first error.
  */
-export function FormFields({ uriKey, mode, id, record, idPrefix = 'field' }: FormFieldsProps) {
+export function FormFields({ uriKey, mode, id, record, idPrefix = 'field', bare = false }: FormFieldsProps) {
   const { __ } = useTranslation();
   const byKey = new Map(record.payload.fields.map((field) => [field.key, field]));
 
@@ -63,6 +65,7 @@ export function FormFields({ uriKey, mode, id, record, idPrefix = 'field' }: For
         <RecordLayout
           blocks={record.payload.layout}
           borderless={record.payload.borderless === true}
+          bare={bare}
           errorKeys={errorKeys}
           failures={record.failures}
           renderField={(key, first) => {

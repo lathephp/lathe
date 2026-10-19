@@ -1,5 +1,5 @@
 import { __panel } from '@lathephp/core';
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { registerRelationFields } from '../fields/builtin/relation';
 import { registerTextFields } from '../fields/builtin/text';
@@ -128,6 +128,9 @@ describe('inline create from a belongsTo field', () => {
 
     expect(dialog.className).toContain('max-w-[480px]');
     expect(screen.getByLabelText('Email')).toBeDefined();
+    expect(within(dialog).getByRole('heading', { level: 2, name: 'Create customer' })).toBeDefined();
+    expect(within(dialog).getByRole('button', { name: 'Cancel' }).className).toBe('lathe-button lathe-button-outline lathe-button-size-default');
+    expect(within(dialog).getByRole('button', { name: 'Create customer' }).className).toBe('lathe-button lathe-button-default lathe-button-size-default');
     expect(calls(fetch)).toEqual(['GET /lathe/api/resources/customers/creation-fields']);
   });
 
@@ -139,7 +142,7 @@ describe('inline create from a belongsTo field', () => {
     fireEvent.click(screen.getByRole('button', { name: 'New customer' }));
     fireEvent.change(await screen.findByLabelText(/Name/), { target: { value: 'Zed Inline' } });
     fireEvent.change(screen.getByLabelText('Email'), { target: { value: 'zed.inline@example.com' } });
-    fireEvent.click(screen.getByRole('button', { name: 'Create' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Create customer' }));
 
     await waitFor(() => {
       expect(onChange).toHaveBeenCalledWith({ value: 9, display: 'Zed Inline' });
@@ -161,7 +164,7 @@ describe('inline create from a belongsTo field', () => {
 
     fireEvent.click(screen.getByRole('button', { name: 'New customer' }));
     fireEvent.change(await screen.findByLabelText(/Name/), { target: { value: 'Zed' } });
-    fireEvent.click(screen.getByRole('button', { name: 'Create' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Create customer' }));
 
     expect(await screen.findByText('The email has already been taken.')).toBeDefined();
     expect(screen.getByRole('dialog')).toBeDefined();
