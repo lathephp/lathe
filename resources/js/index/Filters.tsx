@@ -105,7 +105,7 @@ export function Filters({ visit }: { visit: (changes: IndexUrlState) => void }) 
               role="dialog"
               aria-label={__('Filters')}
               // Below 768 px a bottom sheet over a scrim, its foot a button that closes it.
-              className="absolute end-0 top-full z-10 mt-1 w-[340px] max-w-[calc(100vw-2rem)] overflow-hidden rounded-lg border border-border bg-background shadow-lg max-md:fixed max-md:inset-x-0 max-md:top-auto max-md:bottom-0 max-md:z-50 max-md:w-auto max-md:max-w-none max-md:rounded-b-none max-md:rounded-t-2xl"
+              className="absolute end-0 top-full z-30 mt-1.5 w-[340px] max-w-[calc(100vw-2rem)] overflow-hidden rounded-[12px] border border-border bg-popover text-popover-foreground shadow-md max-md:fixed max-md:inset-x-0 max-md:top-auto max-md:bottom-0 max-md:z-50 max-md:w-auto max-md:max-w-none max-md:rounded-b-none max-md:rounded-t-2xl"
             >
               <div className="flex h-11 items-center justify-between border-b border-border px-4">
                 <span className="text-sm font-semibold">{__('Filters')}</span>

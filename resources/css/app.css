@@ -578,6 +578,48 @@
 /* The resource index: its table card, the tab band, the toolbar, the table and the pager. The
    looks live here, so the index's first-load script carries only the class names. */
 @layer components {
+  /* The card's 12 px radius beats the panel Card's rounded-lg utility. */
+  [data-lathe-card] {
+    @apply rounded-[12px]!;
+  }
+
+  .lathe-footer {
+    @apply flex min-h-14 flex-wrap items-center gap-4 border-t border-border px-4 py-2 text-[13px] leading-[18px] text-muted-foreground;
+  }
+
+  .lathe-pager {
+    @apply inline-flex overflow-hidden rounded-md border border-border;
+  }
+
+  .lathe-pager > * {
+    @apply inline-flex h-[30px] min-w-8 items-center justify-center rounded-none border-0 border-e border-border bg-card px-2 text-[13px] font-medium text-foreground shadow-none tabular-nums last:border-e-0 disabled:opacity-50;
+  }
+
+  .lathe-pager > span {
+    @apply text-muted-foreground;
+  }
+
+  .lathe-pager > [aria-current="page"] {
+    @apply bg-primary font-semibold text-primary-foreground;
+  }
+
+  /* One 26 px chip per active filter on a 48 px row under the toolbar, then Clear filters as a link. */
+  .lathe-chips {
+    @apply flex min-h-12 flex-wrap items-center gap-2 border-b border-border px-4 py-2 text-[13px] leading-[18px];
+  }
+
+  .lathe-chips > span {
+    @apply inline-flex h-[26px] items-center gap-1 rounded-full border border-border bg-card ps-2.5 pe-0.5 font-medium tabular-nums;
+  }
+
+  .lathe-chips > span > button {
+    @apply grid size-[22px] place-items-center rounded-full text-muted-foreground outline-none hover:bg-muted focus-visible:ring-2 focus-visible:ring-ring;
+  }
+
+  .lathe-chips > button {
+    @apply ms-1 rounded-sm font-medium text-link outline-none hover:text-link-hover focus-visible:ring-2 focus-visible:ring-ring;
+  }
+
   .lathe-tab {
     @apply inline-flex h-7 items-center gap-1.5 rounded-md px-2.5 text-[13px] leading-[18px] font-medium whitespace-nowrap text-muted-foreground outline-none hover:bg-accent focus-visible:ring-2 focus-visible:ring-ring aria-[current=page]:bg-accent aria-[current=page]:text-foreground;
   }

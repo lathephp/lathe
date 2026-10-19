@@ -69,18 +69,17 @@ export function FilterChips({ visit }: { visit: (changes: IndexUrlState) => void
   }
 
   return (
-    <div data-lathe-chips="" className="flex flex-wrap items-center gap-2 border-b border-border px-4 py-2">
+    <div data-lathe-chips="" className="lathe-chips">
       {Object.entries(active).map(([key, value]) => {
         const filter = filters?.available.find((candidate) => candidate.key === key);
         const name = filter?.name ?? key;
 
         return (
-          <span key={key} className="inline-flex h-7 items-center gap-1 rounded-full border border-border ps-3 pe-0.5 text-sm tabular-nums">
+          <span key={key}>
             <span>{`${name}: ${chipValue(value, filter, filters?.labels?.[key])}`}</span>
             <button
               type="button"
               aria-label={__('Remove :filter filter', { filter: name })}
-              className="grid size-6 place-items-center rounded-full text-muted-foreground outline-none hover:bg-muted focus-visible:ring-2 focus-visible:ring-ring"
               onClick={() => {
                 cancelFilterVisit();
                 visit({ filter: Object.fromEntries(Object.entries(active).filter(([other]) => other !== key)) });
@@ -93,7 +92,6 @@ export function FilterChips({ visit }: { visit: (changes: IndexUrlState) => void
       })}
       <button
         type="button"
-        className="ms-1 rounded-sm text-sm font-medium text-primary outline-none hover:underline focus-visible:ring-2 focus-visible:ring-ring"
         onClick={() => {
           cancelFilterVisit();
           visit({ filter: {} });

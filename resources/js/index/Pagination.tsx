@@ -42,14 +42,15 @@ export function Pagination({ type, page, perPage = 1, count, hasMorePages, loadi
 
   function go(label: string, target: number, disabled: boolean, Icon: typeof ChevronLeft) {
     return (
-      <Button variant="outline" size="sm" className="w-8 px-0" aria-label={label} disabled={disabled} onClick={() => { onPage(target); }}>
-        <Icon className="size-4" />
+      <Button variant="outline" size="sm" aria-label={label} disabled={disabled} onClick={() => { onPage(target); }}>
+        <Icon className="size-3.5" />
       </Button>
     );
   }
 
   return (
-    <div className="flex items-center gap-1">
+    // One segmented group: the buttons share their borders, as in the tables boards.
+    <div className="lathe-pager">
       {go(__('First page'), 1, page <= 1, ChevronsLeft)}
       {go(__('Previous page'), page - 1, page <= 1, ChevronLeft)}
       {pages.map((n, index) => (

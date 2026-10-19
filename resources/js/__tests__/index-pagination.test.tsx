@@ -97,6 +97,24 @@ describe('links pagination', () => {
     expect(screen.getByRole('button', { name: '400' })).toBeTruthy();
   });
 
+  it('draws the pager as one segmented group at the start of the footer, the range at its end', () => {
+    renderOrders({ count: { value: 10000, exact: true, capped: false, estimated: false } });
+    const pager = screen.getByRole('button', { name: 'First page' }).parentElement as HTMLElement;
+
+    expect(pager.className).toBe('lathe-pager');
+    expect(within(pager).getAllByRole('button').map((button) => button.getAttribute('aria-label') ?? button.textContent)).toEqual([
+      'First page',
+      'Previous page',
+      '1',
+      '2',
+      '400',
+      'Next page',
+      'Last page',
+    ]);
+    expect(pager.parentElement?.firstElementChild).toBe(pager);
+    expect(pager.parentElement?.lastElementChild?.textContent).toContain('1–25 of 10,000');
+  });
+
   it('goes back to the first page', () => {
     const visit = vi.spyOn(router, 'visit').mockImplementation(() => undefined);
     renderOrders({ rows: rows(25, 51), state: { page: 3, perPage: 25, hasMorePages: true } });

@@ -29,23 +29,34 @@ export function IndexFooter({ resource, state, count, rowCount, hasMorePages, lo
   const to = from + rowCount - 1;
 
   return (
-    <div className="flex flex-wrap items-center justify-between gap-3 border-t border-border px-3 py-2 text-sm">
-      <div className="flex items-center gap-2">
-        <label htmlFor="per-page" className="text-muted-foreground">
-          {__('Per page')}
-        </label>
-        <Select
-          id="per-page"
-          size="sm"
-          value={String(state.perPage)}
-          options={resource.perPageOptions.map((option) => ({ value: String(option), label: String(option) }))}
-          onChange={(option) => {
-            visit({ per_page: Number(option) });
-          }}
-        />
-      </div>
-      <div className="flex flex-wrap items-center gap-3">
-        <p className="text-muted-foreground">
+    // The pager first, then the page size and the range at the end.
+    <div className="lathe-footer">
+      <Pagination
+        type={resource.definition.paginationType}
+        page={state.page}
+        perPage={state.perPage}
+        count={count}
+        hasMorePages={hasMorePages}
+        loadingMore={loadingMore}
+        onPage={(page) => {
+          visit({ page });
+        }}
+        onLoadMore={onLoadMore}
+      />
+      <div className="ms-auto flex flex-wrap items-center gap-4">
+        <div className="flex items-center gap-2">
+          <label htmlFor="per-page">{__('Per page')}</label>
+          <Select
+            id="per-page"
+            size="sm"
+            value={String(state.perPage)}
+            options={resource.perPageOptions.map((option) => ({ value: String(option), label: String(option) }))}
+            onChange={(option) => {
+              visit({ per_page: Number(option) });
+            }}
+          />
+        </div>
+        <p className="tabular-nums">
           {/* Simple pagination counts nothing, so it shows the range alone. */}
           {resource.definition.paginationType === 'simple' ? (
             __(':from–:to', { from, to })
@@ -60,18 +71,6 @@ export function IndexFooter({ resource, state, count, rowCount, hasMorePages, lo
             </Deferred>
           )}
         </p>
-        <Pagination
-          type={resource.definition.paginationType}
-          page={state.page}
-          perPage={state.perPage}
-          count={count}
-          hasMorePages={hasMorePages}
-          loadingMore={loadingMore}
-          onPage={(page) => {
-            visit({ page });
-          }}
-          onLoadMore={onLoadMore}
-        />
       </div>
     </div>
   );
