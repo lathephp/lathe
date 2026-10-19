@@ -270,6 +270,14 @@ describe('filtered empty state', () => {
     expect((visit.mock.calls[0]?.[1] as { data: Record<string, unknown> }).data).toEqual({ sort: '-total_cents' });
   });
 
+  it('leads with the search-x icon in a round badge and titles the state in the text colour', () => {
+    renderOrders({ url: '/lathe/resources/orders?q=zzzz', rows: [] });
+    const title = screen.getByText('No results match your filters');
+
+    expect(title.className).toBe('lathe-empty-title');
+    expect(title.parentElement?.querySelector('svg')?.getAttribute('class')).toContain('lucide-search-x');
+  });
+
   it('empties the search box once the cleared URL lands', () => {
     // The visit lands at once with the URL it asked for, keeping the page's state as a real one does.
     const visit = vi.spyOn(router, 'visit').mockImplementation((_url, options) => {

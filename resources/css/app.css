@@ -620,6 +620,23 @@
     @apply ms-1 rounded-sm font-medium text-link outline-none hover:text-link-hover focus-visible:ring-2 focus-visible:ring-ring;
   }
 
+  /* Nothing to list: a round icon badge, a 16 px title and the next steps, centred. */
+  .lathe-empty {
+    @apply flex flex-col items-center gap-3 px-6 py-12 text-center text-sm text-muted-foreground;
+  }
+
+  .lathe-empty > span:first-child {
+    @apply grid size-10 place-items-center rounded-full bg-muted text-foreground;
+  }
+
+  .lathe-empty > span[data-tone="primary"] {
+    @apply bg-primary-subtle text-primary-subtle-foreground;
+  }
+
+  .lathe-empty-title {
+    @apply text-base font-semibold text-foreground;
+  }
+
   .lathe-tab {
     @apply inline-flex h-7 items-center gap-1.5 rounded-md px-2.5 text-[13px] leading-[18px] font-medium whitespace-nowrap text-muted-foreground outline-none hover:bg-accent focus-visible:ring-2 focus-visible:ring-ring aria-[current=page]:bg-accent aria-[current=page]:text-foreground;
   }
