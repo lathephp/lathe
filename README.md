@@ -4,6 +4,11 @@
 
 Lathe is an admin panel builder for Laravel on Inertia, React and shadcn/ui. You describe your models as Resources in PHP, and Lathe gives you the lists, forms, detail pages, actions, dashboards and accounts, fast on tables with millions of rows.
 
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/images/orders-dark.png">
+  <img src="docs/images/orders-light.png" alt="The Orders list in Lathe: a table of orders with status badges, totals and dates, with search, filters and tabs above it" width="1440">
+</picture>
+
 - Docs: https://lathephp.com/docs
 
 ## Requirements

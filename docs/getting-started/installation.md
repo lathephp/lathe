@@ -8,6 +8,8 @@ order: 1
 
 Lathe is an admin panel builder for Laravel. It installs from Packagist like any Laravel package and needs no licence key.
 
+![An order's page in Lathe: its items in a table, a Details card with the total, the customer and the History card](/images/docs/order.png)
+
 ## Requirements
 
 - PHP 8.4 or newer

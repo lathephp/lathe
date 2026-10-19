@@ -29,7 +29,8 @@ it('resolves every relative link in the docs', function () {
         preg_match_all('/\]\(([^)\s]+)\)/', $text, $links);
 
         foreach ($links[1] as $link) {
-            if (preg_match('#^(https?:|mailto:)#', $link) === 1) {
+            // lathephp.com serves /images/docs/ from its own public folder, and its link check covers them.
+            if (preg_match('#^(https?:|mailto:|/images/docs/)#', $link) === 1) {
                 continue;
             }
 
