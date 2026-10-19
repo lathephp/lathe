@@ -134,7 +134,7 @@ it('renders the replicate page as a create form for the source', function () {
             ->component('Resources/Form', false)
             ->where('mode', 'replicate')
             ->where('id', 12)
-            ->where('submitLabel', 'Create Replicable Order')
+            ->where('submitLabel', 'Create replicable order')
             ->where('form.fields.0.value', null)
             ->where('breadcrumbs.2.href', '/lathe/resources/replicable-orders/12')
             ->where('breadcrumbs.3', ['label' => 'Replicate', 'href' => null]));
