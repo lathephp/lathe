@@ -269,7 +269,7 @@ function PanelBody({ parent, field, bodyId, onToggle, tab }: RelationPanelProps 
           </div>
         ) : (
           <div className="relative overflow-x-auto" role="region" aria-label={__(':resource table', { resource: field.label })} tabIndex={0}>
-            <table className="w-full text-sm [&_tr>*:first-child]:ps-5 [&_tr>*:last-child]:pe-5">
+            <table data-lathe-table className="w-full text-sm [&_tr>*:first-child]:ps-5 [&_tr>*:last-child]:pe-5">
               <thead>
                 <tr className="h-10 border-b border-border bg-muted text-start text-[11px] font-semibold tracking-[0.04em] text-muted-foreground uppercase">
                   <th scope="col" className="w-10 px-3">
