@@ -93,7 +93,7 @@ export default function Form({ resource, mode, id, title, form, submitLabel }: F
                 submit(updating ? 'continue' : 'another');
               }}
             >
-              {updating ? __('Update & Continue Editing') : __('Create & Add Another')}
+              {updating ? __('Update & Continue Editing') : __('Create and add another')}
             </button>
             <button
               type="submit"

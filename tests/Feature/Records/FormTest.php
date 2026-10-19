@@ -159,13 +159,13 @@ it('renders the create page with the creation fields and the create label', func
             ->where('resource.uriKey', 'form-products')
             ->where('mode', 'create')
             ->where('id', null)
-            ->where('title', 'Create Product')
-            ->where('submitLabel', 'Create Product')
+            ->where('title', 'Create product')
+            ->where('submitLabel', 'Create product')
             ->where('form', $form)
             ->where('breadcrumbs', [
                 ['label' => 'Dashboard', 'href' => '/lathe'],
                 ['label' => 'Products', 'href' => '/lathe/resources/form-products'],
-                ['label' => 'Create Product', 'href' => null],
+                ['label' => 'Create product', 'href' => null],
             ]));
 });
 

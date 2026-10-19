@@ -16,7 +16,7 @@ The trail starts with the panel home and the Resource, then ends with the record
 |------|-------|
 | Detail | Dashboard / Orders / #12 |
 | Edit | Dashboard / Orders / #12 / Edit |
-| Create | Dashboard / Orders / Create Order |
+| Create | Dashboard / Orders / Create order |
 | Replicate | Dashboard / Orders / #12 / Replicate |
 
 "Dashboard" links to the panel home. The Resource label links to its index. The last crumb is plain text for the current page. The others are links.

@@ -282,14 +282,14 @@ describe('record form', () => {
     });
   });
 
-  it('Create & Add Another stays, clears the form to its defaults and toasts', async () => {
+  it('Create and add another stays, clears the form to its defaults and toasts', async () => {
     respond(201, { id: 9, redirect: 'customers/9' });
     const visit = vi.spyOn(router, 'visit').mockImplementation(() => undefined);
     renderForm();
 
     fireEvent.change(screen.getByLabelText(/Name/), { target: { value: 'Ann' } });
     fireEvent.change(screen.getByLabelText(/Country/), { target: { value: 'BD' } });
-    fireEvent.click(screen.getByRole('button', { name: 'Create & Add Another' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Create and add another' }));
 
     await waitFor(() => {
       expect(__panel.toasts.get().map((toast) => toast.message)).toContain('Customer created.');

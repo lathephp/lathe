@@ -702,11 +702,14 @@ abstract class Resource
     }
 
     /**
-     * The label of the create form's main button.
+     * The label of the create form's main button, which is also its title, in sentence case:
+     * "Create order". A capitalised word lowers its first letter, an acronym such as API keeps its case.
      */
     public static function createButtonLabel(): string
     {
-        return Lathe::__('Create :resource', ['resource' => static::singularLabel()]);
+        $resource = (string) preg_replace_callback('/\b[A-Z](?=[a-z])/', fn (array $letter) => strtolower($letter[0]), static::singularLabel());
+
+        return Lathe::__('Create :resource', ['resource' => $resource]);
     }
 
     /**

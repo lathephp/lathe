@@ -131,7 +131,7 @@ Without `addUser()`, saving the form fails with "You are not authorized to relat
 
 ## Step 5: open the panel
 
-Open `/lathe/resources/posts`. Press "Create Post", fill the form and choose the author (a picker that searches as you type once there are many users), then save. You land on the detail page; the list shows the post, sorted and searchable.
+Open `/lathe/resources/posts`. Press "Create post", fill the form and choose the author (a picker that searches as you type once there are many users), then save. You land on the detail page; the list shows the post, sorted and searchable.
 
 ## Next steps
 
@@ -141,4 +141,4 @@ Open `/lathe/resources/posts`. Press "Create Post", fill the form and choose the
 
 ## What you see
 
-The sidebar lists Posts. The list shows each post's id, title, author, status and date, with a search box and sortable columns, and "Create Post" opens a form with the author picker.
+The sidebar lists Posts. The list shows each post's id, title, author, status and date, with a search box and sortable columns, and "Create post" opens a form with the author picker.
