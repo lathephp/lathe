@@ -439,7 +439,7 @@ function PanelBody({ parent, field, bodyId, onToggle, tab }: RelationPanelProps 
           </h2>
           <div className="flex justify-end gap-2">
             <Button
-              variant="ghost"
+              variant="outline"
               onClick={() => {
                 setDetaching(null);
               }}
@@ -447,7 +447,7 @@ function PanelBody({ parent, field, bodyId, onToggle, tab }: RelationPanelProps 
               {__('Cancel')}
             </Button>
             <Button
-              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              variant="destructive-solid"
               onClick={() => {
                 void detach(detaching);
               }}

@@ -430,7 +430,7 @@ export function RepeaterForm({ field, value, onChange, id, describedBy, disabled
               onClick={() => {
                 setPending(null);
               }}
-              className="inline-flex h-9 items-center rounded-md px-4 text-sm"
+              className="lathe-button lathe-button-outline lathe-button-size-default"
             >
               {__('Cancel')}
             </button>
@@ -440,7 +440,7 @@ export function RepeaterForm({ field, value, onChange, id, describedBy, disabled
                 removeAt(pending);
                 setPending(null);
               }}
-              className="inline-flex h-9 items-center rounded-md bg-destructive px-4 text-sm font-medium text-destructive-foreground"
+              className="lathe-button lathe-button-size-default bg-destructive text-destructive-foreground shadow-xs hover:brightness-92"
             >
               {__('Remove')}
             </button>

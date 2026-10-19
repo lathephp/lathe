@@ -36,6 +36,9 @@ describe('detail actions', () => {
     const dialog = screen.getByRole('dialog');
     const confirm = within(dialog).getByRole('button', { name: 'Delete' });
     expect(confirm.className).toContain('bg-destructive');
+    expect(confirm.className).toContain('lathe-button-size-default');
+    expect(within(dialog).getByRole('button', { name: 'Cancel' }).className).toBe('lathe-button lathe-button-outline lathe-button-size-default');
+    expect(screen.getAllByRole('button', { name: 'Delete', hidden: true })[0]?.className).toContain('lathe-button-outline');
     fireEvent.click(confirm);
 
     await waitFor(() => {

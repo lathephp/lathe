@@ -61,7 +61,7 @@ export function RecordActions({ uriKey, record }: RecordActionsProps) {
         <button
           type="button"
           disabled={busy}
-          className="inline-flex h-9 items-center rounded-md border border-input px-4 text-sm font-medium"
+          className="lathe-button lathe-button-outline lathe-button-size-default"
           onClick={() => {
             setBusy(true);
             startImpersonating(basePath, uriKey, record.id).catch(() => {
@@ -76,7 +76,7 @@ export function RecordActions({ uriKey, record }: RecordActionsProps) {
         <button
           type="button"
           disabled={busy}
-          className="inline-flex h-9 items-center rounded-md border border-input px-4 text-sm font-medium text-destructive"
+          className="lathe-button lathe-button-outline lathe-button-size-default text-destructive"
           onClick={() => {
             setConfirming('delete');
           }}
@@ -88,7 +88,7 @@ export function RecordActions({ uriKey, record }: RecordActionsProps) {
         <button
           type="button"
           disabled={busy}
-          className="inline-flex h-9 items-center rounded-md border border-input px-4 text-sm font-medium"
+          className="lathe-button lathe-button-outline lathe-button-size-default"
           onClick={() => {
             void run('restore');
           }}
@@ -100,7 +100,7 @@ export function RecordActions({ uriKey, record }: RecordActionsProps) {
         <button
           type="button"
           disabled={busy}
-          className="inline-flex h-9 items-center rounded-md border border-input px-4 text-sm font-medium text-destructive"
+          className="lathe-button lathe-button-outline lathe-button-size-default text-destructive"
           onClick={() => {
             setConfirming('forceDelete');
           }}
@@ -124,7 +124,7 @@ export function RecordActions({ uriKey, record }: RecordActionsProps) {
           <div className="flex justify-end gap-2">
             <button
               type="button"
-              className="h-9 rounded-md px-4 text-sm"
+              className="lathe-button lathe-button-outline lathe-button-size-default"
               onClick={() => {
                 setConfirming(null);
               }}
@@ -133,7 +133,7 @@ export function RecordActions({ uriKey, record }: RecordActionsProps) {
             </button>
             <button
               type="button"
-              className="h-9 rounded-md bg-destructive px-4 text-sm font-medium text-destructive-foreground"
+              className="lathe-button lathe-button-size-default bg-destructive text-destructive-foreground shadow-xs hover:brightness-92"
               onClick={() => {
                 void run(confirming);
               }}

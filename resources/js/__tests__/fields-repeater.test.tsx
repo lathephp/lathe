@@ -181,6 +181,8 @@ describe('repeater-field', () => {
     expect(view.onChange).not.toHaveBeenCalled();
 
     fireEvent.click(within(view.rows()[0] as HTMLElement).getByRole('button', { name: 'Remove' }));
+    expect(within(screen.getByRole('dialog')).getByRole('button', { name: 'Cancel' }).className).toBe('lathe-button lathe-button-outline lathe-button-size-default');
+    expect(within(screen.getByRole('dialog')).getByRole('button', { name: 'Remove' }).className).toContain('lathe-button-size-default bg-destructive');
     fireEvent.click(within(screen.getByRole('dialog')).getByRole('button', { name: 'Remove' }));
 
     expect(view.rows()).toHaveLength(1);
