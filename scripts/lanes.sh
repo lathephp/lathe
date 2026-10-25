@@ -38,10 +38,11 @@ start() {
             ;;
         *)
             # The timing runs measure MySQL inside this limit, a 3 GB cap with a 2 GB buffer pool.
+            # MySQL 8.4 keeps binary logs by default, and the bench lanes filled 48 GB with them.
             podman run -d --name "$name" -p "127.0.0.1:$port:$inner" --memory=3g \
                 -e MYSQL_DATABASE=$database -e MYSQL_USER=$user -e MYSQL_PASSWORD=$password \
                 -e MYSQL_ROOT_PASSWORD=$password \
-                "$image" --innodb-buffer-pool-size=2G >/dev/null
+                "$image" --innodb-buffer-pool-size=2G --skip-log-bin >/dev/null
             ;;
     esac
 }
