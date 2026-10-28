@@ -638,23 +638,6 @@
     @apply bg-primary font-semibold text-primary-foreground;
   }
 
-  /* One 26 px chip per active filter on a 48 px row under the toolbar, then Clear filters as a link. */
-  .lathe-chips {
-    @apply flex min-h-12 flex-wrap items-center gap-2 border-b border-border px-4 py-2 text-[13px] leading-[18px];
-  }
-
-  .lathe-chips > span {
-    @apply inline-flex h-[26px] items-center gap-1 rounded-full border border-border bg-card ps-2.5 pe-0.5 font-medium tabular-nums;
-  }
-
-  .lathe-chips > span > button {
-    @apply grid size-[22px] place-items-center rounded-full text-muted-foreground outline-none hover:bg-muted focus-visible:ring-2 focus-visible:ring-ring;
-  }
-
-  .lathe-chips > button {
-    @apply ms-1 rounded-sm font-medium text-link outline-none hover:text-link-hover focus-visible:ring-2 focus-visible:ring-ring;
-  }
-
   /* Below 768 px each row is a card: number and badge, the relation, then the value. */
   .lathe-cards {
     @apply flex flex-col gap-2 px-3 pb-3;
@@ -802,14 +785,6 @@
     @apply text-muted-foreground;
   }
 
-  .lathe-filter {
-    @apply pe-2 aria-expanded:bg-accent;
-  }
-
-  .lathe-filter[aria-expanded="true"] > svg:last-child {
-    @apply rotate-180;
-  }
-
   .lathe-polling[aria-checked="false"] {
     @apply text-muted-foreground;
   }
@@ -829,6 +804,33 @@
 
   .lathe-search > kbd {
     @apply rounded-[4px] border border-border bg-muted px-[5px] font-mono text-[11px] leading-4 font-medium max-md:hidden;
+  }
+
+  /* The filter bar: chips then the input in one box, at least 320 px and growing into the toolbar's free space.
+     The first paint and the editor draw the same box, so the swap on focus moves nothing. */
+  .lathe-bar {
+    @apply mx-1 min-w-[320px] flex-1;
+  }
+
+  .lathe-bar-box {
+    @apply min-h-[30px] gap-1.5 py-[2px] text-[13px] leading-[18px];
+  }
+
+  .lathe-bar-box > input {
+    @apply bg-transparent text-foreground placeholder:text-muted-foreground [&::-webkit-search-cancel-button]:hidden;
+  }
+
+  .lathe-bar-box > kbd {
+    @apply ms-auto rounded-[4px] border border-border bg-muted px-[5px] font-mono text-[11px] leading-4 font-medium text-muted-foreground max-md:hidden;
+  }
+
+  .lathe-bar-box > [data-slot="combobox-chip"] {
+    @apply tabular-nums;
+  }
+
+  /* A chip that cannot apply: its reason in the danger tone. */
+  .lathe-bar-box > [data-slot="combobox-chip"][data-error] {
+    @apply bg-destructive-subtle text-destructive-subtle-foreground;
   }
 
   /* Group is a ghost button over the select; a chosen grouping reads "Group: Status ascending". */
@@ -973,7 +975,7 @@
       @apply flex-nowrap gap-2 border-0 p-3;
     }
 
-    /* The Views menu and the search share one line. */
+    /* The Views menu and the filter bar share one line. */
     .lathe-toolbar > div:first-child {
       @apply min-w-0 flex-1 flex-nowrap;
     }
@@ -986,28 +988,19 @@
       @apply text-sm placeholder:text-muted-foreground!;
     }
 
-    /* Group and Auto refresh stay on the wide table; Filter is a 44 x 40 icon with its count. Actions
-       stays: its menu is the only way to a standalone action. */
+    .lathe-bar {
+      @apply mx-0 min-w-0;
+    }
+
+    .lathe-bar-box {
+      @apply min-h-10 text-sm;
+    }
+
+    /* Group and Auto refresh stay on the wide table. Actions stays: its menu is the only way to a
+       standalone action. */
     .lathe-group,
-    .lathe-polling,
-    .lathe-filter > svg:last-child {
+    .lathe-polling {
       @apply hidden!;
-    }
-
-    .lathe-filter > span:not([class]) {
-      @apply sr-only;
-    }
-
-    .lathe-filter {
-      @apply relative h-10! w-11 justify-center border border-border bg-card px-0!;
-    }
-
-    .lathe-filter > svg {
-      @apply size-[18px] text-foreground;
-    }
-
-    .lathe-filter > span[class] {
-      @apply absolute -end-1.5 -top-1.5;
     }
 
     .lathe-footer {

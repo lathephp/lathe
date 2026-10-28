@@ -1,9 +1,8 @@
-import { router } from '@inertiajs/react';
-import { act, fireEvent, screen } from '@testing-library/react';
-import { afterEach, beforeAll, beforeEach, expect, it, vi } from 'vitest';
-import { FilterPanel as LazyFilterPanel } from '../index/lazy';
+import { act, fireEvent, render, screen } from '@testing-library/react';
+import { afterEach, expect, it, vi } from 'vitest';
+import { FilterPanel } from '../index/FilterPanel';
 import type { AvailableFilter } from '../index/types';
-import { fakeInertiaServer, renderPage, type FakeRequest } from './support';
+import type { IndexUrlState } from '../index/useIndexState';
 
 const total: AvailableFilter = {
   key: 'total',
@@ -16,45 +15,19 @@ const total: AvailableFilter = {
   default: null,
 };
 
-const props = {
-  resource: {
-    uriKey: 'orders',
-    label: 'Orders',
-    singularLabel: 'Order',
-    perPageOptions: [25, 50, 100],
-    searchable: false,
-    softDeletes: false,
-    abilities: { create: false },
-    definition: { debounce: 0.5 },
-  },
-  table: { columns: [], sortKeys: [], rows: [], rowKey: 'id' },
-  state: { page: 1, perPage: 25, hasMorePages: false, sort: '' },
-  filters: { available: [total], applied: {} },
-  staleFilters: [],
-  count: null,
-};
-
-let requests: FakeRequest[];
-
-beforeAll(async () => {
-  await LazyFilterPanel.preload();
-});
-
-beforeEach(() => {
-  requests = fakeInertiaServer();
-  router.flushAll();
-});
-
 afterEach(() => {
   vi.useRealTimers();
-  vi.unstubAllGlobals();
 });
+
+function panel(state: IndexUrlState, url: string, visit: (changes: IndexUrlState) => void) {
+  return <FilterPanel resource="orders" endpoint="/lathe/api/resources/orders/filters" available={[total]} softDeletes={false} state={state} url={url} visit={visit} />;
+}
 
 it('keeps the typed range and its focus across the visit the panel sent', async () => {
   vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout'] });
-  renderPage('Resources/Index', props, { url: '/lathe/resources/orders' });
+  const visit = vi.fn();
+  const { rerender } = render(panel({}, '/lathe/resources/orders', visit));
 
-  fireEvent.click(screen.getByRole('button', { name: 'Filter' }));
   const min = screen.getByLabelText<HTMLInputElement>('Min');
   min.focus();
   fireEvent.change(min, { target: { value: '100' } });
@@ -63,19 +36,13 @@ it('keeps the typed range and its focus across the visit the panel sent', async 
     await vi.advanceTimersByTimeAsync(300);
   });
 
-  expect(requests).toHaveLength(1);
-  expect(decodeURIComponent(requests[0]?.url ?? '')).toContain('filter[total][min]=100');
+  expect(visit).toHaveBeenCalledWith({ filter: { total: { min: '100' } } });
 
   // The person types on while the visit is out.
   fireEvent.change(min, { target: { value: '1005' } });
 
-  await act(async () => {
-    requests[0]?.respond(200, { component: 'Resources/Index', props, url: '/lathe/resources/orders?filter[total][min]=100' });
-    await vi.advanceTimersByTimeAsync(0);
-  });
-
-  // The page took the new URL: the button counts its filter.
-  expect(screen.getByRole('button', { name: 'Filter 1' })).toBeTruthy();
+  // The visit lands with the URL it asked for.
+  rerender(panel({ filter: { total: { min: '100' } } }, '/lathe/resources/orders?filter[total][min]=100', visit));
 
   const after = screen.getByLabelText<HTMLInputElement>('Min');
 

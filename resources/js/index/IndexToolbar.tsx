@@ -3,12 +3,13 @@ import { useShortcut, useTranslation } from '@lathephp/core';
 import { X } from 'lucide-react';
 import type { ReactNode } from 'react';
 import { Button } from '../components/ui/Button';
-import { Filters } from './Filters';
+import { FilterBar } from './FilterBar';
+import { activeFilters } from './FilterChips';
 import { GroupMenu } from './GroupMenu';
+import { IndexBanner } from './IndexBanner';
 import { countText } from './IndexFooter';
 import { PollingToggle } from './PollingToggle';
 import type { Count, IndexProps } from './types';
-import { ToolbarSearch } from './ToolbarSearch';
 import type { IndexUrlState } from './useIndexState';
 import type { RowSelection } from './useRowSelection';
 import type { SharedProps } from '../types';
@@ -33,7 +34,8 @@ interface IndexToolbarProps extends Pick<IndexProps, 'resource' | 'lens'> {
 
 export function IndexToolbar({ resource, lens, q, visit, polling, selection, count, hasMorePages, actions, views }: IndexToolbarProps) {
   const { __ } = useTranslation();
-  const { basePath } = usePage<SharedProps>().props;
+  const page = usePage<IndexProps & SharedProps>();
+  const { basePath, staleFilters = [] } = page.props;
   const resourcePath = `${basePath}/resources/${resource.uriKey}`;
   const canCreate = resource.abilities.create && lens == null;
   const selecting = selection.all || selection.selected.size > 0;
@@ -68,17 +70,7 @@ export function IndexToolbar({ resource, lens, q, visit, polling, selection, cou
       ) : (
         <div className="flex flex-wrap items-center gap-1">
           {views}
-          {resource.searchable && (
-            <ToolbarSearch
-              label={resource.label}
-              value={q ?? ''}
-              debounce={resource.definition.debounce}
-              onSearch={(term) => {
-                // An empty term leaves q out of the URL.
-                visit({ q: term });
-              }}
-            />
-          )}
+          {(resource.searchable || resource.softDeletes || (page.props.filters?.available.length ?? 0) > 0) && <FilterBar q={q} visit={visit} />}
           <GroupMenu visit={visit} />
         </div>
       )}
@@ -90,12 +82,19 @@ export function IndexToolbar({ resource, lens, q, visit, polling, selection, cou
             {__('Clear')}
           </Button>
         ) : (
-          <>
-            <Filters visit={visit} />
-            {polling !== null && <PollingToggle on={polling.on} onToggle={polling.onToggle} />}
-          </>
+          polling !== null && <PollingToggle on={polling.on} onToggle={polling.onToggle} />
         )}
       </div>
+      {!selecting && staleFilters.length > 0 && (
+        <div className="basis-full">
+          <IndexBanner
+            message={__('This link is out of date')}
+            onReset={() => {
+              visit({ filter: activeFilters(page.url, staleFilters) });
+            }}
+          />
+        </div>
+      )}
     </div>
   );
 }

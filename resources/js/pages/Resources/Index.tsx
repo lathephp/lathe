@@ -5,7 +5,6 @@ import { Plus } from 'lucide-react';
 import { AfterDelay, skeletonBar } from '../../lib/instant';
 import { Card } from '../../components/ui/Card';
 import { EmptyState } from '../../index/EmptyState';
-import { FilterChips } from '../../index/FilterChips';
 import { IndexBanner } from '../../index/IndexBanner';
 import { IndexFooter } from '../../index/IndexFooter';
 import { IndexToolbar, toolbarRow } from '../../index/IndexToolbar';
@@ -138,7 +137,7 @@ function IndexPage({ resource, table, state, count, error, lens, actions, widget
       <div className="lathe-index-body" data-preview-open={preview.id === null ? undefined : ''}>
       {views?.rail}
       {/* At 1280 px and wider an open preview panel sits beside the card; below that it lies over it. */}
-      {/* One card: the toolbar row (the selection bar while rows are ticked), the filter chips, then the table.
+      {/* One card: the toolbar row (the selection bar while rows are ticked) with the filter bar, then the table.
           Nothing clips it, so a popover from its toolbar reaches past a short table. */}
       <div className={preview.id === null ? undefined : 'lathe-index-split'}>
         <Card data-lathe-card>
@@ -154,7 +153,6 @@ function IndexPage({ resource, table, state, count, error, lens, actions, widget
             hasMorePages={more.hasMorePages}
             actions={actionMenus}
           />
-          <FilterChips visit={visit} />
           {error !== undefined ? (
             <div className="p-4">
               <IndexBanner message={error.message} onReset={index.reset} />

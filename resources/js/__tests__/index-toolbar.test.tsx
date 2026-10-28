@@ -76,12 +76,12 @@ describe('toolbar search', () => {
     expect(toolbar?.className).toBe('lathe-toolbar');
   });
 
-  it('opens the box at 260 px on a wide screen and to its icon on a narrow one', () => {
+  it('searches from the filter bar, which grows with its chips', () => {
     renderOrders();
     const box = screen.getByRole('searchbox');
 
-    // lathe-search in app.css: w-[260px], and its icon's 30 px under 768 px.
-    expect(box.parentElement?.className).toBe('lathe-search');
+    // lathe-bar in app.css: at least 320 px, growing into the toolbar's free space.
+    expect(box.closest('[data-lathe-filter-bar]')?.className).toBe('lathe-bar');
   });
 
   it('waits 500 ms after the last keystroke, then visits once with q trimmed', () => {

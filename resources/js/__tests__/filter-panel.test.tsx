@@ -1,16 +1,11 @@
 import { router } from '@inertiajs/react';
 import { QueryClientProvider, queryClient } from '@lathephp/core';
 import { act, fireEvent, render, screen, within } from '@testing-library/react';
-import { afterEach, beforeAll, describe, expect, it, vi } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import { FilterPanel } from '../index/FilterPanel';
-import { FilterPanel as LazyFilterPanel } from '../index/lazy';
 import type { AvailableFilter } from '../index/types';
+import type { IndexUrlState } from '../index/useIndexState';
 import { choose, optionLabels, renderPage } from './support';
-
-// The toolbar loads the panel on the first press; loaded once, it draws on the press itself.
-beforeAll(async () => {
-  await LazyFilterPanel.preload();
-});
 
 afterEach(() => {
   vi.restoreAllMocks();
@@ -51,13 +46,29 @@ const customer: AvailableFilter = {
 };
 
 interface Options {
-  url?: string;
   available?: AvailableFilter[];
   softDeletes?: boolean;
-  staleFilters?: string[];
+  state?: IndexUrlState;
 }
 
-function renderIndex(options: Options = {}) {
+/** The panel as a relation table draws it, with a spy for its visits. */
+function renderPanel(options: Options = {}) {
+  const visit = vi.fn();
+  const view = render(
+    <FilterPanel
+      resource="orders"
+      endpoint="/lathe/api/resources/orders/filters"
+      available={options.available ?? [status]}
+      softDeletes={options.softDeletes ?? false}
+      state={options.state ?? {}}
+      visit={visit}
+    />,
+  );
+
+  return { visit, container: view.container };
+}
+
+function renderIndex(url: string, staleFilters: string[]) {
   return renderPage(
     'Resources/Index',
     {
@@ -67,17 +78,17 @@ function renderIndex(options: Options = {}) {
         singularLabel: 'Order',
         perPageOptions: [25, 50, 100],
         searchable: false,
-        softDeletes: options.softDeletes ?? false,
+        softDeletes: false,
         abilities: { create: false },
         definition: { debounce: 0.5 },
       },
       table: { columns: [], sortKeys: [], rows: [], rowKey: 'id' },
       state: { page: 1, perPage: 25, hasMorePages: false, sort: '' },
-      filters: { available: options.available ?? [status], applied: {} },
-      staleFilters: options.staleFilters ?? [],
+      filters: { available: [status], applied: {} },
+      staleFilters,
       count: null,
     },
-    { url: options.url ?? '/lathe/resources/orders' },
+    { url },
   );
 }
 
@@ -90,52 +101,44 @@ function visitData(visit: ReturnType<typeof mockVisit>, call = 0): unknown {
 }
 
 describe('filter panel', () => {
-  it('visits with the chosen status on its own, back on the first page', async () => {
-    const visit = mockVisit();
-    renderIndex({ url: '/lathe/resources/orders?page=3' });
+  it('visits with the chosen status on its own', async () => {
+    const { visit } = renderPanel();
 
-    fireEvent.click(screen.getByRole('button', { name: 'Filter' }));
     await choose(screen.getByLabelText('Status'), 'Pending');
 
     await vi.waitFor(() => {
       expect(visit).toHaveBeenCalledTimes(1);
     });
-    expect(visitData(visit)).toEqual({ filter: { status: 'pending' } });
+    expect(visit).toHaveBeenCalledWith({ filter: { status: 'pending' } });
   });
 
   it('visits on each change of an immediate filter', async () => {
-    const visit = mockVisit();
-    renderIndex({ available: [status, region], url: '/lathe/resources/orders?filter[status]=paid' });
+    const { visit } = renderPanel({ available: [status, region], state: { filter: { status: 'paid' } } });
 
-    fireEvent.click(screen.getByRole('button', { name: 'Filter 1' }));
     await choose(screen.getByLabelText('Region'), 'Asia');
 
-    expect(visitData(visit)).toEqual({ filter: { status: 'paid', region: 'asia' } });
+    expect(visit).toHaveBeenCalledWith({ filter: { status: 'paid', region: 'asia' } });
   });
 
   it('visits trashed=only for Only trashed on a soft-deleting Resource', async () => {
-    const visit = mockVisit();
-    renderIndex({ softDeletes: true });
+    const { visit } = renderPanel({ softDeletes: true });
 
-    fireEvent.click(screen.getByRole('button', { name: 'Filter' }));
     expect(await optionLabels(screen.getByLabelText('Trashed'))).toEqual(['Without trashed', 'With trashed', 'Only trashed']);
 
     await choose(screen.getByLabelText('Trashed'), 'Only trashed');
 
-    expect(visitData(visit)).toEqual({ trashed: 'only' });
+    expect(visit).toHaveBeenCalledWith({ trashed: 'only', filter: {} });
   });
 
   it('offers no trashed choice when the Resource does not soft delete', () => {
-    renderIndex();
-
-    fireEvent.click(screen.getByRole('button', { name: 'Filter' }));
+    renderPanel();
 
     expect(screen.queryByLabelText('Trashed')).toBeNull();
   });
 
   it('shows a link with a removed filter as out of date, and Reset drops that key', () => {
     const visit = mockVisit();
-    renderIndex({ url: '/lathe/resources/orders?filter[status]=paid&filter[gone]=1', staleFilters: ['gone'] });
+    renderIndex('/lathe/resources/orders?filter[status]=paid&filter[gone]=1', ['gone']);
 
     const banner = screen.getByRole('alert');
 
@@ -151,10 +154,8 @@ describe('date filter', () => {
   const placed: AvailableFilter = { ...status, key: 'placed', name: 'Placed', component: 'date-filter', options: null };
 
   it('takes a typed day in each side and draws no native date input', async () => {
-    const visit = mockVisit();
-    const { container } = renderIndex({ available: [placed] });
+    const { visit, container } = renderPanel({ available: [placed] });
 
-    fireEvent.click(screen.getByRole('button', { name: 'Filter' }));
     expect(container.querySelector('input[type=date]')).toBeNull();
 
     const from = screen.getByLabelText('From');
@@ -164,7 +165,7 @@ describe('date filter', () => {
     await vi.waitFor(() => {
       expect(visit).toHaveBeenCalledTimes(1);
     });
-    expect(visitData(visit)).toEqual({ filter: { placed: { from: '2026-10-17' } } });
+    expect(visit).toHaveBeenCalledWith({ filter: { placed: { from: '2026-10-17' } } });
   });
 });
 

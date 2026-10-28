@@ -1,11 +1,6 @@
-import { fireEvent, screen, within } from '@testing-library/react';
-import { afterEach, beforeAll, describe, expect, it, vi } from 'vitest';
-import { FilterPanel } from '../index/lazy';
+import { screen, within } from '@testing-library/react';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import { renderPage } from './support';
-
-beforeAll(async () => {
-  await FilterPanel.preload();
-});
 
 afterEach(() => {
   vi.restoreAllMocks();
@@ -27,7 +22,7 @@ const row = {
   abilities: { view: true },
 };
 
-function renderOrders(phoneCard: Record<string, string | null>, url = '/lathe/resources/orders') {
+function renderOrders(phoneCard: Record<string, string | null>) {
   return renderPage(
     'Resources/Index',
     {
@@ -37,7 +32,7 @@ function renderOrders(phoneCard: Record<string, string | null>, url = '/lathe/re
       filters: { available: [{ key: 'status', name: 'Status', component: 'select-filter', options: [{ label: 'Paid', value: 'paid' }], remote: false, immediate: false, placement: 'panel', default: null }], applied: {} },
       count: { value: 2552, exact: true, capped: false, estimated: false },
     },
-    { url },
+    { url: '/lathe/resources/orders' },
   );
 }
 
@@ -78,18 +73,5 @@ describe('phone cards', () => {
     renderOrders({ title: 'name', badge: null, value: 'total_cents', meta: null });
 
     expect(within(document.querySelector('[data-lathe-cards]') as HTMLElement).getByRole('link').textContent).toContain('Blue mug');
-  });
-
-  it('opens Filter as a bottom sheet whose button names the count', () => {
-    renderOrders({ title: null, badge: 'status', value: 'total_cents', meta: 'customer' }, '/lathe/resources/orders?filter[status]=paid');
-
-    fireEvent.click(screen.getByRole('button', { name: 'Filter 1' }));
-    const sheet = screen.getByRole('dialog', { name: 'Filters' });
-
-    expect(sheet.className).toContain('max-md:fixed');
-
-    fireEvent.click(within(sheet).getByRole('button', { name: 'Show 2,552 orders' }));
-
-    expect(screen.queryByRole('dialog', { name: 'Filters' })).toBeNull();
   });
 });
