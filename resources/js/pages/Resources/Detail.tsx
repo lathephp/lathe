@@ -75,7 +75,7 @@ function RecordSkeleton({ title }: { title: string }) {
     <AfterDelay>
       <Head title={title} />
       <div aria-busy="true" className="space-y-6">
-        <PageHeader title={title} actions={<div aria-hidden="true" className={`h-[34px] w-40 ${skeletonBar}`} />} />
+        <PageHeader title={title} actions={<div aria-hidden="true" className={`h-8 w-40 ${skeletonBar}`} />} />
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
           <div className="min-w-0 space-y-6 lg:col-span-2">
             <div aria-hidden="true" className={`h-9 w-full ${skeletonBar}`} />

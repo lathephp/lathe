@@ -199,7 +199,7 @@
   }
 
   .cn-button-size-default {
-    @apply h-[34px] gap-1.5 px-3 has-data-[icon=inline-end]:pr-2.5 has-data-[icon=inline-start]:pl-2.5;
+    @apply h-8 gap-1.5 px-3 has-data-[icon=inline-end]:pr-2.5 has-data-[icon=inline-start]:pl-2.5;
   }
 
   .cn-button-size-lg {
@@ -215,7 +215,7 @@
   }
 
   .cn-button-size-icon {
-    @apply size-[34px];
+    @apply size-8;
   }
 
   .cn-button-size-icon-lg {
@@ -360,7 +360,7 @@
   }
 
   .cn-combobox-chips {
-    @apply border-input bg-card shadow-xs hover:border-muted-foreground focus-within:border-ring focus-within:shadow-none focus-within:ring-1 focus-within:ring-ring has-aria-invalid:border-destructive flex min-h-[34px] flex-wrap items-center gap-1 rounded-md border bg-clip-padding py-[3px] pr-2 pl-2.5 text-sm transition-colors has-data-[slot=combobox-chip]:pl-1;
+    @apply border-input bg-card shadow-xs hover:border-muted-foreground focus-within:border-ring focus-within:shadow-none focus-within:ring-1 focus-within:ring-ring has-aria-invalid:border-destructive flex min-h-8 flex-wrap items-center gap-1 rounded-md border bg-clip-padding py-[3px] pr-2 pl-2.5 text-sm transition-colors has-data-[slot=combobox-chip]:pl-1;
   }
 
   .cn-combobox-chip {
@@ -671,7 +671,7 @@
 
   /* MARK: Input */
   .cn-input {
-    @apply border-input bg-card text-foreground shadow-xs hover:border-muted-foreground focus-visible:border-ring focus-visible:shadow-none focus-visible:ring-1 focus-visible:ring-ring aria-invalid:border-destructive aria-invalid:shadow-none aria-invalid:ring-0 disabled:border-border disabled:bg-muted disabled:text-muted-foreground disabled:shadow-none disabled:opacity-100 [&[readonly]]:border-dashed [&[readonly]]:bg-muted [&[readonly]]:shadow-none rounded-md border transition-colors h-[34px] px-2.5 py-1 text-base leading-5 file:h-6 file:text-sm file:font-medium md:text-sm data-[size=sm]:h-7 data-[size=sm]:px-2 data-[size=sm]:shadow-none md:data-[size=sm]:text-[13px] data-[size=lg]:h-10 data-[size=lg]:px-3;
+    @apply border-input bg-card text-foreground shadow-xs hover:border-muted-foreground focus-visible:border-ring focus-visible:shadow-none focus-visible:ring-1 focus-visible:ring-ring aria-invalid:border-destructive aria-invalid:shadow-none aria-invalid:ring-0 disabled:border-border disabled:bg-muted disabled:text-muted-foreground disabled:shadow-none disabled:opacity-100 [&[readonly]]:border-dashed [&[readonly]]:bg-muted [&[readonly]]:shadow-none rounded-md border transition-colors h-8 px-2.5 py-1 text-base leading-5 file:h-6 file:text-sm file:font-medium md:text-sm data-[size=sm]:h-7 data-[size=sm]:px-2 data-[size=sm]:shadow-none md:data-[size=sm]:text-[13px] data-[size=lg]:h-10 data-[size=lg]:px-3;
   }
 
   /* MARK: Input OTP */
@@ -989,7 +989,7 @@
 
   /* MARK: Select */
   .cn-select-trigger {
-    @apply border-input bg-card text-foreground shadow-xs hover:border-muted-foreground data-placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-1 focus-visible:ring-ring aria-expanded:border-ring aria-expanded:shadow-none aria-expanded:ring-1 aria-expanded:ring-ring aria-invalid:border-destructive aria-invalid:shadow-none disabled:border-border disabled:bg-muted disabled:text-muted-foreground disabled:shadow-none disabled:opacity-100 gap-2 rounded-md border py-0 pr-2 pl-2.5 text-sm leading-5 transition-colors select-none data-[size=default]:h-[34px] data-[size=sm]:h-7 data-[size=sm]:pl-2 data-[size=sm]:text-[13px] *:data-[slot=select-value]:flex *:data-[slot=select-value]:gap-1.5 [&_svg:not([class*='size-'])]:size-4;
+    @apply border-input bg-card text-foreground shadow-xs hover:border-muted-foreground data-placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-1 focus-visible:ring-ring aria-expanded:border-ring aria-expanded:shadow-none aria-expanded:ring-1 aria-expanded:ring-ring aria-invalid:border-destructive aria-invalid:shadow-none disabled:border-border disabled:bg-muted disabled:text-muted-foreground disabled:shadow-none disabled:opacity-100 gap-2 rounded-md border py-0 pr-2 pl-2.5 text-sm leading-5 transition-colors select-none data-[size=default]:h-8 data-[size=sm]:h-7 data-[size=sm]:pl-2 data-[size=sm]:text-[13px] *:data-[slot=select-value]:flex *:data-[slot=select-value]:gap-1.5 [&_svg:not([class*='size-'])]:size-4;
   }
 
   .cn-select-value {
@@ -1367,7 +1367,7 @@
 
   /* MARK: Input Group */
   .cn-input-group {
-    @apply border-input bg-card shadow-xs hover:border-muted-foreground has-[[data-slot=input-group-control]:focus-visible]:border-ring has-[[data-slot=input-group-control]:focus-visible]:shadow-none has-[[data-slot=input-group-control]:focus-visible]:ring-1 has-[[data-slot=input-group-control]:focus-visible]:ring-ring has-[[data-slot][aria-invalid=true]]:border-destructive has-[[data-slot][aria-invalid=true]]:shadow-none has-disabled:border-border has-disabled:bg-muted has-disabled:shadow-none h-[34px] overflow-hidden rounded-md border transition-colors in-data-[slot=combobox-content]:focus-within:border-inherit in-data-[slot=combobox-content]:focus-within:ring-0 has-[>[data-align=block-end]]:h-auto has-[>[data-align=block-end]]:flex-col has-[>[data-align=block-start]]:h-auto has-[>[data-align=block-start]]:flex-col has-[>[data-align=block-end]]:[&>input]:pt-3 has-[>[data-align=block-start]]:[&>input]:pb-3 has-[>[data-align=inline-end]]:[&>input]:pr-1.5 has-[>[data-align=inline-start]]:[&>input]:pl-1.5;
+    @apply border-input bg-card shadow-xs hover:border-muted-foreground has-[[data-slot=input-group-control]:focus-visible]:border-ring has-[[data-slot=input-group-control]:focus-visible]:shadow-none has-[[data-slot=input-group-control]:focus-visible]:ring-1 has-[[data-slot=input-group-control]:focus-visible]:ring-ring has-[[data-slot][aria-invalid=true]]:border-destructive has-[[data-slot][aria-invalid=true]]:shadow-none has-disabled:border-border has-disabled:bg-muted has-disabled:shadow-none h-8 overflow-hidden rounded-md border transition-colors in-data-[slot=combobox-content]:focus-within:border-inherit in-data-[slot=combobox-content]:focus-within:ring-0 has-[>[data-align=block-end]]:h-auto has-[>[data-align=block-end]]:flex-col has-[>[data-align=block-start]]:h-auto has-[>[data-align=block-start]]:flex-col has-[>[data-align=block-end]]:[&>input]:pt-3 has-[>[data-align=block-start]]:[&>input]:pb-3 has-[>[data-align=inline-end]]:[&>input]:pr-1.5 has-[>[data-align=inline-start]]:[&>input]:pl-1.5;
   }
 
   .cn-input-group-addon {

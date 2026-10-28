@@ -28,9 +28,9 @@ export const modalPanel = `${modalSurface} flex flex-col gap-5 px-6 py-5 [&_h2]:
 /** The buttons, right-aligned with the primary last; on a phone they stack 44 px tall with the primary on top. */
 export const modalFooter = 'flex justify-end gap-2 max-md:flex-col-reverse max-md:[&>*]:h-11 max-md:[&>*]:rounded-[10px] max-md:[&>*]:text-base';
 
-/** A text input in a dialog: 34 px, 8 px radius, a ring and a 3 px primary halo on focus. */
+/** A text input in a dialog: 32 px, 8 px radius, a ring and a 3 px primary halo on focus. */
 export const modalInput =
-  'h-[34px] w-full rounded-lg border border-input bg-background px-2.5 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-primary-subtle aria-[invalid]:border-destructive';
+  'h-8 w-full rounded-lg border border-input bg-background px-2.5 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-primary-subtle aria-[invalid]:border-destructive';
 
 /**
  * The panel Button's classes, for the dialogs that open from a first-load page: a component import
