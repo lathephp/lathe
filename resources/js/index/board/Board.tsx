@@ -106,8 +106,7 @@ export function Board({ resource, table, board, preview }: BoardProps) {
                       className="flex flex-col gap-1 rounded-md border border-border bg-card px-[11px] py-[9px] text-sm text-muted-foreground outline-none focus-visible:ring-2 focus-visible:ring-ring"
                     >
                       <span className="flex items-center justify-between gap-2">
-                        <b className="truncate font-semibold text-foreground">{card?.title == null ? row.title : part(row, card.title)}</b>
-                        {part(row, card?.badge)}
+                        <b className="min-w-0 truncate font-semibold text-foreground">{card?.title == null ? row.title : part(row, card.title)}</b>
                         {canMove(row) && (
                           <MoveMenu
                             title={row.title}
@@ -119,7 +118,10 @@ export function Board({ resource, table, board, preview }: BoardProps) {
                         )}
                       </span>
                       {card?.meta != null && <span className="truncate">{row.cells[card.meta]?.display}</span>}
-                      <span className="font-medium text-foreground tabular-nums">{part(row, card?.value)}</span>
+                      <span className="flex items-center justify-between gap-2">
+                        {part(row, card?.badge)}
+                        <span className="ms-auto font-medium text-foreground tabular-nums">{part(row, card?.value)}</span>
+                      </span>
                     </div>
                   </li>
                 ))}

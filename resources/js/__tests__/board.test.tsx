@@ -71,7 +71,9 @@ describe('the Board', () => {
     expect(card.dataset.boardCard).toBe('paid-1-1');
     expect(card.tabIndex).toBe(0);
     expect(card.querySelector('[data-lathe-meter]')?.textContent).toBe('Paid');
-    expect(Array.from(card.children, (line) => line.textContent)).toEqual(['ORD-paid-1-1Paid', 'Gerard Reichert', '$164.98']);
+    // The number has its line to itself, so a narrow column cuts the customer before the number.
+    expect(Array.from(card.children, (line) => line.textContent)).toEqual(['ORD-paid-1-1', 'Gerard Reichert', 'Paid$164.98']);
+    expect(card.children[0]?.querySelector('[data-lathe-meter]')).toBeNull();
   });
 
   it('reads "No orders" in an empty column', async () => {
