@@ -4,7 +4,9 @@ import { SelectBadge, styled } from '../../fields/choice/SelectFields';
 import { TableCell } from '../../table/cells';
 import { countText } from '../IndexFooter';
 import type { IndexProps, Row } from '../types';
+import { MoveMenu } from './MoveMenu';
 import { useBoardColumns } from './useBoardColumns';
+import { canMove, useCardMoves } from './useCardMoves';
 
 type BoardProps = Pick<IndexProps, 'resource' | 'table'> & {
   board: NonNullable<IndexProps['table']['board']>;
@@ -33,7 +35,9 @@ function reached(from: HTMLElement, key: string): HTMLElement | null {
  */
 export function Board({ resource, table, board, preview }: BoardProps) {
   const { __ } = useTranslation();
-  const { columns, showMore } = useBoardColumns(resource.uriKey, board);
+  const state = useBoardColumns(resource.uriKey, board);
+  const { columns, showMore } = state;
+  const moves = useCardMoves(resource.uriKey, board, state);
   const card = table.phoneCard;
 
   function part(row: Row, key: string | null | undefined) {
@@ -73,7 +77,12 @@ export function Board({ resource, table, board, preview }: BoardProps) {
         const label = column.value === null ? __('No value') : column.label;
 
         return (
-          <section key={column.value ?? ''} aria-label={label} className="flex max-w-80 min-w-0 flex-[1_0_196px] flex-col rounded-lg bg-muted shadow-[inset_0_0_0_1px_var(--border)]">
+          <section
+            key={column.value ?? ''}
+            ref={moves.dropTarget(column.value)}
+            aria-label={label}
+            className={`flex max-w-80 min-w-0 flex-[1_0_196px] flex-col rounded-lg bg-muted shadow-[inset_0_0_0_1px_var(--border)] ${moves.isOver(column.value) ? 'ring-2 ring-ring' : ''}`}
+          >
             <header className="flex items-center justify-between gap-2 px-3 pt-2.5 pb-2 text-sm font-medium">
               {column.value !== null && styled(board.field) ? <SelectBadge field={board.field} value={column.value} /> : <span>{label}</span>}
               {column.count !== undefined && <span className="text-xs text-muted-foreground tabular-nums">{countText(column.count)}</span>}
@@ -93,11 +102,21 @@ export function Board({ resource, table, board, preview }: BoardProps) {
                       onClick={() => {
                         preview.show(row.id);
                       }}
+                      {...moves.cardProps(row, column.value)}
                       className="flex flex-col gap-1 rounded-md border border-border bg-card px-[11px] py-[9px] text-sm text-muted-foreground outline-none focus-visible:ring-2 focus-visible:ring-ring"
                     >
                       <span className="flex items-center justify-between gap-2">
                         <b className="truncate font-semibold text-foreground">{card?.title == null ? row.title : part(row, card.title)}</b>
                         {part(row, card?.badge)}
+                        {canMove(row) && (
+                          <MoveMenu
+                            title={row.title}
+                            columns={columns.filter((each) => each.value !== column.value)}
+                            onMove={(to) => {
+                              moves.moveTo(row, to);
+                            }}
+                          />
+                        )}
                       </span>
                       {card?.meta != null && <span className="truncate">{row.cells[card.meta]?.display}</span>}
                       <span className="font-medium text-foreground tabular-nums">{part(row, card?.value)}</span>

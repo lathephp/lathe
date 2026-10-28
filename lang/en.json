@@ -268,6 +268,8 @@
     "Move 25 rows": "Move 25 rows",
     "Move the cell cursor": "Move the cell cursor",
     "Move :name": "Move :name",
+    "Move :title": "Move :title",
+    "Move to": "Move to",
     "Move down": "Move down",
     "Move up": "Move up",
     "Moved :name to position :position": "Moved :name to position :position",
