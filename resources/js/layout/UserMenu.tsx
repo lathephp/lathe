@@ -4,6 +4,7 @@ import { ChevronsUpDown, LogOut } from 'lucide-react';
 import { lazy, Suspense, useEffect, useRef, useState } from 'react';
 import { NavIcon } from '../components/NavIcon';
 import { cn } from '../lib/cn';
+import { showKeys } from '../lib/keys';
 import type { NavigationItem } from '../types';
 
 const AppearanceSwitcher = lazy(() => import('./AppearanceSwitcher').then((module) => ({ default: module.AppearanceSwitcher })));
@@ -100,6 +101,17 @@ export function UserMenu({ user, items, logoutPath, collapsed }: UserMenuProps) 
               {item.label}
             </Link>
           ))}
+          <button
+            type="button"
+            role="menuitem"
+            className={rowClass}
+            onClick={() => {
+              setOpen(false);
+              showKeys();
+            }}
+          >
+            {__('Keyboard shortcuts')}
+          </button>
           {/* Lazy: the switcher is only needed once the menu is open. The fallback has its final height. */}
           <div data-lathe-appearance-slot>
             <Suspense fallback={<div className="h-[4.75rem]" />}>

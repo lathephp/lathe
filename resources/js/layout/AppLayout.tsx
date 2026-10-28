@@ -4,6 +4,7 @@ import { Menu, PanelLeft, Search } from 'lucide-react';
 import { lazy, Suspense, useEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react';
 import { Button } from '../components/ui/Button';
 import { cn } from '../lib/cn';
+import { onShowKeys } from '../lib/keys';
 import type { SharedProps } from '../types';
 import { SafeHtml } from '../components/SafeHtml';
 import type { Breadcrumb } from '../fields/types';
@@ -18,7 +19,10 @@ const SearchPalette = lazy(() => import('../palette/SearchPalette').then((module
 // Only an impersonating admin sees the banner, so no first load carries it.
 const ImpersonationBanner = lazy(() => import('./ImpersonationBanner').then((module) => ({ default: module.ImpersonationBanner })));
 
-const oneYear = 60 * 60 * 24 * 365;
+// The shortcuts sheet loads when first opened.
+const KeysSheet = lazy(() => import('../components/KeysSheet').then((module) => ({ default: module.KeysSheet })));
+
+const oneYear =60 * 60 * 24 * 365;
 const { RenderHook, Slot } = __panel;
 
 // The bell loads beside the page, so no route's first load carries it.
@@ -42,6 +46,7 @@ export function AppLayout({ children }: { children: ReactNode }) {
   const notifications = props.notifications;
   const searchOn = search?.enabled === true;
   const [searching, setSearching] = useState(false);
+  const [keys, setKeys] = useState(false);
   const opener = useRef<HTMLButtonElement>(null);
   const [pageBar, setPageBar] = useState<HTMLElement | null>(null);
   // A page sends its own trail; an index sends none, so the menu says where it sits.
@@ -69,6 +74,14 @@ export function AppLayout({ children }: { children: ReactNode }) {
       document.removeEventListener('keydown', onKeyDown);
     };
   }, [mobileOpen]);
+
+  useEffect(
+    () =>
+      onShowKeys(() => {
+        setKeys(true);
+      }),
+    [],
+  );
 
   useEffect(() => {
     if (!searchOn) {
@@ -201,6 +214,15 @@ export function AppLayout({ children }: { children: ReactNode }) {
           )}
         </Slot>
       </div>
+      {keys && (
+        <Suspense fallback={null}>
+          <KeysSheet
+            onClose={() => {
+              setKeys(false);
+            }}
+          />
+        </Suspense>
+      )}
       {searchOn && searching && (
         // The palette reads through the shared client even where no provider wraps the layout.
         <QueryClientProvider client={queryClient}>

@@ -73,7 +73,7 @@ describe('user menu', () => {
       Array.from(menu.querySelectorAll('[role="menuitem"], [data-lathe-appearance-slot]')).map((node) =>
         node.hasAttribute('data-lathe-appearance-slot') ? 'slot' : node.textContent,
       ),
-    ).toEqual(['Profile', 'Security', 'slot', 'Sign out']);
+    ).toEqual(['Profile', 'Security', 'Keyboard shortcuts', 'slot', 'Sign out']);
     expect(menu.textContent.startsWith('ALAda Lovelaceada@example.com')).toBe(true);
   });
 
