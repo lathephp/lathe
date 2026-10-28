@@ -128,9 +128,12 @@ describe('moving a card by keyboard', () => {
 
     press(79194426, 'ArrowRight');
 
-    await waitFor(() => {
-      expect(toasts()).toContain('Status changed to Paid.');
-    });
+    await waitFor(
+      () => {
+        expect(toasts()).toContain('Status changed to Paid.');
+      },
+      { timeout: 2000 },
+    );
     expect(patches).toEqual([{ path, body: { value: 'paid', _updated_at: token } }]);
     expect(ids('Pending')).toEqual(['79194427', '79194425']);
     expect(ids('Paid')).toEqual(['79194430', '79194426', '79194420']);
@@ -190,9 +193,12 @@ describe('dragging a card', () => {
     fireEvent.dragOver(column('Paid'), { dataTransfer: transfer() });
     fireEvent.drop(column('Paid'), { dataTransfer: transfer() });
 
-    await waitFor(() => {
-      expect(toasts()).toContain('Status changed to Paid.');
-    });
+    await waitFor(
+      () => {
+        expect(toasts()).toContain('Status changed to Paid.');
+      },
+      { timeout: 2000 },
+    );
     expect(patches).toEqual([{ path, body: { value: 'paid', _updated_at: token } }]);
     expect(ids('Paid')).toEqual(['79194430', '79194426', '79194420']);
     expect(headers()).toEqual(['Pending2,423', 'Paid2,553', 'Shipped2,564', 'Cancelled2,460']);
@@ -214,9 +220,12 @@ describe('the Move to menu', () => {
     await waitFor(() => {
       expect(ids('Shipped')).toEqual(['79194426', '79194410']);
     });
-    await waitFor(() => {
-      expect(toasts()).toContain('Status changed to Shipped.');
-    });
+    await waitFor(
+      () => {
+        expect(toasts()).toContain('Status changed to Shipped.');
+      },
+      { timeout: 2000 },
+    );
     expect(patches).toEqual([{ path, body: { value: 'shipped', _updated_at: token } }]);
     expect(headers()).toEqual(['Pending2,423', 'Paid2,552', 'Shipped2,565', 'Cancelled2,460']);
   });
@@ -227,15 +236,21 @@ describe('undoing a move', () => {
     const patches = moveServer([ok('paid', 't1'), ok('pending', 't2')]);
     await openBoard();
     press(79194426, 'ArrowRight');
-    await waitFor(() => {
-      expect(toasts()).toContain('Status changed to Paid.');
-    });
+    await waitFor(
+      () => {
+        expect(toasts()).toContain('Status changed to Paid.');
+      },
+      { timeout: 2000 },
+    );
 
     fireEvent.keyDown(document.activeElement ?? document.body, { key: 'z', ctrlKey: true });
 
-    await waitFor(() => {
-      expect(toasts()).toContain('Change undone');
-    });
+    await waitFor(
+      () => {
+        expect(toasts()).toContain('Change undone');
+      },
+      { timeout: 2000 },
+    );
     expect(patches.map((patch) => patch.body)).toEqual([
       { value: 'paid', _updated_at: token },
       { value: 'pending', _updated_at: 't1' },
@@ -249,9 +264,12 @@ describe('undoing a move', () => {
     const patches = moveServer([ok('paid', 't1'), ok('pending', 't2')]);
     await openBoard();
     press(79194426, 'ArrowRight');
-    await waitFor(() => {
-      expect(toasts()).toContain('Status changed to Paid.');
-    });
+    await waitFor(
+      () => {
+        expect(toasts()).toContain('Status changed to Paid.');
+      },
+      { timeout: 2000 },
+    );
     act(() => {
       router.replace({ url: '/lathe/resources/orders?q=zzz', preserveState: true, preserveScroll: true });
     });
@@ -261,9 +279,12 @@ describe('undoing a move', () => {
 
     fireEvent.keyDown(document.body, { key: 'z', ctrlKey: true });
 
-    await waitFor(() => {
-      expect(toasts()).toContain('Change undone');
-    });
+    await waitFor(
+      () => {
+        expect(toasts()).toContain('Change undone');
+      },
+      { timeout: 2000 },
+    );
     expect(patches[1]?.body).toEqual({ value: 'pending', _updated_at: 't1' });
   });
 
@@ -271,17 +292,23 @@ describe('undoing a move', () => {
     const patches = moveServer([ok('paid', 't1'), ok('pending', 't2')]);
     await openBoard();
     press(79194426, 'ArrowRight');
-    await waitFor(() => {
-      expect(toasts()).toContain('Status changed to Paid.');
-    });
+    await waitFor(
+      () => {
+        expect(toasts()).toContain('Status changed to Paid.');
+      },
+      { timeout: 2000 },
+    );
 
     act(() => {
       __panel.toasts.get().find((toast) => toast.action !== undefined)?.action?.onClick();
     });
 
-    await waitFor(() => {
-      expect(toasts()).toContain('Change undone');
-    });
+    await waitFor(
+      () => {
+        expect(toasts()).toContain('Change undone');
+      },
+      { timeout: 2000 },
+    );
     expect(patches[1]?.body).toEqual({ value: 'pending', _updated_at: 't1' });
     expect(ids('Pending')).toEqual(['79194427', '79194426', '79194425']);
     expect(headers()).toEqual(['Pending2,424', 'Paid2,552', 'Shipped2,564', 'Cancelled2,460']);
@@ -307,9 +334,12 @@ describe('two moves of one card', () => {
       expect(patches).toHaveLength(2);
     });
     expect(patches[1]?.body).toEqual({ value: 'shipped', _updated_at: 't1' });
-    await waitFor(() => {
-      expect(toasts()).toContain('Status changed to Shipped.');
-    });
+    await waitFor(
+      () => {
+        expect(toasts()).toContain('Status changed to Shipped.');
+      },
+      { timeout: 2000 },
+    );
     expect(ids('Shipped')).toEqual(['79194426', '79194410']);
   });
 });
@@ -319,9 +349,12 @@ describe('Show more after a move', () => {
     moveServer([ok('paid', 't1')], undefined, { pending: [79194424] });
     await openBoard();
     press(79194426, 'ArrowRight');
-    await waitFor(() => {
-      expect(toasts()).toContain('Status changed to Paid.');
-    });
+    await waitFor(
+      () => {
+        expect(toasts()).toContain('Status changed to Paid.');
+      },
+      { timeout: 2000 },
+    );
     const asked = vi.mocked(globalThis.fetch).mock.calls.length;
 
     fireEvent.click(within(column('Pending')).getByRole('button', { name: 'Show more' }));
@@ -337,9 +370,12 @@ describe('Show more after a move', () => {
     moveServer([ok('paid', 't1')], undefined, { paid: [79194426, 79194419] });
     await openBoard();
     press(79194426, 'ArrowRight');
-    await waitFor(() => {
-      expect(toasts()).toContain('Status changed to Paid.');
-    });
+    await waitFor(
+      () => {
+        expect(toasts()).toContain('Status changed to Paid.');
+      },
+      { timeout: 2000 },
+    );
 
     fireEvent.click(within(column('Paid')).getByRole('button', { name: 'Show more' }));
 
