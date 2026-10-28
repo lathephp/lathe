@@ -53,6 +53,16 @@ it('sorts on the column sortableUriKey names', function () {
         ->and($this->getJson('/lathe/api/resources/gap-orders?sort=placed_at')->assertOk()->json('state.sort'))->toBe('placed_at');
 });
 
+it('makes a select field filterable by its own options when filterable() names none', function () {
+    $request = LatheRequest::createFrom(request());
+    $listed = Field::select('Status')->options(['pending' => 'Pending', 'paid' => 'Paid'])->filterable()->makeFieldFilter();
+    $named = Field::select('Status')->options(['pending' => 'Pending', 'paid' => 'Paid'])->filterable(options: ['paid' => 'Paid'])->makeFieldFilter();
+
+    expect($listed)->toBeInstanceOf(FieldOptionsFilter::class)
+        ->and($listed->options($request))->toBe(['Pending' => 'pending', 'Paid' => 'paid'])
+        ->and($named->options($request))->toBe(['Paid' => 'paid']);
+});
+
 it('makes a select filter from filterable options and lets a Closure filter a computed field', function () {
     $status = Field::select('Status')->filterable(true, ['pending' => 'Pending'])->makeFieldFilter();
 

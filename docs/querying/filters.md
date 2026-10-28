@@ -271,8 +271,8 @@ Field::currency('Total', 'total_cents')->asMinorUnits()->filterable(scale: 100),
 
 The signature is `filterable(bool|Closure $filterable = true, ?array $options = null, int $scale = 1)`.
 
-- Without `$options`, the field gets a range filter with a minimum and a maximum.
-- With `$options`, it gets a select filter. Pass a list of values, or `value => label`.
+- Without `$options`, a select field gets a select filter of its own options, and any other field gets a range filter with a minimum and a maximum. A select with remote options gets the range filter too.
+- With `$options`, the field gets a select filter of those values. Pass a list of values, or `value => label`.
 - `scale` lets the inputs take the shown amount while the URL and the query keep the stored value. Use `100` for cents.
 - A `belongsTo`, `belongsToMany` or `morphTo` field gets a relation filter. It lists related records and goes remote after `limits.filter_remote_threshold` rows. A `morphTo` filter lists its types.
 

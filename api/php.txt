@@ -2193,6 +2193,7 @@ Lathe\Field\SelectField::freeze(): static
 Lathe\Field\SelectField::hasBadges(): bool
 Lathe\Field\SelectField::impliedRules(): array  [protected]
 Lathe\Field\SelectField::jsonSerialize(): array
+Lathe\Field\SelectField::makeFieldFilter(): Lathe\Filters\Filter
 Lathe\Field\SelectField::meter(array $except = array ( )): static
 Lathe\Field\SelectField::string $component  [protected]
 Lathe\Field\SelectField::supportsInline(): bool  [protected]

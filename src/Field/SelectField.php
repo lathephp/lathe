@@ -5,6 +5,8 @@ namespace Lathe\Field;
 use Illuminate\Validation\Rule;
 use InvalidArgumentException;
 use Lathe\Field\Contracts\FilterableField;
+use Lathe\Filters\FieldOptionsFilter;
+use Lathe\Filters\Filter;
 use LogicException;
 
 /**
@@ -60,6 +62,19 @@ class SelectField extends Field implements FilterableField
         $this->meterExcept = $except;
 
         return $this;
+    }
+
+    /**
+     * filterable() with no options of its own lists the field's options, unless they are remote:
+     * a range filter means nothing for a status.
+     */
+    public function makeFieldFilter(): Filter
+    {
+        if ($this->filterOptions !== null || $this->isRemote()) {
+            return parent::makeFieldFilter();
+        }
+
+        return new FieldOptionsFilter($this->label, $this->attribute, array_column($this->resolvedOptions(), 'label', 'value'), $this->filterCallback);
     }
 
     /**
