@@ -8,11 +8,11 @@ order: 1
 
 A Resource index is a workspace. Every Resource list, [lens](lenses.md) and relation table is a grid with one tab stop and a cell cursor. Tab moves focus into the table once and out of it once. Inside, the keys move the cursor from cell to cell.
 
-A click on a cell moves the cursor there. It does not open the row. What opens the row is `clickAction`, and it applies in two places: Enter on a cell that cannot be edited, and a click on the title cell.
+A click on a cell moves the cursor there. It does not open the row. A link in a cell, such as a related record's name, opens once its cell holds the cursor, so a link in another cell takes two clicks. What opens the row is `clickAction`, and it applies in two places: Enter on a cell that cannot be edited, and a click on the title cell.
 
 ## The parts of the page
 
-- The **views rail** sits at the card's left. It lists the Resource's tabs, the user's [saved views](saved-tabs.md) and the lenses. Below 1100 px, or while the preview panel is open, it folds into a Views menu at the start of the toolbar.
+- The **views rail** sits at the card's left. It lists the Resource's tabs, the user's [saved views](saved-tabs.md) and the lenses. Below 1100 px, or from 1280 px while the preview panel sits beside the list, it folds into a Views menu at the start of the toolbar.
 - The [filter bar](filter-bar.md) sits above the table. It searches and filters from one input.
 - The [preview panel](preview-panel.md) opens beside the list and shows the record under the cursor.
 - For a Resource with `->board()`, a Table/Board switch sits beside the filter bar. See [Board](board.md).

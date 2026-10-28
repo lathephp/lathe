@@ -23,7 +23,7 @@ The URL carries the row as `?preview=`, so a link opens the list with the panel 
 
 Each user's panel is open or closed per Resource, and Lathe keeps that on the server. `PUT api/resources/{resource}/preview-panel` saves it with an `open` flag. A list the user left with the panel open opens it again on the first row. On a phone it stays closed until the user asks for a record.
 
-While the panel is open, the views rail folds into the Views menu. See [Workspace](workspace.md).
+From 1280 px wide the panel sits beside the list, and the views rail folds into the Views menu to make room. Below that the panel lies over the list. See [Workspace](workspace.md).
 
 ## Choose the fields
 

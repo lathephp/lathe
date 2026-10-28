@@ -35,7 +35,7 @@ What a value looks like depends on the filter:
 | Range | A number, `>n`, `<n` or `a..b`: `total:>1500`, `total:10..50`. |
 | Date | `YYYY-MM-DD`, `>date`, `<date` or `a..b`. |
 | Boolean with one option | `yes` or `no`. |
-| Relation | The start of a related record's name: `customer:"Ann Taylor"`. The bar looks it up and adds the chip. |
+| Relation | A related record's name: `customer:"Ann Taylor"`. When the related table is large enough to search on the server, the start of the name is enough; the bar looks it up and adds the chip. A small one lists its records, and the name must match one in full. |
 | Text | The text. |
 
 A list of values needs the filter to be `->multiple()`. A select filter without it takes one value, and `status:pending,paid` shows a red chip:
@@ -72,7 +72,7 @@ Reload the page or share the link and the same chips come back from the URL.
 
 A click on the bar lists the Resource's filters. Type the start of a name or a key, such as `sta`, and the list narrows. Choose a filter and its key goes into the input, and the list shows its values. A relation lists its options from a search. A range, date or text filter shows its grammar. Choose a value and the chip is added.
 
-A Resource that cannot search names the bar "Filter" and takes tokens only.
+A Resource that cannot search names the bar after itself, such as "Filter orders", and takes tokens only.
 
 ## What you see
 

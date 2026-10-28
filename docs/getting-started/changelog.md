@@ -11,7 +11,7 @@ Every change to Lathe is listed in `CHANGELOG.md` at the root of the [lathephp/l
 ## How versions work
 
 - Lathe follows Semantic Versioning. The Composer package and the three npm packages (`@lathephp/core`, `@lathephp/ui`, `@lathephp/vite-plugin`) always share one version number.
-- An entry marked `[api]` changes the public API. The [upgrade guide](upgrade.md) lists them between two releases.
+- An entry marked `[api]` changes the public API. The [upgrade guide](upgrade.md) lists them between two releases, with the other entries under Changed as behaviour changes.
 - Every change of behaviour, including a changed default, has an entry.
 
 ## 1.0.0-beta.1

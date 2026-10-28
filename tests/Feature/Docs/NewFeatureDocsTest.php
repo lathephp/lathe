@@ -57,7 +57,7 @@ it('shows customizable(false) in a php block on the dashboards page', function (
 it('names each workspace key on the workspace page', function (string $key) {
     expect(newFeaturePage('querying/workspace.md'))->toContain($key);
 })->with([
-    'Home', 'End', 'Page Up', 'Page Down', 'Enter', 'F2', 'Esc', 'Tab', 'Space', 'X', 'Shift', 'Ctrl', 'Cmd',
+    'Arrow', 'Home', 'End', 'Page Up', 'Page Down', 'Enter', 'F2', 'Esc', 'Tab', 'Space', 'X', 'Shift', 'Ctrl', 'Cmd',
     '`?`', 'Ctrl/Cmd+A', 'Ctrl/Cmd+Z',
 ])->group('frontend');
 
