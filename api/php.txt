@@ -2673,6 +2673,7 @@ Lathe\Http\Payloads\IndexPayload::count(string $class, ?Lathe\Lenses\Lens $lens 
 Lathe\Http\Payloads\IndexPayload::groups(Lathe\Resources\Resource $resource, ?array $active, ?Lathe\Lenses\Lens $lens): array  [protected]
 Lathe\Http\Payloads\IndexPayload::key(Illuminate\Database\Eloquent\Model $model): string|int
 Lathe\Http\Payloads\IndexPayload::lensEntry(Lathe\Lenses\Lens $lens): array  [protected]
+Lathe\Http\Payloads\IndexPayload::openSavedFilters(Lathe\Resources\Resource $resource, ?Lathe\Lenses\Lens $lens): array  [protected]
 Lathe\Http\Payloads\IndexPayload::query(Lathe\Resources\Resource $resource, ?Lathe\Lenses\Lens $lens): Lathe\Query\ResourceQuery  [protected]
 Lathe\Http\Payloads\IndexPayload::remoteLabels(array $available, array $definitions, array $applied): array  [protected]
 Lathe\Http\Payloads\IndexPayload::resource(string $class): array

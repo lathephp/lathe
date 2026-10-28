@@ -193,6 +193,8 @@ export interface SavedTab {
   /** The Resource's filters or sorts changed since the save; filters and sort are what still applies. */
   stale: boolean;
   filters: Record<string, unknown>;
+  /** The saved search. */
+  q?: string | null;
   sort: string | null;
 }
 

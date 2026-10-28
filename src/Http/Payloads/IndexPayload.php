@@ -124,7 +124,8 @@ class IndexPayload
             'filters' => [
                 'available' => $definitions,
                 'applied' => $applied,
-                'labels' => $this->remoteLabels($available, $definitions, $applied),
+                // An open saved view's filters draw as chips too, so their names come along.
+                'labels' => array_replace_recursive($this->remoteLabels($available, $definitions, $this->openSavedFilters($resource, $lens)), $this->remoteLabels($available, $definitions, $applied)),
             ],
             'tabs' => [
                 'items' => $lens !== null ? [] : array_map(fn (Tab $tab) => $tab->toArray(), $query->tabs()),
@@ -394,7 +395,7 @@ class IndexPayload
     /**
      * The user's saved tabs: filters and sort are the cleaned values a Reset saves back.
      *
-     * @return list<array{id: int, name: string, badgeType: string|null, showCount: bool, stale: bool, filters: array<string, mixed>, sort: string|null}>
+     * @return list<array{id: int, name: string, badgeType: string|null, showCount: bool, stale: bool, filters: array<string, mixed>, q: string|null, sort: string|null}>
      */
     protected function savedTabs(Resource $resource, ResourceQuery $query): array
     {
@@ -417,9 +418,22 @@ class IndexPayload
                 'showCount' => $tab->show_count,
                 'stale' => $applicator->isStale($sortKeys, $hash),
                 'filters' => $applicator->filters(),
+                'q' => $tab->q,
                 'sort' => $applicator->applySort($sortKeys),
             ];
         })->all());
+    }
+
+    /**
+     * The filters of the saved view ?saved_tab= opens, as they still apply; none on a lens or without one.
+     *
+     * @return array<string, mixed>
+     */
+    protected function openSavedFilters(Resource $resource, ?Lens $lens): array
+    {
+        $tab = $lens === null && SavedTabQueryApplicator::enabled($resource) ? SavedTabQueryApplicator::active($resource, $this->request) : null;
+
+        return $tab === null ? [] : (new SavedTabQueryApplicator($resource, $this->request, $tab))->filters();
     }
 
     protected function activeSavedTab(Resource $resource): ?int

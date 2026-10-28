@@ -134,3 +134,13 @@ it('counts a show_count saved tab under saved:<id> with the cap', function () {
     expect($counts["saved:{$tab->id}"]['count'])->toMatchArray(['value' => 3, 'capped' => true])
         ->and($counts)->not->toHaveKey("saved:{$quiet->id}");
 });
+
+it('sends an open saved view its search and the names of the customers it filters by, for the filter bar', function () {
+    $customer = Workbench\App\Models\Customer::query()->firstOrFail();
+    $tab = savedTabApplyMake($this->admin, ['filters' => ['customer' => (string) $customer->id], 'q' => 'ORD']);
+
+    $json = $this->getJson("/lathe/api/resources/orders?saved_tab={$tab->id}")->assertOk()->json();
+
+    expect($json['tabs']['saved'][0]['q'])->toBe('ORD')
+        ->and($json['filters']['labels'])->toBe(['customer' => [(string) $customer->id => $customer->name]]);
+});

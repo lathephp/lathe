@@ -46,6 +46,8 @@ interface FilterBarEditorProps {
   url: string;
   /** The chips the URL holds, with the first paint's labels. */
   urlChips: FilterChip[];
+  /** On a saved view, what leaving it sets: no saved_tab, the view's search and sort. */
+  leave: IndexUrlState;
   text: string;
   /** Whether the first paint's input had the focus when the editor took over. */
   focus: boolean;
@@ -59,7 +61,7 @@ interface FilterBarEditorProps {
 const applied = (chip: FilterChip) => chip.error === undefined;
 
 /** The filter bar once focused: a Base UI chips input where Enter turns key:value tokens into chips and words into q. */
-export function FilterBarEditor({ label, url, urlChips, text, focus, pressed, onType, onSettle, visit }: FilterBarEditorProps) {
+export function FilterBarEditor({ label, url, urlChips, leave, text, focus, pressed, onType, onSettle, visit }: FilterBarEditorProps) {
   const { __ } = useTranslation();
   const page = usePage<IndexProps & SharedProps>();
   const { resource, filters, basePath } = page.props;
@@ -133,7 +135,7 @@ export function FilterBarEditor({ label, url, urlChips, text, focus, pressed, on
     const state = toUrlState(next);
 
     deferFilterVisit(() => {
-      visit({ filter: state.filter, trashed: state.trashed, ...changes });
+      visit({ ...leave, filter: state.filter, trashed: state.trashed, ...changes });
     }, waitMs);
   }
 
@@ -151,7 +153,7 @@ export function FilterBarEditor({ label, url, urlChips, text, focus, pressed, on
     const replaced = new Set(added.filter(applied).map((chip) => chip.key));
     const next = [...latest.current.filter((chip) => !applied(chip) || !replaced.has(chip.key)), ...added];
     // The words left after Enter are the whole search, so a search a half-typed key started goes; a Resource that cannot search ignores them.
-    const searched = new URLSearchParams(url.split('?')[1] ?? '').get('q') ?? '';
+    const searched = leave.q ?? new URLSearchParams(url.split('?')[1] ?? '').get('q') ?? '';
     const changes: IndexUrlState = resource.searchable && words !== searched ? { q: words } : {};
 
     setChips(next);

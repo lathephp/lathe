@@ -6,14 +6,44 @@ import type { SharedProps } from '../types';
 import type { FilterChip } from './filterTokens';
 import { activeFilters, cancelFilterVisit, chipValue } from './FilterChips';
 import { FilterBarEditor } from './lazy';
-import type { IndexProps } from './types';
-import { type IndexUrlState, parseQuery } from './useIndexState';
+import type { IndexProps, SavedTab } from './types';
+import { type FilterValue, type IndexUrlState, parseQuery } from './useIndexState';
 
-type BarProps = Pick<IndexProps, 'resource' | 'filters' | 'staleFilters'>;
+type BarProps = Pick<IndexProps, 'resource' | 'filters' | 'staleFilters' | 'tabs'>;
 
-/** The chips the URL holds: one per filter key the Resource still declares, then trashed. */
-export function urlChips(url: string, { resource, filters, staleFilters = [] }: BarProps, __: Translator): FilterChip[] {
-  const chips: FilterChip[] = Object.entries(activeFilters(url, staleFilters)).map(([key, value]) => {
+/** The saved view ?saved_tab= opens, if any. */
+export function openView({ tabs }: BarProps): SavedTab | undefined {
+  return tabs?.saved?.find((tab) => tab.id === tabs.activeSaved);
+}
+
+/** A value as the server cleans it (numbers, booleans, an empty side as null) in the URL's shape. */
+function urlShape(value: unknown): FilterValue {
+  const text = (item: unknown) => (typeof item === 'boolean' ? (item ? '1' : '0') : String(item));
+
+  if (Array.isArray(value)) {
+    return value.map(text);
+  }
+
+  if (typeof value === 'object' && value !== null) {
+    return Object.fromEntries(Object.entries(value).filter(([, side]) => side !== null && side !== '').map(([side, item]) => [side, text(item)]));
+  }
+
+  return text(value);
+}
+
+/** The chips' filters and trashed choice as the URL writes them. */
+export function chipsState(chips: FilterChip[]): Pick<IndexUrlState, 'filter' | 'trashed'> {
+  return {
+    filter: Object.fromEntries(chips.filter((chip) => chip.key !== 'trashed').map((chip) => [chip.key, chip.value ?? ''])),
+    trashed: chips.find((chip) => chip.key === 'trashed')?.value as string | undefined,
+  };
+}
+
+/** The chips the URL holds, over those of the saved view it opens: one per filter key the Resource still declares, then trashed. */
+export function urlChips(url: string, props: BarProps, __: Translator): FilterChip[] {
+  const { resource, filters, staleFilters = [] } = props;
+  const view = Object.fromEntries(Object.entries(openView(props)?.filters ?? {}).map(([key, value]) => [key, urlShape(value)]));
+  const chips: FilterChip[] = Object.entries({ ...view, ...activeFilters(url, staleFilters) }).map(([key, value]) => {
     const filter = filters?.available.find((candidate) => candidate.key === key);
     const label = `${filter?.name ?? key}: ${chipValue(value, filter, filters?.labels?.[key])}`;
 
@@ -44,7 +74,11 @@ export function FilterBar({ q = '', visit }: FilterBarProps) {
   const { __ } = useTranslation();
   const page = usePage<IndexProps & SharedProps>();
   const { resource } = page.props;
-  const [text, setText] = useState(q);
+  const view = openView(page.props);
+  // A chip or search changed on a saved view leaves it, keeping the view's search and sort.
+  const leave: IndexUrlState =
+    view === undefined ? {} : { saved_tab: undefined, q: q === '' ? (view.q ?? undefined) : q, sort: parseQuery(page.url.split('?')[1] ?? '').sort ?? view.sort ?? undefined };
+  const [text, setText] = useState(q === '' ? (view?.q ?? '') : q);
   const [seen, setSeen] = useState(q);
   // Null until the editor has loaded after a focus; then whether the input had the focus at that moment,
   // and whether a press on it gave that focus.
@@ -91,7 +125,7 @@ export function FilterBar({ q = '', visit }: FilterBarProps) {
     if (resource.searchable && !next.includes(':')) {
       timer.current = setTimeout(() => {
         // An empty term leaves q out of the URL.
-        visit({ q: next.trim() });
+        visit(view === undefined ? { q: next.trim() } : { ...leave, ...chipsState(chips), q: next.trim() });
       }, resource.definition.debounce * 1000);
     }
   }
@@ -109,12 +143,8 @@ export function FilterBar({ q = '', visit }: FilterBarProps) {
   }
 
   function remove(chip: FilterChip) {
-    const rest = chips.filter((other) => other !== chip);
     cancelFilterVisit();
-    visit({
-      filter: Object.fromEntries(rest.filter((other) => other.key !== 'trashed').map((other) => [other.key, other.value ?? ''])),
-      trashed: rest.find((other) => other.key === 'trashed')?.value as string | undefined,
-    });
+    visit({ ...leave, ...chipsState(chips.filter((other) => other !== chip)) });
   }
 
   return (
@@ -166,7 +196,7 @@ export function FilterBar({ q = '', visit }: FilterBarProps) {
         </div>
       ) : (
         <Suspense fallback={null}>
-          <FilterBarEditor label={label} url={page.url} urlChips={chips} text={text} focus={editor.focus} pressed={editor.pressed} onType={type} onSettle={settle} visit={visit} />
+          <FilterBarEditor label={label} url={page.url} urlChips={chips} leave={leave} text={text} focus={editor.focus} pressed={editor.pressed} onType={type} onSettle={settle} visit={visit} />
         </Suspense>
       )}
     </div>
