@@ -151,6 +151,7 @@ export function ResourceTable({ resource, table, state, loading, selection, sort
       tick(shown[to]?.id, true);
     },
     clear: () => {
+      anchor.current = undefined;
       selection.clear?.();
     },
   });

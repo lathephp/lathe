@@ -136,8 +136,8 @@ export function attachGrid(table: HTMLTableElement, select: { current: GridSelec
     } else if (event.key === 'x' || event.key === 'X') {
       event.preventDefault();
       select.current.toggle(found.row);
-    } else if (event.key === 'Escape' && event.target === found.cell) {
-      // Only from the cell itself: a menu or a preview in the row closes on its own Escape.
+    } else if (event.key === 'Escape' && (event.target === found.cell || event.target instanceof HTMLInputElement)) {
+      // From the cell or its checkbox only: a row menu closes on its own Escape.
       select.current.clear();
     } else if (event.key === '?') {
       event.preventDefault();

@@ -81,6 +81,16 @@ describe('selecting rows from the grid', () => {
     expect(bar()).toBe('1 selected');
 
     await press('Escape');
+    expect(bar()).toBeNull();
+
+    // A click on a checkbox focuses it, and Esc from there clears too.
+    const box = screen.getByRole('checkbox', { name: 'Select ORD-4' });
+    act(() => {
+      box.focus();
+    });
+    fireEvent.click(box);
+    expect(bar()).toBe('1 selected');
+    await press('Escape');
 
     expect(bar()).toBeNull();
   });
