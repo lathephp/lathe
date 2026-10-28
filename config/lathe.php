@@ -237,7 +237,7 @@ return [
         'appearance' => 'system',
         'radius' => '0.5rem',
         'style' => 'nova',
-        // null uses the bundled Inter Variable. To use your own font, set
+        // null uses the bundled Archivo. To use your own font, set
         // ['family' => 'Acme Sans', 'fallback' => 'sans-serif', 'files' => [['url' => '/fonts/acme.woff2', 'weight' => 400, 'style' => 'normal']]],
         // with the files under your public folder. A family without files must be a system font stack.
         'font' => null,

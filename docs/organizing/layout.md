@@ -350,7 +350,7 @@ The panel also defines `shadow-xs`, `shadow-sm`, `shadow-md` and `shadow-lg`, th
 
 Each colour token is also a utility colour, such as `bg-success-subtle` or `text-brand`.
 
-`theme.font` swaps the typeface. The default is Inter, which the package carries, so the browser fetches nothing from another site. To use your own font, name the family and list woff2 files under your `public` folder:
+`theme.font` swaps the typeface. The default is Archivo, which the package carries in its latin and latin-ext subsets with its width and weight axes, so the browser fetches nothing from another site. Page and record titles use its wide 122% width. To use your own font, name the family and list woff2 files under your `public` folder:
 
 ```php
 'theme' => [

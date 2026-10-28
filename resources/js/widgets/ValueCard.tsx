@@ -36,7 +36,7 @@ export function ValueCard({ widget, value }: WidgetRendererProps) {
             <WidgetIcon name={icon} />
           </Suspense>
         )}
-        <p className="truncate text-lg leading-6 font-[650] tabular-nums md:text-[26px] md:leading-8 md:tracking-[-0.02em]">
+        <p className="truncate text-lg leading-6 font-[650] font-stretch-[122%] tabular-nums md:text-[26px] md:leading-8 md:tracking-[-0.02em]">
           {/* Every digit on a desktop; a phone shows the short form and reads the full one aloud. */}
           {short === full ? (
             full

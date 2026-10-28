@@ -75,7 +75,7 @@ export function PartitionCard({ widget, value }: WidgetRendererProps) {
             </ChartContainer>
             {/* The whole the shares add up to, in the hole of the donut. */}
             <div aria-hidden="true" className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center">
-              <span className="text-lg leading-6 font-[650] tabular-nums">{format(total)}</span>
+              <span className="text-lg leading-6 font-[650] font-stretch-[122%] tabular-nums">{format(total)}</span>
               <span className="text-[11px] text-muted-foreground">{__('Total')}</span>
             </div>
           </div>

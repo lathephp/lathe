@@ -10,10 +10,10 @@ use Workbench\App\Models\User;
 beforeEach(function () {
     $this->dist = sys_get_temp_dir().'/lathe-font-'.bin2hex(random_bytes(4));
     File::ensureDirectoryExists("{$this->dist}/assets");
-    File::put("{$this->dist}/assets/inter-latin-wght-normal-fo0nt123.woff2", 'woff2-bytes');
+    File::put("{$this->dist}/assets/archivo-latin-wdth-wght-normal-fo0nt123.woff2", 'woff2-bytes');
     File::put("{$this->dist}/manifest.json", json_encode([
         'resources/js/app.tsx' => ['file' => 'assets/app-abcd1234.js', 'isEntry' => true, 'css' => ['assets/app-ffff0000.css']],
-        'resources/fonts/inter-latin-wght-normal.woff2' => ['file' => 'assets/inter-latin-wght-normal-fo0nt123.woff2'],
+        'resources/fonts/archivo-latin-wdth-wght-normal.woff2' => ['file' => 'assets/archivo-latin-wdth-wght-normal-fo0nt123.woff2'],
     ]));
     Lathe::assets()->useDistPath($this->dist);
 
@@ -35,12 +35,12 @@ it('preloads the bundled font from the panel assets with the nonce', function ()
     $html = fontPageSource();
 
     preg_match_all('/<link rel="preload"[^>]*>/', $html, $links);
-    expect($links[0])->toBe(['<link rel="preload" as="font" type="font/woff2" href="/lathe/assets/abcd1234/inter-latin-wght-normal-fo0nt123.woff2" crossorigin nonce="n0nce">']);
+    expect($links[0])->toBe(['<link rel="preload" as="font" type="font/woff2" href="/lathe/assets/abcd1234/archivo-latin-wdth-wght-normal-fo0nt123.woff2" crossorigin nonce="n0nce">']);
 });
 
 it('serves the bundled font as woff2', function () {
     $this->actingAs($this->admin)
-        ->get('/lathe/assets/abcd1234/inter-latin-wght-normal-fo0nt123.woff2')
+        ->get('/lathe/assets/abcd1234/archivo-latin-wdth-wght-normal-fo0nt123.woff2')
         ->assertOk()
         ->assertHeader('Content-Type', 'font/woff2');
 });
@@ -90,4 +90,42 @@ it('prints no font warning for a system stack', function () {
     Artisan::call('lathe:doctor');
 
     expect(Artisan::output())->not->toContain('theme.font');
+});
+
+/** The body of the first rule of app.css that starts with the selector. */
+function appCssRule(string $selector): string
+{
+    $css = (string) file_get_contents(dirname(__DIR__, 3).'/resources/css/app.css');
+    $start = strpos($css, $selector);
+    expect($start)->not->toBeFalse("app.css has no {$selector} rule");
+
+    return substr($css, (int) $start, (int) strpos($css, '}', (int) $start) - (int) $start);
+}
+
+it('ships Archivo with its width and weight axes in latin and latin-ext, and no Inter', function () {
+    $fonts = dirname(__DIR__, 3).'/resources/fonts';
+    $css = (string) file_get_contents(dirname(__DIR__, 3).'/resources/css/app.css');
+    preg_match_all('/@font-face\s*\{[^}]*\}/', $css, $faces);
+
+    expect($faces[0])->toHaveCount(2)
+        ->and(implode("\n", $faces[0]))->toContain('font-family: "Archivo"')
+        ->toContain('font-stretch: 62% 125%')
+        ->toContain('font-weight: 100 900')
+        ->toContain('url("../fonts/archivo-latin-wdth-wght-normal.woff2")')
+        ->toContain('url("../fonts/archivo-latin-ext-wdth-wght-normal.woff2")')
+        ->and(substr_count(implode("\n", $faces[0]), 'unicode-range:'))->toBe(2)
+        ->and(filesize("{$fonts}/archivo-latin-wdth-wght-normal.woff2"))->toBe(90104)
+        ->and(filesize("{$fonts}/archivo-latin-ext-wdth-wght-normal.woff2"))->toBe(86240)
+        ->and(glob("{$fonts}/inter-*"))->toBe([])
+        ->and((string) file_get_contents("{$fonts}/OFL.txt"))->toContain('The Archivo Project Authors')
+        ->and($css)->not->toContain('fonts.googleapis.com')
+        ->not->toContain('fonts.gstatic.com');
+});
+
+it('starts the sans stack with Archivo', function () {
+    expect(appCssRule('@theme {'))->toContain('--font-sans: "Archivo",');
+});
+
+it('sets the page and record title at the nameplate width', function () {
+    expect(appCssRule('.lathe-page-title {'))->toContain('font-stretch-[122%]');
 });

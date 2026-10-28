@@ -11,17 +11,30 @@
 @source "../../packages/core/src";
 @source "../../packages/ui/src";
 
-/* Inter Variable, latin subset, served from the panel's own assets. theme.font replaces --font-sans. */
+/* Archivo, one variable file per subset with its width and weight axes, served from the panel's
+   own assets so no request leaves the panel. theme.font replaces --font-sans. */
 @font-face {
-  font-family: "Inter Variable";
+  font-family: "Archivo";
   font-style: normal;
   font-display: swap;
   font-weight: 100 900;
-  src: url("../fonts/inter-latin-wght-normal.woff2") format("woff2-variations");
+  font-stretch: 62% 125%;
+  src: url("../fonts/archivo-latin-ext-wdth-wght-normal.woff2") format("woff2-variations");
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+
+@font-face {
+  font-family: "Archivo";
+  font-style: normal;
+  font-display: swap;
+  font-weight: 100 900;
+  font-stretch: 62% 125%;
+  src: url("../fonts/archivo-latin-wdth-wght-normal.woff2") format("woff2-variations");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
 }
 
 @theme {
-  --font-sans: "Inter Variable", ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+  --font-sans: "Archivo", "Helvetica Neue", Arial, ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
   /* A skeleton's light sweeps across it; a bar of unknown length slides along its track. */
   --animate-lathe-shimmer: lathe-shimmer 1.6s ease-in-out infinite;
   --animate-lathe-indeterminate: lathe-indeterminate 1.4s ease-in-out infinite;
@@ -445,8 +458,9 @@
     @apply flex min-w-0 flex-col gap-1;
   }
 
+  /* The nameplate width: page and record titles, like the plate on a machine. */
   .lathe-page-title {
-    @apply truncate text-[22px] leading-7 font-[650] tracking-[-0.01em];
+    @apply truncate text-[22px] leading-7 font-[640] font-stretch-[122%] tracking-[-0.01em];
   }
 
   /* The top bar shows a phone's title; the h1 stays for screen readers. */

@@ -19,7 +19,7 @@ export function ProgressCard({ value }: WidgetRendererProps) {
 
   return (
     <div className="flex flex-col gap-1 md:gap-1.5">
-      <p className="truncate text-lg leading-6 font-[650] tabular-nums md:text-[26px] md:leading-8 md:tracking-[-0.02em]">
+      <p className="truncate text-lg leading-6 font-[650] font-stretch-[122%] tabular-nums md:text-[26px] md:leading-8 md:tracking-[-0.02em]">
         <span>{formatMetric(result.value, result)}</span>{' '}
         <span className="text-[13px] font-medium tracking-normal text-muted-foreground md:text-[15px]">{__('of :total', { total: formatMetric(result.target, result, true) })}</span>
       </p>
