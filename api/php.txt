@@ -1541,6 +1541,7 @@ Lathe\Field\Field::Closure|array $nullValues  [protected]
 Lathe\Field\Field::Closure|bool $immutable  [protected]
 Lathe\Field\Field::Closure|bool $readonly  [protected]
 Lathe\Field\Field::Closure|bool $required  [protected]
+Lathe\Field\Field::Closure|bool|null $previewHide  [protected]
 Lathe\Field\Field::Lathe\Field\FieldLifecycle $lifecycle  [protected]
 Lathe\Field\Field::__construct(string $label, Closure|string|null $attribute = NULL, ?Closure $resolver = NULL)
 Lathe\Field\Field::addDependency(array|string $attributes, Closure $callback, ?Lathe\Field\FieldContext $context): static  [protected]
@@ -1610,6 +1611,7 @@ Lathe\Field\Field::int $filterScale  [protected]
 Lathe\Field\Field::isComputed(): bool
 Lathe\Field\Field::isFilterable(): bool
 Lathe\Field\Field::isFrozen(): bool
+Lathe\Field\Field::isHiddenFromPreview(?Lathe\Http\Requests\LatheRequest $request = NULL, mixed $model = NULL): bool
 Lathe\Field\Field::isImmutable(?Lathe\Http\Requests\LatheRequest $request = NULL, mixed $model = NULL): bool
 Lathe\Field\Field::isInlineEditable(?Lathe\Http\Requests\LatheRequest $request = NULL): bool
 Lathe\Field\Field::isLocked(?Lathe\Http\Requests\LatheRequest $request = NULL, mixed $model = NULL): bool
@@ -2550,8 +2552,9 @@ Lathe\Http\Controllers\Resources\LensController::index(Lathe\Http\Requests\Lathe
 Lathe\Http\Controllers\Resources\LensController::page(Lathe\Http\Requests\LatheRequest $request, Lathe\Auth\ResourceAuthorization $authorization, Lathe\Http\Payloads\IndexPayload $payload): Symfony\Component\HttpFoundation\Response
 Lathe\Http\Controllers\Resources\LensController::viewableLens(Lathe\Http\Requests\LatheRequest $request, Lathe\Auth\ResourceAuthorization $authorization): array  [protected]
 Lathe\Http\Controllers\Resources\PeekController::peek(Lathe\Http\Requests\LatheRequest $request, Lathe\Auth\ResourceAuthorization $authorization, Lathe\Http\Payloads\RecordPayload $payload, string $resource, string $resourceId): Illuminate\Http\JsonResponse
-Lathe\Http\Controllers\Resources\PeekController::preview(Lathe\Http\Requests\LatheRequest $request, Lathe\Auth\ResourceAuthorization $authorization, Lathe\Http\Payloads\RecordPayload $payload, string $resource, string $resourceId): Illuminate\Http\JsonResponse
-Lathe\Http\Controllers\Resources\PeekController::respond(Lathe\Http\Requests\LatheRequest $request, Lathe\Auth\ResourceAuthorization $authorization, Lathe\Http\Payloads\RecordPayload $payload, string $resourceId, Lathe\Field\FieldContext $context): Illuminate\Http\JsonResponse  [protected]
+Lathe\Http\Controllers\Resources\PeekController::preview(Lathe\Http\Requests\LatheRequest $request, Lathe\Auth\ResourceAuthorization $authorization, Lathe\Http\Payloads\RecordPayload $payload, Lathe\Actions\ActionMenu $menu, string $resource, string $resourceId): Illuminate\Http\JsonResponse
+Lathe\Http\Controllers\Resources\PeekController::record(Lathe\Http\Requests\LatheRequest $request, Lathe\Auth\ResourceAuthorization $authorization, string $class, string $resourceId): Illuminate\Database\Eloquent\Model  [protected]
+Lathe\Http\Controllers\Resources\PreviewPreferenceController::update(Lathe\Http\Requests\LatheRequest $request, Lathe\Auth\ResourceAuthorization $authorization): Illuminate\Http\Response
 Lathe\Http\Controllers\Resources\RecordController::fillAndSave(Lathe\Http\Requests\LatheRequest $request, Illuminate\Database\Eloquent\Model $model, array $fields): void  [protected]
 Lathe\Http\Controllers\Resources\RecordController::store(Lathe\Http\Requests\LatheRequest $request, Lathe\Auth\ResourceAuthorization $authorization, string $resource): Illuminate\Http\JsonResponse
 Lathe\Http\Controllers\Resources\RecordController::update(Lathe\Http\Requests\LatheRequest $request, Lathe\Auth\ResourceAuthorization $authorization, string $resource, string $resourceId): Illuminate\Http\JsonResponse
@@ -2665,7 +2668,6 @@ Lathe\Http\Payloads\IndexPayload::activeSavedTab(Lathe\Resources\Resource $resou
 Lathe\Http\Payloads\IndexPayload::build(string $class, ?Lathe\Lenses\Lens $lens = NULL): array
 Lathe\Http\Payloads\IndexPayload::checkRowKeys(string $class, string $rowKey, Illuminate\Database\Eloquent\Collection $rows): void  [protected]
 Lathe\Http\Payloads\IndexPayload::chosenColumns(array $fields, array $choice): array  [protected]
-Lathe\Http\Payloads\IndexPayload::columnChoice(string $class, array $fields): ?array  [protected]
 Lathe\Http\Payloads\IndexPayload::columns(Lathe\Resources\Resource $resource, ?Lathe\Lenses\Lens $lens = NULL): array
 Lathe\Http\Payloads\IndexPayload::count(string $class, ?Lathe\Lenses\Lens $lens = NULL): ?array
 Lathe\Http\Payloads\IndexPayload::groups(Lathe\Resources\Resource $resource, ?array $active, ?Lathe\Lenses\Lens $lens): array  [protected]
@@ -2674,6 +2676,7 @@ Lathe\Http\Payloads\IndexPayload::lensEntry(Lathe\Lenses\Lens $lens): array  [pr
 Lathe\Http\Payloads\IndexPayload::query(Lathe\Resources\Resource $resource, ?Lathe\Lenses\Lens $lens): Lathe\Query\ResourceQuery  [protected]
 Lathe\Http\Payloads\IndexPayload::remoteLabels(array $available, array $definitions, array $applied): array  [protected]
 Lathe\Http\Payloads\IndexPayload::resource(string $class): array
+Lathe\Http\Payloads\IndexPayload::savedPreferences(string $class, array $fields, bool $withColumns): array  [protected]
 Lathe\Http\Payloads\IndexPayload::savedTabModels(Lathe\Resources\Resource $resource): Illuminate\Database\Eloquent\Collection  [protected]
 Lathe\Http\Payloads\IndexPayload::savedTabs(Lathe\Resources\Resource $resource, Lathe\Query\ResourceQuery $query): array  [protected]
 Lathe\Http\Payloads\IndexPayload::summaries(string $class): ?array
@@ -2684,11 +2687,13 @@ Lathe\Http\Payloads\RecordPayload::Lathe\Auth\ResourceAuthorization $authorizati
 Lathe\Http\Payloads\RecordPayload::Lathe\Http\Requests\LatheRequest $request  [protected]
 Lathe\Http\Payloads\RecordPayload::Lathe\Support\ConfigStore $config  [protected]
 Lathe\Http\Payloads\RecordPayload::__construct(Lathe\Http\Requests\LatheRequest $request, Lathe\Auth\ResourceAuthorization $authorization, Lathe\Support\ConfigStore $config)
+Lathe\Http\Payloads\RecordPayload::abilities(string $class, Illuminate\Database\Eloquent\Model $model): array
 Lathe\Http\Payloads\RecordPayload::breadcrumbs(string $class, array $tail): array
 Lathe\Http\Payloads\RecordPayload::creationFields(string $class, ?Lathe\Resources\Via $via = NULL): array
 Lathe\Http\Payloads\RecordPayload::detail(string $class, Illuminate\Database\Eloquent\Model $model): array
 Lathe\Http\Payloads\RecordPayload::fields(string $class, Lathe\Field\FieldContext $context, ?Illuminate\Database\Eloquent\Model $model = NULL): array  [protected]
 Lathe\Http\Payloads\RecordPayload::href(string $path): string
+Lathe\Http\Payloads\RecordPayload::previewFields(string $class, ?Illuminate\Database\Eloquent\Model $model, ?array $keys): array  [protected]
 Lathe\Http\Payloads\RecordPayload::replicateFields(string $class, Illuminate\Database\Eloquent\Model $model): array
 Lathe\Http\Payloads\RecordPayload::resourcePlugin(string $class, Lathe\Plugins\ResourcePlugin $plugin): array  [protected]
 Lathe\Http\Payloads\RecordPayload::summary(string $class, Illuminate\Database\Eloquent\Model $model, Lathe\Field\FieldContext $context): array
@@ -3210,6 +3215,7 @@ Lathe\Preferences\ColumnChoice::known(array $codeKeys, mixed $keys): array  [pro
 Lathe\Preferences\ColumnChoice::visible(array $codeKeys, ?array $choice): array  [static]
 Lathe\Preferences\DashboardLayout::age(array $saved, array $codeWidths): array  [static]
 Lathe\Preferences\DashboardLayout::key(string $uriKey): string  [static]
+Lathe\Preferences\PreviewState::key(string $uriKey): string  [static]
 Lathe\Preferences\UserPreference::$fillable  [protected]
 Lathe\Preferences\UserPreference::$table  [protected]
 Lathe\Preferences\UserPreference::casts(): array  [protected]
@@ -4879,6 +4885,7 @@ class Lathe\Http\Controllers\Resources\InlineUpdateController
 class Lathe\Http\Controllers\Resources\LensActionController
 class Lathe\Http\Controllers\Resources\LensController
 class Lathe\Http\Controllers\Resources\PeekController
+class Lathe\Http\Controllers\Resources\PreviewPreferenceController
 class Lathe\Http\Controllers\Resources\RecordController
 class Lathe\Http\Controllers\Resources\RelatableAuthorizationController
 class Lathe\Http\Controllers\Resources\RelationAttachController
@@ -4935,6 +4942,7 @@ class Lathe\Plugins\ResourcePlugin
 class Lathe\Plugins\ResourcePluginRegistry
 class Lathe\Preferences\ColumnChoice
 class Lathe\Preferences\DashboardLayout
+class Lathe\Preferences\PreviewState
 class Lathe\Preferences\UserPreference
 class Lathe\Query\Count
 class Lathe\Query\DateBucket

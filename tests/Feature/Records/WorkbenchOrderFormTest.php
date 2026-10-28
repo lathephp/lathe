@@ -33,8 +33,8 @@ it('names each field by its label in validation messages', function () {
         ->and($errors['items.0.quantity'][0])->toBe('The Quantity field must be at least 1.');
 });
 
-it('offers a preview of a workbench order with its status, placed date, number and total', function () {
+it('previews a workbench order with its detail fields but not its items', function () {
     $fields = array_column(LatheTest::resource('orders')->preview(12)->assertOk()->json('fields'), 'key');
 
-    expect($fields)->toBe(['status', 'placed_at', 'number', 'total_cents']);
+    expect($fields)->toBe(['customer', 'status', 'placed_at', 'number', 'created_at', 'total_cents']);
 });
