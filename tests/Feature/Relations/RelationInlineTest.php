@@ -26,7 +26,7 @@ class InlineCustomerOrders extends OrderResource
 
     protected function configure(ResourceDefinition $definition): ResourceDefinition
     {
-        return parent::configure($definition)->canonical(false);
+        return parent::configure($definition)->canonical(false)->board(null);
     }
 
     public function fieldsForIndex(LatheRequest $request): array

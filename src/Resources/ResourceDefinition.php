@@ -42,6 +42,8 @@ class ResourceDefinition
     /** @var array{badge?: string|null, meta?: string|null} */
     protected array $recordHeader = [];
 
+    protected ?string $board = null;
+
     /** @var list<string> */
     protected array $with = [];
 
@@ -145,6 +147,16 @@ class ResourceDefinition
     public function phoneCard(?string $title = null, ?string $badge = null, ?string $value = null, ?string $meta = null): static
     {
         return $this->set(fn () => $this->phoneCard = array_filter(['title' => $title, 'badge' => $badge, 'value' => $value, 'meta' => $meta], fn (?string $key) => $key !== null));
+    }
+
+    /**
+     * Show the list as a Board too: one column per option of this index field, which must be an
+     * inline select of at most 12 options. A move between columns is that field's inline edit.
+     * Null drops a board a parent Resource set.
+     */
+    public function board(?string $field): static
+    {
+        return $this->set(fn () => $this->board = $field);
     }
 
     /**
@@ -488,6 +500,11 @@ class ResourceDefinition
     public function getPhoneCard(): array
     {
         return $this->phoneCard;
+    }
+
+    public function getBoard(): ?string
+    {
+        return $this->board;
     }
 
     /**

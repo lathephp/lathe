@@ -2665,6 +2665,7 @@ Lathe\Http\Payloads\IndexPayload::Lathe\Http\Requests\LatheRequest $request  [pr
 Lathe\Http\Payloads\IndexPayload::ROW_ABILITIES
 Lathe\Http\Payloads\IndexPayload::__construct(Lathe\Http\Requests\LatheRequest $request, Lathe\Auth\ResourceAuthorization $authorization)
 Lathe\Http\Payloads\IndexPayload::activeSavedTab(Lathe\Resources\Resource $resource): ?int  [protected]
+Lathe\Http\Payloads\IndexPayload::board(Lathe\Resources\Resource $resource, array $fields): ?array  [protected]
 Lathe\Http\Payloads\IndexPayload::build(string $class, ?Lathe\Lenses\Lens $lens = NULL): array
 Lathe\Http\Payloads\IndexPayload::checkRowKeys(string $class, string $rowKey, Illuminate\Database\Eloquent\Collection $rows): void  [protected]
 Lathe\Http\Payloads\IndexPayload::chosenColumns(array $fields, array $choice): array  [protected]
@@ -3449,6 +3450,7 @@ Lathe\Resources\ResourceDefinition::?bool $softDeletes  [protected]
 Lathe\Resources\ResourceDefinition::?bool $trafficCop  [protected]
 Lathe\Resources\ResourceDefinition::?bool $useScout  [protected]
 Lathe\Resources\ResourceDefinition::?int $polling  [protected]
+Lathe\Resources\ResourceDefinition::?string $board  [protected]
 Lathe\Resources\ResourceDefinition::?string $defaultGroup  [protected]
 Lathe\Resources\ResourceDefinition::?string $group  [protected]
 Lathe\Resources\ResourceDefinition::?string $icon  [protected]
@@ -3468,6 +3470,7 @@ Lathe\Resources\ResourceDefinition::array $phoneCard  [protected]
 Lathe\Resources\ResourceDefinition::array $recordHeader  [protected]
 Lathe\Resources\ResourceDefinition::array $searchable  [protected]
 Lathe\Resources\ResourceDefinition::array $with  [protected]
+Lathe\Resources\ResourceDefinition::board(?string $field): static
 Lathe\Resources\ResourceDefinition::bool $allowAll  [protected]
 Lathe\Resources\ResourceDefinition::bool $borderless  [protected]
 Lathe\Resources\ResourceDefinition::bool $canonical  [protected]
@@ -3491,6 +3494,7 @@ Lathe\Resources\ResourceDefinition::filterRemoteThreshold(int $threshold): stati
 Lathe\Resources\ResourceDefinition::float $debounce  [protected]
 Lathe\Resources\ResourceDefinition::freeze(): static
 Lathe\Resources\ResourceDefinition::fromAttributes(string $class): static  [static]
+Lathe\Resources\ResourceDefinition::getBoard(): ?string
 Lathe\Resources\ResourceDefinition::getBulkInlineMax(): int
 Lathe\Resources\ResourceDefinition::getClickAction(): Lathe\Enums\ClickAction
 Lathe\Resources\ResourceDefinition::getCountCap(): int
@@ -3607,6 +3611,7 @@ Lathe\Resources\ResourceRegistry::scanned(): bool
 Lathe\Resources\ResourceRegistry::searchTargets(Illuminate\Database\Eloquent\Model $model, Lathe\Search\SearchableColumn|string $column): array  [protected]
 Lathe\Resources\ResourceRegistry::useCachePath(string $path): void
 Lathe\Resources\ResourceRegistry::validate(string $class, Lathe\Resources\ResourceDefinition $definition): void  [protected]
+Lathe\Resources\ResourceRegistry::validateBoard(string $class, string $board): void  [protected]
 Lathe\Resources\ResourceRegistry::validateSearchColumns(string $class, Lathe\Resources\ResourceDefinition $definition, array $tables): void  [protected]
 Lathe\Resources\TrafficCop::isStale(Illuminate\Database\Eloquent\Model $model, mixed $sent): bool  [static]
 Lathe\Resources\TrafficCop::token(Illuminate\Database\Eloquent\Model $model): ?string  [static]

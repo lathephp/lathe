@@ -25,7 +25,7 @@ class FilteredCustomerOrders extends OrderResource
 
     protected function configure(ResourceDefinition $definition): ResourceDefinition
     {
-        return parent::configure($definition)->canonical(false)->allowAll();
+        return parent::configure($definition)->canonical(false)->board(null)->allowAll();
     }
 
     public function fieldsForIndex(LatheRequest $request): array

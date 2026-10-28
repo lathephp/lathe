@@ -13,6 +13,9 @@ use Lathe\Exceptions\InvalidConfigurationException;
 use Lathe\Exceptions\InvalidSearchColumn;
 use Lathe\Exceptions\ResourceModelCollisionException;
 use Lathe\Exceptions\ResourceUriKeyCollisionException;
+use Lathe\Field\Field;
+use Lathe\Field\FieldContext;
+use Lathe\Field\SelectField;
 use Lathe\Http\Requests\LatheRequest;
 use Lathe\Search\LikeSearch;
 use Lathe\Search\SearchableColumn;
@@ -22,6 +25,7 @@ use Lathe\Search\SearchableMorphToRelation;
 use Lathe\Search\SearchableRelation;
 use Lathe\Search\SearchableText;
 use Lathe\Support\ConfigStore;
+use LogicException;
 use ReflectionMethod;
 use Symfony\Component\Finder\Finder;
 use Throwable;
@@ -387,6 +391,10 @@ class ResourceRegistry
             }
         }
 
+        if (($board = $definition->getBoard()) !== null) {
+            $this->validateBoard($class, $board);
+        }
+
         // A to-many relation repeats each row once per related row, so only a belongsTo can group.
         foreach ((new $class)->groups(LatheRequest::createFrom(Request::create('/'))) as $group) {
             $relation = $group->relation();
@@ -394,6 +402,37 @@ class ResourceRegistry
             if ($relation !== null && ! ($model->isRelation($relation) && $model->{$relation}() instanceof BelongsTo)) {
                 throw new InvalidConfigurationException("{$class}: groups: \"{$group->column()}\" reads \"{$relation}\", which is not a belongsTo relation of ".$model::class.'. Group by a column of the model or of a belongsTo relation.');
             }
+        }
+    }
+
+    /**
+     * The board field must be an index select the user edits inline, with at most 12 options of its own.
+     *
+     * @param  class-string<\Lathe\Resources\Resource>  $class
+     */
+    protected function validateBoard(string $class, string $board): void
+    {
+        $request = LatheRequest::createFrom(Request::create('/'));
+        $field = (new $class)->fieldsFor(FieldContext::Index, $request)->first(fn (Field $field) => $field->key() === $board);
+
+        if (! $field instanceof Field) {
+            throw new LogicException("The board field [{$board}] is not an index field of {$class}.");
+        }
+
+        if (! $field instanceof SelectField) {
+            throw new LogicException("The board field [{$field->label()}] must be a select field.");
+        }
+
+        if ($field->isRemote()) {
+            throw new LogicException("The board field [{$field->label()}] needs inline options, not remote ones.");
+        }
+
+        if (($count = count($field->resolvedOptions())) > 12) {
+            throw new LogicException("The board field [{$field->label()}] has {$count} options; a board takes at most 12.");
+        }
+
+        if (! $field->isInlineEditable($request)) {
+            throw new LogicException("The board field [{$field->label()}] must be inline: call ->inline() on it.");
         }
     }
 

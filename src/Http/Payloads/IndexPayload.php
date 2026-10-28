@@ -119,6 +119,7 @@ class IndexPayload
                 'previewOpen' => $previewOpen,
                 'allColumns' => $lens !== null ? [] : array_map(fn (Field $field) => ['key' => $field->key(), 'label' => $field->label()], $fields),
                 'phoneCard' => PhoneCard::pick($fields, $resource->definition()->getPhoneCard()),
+                'board' => $lens !== null ? null : $this->board($resource, $fields),
             ],
             'groups' => $this->groups($resource, $active, $lens),
             'filters' => [
@@ -143,6 +144,26 @@ class IndexPayload
                 'sort' => $query->sortString(),
             ],
         ];
+    }
+
+    /**
+     * The Board's field, its options the columns in order, and whether a No value column ends it;
+     * null when the Resource has no board or this user cannot see its field.
+     *
+     * @param  list<Field>  $fields
+     * @return array{field: Field, noValue: bool}|null
+     */
+    protected function board(Resource $resource, array $fields): ?array
+    {
+        $key = $resource->definition()->getBoard();
+
+        foreach ($fields as $field) {
+            if ($key !== null && $field->key() === $key) {
+                return ['field' => $field, 'noValue' => $field->isNullable()];
+            }
+        }
+
+        return null;
     }
 
     /**

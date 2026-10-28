@@ -48,6 +48,7 @@ class Order extends Resource
             ->with(['customer'])
             ->icon('ShoppingCart')
             ->recordHeader(meta: 'placed_at')
+            ->board('status')
             ->savedTabs()
             ->polling(10)
             ->showPollingToggle();
