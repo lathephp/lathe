@@ -94,8 +94,9 @@ export function FilterBarEditor({ label, url, urlChips, text, focus, onType, onS
     // A new chip replaces the one its filter had.
     const replaced = new Set(added.filter(applied).map((chip) => chip.key));
     const next = [...latest.current.filter((chip) => !applied(chip) || !replaced.has(chip.key)), ...added];
-    // Words become q; Enter on an emptied input clears it, and a Resource that cannot search ignores them.
-    const changes: IndexUrlState = resource.searchable && (words !== '' || typed.trim() === '') ? { q: words } : {};
+    // The words left after Enter are the whole search, so a search a half-typed key started goes; a Resource that cannot search ignores them.
+    const searched = new URLSearchParams(url.split('?')[1] ?? '').get('q') ?? '';
+    const changes: IndexUrlState = resource.searchable && words !== searched ? { q: words } : {};
 
     setChips(next);
     onSettle(resource.searchable ? words : '');

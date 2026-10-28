@@ -90,6 +90,18 @@ async function enter(text: string) {
 }
 
 describe('filter bar', () => {
+  it('drops the search a half-typed key started once the token lands as a chip', async () => {
+    const visit = mockVisit();
+    renderOrders('/lathe/resources/orders?q=stat');
+    await focusBar();
+
+    await enter('status:pending');
+    await advance(300);
+
+    expect(visit).toHaveBeenCalledTimes(1);
+    expect(visitData(visit)).toEqual({ filter: { status: 'pending' } });
+  });
+
   it('turns status:pending into a chip and visits once, 300 ms later', async () => {
     const visit = mockVisit();
     renderOrders();
