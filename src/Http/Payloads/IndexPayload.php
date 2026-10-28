@@ -421,6 +421,8 @@ class IndexPayload
     /**
      * Whether some column of the page edits its cell in place.
      *
+     * @internal
+     *
      * @param  list<Field>  $fields
      */
     public function hasInlineColumn(array $fields): bool
@@ -430,6 +432,8 @@ class IndexPayload
 
     /**
      * The abilities asked for each row; inlineEdit joins them only when a column is inline.
+     *
+     * @internal
      *
      * @return list<string>
      */
