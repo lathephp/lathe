@@ -78,8 +78,10 @@ export function FilterBar({ q = '', visit }: FilterBarProps) {
   // A chip or search changed on a saved view leaves it, keeping the view's search and sort.
   const leave: IndexUrlState =
     view === undefined ? {} : { saved_tab: undefined, q: q === '' ? (view.q ?? undefined) : q, sort: parseQuery(page.url.split('?')[1] ?? '').sort ?? view.sort ?? undefined };
-  const [text, setText] = useState(q === '' ? (view?.q ?? '') : q);
-  const [seen, setSeen] = useState(q);
+  // The URL's search, else that of the saved view it opens.
+  const searched = q === '' ? (view?.q ?? '') : q;
+  const [text, setText] = useState(searched);
+  const [seen, setSeen] = useState(searched);
   // Null until the editor has loaded after a focus; then whether the input had the focus at that moment,
   // and whether a press on it gave that focus.
   const [editor, setEditor] = useState<{ focus: boolean; pressed: boolean } | null>(null);
@@ -95,11 +97,11 @@ export function FilterBar({ q = '', visit }: FilterBarProps) {
 
   // The page keeps its state across visits, so a q changed elsewhere (Clear filters) is copied in.
   // The bar's own search lands as its trimmed text and leaves the text alone.
-  if (q !== seen) {
-    setSeen(q);
+  if (searched !== seen) {
+    setSeen(searched);
 
-    if (q !== text.trim()) {
-      setText(q);
+    if (searched !== text.trim()) {
+      setText(searched);
     }
   }
 
