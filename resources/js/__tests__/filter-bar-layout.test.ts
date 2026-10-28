@@ -47,6 +47,11 @@ function rule(source: string, selector: string): string[] {
 }
 
 describe('the filter bar on a phone', () => {
+  it('gives up its 320 px floor, so a 390 px page never scrolls sideways', () => {
+    expect(rule(css, '.lathe-bar')).toContain('min-w-[320px]');
+    expect(rule(media('width < 48rem', '.lathe-bar {'), '.lathe-bar')).toContain('min-w-0');
+  });
+
   it('opens its suggestions as a sheet along the bottom edge, as wide as the screen', () => {
     const phone = media('width < 48rem', '.lathe-bar-list');
 

@@ -48,6 +48,8 @@ interface FilterBarEditorProps {
   urlChips: FilterChip[];
   /** On a saved view, what leaving it sets: no saved_tab, the view's search and sort. */
   leave: IndexUrlState;
+  /** Tells the first paint the chips as drawn, for a search typed before their visit lands. */
+  onChips: (chips: FilterChip[]) => void;
   text: string;
   /** Whether the first paint's input had the focus when the editor took over. */
   focus: boolean;
@@ -61,7 +63,7 @@ interface FilterBarEditorProps {
 const applied = (chip: FilterChip) => chip.error === undefined;
 
 /** The filter bar once focused: a Base UI chips input where Enter turns key:value tokens into chips and words into q. */
-export function FilterBarEditor({ label, url, urlChips, leave, text, focus, pressed, onType, onSettle, visit }: FilterBarEditorProps) {
+export function FilterBarEditor({ label, url, urlChips, leave, onChips, text, focus, pressed, onType, onSettle, visit }: FilterBarEditorProps) {
   const { __ } = useTranslation();
   const page = usePage<IndexProps & SharedProps>();
   const { resource, filters, basePath } = page.props;
@@ -118,6 +120,7 @@ export function FilterBarEditor({ label, url, urlChips, leave, text, focus, pres
 
   useEffect(() => {
     latest.current = chips;
+    onChips(chips);
   });
 
   // Takes the focus where the first paint's input had it, the caret after the text typed meanwhile.

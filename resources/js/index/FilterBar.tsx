@@ -87,6 +87,8 @@ export function FilterBar({ q = '', visit }: FilterBarProps) {
   // A press focuses the input before the editor loads, so the click that opens the list lands here.
   const pressed = useRef(false);
   const timer = useRef<ReturnType<typeof setTimeout>>(undefined);
+  // The editor's chips as last drawn, which may be ahead of the URL while their visit waits.
+  const drawn = useRef<FilterChip[] | null>(null);
   const chips = urlChips(page.url, page.props, __);
   const named = { resource: resource.label.toLowerCase() };
   const label = resource.searchable ? __('Search :resource', named) : __('Filter :resource', named);
@@ -125,7 +127,8 @@ export function FilterBar({ q = '', visit }: FilterBarProps) {
     if (resource.searchable && !next.includes(':')) {
       timer.current = setTimeout(() => {
         // An empty term leaves q out of the URL.
-        visit(view === undefined ? { q: next.trim() } : { ...leave, ...chipsState(chips), q: next.trim() });
+        // The search carries the chips as drawn, so a chip made just before it is not lost.
+        visit({ ...leave, ...chipsState((drawn.current ?? chips).filter((chip) => chip.error === undefined)), q: next.trim() });
       }, resource.definition.debounce * 1000);
     }
   }
@@ -196,7 +199,7 @@ export function FilterBar({ q = '', visit }: FilterBarProps) {
         </div>
       ) : (
         <Suspense fallback={null}>
-          <FilterBarEditor label={label} url={page.url} urlChips={chips} leave={leave} text={text} focus={editor.focus} pressed={editor.pressed} onType={type} onSettle={settle} visit={visit} />
+          <FilterBarEditor label={label} url={page.url} urlChips={chips} leave={leave} onChips={(next) => (drawn.current = next)} text={text} focus={editor.focus} pressed={editor.pressed} onType={type} onSettle={settle} visit={visit} />
         </Suspense>
       )}
     </div>

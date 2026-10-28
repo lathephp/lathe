@@ -90,6 +90,19 @@ async function enter(text: string) {
 }
 
 describe('filter bar', () => {
+  it('keeps a chip just made when words typed after it search', async () => {
+    const visit = mockVisit();
+    renderOrders();
+    const input = await focusBar();
+
+    await enter('status:paid');
+    fireEvent.change(input, { target: { value: 'ann' } });
+    await advance(600);
+
+    expect(visit).toHaveBeenCalledTimes(2);
+    expect(visitData(visit, 1)).toEqual({ filter: { status: 'paid' }, q: 'ann' });
+  });
+
   it('drops the search a half-typed key started once the token lands as a chip', async () => {
     const visit = mockVisit();
     renderOrders('/lathe/resources/orders?q=stat');
