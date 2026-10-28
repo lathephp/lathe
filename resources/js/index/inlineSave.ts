@@ -5,9 +5,47 @@ import { lastToken, pushUndo, saved } from './undo';
 // The save half of an inline cell. It loads with the cell's editor, so a list's first paint
 // carries only the values.
 
-interface InlineReply {
+export interface InlineReply {
   fields: Record<string, Cell>;
   updatedAt?: string | null;
+}
+
+/** The record and the field a save patches. */
+export interface FieldTarget {
+  apiPath: string;
+  uriKey: string;
+  rowId: string | number;
+  key: string;
+}
+
+/** PATCHes one field against the record's stale token and keeps the token the save returns, which an undo sends. */
+export async function patchField(target: FieldTarget, value: unknown, updatedAt: string | null | undefined, extra: Record<string, unknown> = {}): Promise<InlineReply | null> {
+  const reply = await request<InlineReply>(`${target.apiPath}/resources/${target.uriKey}/${String(target.rowId)}/field/${target.key}`, {
+    method: 'PATCH',
+    toastOnError: false,
+    body: { value, ...extra, _updated_at: updatedAt ?? undefined },
+  });
+
+  if (reply !== null) {
+    saved(`${target.uriKey}/${String(target.rowId)}`, reply.updatedAt);
+  }
+
+  return reply;
+}
+
+/** Why the server refused a patch, for a toast: the value's first error, the denial, or a stale record. */
+export function refusalOf(failure: unknown, __: ReturnType<typeof useTranslation>['__']): string {
+  const data = failure instanceof ApiError ? (failure.data as { message?: string; errors?: Record<string, string[]> } | null) : null;
+
+  if (failure instanceof ApiError && failure.status === 422) {
+    return Object.values(data?.errors ?? {})[0]?.[0] ?? __('Please fix the highlighted fields.');
+  }
+
+  if (failure instanceof ApiError && failure.status === 409) {
+    return __('This record was changed by someone else since you opened it.');
+  }
+
+  return failure instanceof ApiError && failure.status === 403 && data?.message !== undefined ? data.message : __('Something went wrong. Please try again.');
 }
 
 /** What a save reads from the cell and the state it sets there. */
@@ -30,11 +68,7 @@ export interface InlineSave {
 }
 
 function send(save: InlineSave, value: unknown, extra: Record<string, unknown>, updatedAt: string | null | undefined) {
-  return request<InlineReply>(`${save.apiPath}/resources/${save.uriKey}/${String(save.rowId)}/field/${save.column.key}`, {
-    method: 'PATCH',
-    toastOnError: false,
-    body: { value, ...extra, _updated_at: updatedAt ?? undefined },
-  });
+  return patchField({ apiPath: save.apiPath, uriKey: save.uriKey, rowId: save.rowId, key: save.column.key }, value, updatedAt, extra);
 }
 
 function record(save: InlineSave): string {
@@ -71,7 +105,6 @@ export async function undo(save: InlineSave, before: unknown, extra: Record<stri
 
     if (reply !== null) {
       save.onRow.current(reply.fields, reply.updatedAt);
-      saved(record(save), reply.updatedAt);
     }
 
     toast.success(__('Change undone'));
@@ -93,7 +126,6 @@ export async function commit(save: InlineSave, value: unknown, shownWhilePending
 
     if (reply !== null) {
       save.onRow.current(reply.fields, reply.updatedAt);
-      saved(record(save), reply.updatedAt);
 
       // A belongsTo or morphTo cell holds the related record; its undo sends that record's id, and type.
       const old = cell.value as { value?: unknown; id?: unknown; type?: unknown } | null;
@@ -117,8 +149,7 @@ export async function commit(save: InlineSave, value: unknown, shownWhilePending
         save.setEditing(true);
       }
     } else if (!refused(save, failure, value, extra, false)) {
-      const message = failure instanceof ApiError ? (failure.data as { message?: string } | null)?.message : undefined;
-      toast.error(failure instanceof ApiError && failure.status === 403 && message !== undefined ? message : __('Something went wrong. Please try again.'));
+      toast.error(refusalOf(failure, __));
     }
   } finally {
     save.setPending(null);
