@@ -83,6 +83,8 @@ export function FilterBarEditor({ label, url, urlChips, text, focus, pressed, on
         ? found.options.map((option) => ({ label: option.label, chip: chipFromResults(searching.filter, option.label, [option], __) }))
         : [];
   const help = 'help' in suggested ? suggested.help : undefined;
+  // The list draws only when it has something to show, and only a drawn list takes Enter.
+  const shown = open && (items.length > 0 || help !== undefined);
   const searchFilter = searching?.filter;
   const searchTerm = searching?.term;
 
@@ -180,7 +182,7 @@ export function FilterBarEditor({ label, url, urlChips, text, focus, pressed, on
   return (
     <Combobox
       multiple
-      open={open && (items.length > 0 || help !== undefined)}
+      open={shown}
       value={chips}
       inputValue={text}
       itemToStringLabel={(item: FilterChip | Suggestion) => item.label}
@@ -241,7 +243,7 @@ export function FilterBarEditor({ label, url, urlChips, text, focus, pressed, on
           aria-keyshortcuts="/"
           onKeyDown={(event) => {
             // Enter on a highlighted item is Base UI's pick; otherwise it parses the whole text.
-            if (event.key === 'Enter' && !(open && highlighted.current !== undefined)) {
+            if (event.key === 'Enter' && !(shown && highlighted.current !== undefined)) {
               event.preventDefault();
               event.preventBaseUIHandler();
               void submit();

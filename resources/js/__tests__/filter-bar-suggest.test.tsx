@@ -223,4 +223,16 @@ describe('filter bar suggestions', () => {
     expect(within(bar()).getByText('Total: ≥ 1,500')).toBeTruthy();
     expect(visitData(visit)).toEqual({ filter: { field_total_cents: { min: '150000' } } });
   });
+
+  it('parses the text on Enter once typing has left the highlighted item behind', async () => {
+    renderOrders();
+    await clickBar();
+
+    await type('sta');
+    await press('ArrowDown');
+    await type('status:zzz');
+    await press('Enter');
+
+    expect(within(bar()).getByText('Status has no option zzz')).toBeTruthy();
+  });
 });
