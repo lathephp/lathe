@@ -63,12 +63,13 @@ export function useCardMoves(uriKey: string, board: Board, columns: Columns) {
       document.querySelector<HTMLElement>(`[data-board-card="${CSS.escape(String(row.id))}"]`)?.focus();
     }
 
-    const [{ patchField, refusalOf }, { lastToken, pushUndo }] = await saving();
-    // A move sends the card's token, which a save from this tab has already updated, as a cell
-    // does; an undo sends the token this tab's last save returned, as a cell's undo does.
-    const token = undoing ? lastToken(`${uriKey}/${String(row.id)}`) : moved.row.updatedAt;
+    const loading = saving();
 
     try {
+      const [{ patchField }, { lastToken, pushUndo }] = await loading;
+      // A move sends the card's token, which a save from this tab has already updated, as a cell
+      // does; an undo sends the token this tab's last save returned, as a cell's undo does.
+      const token = undoing ? lastToken(`${uriKey}/${String(row.id)}`) : moved.row.updatedAt;
       const reply = await patchField({ apiPath, uriKey, rowId: row.id, key: board.field.key }, to, token);
 
       if (reply !== null) {
@@ -88,7 +89,13 @@ export function useCardMoves(uriKey: string, board: Board, columns: Columns) {
       }
     } catch (failure) {
       latest.current.putBack(moved);
-      toast.error(refusalOf(failure, __));
+      // A save whose code failed to load has no reply to read the reason from.
+      toast.error(
+        await loading.then(
+          ([{ refusalOf }]) => refusalOf(failure, __),
+          () => __('Something went wrong. Please try again.'),
+        ),
+      );
     }
   }
 
