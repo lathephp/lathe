@@ -1,7 +1,10 @@
 import { cleanup as cleanupLiveRegion } from '@atlaskit/pragmatic-drag-and-drop-live-region';
+import { router } from '@inertiajs/react';
 import { __panel } from '@lathephp/core';
 import { act, fireEvent, screen, waitFor, within } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+// The Board loads the save on its first move; loading it here keeps a cold transform out of the first test's wait.
+import '../index/inlineSave';
 import { clearUndo } from '../index/undo';
 import { order, orders } from './board-support';
 import { urlOf } from './preview-support';
@@ -37,7 +40,7 @@ const ok = (value: string, updatedAt: string) =>
   new Response(JSON.stringify({ fields: { status: { value, display: value.charAt(0).toUpperCase() + value.slice(1) } }, updatedAt }), { status: 200 });
 
 /** Answers the Board's pages and counts, and each PATCH with the next reply given. */
-function moveServer(replies: (Response | Promise<Response>)[], abilities: Record<string, boolean> = { view: true, update: true, inlineEdit: true }) {
+function moveServer(replies: (Response | Promise<Response>)[], abilities: Record<string, boolean> = { view: true, update: true, inlineEdit: true }, more: Record<string, number[]> = {}) {
   const patches: Patch[] = [];
 
   vi.spyOn(globalThis, 'fetch').mockImplementation((input, init) => {
@@ -59,9 +62,10 @@ function moveServer(replies: (Response | Promise<Response>)[], abilities: Record
 
     if (url.pathname.endsWith('/board')) {
       const column = url.searchParams.get('column') ?? '';
-      const rows = (loaded[column] ?? []).map((id) => ({ ...order(id, column), abilities }));
+      const page = url.searchParams.get('page') === '2' ? more[column] : url.searchParams.has('q') ? [] : loaded[column];
+      const rows = (page ?? []).map((id) => ({ ...order(id, column), abilities }));
 
-      return Promise.resolve(new Response(JSON.stringify({ rows, hasMore: false }), { status: 200 }));
+      return Promise.resolve(new Response(JSON.stringify({ rows, hasMore: url.searchParams.get('page') === '1' && column in more }), { status: 200 }));
     }
 
     return Promise.resolve(new Response(null, { status: 204 }));
@@ -240,6 +244,28 @@ describe('undoing a move', () => {
     expect(headers()).toEqual(['Pending2,424', 'Paid2,552', 'Shipped2,564', 'Cancelled2,460']);
   });
 
+  it('still sends the undo when a search has since taken the card off the Board', async () => {
+    const patches = moveServer([ok('paid', 't1'), ok('pending', 't2')]);
+    await openBoard();
+    press(79194426, 'ArrowRight');
+    await waitFor(() => {
+      expect(toasts()).toContain('Status changed to Paid.');
+    });
+    act(() => {
+      router.replace({ url: '/lathe/resources/orders?q=zzz', preserveState: true, preserveScroll: true });
+    });
+    await waitFor(() => {
+      expect(document.querySelectorAll('[data-board-card]')).toHaveLength(0);
+    });
+
+    fireEvent.keyDown(document.body, { key: 'z', ctrlKey: true });
+
+    await waitFor(() => {
+      expect(toasts()).toContain('Change undone');
+    });
+    expect(patches[1]?.body).toEqual({ value: 'pending', _updated_at: 't1' });
+  });
+
   it("does the same from the toast's Undo", async () => {
     const patches = moveServer([ok('paid', 't1'), ok('pending', 't2')]);
     await openBoard();
@@ -258,6 +284,23 @@ describe('undoing a move', () => {
     expect(patches[1]?.body).toEqual({ value: 'pending', _updated_at: 't1' });
     expect(ids('Pending')).toEqual(['79194427', '79194426', '79194425']);
     expect(headers()).toEqual(['Pending2,424', 'Paid2,552', 'Shipped2,564', 'Cancelled2,460']);
+  });
+});
+
+describe('Show more after a move', () => {
+  it('draws a card the next page sends again only once', async () => {
+    moveServer([ok('paid', 't1')], undefined, { paid: [79194426, 79194419] });
+    await openBoard();
+    press(79194426, 'ArrowRight');
+    await waitFor(() => {
+      expect(toasts()).toContain('Status changed to Paid.');
+    });
+
+    fireEvent.click(within(column('Paid')).getByRole('button', { name: 'Show more' }));
+
+    await waitFor(() => {
+      expect(ids('Paid')).toEqual(['79194430', '79194426', '79194420', '79194419']);
+    });
   });
 });
 

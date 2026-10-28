@@ -131,7 +131,13 @@ export function useBoardColumns(uriKey: string, board: Board) {
 
     try {
       const reply = await request<BoardPage>(`${endpoint}?${params.toString()}`);
-      update(forQuery, value, (column) => ({ rows: [...(page === 1 ? [] : column.rows), ...(reply?.rows ?? [])], page, hasMore: reply?.hasMore === true, loading: false }));
+      // A card moved in since the last page may come again on this one; it keeps its first place.
+      update(forQuery, value, (column) => {
+        const kept = page === 1 ? [] : column.rows;
+        const fresh = (reply?.rows ?? []).filter((row) => !kept.some((each) => each.id === row.id));
+
+        return { rows: [...kept, ...fresh], page, hasMore: reply?.hasMore === true, loading: false };
+      });
     } catch {
       update(forQuery, value, () => ({ loading: false }));
     }

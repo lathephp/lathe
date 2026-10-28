@@ -52,11 +52,10 @@ export function useCardMoves(uriKey: string, board: Board, columns: Columns) {
       moved = latest.current.move(row.id, to);
     });
 
-    if (moved === undefined) {
+    // An undo still saves the old value when a search or a filter has taken the card off the Board.
+    if (moved === undefined && !undoing) {
       return;
     }
-
-    const from = moved.from;
 
     // The card now sits in another column, a new element, so the focus follows it there.
     if (focus) {
@@ -69,7 +68,7 @@ export function useCardMoves(uriKey: string, board: Board, columns: Columns) {
       const [{ patchField }, { lastToken, pushUndo }] = await loading;
       // A move sends the card's token, which a save from this tab has already updated, as a cell
       // does; an undo sends the token this tab's last save returned, as a cell's undo does.
-      const token = undoing ? lastToken(`${uriKey}/${String(row.id)}`) : moved.row.updatedAt;
+      const token = undoing ? lastToken(`${uriKey}/${String(row.id)}`) : moved?.row.updatedAt;
       const reply = await patchField({ apiPath, uriKey, rowId: row.id, key: board.field.key }, to, token);
 
       if (reply !== null) {
@@ -79,16 +78,19 @@ export function useCardMoves(uriKey: string, board: Board, columns: Columns) {
       // Announcements stay in English.
       announce(`${row.title} moved to ${labelOf(to)}`);
 
-      if (undoing) {
+      if (undoing || moved === undefined) {
         toast.success(__('Change undone'));
       } else {
+        const { from } = moved;
         const take = pushUndo(() => move(row, from, false, true));
         const value = reply?.fields[board.field.key]?.display ?? labelOf(to);
 
         toast.success(__(':field changed to :value.', { field: board.field.label, value }), { action: { label: __('Undo'), onClick: take } });
       }
     } catch (failure) {
-      latest.current.putBack(moved);
+      if (moved !== undefined) {
+        latest.current.putBack(moved);
+      }
       // A save whose code failed to load has no reply to read the reason from.
       toast.error(
         await loading.then(
