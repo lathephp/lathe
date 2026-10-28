@@ -18,6 +18,7 @@ use Lathe\Field\Relations\RelationField;
 use Lathe\Http\Requests\LatheRequest;
 use Lathe\Query\ResourceQuery;
 use Lathe\Resources\Resource;
+use Lathe\Resources\TrafficCop;
 
 /**
  * One page of a relation panel: the related Resource's rows read through the parent's relation.
@@ -60,11 +61,13 @@ class RelationIndexPayload
         }
 
         $softDeletes = $resource->definition()->usesSoftDeletes();
+        $inline = $this->index->hasInlineColumn($columns);
+        $tokens = $resource->definition()->usesTrafficCop() && $inline;
         $abilities = $this->authorization->abilitiesFor(
             $this->request->user(),
             $class,
             $rows,
-            $softDeletes ? [...IndexPayload::ROW_ABILITIES, 'restore', 'forceDelete'] : IndexPayload::ROW_ABILITIES,
+            $this->index->rowAbilities($softDeletes, $inline),
         );
 
         return [
@@ -76,6 +79,7 @@ class RelationIndexPayload
                 'cells' => [...FieldResolver::cells($model, $columns), ...$this->pivotCells($relation, $model, $pivotFields)],
                 'abilities' => $abilities[$this->index->key($model)] ?? [],
                 'related_id' => $model->getKey(),
+                ...($tokens ? ['updatedAt' => TrafficCop::token($model)] : []),
                 ...($relation instanceof BelongsToMany ? ['pivot_id' => $model->getAttribute('pivot_id')] : []),
                 ...($softDeletes ? ['trashed' => method_exists($model, 'trashed') && $model->trashed() === true] : []),
             ])->all()),

@@ -69,11 +69,12 @@ class IndexPayload
         }
         $available = $lens?->availableFilters($this->request) ?? $resource->availableFilters($this->request);
         $softDeletes = $resource->definition()->usesSoftDeletes();
+        $inline = $this->hasInlineColumn($fields);
         $abilities = $this->authorization->abilitiesFor(
             $this->request->user(),
             $class,
             $rows,
-            $softDeletes ? [...self::ROW_ABILITIES, 'restore', 'forceDelete'] : self::ROW_ABILITIES,
+            $this->rowAbilities($softDeletes, $inline),
         );
 
         // Not a policy ability: the user model's Impersonatable methods decide, from memory. The live
@@ -90,7 +91,7 @@ class IndexPayload
         $active = $query->activeGroup();
         $group = $active['group'] ?? null;
         // Rows of an index with inline cells carry the stale-edit token each cell edit sends back.
-        $tokens = $resource->definition()->usesTrafficCop() && array_filter($fields, fn (Field $field) => $field->isInlineEditable($this->request)) !== [];
+        $tokens = $resource->definition()->usesTrafficCop() && $inline;
         $menu = new ActionMenu($this->request, $this->authorization);
         $rowActions = $menu->forRows($class);
         // A lens keeps its code columns: the saved choice is the Resource index's only.
@@ -415,6 +416,30 @@ class IndexPayload
         }
 
         Log::error($message);
+    }
+
+    /**
+     * Whether some column of the page edits its cell in place.
+     *
+     * @param  list<Field>  $fields
+     */
+    public function hasInlineColumn(array $fields): bool
+    {
+        return array_filter($fields, fn (Field $field) => $field->isInlineEditable($this->request)) !== [];
+    }
+
+    /**
+     * The abilities asked for each row; inlineEdit joins them only when a column is inline.
+     *
+     * @return list<string>
+     */
+    public function rowAbilities(bool $softDeletes, bool $inline): array
+    {
+        return [
+            ...self::ROW_ABILITIES,
+            ...($softDeletes ? ['restore', 'forceDelete'] : []),
+            ...($inline ? ['inlineEdit'] : []),
+        ];
     }
 
     /**
