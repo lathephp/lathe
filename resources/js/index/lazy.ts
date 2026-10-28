@@ -4,8 +4,6 @@ import { lazyNamed } from '../lib/lazy';
 export const SaveTabDialog = lazyNamed(() => import('./SaveTabDialog').then((module) => module.SaveTabDialog));
 export const RenameTabDialog = lazyNamed(() => import('./RenameTabDialog').then((module) => module.RenameTabDialog));
 export const DeleteTabDialog = lazyNamed(() => import('./DeleteTabDialog').then((module) => module.DeleteTabDialog));
-// The filter panel and its controls, which relation tables and plugins use.
-export const FilterPanel = lazyNamed(() => import('./FilterPanel').then((module) => module.FilterPanel));
 // The filter bar's editor, with Base UI and the token parser, loads on the bar's first focus.
 export const FilterBarEditor = lazyNamed(() => import('./FilterBarEditor').then((module) => module.FilterBarEditor));
 // The row menu's list and its delete confirmation load on the menu's first open.
