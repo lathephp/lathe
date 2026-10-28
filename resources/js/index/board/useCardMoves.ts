@@ -37,6 +37,10 @@ export function useCardMoves(uriKey: string, board: Board, columns: Columns) {
   const [over, setOver] = useState<{ value: string | null } | null>(null);
   // An undo or a drop runs after later renders, so it reads the columns of the latest one.
   const latest = useRef(columns);
+  // Each card's saves go one after another, and a move made before the last one answered sends
+  // the token that save got back, not the one the card showed when it moved.
+  const queue = useRef(new Map<Row['id'], Promise<void>>());
+  const tokens = useRef(new Map<Row['id'], { sent: string | null | undefined; got: string | null | undefined }>());
 
   useEffect(() => {
     latest.current = columns;
@@ -63,15 +67,23 @@ export function useCardMoves(uriKey: string, board: Board, columns: Columns) {
     }
 
     const loading = saving();
+    const done = (queue.current.get(row.id) ?? Promise.resolve()).then(() => save(row, to, moved, undoing, loading));
+    queue.current.set(row.id, done);
+    await done;
+  }
 
+  async function save(row: Row, to: string | null, moved: ReturnType<Columns['move']>, undoing: boolean, loading: ReturnType<typeof saving>): Promise<void> {
     try {
       const [{ patchField }, { lastToken, pushUndo }] = await loading;
       // A move sends the card's token, which a save from this tab has already updated, as a cell
       // does; an undo sends the token this tab's last save returned, as a cell's undo does.
-      const token = undoing ? lastToken(`${uriKey}/${String(row.id)}`) : moved?.row.updatedAt;
+      const shown = moved?.row.updatedAt;
+      const last = tokens.current.get(row.id);
+      const token = undoing ? lastToken(`${uriKey}/${String(row.id)}`) : last !== undefined && last.sent === shown ? last.got : shown;
       const reply = await patchField({ apiPath, uriKey, rowId: row.id, key: board.field.key }, to, token);
 
       if (reply !== null) {
+        tokens.current.set(row.id, { sent: token, got: reply.updatedAt });
         latest.current.saved(row.id, reply.fields, reply.updatedAt);
       }
 

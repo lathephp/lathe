@@ -55,7 +55,7 @@ describe('the Board', () => {
     expect(cards('Paid')).toHaveLength(25);
     expect(within(column('Pending')).queryByRole('button', { name: 'Show more' })).toBeNull();
     expect(within(column('Paid')).getByRole('button', { name: 'Show more' })).toBeTruthy();
-    const second = server.asked.filter((url) => new URL(url, 'http://localhost').searchParams.get('page') === '2');
+    const second = server.asked.filter((url) => new URL(url, 'http://localhost').searchParams.get('offset') === '25');
     expect(second.map((url) => new URL(url, 'http://localhost').searchParams.get('column'))).toEqual(['pending']);
   });
 
@@ -74,6 +74,20 @@ describe('the Board', () => {
     // The number has its line to itself, so a narrow column cuts the customer before the number.
     expect(Array.from(card.children, (line) => line.textContent)).toEqual(['ORD-paid-1-1', 'Gerard Reichert', 'Paid$164.98']);
     expect(card.children[0]?.querySelector('[data-lathe-meter]')).toBeNull();
+  });
+
+  it('selects nothing on Ctrl+A or Ctrl+Shift+A, since the Board has no selection', async () => {
+    boardServer();
+    renderPage('Resources/Index', orders({ layout: 'board' }), { url: '/lathe/resources/orders' });
+    await waitFor(() => {
+      expect(cards('Paid')).toHaveLength(25);
+    });
+
+    fireEvent.keyDown(document.body, { key: 'a', ctrlKey: true });
+    fireEvent.keyDown(document.body, { key: 'A', ctrlKey: true, shiftKey: true });
+    await settle();
+
+    expect(screen.queryByText(/selected/)).toBeNull();
   });
 
   it('reads "No orders" in an empty column', async () => {

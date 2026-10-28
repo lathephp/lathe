@@ -62,7 +62,15 @@ function LayoutSwitch({ uriKey, layout }: { uriKey: string; layout: Layout }) {
       preserveState: true,
     };
     router.replace(visit);
-    void request(`${apiPath}/resources/${uriKey}/layout`, { method: 'PUT', body: { layout: next }, toastOnError: false }).catch(() => undefined);
+    const saved = request(`${apiPath}/resources/${uriKey}/layout`, { method: 'PUT', body: { layout: next }, toastOnError: false }).catch(() => undefined);
+
+    // A move on the Board changed records the table drew before, so its rows come again, once the
+    // choice is saved and the server opens the table.
+    if (next === 'table') {
+      void saved.then(() => {
+        router.reload({ only: ['table'] });
+      });
+    }
   }
 
   return (

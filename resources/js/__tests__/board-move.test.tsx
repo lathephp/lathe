@@ -62,10 +62,11 @@ function moveServer(replies: (Response | Promise<Response>)[], abilities: Record
 
     if (url.pathname.endsWith('/board')) {
       const column = url.searchParams.get('column') ?? '';
-      const page = url.searchParams.get('page') === '2' ? more[column] : url.searchParams.has('q') ? [] : loaded[column];
+      const first = (url.searchParams.get('offset') ?? '0') === '0';
+      const page = !first ? more[column] : url.searchParams.has('q') ? [] : loaded[column];
       const rows = (page ?? []).map((id) => ({ ...order(id, column), abilities }));
 
-      return Promise.resolve(new Response(JSON.stringify({ rows, hasMore: url.searchParams.get('page') === '1' && column in more }), { status: 200 }));
+      return Promise.resolve(new Response(JSON.stringify({ rows, hasMore: first && column in more }), { status: 200 }));
     }
 
     return Promise.resolve(new Response(null, { status: 204 }));
@@ -287,7 +288,51 @@ describe('undoing a move', () => {
   });
 });
 
+describe('two moves of one card', () => {
+  it('sends the second after the first answers, with the token it returned', async () => {
+    let finish: (response: Response) => void = () => undefined;
+    const patches = moveServer([new Promise<Response>((resolve) => (finish = resolve)), ok('shipped', 't2')]);
+    await openBoard();
+
+    press(79194426, 'ArrowRight');
+    press(79194426, 'ArrowRight');
+    await settle();
+
+    expect(patches).toHaveLength(1);
+    expect(ids('Shipped')).toContain('79194426');
+
+    finish(ok('paid', 't1'));
+
+    await waitFor(() => {
+      expect(patches).toHaveLength(2);
+    });
+    expect(patches[1]?.body).toEqual({ value: 'shipped', _updated_at: 't1' });
+    await waitFor(() => {
+      expect(toasts()).toContain('Status changed to Shipped.');
+    });
+    expect(ids('Shipped')).toEqual(['79194426', '79194410']);
+  });
+});
+
 describe('Show more after a move', () => {
+  it('asks from the cards the column still holds once one has left it', async () => {
+    moveServer([ok('paid', 't1')], undefined, { pending: [79194424] });
+    await openBoard();
+    press(79194426, 'ArrowRight');
+    await waitFor(() => {
+      expect(toasts()).toContain('Status changed to Paid.');
+    });
+    const asked = vi.mocked(globalThis.fetch).mock.calls.length;
+
+    fireEvent.click(within(column('Pending')).getByRole('button', { name: 'Show more' }));
+
+    await waitFor(() => {
+      expect(ids('Pending')).toEqual(['79194427', '79194425', '79194424']);
+    });
+    const more = vi.mocked(globalThis.fetch).mock.calls.slice(asked).map(([input]) => new URL(urlOf(input), 'http://localhost').searchParams);
+    expect(more.map((params) => [params.get('column'), params.get('offset')])).toEqual([['pending', '2']]);
+  });
+
   it('draws a card the next page sends again only once', async () => {
     moveServer([ok('paid', 't1')], undefined, { paid: [79194426, 79194419] });
     await openBoard();

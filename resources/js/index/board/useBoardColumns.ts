@@ -12,7 +12,6 @@ export interface BoardColumn {
   value: string | null;
   label: string;
   rows: Row[];
-  page: number;
   hasMore: boolean;
   loading: boolean;
   count?: Count;
@@ -97,12 +96,12 @@ function emptyColumns(board: Board): BoardColumn[] {
     values.push({ value: null, label: '' });
   }
 
-  return values.map((option) => ({ ...option, rows: [], page: 0, hasMore: false, loading: true }));
+  return values.map((option) => ({ ...option, rows: [], hasMore: false, loading: true }));
 }
 
 /**
  * The Board's columns and their cards. Each column asks for its first page, then the counts
- * follow in one request; a filter, search, view or sort visit starts every column again at page 1.
+ * follow in one request; a filter, search, view or sort visit starts every column again from its first card.
  */
 export function useBoardColumns(uriKey: string, board: Board) {
   const { apiPath } = useLathe();
@@ -126,17 +125,18 @@ export function useBoardColumns(uriKey: string, board: Board) {
     setColumns(forQuery, (current) => current.map((column) => (column.value === value ? { ...column, ...change(column) } : column)));
   }
 
-  async function load(forQuery: string, value: string | null, page: number) {
-    const params = new URLSearchParams([['column', value ?? ''], ['page', String(page)], ...new URLSearchParams(forQuery)]);
+  // Show more asks from the cards the column holds, so a card moved out of it skips none on the server.
+  async function load(forQuery: string, value: string | null, offset: number) {
+    const params = new URLSearchParams([['column', value ?? ''], ['offset', String(offset)], ...new URLSearchParams(forQuery)]);
 
     try {
       const reply = await request<BoardPage>(`${endpoint}?${params.toString()}`);
       // A card moved in since the last page may come again on this one; it keeps its first place.
       update(forQuery, value, (column) => {
-        const kept = page === 1 ? [] : column.rows;
+        const kept = offset === 0 ? [] : column.rows;
         const fresh = (reply?.rows ?? []).filter((row) => !kept.some((each) => each.id === row.id));
 
-        return { rows: [...kept, ...fresh], page, hasMore: reply?.hasMore === true, loading: false };
+        return { rows: [...kept, ...fresh], hasMore: reply?.hasMore === true, loading: false };
       });
     } catch {
       update(forQuery, value, () => ({ loading: false }));
@@ -144,7 +144,7 @@ export function useBoardColumns(uriKey: string, board: Board) {
   }
 
   useEffect(() => {
-    void Promise.all(emptyColumns(board).map((column) => load(query, column.value, 1)))
+    void Promise.all(emptyColumns(board).map((column) => load(query, column.value, 0)))
       .then(() => request<BoardCounts>(`${endpoint}/counts${query === '' ? '' : `?${query}`}`))
       .then((reply) => {
         setColumns(query, (current) => current.map((column) => ({ ...column, count: reply?.columns.find((each) => each.value === column.value)?.count })));
@@ -161,7 +161,7 @@ export function useBoardColumns(uriKey: string, board: Board) {
 
       if (column !== undefined && !column.loading) {
         update(query, value, () => ({ loading: true }));
-        void load(query, value, column.page + 1);
+        void load(query, value, column.rows.length);
       }
     },
     /** Moves a card to the column of `to` where the sort puts it, with both counts; says where it was. */

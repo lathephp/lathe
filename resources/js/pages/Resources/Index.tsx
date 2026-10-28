@@ -59,12 +59,22 @@ function IndexPage({ resource, table, state, count, error, lens, actions, widget
   // No Board on a lens or a phone; the URL's layout wins over the one this user last chose.
   const board = lens == null && !phone() ? table.board : null;
   const layout = index.state.layout === 'board' || index.state.layout === 'table' ? index.state.layout : (table.layout ?? 'table');
-  useShortcut('mod+a', () => {
-    selection.toggleAll(ids);
-  });
-  useShortcut('mod+shift+a', () => {
-    selection.selectAllMatching();
-  });
+  // The Board selects nothing.
+  const selects = board == null || layout !== 'board';
+  useShortcut(
+    'mod+a',
+    () => {
+      selection.toggleAll(ids);
+    },
+    selects,
+  );
+  useShortcut(
+    'mod+shift+a',
+    () => {
+      selection.selectAllMatching();
+    },
+    selects,
+  );
 
   // Plugins hear about a filter change through the event bus.
   function visit(changes: IndexUrlState) {

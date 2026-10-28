@@ -102,7 +102,7 @@ export function boardServer(options: { empty?: string[]; counts?: Record<string,
 
     if (/\/board\?/.test(url)) {
       const column = params.get('column') ?? '';
-      const page = Number(params.get('page'));
+      const page = Number(params.get('offset')) / 25 + 1;
       const rows = (options.empty ?? []).includes(column) ? [] : Array.from({ length: 25 }, (_, index) => order(`${column || 'none'}-${String(page)}-${String(index + 1)}`, column || null));
 
       return Promise.resolve(new Response(JSON.stringify({ rows, hasMore: rows.length > 0 && page === 1 }), { status: 200 }));

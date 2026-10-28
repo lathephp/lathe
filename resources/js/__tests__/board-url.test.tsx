@@ -1,7 +1,7 @@
 import { router } from '@inertiajs/react';
 import { act, fireEvent, screen, waitFor, within } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { boardServer, orders } from './board-support';
+import { boardServer, order, orders } from './board-support';
 import { fakeInertiaServer, renderPage, type FakeRequest } from './support';
 
 // Inertia's router and jsdom's history outlive a test, so the layout's URL tests have a file of their own.
@@ -27,7 +27,7 @@ function board(): HTMLElement | null {
 }
 
 describe('the layout in the URL', () => {
-  it('writes ?layout=board in place and saves the choice, then Table takes it out again', async () => {
+  it('writes ?layout=board in place and saves the choice, then Table takes it out again and reloads the rows', async () => {
     const server = boardServer();
     renderPage('Resources/Index', orders(), { url: '/lathe/resources/orders' });
     const entries = window.history.length;
@@ -56,7 +56,18 @@ describe('the layout in the URL', () => {
     await waitFor(() => {
       expect(server.puts.map((put) => put.body)).toEqual([{ layout: 'board' }, { layout: 'table' }]);
     });
-    expect(requests).toEqual([]);
+    // A move on the Board changed records the table drew before; it asks for its rows again.
+    await waitFor(() => {
+      expect(requests).toHaveLength(1);
+    });
+    expect(requests[0]?.headers['X-Inertia-Partial-Data']).toBe('table');
+    act(() => {
+      requests[0]?.respond(200, { component: 'Resources/Index', props: orders({ rows: [order(1, 'paid')] }), url: '/lathe/resources/orders' });
+    });
+    await waitFor(() => {
+      expect(screen.queryByText('ORD-2')).toBeNull();
+    });
+    expect(window.location.search).toBe('');
   });
 
   it("opens the saved Board when the URL names no layout, and the table when it says table", async () => {
