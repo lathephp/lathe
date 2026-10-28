@@ -205,9 +205,9 @@ describe('orders table', () => {
 
     const scroller = screen.getByRole('region', { name: 'Orders table' });
     expect(scroller.classList.contains('overflow-x-auto')).toBe(true);
-    // A keyboard user can reach the sideways scroll.
-    expect(scroller.tabIndex).toBe(0);
-    expect(screen.getByRole('table').parentElement).toBe(scroller);
+    // A keyboard user scrolls sideways with the cell cursor, the grid's one tab stop, not the box.
+    expect(scroller.tabIndex).toBe(-1);
+    expect(screen.getByRole('grid').parentElement).toBe(scroller);
     expect(screen.getAllByRole('columnheader')[0]?.className).toContain('sticky start-0');
     expect(within(bodyRows()[0] as HTMLElement).getAllByRole('cell')[0]?.className).toContain('sticky start-0');
   });

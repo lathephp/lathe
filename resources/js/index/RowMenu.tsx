@@ -33,6 +33,7 @@ export function RowMenu({ uriKey, row }: { uriKey: string; row: Row }) {
       <button
         ref={trigger}
         type="button"
+        tabIndex={-1}
         aria-haspopup="menu"
         aria-expanded={open}
         aria-controls={open ? menuId : undefined}

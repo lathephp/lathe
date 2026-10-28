@@ -7,6 +7,7 @@ import { PreviewModal } from '../fields/relation/lazy';
 import { cn } from '../lib/cn';
 import { instantProps } from '../lib/instant';
 import { TableCell } from '../table/cells';
+import { useGrid } from '../table/useGrid';
 import type { SharedProps } from '../types';
 import { GroupHeaderRow } from './GroupHeaderRow';
 import { GroupSummaryRow } from './GroupSummaryRow';
@@ -37,8 +38,8 @@ const endEdge = 'shadow-[-6px_0_8px_-6px_rgb(0_0_0/0.2)] rtl:shadow-[6px_0_8px_-
 // View and Edit sit in the DOM at rest so the cell keeps its width; the row's hover or focus shows them.
 const rowLink = 'lathe-row-button opacity-0 group-hover:opacity-100 group-focus-within:opacity-100';
 
-// A click on these does its own thing, never the row's click action.
-const ownClick = 'a, button, input, label, select, [data-row-menu], [data-inline-cell]';
+// The cell cursor: the focused cell, outlined inside its edges.
+const cursorCell = 'focus:outline-2 focus:-outline-offset-2 focus:outline-ring';
 
 interface ResourceTableProps extends Pick<IndexProps, 'resource' | 'table' | 'state'> {
   loading: boolean;
@@ -100,7 +101,6 @@ export function ResourceTable({ resource, table, state, loading, selection, sort
   const { summaries, groups } = usePage<Pick<IndexProps, 'summaries' | 'groups'>>().props;
   // The keys of the groups folded shut.
   const [collapsed, setCollapsed] = useState<string[]>([]);
-  const opens = clickAction === 'detail' || clickAction === 'edit' || clickAction === 'select' || clickAction === 'preview';
   const rowClass = cn(
     'border-b border-border last:border-0',
     // TableStyle tight forces the compact height whatever the panel density.
@@ -119,6 +119,8 @@ export function ResourceTable({ resource, table, state, loading, selection, sort
   const stuck = columns.length === 0 ? 0 : pinned.length + 1;
   const header = useRef<HTMLTableRowElement>(null);
   const scroller = useRef<HTMLDivElement>(null);
+  const grid = useRef<HTMLTableElement>(null);
+  useGrid(grid);
   // Where each stuck column starts, measured from the header cells.
   const [offsets, setOffsets] = useState<number[]>([]);
   // Whether columns sit scrolled beneath the start block, and beyond the row menu at the end.
@@ -192,7 +194,7 @@ export function ResourceTable({ resource, table, state, loading, selection, sort
   const [saved, setSaved] = useState<Record<string, { over: Row; cells: Row['cells']; updatedAt: string | null | undefined }>>({});
   // Each column's cell classes, worked out once per render rather than once per cell.
   const cellClasses = columns.map((column, index) => {
-    const base = cn('max-w-80 px-3 whitespace-nowrap', alignClass(column), pins[index]?.className, border);
+    const base = cn('max-w-80 px-3 whitespace-nowrap', alignClass(column), pins[index]?.className, border, cursorCell);
 
     return { plain: cn(base, 'truncate'), inline: base };
   });
@@ -228,34 +230,18 @@ export function ResourceTable({ resource, table, state, loading, selection, sort
     }
   }
 
-  function clickRow(event: MouseEvent<HTMLTableRowElement>, row: Row) {
-    // A click inside a portal, such as an inline select's list, reaches the row through
-    // React's tree but not the page's, so the row is not where it landed.
-    if (!(event.target instanceof Node) || !event.currentTarget.contains(event.target) || (event.target instanceof Element && event.target.closest(ownClick) !== null)) {
-      return;
-    }
+  // The title link runs the click action; Enter on a cell that cannot be edited presses it.
+  function openRow(event: MouseEvent, row: Row) {
+    const url = rowUrl(row);
+    event.preventDefault();
 
     if (clickAction === 'select') {
       selection.toggle(row.id);
-
-      return;
-    }
-
-    if (clickAction === 'preview') {
+    } else if (clickAction === 'preview') {
       setPreviewing(row.id);
-
-      return;
-    }
-
-    const url = rowUrl(row);
-
-    if (url === null) {
-      return;
-    }
-
-    if (event.metaKey || event.ctrlKey) {
+    } else if (url !== null && (event.metaKey || event.ctrlKey)) {
       window.open(url, '_blank', 'noopener');
-    } else {
+    } else if (url !== null) {
       router.visit(url, visitOptions(row));
     }
   }
@@ -271,7 +257,6 @@ export function ResourceTable({ resource, table, state, loading, selection, sort
   );
 
   return (
-    // Focusable, so a keyboard user can scroll a wide table sideways.
     // Relative, so the visually hidden header labels stay inside the scroll box on a narrow screen.
     <div
       ref={scroller}
@@ -279,10 +264,10 @@ export function ResourceTable({ resource, table, state, loading, selection, sort
       className={cn('relative overflow-x-auto', cards === true && 'max-md:hidden')}
       role="region"
       aria-label={__(':resource table', { resource: resource.label })}
-      tabIndex={0}
       onScroll={measureEdges}
     >
-      <table data-lathe-table className="w-full text-sm">
+      {/* A grid of one tab stop: the cursor's cell; the controls in the rows wait for it. */}
+      <table ref={grid} role="grid" aria-rowcount={-1} data-lathe-table className="w-full text-sm">
         <thead>
           <tr ref={header}>
             <th scope="col" className={cn(checkboxColumn, border)}>
@@ -379,15 +364,11 @@ export function ResourceTable({ resource, table, state, loading, selection, sort
                       />
                     )}
                     {!folded && (
-                      <tr
-                        className={cn('group', rowClass, opens && 'cursor-pointer hover:bg-accent')}
-                        onClick={(event) => {
-                          clickRow(event, row);
-                        }}
-                      >
-                        <td className={cn(checkboxColumn, border)}>
+                      <tr data-row="" className={cn('group', rowClass)}>
+                        <td tabIndex={-1} className={cn(checkboxColumn, border, cursorCell)}>
                           <input
                             type="checkbox"
+                            tabIndex={-1}
                             aria-label={__('Select :title', { title: row.title })}
                             className="block size-4"
                             checked={selection.isSelected(row.id)}
@@ -401,11 +382,25 @@ export function ResourceTable({ resource, table, state, loading, selection, sort
                           const fresh = kept?.over === row ? kept : undefined;
                           const cell = (fresh?.cells ?? row.cells)[column.key];
                           const inline = column.inline === true && row.abilities.update === true;
+                          const url = index === 0 && !inline && clickAction !== 'ignore' ? rowUrl(row) : undefined;
 
                           return (
                             <td
                               key={column.key}
-                              className={inline ? cellClasses[index]?.inline : cellClasses[index]?.plain}
+                              tabIndex={position === 0 && index === 0 ? 0 : -1}
+                              // The title cell is the row's link: a click on it, not on a control inside, runs the click action.
+                              data-open={url === undefined ? undefined : ''}
+                              onClick={
+                                url === undefined
+                                  ? undefined
+                                  : (event) => {
+                                      // A click inside a portal, such as a preview, reaches the cell through React's tree only.
+                                      if (event.target instanceof Element && event.currentTarget.contains(event.target) && event.target.closest('a, button, input, label, select') === null) {
+                                        openRow(event, row);
+                                      }
+                                    }
+                              }
+                              className={cn(inline ? cellClasses[index]?.inline : cellClasses[index]?.plain, url !== undefined && 'cursor-pointer hover:underline')}
                               style={pins[index]?.style}
                               onMouseEnter={
                                 index === 0
@@ -446,12 +441,13 @@ export function ResourceTable({ resource, table, state, loading, selection, sort
                           );
                         })}
                         {withMenu && (
-                          <td data-row-menu="" className={cn('z-[1] px-3 hover:z-10 focus-within:z-10', menuClass, border)}>
+                          <td data-row-menu="" tabIndex={-1} className={cn('z-[1] px-3 hover:z-10 focus-within:z-10', menuClass, border, cursorCell)}>
                             <div className="flex items-center justify-end gap-0.5">
                               {row.abilities.view === true && (
                                 <Link
                                   href={`${basePath}/resources/${resource.uriKey}/${String(row.id)}`}
                                   aria-label={__('View :title', { title: row.title })}
+                                  tabIndex={-1}
                                   className={rowLink}
                                 >
                                   <Eye aria-hidden="true" className="size-4" />
@@ -461,6 +457,7 @@ export function ResourceTable({ resource, table, state, loading, selection, sort
                                 <Link
                                   href={`${basePath}/resources/${resource.uriKey}/${String(row.id)}/edit`}
                                   aria-label={__('Edit :title', { title: row.title })}
+                                  tabIndex={-1}
                                   className={rowLink}
                                 >
                                   <Pencil aria-hidden="true" className="size-4" />
@@ -470,6 +467,7 @@ export function ResourceTable({ resource, table, state, loading, selection, sort
                                 <button
                                   type="button"
                                   aria-label={__('Preview :title', { title: row.title })}
+                                  tabIndex={-1}
                                   className={rowLink}
                                   onClick={() => {
                                     setPreviewing(row.id);

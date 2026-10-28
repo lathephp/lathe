@@ -97,11 +97,21 @@ function rowOf(title: string): HTMLElement {
   return found;
 }
 
+// The row's title link, or a plain cell where the click action opens nothing.
 function clickCell(title: string, init: MouseEventInit = {}) {
-  fireEvent.click(within(rowOf(title)).getByText('$12.00'), init);
+  fireEvent.click(rowOf(title).querySelector('[data-open]') ?? within(rowOf(title)).getByText('$12.00'), init);
 }
 
-describe('row click', () => {
+describe('title link', () => {
+  it('opens nothing from a click elsewhere on the row', () => {
+    const visit = vi.spyOn(router, 'visit').mockImplementation(() => undefined);
+    renderOrders();
+
+    fireEvent.click(within(rowOf('ORD-00012')).getByText('$12.00'));
+
+    expect(visit).not.toHaveBeenCalled();
+  });
+
   it('opens the detail page for detail', () => {
     const visit = vi.spyOn(router, 'visit').mockImplementation(() => undefined);
     renderOrders();
