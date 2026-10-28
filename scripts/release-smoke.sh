@@ -3,7 +3,8 @@
 #   bash scripts/release-smoke.sh [workdir]
 # It packs the package with `composer archive` (dist/ must be built) and each npm package with
 # `pnpm pack`, creates a Laravel 13.35.0 app, requires lathe/lathe:^1.0@beta from the local
-# archive, runs lathe:install and lathe:doctor, and asks /lathe/login for a 200.
+# archive, runs lathe:install and lathe:doctor, asks /lathe/login for a 200, checks every built
+# asset the manifest names reached the app, then signs in and opens the Users list.
 # The version is the newest CHANGELOG release heading, so a dry run on main smokes the
 # release it is about to cut. Prints rc= and exits non-zero on the first failure.
 set -uo pipefail
@@ -80,5 +81,35 @@ for _ in $(seq 30); do
 done
 [[ $code == 200 ]] || fail "/lathe/login answered $code"
 
-echo "lathe/lathe $version installed, lathe:install and lathe:doctor passed, /lathe/login answered 200"
+step "every asset in dist/manifest.json is installed"
+php -r '
+    $dist = $argv[1];
+    $manifest = json_decode((string) file_get_contents("$dist/manifest.json"), true);
+    is_array($manifest) || exit(1);
+    $missing = [];
+    foreach ($manifest as $entry) {
+        foreach ([$entry["file"] ?? null, ...($entry["css"] ?? []), ...($entry["assets"] ?? [])] as $file) {
+            if (is_string($file) && ! is_file("$dist/$file")) {
+                $missing[] = $file;
+            }
+        }
+    }
+    $missing === [] || exit(fwrite(STDERR, "missing: ".implode(", ", $missing)."\n") && 1);
+' "$work/app/vendor/lathe/lathe/dist" || fail "the installed dist/ lacks files its manifest names"
+
+step "sign in and open the Users list"
+php artisan lathe:user --name=Smoke --email=smoke@example.com --password=smoke-password-1 --no-interaction >/dev/null || fail "lathe:user failed"
+sed -i "s|^            //$|            'smoke@example.com',|" app/Providers/LatheServiceProvider.php
+grep -q "'smoke@example.com'," app/Providers/LatheServiceProvider.php || fail "could not add the user to the viewLathe gate"
+base="http://127.0.0.1:$port/lathe"
+jar="$work/cookies.txt"
+curl -s -c "$jar" -o /dev/null "$base/login"
+token=$(awk '$6 == "XSRF-TOKEN" {print $7}' "$jar" | php -r 'echo urldecode(trim(stream_get_contents(STDIN)));')
+code=$(curl -s -b "$jar" -c "$jar" -o /dev/null -w '%{http_code}' -H "X-XSRF-TOKEN: $token" -H 'Accept: application/json' -H 'Content-Type: application/json' \
+    -d '{"email":"smoke@example.com","password":"smoke-password-1"}' "$base/login")
+[[ $code == 200 || $code == 204 ]] || fail "signing in answered $code"
+grep -qE 'Resources(\\)?/Index' <<<"$(curl -s -b "$jar" "$base/resources/users")" || fail "/lathe/resources/users is not the Resource index"
+grep -q 'smoke@example.com' <<<"$(curl -s -b "$jar" -H 'Accept: application/json' "$base/api/resources/users")" || fail "the Users list does not hold the user"
+
+echo "lathe/lathe $version installed, lathe:install and lathe:doctor passed, /lathe/login answered 200, the Users list opened"
 echo "rc=0"

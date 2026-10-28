@@ -9,5 +9,5 @@ it('installs the packed release into a clean Laravel app', function () {
     $process->run();
 
     expect($process->getExitCode())->toBe(0, $process->getOutput().$process->getErrorOutput())
-        ->and($process->getOutput())->toContain('lathe:install and lathe:doctor passed, /lathe/login answered 200');
+        ->and($process->getOutput())->toContain('lathe:install and lathe:doctor passed, /lathe/login answered 200, the Users list opened');
 })->skip(fn () => getenv('LATHE_RELEASE_SMOKE') !== '1', 'Set LATHE_RELEASE_SMOKE=1 to install the packed release into a clean app.');
