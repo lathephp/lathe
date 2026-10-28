@@ -2181,14 +2181,17 @@ Lathe\Field\Repeater\Repeatable::string $label  [protected]
 Lathe\Field\Repeater\Repeatable::toPayload(Closure $field): array
 Lathe\Field\SelectField::?Lathe\Field\RemoteOptions $remoteOptions  [protected]
 Lathe\Field\SelectField::?array $badges  [protected]
+Lathe\Field\SelectField::?array $meterExcept  [protected]
 Lathe\Field\SelectField::BADGE_TONES
 Lathe\Field\SelectField::Closure|array|string $optionSource  [protected]
 Lathe\Field\SelectField::Closure|bool $searchable  [protected]
 Lathe\Field\SelectField::badges(array $tones): static
 Lathe\Field\SelectField::bool $displayUsingLabels  [protected]
+Lathe\Field\SelectField::freeze(): static
 Lathe\Field\SelectField::hasBadges(): bool
 Lathe\Field\SelectField::impliedRules(): array  [protected]
 Lathe\Field\SelectField::jsonSerialize(): array
+Lathe\Field\SelectField::meter(array $except = array ( )): static
 Lathe\Field\SelectField::string $component  [protected]
 Lathe\Field\SelectField::supportsInline(): bool  [protected]
 Lathe\Field\SlugField::__construct(string $label, Closure|string|null $attribute = NULL, ?Closure $resolver = NULL)
