@@ -157,7 +157,7 @@ export function parseToken(token: string, filters: IndexFilter[], options: { sof
 
   const typed = values(raw);
   const first = typed[0] ?? '';
-  const several =filter.kind === 'multiple' || (filter.kind === 'boolean' && (filter.options?.length ?? 0) > 1);
+  const several = filter.kind === 'multiple' || (filter.kind === 'boolean' && (filter.options?.length ?? 0) > 1);
 
   if (typed.length > 1 && !several) {
     return fail(filter.key, __(':filter takes one value', { filter: name }));
@@ -221,7 +221,7 @@ export function parseToken(token: string, filters: IndexFilter[], options: { sof
   const [one] = chosen;
   const value = filter.kind === 'boolean' || chosen.length > 1 || one === undefined ? chosen.map((option) => option.value) : one.value;
 
-  return chip(value,chosen.map((option) => option.label).join(', '));
+  return chip(value, chosen.map((option) => option.label).join(', '));
 }
 
 /** The chip for a relation token once the server has searched the filter's options for its title. */
