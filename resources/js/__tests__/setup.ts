@@ -1,5 +1,5 @@
 import { __panel } from '@lathephp/core';
-import { cleanup } from '@testing-library/react';
+import { cleanup, configure } from '@testing-library/react';
 import { afterEach, beforeAll, vi } from 'vitest';
 import { registerBuiltinFields } from '../fields/builtin';
 import { preloadChoiceForms } from '../fields/choice/lazy';
@@ -12,6 +12,10 @@ import { SlugInput } from '../fields/slug/lazy';
 import { Uploader } from '../fields/upload/file';
 
 registerBuiltinFields();
+
+// A lazy chunk on a loaded CI runner can take over the default second to arrive; a find or waitFor
+// still fails on what it asserts, only later.
+configure({ asyncUtilTimeout: 3000 });
 
 // The relation pickers, the repeater, the date picker and the saved-view dialogs are lazy chunks; loaded up front, a test renders them at once.
 beforeAll(async () => {

@@ -76,6 +76,8 @@ async function clickBar(): Promise<HTMLInputElement> {
   fireEvent.click(plain);
   const input = await screen.findByRole<HTMLInputElement>('combobox', { name: 'Search orders' });
   expect(document.activeElement).toBe(input);
+  // Base UI mounts the open list a frame after its input; the fake clock below would hold it back.
+  await screen.findAllByRole('option');
   vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout'] });
 
   return input;
