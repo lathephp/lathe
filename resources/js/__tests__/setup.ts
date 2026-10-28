@@ -1,6 +1,6 @@
 import { __panel } from '@lathephp/core';
 import { cleanup } from '@testing-library/react';
-import { afterEach, beforeAll } from 'vitest';
+import { afterEach, beforeAll, vi } from 'vitest';
 import { registerBuiltinFields } from '../fields/builtin';
 import { preloadChoiceForms } from '../fields/choice/lazy';
 import { preloadDateFields } from '../fields/date/lazy';
@@ -26,11 +26,16 @@ if (typeof Range !== 'undefined' && typeof Range.prototype.getClientRects !== 'f
 }
 
 // Vitest globals are off, so Testing Library cannot register its own cleanup.
-afterEach(() => {
+afterEach(async () => {
   cleanup();
   __panel.toasts.set([]);
   __panel.sharedProps.set({});
   __panel.setTranslator(null);
+  // An unmounted <Head> updates the head on a 1 ms timer; let it run while jsdom is still
+  // here. Under fake timers it never fires on its own, so there is nothing to wait for.
+  if (!vi.isFakeTimers()) {
+    await new Promise((resolve) => setTimeout(resolve, 2));
+  }
 });
 
 // jsdom does not implement scrollIntoView; the form's error summary calls it after a failed save.
