@@ -815,6 +815,11 @@
     @apply text-[11px] leading-4 font-semibold tracking-[0.04em] text-muted-foreground uppercase;
   }
 
+  /* The cell cursor on the header row, outlined like a body cell's. */
+  [data-lathe-table] thead th:focus {
+    @apply outline-2 -outline-offset-2 outline-ring;
+  }
+
   [data-lathe-table] tbody tr {
     @apply bg-card;
   }

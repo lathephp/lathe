@@ -77,6 +77,73 @@ describe('the cell cursor', () => {
     expect(Array.from(grid.querySelectorAll('tbody input, tbody a, tbody button')).filter((element) => (element as HTMLElement).tabIndex >= 0)).toEqual([]);
   });
 
+  it("takes a related record's link out of the tab order once the cursor's code is in", async () => {
+    const base = orders(2);
+    const linked = {
+      ...base,
+      table: {
+        ...base.table,
+        columns: base.table.columns.map((column) => (column.key === 'customer' ? { ...column, component: 'belongs-to-field' } : column)),
+        rows: base.table.rows.map((row) => ({ ...row, cells: { ...row.cells, customer: { value: { value: row.id, display: `Ann ${String(row.id)}`, href: `/lathe/resources/customers/${String(row.id)}` }, display: `Ann ${String(row.id)}` } } })),
+      },
+    };
+    renderPage('Resources/Index', linked, { url: '/lathe/resources/orders' });
+    await waitFor(() => {
+      expect(screen.getByRole('grid').hasAttribute('data-grid-ready')).toBe(true);
+    });
+
+    const links = Array.from(screen.getByRole('grid').querySelectorAll<HTMLElement>('tbody a'));
+    expect(links.length).toBeGreaterThan(0);
+    expect(links.filter((link) => link.tabIndex >= 0)).toEqual([]);
+  });
+
+  it("moves the cursor from a first click on a related record's link, and opens it from a click once its cell holds the cursor", async () => {
+    const visit = vi.spyOn(router, 'visit').mockImplementation(() => undefined);
+    const base = orders(2);
+    renderPage(
+      'Resources/Index',
+      {
+        ...base,
+        table: {
+          ...base.table,
+          columns: base.table.columns.map((column) => (column.key === 'customer' ? { ...column, component: 'belongs-to-field' } : column)),
+          rows: base.table.rows.map((row) => ({ ...row, cells: { ...row.cells, customer: { value: { value: 7, display: 'Ann Lee', href: '/lathe/resources/customers/7' }, display: 'Ann Lee' } } })),
+        },
+      },
+      { url: '/lathe/resources/orders' },
+    );
+    await waitFor(() => {
+      expect(screen.getByRole('grid').hasAttribute('data-grid-ready')).toBe(true);
+    });
+    const link = screen.getAllByRole('link', { name: 'Ann Lee' })[1] as HTMLElement;
+
+    fireEvent.pointerDown(link);
+    fireEvent.click(link);
+    expect(visit).not.toHaveBeenCalled();
+    expect(document.activeElement).toBe(link.closest('td'));
+
+    fireEvent.pointerDown(link);
+    fireEvent.click(link);
+    expect(visit.mock.calls[0]?.[0]).toBe('/lathe/resources/customers/7');
+  });
+
+  it('reaches the header from the first row, presses its select-all with Enter, and leaves its controls out of the tab order', async () => {
+    renderPage('Resources/Index', orders(3), { url: '/lathe/resources/orders' });
+    act(() => {
+      cursor().focus();
+    });
+
+    await press('ArrowUp');
+    expect(document.activeElement?.textContent).toBe('Number');
+    await press('Home');
+    await press('Enter');
+
+    expect(screen.getAllByRole<HTMLInputElement>('checkbox').every((box) => box.checked)).toBe(true);
+    expect(Array.from(screen.getByRole('grid').querySelectorAll<HTMLElement>('thead input, thead button')).filter((control) => control.tabIndex >= 0)).toEqual([]);
+    await press('ArrowDown');
+    expect(document.activeElement?.closest('tr')?.hasAttribute('data-row')).toBe(true);
+  });
+
   it('moves down twice to row 3 in the same column, and Home, End and the page keys move along the row and the rows', async () => {
     renderPage('Resources/Index', orders(30), { url: '/lathe/resources/orders' });
     act(() => {

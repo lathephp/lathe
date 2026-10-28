@@ -46,6 +46,11 @@ export function attachGrid(table: HTMLTableElement, select: { current: GridSelec
   }
 
   function sync() {
+    // A cell's own links and buttons, such as a related record's name or a header's sort, wait for the cursor too.
+    for (const control of table.querySelectorAll<HTMLElement>('a[href]:not([tabindex]), button:not([tabindex]), input:not([tabindex]), th:not([tabindex])')) {
+      control.tabIndex = -1;
+    }
+
     // Before the first move the cell the page rendered with tabindex 0 is the cursor.
     const cell = column === -1 ? undefined : current();
 
@@ -97,17 +102,58 @@ export function attachGrid(table: HTMLTableElement, select: { current: GridSelec
     }
   }
 
-  // A click on a cell, not on a control in it, puts the cursor there.
+  // Whether the pressed cell held the cursor before the press focused it.
+  let held = false;
+
+  function onPointerDown(event: PointerEvent) {
+    const found = locate(event.target);
+    held = found !== null && found.cell === current() && found.cell.contains(document.activeElement);
+  }
+
+  // A click on a cell, not on a control in it, puts the cursor there. A link in a cell, such as a
+  // related record's name, moves the cursor first and opens once its cell holds the cursor.
   function onClick(event: MouseEvent) {
     const found = locate(event.target);
+    const control = event.target instanceof Element ? event.target.closest('a, button, input, label, select') : null;
 
-    if (found !== null && event.target instanceof Element && event.target.closest('a, button, input, label, select') === null) {
+    if (found !== null && control === null) {
       found.cell.focus();
+    } else if (found !== null && control instanceof HTMLAnchorElement && !held && !event.metaKey && !event.ctrlKey && !event.shiftKey) {
+      event.preventDefault();
+      found.cell.focus();
+    }
+
+    held = false;
+  }
+
+  // The header row: the arrows move along it and Down goes back to the rows; Enter presses its sort,
+  // its select-all or its Columns button.
+  function onHeaderKey(event: KeyboardEvent, header: HTMLTableCellElement) {
+    const cells = (header.parentElement as HTMLTableRowElement).cells;
+    const step = document.dir === 'rtl' ? -1 : 1;
+    const to = { ArrowRight: header.cellIndex + step, ArrowLeft: header.cellIndex - step, Home: 0, End: cells.length - 1 }[event.key];
+
+    if (event.key === 'ArrowDown') {
+      event.preventDefault();
+      moveTo(0, header.cellIndex);
+    } else if (to !== undefined) {
+      event.preventDefault();
+      cells[Math.max(0, Math.min(to, cells.length - 1))]?.focus();
+    } else if (event.key === 'Enter' && event.target === header) {
+      event.preventDefault();
+      header.querySelector<HTMLElement>('button, input')?.click();
     }
   }
 
   function onKeyDown(event: KeyboardEvent) {
     const found = locate(event.target);
+    const header = event.target instanceof Element ? event.target.closest('thead th') : null;
+
+    if (header instanceof HTMLTableCellElement && !event.altKey && !event.metaKey && !event.ctrlKey && !event.shiftKey) {
+      onHeaderKey(event, header);
+
+      return;
+    }
 
     if (found === null || (event.target instanceof Element && event.target.closest(typing) !== null) || event.altKey || event.metaKey || event.ctrlKey) {
       return;
@@ -126,7 +172,10 @@ export function attachGrid(table: HTMLTableElement, select: { current: GridSelec
     // Shift+Up and Shift+Down move and select; Shift with any other move is not ours.
     const move = event.shiftKey && event.key !== 'ArrowDown' && event.key !== 'ArrowUp' ? undefined : moves[event.key];
 
-    if (move !== undefined) {
+    if (event.key === 'ArrowUp' && !event.shiftKey && found.row === 0) {
+      event.preventDefault();
+      table.tHead?.rows[0]?.cells[found.column]?.focus();
+    } else if (move !== undefined) {
       event.preventDefault();
       moveTo(...move);
 
@@ -157,15 +206,18 @@ export function attachGrid(table: HTMLTableElement, select: { current: GridSelec
   }
 
   table.addEventListener('focusin', onFocusIn);
+  table.addEventListener('pointerdown', onPointerDown);
   table.addEventListener('click', onClick);
   table.addEventListener('keydown', onKeyDown);
   table.addEventListener('dblclick', onDoubleClick);
   table.dataset.gridReady = '';
+  sync();
 
   return {
     sync,
     detach() {
       table.removeEventListener('focusin', onFocusIn);
+      table.removeEventListener('pointerdown', onPointerDown);
       table.removeEventListener('click', onClick);
       table.removeEventListener('keydown', onKeyDown);
       table.removeEventListener('dblclick', onDoubleClick);
