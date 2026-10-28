@@ -172,7 +172,7 @@ function IndexPage({ resource, table, state, count, error, lens, actions, widget
             />
           ) : board != null && layout === 'board' ? (
             <Suspense fallback={<div aria-hidden="true" className="min-h-40" />}>
-              <Board resource={resource} table={table} board={board} />
+              <Board resource={resource} table={table} board={board} preview={preview} />
             </Suspense>
           ) : (
             <>
@@ -226,8 +226,9 @@ function IndexPage({ resource, table, state, count, error, lens, actions, widget
               row={kept !== undefined && shown !== undefined && sameRow(kept.over, shown) ? kept.row : shown}
               onClose={() => {
                 preview.close();
-                // The grid's cursor takes the focus back from the panel, or on a phone the card it showed, where the list stays put.
-                document.querySelector<HTMLElement>(phone() ? `[data-lathe-cards] [data-id="${preview.id ?? ''}"]` : '[role=grid] td[tabindex="0"]')?.focus({ preventScroll: true });
+                // The grid's cursor takes the focus back from the panel, or the card it showed on a phone or the Board, where the list stays put.
+                const card = phone() ? `[data-lathe-cards] [data-id="${preview.id ?? ''}"]` : board != null && layout === 'board' ? `[data-board-card="${preview.id ?? ''}"]` : '[role=grid] td[tabindex="0"]';
+                document.querySelector<HTMLElement>(card)?.focus({ preventScroll: true });
               }}
             />
           </Suspense>
