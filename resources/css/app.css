@@ -839,6 +839,15 @@
     @apply bg-destructive-subtle text-destructive-subtle-foreground;
   }
 
+  /* The list under the bar: a filter's token after its name, and a value-less filter's grammar. */
+  .lathe-bar-hint {
+    @apply ms-auto font-mono text-xs text-muted-foreground;
+  }
+
+  .lathe-bar-help {
+    @apply px-2 py-1.5 text-xs text-muted-foreground;
+  }
+
   /* Group is a ghost button over the select; a chosen grouping reads "Group: Status ascending". */
   .lathe-group {
     @apply h-[30px] gap-1.5 border-0 bg-transparent px-2.5 text-[13px] font-medium text-muted-foreground shadow-none hover:bg-accent aria-expanded:bg-accent;

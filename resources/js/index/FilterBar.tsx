@@ -46,9 +46,12 @@ export function FilterBar({ q = '', visit }: FilterBarProps) {
   const { resource } = page.props;
   const [text, setText] = useState(q);
   const [seen, setSeen] = useState(q);
-  // Null until the editor has loaded after a focus; then whether the input had the focus at that moment.
-  const [editor, setEditor] = useState<{ focus: boolean } | null>(null);
+  // Null until the editor has loaded after a focus; then whether the input had the focus at that moment,
+  // and whether a press on it gave that focus.
+  const [editor, setEditor] = useState<{ focus: boolean; pressed: boolean } | null>(null);
   const box = useRef<HTMLDivElement>(null);
+  // A press focuses the input before the editor loads, so the click that opens the list lands here.
+  const pressed = useRef(false);
   const timer = useRef<ReturnType<typeof setTimeout>>(undefined);
   const chips = urlChips(page.url, page.props, __);
   const named = { resource: resource.label.toLowerCase() };
@@ -101,7 +104,7 @@ export function FilterBar({ q = '', visit }: FilterBarProps) {
 
   function edit() {
     void FilterBarEditor.preload().then(() => {
-      setEditor({ focus: box.current?.contains(document.activeElement) === true });
+      setEditor({ focus: box.current?.contains(document.activeElement) === true, pressed: pressed.current });
     });
   }
 
@@ -154,13 +157,16 @@ export function FilterBar({ q = '', visit }: FilterBarProps) {
             onChange={(event) => {
               type(event.target.value);
             }}
+            onPointerDown={() => {
+              pressed.current = true;
+            }}
             onFocus={edit}
           />
           <kbd aria-hidden="true">/</kbd>
         </div>
       ) : (
         <Suspense fallback={null}>
-          <FilterBarEditor label={label} url={page.url} urlChips={chips} text={text} focus={editor.focus} onType={type} onSettle={settle} visit={visit} />
+          <FilterBarEditor label={label} url={page.url} urlChips={chips} text={text} focus={editor.focus} pressed={editor.pressed} onType={type} onSettle={settle} visit={visit} />
         </Suspense>
       )}
     </div>
