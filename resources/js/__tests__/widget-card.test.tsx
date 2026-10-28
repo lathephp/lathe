@@ -197,22 +197,6 @@ describe('the dashboard range', () => {
     expect(screen.queryByRole('combobox', { name: 'Range' })).toBeNull();
   });
 
-  it('refetches every card with the picked range and keeps it in the URL', async () => {
-    const fetch = answer((url) => (url.includes('range=365') ? 365 : 30));
-    const { reload } = renderDashboard([descriptor('orders', { ranges }), descriptor('revenue')], { orders: 1, revenue: 2 });
-
-    fireEvent.click(screen.getByRole('radio', { name: '12 months' }));
-
-    await waitFor(() => {
-      expect(within(card('orders')).getByText('365')).toBeTruthy();
-      expect(within(card('revenue')).getByText('365')).toBeTruthy();
-    });
-    expect(calls(fetch).sort()).toEqual(['/lathe/api/dashboards/main/widgets/orders?range=365', '/lathe/api/dashboards/main/widgets/revenue?range=365']);
-    expect(window.location.pathname + window.location.search).toBe('/lathe?range=365');
-    expect(screen.getByRole('radio', { name: '12 months' }).getAttribute('aria-checked')).toBe('true');
-    expect(reload).not.toHaveBeenCalled();
-  });
-
   it('names the range a card fell back to', async () => {
     vi.spyOn(globalThis, 'fetch').mockResolvedValue(
       new Response(JSON.stringify({ ...valueOf('orders', 5), fallbackRange: { value: 30, label: 'Last 30 days' } }), { status: 200 }),

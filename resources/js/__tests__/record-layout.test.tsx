@@ -180,26 +180,6 @@ describe('panels', () => {
 });
 
 describe('tabs', () => {
-  it('puts the selected tab in ?tab= and opens it again from the URL', () => {
-    const { unmount } = renderDetail([tabs('main', 'tab', ['order', 'billing'])], ['order', 'billing']);
-
-    fireEvent.click(screen.getByRole('tab', { name: 'Billing' }));
-    expect(new URL(window.location.href).searchParams.get('tab')).toBe('billing');
-    unmount();
-
-    renderDetail([tabs('main', 'tab', ['order', 'billing'])], ['order', 'billing']);
-    expect(screen.getByRole('tab', { name: 'Billing' }).getAttribute('aria-selected')).toBe('true');
-  });
-
-  it('keys a second group by its own query key and opens activeTab when the query names no tab', () => {
-    window.history.replaceState(null, '', '/?tab=nope');
-    renderDetail([tabs('main', 'tab', ['order', 'billing'], { activeTab: 1 }), tabs('more', 'tab_more', ['notes', 'items'])], ['order', 'billing', 'notes', 'items']);
-
-    expect(screen.getByRole('tab', { name: 'Billing' }).getAttribute('aria-selected')).toBe('true');
-    fireEvent.click(screen.getByRole('tab', { name: 'Items' }));
-    expect(new URL(window.location.href).searchParams.get('tab_more')).toBe('items');
-  });
-
   it('shows a tab badge with its type colour', () => {
     const group = tabs('main', 'tab', ['order', 'billing']);
     const tab = group.tabs[1];

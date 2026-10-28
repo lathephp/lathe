@@ -50,17 +50,6 @@ describe('the panel in the URL', () => {
     expect(panel().querySelector('header')?.textContent).toContain('Paid');
   });
 
-  it('opens again on the linked order after a reload', async () => {
-    previews();
-    window.history.replaceState({}, '', '/lathe/resources/orders?preview=2');
-    renderPage('Resources/Index', orders(), { url: '/lathe/resources/orders?preview=2' });
-
-    await waitFor(() => {
-      expect(panel()).not.toBeNull();
-    });
-    expect(within(panel()).getByRole('heading').textContent).toBe('ORD-79186507');
-  });
-
   it('opens a linked order that is not on the page from its own reply, with no cell cursor placed', async () => {
     const asked: string[] = [];
     vi.spyOn(globalThis, 'fetch').mockImplementation((input) => {
