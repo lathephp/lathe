@@ -240,6 +240,42 @@ class ResourceQuery
     }
 
     /**
+     * One page of a Board column, in the list's sort: the scoped query narrowed to the rows whose
+     * $attribute is $value, or null for the No value column. Returns $limit + 1 rows at most, the
+     * extra one telling the caller that another page exists.
+     *
+     * @return Collection<int, Model>
+     */
+    public function columnRows(string $attribute, ?string $value, int $limit, int $page): Collection
+    {
+        $query = $this->inColumn($this->scoped(), $attribute, $value);
+
+        return $this->applySort($query->with($this->resource->with())->with($this->recordRelations(FieldContext::Index)))
+            ->offset(($page - 1) * $limit)
+            ->limit($limit + 1)
+            ->get();
+    }
+
+    /**
+     * One capped count of a Board column over the scoped query, filters and search included.
+     */
+    public function columnCount(string $attribute, ?string $value): Count
+    {
+        return $this->cappedCount($this->resource->definition()->getCountCap(), $this->inColumn($this->scoped(), $attribute, $value));
+    }
+
+    /**
+     * @param  Builder<Model>  $query
+     * @return Builder<Model>
+     */
+    protected function inColumn(Builder $query, string $attribute, ?string $value): Builder
+    {
+        $column = $query->qualifyColumn($attribute);
+
+        return $value === null ? $query->whereNull($column) : $query->where($column, $value);
+    }
+
+    /**
      * At most $limit rows for global search. When the title and subtitle are plain
      * attributes, only the key, title and subtitle columns are read.
      *

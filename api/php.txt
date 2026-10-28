@@ -2493,6 +2493,11 @@ Lathe\Http\Controllers\Resources\BatchDeleteController::delete(Lathe\Http\Reques
 Lathe\Http\Controllers\Resources\BatchDeleteController::forceDelete(Lathe\Http\Requests\LatheRequest $request, Lathe\Auth\ResourceAuthorization $authorization, Lathe\Resources\RecordDeleter $deleter, Lathe\ActionEvents\ActionEventRecorder $recorder): Illuminate\Http\JsonResponse
 Lathe\Http\Controllers\Resources\BatchDeleteController::handle(Lathe\Http\Requests\LatheRequest $request, Lathe\Auth\ResourceAuthorization $authorization, Lathe\Resources\RecordDeleter $deleter, Lathe\ActionEvents\ActionEventRecorder $recorder, string $ability, string $key): Illuminate\Http\JsonResponse  [protected]
 Lathe\Http\Controllers\Resources\BatchDeleteController::restore(Lathe\Http\Requests\LatheRequest $request, Lathe\Auth\ResourceAuthorization $authorization, Lathe\Resources\RecordDeleter $deleter, Lathe\ActionEvents\ActionEventRecorder $recorder): Illuminate\Http\JsonResponse
+Lathe\Http\Controllers\Resources\BoardController::PAGE_SIZE
+Lathe\Http\Controllers\Resources\BoardController::column(Lathe\Http\Requests\LatheRequest $request, array $columns): ?string  [protected]
+Lathe\Http\Controllers\Resources\BoardController::columns(Lathe\Http\Payloads\IndexPayload $payload, Lathe\Http\Requests\LatheRequest $request, string $class): array  [protected]
+Lathe\Http\Controllers\Resources\BoardController::counts(Lathe\Http\Requests\LatheRequest $request, Lathe\Auth\ResourceAuthorization $authorization, Lathe\Http\Payloads\IndexPayload $payload): Illuminate\Http\JsonResponse
+Lathe\Http\Controllers\Resources\BoardController::index(Lathe\Http\Requests\LatheRequest $request, Lathe\Auth\ResourceAuthorization $authorization, Lathe\Http\Payloads\IndexPayload $payload): Illuminate\Http\JsonResponse
 Lathe\Http\Controllers\Resources\ColumnPreferenceController::destroy(Lathe\Http\Requests\LatheRequest $request, Lathe\Auth\ResourceAuthorization $authorization): Illuminate\Http\Response
 Lathe\Http\Controllers\Resources\ColumnPreferenceController::update(Lathe\Http\Requests\LatheRequest $request, Lathe\Auth\ResourceAuthorization $authorization, Lathe\Http\Payloads\IndexPayload $payload): Illuminate\Http\JsonResponse
 Lathe\Http\Controllers\Resources\CountController::__invoke(Lathe\Http\Requests\LatheRequest $request, Lathe\Auth\ResourceAuthorization $authorization, Lathe\Http\Payloads\IndexPayload $payload): Illuminate\Http\JsonResponse
@@ -2666,7 +2671,7 @@ Lathe\Http\Payloads\IndexPayload::Lathe\Http\Requests\LatheRequest $request  [pr
 Lathe\Http\Payloads\IndexPayload::ROW_ABILITIES
 Lathe\Http\Payloads\IndexPayload::__construct(Lathe\Http\Requests\LatheRequest $request, Lathe\Auth\ResourceAuthorization $authorization)
 Lathe\Http\Payloads\IndexPayload::activeSavedTab(Lathe\Resources\Resource $resource): ?int  [protected]
-Lathe\Http\Payloads\IndexPayload::board(Lathe\Resources\Resource $resource, array $fields): ?array  [protected]
+Lathe\Http\Payloads\IndexPayload::board(Lathe\Resources\Resource $resource, array $fields): ?array
 Lathe\Http\Payloads\IndexPayload::build(string $class, ?Lathe\Lenses\Lens $lens = NULL): array
 Lathe\Http\Payloads\IndexPayload::checkRowKeys(string $class, string $rowKey, Illuminate\Database\Eloquent\Collection $rows): void  [protected]
 Lathe\Http\Payloads\IndexPayload::chosenColumns(array $fields, array $choice): array  [protected]
@@ -2680,6 +2685,7 @@ Lathe\Http\Payloads\IndexPayload::openSavedFilters(Lathe\Resources\Resource $res
 Lathe\Http\Payloads\IndexPayload::query(Lathe\Resources\Resource $resource, ?Lathe\Lenses\Lens $lens): Lathe\Query\ResourceQuery  [protected]
 Lathe\Http\Payloads\IndexPayload::remoteLabels(array $available, array $definitions, array $applied): array  [protected]
 Lathe\Http\Payloads\IndexPayload::resource(string $class): array
+Lathe\Http\Payloads\IndexPayload::rows(string $class, Lathe\Resources\Resource $resource, Illuminate\Database\Eloquent\Collection $rows, array $fields, Lathe\Actions\ActionMenu $menu, ?Lathe\Groups\Group $group = NULL): array
 Lathe\Http\Payloads\IndexPayload::savedPreferences(string $class, array $fields, bool $withColumns): array  [protected]
 Lathe\Http\Payloads\IndexPayload::savedTabModels(Lathe\Resources\Resource $resource): Illuminate\Database\Eloquent\Collection  [protected]
 Lathe\Http\Payloads\IndexPayload::savedTabs(Lathe\Resources\Resource $resource, Lathe\Query\ResourceQuery $query): array  [protected]
@@ -3290,6 +3296,8 @@ Lathe\Query\ResourceQuery::bool $lensFiltered  [protected]
 Lathe\Query\ResourceQuery::bool $lensOrdered  [protected]
 Lathe\Query\ResourceQuery::cappedCount(int $cap, ?Illuminate\Database\Eloquent\Builder $counted = NULL): Lathe\Query\Count  [protected]
 Lathe\Query\ResourceQuery::change(Closure $change): static  [protected]
+Lathe\Query\ResourceQuery::columnCount(string $attribute, ?string $value): Lathe\Query\Count
+Lathe\Query\ResourceQuery::columnRows(string $attribute, ?string $value, int $limit, int $page): Illuminate\Database\Eloquent\Collection
 Lathe\Query\ResourceQuery::config(): Lathe\Support\ConfigStore  [protected]
 Lathe\Query\ResourceQuery::count(): ?Lathe\Query\Count
 Lathe\Query\ResourceQuery::coverColumn(): ?string  [protected]
@@ -3301,6 +3309,7 @@ Lathe\Query\ResourceQuery::hasMorePages(): bool
 Lathe\Query\ResourceQuery::holdsAll(array $keys): bool
 Lathe\Query\ResourceQuery::holdsKey(Illuminate\Database\Eloquent\Model $model, string|int $id): bool  [static]
 Lathe\Query\ResourceQuery::holdsMoreThan(int $count): bool
+Lathe\Query\ResourceQuery::inColumn(Illuminate\Database\Eloquent\Builder $query, string $attribute, ?string $value): Illuminate\Database\Eloquent\Builder  [protected]
 Lathe\Query\ResourceQuery::onlyTrashed(): static
 Lathe\Query\ResourceQuery::option(string $key): ?Illuminate\Database\Eloquent\Model
 Lathe\Query\ResourceQuery::options(int $limit, bool $reorder = true): Illuminate\Database\Eloquent\Collection
@@ -4878,6 +4887,7 @@ class Lathe\Http\Controllers\Resources\ActionLookupController
 class Lathe\Http\Controllers\Resources\ActionRunController
 class Lathe\Http\Controllers\Resources\AssociatableController
 class Lathe\Http\Controllers\Resources\BatchDeleteController
+class Lathe\Http\Controllers\Resources\BoardController
 class Lathe\Http\Controllers\Resources\ColumnPreferenceController
 class Lathe\Http\Controllers\Resources\CountController
 class Lathe\Http\Controllers\Resources\DeleteController

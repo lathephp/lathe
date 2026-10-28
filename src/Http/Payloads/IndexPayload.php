@@ -65,38 +65,14 @@ class IndexPayload
         [$perPage, $page] = $query->page();
         $fields = $this->columns($resource, $lens);
 
-        foreach ($fields as $field) {
-            if ($field instanceof PrimesForPage) {
-                $field->primeForPage($rows);
-            }
-        }
+        $menu = new ActionMenu($this->request, $this->authorization);
+        $active = $query->activeGroup();
+        $mapped = $this->rows($class, $resource, $rows, $fields, $menu, $active['group'] ?? null);
         $available = $lens?->availableFilters($this->request) ?? $resource->availableFilters($this->request);
-        $softDeletes = $resource->definition()->usesSoftDeletes();
-        $inline = $this->hasInlineColumn($fields);
-        $abilities = $this->authorization->abilitiesFor(
-            $this->request->user(),
-            $class,
-            $rows,
-            $this->rowAbilities($softDeletes, $inline),
-        );
-
-        // Not a policy ability: the user model's Impersonatable methods decide, from memory. The live
-        // request holds the session, which the LatheRequest copy lacks.
-        if (Impersonation::uses($class::newModel())) {
-            foreach ($rows as $model) {
-                $abilities[$this->key($model)]['impersonate'] = Impersonation::availableTo(request(), $model);
-            }
-        }
         $threshold = $resource->definition()->getFilterRemoteThreshold();
         $filters = $this->request->query('filter');
         $definitions = $this->withTokens($available, array_map(fn (Filter $filter) => $filter->definition($this->request, $threshold), $available));
         $applied = (new FilterApplicator($resource, $lens !== null ? $available : null))->values($this->request, is_array($filters) ? $filters : []);
-        $active = $query->activeGroup();
-        $group = $active['group'] ?? null;
-        // Rows of an index with inline cells carry the stale-edit token each cell edit sends back.
-        $tokens = $resource->definition()->usesTrafficCop() && $inline;
-        $menu = new ActionMenu($this->request, $this->authorization);
-        $rowActions = $menu->forRows($class);
         // A lens keeps its code columns: the saved choice is the Resource index's only.
         ['choice' => $choice, 'previewOpen' => $previewOpen, 'layout' => $layout] = $this->savedPreferences($class, $fields, $lens === null);
         $board = $lens !== null ? null : $this->board($resource, $fields);
@@ -107,16 +83,7 @@ class IndexPayload
                 'columns' => $choice === null ? $fields : $this->chosenColumns($fields, $choice),
                 'sortKeys' => $query->sortKeys(),
                 'rowKey' => $rowKey,
-                'rows' => $rows->map(fn (Model $model) => [
-                    'id' => $model->getAttribute($rowKey),
-                    'title' => $resource->forModel($model)->title(),
-                    'cells' => FieldResolver::cells($model, $fields),
-                    'abilities' => $abilities[$this->key($model)] ?? [],
-                    'actions' => $menu->runnableOn($class, $rowActions, $model),
-                    ...($tokens ? ['updatedAt' => TrafficCop::token($model)] : []),
-                    ...($softDeletes ? ['trashed' => method_exists($model, 'trashed') && $model->trashed() === true] : []),
-                    ...($group !== null ? ['group' => ['key' => $group->keyFor($model), 'title' => $group->titleFor($model), 'description' => $group->descriptionFor($model)]] : []),
-                ])->values()->all(),
+                'rows' => $mapped,
                 'columnChoice' => $choice,
                 'previewOpen' => $previewOpen,
                 'allColumns' => $lens !== null ? [] : array_map(fn (Field $field) => ['key' => $field->key(), 'label' => $field->label()], $fields),
@@ -151,13 +118,62 @@ class IndexPayload
     }
 
     /**
+     * The rows as the table and the Board send them: key, title, cells, abilities and actions, plus the
+     * stale-edit token, trashed flag and group the Resource and the index call for.
+     *
+     * @param  class-string<\Lathe\Resources\Resource>  $class
+     * @param  Collection<int, Model>  $rows
+     * @param  list<Field>  $fields
+     * @return array<int, array<string, mixed>>
+     */
+    public function rows(string $class, Resource $resource, Collection $rows, array $fields, ActionMenu $menu, ?Group $group = null): array
+    {
+        foreach ($fields as $field) {
+            if ($field instanceof PrimesForPage) {
+                $field->primeForPage($rows);
+            }
+        }
+        $rowKey = $class::rowKey();
+        $softDeletes = $resource->definition()->usesSoftDeletes();
+        $inline = $this->hasInlineColumn($fields);
+        $abilities = $this->authorization->abilitiesFor(
+            $this->request->user(),
+            $class,
+            $rows,
+            $this->rowAbilities($softDeletes, $inline),
+        );
+
+        // Not a policy ability: the user model's Impersonatable methods decide, from memory. The live
+        // request holds the session, which the LatheRequest copy lacks.
+        if (Impersonation::uses($class::newModel())) {
+            foreach ($rows as $model) {
+                $abilities[$this->key($model)]['impersonate'] = Impersonation::availableTo(request(), $model);
+            }
+        }
+        // Rows of an index with inline cells carry the stale-edit token each cell edit sends back.
+        $tokens = $resource->definition()->usesTrafficCop() && $inline;
+        $rowActions = $menu->forRows($class);
+
+        return $rows->map(fn (Model $model) => [
+            'id' => $model->getAttribute($rowKey),
+            'title' => $resource->forModel($model)->title(),
+            'cells' => FieldResolver::cells($model, $fields),
+            'abilities' => $abilities[$this->key($model)] ?? [],
+            'actions' => $menu->runnableOn($class, $rowActions, $model),
+            ...($tokens ? ['updatedAt' => TrafficCop::token($model)] : []),
+            ...($softDeletes ? ['trashed' => method_exists($model, 'trashed') && $model->trashed() === true] : []),
+            ...($group !== null ? ['group' => ['key' => $group->keyFor($model), 'title' => $group->titleFor($model), 'description' => $group->descriptionFor($model)]] : []),
+        ])->values()->all();
+    }
+
+    /**
      * The Board's field, its options the columns in order, and whether a No value column ends it;
      * null when the Resource has no board or this user cannot see its field.
      *
      * @param  list<Field>  $fields
      * @return array{field: Field, noValue: bool}|null
      */
-    protected function board(Resource $resource, array $fields): ?array
+    public function board(Resource $resource, array $fields): ?array
     {
         $key = $resource->definition()->getBoard();
 

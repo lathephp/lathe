@@ -35,6 +35,7 @@ use Lathe\Http\Controllers\Resources\ActionLookupController;
 use Lathe\Http\Controllers\Resources\ActionRunController;
 use Lathe\Http\Controllers\Resources\AssociatableController;
 use Lathe\Http\Controllers\Resources\BatchDeleteController;
+use Lathe\Http\Controllers\Resources\BoardController;
 use Lathe\Http\Controllers\Resources\ColumnPreferenceController;
 use Lathe\Http\Controllers\Resources\CountController;
 use Lathe\Http\Controllers\Resources\DeleteController;
@@ -199,6 +200,8 @@ class PanelRoutes
             $router->put('resources/{resource}/columns', [ColumnPreferenceController::class, 'update'])->name('resources.columns.update');
             $router->delete('resources/{resource}/columns', [ColumnPreferenceController::class, 'destroy'])->name('resources.columns.destroy');
             $router->put('resources/{resource}/preview-panel', [PreviewPreferenceController::class, 'update'])->name('resources.preview-panel');
+            $router->get('resources/{resource}/board', [BoardController::class, 'index'])->name('resources.board');
+            $router->get('resources/{resource}/board/counts', [BoardController::class, 'counts'])->name('resources.board.counts');
             // Before the {resourceId} routes, so a lens path never reads as a record id.
             $router->get('resources/{resource}/lenses/{lens}', [LensController::class, 'index'])->name('resources.lenses.index');
             $router->get('resources/{resource}/lenses/{lens}/count', [LensController::class, 'count'])->name('resources.lenses.count');
