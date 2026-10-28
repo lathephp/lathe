@@ -56,7 +56,7 @@ function rows(count: number, flags = ['export', 'mark-shipped', 'hold-order', 'c
   });
 }
 
-function renderOrders(list = actions, pageRows = rows(3)) {
+function renderOrders(list = actions, pageRows = rows(3), count = { value: pageRows.length, exact: true, capped: false, estimated: false }) {
   return renderPage(
     'Resources/Index',
     {
@@ -71,7 +71,7 @@ function renderOrders(list = actions, pageRows = rows(3)) {
       },
       table: { columns: [{ key: 'number', label: 'Number', component: 'text', sortable: false, sortKey: 'number' }], sortKeys: [], rows: pageRows, rowKey: 'id' },
       state: { page: 1, perPage: 25, hasMorePages: false, sort: '' },
-      count: { value: pageRows.length, exact: true, capped: false, estimated: false },
+      count,
       actions: { actions: list, pivotActions: [], counts: { standalone: 1, sole: 1, resource: 3 } },
     },
     { url: '/lathe/resources/orders' },
@@ -179,6 +179,25 @@ describe('the action modal', () => {
     expect(JSON.parse(init?.body as string)).toMatchObject({ action: 'mark-shipped', selection: { mode: 'ids', ids: [1, 2, 3] }, fields: {} });
     expect(reload).toHaveBeenCalledWith({ only: ['table', 'count', 'tabCounts', 'summaries'] });
     expect(screen.queryByRole('dialog')).toBeNull();
+  });
+
+  it.each([
+    ['10,000+ when every matching row is selected and the count is capped', true, 'Mark 10,000+ orders as shipped?'],
+    ['10,000 when the count is exact', false, 'Mark 10,000 orders as shipped?'],
+  ])('confirms all matching rows as %s', async (_, capped, question) => {
+    // The server fills :count from the number it is sent, without a plus.
+    const fetch = vi.spyOn(globalThis, 'fetch').mockResolvedValueOnce(json({ fields: [], confirmText: 'Mark 10,000 orders as shipped?' }));
+    renderOrders(actions, rows(3), { value: 10000, exact: !capped, capped, estimated: false });
+    fireEvent.keyDown(document.body, { key: 'a', ctrlKey: true });
+    fireEvent.keyDown(document.body, { key: 'A', ctrlKey: true, shiftKey: true });
+    fireEvent.click(within(await openMenu()).getByRole('menuitem', { name: 'Mark Shipped' }));
+
+    const dialog = await screen.findByRole('dialog');
+    await waitFor(() => {
+      expect(within(dialog).getByRole<HTMLButtonElement>('button', { name: 'Run Action' }).disabled).toBe(false);
+    });
+    expect(within(dialog).getByRole('heading').textContent).toBe(question);
+    expect(fetch.mock.calls[0]?.[0]).toBe('/lathe/api/resources/orders/actions/mark-shipped/form?count=10000');
   });
 
   it('titles a confirm by its question, 400 px wide, with the verb as the rightmost button', async () => {

@@ -87,7 +87,7 @@ function IndexPage({ resource, table, state, count, error, lens, actions, widget
             list={actions}
             selection={selection}
             rows={more.rows}
-            total={count == null ? null : count.value}
+            total={count ?? null}
             state={index.state}
           />
         )}

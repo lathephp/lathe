@@ -17,6 +17,7 @@ interface Running {
   action: ActionMeta;
   selection: SelectionDescriptor;
   count: number;
+  label?: string;
 }
 
 interface ActionRunnerOptions {
@@ -30,7 +31,7 @@ interface ActionRunnerOptions {
  * Runs actions: the modal when one confirms, the run itself, its result, a queued run's
  * progress toast, the re-auth modal on 401 and 419, and a Retry toast on any other failure.
  */
-export function useActionRunner({ base, onDone }: ActionRunnerOptions): { start: (action: ActionMeta, selection: SelectionDescriptor, count: number) => void; element: ReactNode } {
+export function useActionRunner({ base, onDone }: ActionRunnerOptions): { start: (action: ActionMeta, selection: SelectionDescriptor, count: number, label?: string) => void; element: ReactNode } {
   const { __ } = useTranslation();
   const { auth } = usePage<SharedProps>().props;
   const [running, setRunning] = useState<Running | null>(null);
@@ -101,7 +102,7 @@ export function useActionRunner({ base, onDone }: ActionRunnerOptions): { start:
     }
   }
 
-  function start(action: ActionMeta, selection: SelectionDescriptor, count: number) {
+  function start(action: ActionMeta, selection: SelectionDescriptor, count: number, label?: string) {
     if (action.withoutConfirmation) {
       // A file action takes a moment before the download starts.
       if (action.asBlob) {
@@ -110,7 +111,7 @@ export function useActionRunner({ base, onDone }: ActionRunnerOptions): { start:
 
       void execute(action, selection, {}, false).catch(() => undefined);
     } else {
-      setRunning({ action, selection, count });
+      setRunning({ action, selection, count, label });
     }
   }
 
@@ -125,6 +126,7 @@ export function useActionRunner({ base, onDone }: ActionRunnerOptions): { start:
           base={base}
           action={running.action}
           count={running.count}
+          label={running.label}
           resourceId={running.selection.mode === 'ids' && running.selection.ids.length === 1 ? (running.selection.ids[0] ?? null) : null}
           onClose={closeRunning}
           onRun={(fields) => execute(running.action, running.selection, fields, true)}

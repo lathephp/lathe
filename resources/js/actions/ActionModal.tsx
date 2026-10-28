@@ -1,4 +1,4 @@
-import { ApiError, request, toast, useTranslation } from '@lathephp/core';
+import { ApiError, formatNumber, request, toast, useTranslation } from '@lathephp/core';
 import { useEffect, useId, useState } from 'react';
 import { Modal, ModalClose, modalFooter, modalPanel, outlineButton, primaryButton } from '../components/Modal';
 import { AssociatableEndpoint } from '../fields/relation/useAssociatable';
@@ -18,6 +18,8 @@ interface ActionModalProps {
   base: string;
   action: ActionMeta;
   count: number;
+  /** The count as the confirm shows it, such as 10,000+ for a capped count; the number formatted by default. */
+  label?: string;
   /** The record of a run on one record, so the confirm text can name it. */
   resourceId: string | number | null;
   onClose: () => void;
@@ -45,7 +47,7 @@ const sizes: Record<string, string> = {
  * Confirms an action and collects its fields. The fields resolve once per opening; a 422
  * shows its messages under the fields and keeps every value.
  */
-export function ActionModal({ base, action, count, resourceId, onClose, onRun }: ActionModalProps) {
+export function ActionModal({ base, action, count, label = formatNumber(count), resourceId, onClose, onRun }: ActionModalProps) {
   const { __ } = useTranslation();
   const titleId = useId();
   const [form, setForm] = useState<ActionForm | null>(null);
@@ -92,7 +94,10 @@ export function ActionModal({ base, action, count, resourceId, onClose, onRun }:
     }
   }
 
-  const text = form?.confirmText ?? action.confirmText?.replace(':count', String(count)) ?? null;
+  // The page fills a plain confirm itself, since the server's number has no + for a capped count.
+  // A :title, or a confirm a closure writes, needs the server's text.
+  const own = action.confirmText !== null && !action.confirmText.includes(':title');
+  const text = (own ? null : form?.confirmText) ?? action.confirmText?.replace(':count', label) ?? null;
 
   return (
     <Modal

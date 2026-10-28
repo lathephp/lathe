@@ -1,9 +1,9 @@
-import { useLathe, useTranslation } from '@lathephp/core';
+import { formatNumber, useLathe, useTranslation } from '@lathephp/core';
 import { Button } from '@lathephp/ui';
 import { ChevronDown } from 'lucide-react';
 import { Fragment, useId, useRef, useState } from 'react';
 import { NavIcon } from '../components/NavIcon';
-import type { Row } from '../index/types';
+import type { Count, Row } from '../index/types';
 import type { IndexUrlState } from '../index/useIndexState';
 import type { RowSelection } from '../index/useRowSelection';
 import { cn } from '../lib/cn';
@@ -19,7 +19,7 @@ interface ActionBarProps {
   /** The rows of the page, for their run flags. */
   rows: Row[];
   /** How many rows a mode all selection holds, when the count is known. */
-  total: number | null;
+  total: Count | null;
   state: IndexUrlState;
 }
 
@@ -37,7 +37,7 @@ export function ActionBar({ uriKey, lens, list, selection, rows, total, state }:
   const [open, setOpen] = useState(false);
   const trigger = useRef<HTMLButtonElement>(null);
   const base = lens === null ? `${apiPath}/resources/${uriKey}` : `${apiPath}/resources/${uriKey}/lenses/${lens}`;
-  const ticked = selection.all ? (total ?? Number.POSITIVE_INFINITY) : selection.selected.size;
+  const ticked = selection.all ? (total?.value ?? Number.POSITIVE_INFINITY) : selection.selected.size;
   const tickedRows = rows.filter((row) => selection.isSelected(row.id));
   const runner = useActionRunner({
     base,
@@ -78,7 +78,9 @@ export function ActionBar({ uriKey, lens, list, selection, rows, total, state }:
     }
 
     setOpen(false);
-    runner.start(action, selection.descriptor(state, lens), Number.isFinite(ticked) ? ticked : 0);
+    // A capped count confirms as 10,000+, as the footer shows it. Importing the footer's countText
+    // here would split it out of the page's chunk and cost the first load a file.
+    runner.start(action, selection.descriptor(state, lens), Number.isFinite(ticked) ? ticked : 0, selection.all && total?.capped === true ? `${formatNumber(total.value)}+` : undefined);
   }
 
   const pinned = ticked > 0 ? list.actions.filter((action) => action.pinned) : [];
