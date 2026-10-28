@@ -76,11 +76,12 @@ function bodyRows(): HTMLElement[] {
 }
 
 describe('links pagination', () => {
-  it('reads the range and the count with previous and next', () => {
+  it('reads the range and the count with previous and next', async () => {
     renderOrders();
 
     expect(screen.getByText('1–25 of 10,000')).toBeTruthy();
-    expect(screen.getByRole('button', { name: 'Previous page' })).toBeTruthy();
+    // The pager's code loads after the rows paint.
+    expect(await screen.findByRole('button', { name: 'Previous page' })).toBeTruthy();
     expect(screen.getByRole('button', { name: 'Next page' })).toBeTruthy();
     expect(screen.queryByRole('button', { name: 'Load more' })).toBeNull();
   });

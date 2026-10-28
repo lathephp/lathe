@@ -7,6 +7,9 @@ import { isBelongsToValue } from '../fields/relation/BelongsToField';
 import { BelongsToForm, MorphToForm } from '../fields/relation/lazy';
 import { isMorphToValue } from '../fields/relation/MorphToField';
 
+// A cell's save loads with its editor.
+export { commit, tokenOf, undo, type InlineSave } from './inlineSave';
+
 interface Option {
   value: string;
   label: string;

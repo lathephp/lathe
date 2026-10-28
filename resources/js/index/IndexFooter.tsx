@@ -1,7 +1,8 @@
 import { Deferred } from '@inertiajs/react';
 import { formatNumber, useTranslation } from '@lathephp/core';
+import { Suspense } from 'react';
 import { Select } from '../components/ui/Select';
-import { Pagination } from './Pagination';
+import { Pagination } from './lazy';
 import type { Count, IndexProps } from './types';
 import type { IndexUrlState } from './useIndexState';
 
@@ -37,18 +38,20 @@ export function IndexFooter({ resource, state, count, rowCount, loadedPage, hasM
   return (
     // The pager first, then the page size and the range at the end.
     <div className="lathe-footer">
-      <Pagination
-        type={capped ? 'simple' : resource.definition.paginationType}
-        page={capped ? loadedPage : state.page}
-        perPage={state.perPage}
-        count={count}
-        hasMorePages={hasMorePages}
-        loadingMore={loadingMore}
-        onPage={(page) => {
-          visit({ page });
-        }}
-        onLoadMore={onLoadMore}
-      />
+      <Suspense fallback={null}>
+        <Pagination
+          type={capped ? 'simple' : resource.definition.paginationType}
+          page={capped ? loadedPage : state.page}
+          perPage={state.perPage}
+          count={count}
+          hasMorePages={hasMorePages}
+          loadingMore={loadingMore}
+          onPage={(page) => {
+            visit({ page });
+          }}
+          onLoadMore={onLoadMore}
+        />
+      </Suspense>
       <div className="ms-auto flex flex-wrap items-center gap-4">
         <div className="flex items-center gap-2">
           <label htmlFor="per-page">{__('Per page')}</label>

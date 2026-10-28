@@ -148,8 +148,11 @@ describe('editing a cell in place', () => {
     fireEvent.change(input, { target: { value: 'Gift wrap' } });
     fireEvent.keyDown(input, { key: 'Tab' });
 
-    expect(fetch).toHaveBeenCalledTimes(1);
     expect(document.activeElement).toBe(cellOf('Tags'));
+    // The save's code comes with the editor's, so the request leaves a tick later.
+    await vi.waitFor(() => {
+      expect(fetch).toHaveBeenCalledTimes(1);
+    });
     expect(await screen.findByText('Gift wrap')).toBeDefined();
   });
 

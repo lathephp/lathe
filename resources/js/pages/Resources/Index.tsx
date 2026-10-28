@@ -9,7 +9,7 @@ import { FilterChips } from '../../index/FilterChips';
 import { IndexBanner } from '../../index/IndexBanner';
 import { IndexFooter } from '../../index/IndexFooter';
 import { IndexToolbar, toolbarRow } from '../../index/IndexToolbar';
-import { useLoadMore } from '../../index/Pagination';
+import { useLoadMore } from '../../index/useLoadMore';
 import { usePolling, usePollingChoice } from '../../index/PollingToggle';
 import { PhoneCards } from '../../index/PhoneCards';
 import { ResourceTable, rowHeights } from '../../index/ResourceTable';
