@@ -13,11 +13,13 @@ import { useLoadMore } from '../../index/useLoadMore';
 import { usePolling, usePollingChoice } from '../../index/PollingToggle';
 import { PhoneCards } from '../../index/PhoneCards';
 import { ResourceTable, rowHeights } from '../../index/ResourceTable';
+import { PreviewPanel } from '../../index/lazy';
 import { TabBar, tabBand } from '../../index/TabBar';
 import type { IndexProps } from '../../index/types';
 import type { IndexUrlState } from '../../index/useIndexState';
 import { useIndexState } from '../../index/useIndexState';
 import { useRowSelection } from '../../index/useRowSelection';
+import { usePreview } from '../../index/usePreview';
 import type { IndexSkeletonHint, SharedProps } from '../../types';
 import type { WidgetDescriptor } from '../../widgets/types';
 import { PageHeader } from '../../layout/PageHeader';
@@ -50,6 +52,7 @@ function IndexPage({ resource, table, state, count, error, lens, actions, widget
   const more = useLoadMore(resource.uriKey, table, state);
   usePolling(polling, !showPollingToggle || pollingChoice.on);
   const ids = more.rows.map((row) => row.id);
+  const preview = usePreview(resource.uriKey, table.previewOpen === true, ids[0]);
   useShortcut('mod+a', () => {
     selection.toggleAll(ids);
   });
@@ -125,98 +128,117 @@ function IndexPage({ resource, table, state, count, error, lens, actions, widget
           <ResourceWidgets widgets={widgets} path={lens == null ? `resources/${resource.uriKey}` : `resources/${resource.uriKey}/lenses/${lens.uriKey}`} />
         </Suspense>
       )}
+      {/* At 1280 px and wider an open preview panel sits beside the card; below that it lies over it. */}
       {/* One card: the tab band, the toolbar row (the selection bar while rows are ticked), the filter chips, then the table.
           Nothing clips it, so a popover from its toolbar reaches past a short table. */}
-      <Card data-lathe-card>
-        <TabBar resource={resource} state={index.state} visit={visit} />
-        <IndexToolbar
-          resource={resource}
-          lens={lens}
-          q={index.state.q}
-          visit={visit}
-          polling={polling !== null && showPollingToggle ? pollingChoice : null}
-          selection={selection}
-          count={count}
-          hasMorePages={more.hasMorePages}
-          actions={actionMenus}
-        />
-        <FilterChips visit={visit} />
-        {error !== undefined ? (
-          <div className="p-4">
-            <IndexBanner message={error.message} onReset={index.reset} />
-          </div>
-        ) : table.rows.length === 0 ? (
-          <EmptyState
-            label={resource.label}
-            filtered={filtered}
-            createHref={createHref}
-            onClear={() => {
-              visit({ q: undefined, filter: undefined });
-            }}
+      <div className={preview.id === null ? undefined : 'lathe-index-split'}>
+        <Card data-lathe-card>
+          <TabBar resource={resource} state={index.state} visit={visit} />
+          <IndexToolbar
+            resource={resource}
+            lens={lens}
+            q={index.state.q}
+            visit={visit}
+            polling={polling !== null && showPollingToggle ? pollingChoice : null}
+            selection={selection}
+            count={count}
+            hasMorePages={more.hasMorePages}
+            actions={actionMenus}
           />
-        ) : (
-          <>
-            <PhoneCards resource={resource} table={{ ...table, rows: more.rows }} />
-            <ResourceTable
-              resource={resource}
-              cards={table.phoneCard !== undefined}
-              table={{ ...table, rows: more.rows }}
-              state={state}
-              loading={index.loading}
-              selection={selection}
-              sort={index.state.sort}
-              onSort={(sort) => {
-                index.visit({ sort });
-              }}
-            />
-            <IndexFooter
-              resource={resource}
-              state={state}
-              count={count}
-              rowCount={more.rows.length}
-              loadedPage={more.page}
-              hasMorePages={more.hasMorePages}
-              loadingMore={more.loading}
-              visit={index.visit}
-              onLoadMore={() => {
-                void more.loadMore();
-              }}
-            />
-          </>
-        )}
-      </Card>
-    </div>
-  );
-}
-
-/**
- * The page before its props arrive: its title, then the card with the tab band when the link says the
- * index has tabs, the toolbar row and ten rows of the table's height, so the rows land in place.
- */
-function IndexSkeleton({ title, hint }: { title: string; hint?: IndexSkeletonHint }) {
-  const { tableStyle } = usePage<SharedProps>().props;
-
-  return (
-    <AfterDelay>
-      <Head title={title} />
-      <div aria-busy="true" className="space-y-5">
-        <PageHeader title={title} />
-        <Card aria-hidden="true" data-lathe-card="" className="overflow-hidden">
-          {hint?.tabs === true && (
-            <div data-skeleton-tabs="" className={tabBand}>
-              <div className={`h-8 w-64 ${skeletonBar}`} />
+          <FilterChips visit={visit} />
+          {error !== undefined ? (
+            <div className="p-4">
+              <IndexBanner message={error.message} onReset={index.reset} />
             </div>
+          ) : table.rows.length === 0 ? (
+            <EmptyState
+              label={resource.label}
+              filtered={filtered}
+              createHref={createHref}
+              onClear={() => {
+                visit({ q: undefined, filter: undefined });
+              }}
+            />
+          ) : (
+            <>
+              <PhoneCards resource={resource} table={{ ...table, rows: more.rows }} />
+              <ResourceTable
+                resource={resource}
+                cards={table.phoneCard !== undefined}
+                table={{ ...table, rows: more.rows }}
+                state={state}
+                loading={index.loading}
+                selection={selection}
+                sort={index.state.sort}
+                onSort={(sort) => {
+                  index.visit({ sort });
+                }}
+                preview={{ toggle: preview.toggle, moved: preview.follow }}
+              />
+              <IndexFooter
+                resource={resource}
+                state={state}
+                count={count}
+                rowCount={more.rows.length}
+                loadedPage={more.page}
+                hasMorePages={more.hasMorePages}
+                loadingMore={more.loading}
+                visit={index.visit}
+                onLoadMore={() => {
+                  void more.loadMore();
+                }}
+              />
+            </>
           )}
-          <div data-lathe-toolbar="" className={`${toolbarRow} justify-end`}>
-            <div className={`h-9 w-96 max-w-full ${skeletonBar}`} />
-          </div>
-          <div className="h-10 border-b border-border" />
-          {Array.from({ length: 10 }, (_, index) => (
-            <div key={index} data-skeleton-row="" className={`flex items-center border-b border-border px-3 last:border-0 ${rowHeights[tableStyle.density]}`}>
-              <span className={`h-3 w-full ${skeletonBar}`} />
-            </div>
-          ))}
         </Card>
+        {preview.id !== null && (
+          <Suspense fallback={null}>
+            <PreviewPanel
+              resource={resource}
+              table={table}
+              id={preview.id}
+              row={more.rows.find((row) => String(row.id) === preview.id)}
+              onClose={() => {
+                preview.close();
+                // The grid's cursor takes the focus back from the panel.
+                document.querySelector<HTMLElement>('[role=grid] td[tabindex="0"]')?.focus();
+              }}
+            />
+          </Suspense>
+        )}
+        </div>
+      </div>
+    );
+  }
+
+  /**
+   * The page before its props arrive: its title, then the card with the tab band when the link says the
+   * index has tabs, the toolbar row and ten rows of the table's height, so the rows land in place.
+   */
+  function IndexSkeleton({ title, hint }: { title: string; hint?: IndexSkeletonHint }) {
+    const { tableStyle } = usePage<SharedProps>().props;
+
+    return (
+      <AfterDelay>
+        <Head title={title} />
+        <div aria-busy="true" className="space-y-5">
+          <PageHeader title={title} />
+          <Card aria-hidden="true" data-lathe-card="" className="overflow-hidden">
+            {hint?.tabs === true && (
+              <div data-skeleton-tabs="" className={tabBand}>
+                <div className={`h-8 w-64 ${skeletonBar}`} />
+              </div>
+            )}
+            <div data-lathe-toolbar="" className={`${toolbarRow} justify-end`}>
+              <div className={`h-9 w-96 max-w-full ${skeletonBar}`} />
+            </div>
+            <div className="h-10 border-b border-border" />
+            {Array.from({ length: 10 }, (_, index) => (
+              <div key={index} data-skeleton-row="" className={`flex items-center border-b border-border px-3 last:border-0 ${rowHeights[tableStyle.density]}`}>
+                <span className={`h-3 w-full ${skeletonBar}`} />
+              </div>
+            ))}
+          </Card>
       </div>
     </AfterDelay>
   );

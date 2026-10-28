@@ -66,9 +66,11 @@ describe('phone cards', () => {
     expect(Array.from(card.children, (line) => line.textContent)).toEqual(['ORD-00007Paid', 'Gerard Reichert', '$171.16']);
   });
 
-  it('marks previous and next, the only pager buttons a phone keeps', () => {
+  it('marks previous and next, the only pager buttons a phone keeps', async () => {
     renderOrders({ title: null, badge: 'status', value: 'total_cents', meta: 'customer' });
 
+    // The pager's code loads after the rows paint.
+    await screen.findByRole('button', { name: 'Previous page' });
     expect(Array.from(document.querySelectorAll('[data-step]'), (button) => button.getAttribute('data-step'))).toEqual(['previous', 'next']);
   });
 

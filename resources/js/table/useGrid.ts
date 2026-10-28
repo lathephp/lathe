@@ -7,13 +7,19 @@ import type { Grid, GridSelection } from './grid';
 /** Only the calls the grid makes, so a plugin can hand in its own selection. */
 export type GridRowSelection = Pick<RowSelection, 'isSelected' | 'toggle' | 'toggleAll'> & Partial<Pick<RowSelection, 'clear'>>;
 
+/** The preview of the cursor's row, by row id: Space opens or closes it, and it follows the cursor. */
+export interface GridPreview {
+  toggle: (id: Row['id']) => void;
+  moved: (id: Row['id']) => void;
+}
+
 /**
  * The cell cursor of a table and its selection keys, over the data rows in the order they show.
  * Its code loads after the rows paint, so it stays out of the first load; until then the cell the
  * table rendered with tabindex 0 holds the tab stop. Returns the tick a row's checkbox calls,
  * with range for a Shift+click.
  */
-export function useGrid(table: RefObject<HTMLTableElement | null>, rows: readonly Pick<Row, 'id'>[], rowSelection: GridRowSelection) {
+export function useGrid(table: RefObject<HTMLTableElement | null>, rows: readonly Pick<Row, 'id'>[], rowSelection: GridRowSelection, preview?: GridPreview) {
   const grid = useRef<Grid | null>(null);
   // The row a Shift+click or a Shift+arrow selects from: the last one ticked or toggled with X.
   const anchor = useRef<Row['id'] | undefined>(undefined);
@@ -51,6 +57,24 @@ export function useGrid(table: RefObject<HTMLTableElement | null>, rows: readonl
       anchor.current = undefined;
       rowSelection.clear?.();
     },
+    ...(preview === undefined
+      ? {}
+      : {
+          preview: (row: number) => {
+            const id = rows[row]?.id;
+
+            if (id !== undefined) {
+              preview.toggle(id);
+            }
+          },
+          moved: (row: number) => {
+            const id = rows[row]?.id;
+
+            if (id !== undefined) {
+              preview.moved(id);
+            }
+          },
+        }),
   };
   // The grid outlives a render; it reads the selection of the latest one through this ref.
   const select = useRef(selection);

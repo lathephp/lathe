@@ -878,6 +878,36 @@
     @apply space-y-5 max-md:-m-3 max-md:space-y-0;
   }
 
+  /* The preview panel: 400 px at the right, lying over the table with a shadow below 1280 px. At
+     1280 px and wider it sits beside the card, which narrows; below 768 px it fills the screen. */
+  .lathe-preview {
+    @apply fixed end-0 top-14 bottom-0 z-30 w-[400px] overflow-y-auto border-s border-border bg-background pb-6 shadow-xl;
+  }
+
+  .lathe-preview-header {
+    @apply sticky top-0 z-10 flex items-start justify-between gap-3 border-b border-border bg-background px-4 py-3;
+  }
+
+  @media (width >= 80rem) {
+    .lathe-index-split {
+      @apply flex items-start gap-4;
+    }
+
+    .lathe-index-split > [data-lathe-card] {
+      @apply min-w-0 flex-1;
+    }
+
+    .lathe-preview {
+      @apply sticky top-[4.5rem] max-h-[calc(100svh-6rem)] shrink-0 rounded-lg border shadow-none;
+    }
+  }
+
+  @media (width < 48rem) {
+    .lathe-preview {
+      @apply inset-0 z-50 w-auto border-0;
+    }
+  }
+
   @media (width < 48rem) {
     /* The ! beats the utilities the panel Card and the tab band carry. */
     [data-lathe-card] {

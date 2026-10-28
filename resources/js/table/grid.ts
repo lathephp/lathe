@@ -15,18 +15,24 @@ export interface Grid {
   detach: () => void;
 }
 
-/** The row selection, by the place of a row among the data rows. */
+/** The row selection, and the preview of the cursor's row, by the place of a row among the data rows. */
 export interface GridSelection {
   toggle: (row: number) => void;
   /** Selects from the anchor, or from `from` when none was toggled, to `to`. */
   extend: (from: number, to: number) => void;
   clear: () => void;
+  /** Space on a cell: opens or closes the preview of its row. */
+  preview?: (row: number) => void;
+  /** The cursor reached another row. */
+  moved?: (row: number) => void;
 }
 
 // The selection is React state, so the table hands in a ref it refreshes on each render.
 export function attachGrid(table: HTMLTableElement, select: { current: GridSelection }): Grid {
   let row = 0;
   let column = -1;
+  // Whether the cursor has been on a row yet; the first cell it lands on reports its row too.
+  let moved = false;
 
   const rows = () => Array.from(table.querySelectorAll<HTMLTableRowElement>('tbody > tr[data-row]'));
 
@@ -84,9 +90,15 @@ export function attachGrid(table: HTMLTableElement, select: { current: GridSelec
     const found = locate(event.target);
 
     if (found !== null) {
+      const before = row;
       row = found.row;
       column = found.column;
       sync();
+
+      if (row !== before || !moved) {
+        moved = true;
+        select.current.moved?.(row);
+      }
     }
   }
 
@@ -204,6 +216,10 @@ export function attachGrid(table: HTMLTableElement, select: { current: GridSelec
       if (event.shiftKey) {
         select.current.extend(found.row, row);
       }
+    } else if (event.key === ' ' && event.target === found.cell && select.current.preview !== undefined) {
+      // From the cell only: Space on its checkbox ticks it.
+      event.preventDefault();
+      select.current.preview(found.row);
     } else if (event.key === 'x' || event.key === 'X') {
       event.preventDefault();
       select.current.toggle(found.row);

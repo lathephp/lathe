@@ -7,7 +7,7 @@ import { PreviewModal } from '../fields/relation/lazy';
 import { cn } from '../lib/cn';
 import { instantProps } from '../lib/instant';
 import { TableCell } from '../table/cells';
-import { useGrid, type GridRowSelection } from '../table/useGrid';
+import { useGrid, type GridPreview, type GridRowSelection } from '../table/useGrid';
 import type { SharedProps } from '../types';
 import { GroupHeaderRow } from './GroupHeaderRow';
 import { GroupSummaryRow } from './GroupSummaryRow';
@@ -49,6 +49,8 @@ interface ResourceTableProps extends Pick<IndexProps, 'resource' | 'table' | 'st
   onSort: (sort: string) => void;
   /** Whether the page draws the rows as cards below 768 px, so the table hides there. */
   cards?: boolean;
+  /** The preview panel: Space opens it on the cursor's row, and it follows the cursor. */
+  preview?: GridPreview;
 }
 
 /**
@@ -92,7 +94,7 @@ export function direction(sort: string | undefined, key: string): 'ascending' | 
   return tokens.includes(key) ? 'ascending' : tokens.includes(`-${key}`) ? 'descending' : 'none';
 }
 
-export function ResourceTable({ resource, table, state, loading, selection, sort, onSort, cards }: ResourceTableProps) {
+export function ResourceTable({ resource, table, state, loading, selection, sort, onSort, cards, preview }: ResourceTableProps) {
   const { __ } = useTranslation();
   const { props: { basePath, tableStyle }, onceProps } = usePage<SharedProps>();
   const { clickAction, showColumnBorders } = resource.definition;
@@ -121,7 +123,7 @@ export function ResourceTable({ resource, table, state, loading, selection, sort
   const grid = useRef<HTMLTableElement>(null);
   // The data rows in the order the grid counts them: a folded group's rows are not drawn.
   const shown = table.rows.filter((row) => row.group === undefined || !collapsed.includes(row.group.key));
-  const tick = useGrid(grid, shown, selection);
+  const tick = useGrid(grid, shown, selection, preview);
   // Where each stuck column starts, measured from the header cells.
   const [offsets, setOffsets] = useState<number[]>([]);
   // Whether columns sit scrolled beneath the start block, and beyond the row menu at the end.

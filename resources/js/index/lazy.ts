@@ -14,6 +14,8 @@ export const ConflictDialog = lazyNamed(() => import('../records/ConflictDialog'
 export const ColumnPicker = lazyNamed(() => import('./ColumnPicker').then((module) => module.ColumnPicker));
 // The footer's pager loads after the rows paint; the range and the page size show at once.
 export const Pagination = lazyNamed(() => import('./Pagination').then((module) => module.Pagination));
+// The preview panel loads when it first opens.
+export const PreviewPanel = lazyNamed(() => import('./PreviewPanel').then((module) => module.PreviewPanel));
 // The footer totals load while their deferred summaries do; the placeholder holds their place meanwhile.
 export const TableSummaryRow = lazyNamed(() => import('./TableSummaryRow').then((module) => module.TableSummaryRow));
 

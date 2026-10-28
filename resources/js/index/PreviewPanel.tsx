@@ -1,0 +1,130 @@
+import { Link } from '@inertiajs/react';
+import { ApiError, request, useLathe, useTranslation } from '@lathephp/core';
+import { lazy, Suspense, useEffect, useId, useState } from 'react';
+import type { ActionList } from '../actions/types';
+import { DetailField } from '../fields/registry';
+import type { DetailFieldData } from '../fields/types';
+import { TableCell } from '../table/cells';
+import type { IndexProps, Row } from './types';
+
+const RecordActionMenu = lazy(() => import('../actions/RecordActionMenu').then((module) => ({ default: module.RecordActionMenu })));
+
+interface PreviewPayload {
+  id: string | number;
+  title: string;
+  fields: DetailFieldData[];
+  abilities: Partial<Record<string, boolean>>;
+  actions: ActionList;
+}
+
+export interface PreviewPanelProps {
+  resource: Pick<IndexProps['resource'], 'uriKey' | 'singularLabel'>;
+  table: Pick<IndexProps['table'], 'columns' | 'phoneCard'>;
+  id: string;
+  /** The row on the page, when the record is one; its card's title and badge head the panel at once. */
+  row: Row | undefined;
+  onClose: () => void;
+}
+
+/**
+ * The record under the cell cursor, read-only, beside the list: its card's title and badge, its
+ * preview fields, its actions and Edit. 400 px wide; it lies over the table below 1280 px and
+ * fills the screen below 768 px.
+ */
+export function PreviewPanel({ resource, table, id, row, onClose }: PreviewPanelProps) {
+  const { __ } = useTranslation();
+  const { apiPath, basePath } = useLathe();
+  const titleId = useId();
+  // The reply for the record the panel last asked for; one for another record shows as loading.
+  const [reply, setReply] = useState<{ id: string; data: PreviewPayload | null; failed: number | null } | null>(null);
+  const data = reply?.id === id ? reply.data : null;
+  const failed = reply?.id === id ? reply.failed : null;
+  const recordPath = `${basePath}/resources/${resource.uriKey}/${id}`;
+
+  useEffect(() => {
+    const abort = new AbortController();
+
+    request<PreviewPayload>(`${apiPath}/resources/${resource.uriKey}/${id}/preview`, { signal: abort.signal, toastOnError: false }).then(
+      (payload) => {
+        setReply({ id, data: payload, failed: null });
+      },
+      (failure: unknown) => {
+        if (!abort.signal.aborted) {
+          setReply({ id, data: null, failed: failure instanceof ApiError ? failure.status : 0 });
+        }
+      },
+    );
+
+    return () => {
+      abort.abort();
+    };
+  }, [apiPath, resource.uriKey, id]);
+
+  const card = table.phoneCard;
+
+  function cell(key: string | null | undefined) {
+    const column = table.columns.find((candidate) => candidate.key === key);
+    const value = key === null || key === undefined ? undefined : row?.cells[key];
+
+    return column === undefined || value === undefined ? null : <TableCell column={column} cell={value} />;
+  }
+
+  const title = row === undefined ? data?.title : card?.title == null ? row.title : cell(card.title);
+
+  return (
+    <aside aria-labelledby={titleId} data-lathe-preview="" className="lathe-preview">
+      <header className="lathe-preview-header">
+        <div className="min-w-0">
+          <h2 id={titleId} className="truncate text-lg font-semibold">
+            {title ?? __('Loading…')}
+          </h2>
+          {cell(card?.badge)}
+        </div>
+        <div className="flex shrink-0 items-center gap-1">
+          <Link href={recordPath} className="lathe-button lathe-button-outline lathe-button-size-sm">
+            {__('Open full page')}
+          </Link>
+          <button type="button" className="lathe-button lathe-button-ghost lathe-button-size-sm" onClick={onClose}>
+            {__('Close')}
+          </button>
+        </div>
+      </header>
+      {failed === 404 ? (
+        <p className="p-4 text-sm">{__('This :resource was deleted.', { resource: resource.singularLabel.toLowerCase() })}</p>
+      ) : failed !== null ? (
+        <p className="p-4 text-sm text-destructive">{failed === 403 ? __('You may not view this :resource.', { resource: resource.singularLabel.toLowerCase() }) : __('Something went wrong. Please try again.')}</p>
+      ) : data === null ? (
+        <div aria-busy="true" className="space-y-3 p-4">
+          {[0, 1, 2, 3].map((line) => (
+            <div key={line} aria-hidden="true" className="h-4 rounded bg-muted" />
+          ))}
+        </div>
+      ) : (
+        <>
+          <div className="flex flex-wrap items-center gap-2 px-4 pt-3 empty:hidden">
+            {data.actions.actions.length > 0 && (
+              <Suspense fallback={null}>
+                <RecordActionMenu uriKey={resource.uriKey} id={data.id} actions={data.actions.actions} />
+              </Suspense>
+            )}
+            {data.abilities.update === true && (
+              <Link href={`${recordPath}/edit`} className="lathe-button lathe-button-default lathe-button-size-sm">
+                {__('Edit')}
+              </Link>
+            )}
+          </div>
+          <dl className="divide-y divide-border px-4 text-sm">
+            {data.fields.map((field) => (
+              <div key={field.key} className="grid gap-1 py-2.5">
+                <dt className="text-muted-foreground">{field.label}</dt>
+                <dd className="min-w-0 break-words">
+                  <DetailField field={field} />
+                </dd>
+              </div>
+            ))}
+          </dl>
+        </>
+      )}
+    </aside>
+  );
+}
