@@ -239,6 +239,12 @@ Field::timezone();
 
 `displayUsingLabels()` shows the label instead of the value. `searchable()` adds a search box. The submitted value must be one of the options. `Field::country()` stores the two-letter ISO code and needs the `intl` extension.
 
+`meter(except: [...])` shows a select as a status meter. Its options in declared order, minus those in `except`, are the ticks. A value fills the ticks up to its place, and a value in `except` shows every tick empty. A meter needs 2 to 5 ticks and inline options, or `fields()` throws a `LogicException` that names the field. A select without `meter()` keeps the badge.
+
+```php
+Field::select('Status')->options(['pending', 'paid', 'shipped', 'cancelled'])->meter(except: ['cancelled']);
+```
+
 A select can depend on another field. See [Dependent fields](#dependent-fields).
 
 ### Badge and status
