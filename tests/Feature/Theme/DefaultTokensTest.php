@@ -29,10 +29,15 @@ const NEW_TOKENS = [
     'destructive-subtle', 'destructive-subtle-foreground',
 ];
 
-it('defaults to the copper primary in light and dark', function () {
-    expect(defaultTokens(':where(:root)')['primary'])->toBe('oklch(0.55 0.14 48)')
-        ->and(defaultTokens(':where(:root:not(.light))')['primary'])->toBe('oklch(0.72 0.14 55)')
-        ->and(defaultTokens("\n.dark")['primary'])->toBe('oklch(0.72 0.14 55)');
+it('defaults to the layout blue primary on steel in light and dark', function () {
+    expect(defaultTokens(':where(:root)'))->toMatchArray(['primary' => '#2e47e0', 'background' => '#eef1f2', 'card' => '#ffffff'])
+        ->and(defaultTokens(':where(:root:not(.light))'))->toMatchArray(['primary' => '#8796ff', 'background' => '#0f1315'])
+        ->and(defaultTokens("\n.dark"))->toMatchArray(['primary' => '#8796ff', 'background' => '#0f1315']);
+});
+
+it('defaults to the 0.5rem radius, 6 px controls and 8 px panels', function () {
+    expect(defaultTokens(':where(:root)')['radius'])->toBe('0.5rem')
+        ->and(config('lathe.theme.radius'))->toBe('0.5rem');
 });
 
 it('defines every one of the 56 token names', function (string $block) {

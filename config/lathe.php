@@ -235,7 +235,7 @@ return [
             'sidebar-hover' => null,
         ],
         'appearance' => 'system',
-        'radius' => '0.625rem',
+        'radius' => '0.5rem',
         'style' => 'nova',
         // null uses the bundled Inter Variable. To use your own font, set
         // ['family' => 'Acme Sans', 'fallback' => 'sans-serif', 'files' => [['url' => '/fonts/acme.woff2', 'weight' => 400, 'style' => 'normal']]],

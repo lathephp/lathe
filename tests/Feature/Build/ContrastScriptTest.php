@@ -36,8 +36,8 @@ it('exits 0 on the shipped styles', function () {
 });
 
 it('fails on a primary-foreground planted at 4:1 on primary', function () {
-    // Light primary is copper oklch(0.55 0.14 48); a grey of lightness 0.92 sits near 4:1 on it.
-    [$dir, $css] = plantedCopy('resources/css/app.css', ['--primary-foreground: oklch(1 0 0);' => '--primary-foreground: oklch(0.92 0 0);']);
+    // Light primary is layout blue #2e47e0; the grey #c8c8c8 sits near 4:1 on it.
+    [$dir, $css] = plantedCopy('resources/css/app.css', ['--primary-foreground: #ffffff;' => '--primary-foreground: #c8c8c8;']);
 
     $result = runContrastScript('check-contrast.mjs', $css);
 
@@ -48,7 +48,7 @@ it('fails on a primary-foreground planted at 4:1 on primary', function () {
 });
 
 it('fails on a ring planted at 2:1 on the background', function () {
-    [$dir, $css] = plantedCopy('resources/css/app.css', ['--ring: oklch(0.6 0.15 50);' => '--ring: oklch(0.8 0 0);']);
+    [$dir, $css] = plantedCopy('resources/css/app.css', ['--ring: #2e47e0;' => '--ring: #cccccc;']);
 
     $result = runContrastScript('check-contrast.mjs', $css);
 
@@ -59,7 +59,7 @@ it('fails on a ring planted at 2:1 on the background', function () {
 });
 
 it('fails on muted text planted at 3:1 on a card', function () {
-    [$dir, $css] = plantedCopy('resources/css/app.css', ['--muted-foreground: oklch(0.5 0.014 55);' => '--muted-foreground: oklch(0.68 0.014 55);']);
+    [$dir, $css] = plantedCopy('resources/css/app.css', ['--muted-foreground: #4b565b;' => '--muted-foreground: #8a9599;']);
 
     $result = runContrastScript('check-contrast.mjs', $css);
 

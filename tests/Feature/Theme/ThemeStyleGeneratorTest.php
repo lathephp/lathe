@@ -23,7 +23,7 @@ it('writes colour overrides into one nonced style tag', function () {
 
     preg_match_all('/<style\b([^>]*)>(.*?)<\/style>/s', $html, $tags);
     expect($tags[1])->toBe([' nonce="n0nce"'])
-        ->and(themeVariable($tags[2][0], ':root', 'radius'))->toBe('0.625rem')
+        ->and(themeVariable($tags[2][0], ':root', 'radius'))->toBe('0.5rem')
         ->and(themeVariable($tags[2][0], ':root', 'ring'))->toBe('oklch(0.62 0.19 259)')
         ->and(themeVariable($tags[2][0], ':root', 'sidebar'))->toBe('#f5f5f5')
         ->and(themeVariable($tags[2][0], '.dark', 'sidebar'))->toBe('#171717');
@@ -119,7 +119,7 @@ it('keeps a new token the app set over the derived one', function () {
         ->and(themeVariable($css, ':root', 'link-hover'))->toBe('oklch(0.424 0.199 265.638)');
 });
 
-it('writes nothing but the radius for an app without colours, so app.css supplies copper', function () {
+it('writes nothing but the radius for an app without colours, so app.css supplies the identity', function () {
     expect((new ThemeStyleGenerator)->generate('0.625rem', []))->toBe(':root{--radius:0.625rem}');
 
     $border = (new ThemeStyleGenerator)->generate('0.625rem', ['border' => '#cccccc']);
@@ -161,4 +161,14 @@ it('writes the derived tokens into the page style tag', function () {
     expect(themeVariable($tag[1], ':root', 'brand'))->toBe('#2563eb')
         ->and(themeVariable($tag[1], ':root', 'focus'))->toBe('#2563eb')
         ->and(themeVariable($tag[1], ':root', 'primary-subtle'))->toBe('color-mix(in oklch, #2563eb 14%, var(--background))');
+});
+
+it('keeps an app its own primary rather than the default blue', function () {
+    config(['lathe.theme.colors.primary' => 'oklch(0.5 0.2 250)']);
+
+    $html = (string) $this->actingAs($this->admin)->get('/lathe')->assertOk()->getContent();
+
+    preg_match('/<style\b[^>]*>(.*?)<\/style>/s', $html, $style);
+    expect(themeVariable($style[1], ':root', 'primary'))->toBe('oklch(0.5 0.2 250)')
+        ->and($style[1])->not->toContain('#2e47e0');
 });

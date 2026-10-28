@@ -275,7 +275,7 @@ The panel ships eight looks, called styles. Pick one with `theme.style` in `conf
 
 The styles are `nova` (the default), `vega`, `lyra`, `maia`, `mira`, `luma`, `rhea` and `sera`.
 
-An unknown name fails the check in `php artisan lathe:doctor`. `theme.radius` sets the base corner radius as a CSS length. Its default is `0.625rem`.
+An unknown name fails the check in `php artisan lathe:doctor`. `theme.radius` sets the base corner radius as a CSS length. Its default is `0.5rem`.
 
 ## Dark mode
 

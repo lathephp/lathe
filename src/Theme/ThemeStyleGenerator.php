@@ -99,7 +99,7 @@ class ThemeStyleGenerator
             }
         }
 
-        // No colours: the copper of app.css. Any colour: the app's look, the 40 tokens it left
+        // No colours: the steel and blue of app.css. Any colour: the app's look, the 40 tokens it left
         // unset at their values before copper, and the new tokens derived from that palette.
         $base = $set === [] ? [] : $set + self::PREVIOUS;
         $tokens = $base === [] ? [] : $base + $this->derive($base);
@@ -120,7 +120,7 @@ class ThemeStyleGenerator
 
     /**
      * The new tokens, following the palette of an app that sets its own colours, so it wears
-     * no copper in them. A derived value is not checked by isColor(), because color-mix()
+     * no default blue in them. A derived value is not checked by isColor(), because color-mix()
      * fails it, but it only embeds colours that passed.
      *
      * @param  array<string, array{string, ?string}>  $set  token => [light or only value, dark or null]

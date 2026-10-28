@@ -37,7 +37,7 @@ class RootTags
 
         // After the links, so the config overrides win over the stylesheet defaults.
         $colors = $this->config->get('theme.colors');
-        $tags[] = '<style'.$this->nonce().'>'.$this->theme->generate($this->config->nullableString('theme.radius') ?? '0.625rem', is_array($colors) ? $colors : []).'</style>';
+        $tags[] = '<style'.$this->nonce().'>'.$this->theme->generate($this->config->nullableString('theme.radius') ?? '0.5rem', is_array($colors) ? $colors : []).'</style>';
 
         // Before the entry module, so the dark class is on <html> before first paint.
         $tags[] = '<script'.$this->nonce().'>'.$this->appearanceScript().'</script>';
