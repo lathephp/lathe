@@ -6,7 +6,7 @@ Lathe is an admin panel builder for Laravel on Inertia, React and shadcn/ui. You
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="docs/images/orders-dark.png">
-  <img src="docs/images/orders-light.png" alt="The Orders list in Lathe: a table of orders with status badges, totals and dates, with search, filters and tabs above it" width="1440">
+  <img src="docs/images/orders-light.png" alt="The Orders list in Lathe: a grid of orders filtered by a Status: Pending chip in the filter bar, a cell cursor on the first row, and the preview panel open beside it on that order" width="1440">
 </picture>
 
 - Docs: https://lathephp.com/docs
