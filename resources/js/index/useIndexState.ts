@@ -61,7 +61,8 @@ export function parseQuery(search: string): IndexUrlState {
 
     if (inner === undefined) {
       filter[key] = value;
-    } else if (inner === '') {
+    } else if (inner === '' || /^\d+$/.test(inner)) {
+      // The router writes a list as [0], [1], ...; a link may write it as [].
       const list = filter[key];
       filter[key] = [...(Array.isArray(list) ? list : []), value];
     } else {

@@ -12,6 +12,12 @@ describe('index url state', () => {
     });
   });
 
+  it('reads a list the router writes with numbered keys as a list', () => {
+    expect(parseQuery('?filter[status][0]=pending&filter[status][1]=paid')).toEqual({
+      filter: { status: ['pending', 'paid'] },
+    });
+  });
+
   it('reads the encoded form of the brackets', () => {
     expect(parseQuery('?filter%5Bstatus%5D=pending&filter%5Btag%5D%5B%5D=a')).toEqual({
       filter: { status: 'pending', tag: ['a'] },
