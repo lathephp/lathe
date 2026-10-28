@@ -16,6 +16,8 @@ export const ColumnPicker = lazyNamed(() => import('./ColumnPicker').then((modul
 export const Pagination = lazyNamed(() => import('./Pagination').then((module) => module.Pagination));
 // The preview panel loads when it first opens.
 export const PreviewPanel = lazyNamed(() => import('./PreviewPanel').then((module) => module.PreviewPanel));
+// The Board loads when a list first shows it.
+export const Board = lazyNamed(() => import('./board/Board').then((module) => module.Board));
 // The footer totals load while their deferred summaries do; the placeholder holds their place meanwhile.
 export const TableSummaryRow = lazyNamed(() => import('./TableSummaryRow').then((module) => module.TableSummaryRow));
 

@@ -1,5 +1,6 @@
 import type { CSSProperties } from 'react';
 import type { ActionList } from '../actions/types';
+import type { FieldSchema } from '../fields/types';
 import type { Cell } from '../table/cells';
 import type { FilterValue } from './useIndexState';
 
@@ -143,6 +144,10 @@ export interface IndexProps {
     allColumns?: { key: string; label: string }[];
     /** The columns a row's card shows below 768 px; a null title means the row's own title. */
     phoneCard?: { title: string | null; badge: string | null; value: string | null; meta: string | null };
+    /** The select field whose options are the Board's columns; null on a lens or a Resource without a board. */
+    board?: { field: FieldSchema; noValue: boolean } | null;
+    /** The layout this user last chose for the list, used when the URL names none. */
+    layout?: 'table' | 'board';
   };
   /** The open lens; null on the plain index. */
   lens?: LensEntry | null;
@@ -230,4 +235,15 @@ export interface Count {
   exact: boolean;
   capped: boolean;
   estimated: boolean;
+}
+
+/** One page of a Board column, in the list's order. */
+export interface BoardPage {
+  rows: Row[];
+  hasMore: boolean;
+}
+
+/** Each Board column's capped count; null is the No value column. */
+export interface BoardCounts {
+  columns: { value: string | null; count: Count }[];
 }

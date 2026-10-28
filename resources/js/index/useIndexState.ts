@@ -14,6 +14,8 @@ export interface IndexUrlState {
   saved_tab?: string;
   group?: string;
   trashed?: string;
+  /** board or table; a visit keeps it, so a filter on the Board stays on the Board. */
+  layout?: string;
 }
 
 export interface IndexDefaults {
@@ -23,7 +25,7 @@ export interface IndexDefaults {
 
 type Query = Exclude<Parameters<typeof router.get>[1], undefined>;
 
-const stringParams = ['q', 'sort', 'tab', 'saved_tab', 'group', 'trashed'] as const;
+const stringParams = ['q', 'sort', 'tab', 'saved_tab', 'group', 'trashed', 'layout'] as const;
 
 // A skeleton shorter than this flickers.
 const minimumSkeletonMs = 300;

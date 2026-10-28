@@ -12,7 +12,7 @@ import { useLoadMore } from '../../index/useLoadMore';
 import { usePolling, usePollingChoice } from '../../index/PollingToggle';
 import { PhoneCards } from '../../index/PhoneCards';
 import { ResourceTable, rowHeights, sameRow } from '../../index/ResourceTable';
-import { PreviewPanel } from '../../index/lazy';
+import { Board, PreviewPanel } from '../../index/lazy';
 import { useViews } from '../../index/ViewsRail';
 import type { IndexProps, Row } from '../../index/types';
 import type { IndexUrlState } from '../../index/useIndexState';
@@ -56,6 +56,9 @@ function IndexPage({ resource, table, state, count, error, lens, actions, widget
   const [saved, setSaved] = useState<Record<string, { over: Row; row: Row }>>({});
   const shown = more.rows.find((row) => String(row.id) === preview.id);
   const kept = saved[preview.id ?? ''];
+  // No Board on a lens or a phone; the URL's layout wins over the one this user last chose.
+  const board = lens == null && !phone() ? table.board : null;
+  const layout = index.state.layout === 'board' || index.state.layout === 'table' ? index.state.layout : (table.layout ?? 'table');
   useShortcut('mod+a', () => {
     selection.toggleAll(ids);
   });
@@ -152,6 +155,7 @@ function IndexPage({ resource, table, state, count, error, lens, actions, widget
             count={count}
             hasMorePages={more.hasMorePages}
             actions={actionMenus}
+            layout={board == null ? null : layout}
           />
           {error !== undefined ? (
             <div className="p-4">
@@ -166,6 +170,10 @@ function IndexPage({ resource, table, state, count, error, lens, actions, widget
                 visit({ q: undefined, filter: undefined });
               }}
             />
+          ) : board != null && layout === 'board' ? (
+            <Suspense fallback={<div aria-hidden="true" className="min-h-40" />}>
+              <Board resource={resource} table={table} board={board} />
+            </Suspense>
           ) : (
             <>
               <PhoneCards resource={resource} table={{ ...table, rows: more.rows }} onOpen={preview.show} />

@@ -1,5 +1,5 @@
 import { router, usePage } from '@inertiajs/react';
-import { useShortcut, useTranslation } from '@lathephp/core';
+import { request, useLathe, useShortcut, useTranslation } from '@lathephp/core';
 import { X } from 'lucide-react';
 import type { ReactNode } from 'react';
 import { Button } from '../components/ui/Button';
@@ -30,9 +30,61 @@ interface IndexToolbarProps extends Pick<IndexProps, 'resource' | 'lens'> {
   actions: ReactNode;
   /** The Views menu, first in the row; app.css shows it where the views rail folds away. */
   views?: ReactNode;
+  /** The list's layout, or null where the Table/Board switch is not offered. */
+  layout?: Layout | null;
 }
 
-export function IndexToolbar({ resource, lens, q, visit, polling, selection, count, hasMorePages, actions, views }: IndexToolbarProps) {
+type Layout = 'table' | 'board';
+
+/**
+ * Table or Board, beside the filter bar. The URL holds ?layout=board, replaced and never pushed,
+ * so a Board link can be shared; the server saves the choice for when the URL names none.
+ */
+function LayoutSwitch({ uriKey, layout }: { uriKey: string; layout: Layout }) {
+  const { __ } = useTranslation();
+  const { apiPath } = useLathe();
+
+  function choose(next: Layout) {
+    const url = new URL(window.location.href);
+
+    if (next === 'board') {
+      url.searchParams.set('layout', next);
+    } else {
+      url.searchParams.delete('layout');
+    }
+
+    // Choosing Table drops the param, so the page's own layout must say table from now on.
+    const visit = {
+      url: `${url.pathname}${url.search}`,
+      props: (props: Record<string, unknown>) => ({ ...props, table: { ...(props.table as object), layout: next } }),
+      deferredProps: undefined,
+      preserveScroll: true,
+      preserveState: true,
+    };
+    router.replace(visit);
+    void request(`${apiPath}/resources/${uriKey}/layout`, { method: 'PUT', body: { layout: next }, toastOnError: false }).catch(() => undefined);
+  }
+
+  return (
+    <div role="group" aria-label={__('Layout')} className="inline-flex rounded-md bg-muted p-0.5 max-md:hidden">
+      {(['table', 'board'] as const).map((each) => (
+        <button
+          key={each}
+          type="button"
+          aria-pressed={layout === each}
+          onClick={() => {
+            choose(each);
+          }}
+          className="h-[26px] rounded-[5px] px-2.5 text-[13px] font-medium text-muted-foreground outline-none focus-visible:ring-2 focus-visible:ring-ring aria-pressed:bg-card aria-pressed:text-foreground aria-pressed:shadow-xs"
+        >
+          {each === 'table' ? __('Table') : __('Board')}
+        </button>
+      ))}
+    </div>
+  );
+}
+
+export function IndexToolbar({ resource, lens, q, visit, polling, selection, count, hasMorePages, actions, views, layout = null }: IndexToolbarProps) {
   const { __ } = useTranslation();
   const page = usePage<IndexProps & SharedProps>();
   const { basePath, staleFilters = [] } = page.props;
@@ -73,6 +125,7 @@ export function IndexToolbar({ resource, lens, q, visit, polling, selection, cou
           {views}
           {(resource.searchable || resource.softDeletes || (page.props.filters?.available.length ?? 0) > 0) && <FilterBar q={q} visit={visit} />}
           <GroupMenu visit={visit} />
+          {layout !== null && <LayoutSwitch uriKey={resource.uriKey} layout={layout} />}
         </div>
       )}
       <div className="ms-auto flex flex-wrap items-center justify-end gap-1">
