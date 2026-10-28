@@ -230,7 +230,7 @@ export function ResourceTable({ resource, table, state, loading, selection, sort
     }
   }
 
-  // The title link runs the click action; Enter on a cell that cannot be edited presses it.
+  // The title cell runs the click action; Enter on a cell that cannot be edited presses it.
   function openRow(event: MouseEvent, row: Row) {
     const url = rowUrl(row);
     event.preventDefault();
