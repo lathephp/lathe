@@ -224,6 +224,75 @@ export function parseToken(token: string, filters: IndexFilter[], options: { sof
   return chip(value, chosen.map((option) => option.label).join(', '));
 }
 
+/** An item of the filter bar's list: a filter, whose token goes into the input, or a value, whose chip it adds. */
+export type Suggestion = { label: string; hint: string; text: string } | { label: string; chip: FilterChip };
+
+/** What the list shows for the bar's text: items, a relation search the server answers, or a line of help. */
+export type Suggested = { items: Suggestion[] } | { lookup: { filter: IndexFilter; term: string } } | { help: string };
+
+/** The bar's list for its text: the filters a bare word starts, or the values of the filter before the colon. */
+export function suggest(text: string, filters: IndexFilter[], options: { softDeletes: boolean }, __: Translator): Suggested {
+  const colon = text.indexOf(':');
+
+  if (colon === -1) {
+    const typed = text.trim().toLowerCase();
+    const named = [...filters.map(({ name, token }) => ({ name, token })), ...(options.softDeletes ? [{ name: __('Trashed'), token: 'trashed' }] : [])];
+
+    return {
+      items: named
+        .filter(({ name, token }) => token.toLowerCase().startsWith(typed) || name.toLowerCase().startsWith(typed))
+        .map(({ name, token }) => ({ label: name, hint: `${token}:`, text: `${token}:` })),
+    };
+  }
+
+  const typedKey = text.slice(0, colon).trim().toLowerCase();
+  const raw = text.slice(colon + 1);
+  // A multiple filter keeps the values before the last comma and offers the rest for the text after it.
+  const prefix = raw.slice(0, raw.lastIndexOf(',') + 1);
+  const typed = raw.slice(prefix.length).trim().replace(/^"/, '').toLowerCase();
+  const earlier = prefix === '' ? [] : values(prefix).slice(0, -1);
+  const filter = filters.find((candidate) => candidate.token.toLowerCase() === typedKey);
+  const offer = (choices: FilterOption[]): Suggested => ({
+    items: choices
+      .filter((choice) => choice.label.toLowerCase().startsWith(typed) && !earlier.some((value) => [choice.value, choice.label].some((own) => own.toLowerCase() === value.toLowerCase())))
+      .flatMap((choice) => {
+        const parsed = parseToken(`${text.slice(0, colon + 1)}${prefix}${quote(choice.value)}`, filters, options, __);
+
+        // A value whose token would be red, such as a second value for a select, is not offered.
+        return 'chip' in parsed && parsed.chip.error === undefined ? [{ label: choice.label, chip: parsed.chip }] : [];
+      }),
+  });
+
+  if (filter === undefined) {
+    return options.softDeletes && typedKey === 'trashed'
+      ? offer([
+          { label: __('With trashed'), value: 'with' },
+          { label: __('Only trashed'), value: 'only' },
+        ])
+      : { items: [] };
+  }
+
+  switch (filter.kind) {
+    case 'text':
+      return { help: __(':filter takes any text', { filter: filter.name }) };
+    case 'range':
+      return { help: __(':filter takes a number, >n, <n or a..b', { filter: filter.name }) };
+    case 'date':
+      return { help: __(':filter takes a date as YYYY-MM-DD, >date, <date or a..b', { filter: filter.name }) };
+    case 'relation':
+      return prefix === '' ? { lookup: { filter, term: unquote(raw).replace(/^"/, '') } } : { help: __(':filter takes one value', { filter: filter.name }) };
+  }
+
+  if (filter.kind === 'boolean' && filter.options?.length === 1) {
+    return offer([
+      { label: __('Yes'), value: 'yes' },
+      { label: __('No'), value: 'no' },
+    ]);
+  }
+
+  return offer(filter.options ?? []);
+}
+
 /** The chip for a relation token once the server has searched the filter's options for its title. */
 export function chipFromResults(filter: IndexFilter, term: string, results: LookupResult[], __: Translator): FilterChip {
   const token = `${filter.token}:${quote(term)}`;

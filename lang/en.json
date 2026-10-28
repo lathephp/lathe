@@ -26,6 +26,7 @@
     ":filter has no option :value": ":filter has no option :value",
     ":filter takes a date as YYYY-MM-DD, >date, <date or a..b": ":filter takes a date as YYYY-MM-DD, >date, <date or a..b",
     ":filter takes a number, >n, <n or a..b": ":filter takes a number, >n, <n or a..b",
+    ":filter takes any text": ":filter takes any text",
     ":filter takes one value": ":filter takes one value",
     ":filter takes yes or no": ":filter takes yes or no",
     ":from–:to": ":from–:to",
