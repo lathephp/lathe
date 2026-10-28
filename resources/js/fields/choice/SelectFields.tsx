@@ -18,7 +18,8 @@ function meterOf(field: FieldSchema): unknown[] | null {
   return Array.isArray(field.meter) ? field.meter : null;
 }
 
-function styled(field: FieldSchema): boolean {
+/** Whether a select draws its value as a badge or a meter rather than as text. */
+export function styled(field: FieldSchema): boolean {
   return badgesOf(field) !== null || meterOf(field) !== null;
 }
 

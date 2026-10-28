@@ -90,13 +90,16 @@ describe('status meter', () => {
     expect(container.querySelector('[data-lathe-badge-tone]')?.textContent).toBe('Paid');
   });
 
-  it('draws the meter inside an inline status cell', () => {
+  it.each([
+    ['with badges', status],
+    ['without badges', { ...status, badges: null }],
+  ])('draws the meter inside an inline status cell %s', (_, field) => {
     renderPage(
       'Resources/Index',
       {
         resource: { uriKey: 'orders', label: 'Orders', singularLabel: 'Order', perPageOptions: [25], searchable: false, softDeletes: false, abilities: { create: false }, definition: { debounce: 0.5, paginationType: 'links', clickAction: 'detail', polling: null, showPollingToggle: false, tableStyle: 'default', showColumnBorders: false, softDeletes: false } },
         table: {
-          columns: [{ ...status, sortKey: 'status', inline: true }],
+          columns: [{ ...field, sortKey: 'status', inline: true }],
           rows: [{ id: 12, title: 'ORD-00012', cells: { status: { value: 'paid', display: 'paid' } }, abilities: { view: true, update: true }, updatedAt: '2026-10-14T09:00:00.000Z' }],
           rowKey: 'id',
           sortKeys: [],
