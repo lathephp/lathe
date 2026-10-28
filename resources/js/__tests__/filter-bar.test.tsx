@@ -90,6 +90,20 @@ async function enter(text: string) {
 }
 
 describe('filter bar', () => {
+  it('lets a good chip replace the red chip its filter had', async () => {
+    mockVisit();
+    renderOrders();
+    await focusBar();
+
+    await enter('status:');
+    expect(within(bar()).getByText('Status needs a value')).toBeTruthy();
+
+    await enter('status: paid');
+
+    expect(within(bar()).getByText('Status: Paid')).toBeTruthy();
+    expect(within(bar()).queryByText('Status needs a value')).toBeNull();
+  });
+
   it('keeps a chip just made when words typed after it search', async () => {
     const visit = mockVisit();
     renderOrders();

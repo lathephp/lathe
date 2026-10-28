@@ -152,9 +152,9 @@ export function FilterBarEditor({ label, url, urlChips, leave, onChips, text, fo
         return 'chip' in parsed ? parsed.chip : chipFromResults(parsed.lookup.filter, parsed.lookup.term, await lookup(base, parsed.lookup.filter, parsed.lookup.term), __);
       }),
     );
-    // A new chip replaces the one its filter had.
+    // A new chip replaces the one its filter had, a red one too.
     const replaced = new Set(added.filter(applied).map((chip) => chip.key));
-    const next = [...latest.current.filter((chip) => !applied(chip) || !replaced.has(chip.key)), ...added];
+    const next = [...latest.current.filter((chip) => !replaced.has(chip.key)), ...added];
     // The words left after Enter are the whole search, so a search a half-typed key started goes; a Resource that cannot search ignores them.
     const searched = leave.q ?? new URLSearchParams(url.split('?')[1] ?? '').get('q') ?? '';
     const changes: IndexUrlState = resource.searchable && words !== searched ? { q: words } : {};
@@ -176,7 +176,7 @@ export function FilterBarEditor({ label, url, urlChips, leave, onChips, text, fo
       return;
     }
 
-    const next = [...chips.filter((chip) => !applied(chip) || chip.key !== item.chip.key), item.chip];
+    const next = [...chips.filter((chip) => chip.key !== item.chip.key), item.chip];
 
     setChips(next);
     setOpen(false);
