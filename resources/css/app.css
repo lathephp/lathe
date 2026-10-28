@@ -1011,6 +1011,15 @@
       @apply min-h-10 text-sm;
     }
 
+    /* The suggestions open as a sheet along the bottom edge; the positioner's inline place gives way. */
+    :has(> .lathe-bar-list) {
+      @apply fixed! inset-x-0! top-auto! bottom-0! transform-none!;
+    }
+
+    .lathe-bar-list {
+      @apply w-full! max-w-none! max-h-[60svh]! rounded-b-none rounded-t-2xl;
+    }
+
     /* Group and Auto refresh stay on the wide table. Actions stays: its menu is the only way to a
        standalone action. */
     .lathe-group,
