@@ -1,0 +1,1 @@
+export{t as DateText}from"./DateText-hoxhvi28.js";
