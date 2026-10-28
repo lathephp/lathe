@@ -195,7 +195,8 @@ export function parseToken(token: string, filters: IndexFilter[], options: { sof
 
   if (filter.kind === 'range') {
     const scale = filter.scale ?? 1;
-    const found = sides(first, isNumber);
+    // A number past what a float holds exactly would reach the URL as 1e+N.
+    const found = sides(first, (side) => isNumber(side) && Math.abs(Number(side) * scale) <= Number.MAX_SAFE_INTEGER);
 
     if (found === undefined) {
       return fail(filter.key, __(':filter takes a number, >n, <n or a..b', { filter: name }));

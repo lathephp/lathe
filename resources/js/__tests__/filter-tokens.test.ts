@@ -304,6 +304,12 @@ describe('review cases', () => {
     expect('chip' in parsed && parsed.chip.error).toBe('Status needs a value');
   });
 
+  it('shows a number too large to filter by as a red chip, never 1e+N in the URL', () => {
+    const parsed = parseToken(`total:<${'9'.repeat(40)}`, [total], { softDeletes: false }, __);
+
+    expect('chip' in parsed && parsed.chip.error).toBe('Total takes a number, >n, <n or a..b');
+  });
+
   it('joins a key to the value after a space', () => {
     expect(splitInput('status: pending ann')).toEqual({ tokens: ['status:pending'], words: 'ann' });
   });
