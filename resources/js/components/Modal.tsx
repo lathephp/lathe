@@ -1,5 +1,5 @@
 import { __panel, pauseShortcuts, resumeShortcuts, useTranslation } from '@lathephp/core';
-import { Suspense, useEffect, useId, useRef, useState, type ReactNode } from 'react';
+import { Suspense, useEffect, useId, useLayoutEffect, useRef, useState, type ReactNode } from 'react';
 import { cn } from '../lib/cn';
 import { lazyNamed } from '../lib/lazy';
 
@@ -86,7 +86,9 @@ export function Modal({ labelledBy, onClose, children, className, locked = false
   const [asking, setAsking] = useState<((confirmed: boolean) => void) | null>(null);
   const answer = useRef(asking);
 
-  useEffect(() => {
+  // A layout effect, so an Escape pressed the moment the password form shows already finds the
+  // check to cancel rather than closing the modal.
+  useLayoutEffect(() => {
     // Back from a password check, the focus returns into the modal's own content.
     if (answer.current !== null && asking === null) {
       panel.current?.querySelector<HTMLElement>(focusable)?.focus();
