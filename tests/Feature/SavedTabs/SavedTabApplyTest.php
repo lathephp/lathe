@@ -6,6 +6,7 @@ use Lathe\Http\Requests\LatheRequest;
 use Lathe\SavedTabs\SavedTab;
 use Lathe\SavedTabs\SchemaHash;
 use Workbench\App\Lathe\Resources\Order;
+use Workbench\App\Models\Customer;
 use Workbench\App\Models\Order as OrderModel;
 use Workbench\App\Models\User;
 use Workbench\Database\Seeders\DemoSeeder;
@@ -136,7 +137,7 @@ it('counts a show_count saved tab under saved:<id> with the cap', function () {
 });
 
 it('sends an open saved view its search and the names of the customers it filters by, for the filter bar', function () {
-    $customer = Workbench\App\Models\Customer::query()->firstOrFail();
+    $customer = Customer::query()->firstOrFail();
     $tab = savedTabApplyMake($this->admin, ['filters' => ['customer' => (string) $customer->id], 'q' => 'ORD']);
 
     $json = $this->getJson("/lathe/api/resources/orders?saved_tab={$tab->id}")->assertOk()->json();
