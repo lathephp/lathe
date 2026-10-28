@@ -204,7 +204,12 @@ export function FilterBarEditor({ label, url, urlChips, leave, onChips, text, fo
       onItemHighlighted={(item: FilterChip | Suggestion | undefined) => {
         highlighted.current = item;
       }}
-      onValueChange={(all: (FilterChip | Suggestion)[]) => {
+      onValueChange={(all: (FilterChip | Suggestion)[], details) => {
+        // Base UI empties a closed list's value on Escape; the bar's chips stay until removed one by one.
+        if (details.reason === 'escape-key') {
+          return;
+        }
+
         const picked = all.find(isSuggestion);
 
         if (picked !== undefined) {

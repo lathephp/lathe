@@ -249,6 +249,18 @@ describe('filter bar', () => {
     expect(visitData(visit)).toEqual({ filter: { status: 'paid' } });
   });
 
+  it('keeps every chip when Escape is pressed with the list closed', async () => {
+    const visit = mockVisit();
+    renderOrders('/lathe/resources/orders?filter[status]=paid');
+    const input = await focusBar();
+
+    fireEvent.keyDown(input, { key: 'Escape' });
+    await advance(300);
+
+    expect(within(bar()).getByText('Status: Paid')).toBeTruthy();
+    expect(visit).not.toHaveBeenCalled();
+  });
+
   it('sends two chips added within 300 ms as one visit', async () => {
     const visit = mockVisit();
     renderOrders();
