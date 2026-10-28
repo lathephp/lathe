@@ -2,9 +2,10 @@ import { Link, router } from '@inertiajs/react';
 import { ApiError, QueryClientProvider, queryClient, request, toast, useLathe, useQuery, useTranslation } from '@lathephp/core';
 import { Button, Card } from '@lathephp/ui';
 import { ArrowDown, ArrowUp, ChevronDown, ListFilter, Plus } from 'lucide-react';
-import { lazy, Suspense, useId, useState, type MouseEvent } from 'react';
+import { lazy, Suspense, useId, useRef, useState, type MouseEvent } from 'react';
 import { createPortal } from 'react-dom';
-import type { RelationFieldSchema } from '../fields/types';
+import type { FieldSchema, RelationFieldSchema } from '../fields/types';
+import { InlineCell } from '../index/InlineCell';
 import { FilterPanel } from '../index/FilterPanel';
 import { countText } from '../index/IndexFooter';
 import { Pagination } from '../index/Pagination';
@@ -17,6 +18,7 @@ import { Modal } from '../components/Modal';
 import { Select } from '../components/ui/Select';
 import { cn } from '../lib/cn';
 import { TableCell } from '../table/cells';
+import { useGrid } from '../table/useGrid';
 import { AttachRelationModal } from './AttachRelationModal';
 import { UpdatePivotModal } from './UpdatePivotModal';
 import { useRelationActions } from './useRelationActions';
@@ -33,6 +35,9 @@ const pivotKinds = ['belongsToMany', 'morphToMany', 'morphedByMany'];
 
 // A click on these does its own thing, never the row's link.
 const ownClick = 'a, button, input, label, select';
+
+// The cell cursor: the focused cell, outlined inside its edges.
+const cursorCell = 'focus:outline-2 focus:-outline-offset-2 focus:outline-ring';
 
 interface RelationPanelProps {
   /** The record whose detail page holds the panel. */
@@ -110,6 +115,10 @@ function PanelBody({ parent, field, bodyId, onToggle, tab }: RelationPanelProps 
   const [detaching, setDetaching] = useState<RelationRow | null>(null);
   const actions = useRelationActions(parent.uriKey, parent.id, field.relationship);
   const selection = useRowSelection();
+  const grid = useRef<HTMLTableElement>(null);
+  useGrid(grid);
+  // Cells and tokens an inline save sent back, by related record, over the row the panel had loaded; a reload's newer row wins.
+  const [saved, setSaved] = useState<Record<string, { over: RelationRow; cells: RelationRow['cells']; updatedAt: string | null | undefined }>>({});
   const index = useRelationIndex(parent.uriKey, parent.id, field.relationship, state);
   const flags = useRelateFlags(parent.uriKey, parent.id);
   const filters = useQuery({
@@ -141,8 +150,9 @@ function PanelBody({ parent, field, bodyId, onToggle, tab }: RelationPanelProps 
     return `${basePath}/resources/${field.resource}/${String(row.related_id)}`;
   }
 
-  function clickRow(event: MouseEvent<HTMLTableRowElement>, row: RelationRow) {
-    if (event.target instanceof Element && event.target.closest(ownClick) !== null) {
+  // The title cell opens the related record; a click on a control inside it, or in a portal, does its own thing.
+  function clickRow(event: MouseEvent<HTMLTableCellElement>, row: RelationRow) {
+    if (!(event.target instanceof Element) || !event.currentTarget.contains(event.target) || event.target.closest(ownClick) !== null) {
       return;
     }
 
@@ -268,8 +278,9 @@ function PanelBody({ parent, field, bodyId, onToggle, tab }: RelationPanelProps 
             {canCreate && !filtered ? create : null}
           </div>
         ) : (
-          <div className="relative overflow-x-auto" role="region" aria-label={__(':resource table', { resource: field.label })} tabIndex={0}>
-            <table data-lathe-table className="w-full text-sm [&_tr>*:first-child]:ps-5 [&_tr>*:last-child]:pe-5">
+          <div className="relative overflow-x-auto" role="region" aria-label={__(':resource table', { resource: field.label })}>
+            {/* A grid of one tab stop, as on the Resource's own list. */}
+            <table ref={grid} role="grid" aria-rowcount={-1} data-lathe-table className="w-full text-sm [&_tr>*:first-child]:ps-5 [&_tr>*:last-child]:pe-5">
               <thead>
                 <tr className="h-10 border-b border-border bg-muted text-start text-[11px] font-semibold tracking-[0.04em] text-muted-foreground uppercase">
                   <th scope="col" className="w-10 px-3">
@@ -320,17 +331,12 @@ function PanelBody({ parent, field, bodyId, onToggle, tab }: RelationPanelProps 
                 </tr>
               </thead>
               <tbody>
-                {rows.map((row) => (
-                  <tr
-                    key={row.id}
-                    className="h-12 cursor-pointer border-b border-border last:border-0 hover:bg-muted/50"
-                    onClick={(event) => {
-                      clickRow(event, row);
-                    }}
-                  >
-                    <td className="w-10 px-3">
+                {rows.map((row, position) => (
+                  <tr key={row.id} data-row="" className="h-12 border-b border-border last:border-0">
+                    <td tabIndex={-1} className={cn('w-10 px-3', cursorCell)}>
                       <input
                         type="checkbox"
+                        tabIndex={-1}
                         aria-label={__('Select :title', { title: row.title })}
                         className="block size-4"
                         checked={selection.selected.has(row.id)}
@@ -339,21 +345,53 @@ function PanelBody({ parent, field, bodyId, onToggle, tab }: RelationPanelProps 
                         }}
                       />
                     </td>
-                    {(data?.columns ?? []).map((column) => {
-                      const cell = row.cells[column.key];
+                    {(data?.columns ?? []).map((column, index) => {
+                      const kept = saved[String(row.related_id)];
+                      const fresh = kept?.over === row ? kept : undefined;
+                      const cell = (fresh?.cells ?? row.cells)[column.key];
+                      // A cell edits in place, against the related record, for a user who may update it and edit inline.
+                      const inline = column.inline === true && row.abilities.update === true && row.abilities.inlineEdit !== false;
+                      const opens = index === 0 && !inline;
 
                       return (
-                        <td key={column.key} className={cn('max-w-80 truncate px-3 whitespace-nowrap', alignClass(column))}>
-                          {cell !== undefined && <TableCell column={column} cell={cell} />}
+                        <td
+                          key={column.key}
+                          tabIndex={position === 0 && index === 0 ? 0 : -1}
+                          data-open={opens ? '' : undefined}
+                          onClick={
+                            opens
+                              ? (event) => {
+                                  clickRow(event, row);
+                                }
+                              : undefined
+                          }
+                          className={cn('max-w-80 px-3 whitespace-nowrap', !inline && 'truncate', opens && 'cursor-pointer hover:underline', alignClass(column), cursorCell)}
+                        >
+                          {cell !== undefined &&
+                            (inline ? (
+                              <InlineCell
+                                uriKey={field.resource}
+                                rowId={row.related_id}
+                                column={column as unknown as FieldSchema}
+                                cell={cell}
+                                token={fresh === undefined ? row.updatedAt : fresh.updatedAt}
+                                onRow={(cells, updatedAt) => {
+                                  setSaved((current) => ({ ...current, [String(row.related_id)]: { over: row, cells: { ...row.cells, ...cells }, updatedAt } }));
+                                }}
+                              />
+                            ) : (
+                              <TableCell column={column} cell={cell} />
+                            ))}
                         </td>
                       );
                     })}
                     {rowActions ? (
-                      <td className="px-3 text-end whitespace-nowrap">
+                      <td tabIndex={-1} className={cn('px-3 text-end whitespace-nowrap', cursorCell)}>
                         {canEditPivot ? (
                           <Button
                             variant="ghost"
                             size="sm"
+                            tabIndex={-1}
                             onClick={() => {
                               setEditing(row);
                             }}
@@ -365,6 +403,7 @@ function PanelBody({ parent, field, bodyId, onToggle, tab }: RelationPanelProps 
                           <Button
                             variant="ghost"
                             size="sm"
+                            tabIndex={-1}
                             className="text-destructive"
                             onClick={() => {
                               setDetaching(row);

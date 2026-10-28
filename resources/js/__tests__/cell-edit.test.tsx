@@ -31,10 +31,11 @@ const status = {
 const note = { key: 'note', attribute: 'note', label: 'Note', component: 'text-field', sortable: false, sortKey: 'note', inline: true };
 const placed = { key: 'placed', attribute: 'placed', label: 'Placed', component: 'text-field', sortable: false, sortKey: 'placed' };
 
-function renderOrders(abilities: Record<string, boolean> = { view: true, update: true, inlineEdit: true }) {
+function renderOrders(abilities: Record<string, boolean> = { view: true, update: true, inlineEdit: true }, lens: { uriKey: string; name: string } | null = null) {
   return renderPage(
     'Resources/Index',
     {
+      lens,
       resource: { uriKey: 'orders', label: 'Orders', singularLabel: 'Order', perPageOptions: [25], searchable: false, softDeletes: false, abilities: { create: false }, definition },
       table: {
         columns: [number, status, note, placed],
@@ -129,5 +130,14 @@ describe('editing a cell in place', () => {
 
     expect(visit.mock.calls.map((call) => call[0])).toEqual(['/lathe/resources/orders/12', '/lathe/resources/orders/12']);
     expect(screen.queryByRole('listbox')).toBeNull();
+  });
+
+  it('serves the Pending Orders lens with the same grid', async () => {
+    renderOrders(undefined, { uriKey: 'pending-orders', name: 'Pending Orders' });
+
+    expect(screen.getByRole('heading', { name: 'Pending Orders' })).toBeDefined();
+    await editCell('Status');
+
+    expect(await screen.findAllByRole('option')).toHaveLength(4);
   });
 });
