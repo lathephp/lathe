@@ -163,9 +163,11 @@ export function InlineCell({ uriKey, rowId, column, cell, token, onRow }: Inline
 
   const describedBy = error === null ? undefined : errorId;
 
-  // The grid asks for an edit from Enter, F2 or a double-click; a boolean flips at once.
+  // The grid asks for an edit from Enter, F2 or a double-click; a boolean flips at once. The editor's
+  // code loads after the rows paint, so the keys typed right after Enter reach its input.
   useEffect(() => {
     const element = root.current;
+    void InlineEditor.preload();
     const edit = () => {
       if (current.current.busy) {
         return;

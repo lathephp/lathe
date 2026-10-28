@@ -1,5 +1,5 @@
 import { router } from '@inertiajs/react';
-import { fireEvent, screen, waitFor } from '@testing-library/react';
+import { act, fireEvent, screen, waitFor } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { cellOf, editCell, pick, renderPage } from './support';
 
@@ -62,6 +62,18 @@ function renderOrders(abilities: Record<string, boolean> = { view: true, update:
 const ticksOn = () => cellOf('Status').querySelectorAll('[data-lathe-meter-tick][data-on]').length;
 
 describe('editing a cell in place', () => {
+  // First in the file: the editor's chunk, once loaded, stays loaded for the tests after it.
+  it("has the editor's code in before the first edit, so its input is there the moment Enter opens it", async () => {
+    renderOrders();
+    await act(async () => {
+      await new Promise((resolve) => setTimeout(resolve, 50));
+    });
+
+    await editCell('Note');
+
+    expect(screen.getByRole('textbox', { name: 'Note' })).toBeDefined();
+  });
+
   it('shows the value until Enter opens the 4 options; Paid sends 1 PATCH and the meter fills before the reply', async () => {
     const fetch = vi.spyOn(globalThis, 'fetch').mockReturnValue(new Promise(() => undefined));
     renderOrders();
