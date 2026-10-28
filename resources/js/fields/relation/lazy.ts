@@ -5,9 +5,9 @@ export const BelongsToForm = lazyNamed(() => import('./BelongsToForm').then((mod
 export const MorphToForm = lazyNamed(() => import('./MorphToForm').then((module) => module.MorphToForm));
 export const TagForm = lazyNamed(() => import('./TagField').then((module) => module.TagForm));
 export const HasOneForm = lazyNamed(() => import('./HasOneForm').then((module) => module.HasOneForm));
-export const PreviewModal = lazyNamed(() => import('../../records/PreviewModal').then((module) => module.PreviewModal));
+export const PreviewPanel = lazyNamed(() => import('../../index/PreviewPanel').then((module) => module.PreviewPanel));
 
 /** Loads every relation chunk now, so the next first render of each does not suspend. */
 export async function preloadRelationForms(): Promise<void> {
-  await Promise.all([BelongsToForm, MorphToForm, TagForm, HasOneForm, PreviewModal].map((component) => component.preload()));
+  await Promise.all([BelongsToForm, MorphToForm, TagForm, HasOneForm, PreviewPanel].map((component) => component.preload()));
 }

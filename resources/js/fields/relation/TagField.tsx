@@ -1,10 +1,11 @@
 import { useTranslation } from '@lathephp/core';
 import { Suspense, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { cn } from '../../lib/cn';
 import type { DetailFieldProps, FormFieldProps, IndexFieldProps } from '../registry';
 import type { FieldSchema } from '../types';
 import { isBelongsToValue } from './BelongsToField';
-import { BelongsToForm, PreviewModal } from './lazy';
+import { BelongsToForm, PreviewPanel } from './lazy';
 import type { AssociatableItem } from './useAssociatable';
 
 const chip = 'rounded-full bg-muted px-2 py-0.5 text-xs font-medium';
@@ -13,7 +14,7 @@ function tagList(value: unknown): AssociatableItem[] {
   return Array.isArray(value) ? value.filter(isBelongsToValue) : [];
 }
 
-/** The tags as chips: inline for displayAsGroup, stacked for displayAsList; withPreview opens a tag's preview on click. */
+/** The tags as chips: inline for displayAsGroup, stacked for displayAsList; withPreview opens a tag's preview panel on click. */
 function TagChips({ field, value }: { field: FieldSchema; value: unknown }) {
   const [previewing, setPreviewing] = useState<string | number | null>(null);
   const items = tagList(value);
@@ -44,25 +45,28 @@ function TagChips({ field, value }: { field: FieldSchema; value: unknown }) {
           </li>
         ))}
       </ul>
-      {preview !== null && previewing !== null && (
-        // The modal renders inside the index row, so its clicks would bubble to the row and open the record.
-        // eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions
-        <div
-          onClick={(event) => {
-            event.stopPropagation();
-          }}
-        >
-          <Suspense fallback={null}>
-            <PreviewModal
-              uriKey={preview}
-              id={previewing}
-              onClose={() => {
-                setPreviewing(null);
-              }}
-            />
-          </Suspense>
-        </div>
-      )}
+      {preview !== null &&
+        previewing !== null &&
+        // The panel lies over the page; the wrapper keeps its clicks from reaching an index row through React's tree.
+        createPortal(
+          // eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions
+          <div
+            onClick={(event) => {
+              event.stopPropagation();
+            }}
+          >
+            <Suspense fallback={null}>
+              <PreviewPanel
+                resource={{ uriKey: preview }}
+                id={String(previewing)}
+                onClose={() => {
+                  setPreviewing(null);
+                }}
+              />
+            </Suspense>
+          </div>,
+          document.body,
+        )}
     </>
   );
 }

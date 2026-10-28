@@ -177,6 +177,7 @@ function IndexPage({ resource, table, state, count, error, lens, actions, widget
                   index.visit({ sort });
                 }}
                 preview={{
+                show: preview.show,
                 toggle: preview.toggle,
                 moved: preview.follow,
                 saved: (row) => {

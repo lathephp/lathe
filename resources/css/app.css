@@ -897,7 +897,8 @@
       @apply min-w-0 flex-1;
     }
 
-    .lathe-preview {
+    /* A tag's panel, opened over any page, keeps lying over it. */
+    .lathe-index-split > .lathe-preview {
       @apply sticky top-[4.5rem] max-h-[calc(100svh-6rem)] shrink-0 rounded-lg border shadow-none;
     }
   }

@@ -40,11 +40,12 @@ window.addEventListener('lathe-write', (event) => {
 });
 
 export interface PreviewPanelProps {
-  resource: Pick<IndexProps['resource'], 'uriKey' | 'singularLabel'>;
-  table: Pick<IndexProps['table'], 'columns' | 'phoneCard'>;
+  /** A tag's panel, opened over any page, knows its Resource's key alone. */
+  resource: Pick<IndexProps['resource'], 'uriKey'> & Partial<Pick<IndexProps['resource'], 'singularLabel'>>;
+  table?: Pick<IndexProps['table'], 'columns' | 'phoneCard'>;
   id: string;
   /** The row on the page, when the record is one; its card's title and badge head the panel at once. */
-  row: Row | undefined;
+  row?: Row;
   onClose: () => void;
 }
 
@@ -110,10 +111,11 @@ export function PreviewPanel({ resource, table, id, row, onClose }: PreviewPanel
     };
   }, [apiPath, key, id, saves]);
 
-  const card = table.phoneCard;
+  const card = table?.phoneCard;
+  const label = resource.singularLabel?.toLowerCase() ?? __('record');
 
   function cell(key: string | null | undefined) {
-    const column = table.columns.find((candidate) => candidate.key === key);
+    const column = table?.columns.find((candidate) => candidate.key === key);
     const value = key === null || key === undefined ? undefined : row?.cells[key];
 
     return column === undefined || value === undefined ? null : <TableCell column={column} cell={value} />;
@@ -140,9 +142,9 @@ export function PreviewPanel({ resource, table, id, row, onClose }: PreviewPanel
         </div>
       </header>
       {failed === 404 ? (
-        <p className="p-4 text-sm">{__('This :resource was deleted.', { resource: resource.singularLabel.toLowerCase() })}</p>
+        <p className="p-4 text-sm">{__('This :resource was deleted.', { resource: label })}</p>
       ) : failed !== null ? (
-        <p className="p-4 text-sm text-destructive">{failed === 403 ? __('You may not view this :resource.', { resource: resource.singularLabel.toLowerCase() }) : __('Something went wrong. Please try again.')}</p>
+        <p className="p-4 text-sm text-destructive">{failed === 403 ? __('You may not view this :resource.', { resource: label }) : __('Something went wrong. Please try again.')}</p>
       ) : data === null ? (
         <div aria-busy="true" className="space-y-3 p-4">
           {[0, 1, 2, 3].map((line) => (

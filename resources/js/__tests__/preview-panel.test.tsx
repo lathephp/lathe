@@ -362,3 +362,31 @@ describe('the panel following the cursor', () => {
     expect(within(panel()).queryByRole('link', { name: 'Edit' })).toBeNull();
   });
 });
+
+describe('the openers of the old preview modal', () => {
+  it('has no Preview button on a row and no modal', () => {
+    previews();
+    renderPage('Resources/Index', orders(), { url: '/lathe/resources/orders' });
+
+    expect(screen.queryByRole('button', { name: /^Preview / })).toBeNull();
+    expect(screen.queryByRole('dialog')).toBeNull();
+  });
+
+  it('opens the panel from a title-cell click when the click action is preview, with no visit', async () => {
+    const asked = previews();
+    const visit = vi.spyOn(router, 'visit');
+    const props = orders();
+    renderPage('Resources/Index', { ...props, resource: { ...props.resource, definition: { ...definition, clickAction: 'preview' } } }, { url: '/lathe/resources/orders' });
+
+    fireEvent.click(cellOf('Number', 1));
+
+    await waitFor(() => {
+      expect(panel()).not.toBeNull();
+    });
+    expect(within(panel()).getByRole('heading').textContent).toBe('ORD-79186507');
+    await waitFor(() => {
+      expect(asked).toEqual(['/lathe/api/resources/orders/2/preview']);
+    });
+    expect(visit).not.toHaveBeenCalled();
+  });
+});

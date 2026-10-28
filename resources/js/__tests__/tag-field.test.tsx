@@ -107,21 +107,36 @@ describe('tag field', () => {
     expect(screen.getByRole('list').className).toContain('flex-col');
   });
 
-  it('opens the preview of a tag clicked with withPreview', async () => {
+  const tagPreview = {
+    id: 6,
+    title: 'new',
+    subtitle: '',
+    avatar: null,
+    fields: [{ key: 'slug', label: 'Slug', component: 'text-field', value: 'new-in', display: 'new-in' }],
+    abilities: { view: true, update: false },
+    actions: { actions: [], pivotActions: [], counts: {} },
+  };
+
+  it('opens the preview panel of a tag clicked with withPreview, over the page', async () => {
     const fetch = vi
       .spyOn(globalThis, 'fetch')
-      .mockImplementation(() => Promise.resolve(new Response(JSON.stringify({ id: 6, title: 'new', subtitle: '', fields: [{ key: 'slug', label: 'Slug', component: 'text-field', value: 'new-in', display: 'new-in' }] }), { status: 200 })));
+      .mockImplementation(() => Promise.resolve(new Response(JSON.stringify(tagPreview), { status: 200 })));
     render(<IndexField field={schema({ withPreview: true })} cell={{ value: tags.slice(0, 2), display: 'sale, new' }} />);
 
     fireEvent.click(screen.getByRole('button', { name: 'new' }));
 
     expect(await screen.findByText('new-in')).toBeDefined();
-    expect(screen.getByRole('dialog', { name: 'new' })).toBeDefined();
+    const panel = screen.getByRole('complementary', { name: 'new' });
+    // On the page, not inside the cell, so it lies over the page at every width.
+    expect(panel.parentElement?.parentElement).toBe(document.body);
     expect(urls(fetch)).toEqual(['/lathe/api/resources/tags/6/preview']);
+
+    fireEvent.click(screen.getByRole('button', { name: 'Close' }));
+    expect(screen.queryByRole('complementary', { name: 'new' })).toBeNull();
   });
 
   it('keeps a click inside the tag preview from opening the row behind it', async () => {
-    vi.spyOn(globalThis, 'fetch').mockImplementation(() => Promise.resolve(new Response(JSON.stringify({ id: 6, title: 'new', subtitle: '', fields: [{ key: 'slug', label: 'Slug', component: 'text-field', value: 'new-in', display: 'new-in' }] }), { status: 200 })));
+    vi.spyOn(globalThis, 'fetch').mockImplementation(() => Promise.resolve(new Response(JSON.stringify(tagPreview), { status: 200 })));
     const visit = vi.spyOn(router, 'visit');
     const definition = { debounce: 0.5, paginationType: 'links', clickAction: 'detail', polling: null, showPollingToggle: false, tableStyle: 'default', showColumnBorders: false, softDeletes: false };
     renderPage(
@@ -138,7 +153,7 @@ describe('tag field', () => {
     fireEvent.click(screen.getByRole('button', { name: 'new' }));
     fireEvent.click(await screen.findByText('new-in'));
 
-    expect(screen.getByRole('dialog', { name: 'new' })).toBeDefined();
+    expect(screen.getByRole('complementary', { name: 'new' })).toBeDefined();
     expect(visit).not.toHaveBeenCalled();
   });
 

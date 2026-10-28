@@ -1,9 +1,8 @@
 import { useTranslation } from '@lathephp/core';
 import { Link, router, usePage } from '@inertiajs/react';
-import { Columns3, Eye, Pencil, ScanEye } from 'lucide-react';
+import { Columns3, Eye, Pencil } from 'lucide-react';
 import { Fragment, Suspense, useLayoutEffect, useRef, useState, type MouseEvent } from 'react';
 import type { FieldSchema } from '../fields/types';
-import { PreviewModal } from '../fields/relation/lazy';
 import { cn } from '../lib/cn';
 import { instantProps } from '../lib/instant';
 import { TableCell } from '../table/cells';
@@ -109,10 +108,9 @@ export function ResourceTable({ resource, table, state, loading, selection, sort
     tableStyle.striped && 'even:bg-muted/50',
   );
   const border = showColumnBorders && 'border-e border-border last:border-e-0';
-  const previews = resource.preview === true;
   // A lens has no picker, nor the error page, which sends no allColumns.
   const picker = (table.allColumns ?? []).length > 0;
-  const withMenu = picker || previews || table.rows.some((row) => hasRowMenu(row) || row.abilities.view === true || row.abilities.update === true);
+  const withMenu = picker || table.rows.some((row) => hasRowMenu(row) || row.abilities.view === true || row.abilities.update === true);
   // The title column first, then the pinned ones, then the rest, as the server ordered each.
   const [title, ...rest] = table.columns;
   const pinned = rest.filter((column) => column.pinned === true);
@@ -191,8 +189,6 @@ export function ResourceTable({ resource, table, state, loading, selection, sort
     return index < stuck ? { className: cn(pinnedColumn, edge), style: { insetInlineStart: offsets[index] } } : { className: '' };
   });
   const menuClass = cn(menuColumn, edges.end && endEdge);
-  // The row whose preview modal is open.
-  const [previewing, setPreviewing] = useState<Row['id'] | null>(null);
   // Cells and tokens an inline save sent back, by row, over the row the page had loaded; a reload's newer row wins.
   const [saved, setSaved] = useState<Record<string, { over: Row; cells: Row['cells']; updatedAt: string | null | undefined }>>({});
   // Each column's cell classes, worked out once per render rather than once per cell.
@@ -241,7 +237,7 @@ export function ResourceTable({ resource, table, state, loading, selection, sort
     if (clickAction === 'select') {
       selection.toggle(row.id);
     } else if (clickAction === 'preview') {
-      setPreviewing(row.id);
+      preview?.show(row.id);
     } else if (url !== null && (event.metaKey || event.ctrlKey)) {
       window.open(url, '_blank', 'noopener');
     } else if (url !== null) {
@@ -470,19 +466,6 @@ export function ResourceTable({ resource, table, state, loading, selection, sort
                                   <Pencil aria-hidden="true" className="size-4" />
                                 </Link>
                               )}
-                              {previews && row.abilities.view === true && (
-                                <button
-                                  type="button"
-                                  aria-label={__('Preview :title', { title: row.title })}
-                                  tabIndex={-1}
-                                  className={rowLink}
-                                  onClick={() => {
-                                    setPreviewing(row.id);
-                                  }}
-                                >
-                                  <ScanEye aria-hidden="true" className="size-4" />
-                                </button>
-                              )}
                               {hasRowMenu(row) && <RowMenu uriKey={resource.uriKey} row={row} />}
                             </div>
                           </td>
@@ -516,17 +499,6 @@ export function ResourceTable({ resource, table, state, loading, selection, sort
           </Suspense>
         )}
       </table>
-      {previewing === null ? null : (
-        <Suspense fallback={null}>
-          <PreviewModal
-            uriKey={resource.uriKey}
-            id={previewing}
-            onClose={() => {
-              setPreviewing(null);
-            }}
-          />
-        </Suspense>
-      )}
     </div>
   );
 }

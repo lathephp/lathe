@@ -115,8 +115,6 @@ export interface IndexProps {
     searchable: boolean;
     softDeletes: boolean;
     abilities: { create: boolean };
-    /** Rows get a preview button: some field shows in the Preview context. */
-    preview?: boolean;
     /** Some column is summarized, so the deferred summaries will not be null. */
     hasSummaries?: boolean;
     definition: ResourceDefinition;

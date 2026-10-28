@@ -9,6 +9,8 @@ export type GridRowSelection = Pick<RowSelection, 'isSelected' | 'toggle' | 'tog
 
 /** The preview of the cursor's row, by row id: Space opens or closes it, and it follows the cursor. */
 export interface GridPreview {
+  /** A click on the title cell of a Resource whose click action is preview. */
+  show: (id: Row['id']) => void;
   toggle: (id: Row['id']) => void;
   moved: (id: Row['id']) => void;
   /** An inline save changed the row's cells. */
