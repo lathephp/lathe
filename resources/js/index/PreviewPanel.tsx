@@ -114,11 +114,13 @@ export function PreviewPanel({ resource, table, id, row, onClose }: PreviewPanel
   const card = table?.phoneCard;
   const label = resource.singularLabel?.toLowerCase() ?? __('record');
 
+  // A card part from the row; a record not on the page, such as a linked one, draws it from its own field.
   function cell(key: string | null | undefined) {
     const column = table?.columns.find((candidate) => candidate.key === key);
     const value = key === null || key === undefined ? undefined : row?.cells[key];
+    const field = row === undefined ? data?.fields.find((candidate) => candidate.key === key) : undefined;
 
-    return column === undefined || value === undefined ? null : <TableCell column={column} cell={value} />;
+    return field !== undefined ? <DetailField field={field} /> : column === undefined || value === undefined ? null : <TableCell column={column} cell={value} />;
   }
 
   const title = row === undefined ? data?.title : card?.title == null ? row.title : cell(card.title);

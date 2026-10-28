@@ -37,7 +37,9 @@ describe('the panel in the URL', () => {
       const url = urlOf(input);
       asked.push(url);
 
-      return Promise.resolve(new Response(JSON.stringify({ ...reply(1), id: 99, title: 'ORD-00000099' }), { status: 200 }));
+      const status = { key: 'status', label: 'Status', component: 'select-field', value: 'paid', display: 'Paid', options: [{ value: 'paid', label: 'Paid' }], badges: { paid: 'info' } };
+
+      return Promise.resolve(new Response(JSON.stringify({ ...reply(1), id: 99, title: 'ORD-00000099', fields: [...reply(1).fields, status] }), { status: 200 }));
     });
     window.history.replaceState({}, '', '/lathe/resources/orders?preview=99');
     renderPage('Resources/Index', orders(), { url: '/lathe/resources/orders?preview=99' });
@@ -45,6 +47,8 @@ describe('the panel in the URL', () => {
     await waitFor(() => {
       expect(within(panel()).getByRole('heading').textContent).toBe('ORD-00000099');
     });
+    // With no row on the page, the card's badge comes from the record's own field.
+    expect(panel().querySelector('header')?.textContent).toContain('Paid');
     expect(asked).toEqual(['/lathe/api/resources/orders/99/preview']);
     expect(screen.getByRole('grid').contains(document.activeElement)).toBe(false);
     expect(new URLSearchParams(window.location.search).get('preview')).toBe('99');
