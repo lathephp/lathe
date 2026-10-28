@@ -1,5 +1,6 @@
 import { ApiError, request, toast, useLathe, useTranslation } from '@lathephp/core';
 import { Suspense, useEffect, useId, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import type { Cell, FieldSchema } from '../fields/types';
 import { stringValue } from '../fields/registry';
 import { lazyNamed } from '../lib/lazy';
@@ -219,27 +220,31 @@ export function InlineCell({ uriKey, rowId, column, cell, token, onRow }: Inline
         <TableCell column={column} cell={shown} />
       )}
       {busy ? <span className="ms-2 text-xs text-muted-foreground">{__('Saving…')}</span> : null}
-      {conflict === null ? null : (
-        <Suspense fallback={null}>
-          <ConflictDialog
-            onRefresh={() => {
-              setConflict(null);
-            }}
-            onOverride={() => {
-              setConflict(null);
+      {/* On the page, not in the cell: a sticky cell would hold the dialog in its own box. */}
+      {conflict === null
+        ? null
+        : createPortal(
+            <Suspense fallback={null}>
+              <ConflictDialog
+                onRefresh={() => {
+                  setConflict(null);
+                }}
+                onOverride={() => {
+                  setConflict(null);
 
-              if (conflict.undoing) {
-                void undo(conflict.value, conflict.extra);
-              } else {
-                void commit(conflict.value, undefined, conflict.extra, lastToken(record));
-              }
-            }}
-            onClose={() => {
-              setConflict(null);
-            }}
-          />
-        </Suspense>
-      )}
+                  if (conflict.undoing) {
+                    void undo(conflict.value, conflict.extra);
+                  } else {
+                    void commit(conflict.value, undefined, conflict.extra, lastToken(record));
+                  }
+                }}
+                onClose={() => {
+                  setConflict(null);
+                }}
+              />
+            </Suspense>,
+            document.body,
+          )}
       {error === null ? null : (
         <div id={errorId} role="tooltip" className="absolute start-0 top-full z-10 mt-1 rounded-md bg-destructive px-2 py-1 text-xs whitespace-nowrap text-destructive-foreground shadow">
           {error}
