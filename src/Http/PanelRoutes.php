@@ -53,6 +53,7 @@ use Lathe\Http\Controllers\Resources\InlineUpdateController;
 use Lathe\Http\Controllers\Resources\LensActionController;
 use Lathe\Http\Controllers\Resources\LensController;
 use Lathe\Http\Controllers\Resources\PeekController;
+use Lathe\Http\Controllers\Resources\PreviewPreferenceController;
 use Lathe\Http\Controllers\Resources\RecordController;
 use Lathe\Http\Controllers\Resources\RelatableAuthorizationController;
 use Lathe\Http\Controllers\Resources\RelationAttachController;
@@ -195,6 +196,7 @@ class PanelRoutes
             $router->delete('resources/{resource}/saved-tabs/{savedTab}', [SavedTabController::class, 'destroy'])->name('resources.savedTabs.destroy');
             $router->put('resources/{resource}/columns', [ColumnPreferenceController::class, 'update'])->name('resources.columns.update');
             $router->delete('resources/{resource}/columns', [ColumnPreferenceController::class, 'destroy'])->name('resources.columns.destroy');
+            $router->put('resources/{resource}/preview-panel', [PreviewPreferenceController::class, 'update'])->name('resources.preview-panel');
             // Before the {resourceId} routes, so a lens path never reads as a record id.
             $router->get('resources/{resource}/lenses/{lens}', [LensController::class, 'index'])->name('resources.lenses.index');
             $router->get('resources/{resource}/lenses/{lens}/count', [LensController::class, 'count'])->name('resources.lenses.count');

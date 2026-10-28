@@ -21,6 +21,7 @@ use Lathe\Http\Requests\LatheRequest;
 use Lathe\Lathe;
 use Lathe\Lenses\Lens;
 use Lathe\Menu\MenuItem;
+use Lathe\Preferences\UserPreference;
 use Lathe\Resources\Resource;
 use Lathe\Resources\ResourceDefinition;
 use Workbench\App\Lathe\Lenses\PendingOrders;
@@ -296,6 +297,20 @@ it('searches a joined lens by its own columns', function () {
     $this->getJson('/lathe/api/resources/gizmos/lenses/joined-gizmos?q=Gizmo 1')
         ->assertOk()
         ->assertJsonPath('table.rows.*.id', [10]);
+});
+
+it('carries the Resource preview state on a lens page with one preferences query', function () {
+    $admin = User::where('email', 'admin@lathephp.com')->firstOrFail();
+    UserPreference::create(['user_id' => (string) $admin->getKey(), 'key' => 'preview:orders', 'value' => ['open' => true]]);
+    $open = null;
+
+    $sql = lensSqlDuring(function () use (&$open) {
+        $open = $this->getJson('/lathe/api/resources/orders/lenses/pending-orders')->assertOk()->json('table.previewOpen');
+    });
+    $preferences = array_filter($sql, fn (string $query) => str_contains($query, 'lathe_user_preferences'));
+
+    expect($preferences)->toHaveCount(1)
+        ->and($open)->toBeTrue();
 });
 
 it('never shows a row the global scope hides', function () {

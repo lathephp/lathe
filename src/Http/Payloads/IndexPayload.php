@@ -20,6 +20,7 @@ use Lathe\Groups\Group;
 use Lathe\Http\Requests\LatheRequest;
 use Lathe\Lenses\Lens;
 use Lathe\Preferences\ColumnChoice;
+use Lathe\Preferences\PreviewState;
 use Lathe\Preferences\UserPreference;
 use Lathe\Query\ResourceQuery;
 use Lathe\Resources\PhoneCard;
@@ -95,7 +96,7 @@ class IndexPayload
         $menu = new ActionMenu($this->request, $this->authorization);
         $rowActions = $menu->forRows($class);
         // A lens keeps its code columns: the saved choice is the Resource index's only.
-        $choice = $lens === null ? $this->columnChoice($class, $fields) : null;
+        ['choice' => $choice, 'previewOpen' => $previewOpen] = $this->savedPreferences($class, $fields, $lens === null);
 
         return [
             'resource' => $this->resource($class),
@@ -114,6 +115,7 @@ class IndexPayload
                     ...($group !== null ? ['group' => ['key' => $group->keyFor($model), 'title' => $group->titleFor($model), 'description' => $group->descriptionFor($model)]] : []),
                 ])->values()->all(),
                 'columnChoice' => $choice,
+                'previewOpen' => $previewOpen,
                 'allColumns' => $lens !== null ? [] : array_map(fn (Field $field) => ['key' => $field->key(), 'label' => $field->label()], $fields),
                 'phoneCard' => PhoneCard::pick($fields, $resource->definition()->getPhoneCard()),
             ],
@@ -183,17 +185,26 @@ class IndexPayload
     }
 
     /**
-     * The signed-in user's saved columns of this index, aged against the code's columns, or null when they saved none.
+     * The signed-in user's saved columns of this index, aged against the code's columns, or null when they saved none,
+     * and whether their preview panel is open. One query reads both rows; a lens keeps its code columns, so it reads
+     * the panel row alone.
      *
      * @param  class-string<\Lathe\Resources\Resource>  $class
      * @param  list<Field>  $fields
-     * @return array{order: list<string>, hidden: list<string>, pinned: list<string>}|null
+     * @return array{choice: array{order: list<string>, hidden: list<string>, pinned: list<string>}|null, previewOpen: bool}
      */
-    protected function columnChoice(string $class, array $fields): ?array
+    protected function savedPreferences(string $class, array $fields, bool $withColumns): array
     {
-        $row = UserPreference::where('user_id', UserPreference::userId($this->request))->where('key', ColumnChoice::key($class::uriKey()))->first();
+        $uriKey = $class::uriKey();
+        $keys = $withColumns ? [ColumnChoice::key($uriKey), PreviewState::key($uriKey)] : [PreviewState::key($uriKey)];
+        $rows = UserPreference::where('user_id', UserPreference::userId($this->request))->whereIn('key', $keys)->get()->keyBy('key');
+        $columns = $rows->get(ColumnChoice::key($uriKey));
+        $preview = $rows->get(PreviewState::key($uriKey));
 
-        return $row === null ? null : ColumnChoice::age(array_map(fn (Field $field) => $field->key(), $fields), $row->value);
+        return [
+            'choice' => $withColumns && $columns !== null ? ColumnChoice::age(array_map(fn (Field $field) => $field->key(), $fields), $columns->value) : null,
+            'previewOpen' => $preview !== null && ($preview->value['open'] ?? false) === true,
+        ];
     }
 
     /**

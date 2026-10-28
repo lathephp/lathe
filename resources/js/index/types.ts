@@ -132,6 +132,8 @@ export interface IndexProps {
     rowKey: string;
     /** Null when the user saved no choice; the error page sends neither this nor allColumns. */
     columnChoice?: ColumnChoice | null;
+    /** Whether the user left the preview panel open on this Resource's list. */
+    previewOpen?: boolean;
     /** Every index column in code order; empty on a lens, which has no picker. */
     allColumns?: { key: string; label: string }[];
     /** The columns a row's card shows below 768 px; a null title means the row's own title. */
