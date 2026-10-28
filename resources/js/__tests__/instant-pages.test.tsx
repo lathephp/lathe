@@ -96,10 +96,14 @@ describe('an instant visit from the sidebar', () => {
     expect(requests).toHaveLength(1);
   });
 
-  it('draws the tab band in the card only for an index that has tabs', async () => {
+  it('draws a 220 px views rail beside the card, and nothing above its toolbar, for an index that has tabs', async () => {
     clickInSidebar('Orders');
     await act(() => vi.advanceTimersByTimeAsync(110));
-    expect(document.querySelector('[data-skeleton-tabs]')?.parentElement?.hasAttribute('data-lathe-card')).toBe(true);
+    const rail = document.querySelector('[data-skeleton-tabs]');
+
+    expect(rail?.className).toContain('w-[220px]');
+    expect(rail?.nextElementSibling?.hasAttribute('data-lathe-card')).toBe(true);
+    expect(document.querySelector('[data-lathe-card]')?.firstElementChild?.hasAttribute('data-lathe-toolbar')).toBe(true);
   });
 
   it('lays itself out as the page does: the title above the card, the toolbar row first in it', async () => {
@@ -112,7 +116,7 @@ describe('an instant visit from the sidebar', () => {
     expect(toolbar?.className).toContain('lathe-toolbar');
   });
 
-  it('leaves out the tab band of an index without tabs', async () => {
+  it('leaves out the views rail of an index without tabs', async () => {
     clickInSidebar('Products');
     await act(() => vi.advanceTimersByTimeAsync(110));
     expect(document.querySelectorAll('[data-skeleton-tabs]')).toHaveLength(0);

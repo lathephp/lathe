@@ -14,7 +14,7 @@ import { usePolling, usePollingChoice } from '../../index/PollingToggle';
 import { PhoneCards } from '../../index/PhoneCards';
 import { ResourceTable, rowHeights, sameRow } from '../../index/ResourceTable';
 import { PreviewPanel } from '../../index/lazy';
-import { TabBar, tabBand } from '../../index/TabBar';
+import { useViews } from '../../index/ViewsRail';
 import type { IndexProps, Row } from '../../index/types';
 import type { IndexUrlState } from '../../index/useIndexState';
 import { useIndexState } from '../../index/useIndexState';
@@ -72,6 +72,8 @@ function IndexPage({ resource, table, state, count, error, lens, actions, widget
 
     index.visit(changes);
   }
+
+  const views = useViews({ resource, state: index.state, visit });
 
   const actionMenus = ((actions !== undefined && actions.actions.length > 0) || selection.all || selection.selected.size > 0) && (
     // Hidden when the ticked rows allow nothing; while the menus load, a spacer of their height
@@ -132,13 +134,16 @@ function IndexPage({ resource, table, state, count, error, lens, actions, widget
           <ResourceWidgets widgets={widgets} path={lens == null ? `resources/${resource.uriKey}` : `resources/${resource.uriKey}/lenses/${lens.uriKey}`} />
         </Suspense>
       )}
+      {/* The views rail at the card's left from 1100 px; narrower, or beside an open preview panel, it folds into the toolbar's Views menu. */}
+      <div className="lathe-index-body" data-preview-open={preview.id === null ? undefined : ''}>
+      {views?.rail}
       {/* At 1280 px and wider an open preview panel sits beside the card; below that it lies over it. */}
-      {/* One card: the tab band, the toolbar row (the selection bar while rows are ticked), the filter chips, then the table.
+      {/* One card: the toolbar row (the selection bar while rows are ticked), the filter chips, then the table.
           Nothing clips it, so a popover from its toolbar reaches past a short table. */}
       <div className={preview.id === null ? undefined : 'lathe-index-split'}>
         <Card data-lathe-card>
-          <TabBar resource={resource} state={index.state} visit={visit} />
           <IndexToolbar
+            views={views?.button}
             resource={resource}
             lens={lens}
             q={index.state.q}
@@ -222,13 +227,15 @@ function IndexPage({ resource, table, state, count, error, lens, actions, widget
           </Suspense>
         )}
         </div>
+        {views?.overlays}
+        </div>
       </div>
     );
   }
 
   /**
-   * The page before its props arrive: its title, then the card with the tab band when the link says the
-   * index has tabs, the toolbar row and ten rows of the table's height, so the rows land in place.
+   * The page before its props arrive: its title, the views rail when the link says the index has tabs, then
+   * the card with the toolbar row and ten rows of the table's height, so the rows land in place.
    */
   function IndexSkeleton({ title, hint }: { title: string; hint?: IndexSkeletonHint }) {
     const { tableStyle } = usePage<SharedProps>().props;
@@ -238,12 +245,13 @@ function IndexPage({ resource, table, state, count, error, lens, actions, widget
         <Head title={title} />
         <div aria-busy="true" className="space-y-5">
           <PageHeader title={title} />
+          <div className="lathe-index-body">
+          {hint?.tabs === true && (
+            <div aria-hidden="true" data-skeleton-tabs="" className="lathe-views lathe-views-rail w-[220px] shrink-0">
+              <div className={`h-32 ${skeletonBar}`} />
+            </div>
+          )}
           <Card aria-hidden="true" data-lathe-card="" className="overflow-hidden">
-            {hint?.tabs === true && (
-              <div data-skeleton-tabs="" className={tabBand}>
-                <div className={`h-8 w-64 ${skeletonBar}`} />
-              </div>
-            )}
             <div data-lathe-toolbar="" className={`${toolbarRow} justify-end`}>
               <div className={`h-9 w-96 max-w-full ${skeletonBar}`} />
             </div>
@@ -254,6 +262,7 @@ function IndexPage({ resource, table, state, count, error, lens, actions, widget
               </div>
             ))}
           </Card>
+          </div>
       </div>
     </AfterDelay>
   );

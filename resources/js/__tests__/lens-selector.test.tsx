@@ -31,10 +31,10 @@ function renderOrders(lenses: { uriKey: string; name: string }[], lens: { uriKey
 }
 
 describe('lens tabs', () => {
-  it('puts each lens in the tab band as a link, none current on the Resource itself', () => {
+  it('puts each lens in the views rail as a link, none current on the Resource itself', () => {
     renderOrders([pending]);
 
-    const band = screen.getByRole('navigation', { name: 'Tabs' });
+    const band = screen.getByRole('navigation', { name: 'Views' });
     const link = within(band).getByRole('link', { name: 'Pending Orders' });
 
     expect(link.getAttribute('href')).toBe('/lathe/resources/orders/lens/pending-orders');
@@ -44,7 +44,7 @@ describe('lens tabs', () => {
   it('marks the open lens as current and heads the page with its name and a back link', () => {
     renderOrders([pending], pending);
 
-    expect(within(screen.getByRole('navigation', { name: 'Tabs' })).getByRole('link', { name: 'Pending Orders' }).getAttribute('aria-current')).toBe('page');
+    expect(within(screen.getByRole('navigation', { name: 'Views' })).getByRole('link', { name: 'Pending Orders' }).getAttribute('aria-current')).toBe('page');
     expect(screen.getByRole('heading', { level: 1 }).textContent).toBe('Pending Orders');
     const crumbs = within(screen.getByRole('banner')).getByRole('navigation', { name: 'Breadcrumb' });
 
@@ -54,7 +54,8 @@ describe('lens tabs', () => {
   it('draws no lens tab and no view switcher when the Resource has no lenses', () => {
     renderOrders([]);
 
-    expect(screen.queryByRole('navigation', { name: 'Tabs' })).toBeNull();
+    expect(screen.queryByRole('navigation', { name: 'Views' })).toBeNull();
+    expect(screen.queryByRole('button', { name: /^Views/ })).toBeNull();
     expect(screen.queryByRole('combobox', { name: 'View' })).toBeNull();
   });
 });

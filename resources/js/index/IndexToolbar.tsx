@@ -27,9 +27,11 @@ interface IndexToolbarProps extends Pick<IndexProps, 'resource' | 'lens'> {
   hasMorePages: boolean;
   /** The delete and action menus; they keep their place whether rows are ticked or not. */
   actions: ReactNode;
+  /** The Views menu, first in the row; app.css shows it where the views rail folds away. */
+  views?: ReactNode;
 }
 
-export function IndexToolbar({ resource, lens, q, visit, polling, selection, count, hasMorePages, actions }: IndexToolbarProps) {
+export function IndexToolbar({ resource, lens, q, visit, polling, selection, count, hasMorePages, actions, views }: IndexToolbarProps) {
   const { __ } = useTranslation();
   const { basePath } = usePage<SharedProps>().props;
   const resourcePath = `${basePath}/resources/${resource.uriKey}`;
@@ -65,6 +67,7 @@ export function IndexToolbar({ resource, lens, q, visit, polling, selection, cou
         </div>
       ) : (
         <div className="flex flex-wrap items-center gap-1">
+          {views}
           {resource.searchable && (
             <ToolbarSearch
               label={resource.label}

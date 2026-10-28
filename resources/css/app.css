@@ -693,8 +693,53 @@
     @apply text-base font-semibold text-foreground;
   }
 
+  /* The views rail: 220 px on the page ground at the card's left, one view per 32 px row, its count at
+     the row's end. Below 1100 px, or beside an open preview panel, the toolbar's Views menu holds it. */
+  .lathe-index-body {
+    @apply flex items-start gap-4;
+  }
+
+  .lathe-index-body > :not(.lathe-views-rail) {
+    @apply min-w-0 flex-1;
+  }
+
+  .lathe-views {
+    @apply flex flex-col gap-1;
+  }
+
+  .lathe-views ul {
+    @apply flex flex-col gap-0.5;
+  }
+
+  .lathe-views-rail {
+    @apply hidden;
+  }
+
+  .lathe-views-menu {
+    @apply relative shrink-0;
+  }
+
+  .lathe-views-popover {
+    @apply absolute start-0 top-full z-30 mt-1.5 w-[260px] max-w-[calc(100vw-2rem)] rounded-[12px] border border-border bg-popover p-1.5 text-popover-foreground shadow-md;
+  }
+
+  @media (width >= 1100px) {
+    .lathe-views-rail {
+      @apply flex;
+    }
+
+    .lathe-views-menu {
+      @apply hidden;
+    }
+  }
+
   .lathe-tab {
-    @apply inline-flex h-7 items-center gap-1.5 rounded-md px-2.5 text-[13px] leading-[18px] font-medium whitespace-nowrap text-muted-foreground outline-none hover:bg-accent focus-visible:ring-2 focus-visible:ring-ring aria-[current=page]:bg-accent aria-[current=page]:text-foreground;
+    @apply flex h-8 w-full min-w-0 items-center gap-2 rounded-md px-2.5 text-start text-[13px] leading-[18px] font-medium whitespace-nowrap text-muted-foreground outline-none hover:bg-accent focus-visible:ring-2 focus-visible:ring-ring aria-[current=page]:bg-accent aria-[current=page]:text-foreground;
+  }
+
+  .lathe-tab-count,
+  .lathe-tab > [data-badge-placeholder] {
+    @apply ms-auto;
   }
 
   .lathe-tab-count {
@@ -721,9 +766,9 @@
     @apply bg-destructive-subtle text-destructive-subtle-foreground;
   }
 
-  /* Save view sits after a 16 px rule, 8 px from the tabs on each side. */
+  /* Save view sits under the views, 4 px below a rule. */
   .lathe-save-view {
-    @apply relative ms-[9px] before:absolute before:-start-[5px] before:top-1.5 before:h-4 before:w-px before:bg-border before:content-[''];
+    @apply relative mt-1 before:absolute before:inset-x-2.5 before:-top-1 before:h-px before:bg-border before:content-[''];
   }
 
   /* 56 px; a narrow window wraps it to a second line. The selection bar takes the same row. */
@@ -897,6 +942,15 @@
       @apply min-w-0 flex-1;
     }
 
+    /* Beside the 400 px panel the card keeps its width: the rail folds into the Views menu. */
+    [data-preview-open] > .lathe-views-rail {
+      @apply hidden;
+    }
+
+    [data-preview-open] .lathe-views-menu {
+      @apply block;
+    }
+
     /* A tag's panel, opened over any page, keeps lying over it. */
     .lathe-index-split > .lathe-preview {
       @apply sticky top-[4.5rem] max-h-[calc(100svh-6rem)] shrink-0 rounded-lg border shadow-none;
@@ -910,29 +964,18 @@
   }
 
   @media (width < 48rem) {
-    /* The ! beats the utilities the panel Card and the tab band carry. */
+    /* The ! beats the utilities the panel Card carries. */
     [data-lathe-card] {
       @apply rounded-none! border-0! bg-transparent! shadow-none!;
-    }
-
-    [data-lathe-card] nav {
-      @apply flex-nowrap! overflow-x-auto px-3! py-2!;
-    }
-
-    [data-lathe-card] nav ul {
-      @apply flex-nowrap!;
-    }
-
-    .lathe-tab {
-      @apply h-8 text-sm;
     }
 
     .lathe-toolbar {
       @apply flex-nowrap gap-2 border-0 p-3;
     }
 
+    /* The Views menu and the search share one line. */
     .lathe-toolbar > div:first-child {
-      @apply min-w-0 flex-1;
+      @apply min-w-0 flex-1 flex-nowrap;
     }
 
     .lathe-search {
