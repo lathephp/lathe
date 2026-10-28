@@ -18,7 +18,7 @@ import type { ColumnPin, IndexProps, Row } from './types';
 import type { RowSelection } from './useRowSelection';
 
 // A row's height at each table density; a loading row takes the same.
-export const rowHeights = { compact: 'h-8', comfortable: 'h-12', spacious: 'h-14' };
+export const rowHeights = { compact: 'h-8', comfortable: 'h-10', spacious: 'h-14' };
 
 // Under 768 px the table scrolls inside its card; the checkbox and the first column stay as the row's anchor.
 // A stuck cell sits a layer up, so the cells scrolling beneath it, an inline select included, never paint over it.
