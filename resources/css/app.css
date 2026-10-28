@@ -376,7 +376,7 @@
   }
 
   .lathe-button-size-default {
-    @apply h-[34px] gap-1.5 px-3 text-sm leading-5;
+    @apply h-8 gap-1.5 px-3 text-sm leading-5;
   }
 
   .lathe-button-size-sm {
@@ -384,7 +384,7 @@
   }
 
   .lathe-button-size-icon {
-    @apply size-[34px];
+    @apply size-8;
   }
 }
 
@@ -958,9 +958,9 @@
 /* Forms: the panel's own inputs and the create and edit page's save bar. The looks live here, so
    the field code that every page loads carries one class name per control. */
 @layer components {
-  /* 34 px on a card ground; 44 px with 16 px text on a phone, so iOS does not zoom in. */
+  /* 32 px on a card ground; 44 px with 16 px text on a phone, so iOS does not zoom in. */
   .lathe-input {
-    @apply h-[34px] w-full rounded-md border border-input bg-card px-2.5 text-sm text-foreground shadow-xs outline-none placeholder:text-muted-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-card disabled:opacity-60 aria-[invalid]:border-destructive max-md:h-11 max-md:text-base;
+    @apply h-8 w-full rounded-md border border-input bg-card px-2.5 text-sm text-foreground shadow-xs outline-none placeholder:text-muted-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-card disabled:opacity-60 aria-[invalid]:border-destructive max-md:h-11 max-md:text-base;
   }
 
   /* A short form still puts its bar at the foot of the content area: the page grows to fill it. */
