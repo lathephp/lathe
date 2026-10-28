@@ -22,7 +22,7 @@ const ImpersonationBanner = lazy(() => import('./ImpersonationBanner').then((mod
 // The shortcuts sheet loads when first opened.
 const KeysSheet = lazy(() => import('../components/KeysSheet').then((module) => ({ default: module.KeysSheet })));
 
-const oneYear =60 * 60 * 24 * 365;
+const oneYear = 60 * 60 * 24 * 365;
 const { RenderHook, Slot } = __panel;
 
 // The bell loads beside the page, so no route's first load carries it.
