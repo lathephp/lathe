@@ -2,7 +2,7 @@ import { draggable, dropTargetForElements } from '@atlaskit/pragmatic-drag-and-d
 import { announce } from '@atlaskit/pragmatic-drag-and-drop-live-region';
 import { toast, useLathe, useTranslation } from '@lathephp/core';
 import type { KeyboardEvent } from 'react';
-import { useEffect, useRef, useState } from 'react';
+import { useLayoutEffect, useRef, useState } from 'react';
 import { flushSync } from 'react-dom';
 import type { IndexProps, Row } from '../types';
 import type { useBoardColumns } from './useBoardColumns';
@@ -42,7 +42,8 @@ export function useCardMoves(uriKey: string, board: Board, columns: Columns) {
   const queue = useRef(new Map<Row['id'], Promise<void>>());
   const tokens = useRef(new Map<Row['id'], { sent: string | null | undefined; got: string | null | undefined }>());
 
-  useEffect(() => {
+  // In the commit, so a key pressed as the cards draw, before passive effects run, moves the drawn card.
+  useLayoutEffect(() => {
     latest.current = columns;
   });
 
