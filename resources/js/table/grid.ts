@@ -122,7 +122,8 @@ export function attachGrid(table: HTMLTableElement, select: { current: GridSelec
 
     if (found !== null && control === null) {
       found.cell.focus();
-    } else if (found !== null && control instanceof HTMLAnchorElement && !held && !event.metaKey && !event.ctrlKey && !event.shiftKey) {
+    } else if (found !== null && control instanceof HTMLAnchorElement && !held && event.detail > 0 && !event.metaKey && !event.ctrlKey && !event.shiftKey) {
+      // A pointer's click only: Enter on a focused link follows it.
       event.preventDefault();
       found.cell.focus();
     }
@@ -159,7 +160,10 @@ export function attachGrid(table: HTMLTableElement, select: { current: GridSelec
       return;
     }
 
-    if (found === null || (event.target instanceof Element && event.target.closest(typing) !== null) || event.altKey || event.metaKey || event.ctrlKey) {
+    // An open menu, or its button, keeps its keys.
+    const menu = event.target instanceof Element && event.target.closest('[role=menu], [aria-expanded=true]') !== null;
+
+    if (found === null || menu || (event.target instanceof Element && event.target.closest(typing) !== null) || event.altKey || event.metaKey || event.ctrlKey) {
       return;
     }
 

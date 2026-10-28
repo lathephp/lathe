@@ -118,12 +118,12 @@ describe('the cell cursor', () => {
     const link = screen.getAllByRole('link', { name: 'Ann Lee' })[1] as HTMLElement;
 
     fireEvent.pointerDown(link);
-    fireEvent.click(link);
+    fireEvent.click(link, { detail: 1 });
     expect(visit).not.toHaveBeenCalled();
     expect(document.activeElement).toBe(link.closest('td'));
 
     fireEvent.pointerDown(link);
-    fireEvent.click(link);
+    fireEvent.click(link, { detail: 1 });
     expect(visit.mock.calls[0]?.[0]).toBe('/lathe/resources/customers/7');
   });
 
@@ -240,6 +240,12 @@ describe('the cell cursor', () => {
     expect(document.activeElement).toBe(screen.getByRole('link', { name: 'Edit ORD-1' }));
     await press('Escape');
     expect(document.activeElement?.hasAttribute('data-row-menu')).toBe(true);
+
+    // Enter on a focused link follows it, a keyboard click the grid leaves alone.
+    const visit = vi.spyOn(router, 'visit').mockImplementation(() => undefined);
+    await press('Enter');
+    fireEvent.click(document.activeElement as HTMLElement, { detail: 0 });
+    expect(visit.mock.calls[0]?.[0]).toBe('/lathe/resources/orders/1');
   });
 
   it('steps from the last row of a group to the first row of the next, past the group header', async () => {

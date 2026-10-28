@@ -1,7 +1,7 @@
 import { Link, usePage } from '@inertiajs/react';
 import { request, toast, useTranslation } from '@lathephp/core';
 import { Copy, Eye, Pencil, RotateCcw, Trash2 } from 'lucide-react';
-import { lazy, Suspense, useId, useState } from 'react';
+import { lazy, Suspense, useEffect, useId, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { Modal, modalFooter } from '../components/Modal';
 import { Button } from '../components/ui/Button';
@@ -50,6 +50,14 @@ export function RowMenuPanel({ uriKey, row, open, menuId, onClose }: RowMenuPane
   const inline = (row.actions?.length ?? 0) > 0;
   const titleId = useId();
   const url = `${basePath}/api/resources/${uriKey}/${String(row.id)}`;
+  const panel = useRef<HTMLDivElement>(null);
+
+  // An opening menu takes the focus to its first entry, so Escape and Tab work inside it.
+  useEffect(() => {
+    if (open) {
+      panel.current?.querySelector<HTMLElement>('[role=menuitem]')?.focus();
+    }
+  }, [open]);
 
   const labels: Record<MenuAction, string> = {
     view: __('View'),
@@ -138,6 +146,7 @@ export function RowMenuPanel({ uriKey, row, open, menuId, onClose }: RowMenuPane
     <>
       {open && (
         <div
+          ref={panel}
           id={menuId}
           role="menu"
           tabIndex={-1}

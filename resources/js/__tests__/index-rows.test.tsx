@@ -311,6 +311,19 @@ describe('row menu', () => {
     expect(screen.getByRole('menuitem', { name: 'Edit' }).getAttribute('href')).toBe('/lathe/resources/orders/1/edit');
   });
 
+  it('takes the focus into an opened menu, and Escape closes it back onto its button', async () => {
+    renderOrders({ rows: [row(12, { view: true, delete: true })] });
+    const trigger = screen.getByRole('button', { name: 'Actions for ORD-00012' });
+
+    fireEvent.click(trigger);
+    const first = await screen.findByRole('menuitem', { name: 'View' });
+    expect(document.activeElement).toBe(first);
+
+    fireEvent.keyDown(first, { key: 'Escape' });
+    expect(screen.queryByRole('menu')).toBeNull();
+    expect(document.activeElement).toBe(trigger);
+  });
+
   it('has no menu for a row the user may do nothing with', () => {
     renderOrders({ rows: [row(1, {})] });
 
