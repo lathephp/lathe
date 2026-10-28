@@ -1,6 +1,7 @@
 // The cell cursor of a list table: one cell holds the tab stop and the keys move it
 // over the data rows, never a group header or a summary row. The cursor is the focused cell, so it
 // lives in the DOM, not in React state, and a render that keeps the rows leaves it where it was.
+import { showKeys } from '../lib/keys';
 
 /** PageUp and PageDown move this many rows. */
 const pageRows = 25;
@@ -102,6 +103,9 @@ export function attachGrid(table: HTMLTableElement): Grid {
     if (move !== undefined) {
       event.preventDefault();
       moveTo(...move);
+    } else if (event.key === '?') {
+      event.preventDefault();
+      showKeys();
     } else if (event.key === 'Enter' && event.target === found.cell) {
       // A cell of controls presses its checkbox or menu; any other runs the row's click action
       // through its title cell.

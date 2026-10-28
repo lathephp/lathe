@@ -1,5 +1,5 @@
 import { router } from '@inertiajs/react';
-import { act, fireEvent, screen, waitFor } from '@testing-library/react';
+import { act, fireEvent, screen, waitFor, within } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { fakeInertiaServer, renderPage, type FakeRequest } from './support';
 
@@ -129,6 +129,23 @@ describe('the cell cursor', () => {
 
     fireEvent.click(screen.getByText('Number 3'));
     expect(visit.mock.calls[1]?.[0]).toBe('/lathe/resources/orders/3');
+  });
+
+  it('opens the keys sheet from ? on the grid, while ? in the search box is just typed', async () => {
+    renderPage('Resources/Index', { ...orders(3), resource: { ...orders(3).resource, searchable: true } }, { url: '/lathe/resources/orders' });
+    const search = screen.getByRole('searchbox');
+    fireEvent.keyDown(search, { key: '?' });
+    expect(screen.queryByRole('dialog', { name: 'Keyboard shortcuts' })).toBeNull();
+
+    act(() => {
+      cursor().focus();
+    });
+    await press('?');
+
+    const sheet = await screen.findByRole('dialog', { name: 'Keyboard shortcuts' });
+    for (const group of ['Move', 'Edit', 'Select', 'Undo', 'Open']) {
+      expect(within(sheet).getByRole('heading', { name: group })).toBeDefined();
+    }
   });
 
   it('steps from the last row of a group to the first row of the next, past the group header', async () => {
