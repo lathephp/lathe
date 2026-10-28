@@ -9,6 +9,13 @@ All notable changes to Lathe are listed here. The format follows [Keep a Changel
 - `php artisan lathe:preset copper` writes the copper colours of 1.0.0-beta.4 and the `0.625rem` radius into `config/lathe.php`, with no request, for an app that wants its old look back. A bare `lathe:preset` lists it.
 - [api] A select opts into a status meter with `meter(except: [...])`. The payload carries the tick values as `meter`, and a meter with fewer than 2 or more than 5 ticks throws a `LogicException` naming the field when `fields()` builds.
 
+### Changed
+
+- [api] An app with no colours of its own opens in the new identity: steel neutrals, the layout blue primary (`#2e47e0` in light, `#8796ff` in dark), the teal `info`, and an 8 px panel radius. The 56 token names keep their names and meaning; only their default values change. An app that sets any colour keeps its look. To keep copper, run `php artisan lathe:preset copper`.
+- [api] `theme.radius` defaults to `0.5rem` (was `0.625rem`). A published `config/lathe.php` keeps the radius it lists; set it to `0.5rem` for the new corners.
+- [api] The bundled typeface is Archivo, with its width and weight axes in the latin and latin-ext subsets, in place of Inter Variable. `theme.font` set to `null` uses it; page and record titles and widget values use its 122% width.
+- Table rows are 40 px tall at the comfortable density (was 48 px), and the nova style's default buttons, inputs and selects are 32 px (was 34 px).
+
 ## [1.0.0-beta.4] - 2026-10-19
 
 ### Added

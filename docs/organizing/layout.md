@@ -308,11 +308,11 @@ The panel applies the choice before the first paint, so a reload does not flash.
 
 The config file lists all 56 tokens. They are `background`, `foreground`, `card`, `popover`, `primary`, `secondary`, `muted`, `accent`, `destructive`, `success`, `warning` and `info` (each with a `-foreground` partner), `border`, `input`, `ring`, `link`, `link-hover`, `chart-1` to `chart-5`, the `sidebar` tokens, and the 16 design system tokens below. Charts and widgets use the `chart-*` tokens. A value that is not a colour, or an unknown token, fails `php artisan lathe:doctor`.
 
-With no colours set, the panel wears Lathe's copper theme: warm greys, a copper primary button and copper marks, in light and dark. Every text colour reads at 4.5:1 on its ground, and every mark at 3:1.
+With no colours set, the panel wears Lathe's steel and blue identity: cool steel greys, a layout blue primary button and blue marks, with amber, teal and green for statuses, in light and dark. Every text colour reads at 4.5:1 on its ground, and every mark at 3:1. To get the copper look of 1.0.0-beta.4 back, run `php artisan lathe:preset copper`.
 
 The design system tokens:
 
-- `brand`: copper for marks that carry no text, such as the active menu bar and `chart-1`. Text on a copper fill uses `primary`.
+- `brand`: the colour of marks that carry no text, such as the active menu icon and `chart-1`. Text on a brand fill uses `primary`.
 - `focus`: the focus ring.
 - `primary-subtle`, `success-subtle`, `warning-subtle`, `info-subtle` and `destructive-subtle`: the quiet fills of badges and banners. Each has a text partner: `primary-subtle-foreground`, `success-subtle-foreground`, `warning-subtle-foreground`, `info-subtle-foreground` and `destructive-subtle-foreground`.
 - `skeleton`: the fill of loading placeholders.
@@ -337,7 +337,7 @@ Set one like any other token. This makes the success badge a deeper green and ke
 ],
 ```
 
-When you set any colour of your own, or ran `lathe:preset`, the panel keeps your look and wears no copper. Each of the 40 tokens you did not set keeps the neutral value it had before the copper theme, and the new tokens follow your palette:
+When you set any colour of your own, or ran `lathe:preset`, the panel keeps your look and wears none of the default blue. Each of the 40 tokens you did not set keeps the neutral value it had before 1.0.0-beta.3, and the new tokens follow your palette:
 
 - `brand` and `focus` take `primary`, made darker or lighter where needed until they read at 3:1 on `background`.
 - Each `-subtle` is a 14% tint of its colour over `background`. Its `-foreground` is the colour, darker on a light background or lighter on a dark one, until it reads at 4.5:1 on the tint.

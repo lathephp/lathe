@@ -952,7 +952,7 @@ function FeedbackBoard() {
         <div className="grid grid-cols-4 gap-4">
           <MiniPage step={__('0 ms · pointerdown')} tone="primary" title={__('Orders')} rows="muted" note={__('The nav item turns active at once. Hovering a link for 75ms already fetched the page.')} />
           <MiniPage step={__('100 ms · still waiting')} tone="primary" title={__('Customers')} rows="shimmer" note={__("The target's header shows over a skeleton of its own layout. The old list is gone.")} />
-          <MiniPage step={__('150 ms · slow visit')} tone="primary" title={__('Customers')} rows="shimmer" bar note={__('Only now does the 3px copper bar appear at the top.')} />
+          <MiniPage step={__('150 ms · slow visit')} tone="primary" title={__('Customers')} rows="shimmer" bar note={__('Only now does the 3px brand bar appear at the top.')} />
           <MiniPage step={__('Arrived')} tone="success" title={__('Customers')} rows={['Ann Taylor · ann.taylor@gmail.com', 'Anna Kowalski · anna.k@gmail.com', 'Annette Fox · annette.fox@gmail.com']} note={__("Rows cross-fade into the skeleton's exact place. Counts come with the page, so nothing pops in.")} />
         </div>
       </Panel>
