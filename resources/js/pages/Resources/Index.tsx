@@ -12,7 +12,7 @@ import { IndexToolbar, toolbarRow } from '../../index/IndexToolbar';
 import { useLoadMore } from '../../index/useLoadMore';
 import { usePolling, usePollingChoice } from '../../index/PollingToggle';
 import { PhoneCards } from '../../index/PhoneCards';
-import { ResourceTable, rowHeights } from '../../index/ResourceTable';
+import { ResourceTable, rowHeights, sameRow } from '../../index/ResourceTable';
 import { PreviewPanel } from '../../index/lazy';
 import { TabBar, tabBand } from '../../index/TabBar';
 import type { IndexProps, Row } from '../../index/types';
@@ -212,7 +212,7 @@ function IndexPage({ resource, table, state, count, error, lens, actions, widget
               resource={resource}
               table={table}
               id={preview.id}
-              row={kept !== undefined && kept.over === shown ? kept.row : shown}
+              row={kept !== undefined && shown !== undefined && sameRow(kept.over, shown) ? kept.row : shown}
               onClose={() => {
                 preview.close();
                 // The grid's cursor takes the focus back from the panel, or on a phone the card it showed, where the list stays put.

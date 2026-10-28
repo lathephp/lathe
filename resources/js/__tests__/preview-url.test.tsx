@@ -2,7 +2,7 @@ import { router } from '@inertiajs/react';
 import { act, fireEvent, screen, waitFor, within } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { firstCell, orders, panel, press, previews, reply, urlOf } from './preview-support';
-import { fakeInertiaServer, renderPage } from './support';
+import { cellOf, editCell, fakeInertiaServer, pick, renderPage } from './support';
 
 // Inertia's router and jsdom's history outlive a test, so the URL's tests have a file of their own.
 beforeEach(() => {
@@ -20,6 +20,36 @@ afterEach(() => {
 });
 
 describe('the panel in the URL', () => {
+  it('keeps a row saved before the panel opened new, in the grid and the header, once the URL takes the record', async () => {
+    vi.spyOn(globalThis, 'fetch').mockImplementation((input) => {
+      const url = urlOf(input);
+      const match = /\/orders\/(\d+)\/preview$/.exec(url);
+
+      if (url.endsWith('/field/status')) {
+        return Promise.resolve(new Response(JSON.stringify({ fields: { status: { value: 'paid', display: 'Paid' } }, updatedAt: 't1' }), { status: 200 }));
+      }
+
+      return Promise.resolve(match === null ? new Response(null, { status: 204 }) : new Response(JSON.stringify(reply(Number(match[1]), 'Paid')), { status: 200 }));
+    });
+    renderPage('Resources/Index', orders(), { url: '/lathe/resources/orders' });
+
+    await editCell('Status', 'Enter', 0);
+    await pick('Paid');
+    await waitFor(() => {
+      expect(screen.queryByText('Saving…')).toBeNull();
+    });
+    await press(' ');
+    await waitFor(() => {
+      expect(new URLSearchParams(window.location.search).get('preview')).toBe('1');
+    });
+    await act(async () => {
+      await new Promise((resolve) => setTimeout(resolve, 50));
+    });
+
+    expect(cellOf('Status').textContent).toContain('Paid');
+    expect(panel().querySelector('header')?.textContent).toContain('Paid');
+  });
+
   it('opens again on the linked order after a reload', async () => {
     previews();
     window.history.replaceState({}, '', '/lathe/resources/orders?preview=2');

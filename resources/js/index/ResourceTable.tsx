@@ -63,6 +63,14 @@ export function columnWidth(column: object): { width: string } | undefined {
   return typeof width === 'number' ? { width: `${String(width)}px` } : undefined;
 }
 
+/**
+ * Whether a row is the one an inline save went over. A client visit, such as the preview panel
+ * putting its record in the URL, can hand the page a copy of its rows; a reload's changed row differs.
+ */
+export function sameRow(saved: Row, row: Row): boolean {
+  return saved === row || JSON.stringify(saved) === JSON.stringify(row);
+}
+
 /** The text alignment of a column; the index sends each column as the field's full payload, `textAlign` included. */
 export function alignClass(column: object): string {
   const align = 'textAlign' in column ? column.textAlign : undefined;
@@ -342,6 +350,8 @@ export function ResourceTable({ resource, table, state, loading, selection, sort
               ))
             : table.rows.map((row, position) => {
                 const group = row.group;
+                const kept = saved[String(row.id)];
+                const fresh = kept !== undefined && sameRow(kept.over, row) ? kept : undefined;
                 const next = table.rows[position + 1];
                 const folded = group !== undefined && collapsed.includes(group.key);
                 // The last group may go on past the page bottom, so its subtotal would not match the rows shown.
@@ -378,8 +388,6 @@ export function ResourceTable({ resource, table, state, loading, selection, sort
                           />
                         </td>
                         {columns.map((column, index) => {
-                          const kept = saved[String(row.id)];
-                          const fresh = kept?.over === row ? kept : undefined;
                           const cell = (fresh?.cells ?? row.cells)[column.key];
                           // A cell edits in place for a user who may update the row and edit inline.
                           const inline = column.inline === true && row.abilities.update === true && row.abilities.inlineEdit !== false;
