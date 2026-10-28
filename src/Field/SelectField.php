@@ -67,23 +67,14 @@ class SelectField extends Field implements FilterableField
      */
     public function freeze(): static
     {
-        if ($this->meterExcept !== null) {
-            if ($this->isRemote()) {
-                throw new LogicException("The meter of the field [{$this->label}] needs inline options, not remote ones.");
-            }
-
-            $count = count($this->meterTicks() ?? []);
-
-            if ($count < 2 || $count > 5) {
-                throw new LogicException("The meter of the field [{$this->label}] needs 2 to 5 ticks; it has {$count}.");
-            }
-        }
+        $this->meterTicks();
 
         return parent::freeze();
     }
 
     /**
-     * The tick values in declared order, or null without a meter.
+     * The tick values in declared order, or null without a meter. A field reaches the page
+     * frozen through fields(), or unfrozen as a lens column or a repeater line, so both check here.
      *
      * @return list<string|int>|null
      */
@@ -93,9 +84,19 @@ class SelectField extends Field implements FilterableField
             return null;
         }
 
-        $except = array_map(strval(...), $this->meterExcept);
+        if ($this->isRemote()) {
+            throw new LogicException("The meter of the field [{$this->label}] needs inline options, not remote ones.");
+        }
 
-        return array_values(array_filter($this->optionValues(), fn (string $value): bool => ! in_array($value, $except, true)));
+        $except = array_map(strval(...), $this->meterExcept);
+        $ticks = array_values(array_filter($this->optionValues(), fn (string $value): bool => ! in_array($value, $except, true)));
+        $count = count($ticks);
+
+        if ($count < 2 || $count > 5) {
+            throw new LogicException("The meter of the field [{$this->label}] needs 2 to 5 ticks; it has {$count}.");
+        }
+
+        return $ticks;
     }
 
     /**

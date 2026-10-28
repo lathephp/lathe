@@ -84,6 +84,13 @@ it('refuses a meter with too few or too many ticks when the field freezes', func
     'six ticks' => [fn () => Field::select('Status')->options(['a', 'b', 'c', 'd', 'e', 'f'])->meter()],
 ])->throws(\LogicException::class, 'Status');
 
+it('refuses a bad meter when a field that was never frozen is sent, as a lens column or a repeater line is', function (Field $field) {
+    $field->jsonSerialize();
+})->with([
+    'six ticks' => [fn () => Field::select('Stage')->options(['a', 'b', 'c', 'd', 'e', 'f'])->meter()],
+    'remote options' => [fn () => Field::select('Owner')->remoteOptions(fn () => User::query(), 'name')->meter()],
+])->throws(\LogicException::class, 'The meter of the field [');
+
 it('names the count of ticks in the refusal', function () {
     Field::select('Status')->options(['a', 'b'])->meter(except: ['b'])->freeze();
 })->throws(\LogicException::class, 'The meter of the field [Status] needs 2 to 5 ticks; it has 1.');
