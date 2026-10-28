@@ -2,7 +2,7 @@ import { __panel } from '@lathephp/core';
 import { act, fireEvent, screen, waitFor } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { router } from '@inertiajs/react';
-import { choose, fakeInertiaServer, renderPage } from './support';
+import { cellOf, editCell, fakeInertiaServer, pick, renderPage } from './support';
 
 afterEach(() => {
   vi.restoreAllMocks();
@@ -61,10 +61,11 @@ describe('inline cells', () => {
     );
     renderRows();
 
-    await choose(screen.getByRole('combobox', { name: 'Status' }), 'shipped');
+    await editCell('Status');
+    await pick('shipped');
 
     await waitFor(() => {
-      expect(screen.getByRole('combobox', { name: 'Status' }).textContent).toBe('shipped');
+      expect(cellOf('Status').textContent).toBe('shipped');
     });
     expect(fetch.mock.calls[0]?.[0]).toBe('/lathe/api/resources/orders/12/field/status');
     expect(bodies(fetch)[0]).toEqual({ value: 'shipped', _updated_at: '2026-10-14T09:00:00.000Z' });
@@ -77,25 +78,25 @@ describe('inline cells', () => {
       .mockResolvedValueOnce(reply(422, { message: 'The name field is required.', errors: { name: ['The name field is required.'] } }));
     renderRows();
 
-    fireEvent.click(screen.getByRole('button', { name: 'Edit Name' }));
-    fireEvent.keyDown(screen.getByRole('textbox', { name: 'Name' }), { key: 'Escape' });
+    await editCell('Name');
+    fireEvent.keyDown(await screen.findByRole('textbox', { name: 'Name' }), { key: 'Escape' });
     expect(fetch).not.toHaveBeenCalled();
 
-    fireEvent.click(screen.getByRole('button', { name: 'Edit Name' }));
-    fireEvent.change(screen.getByRole('textbox', { name: 'Name' }), { target: { value: 'Ann Lee' } });
-    fireEvent.keyDown(screen.getByRole('textbox', { name: 'Name' }), { key: 'Enter' });
+    await editCell('Name');
+    fireEvent.change(await screen.findByRole('textbox', { name: 'Name' }), { target: { value: 'Ann Lee' } });
+    fireEvent.keyDown(await screen.findByRole('textbox', { name: 'Name' }), { key: 'Enter' });
     expect(await screen.findByText('Ann Lee')).toBeDefined();
 
-    fireEvent.click(screen.getByRole('button', { name: 'Edit Name' }));
-    fireEvent.change(screen.getByRole('textbox', { name: 'Name' }), { target: { value: '' } });
-    fireEvent.keyDown(screen.getByRole('textbox', { name: 'Name' }), { key: 'Enter' });
+    await editCell('Name');
+    fireEvent.change(await screen.findByRole('textbox', { name: 'Name' }), { target: { value: '' } });
+    fireEvent.keyDown(await screen.findByRole('textbox', { name: 'Name' }), { key: 'Enter' });
 
     expect((await screen.findByRole('tooltip')).textContent).toBe('The name field is required.');
     expect(screen.getByText('Ann Lee')).toBeDefined();
     expect(bodies(fetch)[1]?._updated_at).toBe('2026-10-14T09:00:02.000Z');
   });
 
-  it('toggles a boolean at once, draws asCheckbox as a checkbox, and keeps one request in flight', async () => {
+  it('flips a boolean at once from Enter, and keeps one request in flight', async () => {
     let answer: (response: Response) => void = () => undefined;
     const fetch = vi.spyOn(globalThis, 'fetch').mockReturnValue(
       new Promise((resolve) => {
@@ -104,10 +105,11 @@ describe('inline cells', () => {
     );
     renderRows();
 
-    expect(screen.getByRole('checkbox', { name: 'VIP' })).toBeDefined();
-    const toggle = screen.getByRole('switch', { name: 'Active' });
-    fireEvent.click(toggle);
-    fireEvent.click(toggle);
+    // Values show until an edit, a checkbox column included.
+    expect(screen.queryByRole('checkbox', { name: 'VIP' })).toBeNull();
+    expect(screen.queryByRole('switch', { name: 'Active' })).toBeNull();
+    await editCell('Active');
+    await editCell('Active');
 
     expect(fetch).toHaveBeenCalledTimes(1);
     expect(bodies(fetch)[0]?.value).toBe(true);
@@ -116,7 +118,7 @@ describe('inline cells', () => {
       await Promise.resolve();
     });
     await waitFor(() => {
-      expect(screen.getByRole('switch', { name: 'Active' }).getAttribute('aria-checked')).toBe('true');
+      expect(cellOf('Active').textContent).toBe('Yes');
     });
   });
 
@@ -124,12 +126,13 @@ describe('inline cells', () => {
     vi.spyOn(globalThis, 'fetch').mockResolvedValue(reply(500, { message: 'Server Error' }));
     renderRows();
 
-    await choose(screen.getByRole('combobox', { name: 'Status' }), 'shipped');
+    await editCell('Status');
+    await pick('shipped');
 
     await waitFor(() => {
       expect(__panel.toasts.get().map((toast) => toast.message)).toContain('Something went wrong. Please try again.');
     });
-    expect(screen.getByRole('combobox', { name: 'Status' }).textContent).toBe('pending');
+    expect(cellOf('Status').textContent).toBe('pending');
   });
 
   it('refreshes the row from a 409 and sends its new token next time', async () => {
@@ -139,22 +142,29 @@ describe('inline cells', () => {
       .mockResolvedValueOnce(reply(200, { field: 'status', fields: { status: { value: 'pending', display: 'pending' } }, updatedAt: '2026-10-14T09:00:06.000Z' }));
     renderRows();
 
-    await choose(screen.getByRole('combobox', { name: 'Status' }), 'shipped');
+    await editCell('Status');
+    await pick('shipped');
     await waitFor(() => {
-      expect(screen.getByRole('combobox', { name: 'Status' }).textContent).toBe('shipped');
+      expect(cellOf('Status').textContent).toBe('shipped');
     });
 
-    await choose(screen.getByRole('combobox', { name: 'Status' }), 'pending');
+    await editCell('Status');
+    await pick('pending');
     await waitFor(() => {
       expect(fetch).toHaveBeenCalledTimes(2);
     });
     expect(bodies(fetch)[1]?._updated_at).toBe('2026-10-14T09:00:05.000Z');
   });
 
-  it('shows plain cells to a user who may not update the row', () => {
+  it('shows plain cells to a user who may not update the row, and Enter opens the record', async () => {
+    const visit = vi.spyOn(router, 'visit').mockImplementation(() => undefined);
     renderRows(false);
 
-    expect(screen.queryByRole('combobox', { name: 'Status' })).toBeNull();
+    await editCell('Status');
+
+    expect(visit.mock.calls[0]?.[0]).toBe('/lathe/resources/orders/12');
+    expect(screen.queryByRole('listbox')).toBeNull();
+    expect(cellOf('Status').querySelector('[data-inline-cell]')).toBeNull();
     expect(screen.getByText('pending')).toBeDefined();
   });
 
@@ -164,9 +174,9 @@ describe('inline cells', () => {
     renderRows();
     window.history.replaceState(null, '', '/lathe/resources/orders');
 
-    fireEvent.click(screen.getByRole('button', { name: 'Edit Name' }));
-    fireEvent.change(screen.getByRole('textbox', { name: 'Name' }), { target: { value: 'Ann Lee' } });
-    fireEvent.keyDown(screen.getByRole('textbox', { name: 'Name' }), { key: 'Enter' });
+    await editCell('Name');
+    fireEvent.change(await screen.findByRole('textbox', { name: 'Name' }), { target: { value: 'Ann Lee' } });
+    fireEvent.keyDown(await screen.findByRole('textbox', { name: 'Name' }), { key: 'Enter' });
     expect(await screen.findByText('Ann Lee')).toBeDefined();
 
     // A queued run renamed the row since, and the index reloads its rows.

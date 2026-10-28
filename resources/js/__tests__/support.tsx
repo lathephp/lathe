@@ -1,5 +1,5 @@
 import { App } from '@inertiajs/react';
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { expect, vi } from 'vitest';
 import type { ComponentProps, ComponentType } from 'react';
 import { panelLayout } from '../layout/panelLayout';
@@ -239,4 +239,40 @@ export function pickFile(button: HTMLElement, file: File): HTMLInputElement {
   fireEvent.change(input, { target: { files: [file] } });
 
   return input;
+}
+
+/** The body cell of a list's first row under the column header named so. */
+export function cellOf(column: string, row = 0): HTMLTableCellElement {
+  const grid = screen.getByRole('grid');
+  const index = Array.from(grid.querySelectorAll('thead th')).findIndex((header) => header.textContent === column);
+  const cell = grid.querySelectorAll('tbody tr[data-row]')[row]?.children[index];
+
+  if (!(cell instanceof HTMLTableCellElement)) {
+    throw new Error(`No cell under ${column}.`);
+  }
+
+  return cell;
+}
+
+/** Puts the cell cursor on a list cell and presses a key there, Enter by default, once the cursor's code is in. */
+export async function editCell(column: string, key = 'Enter', row = 0): Promise<void> {
+  await waitFor(() => {
+    expect(screen.getByRole('grid').hasAttribute('data-grid-ready')).toBe(true);
+  });
+  const cell = cellOf(column, row);
+  act(() => {
+    cell.focus();
+  });
+  fireEvent.keyDown(cell, { key });
+}
+
+/** Chooses an option of the list an edit opened. */
+export async function pick(label: string): Promise<void> {
+  const option = await screen.findByRole('option', { name: label });
+
+  // Base UI ignores a click in the first moments after the list opens.
+  await waitFor(() => {
+    fireEvent.click(option);
+    expect(screen.queryByRole('listbox')).toBeNull();
+  });
 }

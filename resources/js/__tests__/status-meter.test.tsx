@@ -1,8 +1,8 @@
-import { render, screen } from '@testing-library/react';
+import { render } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
 import { DetailField, IndexField } from '../fields/registry';
 import type { FieldSchema } from '../fields/types';
-import { renderPage } from './support';
+import { cellOf, renderPage } from './support';
 
 const status = {
   key: 'status',
@@ -110,6 +110,6 @@ describe('status meter', () => {
       { url: '/lathe/resources/orders' },
     );
 
-    expect(meter(screen.getByRole('combobox', { name: 'Status' }))).toMatchObject({ ticks: 3, on: 2, text: 'Paid' });
+    expect(meter(cellOf('Status'))).toMatchObject({ ticks: 3, on: 2, text: 'Paid' });
   });
 });

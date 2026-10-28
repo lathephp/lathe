@@ -1,16 +1,13 @@
 import { ApiError, request, toast, useLathe, useTranslation } from '@lathephp/core';
-import { Suspense, useEffect, useId, useRef, useState, type KeyboardEvent } from 'react';
-import { Select } from '../components/ui/Select';
-import { SelectBadge, styled } from '../fields/choice/SelectFields';
+import { Suspense, useEffect, useId, useRef, useState } from 'react';
 import type { Cell, FieldSchema } from '../fields/types';
 import { stringValue } from '../fields/registry';
-import { isBelongsToValue } from '../fields/relation/BelongsToField';
-import { BelongsToForm, MorphToForm } from '../fields/relation/lazy';
-import { isMorphToValue } from '../fields/relation/MorphToField';
-import { cn } from '../lib/cn';
+import { lazyNamed } from '../lib/lazy';
 import { TableCell } from '../table/cells';
 import { ConflictDialog } from './lazy';
 
+// The controls load on the first edit, so a list's first paint carries only the values.
+const InlineEditor = lazyNamed(() => import('./InlineEditor').then((module) => module.InlineEditor));
 
 interface InlineReply {
   fields: Record<string, Cell>;
@@ -33,21 +30,18 @@ interface Option {
 }
 
 /**
- * An index cell that saves in place: a boolean toggles at once, a select saves on choice,
- * a text or number input saves on Enter or blur and Escape reverts, a belongsTo or morphTo
- * picker saves on the record picked. One request at a time;
- * a refused value shows its message on the cell and the old value comes back.
+ * An index cell that saves in place. It shows its value like any cell until the grid asks for an
+ * edit (Enter, F2 or a double-click): a boolean flips at once, any other opens its control.
+ * One request at a time; a refused value shows its message on the cell and the old value comes back.
  */
 export function InlineCell({ uriKey, rowId, column, cell, token, onRow }: InlineCellProps) {
   const { __ } = useTranslation();
   const { apiPath } = useLathe();
   const errorId = useId();
-  const pickerId = useId();
+  const root = useRef<HTMLDivElement>(null);
   const [pending, setPending] = useState<Cell | null>(null);
-  const [editing, setEditing] = useState<string | null>(null);
+  const [editing, setEditing] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  // A morphTo type chosen but no record picked yet; undefined while there is none.
-  const [morphDraft, setMorphDraft] = useState<unknown>(undefined);
   // The undo outlives this render: the toast calls it later, so it reads the latest token and row callback from refs.
   const latest = useRef({ token, onRow });
   useEffect(() => {
@@ -56,6 +50,11 @@ export function InlineCell({ uriKey, rowId, column, cell, token, onRow }: Inline
   const [conflict, setConflict] = useState<unknown>(undefined);
   const shown = pending ?? cell;
   const busy = pending !== null;
+  // What the grid's edit request reads when it comes, after this render.
+  const current = useRef({ busy, shown, commit });
+  useEffect(() => {
+    current.current = { busy, shown, commit };
+  });
   const options = (column.options as Option[] | undefined) ?? [];
 
   function send(value: unknown, extra: Record<string, unknown>, updatedAt: string | undefined) {
@@ -150,172 +149,60 @@ export function InlineCell({ uriKey, rowId, column, cell, token, onRow }: Inline
   }
 
   const describedBy = error === null ? undefined : errorId;
-  let control;
 
-  if (column.component === 'boolean-field') {
-    const on = shown.value === true || shown.value === column.trueValue;
-    const common = {
-      'aria-label': column.label,
-      'aria-describedby': describedBy,
-      disabled: busy,
+  // The grid asks for an edit from Enter, F2 or a double-click; a boolean flips at once.
+  useEffect(() => {
+    const element = root.current;
+    const edit = () => {
+      if (current.current.busy) {
+        return;
+      }
+
+      if (column.component === 'boolean-field') {
+        const on = current.current.shown.value === true || current.current.shown.value === column.trueValue;
+        void current.current.commit(!on);
+      } else {
+        setEditing(true);
+      }
     };
 
-    control =
-      column.asCheckbox === true ? (
-        <input
-          type="checkbox"
-          checked={on}
-          onChange={() => {
-            void commit(!on);
-          }}
-          className="size-4"
-          {...common}
-        />
-      ) : (
-        <button
-          type="button"
-          role="switch"
-          aria-checked={on}
-          onClick={() => {
-            void commit(!on);
-          }}
-          className={cn('relative h-5 w-9 rounded-full transition-colors', on ? 'bg-primary' : 'bg-muted')}
-          {...common}
-        >
-          <span className={cn('absolute top-0.5 size-4 rounded-full bg-background transition-all', on ? 'start-4.5' : 'start-0.5')} />
-        </button>
-      );
-  } else if (column.component === 'select-field' || column.component === 'multi-select-field') {
-    const multiple = column.component === 'multi-select-field';
-    const current = Array.isArray(shown.value) ? shown.value.map(stringValue) : stringValue(shown.value);
+    element?.addEventListener('lathe-edit', edit);
 
-    const common = {
-      'aria-label': column.label,
-      'aria-describedby': describedBy,
-      'aria-invalid': error !== null || undefined,
-      disabled: busy,
-      size: 'sm' as const,
-      className: 'max-w-full',
+    return () => {
+      element?.removeEventListener('lathe-edit', edit);
     };
+  }, [column]);
 
-    control = multiple ? (
-      <Select
-        multiple
-        {...common}
-        value={Array.isArray(current) ? current : []}
-        options={options}
-        onChange={(values) => {
-          void commit(values);
-        }}
-      />
-    ) : (
-      <Select
-        {...common}
-        {...(!styled(column) ? {} : { display: (value: string) => <SelectBadge field={column} value={value} /> })}
-        value={typeof current === 'string' ? current : ''}
-        options={[{ value: '', label: '—' }, ...options]}
-        onChange={(value) => {
-          void commit(value);
-        }}
-      />
-    );
-  } else if (column.component === 'belongs-to-field' || column.component === 'morph-to-field') {
-    const common = { id: pickerId, describedBy, invalid: error !== null, disabled: busy, record: { uriKey, id: rowId } };
+  // Leaving edit mode hands the focus back to the cell, or to the next one after Tab.
+  function close(next = false) {
+    setEditing(false);
+    const cell = root.current?.closest('td');
+    const target = next ? cell?.nextElementSibling : cell;
 
-    control = (
-      <>
-        <label htmlFor={pickerId} className="sr-only">
-          {column.label}
-        </label>
-        <Suspense fallback={<div className="h-8" aria-hidden="true" />}>
-        {column.component === 'belongs-to-field' ? (
-          <BelongsToForm
-            {...common}
-            field={{ ...column, value: shown.value }}
-            value={shown.value}
-            onChange={(picked) => {
-              void commit(isBelongsToValue(picked) ? picked.value : null, { value: picked, display: isBelongsToValue(picked) ? picked.display : '' });
-            }}
-          />
-        ) : (
-          <MorphToForm
-            {...common}
-            field={{ ...column, value: shown.value }}
-            value={morphDraft === undefined ? shown.value : morphDraft}
-            onChange={(picked) => {
-              // A new type alone saves nothing: the cell waits for a record of that type.
-              if (isMorphToValue(picked) && picked.id !== null) {
-                setMorphDraft(undefined);
-                void commit(picked.id, { value: picked, display: picked.display ?? '' }, { type: picked.type });
-              } else {
-                setMorphDraft(picked);
-              }
-            }}
-          />
-        )}
-        </Suspense>
-      </>
-    );
-  } else if (editing !== null) {
-    const numeric = column.component === 'number-field' || column.component === 'currency-field';
-
-    control = (
-      <input
-        // A cell the person clicked to edit takes the focus at once.
-        // eslint-disable-next-line jsx-a11y/no-autofocus
-        autoFocus
-        aria-label={column.label}
-        aria-describedby={describedBy}
-        aria-invalid={error !== null || undefined}
-        type={numeric ? 'number' : 'text'}
-        value={editing}
-        disabled={busy}
-        onChange={(event) => {
-          setEditing(event.target.value);
-        }}
-        onKeyDown={(event: KeyboardEvent<HTMLInputElement>) => {
-          if (event.key === 'Enter') {
-            event.preventDefault();
-            const value = editing;
-            setEditing(null);
-            void commit(value);
-          } else if (event.key === 'Escape') {
-            event.preventDefault();
-            setEditing(null);
-            setError(null);
-          }
-        }}
-        onBlur={() => {
-          if (editing !== stringValue(cell.value)) {
-            const value = editing;
-            setEditing(null);
-            void commit(value);
-          } else {
-            setEditing(null);
-          }
-        }}
-        className="h-8 w-full rounded-md border border-input bg-background px-2 text-sm"
-      />
-    );
-  } else {
-    control = (
-      <button
-        type="button"
-        aria-label={__('Edit :field', { field: column.label })}
-        aria-describedby={describedBy}
-        className="w-full cursor-text truncate text-start"
-        onClick={() => {
-          setEditing(stringValue(cell.value));
-        }}
-      >
-        <TableCell column={column} cell={shown} />
-      </button>
-    );
+    if (target instanceof HTMLElement) {
+      target.focus();
+    }
   }
 
   return (
-    <div data-inline-cell="" className="relative">
-      {control}
+    <div ref={root} data-inline-cell="" className="relative">
+      {editing ? (
+        <Suspense fallback={<TableCell column={column} cell={shown} />}>
+          <InlineEditor
+            uriKey={uriKey}
+            rowId={rowId}
+            column={column}
+            cell={shown}
+            describedBy={describedBy}
+            onCommit={(value, shownWhilePending, extra) => {
+              void commit(value, shownWhilePending, extra);
+            }}
+            onClose={close}
+          />
+        </Suspense>
+      ) : (
+        <TableCell column={column} cell={shown} />
+      )}
       {busy ? <span className="ms-2 text-xs text-muted-foreground">{__('Saving…')}</span> : null}
       {conflict === undefined ? null : (
         <Suspense fallback={null}>

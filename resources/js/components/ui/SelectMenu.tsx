@@ -19,9 +19,9 @@ function runs(options: readonly SelectOption[]): { group: string | undefined; op
 }
 
 /** The Base UI select behind the panel's Select, loaded on the first press. */
-export function SelectMenu(props: SelectProps & { defaultOpen: boolean }) {
+export function SelectMenu(props: SelectProps & { defaultOpen: boolean; onOpenChange?: (open: boolean) => void }) {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars -- value, multiple, onChange and display reach the parts through props
-  const { options, id, placeholder, size = 'default', disabled = false, className, defaultOpen, value, multiple, onChange, display, onFocus, ...aria } = props;
+  const { options, id, placeholder, size = 'default', disabled = false, className, defaultOpen, onOpenChange, value, multiple, onChange, display, onFocus, ...aria } = props;
   const parts = (
     <>
       <SelectTrigger id={id} size={size} className={className} onFocus={onFocus} {...aria}>
@@ -57,6 +57,7 @@ export function SelectMenu(props: SelectProps & { defaultOpen: boolean }) {
         value={[...props.value]}
         items={options}
         defaultOpen={defaultOpen}
+        onOpenChange={onOpenChange}
         disabled={disabled}
         onValueChange={(next) => {
           change(next.map(String));
@@ -74,6 +75,7 @@ export function SelectMenu(props: SelectProps & { defaultOpen: boolean }) {
       value={props.value}
       items={options}
       defaultOpen={defaultOpen}
+      onOpenChange={onOpenChange}
       disabled={disabled}
       onValueChange={(next) => {
         if (typeof next === 'string') {

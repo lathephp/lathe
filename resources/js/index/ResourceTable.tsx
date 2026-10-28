@@ -381,7 +381,8 @@ export function ResourceTable({ resource, table, state, loading, selection, sort
                           const kept = saved[String(row.id)];
                           const fresh = kept?.over === row ? kept : undefined;
                           const cell = (fresh?.cells ?? row.cells)[column.key];
-                          const inline = column.inline === true && row.abilities.update === true;
+                          // A cell edits in place for a user who may update the row and edit inline.
+                          const inline = column.inline === true && row.abilities.update === true && row.abilities.inlineEdit !== false;
                           const url = index === 0 && !inline && clickAction !== 'ignore' ? rowUrl(row) : undefined;
 
                           return (

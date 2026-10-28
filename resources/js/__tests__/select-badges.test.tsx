@@ -1,8 +1,8 @@
-import { render, screen } from '@testing-library/react';
+import { render } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
 import { DetailField, IndexField } from '../fields/registry';
 import type { FieldSchema } from '../fields/types';
-import { renderPage } from './support';
+import { cellOf, renderPage } from './support';
 
 const options = [
   { value: 'pending', label: 'Pending' },
@@ -81,8 +81,7 @@ describe('select badges', () => {
       { url: '/lathe/resources/orders' },
     );
 
-    const trigger = screen.getByRole('combobox', { name: 'Status' });
-
-    expect(badge(trigger)?.textContent).toBe('Paid');
+    // The cell shows its value as a read-only cell would until an edit opens the list.
+    expect(badge(cellOf('Status'))?.textContent).toBe('Paid');
   });
 });

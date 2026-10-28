@@ -1,6 +1,6 @@
 import { act, fireEvent, screen } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { choose, renderPage } from './support';
+import { cellOf, choose, editCell, renderPage } from './support';
 
 afterEach(() => {
   vi.restoreAllMocks();
@@ -76,7 +76,8 @@ describe('relation inline cells', () => {
     });
     renderRows('orders', customer, { value: { value: 3, display: 'Ann Lee', href: '/lathe/resources/customers/3' }, display: 'Ann Lee' });
 
-    fireEvent.click(screen.getByRole('button', { name: 'Customer' }));
+    await editCell('Customer');
+    fireEvent.click(await screen.findByRole('button', { name: 'Customer' }));
     await flush();
     fireEvent.click(screen.getByRole('option', { name: 'Anna Park' }));
     await flush();
@@ -85,7 +86,7 @@ describe('relation inline cells', () => {
       { url: '/lathe/api/resources/orders/12/field/customer', method: 'PATCH', body: { value: 4, _updated_at: '2026-10-14T09:00:00.000Z' } },
     ]);
     expect(calls(fetch)[0]?.url).toBe('/lathe/api/resources/orders/12/customer/associatable?q=&page=1');
-    expect(screen.getByRole('button', { name: 'Customer' }).textContent).toBe('Anna Park');
+    expect(cellOf('Customer').textContent).toBe('Anna Park');
   });
 
   it('commits a morphTo cell with its id and type once a record of the new type is picked', async () => {
@@ -96,7 +97,8 @@ describe('relation inline cells', () => {
     });
     renderRows('comments', commentable, { value: { type: 'posts', id: 1, display: 'Hello world', href: '/lathe/resources/posts/1' }, display: 'Hello world' });
 
-    await choose(screen.getByRole('combobox', { name: 'Commentable' }), 'Product');
+    await editCell('Commentable');
+    await choose(await screen.findByRole('combobox', { name: 'Commentable' }), 'Product');
     await flush();
     expect(fetch).not.toHaveBeenCalled();
 
@@ -109,6 +111,6 @@ describe('relation inline cells', () => {
     expect(calls(fetch).filter((call) => call.method === 'PATCH')).toEqual([
       { url: '/lathe/api/resources/comments/12/field/commentable', method: 'PATCH', body: { value: 9, type: 'products', _updated_at: '2026-10-14T09:00:00.000Z' } },
     ]);
-    expect(screen.getByRole('button', { name: 'Desk lamp' })).toBeDefined();
+    expect(cellOf('Commentable').textContent).toBe('Desk lamp');
   });
 });

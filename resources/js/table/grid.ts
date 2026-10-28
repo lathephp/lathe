@@ -72,6 +72,22 @@ export function attachGrid(table: HTMLTableElement): Grid {
     }
   }
 
+  // An editable cell opens its control on Enter, F2 or a double-click; it answers false otherwise.
+  function edit(cell: HTMLTableCellElement): boolean {
+    const editable = cell.querySelector('[data-inline-cell]');
+    editable?.dispatchEvent(new Event('lathe-edit'));
+
+    return editable !== null;
+  }
+
+  function onDoubleClick(event: MouseEvent) {
+    const found = locate(event.target);
+
+    if (found !== null) {
+      edit(found.cell);
+    }
+  }
+
   // A click on a cell, not on a control in it, puts the cursor there.
   function onClick(event: MouseEvent) {
     const found = locate(event.target);
@@ -106,6 +122,8 @@ export function attachGrid(table: HTMLTableElement): Grid {
     } else if (event.key === '?') {
       event.preventDefault();
       showKeys();
+    } else if ((event.key === 'Enter' || event.key === 'F2') && event.target === found.cell && edit(found.cell)) {
+      event.preventDefault();
     } else if (event.key === 'Enter' && event.target === found.cell) {
       // A cell of controls presses its checkbox or menu; any other runs the row's click action
       // through its title cell.
@@ -121,6 +139,7 @@ export function attachGrid(table: HTMLTableElement): Grid {
   table.addEventListener('focusin', onFocusIn);
   table.addEventListener('click', onClick);
   table.addEventListener('keydown', onKeyDown);
+  table.addEventListener('dblclick', onDoubleClick);
   table.dataset.gridReady = '';
 
   return {
@@ -129,6 +148,7 @@ export function attachGrid(table: HTMLTableElement): Grid {
       table.removeEventListener('focusin', onFocusIn);
       table.removeEventListener('click', onClick);
       table.removeEventListener('keydown', onKeyDown);
+      table.removeEventListener('dblclick', onDoubleClick);
       delete table.dataset.gridReady;
     },
   };
