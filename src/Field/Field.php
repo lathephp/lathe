@@ -79,6 +79,9 @@ class Field implements JsonSerializable
     /** @var array<value-of<FieldContext>, bool> Contexts whose Closure answers "hide" rather than "show". */
     protected array $hides = [];
 
+    /** The hideFromPreview() argument, kept apart because the preview panel ignores showOnPreview(). */
+    protected bool|Closure|null $previewHide = null;
+
     protected ?Closure $seeCallback = null;
 
     /** @var \WeakMap<LatheRequest, bool>|null */
@@ -402,7 +405,10 @@ class Field implements JsonSerializable
 
     public function showOnPreview(bool|Closure $show = true): static
     {
-        return $this->setVisibility(FieldContext::Preview, $show);
+        $this->setVisibility(FieldContext::Preview, $show);
+        $this->previewHide = null;
+
+        return $this;
     }
 
     public function showWhenPeeking(bool|Closure $show = true): static
@@ -432,7 +438,27 @@ class Field implements JsonSerializable
 
     public function hideFromPreview(bool|Closure $hide = true): static
     {
+        $this->mutate();
+        $this->previewHide = $hide;
+
         return $this->setVisibility(FieldContext::Preview, $hide, hide: true);
+    }
+
+    /**
+     * Whether hideFromPreview() drops the field. showOnPreview() alone never decides this.
+     */
+    public function isHiddenFromPreview(?LatheRequest $request = null, mixed $model = null): bool
+    {
+        if (! $this->previewHide instanceof Closure) {
+            return $this->previewHide === true;
+        }
+
+        return (bool) Evaluator::for($request)->call($this->previewHide, [
+            'record' => $model,
+            'request' => $request,
+            'field' => $this,
+            'context' => FieldContext::Preview,
+        ], [$request, $model]);
     }
 
     public function hideWhenPeeking(bool|Closure $hide = true): static

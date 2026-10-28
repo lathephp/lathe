@@ -97,11 +97,11 @@ it('peeks a record with its title, subtitle, avatar and the fields shown when pe
         ->and($json['fields'][0]['label'])->toBe('Number');
 });
 
-it('previews a record with the fields shown in the preview', function () {
+it('previews a record with the fields shown on Detail, whatever showOnPreview says', function () {
     $json = LatheTest::resource('peek-orders')->preview(12)->assertOk()->json();
 
-    expect(array_keys($json))->toBe(['id', 'title', 'subtitle', 'avatar', 'fields'])
-        ->and(array_column($json['fields'], 'key'))->toBe(['status']);
+    expect(array_keys($json))->toBe(['id', 'title', 'subtitle', 'avatar', 'fields', 'abilities', 'actions'])
+        ->and(array_column($json['fields'], 'key'))->toBe(['number', 'status', 'total_cents']);
 });
 
 it('uses fieldsForPeeking and fieldsForPreview when they return fields', function () {

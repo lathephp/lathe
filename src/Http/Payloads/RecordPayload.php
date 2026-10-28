@@ -10,6 +10,8 @@ use Lathe\Auth\Impersonation;
 use Lathe\Auth\ResourceAuthorization;
 use Lathe\Field\Field;
 use Lathe\Field\FieldContext;
+use Lathe\Field\Relations\BelongsToField;
+use Lathe\Field\Relations\MorphToField;
 use Lathe\Field\Relations\RelationField;
 use Lathe\Http\Requests\LatheRequest;
 use Lathe\Lathe;
@@ -82,15 +84,28 @@ class RecordPayload
                 fn (ResourcePlugin $plugin) => $this->resourcePlugin($class, $plugin),
                 array_values(array_filter(ResourcePluginRegistry::placedIn($class, $this->request), fn (ResourcePlugin $plugin) => $plugin->authorize($this->request))),
             ),
-            'abilities' => [
-                ...array_combine(self::ABILITIES, array_map(
-                    fn (string $ability) => $this->authorization->allows($user, $class, $ability, $model),
-                    self::ABILITIES,
-                )),
-                // Not a policy ability: Impersonatable decides. The live request holds the session.
-                ...(Impersonation::uses($model) ? ['impersonate' => Impersonation::availableTo(request(), $model)] : []),
-            ],
+            'abilities' => $this->abilities($class, $model),
             'trashed' => method_exists($model, 'trashed') && $model->trashed() === true,
+        ];
+    }
+
+    /**
+     * What the user may do with the record, as the detail page and the preview panel show it.
+     *
+     * @param  class-string<\Lathe\Resources\Resource>  $class
+     * @return array<string, bool>
+     */
+    public function abilities(string $class, Model $model): array
+    {
+        $user = $this->request->user();
+
+        return [
+            ...array_combine(self::ABILITIES, array_map(
+                fn (string $ability) => $this->authorization->allows($user, $class, $ability, $model),
+                self::ABILITIES,
+            )),
+            // Not a policy ability: Impersonatable decides. The live request holds the session.
+            ...(Impersonation::uses($model) ? ['impersonate' => Impersonation::availableTo(request(), $model)] : []),
         ];
     }
 
@@ -115,8 +130,8 @@ class RecordPayload
     }
 
     /**
-     * A record's peek or preview: its heading and the fields shown in that context. Relation
-     * fields will be dropped from the default peek list once they exist.
+     * A record's peek or preview: its heading and the fields shown in that context. The
+     * preview picks its fields by previewFields().
      *
      * @param  class-string<\Lathe\Resources\Resource>  $class
      * @return array{id: mixed, title: string, subtitle: string, avatar: array{url: string|null, initials: string|null, style: array<string, mixed>, rounded: bool}|null, fields: list<array<string, mixed>>}
@@ -261,9 +276,42 @@ class RecordPayload
         $only = $this->request->query('only');
         $keys = is_string($only) ? array_values(array_filter(explode(',', $only), fn (string $key) => $key !== '')) : null;
 
+        if ($context === FieldContext::Preview) {
+            return $this->previewFields($class, $model, $keys);
+        }
+
         return array_values($class::make($model)->fieldsFor($context, $this->request)
             ->onlyKeys($keys)
             ->forContext($context, $this->request, $model)
+            ->authorized($this->request)
+            ->all());
+    }
+
+    /**
+     * The fields of the preview panel. A resource that lists fieldsForPreview() gets exactly
+     * those; any other gets its Detail fields without the relation lists (a to-one name reads
+     * as a value, so BelongsTo and MorphTo stay). hideFromPreview() and canSee drop a field in
+     * both; showOnPreview() narrows nothing.
+     *
+     * @param  class-string<\Lathe\Resources\Resource>  $class
+     * @param  list<string>|null  $keys
+     * @return list<Field>
+     */
+    protected function previewFields(string $class, ?Model $model, ?array $keys): array
+    {
+        $resource = $class::make($model);
+
+        if ($resource->fieldsForPreview($this->request) !== []) {
+            $fields = $resource->fieldsFor(FieldContext::Preview, $this->request)->onlyKeys($keys);
+        } else {
+            $fields = $resource->fieldsFor(FieldContext::Detail, $this->request)
+                ->onlyKeys($keys)
+                ->forContext(FieldContext::Detail, $this->request, $model)
+                ->reject(fn (Field $field) => $field instanceof RelationField && ! $field instanceof BelongsToField && ! $field instanceof MorphToField);
+        }
+
+        return array_values($fields
+            ->reject(fn (Field $field) => $field->isHiddenFromPreview($this->request, $model))
             ->authorized($this->request)
             ->all());
     }
