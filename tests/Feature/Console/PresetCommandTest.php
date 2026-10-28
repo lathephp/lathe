@@ -2,7 +2,10 @@
 
 use Illuminate\Http\Client\Request;
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Http;
+use Lathe\Theme\Color;
+use Workbench\App\Models\User;
 
 beforeEach(function () {
     Http::preventStrayRequests();
@@ -146,6 +149,70 @@ it('fails on a code that does not decode without a request', function () {
     $this->artisan('lathe:preset', ['preset' => 'not a code'])->assertExitCode(1);
 
     Http::assertNothingSent();
+});
+
+/**
+ * The values of a block of the beta.4 stylesheet, keyed by token name.
+ *
+ * @return array<string, string>
+ */
+function copperBlock(string $selector): array
+{
+    $css = (string) file_get_contents(dirname(__DIR__, 2).'/Fixtures/copper-beta4.css');
+    preg_match('/^'.preg_quote($selector, '/').' \{\n(.*?)\n\}/ms', $css, $block);
+    preg_match_all('/^\s*--([a-z0-9-]+): ([^;]+);$/m', $block[1], $pairs, PREG_SET_ORDER);
+
+    return array_column($pairs, 2, 1);
+}
+
+it('writes the beta.4 copper look without a request', function () {
+    $before = writtenTheme($this->configPath);
+    $light = copperBlock(':where(:root)');
+    $dark = copperBlock('.dark');
+
+    $this->artisan('lathe:preset', ['preset' => 'copper'])->assertExitCode(0);
+
+    Http::assertNothingSent();
+
+    $theme = writtenTheme($this->configPath);
+
+    expect($theme['colors'])->toHaveCount(56)
+        ->and($theme['colors']['primary'])->toBe(['light' => 'oklch(0.55 0.14 48)', 'dark' => 'oklch(0.72 0.14 55)'])
+        ->and($theme['radius'])->toBe('0.625rem')
+        ->and($theme['style'])->toBe($before['style'])
+        ->and($theme['font'])->toBe($before['font']);
+
+    foreach (Color::cases() as $color) {
+        expect($theme['colors'][$color->value])->toBe(['light' => $light[$color->value], 'dark' => $dark[$color->value]]);
+    }
+});
+
+it('shows copper on the page after the preset', function () {
+    $this->artisan('migrate')->assertSuccessful();
+    Gate::define('viewLathe', fn () => true);
+    $admin = User::forceCreate(['name' => 'Admin User', 'email' => 'admin@lathephp.com', 'password' => bcrypt('password')]);
+
+    $this->artisan('lathe:preset', ['preset' => 'copper'])->assertExitCode(0);
+    config(['lathe.theme' => (require $this->configPath)['theme']]);
+
+    $html = (string) $this->actingAs($admin)->get('/lathe')->assertOk()->getContent();
+
+    preg_match('/<style\b[^>]*>(.*?)<\/style>/s', $html, $style);
+    preg_match('/:root\{([^}]*)\}/', $style[1], $root);
+    expect($root[1])->toContain('--primary:oklch(0.55 0.14 48)');
+});
+
+it('names copper when no preset is given', function () {
+    $this->artisan('lathe:preset', ['--no-interaction' => true])
+        ->expectsOutputToContain('copper')
+        ->assertExitCode(1);
+});
+
+it('clears copper again with --reset', function () {
+    $this->artisan('lathe:preset', ['preset' => 'copper'])->assertExitCode(0);
+    $this->artisan('lathe:preset', ['--reset' => true])->assertExitCode(0);
+
+    expect(array_filter(writtenTheme($this->configPath)['colors']))->toBe([]);
 });
 
 it('fails when the config is not published', function () {

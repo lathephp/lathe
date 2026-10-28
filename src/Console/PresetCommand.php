@@ -15,7 +15,7 @@ use function Laravel\Prompts\select;
 class PresetCommand extends Command
 {
     protected $signature = 'lathe:preset
-        {preset? : A shadcn preset code, such as a5ONTE}
+        {preset? : A shadcn preset code, such as a5ONTE, or copper}
         {--interactive : Choose each preset parameter in turn}
         {--show : Print the theme in config/lathe.php without changing it}
         {--reset : Set every colour override to null}';
@@ -40,6 +40,66 @@ class PresetCommand extends Command
 
     private const array BASE_COLORS = ['neutral', 'stone', 'zinc', 'mauve', 'olive', 'mist', 'taupe'];
 
+    /** The colours of 1.0.0-beta.4, which painted every app copper before the neutral default. */
+    private const array COPPER = [
+        'background' => ['light' => 'oklch(0.985 0.003 70)', 'dark' => 'oklch(0.165 0.006 60)'],
+        'foreground' => ['light' => 'oklch(0.22 0.012 55)', 'dark' => 'oklch(0.95 0.004 70)'],
+        'card' => ['light' => 'oklch(1 0 0)', 'dark' => 'oklch(0.2 0.007 60)'],
+        'card-foreground' => ['light' => 'oklch(0.22 0.012 55)', 'dark' => 'oklch(0.95 0.004 70)'],
+        'popover' => ['light' => 'oklch(1 0 0)', 'dark' => 'oklch(0.225 0.008 60)'],
+        'popover-foreground' => ['light' => 'oklch(0.22 0.012 55)', 'dark' => 'oklch(0.95 0.004 70)'],
+        'primary' => ['light' => 'oklch(0.55 0.14 48)', 'dark' => 'oklch(0.72 0.14 55)'],
+        'primary-foreground' => ['light' => 'oklch(1 0 0)', 'dark' => 'oklch(0.19 0.02 50)'],
+        'secondary' => ['light' => 'oklch(0.955 0.005 70)', 'dark' => 'oklch(0.255 0.008 60)'],
+        'secondary-foreground' => ['light' => 'oklch(0.26 0.012 55)', 'dark' => 'oklch(0.93 0.004 70)'],
+        'muted' => ['light' => 'oklch(0.958 0.005 70)', 'dark' => 'oklch(0.24 0.008 60)'],
+        'muted-foreground' => ['light' => 'oklch(0.5 0.014 55)', 'dark' => 'oklch(0.72 0.01 70)'],
+        'accent' => ['light' => 'oklch(0.95 0.008 65)', 'dark' => 'oklch(0.265 0.01 60)'],
+        'accent-foreground' => ['light' => 'oklch(0.22 0.012 55)', 'dark' => 'oklch(0.95 0.004 70)'],
+        'destructive' => ['light' => 'oklch(0.5 0.19 18)', 'dark' => 'oklch(0.68 0.18 20)'],
+        'destructive-foreground' => ['light' => 'oklch(1 0 0)', 'dark' => 'oklch(0.18 0.03 20)'],
+        'success' => ['light' => 'oklch(0.5 0.1 170)', 'dark' => 'oklch(0.74 0.12 170)'],
+        'success-foreground' => ['light' => 'oklch(1 0 0)', 'dark' => 'oklch(0.18 0.03 170)'],
+        'warning' => ['light' => 'oklch(0.77 0.15 75)', 'dark' => 'oklch(0.8 0.14 78)'],
+        'warning-foreground' => ['light' => 'oklch(0.24 0.04 60)', 'dark' => 'oklch(0.2 0.04 60)'],
+        'info' => ['light' => 'oklch(0.52 0.13 250)', 'dark' => 'oklch(0.74 0.11 250)'],
+        'info-foreground' => ['light' => 'oklch(1 0 0)', 'dark' => 'oklch(0.18 0.03 250)'],
+        'border' => ['light' => 'oklch(0.915 0.006 70)', 'dark' => 'oklch(0.29 0.008 60)'],
+        'input' => ['light' => 'oklch(0.64 0.012 65)', 'dark' => 'oklch(0.55 0.012 65)'],
+        'ring' => ['light' => 'oklch(0.6 0.15 50)', 'dark' => 'oklch(0.72 0.14 55)'],
+        'link' => ['light' => 'oklch(0.5 0.13 46)', 'dark' => 'oklch(0.78 0.11 55)'],
+        'link-hover' => ['light' => 'oklch(0.42 0.12 44)', 'dark' => 'oklch(0.86 0.08 58)'],
+        'chart-1' => ['light' => 'oklch(0.6 0.15 50)', 'dark' => 'oklch(0.72 0.14 55)'],
+        'chart-2' => ['light' => 'oklch(0.56 0.09 195)', 'dark' => 'oklch(0.72 0.1 195)'],
+        'chart-3' => ['light' => 'oklch(0.5 0.13 268)', 'dark' => 'oklch(0.7 0.12 268)'],
+        'chart-4' => ['light' => 'oklch(0.66 0.13 82)', 'dark' => 'oklch(0.8 0.13 85)'],
+        'chart-5' => ['light' => 'oklch(0.52 0.13 335)', 'dark' => 'oklch(0.72 0.12 335)'],
+        'sidebar' => ['light' => 'oklch(0.975 0.004 70)', 'dark' => 'oklch(0.18 0.006 60)'],
+        'sidebar-foreground' => ['light' => 'oklch(0.3 0.012 55)', 'dark' => 'oklch(0.88 0.006 70)'],
+        'sidebar-primary' => ['light' => 'oklch(0.55 0.14 48)', 'dark' => 'oklch(0.72 0.14 55)'],
+        'sidebar-primary-foreground' => ['light' => 'oklch(1 0 0)', 'dark' => 'oklch(0.19 0.02 50)'],
+        'sidebar-accent' => ['light' => 'oklch(0.965 0.022 60)', 'dark' => 'oklch(0.28 0.045 50)'],
+        'sidebar-accent-foreground' => ['light' => 'oklch(0.46 0.12 46)', 'dark' => 'oklch(0.84 0.09 55)'],
+        'sidebar-border' => ['light' => 'oklch(0.915 0.006 70)', 'dark' => 'oklch(0.29 0.008 60)'],
+        'sidebar-ring' => ['light' => 'oklch(0.6 0.15 50)', 'dark' => 'oklch(0.72 0.14 55)'],
+        'brand' => ['light' => 'oklch(0.6 0.15 50)', 'dark' => 'oklch(0.72 0.14 55)'],
+        'focus' => ['light' => 'oklch(0.6 0.15 50)', 'dark' => 'oklch(0.72 0.14 55)'],
+        'primary-subtle' => ['light' => 'oklch(0.965 0.022 60)', 'dark' => 'oklch(0.28 0.045 50)'],
+        'primary-subtle-foreground' => ['light' => 'oklch(0.46 0.12 46)', 'dark' => 'oklch(0.84 0.09 55)'],
+        'success-subtle' => ['light' => 'oklch(0.96 0.025 170)', 'dark' => 'oklch(0.27 0.045 170)'],
+        'success-subtle-foreground' => ['light' => 'oklch(0.42 0.09 170)', 'dark' => 'oklch(0.85 0.08 170)'],
+        'warning-subtle' => ['light' => 'oklch(0.965 0.04 85)', 'dark' => 'oklch(0.29 0.05 80)'],
+        'warning-subtle-foreground' => ['light' => 'oklch(0.45 0.1 65)', 'dark' => 'oklch(0.87 0.1 85)'],
+        'info-subtle' => ['light' => 'oklch(0.96 0.02 250)', 'dark' => 'oklch(0.27 0.05 250)'],
+        'info-subtle-foreground' => ['light' => 'oklch(0.44 0.12 252)', 'dark' => 'oklch(0.86 0.07 250)'],
+        'destructive-subtle' => ['light' => 'oklch(0.965 0.02 18)', 'dark' => 'oklch(0.28 0.06 20)'],
+        'destructive-subtle-foreground' => ['light' => 'oklch(0.46 0.17 20)', 'dark' => 'oklch(0.86 0.08 20)'],
+        'skeleton' => ['light' => 'oklch(0.94 0.006 70)', 'dark' => 'oklch(0.26 0.008 60)'],
+        'scrim' => ['light' => '#1a16134d', 'dark' => '#0000008c'],
+        'chart-other' => ['light' => 'oklch(0.62 0.008 70)', 'dark' => 'oklch(0.55 0.008 70)'],
+        'sidebar-hover' => ['light' => 'oklch(0.945 0.006 70)', 'dark' => 'oklch(0.235 0.008 60)'],
+    ];
+
     public function handle(): int
     {
         $path = config_path('lathe.php');
@@ -59,6 +119,13 @@ class PresetCommand extends Command
         if ($this->option('reset')) {
             $this->write($path, $this->withColors($theme, []));
             $this->components->info(Lathe::__('Colour overrides cleared.'));
+
+            return self::SUCCESS;
+        }
+
+        if (! $this->option('interactive') && $this->argument('preset') === 'copper') {
+            $this->write($path, [...$this->withColors($theme, self::COPPER), 'radius' => '0.625rem']);
+            $this->components->info(Lathe::__('Preset applied to config/lathe.php.'));
 
             return self::SUCCESS;
         }
@@ -145,6 +212,7 @@ class PresetCommand extends Command
 
         if (! is_string($code) || $code === '') {
             $this->components->error(Lathe::__('Pass a preset code, such as a5ONTE, or use --interactive. Missing argument: preset.'));
+            $this->components->bulletList(['copper']);
 
             return null;
         }
