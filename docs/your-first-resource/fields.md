@@ -29,7 +29,7 @@ Every field is built by a static factory on `Field`. The first argument is the l
 
 ## Where a field shows
 
-A field shows in six places: the index, the detail page, the create form, the update form, the preview modal and the peek popover. Each has a pair of methods that take a boolean or a closure.
+A field shows in six places: the index, the detail page, the create form, the update form, the preview panel and the peek popover. Each has a pair of methods that take a boolean or a closure. The preview panel shows the detail fields without the relation lists, plus any field marked `showOnPreview()` or `onlyOnPreview()`, less those marked `hideFromPreview()`.
 
 ```php
 Field::text('Notes')->hideFromIndex();

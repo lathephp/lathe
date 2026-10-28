@@ -1,8 +1,10 @@
-import { router } from '@inertiajs/react';
-import { act, fireEvent, screen, waitFor, within } from '@testing-library/react';
+import { App, router } from '@inertiajs/react';
+import { __panel } from '@lathephp/core';
+import { act, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { definition, firstCell, orders, panel, press, previews, reply, urlOf } from './preview-support';
-import { cellOf, editCell, fakeInertiaServer, pick, renderPage } from './support';
+import { ResourceTable } from '../index/ResourceTable';
+import { cellOf, editCell, fakeInertiaServer, pick, renderPage, sharedProps } from './support';
 
 beforeEach(() => {
   fakeInertiaServer();
@@ -251,6 +253,36 @@ describe('the panel following the cursor', () => {
     expect(cellOf('Status').textContent).toContain('Paid');
   });
 
+  it('keeps each edited row new in the header after edits on two rows', async () => {
+    vi.spyOn(globalThis, 'fetch').mockImplementation((input) => {
+      const url = urlOf(input);
+      const match = /\/orders\/(\d+)\/preview$/.exec(url);
+
+      if (url.endsWith('/field/status')) {
+        return Promise.resolve(new Response(JSON.stringify({ fields: { status: { value: 'paid', display: 'Paid' } }, updatedAt: 't1' }), { status: 200 }));
+      }
+
+      return Promise.resolve(match === null ? new Response(null, { status: 204 }) : new Response(JSON.stringify(reply(Number(match[1]), 'Paid')), { status: 200 }));
+    });
+    renderPage('Resources/Index', orders(), { url: '/lathe/resources/orders' });
+    firstCell().focus();
+    await press(' ');
+    await waitFor(() => panel());
+
+    for (const row of [0, 1]) {
+      await editCell('Status', 'Enter', row);
+      await pick('Paid');
+      await waitFor(() => {
+        expect(screen.queryByText('Saving…')).toBeNull();
+      });
+    }
+    fireEvent.keyDown(document.activeElement as HTMLElement, { key: 'ArrowUp' });
+
+    expect(within(panel()).getByRole('heading').textContent).toBe('ORD-79194426');
+    expect(panel().querySelector('header')?.textContent).toContain('Paid');
+    expect(panel().querySelector('header')?.textContent).not.toContain('Pending');
+  });
+
   it('says an order deleted since the list loaded was deleted, with Close', async () => {
     vi.spyOn(globalThis, 'fetch').mockImplementation((input) =>
       Promise.resolve(urlOf(input).endsWith('/preview') ? new Response(JSON.stringify({ message: 'Not found.' }), { status: 404 }) : new Response(null, { status: 204 })),
@@ -306,5 +338,80 @@ describe('the panel without the view ability', () => {
     expect(await within(await waitFor(() => panel())).findByText('You may not view this order.')).toBeTruthy();
     expect(panel().querySelector('dl')).toBeNull();
     expect(within(panel()).queryByRole('link', { name: 'Edit' })).toBeNull();
+  });
+});
+
+describe('the panel cache', () => {
+  it('asks again for a record another user previewed in this tab', async () => {
+    const asked = previews();
+    renderPage('Resources/Index', orders(), { url: '/lathe/resources/orders' });
+    firstCell().focus();
+    await press(' ');
+    await waitFor(() => {
+      expect(asked).toHaveLength(1);
+    });
+    await press(' ');
+
+    // Signing in as someone else is an Inertia visit: the module, and its cache, stay.
+    act(() => {
+      __panel.sharedProps.set({ ...__panel.sharedProps.get(), auth: { user: { name: 'Editor User', email: 'editor@lathephp.com' } } });
+    });
+    await press(' ');
+
+    await waitFor(() => {
+      expect(asked).toHaveLength(2);
+    });
+  });
+
+  it('does not keep a reply that left before a save to its Resource', async () => {
+    const answers: ((response: Response) => void)[] = [];
+    vi.spyOn(globalThis, 'fetch').mockImplementation(
+      (input) =>
+        new Promise((resolve) => {
+          if (urlOf(input).endsWith('/preview')) {
+            answers.push(resolve);
+          } else {
+            resolve(new Response(null, { status: 204 }));
+          }
+        }),
+    );
+    renderPage('Resources/Index', orders(), { url: '/lathe/resources/orders' });
+    firstCell().focus();
+    await press(' ');
+    await waitFor(() => {
+      expect(answers).toHaveLength(1);
+    });
+
+    // The order is saved while its preview is on the way; the old answer lands after the save.
+    act(() => {
+      window.dispatchEvent(new CustomEvent('lathe-write', { detail: '/lathe/api/resources/orders/1/field/status' }));
+    });
+    act(() => {
+      answers[0]?.(new Response(JSON.stringify(reply(1, 'Pending')), { status: 200 }));
+    });
+    await waitFor(() => {
+      expect(answers).toHaveLength(2);
+    });
+    act(() => {
+      answers[1]?.(new Response(JSON.stringify(reply(1, 'Paid')), { status: 200 }));
+    });
+
+    expect(await within(panel()).findByText('Paid', { selector: 'dd *, dd' })).toBeTruthy();
+    expect(within(panel()).queryByText('Pending', { selector: 'dd *, dd' })).toBeNull();
+  });
+});
+
+describe('a plugin table without the panel', () => {
+  it('opens the record page for a preview click action', () => {
+    const visit = vi.spyOn(router, 'visit').mockImplementation(() => undefined);
+    const props = orders();
+    const resource = { ...props.resource, definition: { ...definition, clickAction: 'preview' } };
+    const selection = { isSelected: () => false, toggle: () => undefined, toggleAll: () => undefined };
+    const Plugin = () => <ResourceTable resource={resource as never} table={props.table} state={props.state as never} loading={false} selection={selection} sort={undefined} onSort={() => undefined} />;
+    render(<App initialPage={{ component: 'Plugin', props: { errors: {}, ...sharedProps() }, url: '/lathe/plugins/x', version: null, rescuedProps: [], flash: {}, rememberedState: {}, sharedProps: [] }} initialComponent={Plugin} resolveComponent={() => Plugin} />);
+
+    fireEvent.click(cellOf('Number', 1));
+
+    expect(visit.mock.calls[0]?.[0]).toBe('/lathe/resources/orders/2');
   });
 });

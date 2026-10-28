@@ -53,9 +53,10 @@ function IndexPage({ resource, table, state, count, error, lens, actions, widget
   usePolling(polling, !showPollingToggle || pollingChoice.on);
   const ids = more.rows.map((row) => row.id);
   const preview = usePreview(resource.uriKey, table.previewOpen === true, ids[0]);
-  // The previewed row as an inline save left it, over the row the page loaded; a reload's newer row wins.
-  const [saved, setSaved] = useState<{ over: Row; row: Row } | null>(null);
+  // Each row as an inline save left it, over the row the page loaded; a reload's newer row wins.
+  const [saved, setSaved] = useState<Record<string, { over: Row; row: Row }>>({});
   const shown = more.rows.find((row) => String(row.id) === preview.id);
+  const kept = saved[preview.id ?? ''];
   useShortcut('mod+a', () => {
     selection.toggleAll(ids);
   });
@@ -184,7 +185,7 @@ function IndexPage({ resource, table, state, count, error, lens, actions, widget
                   const over = more.rows.find((each) => each.id === row.id);
 
                   if (over !== undefined) {
-                    setSaved({ over, row });
+                    setSaved((current) => ({ ...current, [String(row.id)]: { over, row } }));
                   }
                 },
               }}
@@ -211,7 +212,7 @@ function IndexPage({ resource, table, state, count, error, lens, actions, widget
               resource={resource}
               table={table}
               id={preview.id}
-              row={saved !== null && saved.over === shown ? saved.row : shown}
+              row={kept !== undefined && kept.over === shown ? kept.row : shown}
               onClose={() => {
                 preview.close();
                 // The grid's cursor takes the focus back from the panel, or on a phone the card it showed, where the list stays put.

@@ -18,9 +18,12 @@ interface PreviewPayload {
   actions: ActionList;
 }
 
-// The records this tab has previewed, by "resource/id". A save to any record of a Resource drops
-// that Resource's, since a change to one record can show on another.
+// The records this tab has previewed, by "resource/id@user": another user signed in in the same
+// tab sees only what they may. A save to any record of a Resource drops that Resource's, since a
+// change to one record can show on another.
 const cache = new Map<string, PreviewPayload>();
+// Saves seen per Resource: a reply that left before a save is not cached after it.
+const saved = new Map<string, number>();
 
 function written(url: string): string | null {
   // A user's own preferences change no record.
@@ -31,6 +34,10 @@ function written(url: string): string | null {
 
 window.addEventListener('lathe-write', (event) => {
   const uriKey = written((event as CustomEvent<string>).detail);
+
+  if (uriKey !== null) {
+    saved.set(uriKey, (saved.get(uriKey) ?? 0) + 1);
+  }
 
   for (const key of cache.keys()) {
     if (uriKey !== null && key.startsWith(`${uriKey}/`)) {
@@ -56,15 +63,16 @@ export interface PreviewPanelProps {
  */
 export function PreviewPanel({ resource, table, id, row, onClose }: PreviewPanelProps) {
   const { __ } = useTranslation();
-  const { apiPath, basePath } = useLathe();
+  const { apiPath, basePath, auth } = useLathe();
   const titleId = useId();
   // The reply for the record the panel last asked for.
   const [reply, setReply] = useState<{ id: string; saves: number; data: PreviewPayload | null; failed: number | null } | null>(null);
   // Bumped by a save to this Resource, which asks for the record again; the old reply is dropped meanwhile.
   const [saves, setSaves] = useState(0);
   const key = `${resource.uriKey}/${id}`;
+  const cached = `${key}@${auth?.user?.email ?? ''}`;
   const current = reply?.id === id && reply.saves === saves ? reply : null;
-  const data = cache.get(key) ?? current?.data ?? null;
+  const data = cache.get(cached) ?? current?.data ?? null;
   const failed = current?.failed ?? null;
   const recordPath = `${basePath}/resources/${resource.uriKey}/${id}`;
 
@@ -83,16 +91,23 @@ export function PreviewPanel({ resource, table, id, row, onClose }: PreviewPanel
 
   // The body asks once the cursor rests on the row, so holding Down sends one request.
   useEffect(() => {
-    if (cache.has(key)) {
+    if (cache.has(cached)) {
       return;
     }
 
     const abort = new AbortController();
     const timer = window.setTimeout(() => {
+      const before = saved.get(resource.uriKey) ?? 0;
+
       request<PreviewPayload>(`${apiPath}/resources/${key}/preview`, { signal: abort.signal, toastOnError: false }).then(
         (payload) => {
+          // A save since this request left asks again; this answer may predate it.
+          if (abort.signal.aborted || (saved.get(resource.uriKey) ?? 0) !== before) {
+            return;
+          }
+
           if (payload !== null) {
-            cache.set(key, payload);
+            cache.set(cached, payload);
           }
 
           setReply({ id, saves, data: payload, failed: null });
@@ -109,7 +124,7 @@ export function PreviewPanel({ resource, table, id, row, onClose }: PreviewPanel
       window.clearTimeout(timer);
       abort.abort();
     };
-  }, [apiPath, key, id, saves]);
+  }, [apiPath, resource.uriKey, key, cached, id, saves]);
 
   const card = table?.phoneCard;
   const label = resource.singularLabel?.toLowerCase() ?? __('record');
@@ -120,10 +135,11 @@ export function PreviewPanel({ resource, table, id, row, onClose }: PreviewPanel
     const value = key === null || key === undefined ? undefined : row?.cells[key];
     const field = row === undefined ? data?.fields.find((candidate) => candidate.key === key) : undefined;
 
-    return field !== undefined ? <DetailField field={field} /> : column === undefined || value === undefined ? null : <TableCell column={column} cell={value} />;
+    // A column the user hid still sends its cell, as the phone cards read it: its text stands in.
+    return field !== undefined ? <DetailField field={field} /> : value === undefined ? null : column === undefined ? value.display : <TableCell column={column} cell={value} />;
   }
 
-  const title = row === undefined ? data?.title : card?.title == null ? row.title : cell(card.title);
+  const title = row === undefined ? data?.title : card?.title == null ? row.title : (cell(card.title) ?? row.title);
 
   return (
     <aside aria-labelledby={titleId} data-lathe-preview="" className="lathe-preview">

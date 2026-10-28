@@ -66,6 +66,15 @@ class PanelGuardedListedOrder extends PanelListedOrder
     }
 }
 
+/** Adds a field shown only in the preview to the default mode. */
+class PanelOnlyPreviewOrder extends PanelGuardedOrder
+{
+    public function fields(LatheRequest $request): array
+    {
+        return [Field::make('Number'), Field::make('Note', 'status')->onlyOnPreview()];
+    }
+}
+
 /** Lets the panel list orders but never view one. */
 class PanelDenyingPolicy
 {
@@ -84,7 +93,7 @@ beforeEach(function () {
     $this->artisan('migrate')->assertSuccessful();
     $this->seed(DemoSeeder::class);
     Gate::define('viewLathe', fn () => true);
-    Lathe::registerResources(PanelListedOrder::class, PanelGuardedOrder::class, PanelGuardedListedOrder::class);
+    Lathe::registerResources(PanelListedOrder::class, PanelGuardedOrder::class, PanelGuardedListedOrder::class, PanelOnlyPreviewOrder::class);
     $this->actingAs(User::where('email', 'admin@lathephp.com')->firstOrFail());
 });
 
@@ -104,6 +113,10 @@ it('previews exactly the fields fieldsForPreview returns, in order', function ()
 it('drops a field hidden from the preview or refused by canSee, in both modes', function () {
     expect(array_column(LatheTest::resource('panel-guarded-orders')->preview(12)->assertOk()->json('fields'), 'key'))->toBe(['number', 'placed_at'])
         ->and(array_column(LatheTest::resource('panel-guarded-listed-orders')->preview(12)->assertOk()->json('fields'), 'key'))->toBe(['number']);
+});
+
+it('adds a field shown only in the preview to the default mode', function () {
+    expect(array_column(LatheTest::resource('panel-only-preview-orders')->preview(12)->assertOk()->json('fields'), 'key'))->toBe(['number', 'status']);
 });
 
 it('carries the detail actions and the abilities of the record', function () {

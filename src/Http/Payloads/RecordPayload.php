@@ -290,8 +290,8 @@ class RecordPayload
     /**
      * The fields of the preview panel. A resource that lists fieldsForPreview() gets exactly
      * those; any other gets its Detail fields without the relation lists (a to-one name reads
-     * as a value, so BelongsTo and MorphTo stay). hideFromPreview() and canSee drop a field in
-     * both; showOnPreview() narrows nothing.
+     * as a value, so BelongsTo and MorphTo stay), and the fields shown only in the preview.
+     * hideFromPreview() and canSee drop a field in both; showOnPreview() narrows nothing.
      *
      * @param  class-string<\Lathe\Resources\Resource>  $class
      * @param  list<string>|null  $keys
@@ -304,9 +304,10 @@ class RecordPayload
         if ($resource->fieldsForPreview($this->request) !== []) {
             $fields = $resource->fieldsFor(FieldContext::Preview, $this->request)->onlyKeys($keys);
         } else {
+            // A field shown only in the preview, by showOnPreview() or onlyOnPreview(), joins them.
             $fields = $resource->fieldsFor(FieldContext::Detail, $this->request)
                 ->onlyKeys($keys)
-                ->forContext(FieldContext::Detail, $this->request, $model)
+                ->filter(fn (Field $field) => $field->isShownOn(FieldContext::Detail, $this->request, $model) || $field->isShownOn(FieldContext::Preview, $this->request, $model))
                 ->reject(fn (Field $field) => $field instanceof RelationField && ! $field instanceof BelongsToField && ! $field instanceof MorphToField);
         }
 

@@ -48,7 +48,9 @@ export function usePreview(uriKey: string, savedOpen: boolean, first: Row['id'] 
           next.searchParams.set('preview', id);
         }
 
-        router.replace({ url: `${next.pathname}${next.search}`, preserveScroll: true, preserveState: true });
+        // Without deferredProps: the page's own may still be loading, and a replace would ask for them again.
+        const visit = { url: `${next.pathname}${next.search}`, deferredProps: undefined, preserveScroll: true, preserveState: true };
+        router.replace(visit);
       }
     }, restMs);
 

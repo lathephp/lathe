@@ -214,10 +214,10 @@ return $definition
 | `Detail` | Opens the detail page. This is the default. |
 | `Edit` | Opens the edit form. |
 | `Select` | Ticks the row checkbox. |
-| `Preview` | Opens a preview modal on the index page. |
+| `Preview` | Opens the row in the preview panel beside the list. |
 | `Ignore` | Does nothing. |
 
-For `Preview`, override `fieldsForPreview()` to choose the fields in the modal. The same pattern works for `fieldsForIndex()`, `fieldsForDetail()`, `fieldsForCreate()`, `fieldsForUpdate()` and `fieldsForPeeking()`: each one takes a `LatheRequest` and returns a list of fields.
+Space on any list cell opens the same preview panel, whatever the click action. It shows the record's detail fields without its relation lists; override `fieldsForPreview()` to choose its fields instead. The same pattern works for `fieldsForIndex()`, `fieldsForDetail()`, `fieldsForCreate()`, `fieldsForUpdate()` and `fieldsForPeeking()`: each one takes a `LatheRequest` and returns a list of fields.
 
 ### Pagination
 

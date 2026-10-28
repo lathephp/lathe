@@ -133,6 +133,8 @@ describe('tag field', () => {
 
     fireEvent.click(screen.getByRole('button', { name: 'Close' }));
     expect(screen.queryByRole('complementary', { name: 'new' })).toBeNull();
+    // The chip that opened it takes the focus back, as a closing menu's trigger does.
+    expect(document.activeElement).toBe(screen.getByRole('button', { name: 'new' }));
   });
 
   it('keeps a click inside the tag preview from opening the row behind it', async () => {

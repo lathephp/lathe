@@ -204,7 +204,8 @@ export function ResourceTable({ resource, table, state, loading, selection, sort
   function rowUrl(row: Row): string | null {
     const detail = `${basePath}/resources/${resource.uriKey}/${String(row.id)}`;
 
-    if (clickAction === 'detail') {
+    // A table a plugin draws without the preview panel opens the record's page instead.
+    if (clickAction === 'detail' || (clickAction === 'preview' && preview === undefined)) {
       return detail;
     }
 
@@ -236,8 +237,8 @@ export function ResourceTable({ resource, table, state, loading, selection, sort
 
     if (clickAction === 'select') {
       selection.toggle(row.id);
-    } else if (clickAction === 'preview') {
-      preview?.show(row.id);
+    } else if (clickAction === 'preview' && preview !== undefined) {
+      preview.show(row.id);
     } else if (url !== null && (event.metaKey || event.ctrlKey)) {
       window.open(url, '_blank', 'noopener');
     } else if (url !== null) {

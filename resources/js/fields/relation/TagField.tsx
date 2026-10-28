@@ -1,5 +1,5 @@
 import { useTranslation } from '@lathephp/core';
-import { Suspense, useState } from 'react';
+import { Suspense, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { cn } from '../../lib/cn';
 import type { DetailFieldProps, FormFieldProps, IndexFieldProps } from '../registry';
@@ -17,6 +17,7 @@ function tagList(value: unknown): AssociatableItem[] {
 /** The tags as chips: inline for displayAsGroup, stacked for displayAsList; withPreview opens a tag's preview panel on click. */
 function TagChips({ field, value }: { field: FieldSchema; value: unknown }) {
   const [previewing, setPreviewing] = useState<string | number | null>(null);
+  const list = useRef<HTMLUListElement>(null);
   const items = tagList(value);
   const preview = field.withPreview === true && typeof field.resource === 'string' ? field.resource : null;
 
@@ -26,7 +27,7 @@ function TagChips({ field, value }: { field: FieldSchema; value: unknown }) {
 
   return (
     <>
-      <ul className={cn('flex gap-1', field.display === 'list' ? 'flex-col items-start' : 'flex-wrap')}>
+      <ul ref={list} className={cn('flex gap-1', field.display === 'list' ? 'flex-col items-start' : 'flex-wrap')}>
         {items.map((item) => (
           <li key={item.value}>
             {preview === null ? (
@@ -34,6 +35,7 @@ function TagChips({ field, value }: { field: FieldSchema; value: unknown }) {
             ) : (
               <button
                 type="button"
+                data-tag={item.value}
                 className={cn(chip, 'hover:bg-accent')}
                 onClick={() => {
                   setPreviewing(item.value);
@@ -61,6 +63,8 @@ function TagChips({ field, value }: { field: FieldSchema; value: unknown }) {
                 id={String(previewing)}
                 onClose={() => {
                   setPreviewing(null);
+                  // The chip that opened the panel takes the focus back.
+                  list.current?.querySelector<HTMLElement>(`[data-tag="${String(previewing)}"]`)?.focus();
                 }}
               />
             </Suspense>
