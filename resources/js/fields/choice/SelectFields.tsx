@@ -1,16 +1,17 @@
-import { Badge, isBadgeTone } from '../../components/ui/Badge';
+import { Badge, isBadgeTone, type BadgeTone } from '../../components/ui/Badge';
 import { cn } from '../../lib/cn';
 import type { FieldSchema } from '../types';
 import { stringValue, type DetailFieldProps, type IndexFieldProps } from '../registry';
 import { labelOf, optionsOf, stringsOf } from './options';
 
-const meterTones: Record<string, string> = {
-  neutral: 'text-muted-foreground bg-chart-other',
-  primary: 'text-primary bg-primary',
-  info: 'text-info bg-info',
-  success: 'text-success bg-success',
-  warning: 'text-warning bg-warning',
-  danger: 'text-destructive bg-destructive',
+// A tone's label colour and its tick fill; a neutral label stays readable while its ticks are grey.
+const meterTones: Record<BadgeTone, [string, string]> = {
+  neutral: ['text-muted-foreground', 'bg-chart-other'],
+  primary: ['text-primary', 'bg-primary'],
+  info: ['text-info', 'bg-info'],
+  success: ['text-success', 'bg-success'],
+  warning: ['text-warning', 'bg-warning'],
+  danger: ['text-destructive', 'bg-destructive'],
 };
 
 function meterOf(field: FieldSchema): unknown[] | null {
@@ -46,10 +47,10 @@ export function SelectBadge({ field, value }: { field: FieldSchema; value: unkno
     const filled = meter.map(stringValue).indexOf(stringValue(value)) + 1;
 
     return (
-      <span data-lathe-meter="" data-lathe-meter-tone={tone} className={cn('inline-flex items-center gap-[7px] text-xs font-medium whitespace-nowrap', meterTones[tone])}>
+      <span data-lathe-meter="" data-lathe-meter-tone={tone} className={cn('inline-flex items-center gap-[7px] text-xs font-medium whitespace-nowrap', meterTones[tone][0])}>
         <span aria-hidden="true" className="inline-flex gap-0.5">
           {meter.map((_, index) => (
-            <span key={index} data-lathe-meter-tick="" data-on={index < filled ? '' : undefined} className={cn('h-3 w-[5px] rounded-[2px]', meterTones[tone], index < filled ? '' : 'opacity-[0.22]')} />
+            <span key={index} data-lathe-meter-tick="" data-on={index < filled ? '' : undefined} className={cn('h-3 w-[5px] rounded-[2px]', meterTones[tone][1], index < filled ? '' : 'opacity-[0.22]')} />
           ))}
         </span>
         {text}

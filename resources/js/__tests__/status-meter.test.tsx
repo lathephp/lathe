@@ -56,6 +56,15 @@ describe('status meter', () => {
     expect([...container.querySelectorAll('[data-lathe-meter-tick]')].map((tick) => tick.className.includes('opacity-[0.22]'))).toEqual([false, false, true]);
   });
 
+  it('fills only the ticks, so the label and the ticks stay visible on the row', () => {
+    const { container } = render(<IndexField field={status} cell={{ value: 'paid', display: 'paid' }} />);
+    const root = container.querySelector<HTMLElement>('[data-lathe-meter]');
+
+    expect(root?.className).toContain('text-info');
+    expect(root?.className).not.toMatch(/\bbg-/);
+    expect([...container.querySelectorAll<HTMLElement>('[data-lathe-meter-tick]')].every((tick) => tick.className.includes('bg-info'))).toBe(true);
+  });
+
   it('fills none for a value outside the meter', () => {
     const { container } = render(<IndexField field={status} cell={{ value: 'cancelled', display: 'cancelled' }} />);
 
