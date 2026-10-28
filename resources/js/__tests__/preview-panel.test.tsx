@@ -415,3 +415,27 @@ describe('a plugin table without the panel', () => {
     expect(visit.mock.calls[0]?.[0]).toBe('/lathe/resources/orders/2');
   });
 });
+
+describe('the panel header with a hidden column', () => {
+  it('draws the badge of a column the user hid from the record field once the reply lands', async () => {
+    const status = { key: 'status', label: 'Status', component: 'select-field', value: 'pending', display: 'Pending', options: [{ value: 'pending', label: 'Pending' }], badges: { pending: 'warning' } };
+    vi.spyOn(globalThis, 'fetch').mockImplementation((input) =>
+      Promise.resolve(urlOf(input).endsWith('/preview') ? new Response(JSON.stringify({ ...reply(1), fields: [...reply(1).fields, status] }), { status: 200 }) : new Response(null, { status: 204 })),
+    );
+    const props = orders();
+    // The user hid Status; its cell still comes, with the raw value as its text.
+    const table = {
+      ...props.table,
+      columns: props.table.columns.filter((column) => column.key !== 'status'),
+      rows: props.table.rows.map((row) => ({ ...row, cells: { ...row.cells, status: { value: 'pending', display: 'pending' } } })),
+    };
+    renderPage('Resources/Index', { ...props, table }, { url: '/lathe/resources/orders' });
+    firstCell().focus();
+    await press(' ');
+
+    expect(await within(await waitFor(() => panel())).findByText('Oct 18, 2026')).toBeTruthy();
+    const header = panel().querySelector('header') as HTMLElement;
+    expect(header.textContent).toContain('Pending');
+    expect(header.textContent).not.toContain('pending');
+  });
+});

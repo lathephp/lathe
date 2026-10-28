@@ -129,14 +129,14 @@ export function PreviewPanel({ resource, table, id, row, onClose }: PreviewPanel
   const card = table?.phoneCard;
   const label = resource.singularLabel?.toLowerCase() ?? __('record');
 
-  // A card part from the row; a record not on the page, such as a linked one, draws it from its own field.
+  // A card part from the row's cell; a record not on the page, or a column the user hid, draws it from
+  // the record's own field once the reply lands, and a hidden column's cell text stands in until then.
   function cell(key: string | null | undefined) {
     const column = table?.columns.find((candidate) => candidate.key === key);
     const value = key === null || key === undefined ? undefined : row?.cells[key];
-    const field = row === undefined ? data?.fields.find((candidate) => candidate.key === key) : undefined;
+    const field = data?.fields.find((candidate) => candidate.key === key);
 
-    // A column the user hid still sends its cell, as the phone cards read it: its text stands in.
-    return field !== undefined ? <DetailField field={field} /> : value === undefined ? null : column === undefined ? value.display : <TableCell column={column} cell={value} />;
+    return column !== undefined && value !== undefined ? <TableCell column={column} cell={value} /> : field !== undefined ? <DetailField field={field} /> : (value?.display ?? null);
   }
 
   const title = row === undefined ? data?.title : card?.title == null ? row.title : (cell(card.title) ?? row.title);
