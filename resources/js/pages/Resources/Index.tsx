@@ -19,7 +19,7 @@ import type { IndexProps, Row } from '../../index/types';
 import type { IndexUrlState } from '../../index/useIndexState';
 import { useIndexState } from '../../index/useIndexState';
 import { useRowSelection } from '../../index/useRowSelection';
-import { usePreview } from '../../index/usePreview';
+import { phone, usePreview } from '../../index/usePreview';
 import type { IndexSkeletonHint, SharedProps } from '../../types';
 import type { WidgetDescriptor } from '../../widgets/types';
 import { PageHeader } from '../../layout/PageHeader';
@@ -164,7 +164,7 @@ function IndexPage({ resource, table, state, count, error, lens, actions, widget
             />
           ) : (
             <>
-              <PhoneCards resource={resource} table={{ ...table, rows: more.rows }} />
+              <PhoneCards resource={resource} table={{ ...table, rows: more.rows }} onOpen={preview.show} />
               <ResourceTable
                 resource={resource}
                 cards={table.phoneCard !== undefined}
@@ -214,8 +214,8 @@ function IndexPage({ resource, table, state, count, error, lens, actions, widget
               row={saved !== null && saved.over === shown ? saved.row : shown}
               onClose={() => {
                 preview.close();
-                // The grid's cursor takes the focus back from the panel.
-                document.querySelector<HTMLElement>('[role=grid] td[tabindex="0"]')?.focus();
+                // The grid's cursor takes the focus back from the panel, or on a phone the card it showed, where the list stays put.
+                document.querySelector<HTMLElement>(phone() ? `[data-lathe-cards] [data-id="${preview.id ?? ''}"]` : '[role=grid] td[tabindex="0"]')?.focus({ preventScroll: true });
               }}
             />
           </Suspense>

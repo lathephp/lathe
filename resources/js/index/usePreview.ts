@@ -6,6 +6,11 @@ import type { Row } from './types';
 /** How long the cursor rests on a row before the URL, and the panel's body, follow it. */
 export const restMs = 150;
 
+/** Below 768 px the panel fills the screen. */
+export function phone(): boolean {
+  return typeof window.matchMedia === 'function' && window.matchMedia('(width < 48rem)').matches;
+}
+
 function linked(): string | null {
   return new URLSearchParams(window.location.search).get('preview');
 }
@@ -19,8 +24,9 @@ export function usePreview(uriKey: string, savedOpen: boolean, first: Row['id'] 
   const { apiPath } = useLathe();
   // A sort or a filter visits a URL built from the list's own keys; the panel puts its record back.
   const { url } = usePage();
-  // A link names its record; a list the user left with the panel open opens it on the first row.
-  const [id, setId] = useState<string | null>(() => linked() ?? (savedOpen && first !== undefined ? String(first) : null));
+  // A link names its record; a list the user left with the panel open opens it on the first row,
+  // except on a phone, where the panel would cover the list before the user asked for a record.
+  const [id, setId] = useState<string | null>(() => linked() ?? (savedOpen && first !== undefined && !phone() ? String(first) : null));
   const open = useRef(id !== null);
 
   function save(next: boolean) {

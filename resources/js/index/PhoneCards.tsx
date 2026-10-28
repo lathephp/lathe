@@ -6,8 +6,9 @@ import type { IndexProps, Row } from './types';
 /**
  * Below 768 px each row is a card: its title, then its badge and value, then its relation, the
  * columns the server picked. A column the user hid still shows its text, since its cell is sent.
+ * A tap opens the record's preview panel when the page has one.
  */
-export function PhoneCards({ resource, table }: Pick<IndexProps, 'resource' | 'table'>) {
+export function PhoneCards({ resource, table, onOpen }: Pick<IndexProps, 'resource' | 'table'> & { onOpen?: (id: Row['id']) => void }) {
   const { basePath } = usePage<SharedProps>().props;
   const card = table.phoneCard;
 
@@ -26,7 +27,17 @@ export function PhoneCards({ resource, table }: Pick<IndexProps, 'resource' | 't
     <ul data-lathe-cards="" className="lathe-cards md:hidden">
       {table.rows.map((row) => (
         <li key={row.id}>
-          <Link href={`${basePath}/resources/${resource.uriKey}/${String(row.id)}`}>
+          <Link
+            href={`${basePath}/resources/${resource.uriKey}/${String(row.id)}`}
+            data-id={row.id}
+            // A tap opens the record in the preview panel, full screen; a new tab still gets its page.
+            onClick={(event) => {
+              if (onOpen !== undefined && !event.metaKey && !event.ctrlKey) {
+                event.preventDefault();
+                onOpen(row.id);
+              }
+            }}
+          >
             <span>
               <b>{card.title === null ? row.title : part(row, card.title)}</b>
               {part(row, card.badge)}

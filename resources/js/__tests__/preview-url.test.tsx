@@ -15,6 +15,7 @@ beforeEach(() => {
 
 afterEach(() => {
   vi.restoreAllMocks();
+  vi.unstubAllGlobals();
   vi.useRealTimers();
 });
 
@@ -83,5 +84,38 @@ describe('the panel in the URL', () => {
       expect(window.location.search).toBe('?sort=number&preview=1');
     });
     expect(panel()).not.toBeNull();
+  });
+});
+
+describe('the panel on a phone', () => {
+  it('opens full screen from a card tap with Close at its top, and Close hands the focus back to that card without scrolling', async () => {
+    const asked = previews();
+    vi.stubGlobal('matchMedia', (query: string) => ({ matches: query === '(width < 48rem)' }));
+    const scroll = vi.spyOn(window, 'scrollTo').mockImplementation(() => undefined);
+    renderPage('Resources/Index', orders({ previewOpen: true }), { url: '/lathe/resources/orders' });
+
+    // The saved open state does not cover a phone's list by itself.
+    expect(panel()).toBeNull();
+
+    const card = document.querySelector<HTMLElement>('[data-lathe-cards] [data-id="2"]') as HTMLElement;
+    fireEvent.click(card);
+
+    await waitFor(() => {
+      expect(panel()).not.toBeNull();
+    });
+    expect(within(panel().querySelector('header') as HTMLElement).getByRole('button', { name: 'Close' })).toBeTruthy();
+    expect(within(panel()).getByRole('heading').textContent).toBe('ORD-79186507');
+    await waitFor(() => {
+      expect(new URLSearchParams(window.location.search).get('preview')).toBe('2');
+    });
+    expect(asked).toEqual(['/lathe/api/resources/orders/2/preview']);
+
+    const focus = vi.spyOn(card, 'focus');
+    fireEvent.click(within(panel()).getByRole('button', { name: 'Close' }));
+
+    expect(panel()).toBeNull();
+    expect(focus).toHaveBeenCalledWith({ preventScroll: true });
+    expect(document.activeElement).toBe(card);
+    expect(scroll).not.toHaveBeenCalled();
   });
 });

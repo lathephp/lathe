@@ -881,7 +881,7 @@
   /* The preview panel: 400 px at the right, lying over the table with a shadow below 1280 px. At
      1280 px and wider it sits beside the card, which narrows; below 768 px it fills the screen. */
   .lathe-preview {
-    @apply fixed end-0 top-14 bottom-0 z-30 w-[400px] overflow-y-auto border-s border-border bg-background pb-6 shadow-xl;
+    @apply fixed end-0 top-14 bottom-0 z-30 w-[400px] overflow-y-auto overscroll-contain border-s border-border bg-background pb-6 shadow-xl;
   }
 
   .lathe-preview-header {
