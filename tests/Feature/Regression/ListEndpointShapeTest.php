@@ -46,7 +46,7 @@ test('each_list_endpoint_has_its_documented_shape', function (string $uri, array
     'filters' => ['/lathe/api/resources/orders/filters', ['filters'], 'filters.0', ['key', 'name', 'component', 'options', 'remote', 'immediate', 'placement', 'default']],
     'filter options' => ['/lathe/api/resources/orders/filters/customer/options?q=a', ['options', 'hasMore'], 'options.0', ['label', 'value']],
     'saved tabs' => ['/lathe/api/resources/orders/saved-tabs', ['tabs'], null, []],
-    'lens index' => ['/lathe/api/resources/orders/lenses/pending-orders', ['resource', 'table', 'filters', 'tabs', 'groups', 'lens', 'lenses', 'state', 'actions'], 'table.rows.0', ['id', 'title', 'cells', 'abilities', 'actions']],
+    'lens index' => ['/lathe/api/resources/orders/lenses/pending-orders', ['resource', 'table', 'filters', 'tabs', 'groups', 'lens', 'lenses', 'state', 'actions'], 'table.rows.0', ['id', 'title', 'cells', 'abilities', 'updatedAt', 'actions']],
     'lens count' => ['/lathe/api/resources/orders/lenses/pending-orders/count', ['value', 'exact', 'capped', 'estimated'], null, []],
     'lens filters' => ['/lathe/api/resources/orders/lenses/pending-orders/filters', ['filters'], 'filters.0', ['key', 'name', 'component', 'options', 'remote', 'immediate', 'placement', 'default']],
     'relation index' => ['/lathe/api/resources/orders/12/items', ['columns', 'sortKeys', 'rows', 'count', 'page', 'perPage', 'perPageOptions', 'hasMore', 'searchable', 'pivotActions'], 'rows.0', ['id', 'title', 'cells', 'abilities', 'related_id']],

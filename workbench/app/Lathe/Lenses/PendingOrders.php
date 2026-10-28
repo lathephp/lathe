@@ -18,6 +18,12 @@ class PendingOrders extends Lens
         return [
             Field::make('Number'),
             Field::make('Customer', 'customer.name'),
+            // The order's own status, edited in place like on Orders; a paid order leaves the lens on the next load.
+            Field::select('Status')
+                ->options(['pending' => 'Pending', 'paid' => 'Paid', 'shipped' => 'Shipped', 'cancelled' => 'Cancelled'])
+                ->badges(['pending' => 'warning', 'paid' => 'info', 'shipped' => 'success', 'cancelled' => 'neutral'])
+                ->meter(except: ['cancelled'])
+                ->inline(),
             Field::make('Total', 'total_cents', fn (Model $order) => $order instanceof Order
                 ? number_format($order->total_cents / 100, 2, '.', '')
                 : null)->sortable(),

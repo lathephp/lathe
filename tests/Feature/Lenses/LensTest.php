@@ -260,7 +260,7 @@ it('shows the Pending Orders lens page with only pending rows and the lens colum
         ->assertOk()
         ->assertInertia(fn (AssertableInertia $page) => $page
             ->component('Resources/Index', false)
-            ->where('table.columns', fn ($columns) => collect($columns)->pluck('label')->all() === ['Number', 'Customer', 'Total', 'Placed'])
+            ->where('table.columns', fn ($columns) => collect($columns)->pluck('label')->all() === ['Number', 'Customer', 'Status', 'Total', 'Placed'])
             ->where('table.rows', fn ($rows) => collect($rows)->pluck('id')->all() === array_slice(pendingOrderIds(), 0, 100))
             ->where('lens', ['uriKey' => 'pending-orders', 'name' => 'Pending Orders'])
             ->where('lenses', [['uriKey' => 'pending-orders', 'name' => 'Pending Orders']]));
@@ -270,7 +270,7 @@ it('lists only pending orders from the lens API and counts them', function () {
     $json = $this->getJson('/lathe/api/resources/orders/lenses/pending-orders?per_page=100')->assertOk()->json();
 
     expect(array_column($json['table']['rows'], 'id'))->toBe(array_slice(pendingOrderIds(), 0, 100))
-        ->and(array_column($json['table']['columns'], 'label'))->toBe(['Number', 'Customer', 'Total', 'Placed'])
+        ->and(array_column($json['table']['columns'], 'label'))->toBe(['Number', 'Customer', 'Status', 'Total', 'Placed'])
         ->and($json['table']['sortKeys'])->toBe(['total_cents', 'placed_at']);
 
     $this->getJson('/lathe/api/resources/orders/lenses/pending-orders/count')
