@@ -235,7 +235,7 @@ export function FilterBarEditor({ label, url, urlChips, leave, text, focus, pres
             title={applied(chip) ? undefined : chip.token}
             removeLabel={__('Remove :filter filter', { filter: chipName(chip, page.props, __) })}
           >
-            {chip.error ?? chip.label}
+            <span>{chip.error ?? chip.label}</span>
           </ComboboxChip>
         ))}
         <ComboboxChipsInput

@@ -56,6 +56,13 @@ describe('the filter bar on a phone', () => {
   });
 });
 
+describe('a filter bar chip', () => {
+  it('never grows past the bar: a long label ends in an ellipsis', () => {
+    expect(rule(css, '.lathe-bar-box > [data-slot="combobox-chip"]')).toEqual(expect.arrayContaining(['max-w-full', 'min-w-0']));
+    expect(rule(css, '.lathe-bar-box > [data-slot="combobox-chip"] > span')).toContain('truncate');
+  });
+});
+
 describe('the views rail', () => {
   it('shows from 1100 px and folds into the Views menu below it', () => {
     expect(rule(css, '.lathe-views-rail')).toContain('hidden');

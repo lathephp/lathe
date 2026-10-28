@@ -824,8 +824,13 @@
     @apply ms-auto rounded-[4px] border border-border bg-muted px-[5px] font-mono text-[11px] leading-4 font-medium text-muted-foreground max-md:hidden;
   }
 
+  /* A long label, such as a 300-character red chip, ends in an ellipsis inside the bar. */
   .lathe-bar-box > [data-slot="combobox-chip"] {
-    @apply tabular-nums;
+    @apply max-w-full min-w-0 tabular-nums;
+  }
+
+  .lathe-bar-box > [data-slot="combobox-chip"] > span {
+    @apply truncate;
   }
 
   /* The editor's remove control is a kit button, which the toolbar's ghost rule would make 30 px tall;

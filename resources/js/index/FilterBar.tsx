@@ -162,7 +162,7 @@ export function FilterBar({ q = '', visit }: FilterBarProps) {
           <Search aria-hidden="true" className="size-3.5 shrink-0 text-muted-foreground" />
           {chips.map((chip) => (
             <div key={chip.key} data-slot="combobox-chip" className="cn-combobox-chip">
-              {chip.label}
+              <span>{chip.label}</span>
               <button
                 type="button"
                 data-slot="combobox-chip-remove"
