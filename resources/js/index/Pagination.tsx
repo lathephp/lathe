@@ -113,6 +113,7 @@ export function useLoadMore(uriKey: string, table: IndexProps['table'], state: I
 
   return {
     rows: current === null ? table.rows : [...table.rows, ...current.rows],
+    page: current?.page ?? state.page,
     hasMorePages: current?.hasMorePages ?? state.hasMorePages,
     loading,
     loadMore,

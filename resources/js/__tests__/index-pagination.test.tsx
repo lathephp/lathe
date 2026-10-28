@@ -197,6 +197,43 @@ describe('load-more pagination', () => {
     expect(visit).not.toHaveBeenCalled();
   });
 
+  it('keeps Load more after one load, then hands over to a pager at 100 rows', async () => {
+    let next = 2;
+    vi.spyOn(globalThis, 'fetch').mockImplementation(() => {
+      const page = next++;
+
+      return Promise.resolve(
+        Response.json({
+          table: { columns, sortKeys: [], rows: rows(25, (page - 1) * 25 + 1), rowKey: 'id' },
+          state: { page, perPage: 25, hasMorePages: true, sort: '' },
+        }),
+      );
+    });
+    const visit = vi.spyOn(router, 'visit').mockImplementation(() => undefined);
+    renderOrders({ definition: { paginationType: 'load-more' } });
+
+    fireEvent.click(screen.getByRole('button', { name: 'Load more' }));
+    await waitFor(() => {
+      expect(bodyRows()).toHaveLength(50);
+    });
+    expect(screen.getByRole('button', { name: 'Load more' })).toBeTruthy();
+
+    fireEvent.click(screen.getByRole('button', { name: 'Load more' }));
+    await waitFor(() => {
+      expect(bodyRows()).toHaveLength(75);
+    });
+    fireEvent.click(screen.getByRole('button', { name: 'Load more' }));
+    await waitFor(() => {
+      expect(bodyRows()).toHaveLength(100);
+    });
+
+    expect(screen.queryByRole('button', { name: 'Load more' })).toBeNull();
+    expect(screen.getByText('1–100 of 10,000')).toBeTruthy();
+
+    fireEvent.click(screen.getByRole('button', { name: 'Next page' }));
+    expect(visit.mock.calls[0]?.[1]).toMatchObject({ data: { page: 5 } });
+  });
+
   it('loads nothing when the page scrolls to the bottom', () => {
     const fetch = vi.spyOn(globalThis, 'fetch');
     const reload = vi.spyOn(router, 'reload');

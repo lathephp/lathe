@@ -8,6 +8,8 @@ import type { IndexUrlState } from './useIndexState';
 interface IndexFooterProps extends Pick<IndexProps, 'resource' | 'state' | 'count'> {
   /** The rows on screen, those load-more appended included. */
   rowCount: number;
+  /** The last page load-more appended, or the current page before any load. */
+  loadedPage: number;
   hasMorePages: boolean;
   loadingMore: boolean;
   visit: (changes: IndexUrlState) => void;
@@ -23,8 +25,12 @@ export function countText(count: Count): string {
   return `${formatNumber(count.value)}${count.capped ? '+' : ''}`;
 }
 
-export function IndexFooter({ resource, state, count, rowCount, hasMorePages, loadingMore, visit, onLoadMore }: IndexFooterProps) {
+// Load-more stops here and a pager takes over, so the page never holds more rows.
+const MAX_ROWS = 100;
+
+export function IndexFooter({ resource, state, count, rowCount, loadedPage, hasMorePages, loadingMore, visit, onLoadMore }: IndexFooterProps) {
   const { __ } = useTranslation();
+  const capped = resource.definition.paginationType === 'load-more' && rowCount >= MAX_ROWS && hasMorePages;
   const from = (state.page - 1) * state.perPage + 1;
   const to = from + rowCount - 1;
 
@@ -32,8 +38,8 @@ export function IndexFooter({ resource, state, count, rowCount, hasMorePages, lo
     // The pager first, then the page size and the range at the end.
     <div className="lathe-footer">
       <Pagination
-        type={resource.definition.paginationType}
-        page={state.page}
+        type={capped ? 'simple' : resource.definition.paginationType}
+        page={capped ? loadedPage : state.page}
         perPage={state.perPage}
         count={count}
         hasMorePages={hasMorePages}

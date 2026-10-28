@@ -174,6 +174,7 @@ function IndexPage({ resource, table, state, count, error, lens, actions, widget
               state={state}
               count={count}
               rowCount={more.rows.length}
+              loadedPage={more.page}
               hasMorePages={more.hasMorePages}
               loadingMore={more.loading}
               visit={index.visit}
