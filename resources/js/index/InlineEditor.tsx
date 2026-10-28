@@ -54,24 +54,31 @@ export function InlineEditor({ uriKey, rowId, column, cell, describedBy, invalid
     const before = Array.isArray(cell.value) ? cell.value.map(stringValue) : [];
 
     return (
-      <SelectMenu
-        multiple
-        defaultOpen
-        {...common}
-        value={many}
-        options={options}
-        onChange={setMany}
-        // The choices save together as the list closes.
-        onOpenChange={(open) => {
-          if (!open) {
-            if (many.join() !== before.join()) {
-              onCommit(many);
-            }
-
-            onClose();
-          }
+      // The list is portaled, but its keys still pass here through React; Escape marks a cancel.
+      <div
+        onKeyDownCapture={(event) => {
+          done.current ||= event.key === 'Escape';
         }}
-      />
+      >
+        <SelectMenu
+          multiple
+          defaultOpen
+          {...common}
+          value={many}
+          options={options}
+          onChange={setMany}
+          // The choices save together as the list closes, unless Escape closed it.
+          onOpenChange={(open) => {
+            if (!open) {
+              if (!done.current && many.join() !== before.join()) {
+                onCommit(many);
+              }
+
+              onClose();
+            }
+          }}
+        />
+      </div>
     );
   }
 

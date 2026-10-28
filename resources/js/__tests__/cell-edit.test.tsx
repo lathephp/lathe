@@ -29,6 +29,7 @@ const status = {
   meter: ['pending', 'paid', 'shipped'],
 };
 const note = { key: 'note', attribute: 'note', label: 'Note', component: 'text-field', sortable: false, sortKey: 'note', inline: true };
+const tags = { key: 'tags', attribute: 'tags', label: 'Tags', component: 'multi-select-field', sortable: false, sortKey: 'tags', inline: true, options: ['Gift', 'Rush'].map((label) => ({ value: label.toLowerCase(), label })) };
 const placed = { key: 'placed', attribute: 'placed', label: 'Placed', component: 'text-field', sortable: false, sortKey: 'placed' };
 
 function renderOrders(abilities: Record<string, boolean> = { view: true, update: true, inlineEdit: true }, lens: { uriKey: string; name: string } | null = null) {
@@ -38,12 +39,12 @@ function renderOrders(abilities: Record<string, boolean> = { view: true, update:
       lens,
       resource: { uriKey: 'orders', label: 'Orders', singularLabel: 'Order', perPageOptions: [25], searchable: false, softDeletes: false, abilities: { create: false }, definition },
       table: {
-        columns: [number, status, note, placed],
+        columns: [number, status, note, tags, placed],
         rows: [
           {
             id: 12,
             title: 'ORD-00012',
-            cells: { number: { value: 'ORD-00012', display: 'ORD-00012' }, status: { value: 'pending', display: 'Pending' }, note: { value: 'Gift', display: 'Gift' }, placed: { value: 'Oct 14', display: 'Oct 14' } },
+            cells: { number: { value: 'ORD-00012', display: 'ORD-00012' }, status: { value: 'pending', display: 'Pending' }, note: { value: 'Gift', display: 'Gift' }, tags: { value: ['gift'], display: 'gift' }, placed: { value: 'Oct 14', display: 'Oct 14' } },
             abilities,
             updatedAt: '2026-10-14T09:00:00.000Z',
           },
@@ -94,6 +95,25 @@ describe('editing a cell in place', () => {
     expect(cellOf('Status').textContent).toBe('Pending');
   });
 
+  it('cancels a multi-select on Escape, with the choices made in it left unsaved', async () => {
+    const fetch = vi.spyOn(globalThis, 'fetch');
+    renderOrders();
+
+    await editCell('Tags');
+    const rush = await screen.findByRole('option', { name: 'Rush' });
+    // Base UI ignores a click in the first moments after the list opens.
+    await waitFor(() => {
+      fireEvent.click(rush);
+      expect(rush.getAttribute('aria-selected')).toBe('true');
+    });
+    fireEvent.keyDown(screen.getByRole('listbox'), { key: 'Escape' });
+
+    await waitFor(() => {
+      expect(screen.queryByRole('listbox')).toBeNull();
+    });
+    expect(fetch).not.toHaveBeenCalled();
+  });
+
   it('starts no edit from a letter or a number key', async () => {
     const fetch = vi.spyOn(globalThis, 'fetch');
     renderOrders();
@@ -117,7 +137,7 @@ describe('editing a cell in place', () => {
     fireEvent.keyDown(input, { key: 'Tab' });
 
     expect(fetch).toHaveBeenCalledTimes(1);
-    expect(document.activeElement).toBe(cellOf('Placed'));
+    expect(document.activeElement).toBe(cellOf('Tags'));
     expect(await screen.findByText('Gift wrap')).toBeDefined();
   });
 

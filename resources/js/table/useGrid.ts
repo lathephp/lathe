@@ -1,4 +1,5 @@
 import { useEffect, useLayoutEffect, useRef, type RefObject } from 'react';
+import { markBuildStale } from '../lib/assets';
 import type { Row } from '../index/types';
 import type { RowSelection } from '../index/useRowSelection';
 import type { Grid, GridSelection } from './grid';
@@ -39,7 +40,11 @@ export function useGrid(table: RefObject<HTMLTableElement | null>, rows: readonl
       tick(rows[row]?.id, false);
     },
     extend: (from, to) => {
-      anchor.current ??= rows[from]?.id;
+      // An anchor from rows no longer shown, such as another page's, starts afresh here.
+      if (!rows.some((each) => each.id === anchor.current)) {
+        anchor.current = rows[from]?.id;
+      }
+
       tick(rows[to]?.id, true);
     },
     clear: () => {
@@ -50,26 +55,39 @@ export function useGrid(table: RefObject<HTMLTableElement | null>, rows: readonl
   // The grid outlives a render; it reads the selection of the latest one through this ref.
   const select = useRef(selection);
 
-  useEffect(() => {
-    let live = true;
-
-    void import('./grid').then(({ attachGrid }) => {
-      if (live && table.current !== null) {
-        grid.current = attachGrid(table.current, select);
-      }
-    });
-
-    return () => {
-      live = false;
-      grid.current?.detach();
-      grid.current = null;
-    };
-  }, [table]);
+  // The table the grid listens on; an empty list unmounts it, and its rows coming back mount a new one.
+  const attached = useRef<HTMLTableElement | null>(null);
 
   useLayoutEffect(() => {
     select.current = selection;
+    const element = table.current;
+
+    if (element !== attached.current) {
+      grid.current?.detach();
+      grid.current = null;
+      attached.current = element;
+
+      if (element !== null) {
+        // A chunk gone after a deploy says the build is stale rather than leaving the keys dead.
+        import('./grid').then(({ attachGrid }) => {
+          if (attached.current === element) {
+            grid.current = attachGrid(element, select);
+          }
+        }, markBuildStale);
+      }
+    }
+
     grid.current?.sync();
   });
+
+  useEffect(
+    () => () => {
+      grid.current?.detach();
+      grid.current = null;
+      attached.current = null;
+    },
+    [],
+  );
 
   return tick;
 }

@@ -86,11 +86,11 @@ export function InlineCell({ uriKey, rowId, column, cell, token, onRow }: Inline
   }
 
   /** Saves the value the cell had before as a new change, against the token this tab's last save of the record returned. */
-  async function undo(before: unknown) {
-    setPending({ value: before, display: displayOf(before) });
+  async function undo(before: unknown, extra: Record<string, unknown> = {}, shownBefore?: Cell) {
+    setPending(shownBefore ?? { value: before, display: displayOf(before) });
 
     try {
-      const reply = await send(before, {}, lastToken(record));
+      const reply = await send(before, extra, lastToken(record));
 
       if (reply !== null) {
         latest.current(reply.fields, reply.updatedAt);
@@ -99,7 +99,7 @@ export function InlineCell({ uriKey, rowId, column, cell, token, onRow }: Inline
 
       toast.success(__('Change undone'));
     } catch (failure) {
-      if (!refused(failure, before, {}, true)) {
+      if (!refused(failure, before, extra, true)) {
         toast.error(__('Something went wrong. Please try again.'));
       }
     } finally {
@@ -123,23 +123,28 @@ export function InlineCell({ uriKey, rowId, column, cell, token, onRow }: Inline
         onRow(reply.fields, reply.updatedAt);
         saved(record, reply.updatedAt);
 
-        if (column.component !== 'belongs-to-field' && column.component !== 'morph-to-field') {
-          const before = cell.value;
-          const display = reply.fields[column.key]?.display ?? displayOf(value);
-          const take = pushUndo(() => void undo(before));
+        // A belongsTo or morphTo cell holds the related record; its undo sends that record's id, and type.
+        const old = cell.value as { value?: unknown; id?: unknown; type?: unknown } | null;
+        const before = column.component === 'belongs-to-field' ? (old?.value ?? null) : column.component === 'morph-to-field' ? (old?.id ?? null) : cell.value;
+        const restore = column.component === 'morph-to-field' ? { type: old?.type ?? null } : {};
+        const display = reply.fields[column.key]?.display ?? displayOf(value);
+        const shownBefore = cell;
+        const take = pushUndo(() => undo(before, restore, shownBefore));
 
-          toast.success(__(':field changed to :value.', { field: column.label, value: display }), {
-            action: { label: __('Undo'), onClick: take },
-          });
-        }
+        toast.success(__(':field changed to :value.', { field: column.label, value: display }), {
+          action: { label: __('Undo'), onClick: take },
+        });
       }
     } catch (failure) {
       if (failure instanceof ApiError && failure.status === 422) {
         // The refused value stays in the editor, marked with the server's message.
         const errors = (failure.data as { errors?: Record<string, string[]> } | null)?.errors ?? {};
         setError(Object.values(errors)[0]?.[0] ?? __('Please fix the highlighted fields.'));
-        setDraft(shownWhilePending ?? { value, display: displayOf(value) });
-        setEditing(true);
+        // A boolean has no editor to reopen; its message shows on the cell.
+        if (column.component !== 'boolean-field') {
+          setDraft(shownWhilePending ?? { value, display: displayOf(value) });
+          setEditing(true);
+        }
       } else if (!refused(failure, value, extra, false)) {
         const message = failure instanceof ApiError ? (failure.data as { message?: string } | null)?.message : undefined;
         toast.error(failure instanceof ApiError && failure.status === 403 && message !== undefined ? message : __('Something went wrong. Please try again.'));
@@ -224,7 +229,7 @@ export function InlineCell({ uriKey, rowId, column, cell, token, onRow }: Inline
               setConflict(null);
 
               if (conflict.undoing) {
-                void undo(conflict.value);
+                void undo(conflict.value, conflict.extra);
               } else {
                 void commit(conflict.value, undefined, conflict.extra, lastToken(record));
               }

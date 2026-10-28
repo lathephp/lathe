@@ -1,8 +1,10 @@
 import { act, fireEvent, screen } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
+import { clearUndo } from '../index/undo';
 import { cellOf, choose, editCell, renderPage } from './support';
 
 afterEach(() => {
+  clearUndo();
   vi.restoreAllMocks();
 });
 
@@ -87,6 +89,15 @@ describe('relation inline cells', () => {
     ]);
     expect(calls(fetch)[0]?.url).toBe('/lathe/api/resources/orders/12/customer/associatable?q=&page=1');
     expect(cellOf('Customer').textContent).toBe('Anna Park');
+
+    // Ctrl+Z puts the customer it had back, by id.
+    fireEvent.keyDown(document.activeElement ?? document.body, { key: 'z', ctrlKey: true });
+    await flush();
+    expect(calls(fetch).filter((call) => call.method === 'PATCH')[1]).toEqual({
+      url: '/lathe/api/resources/orders/12/field/customer',
+      method: 'PATCH',
+      body: { value: 3, _updated_at: '2026-10-14T09:00:02.000Z' },
+    });
   });
 
   it('commits a morphTo cell with its id and type once a record of the new type is picked', async () => {

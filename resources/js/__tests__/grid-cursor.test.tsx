@@ -215,6 +215,33 @@ describe('the cell cursor', () => {
     }
   });
 
+  it('keeps one tab stop when the first group is folded, and its fold button in reach', async () => {
+    renderPage('Resources/Index', orders(5, true), { url: '/lathe/resources/orders' });
+    await waitFor(() => {
+      expect(screen.getByRole('grid').hasAttribute('data-grid-ready')).toBe(true);
+    });
+
+    fireEvent.click(screen.getByRole('button', { name: 'Status: paid' }));
+
+    expect(cursor().textContent).toBe('Number 1');
+    expect(screen.getByRole('button', { name: 'Status: pending' }).tabIndex).toBe(0);
+  });
+
+  it("enters a row's action cell with Enter, steps between its links with the arrows and leaves with Escape", async () => {
+    renderPage('Resources/Index', orders(2), { url: '/lathe/resources/orders' });
+    act(() => {
+      cursor().focus();
+    });
+
+    await press('End');
+    await press('Enter');
+    expect(document.activeElement).toBe(screen.getByRole('link', { name: 'View ORD-1' }));
+    await press('ArrowRight');
+    expect(document.activeElement).toBe(screen.getByRole('link', { name: 'Edit ORD-1' }));
+    await press('Escape');
+    expect(document.activeElement?.hasAttribute('data-row-menu')).toBe(true);
+  });
+
   it('steps from the last row of a group to the first row of the next, past the group header', async () => {
     renderPage('Resources/Index', orders(5, true), { url: '/lathe/resources/orders' });
     // paid: 3, 4; pending: 1, 2; shipped: 5.

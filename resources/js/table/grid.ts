@@ -32,7 +32,8 @@ export function attachGrid(table: HTMLTableElement, select: { current: GridSelec
 
   // The data cell holding an element, with its place.
   function locate(target: EventTarget | null): { cell: HTMLTableCellElement; row: number; column: number } | null {
-    const cell = target instanceof Element ? target.closest('td') : null;
+    // A dialog a cell opens, such as the conflict dialog, keeps its keys and clicks to itself.
+    const cell = target instanceof Element && target.closest('[role=dialog], [role=alertdialog]') === null ? target.closest('td') : null;
     const index = cell === null || !(cell.parentElement instanceof HTMLTableRowElement) ? -1 : rows().indexOf(cell.parentElement);
 
     return cell === null || index === -1 ? null : { cell, row: index, column: cell.cellIndex };
@@ -47,7 +48,10 @@ export function attachGrid(table: HTMLTableElement, select: { current: GridSelec
 
   function sync() {
     // A cell's own links and buttons, such as a related record's name or a header's sort, wait for the cursor too.
-    for (const control of table.querySelectorAll<HTMLElement>('a[href]:not([tabindex]), button:not([tabindex]), input:not([tabindex]), th:not([tabindex])')) {
+    // A group header keeps its fold button in the tab order, since the cursor passes over that row.
+    for (const control of table.querySelectorAll<HTMLElement>(
+      'thead th:not([tabindex]), thead button:not([tabindex]), thead input:not([tabindex]), tr[data-row] a[href]:not([tabindex]), tr[data-row] button:not([tabindex]), tr[data-row] input:not([tabindex])',
+    )) {
       control.tabIndex = -1;
     }
 
@@ -159,6 +163,20 @@ export function attachGrid(table: HTMLTableElement, select: { current: GridSelec
       return;
     }
 
+    // In a row's action cell the arrows step between its buttons, Escape goes back to the cell, and
+    // past either end the cursor moves on.
+    const actions = found.cell.matches('[data-row-menu]') && event.target !== found.cell && event.target instanceof HTMLElement && event.target.closest('[role=menu]') === null;
+    const controls = actions ? Array.from(found.cell.querySelectorAll<HTMLElement>('a[href], button')) : [];
+    const step = { ArrowRight: document.dir === 'rtl' ? -1 : 1, ArrowLeft: document.dir === 'rtl' ? 1 : -1 }[event.key];
+    const sibling = step === undefined ? undefined : controls[controls.indexOf(event.target as HTMLElement) + step];
+
+    if (sibling !== undefined || (actions && event.key === 'Escape')) {
+      event.preventDefault();
+      (sibling ?? found.cell).focus();
+
+      return;
+    }
+
     const moves: Record<string, [number, number]> = {
       ArrowDown: [found.row + 1, found.column],
       ArrowUp: [found.row - 1, found.column],
@@ -193,10 +211,13 @@ export function attachGrid(table: HTMLTableElement, select: { current: GridSelec
       showKeys();
     } else if ((event.key === 'Enter' || event.key === 'F2') && event.target === found.cell && edit(found.cell)) {
       event.preventDefault();
+    } else if (event.key === 'Enter' && event.target === found.cell && found.cell.matches('[data-row-menu]')) {
+      // A row's action cell hands the focus to its first button.
+      event.preventDefault();
+      found.cell.querySelector<HTMLElement>('a[href], button')?.focus();
     } else if (event.key === 'Enter' && event.target === found.cell) {
-      // A cell of controls presses its checkbox or menu; any other runs the row's click action
-      // through its title cell.
-      const control = found.cell.querySelector<HTMLElement>('input[type=checkbox], [aria-haspopup=menu]') ?? found.cell.parentElement?.querySelector<HTMLElement>('td[data-open]');
+      // The checkbox cell ticks; any other runs the row's click action through its title cell.
+      const control = found.cell.querySelector<HTMLElement>('input[type=checkbox]') ?? found.cell.parentElement?.querySelector<HTMLElement>('td[data-open]');
 
       if (control !== null && control !== undefined) {
         event.preventDefault();

@@ -60,8 +60,7 @@ const order = (id: number) => ({
 });
 
 /** Answers the panel's endpoints and a cell's save, whose order then reads Paid, and records every request. */
-function answer() {
-  const rows = [order(41), order(40)];
+function answer(rows = [order(41), order(40)]) {
 
   return vi.spyOn(globalThis, 'fetch').mockImplementation((input, init) => {
     const url = typeof input === 'string' ? input : input instanceof URL ? input.href : input.url;
@@ -150,5 +149,21 @@ describe("a customer's Orders table", () => {
 
     expect(screen.getByRole<HTMLInputElement>('checkbox', { name: 'Select ORD-00041' }).checked).toBe(true);
     expect(screen.getByRole<HTMLInputElement>('checkbox', { name: 'Select ORD-00040' }).checked).toBe(true);
+  });
+
+  it('keeps its keys when the rows come back to a table that was empty', async () => {
+    const rows: ReturnType<typeof order>[] = [];
+    answer(rows);
+    renderCustomer();
+    await screen.findByText('No Orders yet');
+
+    rows.push(order(41), order(40));
+    await act(async () => {
+      await queryClient.invalidateQueries();
+    });
+    await screen.findByText('ORD-00041');
+
+    await editCell('Status');
+    expect(await screen.findAllByRole('option')).toHaveLength(4);
   });
 });

@@ -389,7 +389,7 @@ export function ResourceTable({ resource, table, state, loading, selection, sort
                           return (
                             <td
                               key={column.key}
-                              tabIndex={position === 0 && index === 0 ? 0 : -1}
+                              tabIndex={shown[0] === row && index === 0 ? 0 : -1}
                               // The title cell is the row's link: a click on it, not on a control inside, runs the click action.
                               data-open={url === undefined ? undefined : ''}
                               onClick={

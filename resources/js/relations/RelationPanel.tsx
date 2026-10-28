@@ -386,7 +386,7 @@ function PanelBody({ parent, field, bodyId, onToggle, tab }: RelationPanelProps 
                       );
                     })}
                     {rowActions ? (
-                      <td tabIndex={-1} className={cn('px-3 text-end whitespace-nowrap', cursorCell)}>
+                      <td data-row-menu="" tabIndex={-1} className={cn('px-3 text-end whitespace-nowrap', cursorCell)}>
                         {canEditPivot ? (
                           <Button
                             variant="ghost"

@@ -9,6 +9,7 @@ import { reloadIndexRows } from '../lib/instant';
 import type { SharedProps } from '../types';
 import { type MenuAction, menuActions, type WriteAction } from './RowMenu';
 import type { Row } from './types';
+import { clearUndo } from './undo';
 
 type LinkAction = Extract<MenuAction, 'view' | 'edit' | 'replicate'>;
 
@@ -79,6 +80,9 @@ export function RowMenuPanel({ uriKey, row, open, menuId, onClose }: RowMenuPane
       },
     };
     const { path, method, done, failed } = requests[action];
+
+    // A deleted or restored record takes no undo of an older edit.
+    clearUndo();
 
     try {
       await request(path, { method, toastOnError: false });
