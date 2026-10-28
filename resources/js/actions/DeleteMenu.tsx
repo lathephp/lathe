@@ -5,6 +5,7 @@ import { useId, useRef, useState } from 'react';
 import { Modal, modalFooter } from '../components/Modal';
 import type { Row } from '../index/types';
 import type { IndexUrlState } from '../index/useIndexState';
+import { clearUndo } from '../index/undo';
 import type { RowSelection } from '../index/useRowSelection';
 import { batchOperations, type BatchOperation } from './batchOperations';
 import { reloadIndexRows } from '../lib/instant';
@@ -71,6 +72,7 @@ export function DeleteMenu({ uriKey, lens, softDeletes, selection, rows, total, 
     let result: BatchResult | null;
 
     try {
+      clearUndo();
       result = await request<BatchResult>(`${base}/${path}`, { method, body: { selection: descriptor }, toastOnError: false });
     } catch {
       toast.error(__('Operation failed. Please try again.'), {

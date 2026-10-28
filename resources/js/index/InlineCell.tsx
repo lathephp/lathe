@@ -5,6 +5,7 @@ import { stringValue } from '../fields/registry';
 import { lazyNamed } from '../lib/lazy';
 import { TableCell } from '../table/cells';
 import { ConflictDialog } from './lazy';
+import { lastToken, pushUndo, saved } from './undo';
 
 // The controls load on the first edit, so a list's first paint carries only the values.
 const InlineEditor = lazyNamed(() => import('./InlineEditor').then((module) => module.InlineEditor));
@@ -42,12 +43,15 @@ export function InlineCell({ uriKey, rowId, column, cell, token, onRow }: Inline
   const [pending, setPending] = useState<Cell | null>(null);
   const [editing, setEditing] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  // The undo outlives this render: the toast calls it later, so it reads the latest token and row callback from refs.
-  const latest = useRef({ token, onRow });
+  // An undo outlives this render: the stack calls it later, so it reads the latest row callback from a ref.
+  const latest = useRef(onRow);
   useEffect(() => {
-    latest.current = { token, onRow };
+    latest.current = onRow;
   });
-  const [conflict, setConflict] = useState<unknown>(undefined);
+  // A save someone else's change refused: the value to save over theirs, and whether it was an undo.
+  const [conflict, setConflict] = useState<{ value: unknown; extra: Record<string, unknown>; undoing: boolean } | null>(null);
+  // A value the server refused, kept in the reopened editor for fixing.
+  const [draft, setDraft] = useState<Cell | null>(null);
   const shown = pending ?? cell;
   const busy = pending !== null;
   // What the grid's edit request reads when it comes, after this render.
@@ -56,84 +60,87 @@ export function InlineCell({ uriKey, rowId, column, cell, token, onRow }: Inline
     current.current = { busy, shown, commit };
   });
   const options = (column.options as Option[] | undefined) ?? [];
+  const record = `${uriKey}/${String(rowId)}`;
 
-  function send(value: unknown, extra: Record<string, unknown>, updatedAt: string | undefined) {
+  function send(value: unknown, extra: Record<string, unknown>, updatedAt: string | null | undefined) {
     return request<InlineReply>(`${apiPath}/resources/${uriKey}/${String(rowId)}/field/${column.key}`, {
       method: 'PATCH',
       toastOnError: false,
-      body: { value, ...extra, _updated_at: updatedAt },
+      body: { value, ...extra, _updated_at: updatedAt ?? undefined },
     });
   }
 
-  /**
-   * Saves the value the cell had before as a new change, against the token its own save returned:
-   * a record changed since, even one a poll already showed, opens the conflict dialog.
-   */
-  async function undo(before: unknown, updatedAt: string | null | undefined) {
+  // A save someone else's change refused: the row takes their cells and the dialog asks.
+  function refused(failure: unknown, value: unknown, extra: Record<string, unknown>, undoing: boolean): boolean {
+    const reply = failure instanceof ApiError && failure.status === 409 ? (failure.data as InlineReply | null) : null;
+
+    if (reply?.fields === undefined) {
+      return false;
+    }
+
+    latest.current(reply.fields, reply.updatedAt);
+    saved(record, reply.updatedAt);
+    setConflict({ value, extra, undoing });
+
+    return true;
+  }
+
+  /** Saves the value the cell had before as a new change, against the token this tab's last save of the record returned. */
+  async function undo(before: unknown) {
     setPending({ value: before, display: displayOf(before) });
 
     try {
-      const reply = await send(before, {}, updatedAt ?? undefined);
+      const reply = await send(before, {}, lastToken(record));
 
       if (reply !== null) {
-        latest.current.onRow(reply.fields, reply.updatedAt);
-        latest.current.token = reply.updatedAt;
+        latest.current(reply.fields, reply.updatedAt);
+        saved(record, reply.updatedAt);
       }
 
-      setConflict(undefined);
+      toast.success(__('Change undone'));
     } catch (failure) {
-      const reply = failure instanceof ApiError && failure.status === 409 ? (failure.data as InlineReply | null) : null;
-
-      if (reply?.fields === undefined) {
-        setConflict(undefined);
+      if (!refused(failure, before, {}, true)) {
         toast.error(__('Something went wrong. Please try again.'));
-      } else {
-        latest.current.onRow(reply.fields, reply.updatedAt);
-        latest.current.token = reply.updatedAt;
-        setConflict({ before });
       }
     } finally {
       setPending(null);
     }
   }
 
-  async function commit(value: unknown, shownWhilePending?: Cell, extra: Record<string, unknown> = {}) {
+  async function commit(value: unknown, shownWhilePending?: Cell, extra: Record<string, unknown> = {}, updatedAt = token) {
     if (busy) {
       return;
     }
 
     setError(null);
+    setDraft(null);
     setPending(shownWhilePending ?? { value, display: displayOf(value) });
 
     try {
-      const reply = await send(value, extra, token ?? undefined);
+      const reply = await send(value, extra, updatedAt);
 
       if (reply !== null) {
         onRow(reply.fields, reply.updatedAt);
-        latest.current.token = reply.updatedAt;
+        saved(record, reply.updatedAt);
 
         if (column.component !== 'belongs-to-field' && column.component !== 'morph-to-field') {
           const before = cell.value;
           const display = reply.fields[column.key]?.display ?? displayOf(value);
+          const take = pushUndo(() => void undo(before));
 
           toast.success(__(':field changed to :value.', { field: column.label, value: display }), {
-            action: { label: __('Undo'), onClick: () => void undo(before, reply.updatedAt) },
+            action: { label: __('Undo'), onClick: take },
           });
         }
       }
     } catch (failure) {
       if (failure instanceof ApiError && failure.status === 422) {
+        // The refused value stays in the editor, marked with the server's message.
         const errors = (failure.data as { errors?: Record<string, string[]> } | null)?.errors ?? {};
         setError(Object.values(errors)[0]?.[0] ?? __('Please fix the highlighted fields.'));
-      } else if (failure instanceof ApiError && failure.status === 409) {
-        const reply = failure.data as InlineReply | null;
-
-        if (reply?.fields !== undefined) {
-          onRow(reply.fields, reply.updatedAt);
-        }
-
-        toast.error(__('This record was changed by someone else since you opened it.'));
-      } else {
+        setDraft(shownWhilePending ?? { value, display: displayOf(value) });
+        setEditing(true);
+      } else if (!refused(failure, value, extra, false)) {
         const message = failure instanceof ApiError ? (failure.data as { message?: string } | null)?.message : undefined;
         toast.error(failure instanceof ApiError && failure.status === 403 && message !== undefined ? message : __('Something went wrong. Please try again.'));
       }
@@ -176,6 +183,8 @@ export function InlineCell({ uriKey, rowId, column, cell, token, onRow }: Inline
   // Leaving edit mode hands the focus back to the cell, or to the next one after Tab.
   function close(next = false) {
     setEditing(false);
+    setError(null);
+    setDraft(null);
     const cell = root.current?.closest('td');
     const target = next ? cell?.nextElementSibling : cell;
 
@@ -192,8 +201,9 @@ export function InlineCell({ uriKey, rowId, column, cell, token, onRow }: Inline
             uriKey={uriKey}
             rowId={rowId}
             column={column}
-            cell={shown}
+            cell={draft ?? shown}
             describedBy={describedBy}
+            invalid={error !== null}
             onCommit={(value, shownWhilePending, extra) => {
               void commit(value, shownWhilePending, extra);
             }}
@@ -204,18 +214,23 @@ export function InlineCell({ uriKey, rowId, column, cell, token, onRow }: Inline
         <TableCell column={column} cell={shown} />
       )}
       {busy ? <span className="ms-2 text-xs text-muted-foreground">{__('Saving…')}</span> : null}
-      {conflict === undefined ? null : (
+      {conflict === null ? null : (
         <Suspense fallback={null}>
           <ConflictDialog
             onRefresh={() => {
-              setConflict(undefined);
+              setConflict(null);
             }}
             onOverride={() => {
-              setConflict(undefined);
-              void undo((conflict as { before: unknown }).before, latest.current.token);
+              setConflict(null);
+
+              if (conflict.undoing) {
+                void undo(conflict.value);
+              } else {
+                void commit(conflict.value, undefined, conflict.extra, lastToken(record));
+              }
             }}
             onClose={() => {
-              setConflict(undefined);
+              setConflict(null);
             }}
           />
         </Suspense>

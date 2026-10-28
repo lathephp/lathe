@@ -1,5 +1,6 @@
 import { ApiError, csrfHeaders, request } from '@lathephp/core';
 import { flushResourceOf } from '../lib/instant';
+import { clearUndo } from '../index/undo';
 import type { SelectionDescriptor } from '../index/useRowSelection';
 import type { ActionRun } from './types';
 
@@ -12,6 +13,9 @@ function hasFile(fields: Record<string, unknown>): boolean {
  * as a JSON string and each field under fields[...]; every other run posts JSON.
  */
 export async function runAction(url: string, action: string, selection: SelectionDescriptor, fields: Record<string, unknown>): Promise<ActionRun> {
+  // Ctrl+Z after an action must not undo an older edit of the records it changed.
+  clearUndo();
+
   if (!hasFile(fields)) {
     const run = await request<ActionRun>(url, { method: 'POST', body: { action, selection, fields }, toastOnError: false });
 

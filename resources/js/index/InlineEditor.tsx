@@ -19,6 +19,8 @@ export interface InlineEditorProps {
   cell: Cell;
   /** The id of the server's message under the cell, while there is one. */
   describedBy: string | undefined;
+  /** Whether the server refused the value the editor holds. */
+  invalid: boolean;
   /** Saves a value; the cell shows `shown` until the reply. */
   onCommit: (value: unknown, shown?: Cell, extra?: Record<string, unknown>) => void;
   /** Leaves edit mode; `next` moves the cursor one cell on, as Tab does. */
@@ -30,7 +32,7 @@ export interface InlineEditorProps {
  * a text or number input saves on Enter or Tab, a belongsTo or morphTo picker saves on the record
  * picked. Escape leaves without saving.
  */
-export function InlineEditor({ uriKey, rowId, column, cell, describedBy, onCommit, onClose }: InlineEditorProps) {
+export function InlineEditor({ uriKey, rowId, column, cell, describedBy, invalid, onCommit, onClose }: InlineEditorProps) {
   const [text, setText] = useState(stringValue(cell.value));
   const [many, setMany] = useState<string[]>(Array.isArray(cell.value) ? cell.value.map(stringValue) : []);
   // A morphTo type chosen but no record picked yet; undefined while there is none.
@@ -38,7 +40,7 @@ export function InlineEditor({ uriKey, rowId, column, cell, describedBy, onCommi
   // Enter, Tab or Escape ends a text edit; the blur as the input leaves the page must not save again.
   const done = useRef(false);
   const options = (column.options as Option[] | undefined) ?? [];
-  const common = { 'aria-label': column.label, 'aria-describedby': describedBy, size: 'sm' as const, className: 'max-w-full' };
+  const common = { 'aria-label': column.label, 'aria-describedby': describedBy, 'aria-invalid': invalid || undefined, size: 'sm' as const, className: 'max-w-full' };
 
   // Escape in a picker leaves the cell as it was.
   function escape(event: KeyboardEvent) {
@@ -96,7 +98,7 @@ export function InlineEditor({ uriKey, rowId, column, cell, describedBy, onCommi
   }
 
   if (column.component === 'belongs-to-field' || column.component === 'morph-to-field') {
-    const picker = { id: `${String(rowId)}-${column.key}-picker`, describedBy, invalid: false, disabled: false, record: { uriKey, id: rowId } };
+    const picker = { id: `${String(rowId)}-${column.key}-picker`, describedBy, invalid, disabled: false, record: { uriKey, id: rowId } };
 
     return (
       // eslint-disable-next-line jsx-a11y/no-static-element-interactions -- Escape from the picker inside
@@ -158,6 +160,7 @@ export function InlineEditor({ uriKey, rowId, column, cell, describedBy, onCommi
       autoFocus
       aria-label={column.label}
       aria-describedby={describedBy}
+      aria-invalid={invalid || undefined}
       type={numeric ? 'number' : 'text'}
       value={text}
       onChange={(event) => {

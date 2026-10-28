@@ -71,7 +71,7 @@ describe('inline cells', () => {
     expect(bodies(fetch)[0]).toEqual({ value: 'shipped', _updated_at: '2026-10-14T09:00:00.000Z' });
   });
 
-  it('saves text on Enter, reverts on Escape, and shows a refused value as a tooltip with the old value back', async () => {
+  it('saves text on Enter, cancels on Escape, and keeps a refused value open with the server\'s message', async () => {
     const fetch = vi
       .spyOn(globalThis, 'fetch')
       .mockResolvedValueOnce(reply(200, { field: 'name', fields: { name: { value: 'Ann Lee', display: 'Ann Lee' } }, updatedAt: '2026-10-14T09:00:02.000Z' }))
@@ -92,7 +92,11 @@ describe('inline cells', () => {
     fireEvent.keyDown(await screen.findByRole('textbox', { name: 'Name' }), { key: 'Enter' });
 
     expect((await screen.findByRole('tooltip')).textContent).toBe('The name field is required.');
-    expect(screen.getByText('Ann Lee')).toBeDefined();
+    // The typed value stays in the editor for fixing, marked invalid, and the cursor with it.
+    const refused = await screen.findByRole<HTMLInputElement>('textbox', { name: 'Name' });
+    expect(refused.value).toBe('');
+    expect(refused.getAttribute('aria-invalid')).toBe('true');
+    expect(refused.closest('td')).toBe(cellOf('Name'));
     expect(bodies(fetch)[1]?._updated_at).toBe('2026-10-14T09:00:02.000Z');
   });
 
