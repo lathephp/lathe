@@ -15,7 +15,16 @@ export interface Grid {
   detach: () => void;
 }
 
-export function attachGrid(table: HTMLTableElement): Grid {
+/** The row selection, by the place of a row among the data rows. */
+export interface GridSelection {
+  toggle: (row: number) => void;
+  /** Selects from the anchor, or from `from` when none was toggled, to `to`. */
+  extend: (from: number, to: number) => void;
+  clear: () => void;
+}
+
+// The selection is React state, so the table hands in a ref it refreshes on each render.
+export function attachGrid(table: HTMLTableElement, select: { current: GridSelection }): Grid {
   let row = 0;
   let column = -1;
 
@@ -114,11 +123,22 @@ export function attachGrid(table: HTMLTableElement): Grid {
       PageDown: [found.row + pageRows, found.column],
       PageUp: [found.row - pageRows, found.column],
     };
-    const move = event.shiftKey ? undefined : moves[event.key];
+    // Shift+Up and Shift+Down move and select; Shift with any other move is not ours.
+    const move = event.shiftKey && event.key !== 'ArrowDown' && event.key !== 'ArrowUp' ? undefined : moves[event.key];
 
     if (move !== undefined) {
       event.preventDefault();
       moveTo(...move);
+
+      if (event.shiftKey) {
+        select.current.extend(found.row, row);
+      }
+    } else if (event.key === 'x' || event.key === 'X') {
+      event.preventDefault();
+      select.current.toggle(found.row);
+    } else if (event.key === 'Escape' && event.target === found.cell) {
+      // Only from the cell itself: a menu or a preview in the row closes on its own Escape.
+      select.current.clear();
     } else if (event.key === '?') {
       event.preventDefault();
       showKeys();
