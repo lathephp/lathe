@@ -19,12 +19,16 @@ export function instantProps(seed: { title: string } & Record<string, unknown>, 
   });
 }
 
-/** Drops the prefetched pages of the resource a write URL names, so a hovered link never opens a stale page. */
+/**
+ * Drops the prefetched pages of the resource a write URL names, so a hovered link never opens a stale
+ * page, and tells the page's own caches, such as the preview panel's, with a lathe-write event.
+ */
 export function flushResourceOf(url: string): void {
   const match = /\/resources\/([^/?#]+)/.exec(url);
 
   if (match?.[1] !== undefined) {
     router.flushByCacheTags(`resource:${match[1]}`);
+    window.dispatchEvent(new CustomEvent('lathe-write', { detail: url }));
   }
 }
 

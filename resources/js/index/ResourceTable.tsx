@@ -433,6 +433,7 @@ export function ResourceTable({ resource, table, state, loading, selection, sort
                                       // A save answers with the Resource's cells; a lens computes its own, so it takes the edited one only.
                                       const taken = lens == null ? cells : { [column.key]: cells[column.key] ?? cell };
                                       setSaved((current) => ({ ...current, [String(row.id)]: { over: row, cells: { ...row.cells, ...taken }, updatedAt } }));
+                                      preview?.saved?.({ ...row, cells: { ...row.cells, ...taken } });
                                     }}
                                   />
                                 ) : (

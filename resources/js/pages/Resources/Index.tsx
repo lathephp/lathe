@@ -1,5 +1,5 @@
 import { Head, Link, usePage } from '@inertiajs/react';
-import { lazy, Suspense } from 'react';
+import { lazy, Suspense, useState } from 'react';
 import { __panel, emit, useShortcut, useTranslation } from '@lathephp/core';
 import { Plus } from 'lucide-react';
 import { AfterDelay, skeletonBar } from '../../lib/instant';
@@ -15,7 +15,7 @@ import { PhoneCards } from '../../index/PhoneCards';
 import { ResourceTable, rowHeights } from '../../index/ResourceTable';
 import { PreviewPanel } from '../../index/lazy';
 import { TabBar, tabBand } from '../../index/TabBar';
-import type { IndexProps } from '../../index/types';
+import type { IndexProps, Row } from '../../index/types';
 import type { IndexUrlState } from '../../index/useIndexState';
 import { useIndexState } from '../../index/useIndexState';
 import { useRowSelection } from '../../index/useRowSelection';
@@ -53,6 +53,9 @@ function IndexPage({ resource, table, state, count, error, lens, actions, widget
   usePolling(polling, !showPollingToggle || pollingChoice.on);
   const ids = more.rows.map((row) => row.id);
   const preview = usePreview(resource.uriKey, table.previewOpen === true, ids[0]);
+  // The previewed row as an inline save left it, over the row the page loaded; a reload's newer row wins.
+  const [saved, setSaved] = useState<{ over: Row; row: Row } | null>(null);
+  const shown = more.rows.find((row) => String(row.id) === preview.id);
   useShortcut('mod+a', () => {
     selection.toggleAll(ids);
   });
@@ -173,7 +176,17 @@ function IndexPage({ resource, table, state, count, error, lens, actions, widget
                 onSort={(sort) => {
                   index.visit({ sort });
                 }}
-                preview={{ toggle: preview.toggle, moved: preview.follow }}
+                preview={{
+                toggle: preview.toggle,
+                moved: preview.follow,
+                saved: (row) => {
+                  const over = more.rows.find((each) => each.id === row.id);
+
+                  if (over !== undefined) {
+                    setSaved({ over, row });
+                  }
+                },
+              }}
               />
               <IndexFooter
                 resource={resource}
@@ -197,7 +210,7 @@ function IndexPage({ resource, table, state, count, error, lens, actions, widget
               resource={resource}
               table={table}
               id={preview.id}
-              row={more.rows.find((row) => String(row.id) === preview.id)}
+              row={saved !== null && saved.over === shown ? saved.row : shown}
               onClose={() => {
                 preview.close();
                 // The grid's cursor takes the focus back from the panel.

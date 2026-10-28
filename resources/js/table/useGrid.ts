@@ -11,6 +11,8 @@ export type GridRowSelection = Pick<RowSelection, 'isSelected' | 'toggle' | 'tog
 export interface GridPreview {
   toggle: (id: Row['id']) => void;
   moved: (id: Row['id']) => void;
+  /** An inline save changed the row's cells. */
+  saved?: (row: Row) => void;
 }
 
 /**

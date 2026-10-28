@@ -31,8 +31,8 @@ export interface GridSelection {
 export function attachGrid(table: HTMLTableElement, select: { current: GridSelection }): Grid {
   let row = 0;
   let column = -1;
-  // Whether the cursor has been on a row yet; the first cell it lands on reports its row too.
-  let moved = false;
+  // The row the cursor last told the table it reached; moveTo sets row before the focus lands.
+  let reported = -1;
 
   const rows = () => Array.from(table.querySelectorAll<HTMLTableRowElement>('tbody > tr[data-row]'));
 
@@ -90,13 +90,12 @@ export function attachGrid(table: HTMLTableElement, select: { current: GridSelec
     const found = locate(event.target);
 
     if (found !== null) {
-      const before = row;
       row = found.row;
       column = found.column;
       sync();
 
-      if (row !== before || !moved) {
-        moved = true;
+      if (row !== reported) {
+        reported = row;
         select.current.moved?.(row);
       }
     }

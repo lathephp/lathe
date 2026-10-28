@@ -6,6 +6,7 @@ import { DetailField } from '../fields/registry';
 import type { DetailFieldData } from '../fields/types';
 import { TableCell } from '../table/cells';
 import type { IndexProps, Row } from './types';
+import { restMs } from './usePreview';
 
 const RecordActionMenu = lazy(() => import('../actions/RecordActionMenu').then((module) => ({ default: module.RecordActionMenu })));
 
@@ -16,6 +17,27 @@ interface PreviewPayload {
   abilities: Partial<Record<string, boolean>>;
   actions: ActionList;
 }
+
+// The records this tab has previewed, by "resource/id". A save to any record of a Resource drops
+// that Resource's, since a change to one record can show on another.
+const cache = new Map<string, PreviewPayload>();
+
+function written(url: string): string | null {
+  // A user's own preferences change no record.
+  const match = /\/resources\/([^/?#]+)(?![^/?#]|\/(?:preview-panel|columns|saved-tabs))/.exec(url);
+
+  return match?.[1] ?? null;
+}
+
+window.addEventListener('lathe-write', (event) => {
+  const uriKey = written((event as CustomEvent<string>).detail);
+
+  for (const key of cache.keys()) {
+    if (uriKey !== null && key.startsWith(`${uriKey}/`)) {
+      cache.delete(key);
+    }
+  }
+});
 
 export interface PreviewPanelProps {
   resource: Pick<IndexProps['resource'], 'uriKey' | 'singularLabel'>;
@@ -35,30 +57,58 @@ export function PreviewPanel({ resource, table, id, row, onClose }: PreviewPanel
   const { __ } = useTranslation();
   const { apiPath, basePath } = useLathe();
   const titleId = useId();
-  // The reply for the record the panel last asked for; one for another record shows as loading.
-  const [reply, setReply] = useState<{ id: string; data: PreviewPayload | null; failed: number | null } | null>(null);
-  const data = reply?.id === id ? reply.data : null;
-  const failed = reply?.id === id ? reply.failed : null;
+  // The reply for the record the panel last asked for.
+  const [reply, setReply] = useState<{ id: string; saves: number; data: PreviewPayload | null; failed: number | null } | null>(null);
+  // Bumped by a save to this Resource, which asks for the record again; the old reply is dropped meanwhile.
+  const [saves, setSaves] = useState(0);
+  const key = `${resource.uriKey}/${id}`;
+  const current = reply?.id === id && reply.saves === saves ? reply : null;
+  const data = cache.get(key) ?? current?.data ?? null;
+  const failed = current?.failed ?? null;
   const recordPath = `${basePath}/resources/${resource.uriKey}/${id}`;
 
   useEffect(() => {
-    const abort = new AbortController();
-
-    request<PreviewPayload>(`${apiPath}/resources/${resource.uriKey}/${id}/preview`, { signal: abort.signal, toastOnError: false }).then(
-      (payload) => {
-        setReply({ id, data: payload, failed: null });
-      },
-      (failure: unknown) => {
-        if (!abort.signal.aborted) {
-          setReply({ id, data: null, failed: failure instanceof ApiError ? failure.status : 0 });
-        }
-      },
-    );
+    const listener = (event: Event) => {
+      if (written((event as CustomEvent<string>).detail) === resource.uriKey) {
+        setSaves((count) => count + 1);
+      }
+    };
+    window.addEventListener('lathe-write', listener);
 
     return () => {
+      window.removeEventListener('lathe-write', listener);
+    };
+  }, [resource.uriKey]);
+
+  // The body asks once the cursor rests on the row, so holding Down sends one request.
+  useEffect(() => {
+    if (cache.has(key)) {
+      return;
+    }
+
+    const abort = new AbortController();
+    const timer = window.setTimeout(() => {
+      request<PreviewPayload>(`${apiPath}/resources/${key}/preview`, { signal: abort.signal, toastOnError: false }).then(
+        (payload) => {
+          if (payload !== null) {
+            cache.set(key, payload);
+          }
+
+          setReply({ id, saves, data: payload, failed: null });
+        },
+        (failure: unknown) => {
+          if (!abort.signal.aborted) {
+            setReply({ id, saves, data: null, failed: failure instanceof ApiError ? failure.status : 0 });
+          }
+        },
+      );
+    }, restMs);
+
+    return () => {
+      window.clearTimeout(timer);
       abort.abort();
     };
-  }, [apiPath, resource.uriKey, id]);
+  }, [apiPath, key, id, saves]);
 
   const card = table.phoneCard;
 

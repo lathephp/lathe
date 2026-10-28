@@ -1,17 +1,31 @@
 import { router } from '@inertiajs/react';
 import { act, fireEvent, screen, waitFor, within } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { fakeInertiaServer, renderPage } from './support';
+import { cellOf, editCell, fakeInertiaServer, pick, renderPage } from './support';
 
 const definition = { debounce: 0.5, paginationType: 'links', clickAction: 'detail', polling: null, showPollingToggle: false, tableStyle: 'default', showColumnBorders: false, softDeletes: false };
 // The workbench Orders mix: the title column, a belongsTo link, a badge select and a plain value.
 const columns = [
   { key: 'number', label: 'Number', component: 'text-field', sortable: false, sortKey: 'number' },
   { key: 'customer', label: 'Customer', component: 'belongs-to-field', sortable: false, sortKey: 'customer' },
-  { key: 'status', label: 'Status', component: 'select-field', sortable: false, sortKey: 'status', badge: true, options: [{ value: 'pending', label: 'Pending' }, { value: 'paid', label: 'Paid' }] },
+  {
+    key: 'status',
+    attribute: 'status',
+    label: 'Status',
+    component: 'select-field',
+    sortable: false,
+    sortKey: 'status',
+    inline: true,
+    nullable: false,
+    options: [
+      { value: 'pending', label: 'Pending' },
+      { value: 'paid', label: 'Paid' },
+    ],
+    badges: { pending: 'warning', paid: 'info' },
+  },
   { key: 'total_cents', label: 'Total', component: 'text-field', sortable: false, sortKey: 'total_cents' },
 ];
-const numbers = ['ORD-79194426', 'ORD-79186507', 'ORD-79178588'];
+const numbers = ['ORD-79194426', 'ORD-79186507', 'ORD-79178588', 'ORD-79170669', 'ORD-79162750', 'ORD-79154831', 'ORD-79146912'];
 
 function orders(extra: Record<string, unknown> = {}) {
   return {
@@ -27,7 +41,8 @@ function orders(extra: Record<string, unknown> = {}) {
           status: { value: 'pending', display: 'Pending' },
           total_cents: { value: 16498, display: '$164.98' },
         },
-        abilities: { view: true, update: true },
+        abilities: { view: true, update: true, inlineEdit: true },
+        updatedAt: '2026-10-14T09:00:00.000Z',
       })),
       rowKey: 'id',
       sortKeys: [],
@@ -38,7 +53,7 @@ function orders(extra: Record<string, unknown> = {}) {
   };
 }
 
-function reply(id: number) {
+function reply(id: number, status = 'Pending') {
   return {
     id,
     title: numbers[id - 1],
@@ -47,6 +62,7 @@ function reply(id: number) {
     fields: [
       { key: 'number', label: 'Number', component: 'text-field', value: numbers[id - 1], display: numbers[id - 1] },
       { key: 'placed_at', label: 'Placed', component: 'text-field', value: '2026-10-18', display: 'Oct 18, 2026' },
+      { key: 'state', label: 'State', component: 'text-field', value: status, display: status },
     ],
     abilities: { view: true, update: true },
     actions: { actions: [{ uriKey: 'mark-as-shipped', name: 'Mark as shipped', icon: null, description: null, group: null, destructive: false, standalone: false, withoutConfirmation: true, enabled: true }], pivotActions: [], counts: {} },
@@ -80,6 +96,8 @@ beforeEach(() => {
   fakeInertiaServer();
   router.flushAll();
   window.history.replaceState({}, '', '/lathe/resources/orders');
+  // A save to orders empties the panel's cache, which outlives a test.
+  window.dispatchEvent(new CustomEvent('lathe-write', { detail: '/lathe/api/resources/orders' }));
 });
 
 afterEach(() => {
@@ -104,7 +122,7 @@ function panel(): HTMLElement {
 
 describe('the preview panel', () => {
   it('opens on the cursor row with Space, heads it with the row card at once and puts the id in the URL without a history entry', async () => {
-    let answer: (response: Response) => void = () => undefined;
+    let answer: ((response: Response) => void) | null = null;
     vi.spyOn(globalThis, 'fetch').mockImplementation(
       (input) =>
         new Promise((resolve) => {
@@ -128,17 +146,18 @@ describe('the preview panel', () => {
     });
     // The header comes from the row, before the preview answers.
     expect(within(panel()).getByRole('heading').textContent).toBe('ORD-79194426');
-    // The badge is the row's own Status cell, drawn as the table draws it.
-    const status = screen.getAllByRole('row')[1]?.querySelectorAll('td')[3]?.innerHTML ?? '';
-    expect(status).not.toBe('');
-    expect(panel().querySelector('header')?.innerHTML).toContain(status);
+    // The badge is the row's own Status cell.
+    expect(panel().querySelector('header')?.textContent).toContain('Pending');
     await waitFor(() => {
       expect(new URLSearchParams(window.location.search).get('preview')).toBe('1');
     });
     expect(window.history.length).toBe(entries);
 
+    await waitFor(() => {
+      expect(answer).not.toBeNull();
+    });
     act(() => {
-      answer(new Response(JSON.stringify(reply(1)), { status: 200 }));
+      answer?.(new Response(JSON.stringify(reply(1)), { status: 200 }));
     });
     expect(await within(panel()).findByText('Oct 18, 2026')).toBeTruthy();
   });
@@ -217,5 +236,129 @@ describe('the preview panel', () => {
       expect(panel()).not.toBeNull();
     });
     expect(within(panel()).getByRole('heading').textContent).toBe('ORD-79194426');
+  });
+});
+
+describe('the panel following the cursor', () => {
+  async function openOnFirst(): Promise<string[]> {
+    const asked = previews();
+    renderPage('Resources/Index', orders(), { url: '/lathe/resources/orders' });
+    firstCell().focus();
+    await press(' ');
+    await waitFor(() => {
+      expect(asked).toHaveLength(1);
+    });
+    await within(panel()).findByText('Oct 18, 2026');
+
+    return asked;
+  }
+
+  it('changes the header at once on Down and asks for the body 150 ms after the cursor stops', async () => {
+    const asked = await openOnFirst();
+    vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout'] });
+
+    fireEvent.keyDown(document.activeElement as HTMLElement, { key: 'ArrowDown' });
+    expect(within(panel()).getByRole('heading').textContent).toBe('ORD-79186507');
+
+    act(() => {
+      vi.advanceTimersByTime(149);
+    });
+    expect(asked).toHaveLength(1);
+    act(() => {
+      vi.advanceTimersByTime(1);
+    });
+    expect(asked).toHaveLength(2);
+    expect(asked[1]).toBe('/lathe/api/resources/orders/2/preview');
+  });
+
+  it('sends one request, for the last row, when Down is pressed 5 times 50 ms apart', async () => {
+    const asked = await openOnFirst();
+    vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout'] });
+
+    for (let step = 0; step < 5; step++) {
+      fireEvent.keyDown(document.activeElement as HTMLElement, { key: 'ArrowDown' });
+      act(() => {
+        vi.advanceTimersByTime(50);
+      });
+    }
+    act(() => {
+      vi.advanceTimersByTime(500);
+    });
+
+    expect(asked.slice(1)).toEqual(['/lathe/api/resources/orders/6/preview']);
+    expect(within(panel()).getByRole('heading').textContent).toBe('ORD-79154831');
+  });
+
+  it('asks nothing for an order it has loaded, until a save to any order', async () => {
+    const asked = await openOnFirst();
+
+    fireEvent.keyDown(document.activeElement as HTMLElement, { key: 'ArrowDown' });
+    await waitFor(() => {
+      expect(asked).toHaveLength(2);
+    });
+    fireEvent.keyDown(document.activeElement as HTMLElement, { key: 'ArrowUp' });
+    expect(within(panel()).getByText('Oct 18, 2026')).toBeTruthy();
+    await act(async () => {
+      await new Promise((resolve) => setTimeout(resolve, 300));
+    });
+    expect(asked).toHaveLength(2);
+
+    // A save to another order empties the cache; the open record comes again.
+    act(() => {
+      window.dispatchEvent(new CustomEvent('lathe-write', { detail: '/lathe/api/resources/orders/5/field/status' }));
+    });
+    await waitFor(() => {
+      expect(asked).toHaveLength(3);
+    });
+    expect(asked[2]).toBe('/lathe/api/resources/orders/1/preview');
+  });
+
+  it('shows Paid in the header and the body after an inline edit of the cursor row', async () => {
+    const asked: string[] = [];
+    let paid = false;
+    vi.spyOn(globalThis, 'fetch').mockImplementation((input) => {
+      const url = urlOf(input);
+
+      if (url.endsWith('/field/status')) {
+        paid = true;
+
+        return Promise.resolve(new Response(JSON.stringify({ fields: { status: { value: 'paid', display: 'Paid' } }, updatedAt: 't1' }), { status: 200 }));
+      }
+
+      if (url.endsWith('/preview')) {
+        asked.push(url);
+
+        return Promise.resolve(new Response(JSON.stringify(reply(1, paid ? 'Paid' : 'Pending')), { status: 200 }));
+      }
+
+      return Promise.resolve(new Response(null, { status: 204 }));
+    });
+    renderPage('Resources/Index', orders(), { url: '/lathe/resources/orders' });
+    firstCell().focus();
+    await press(' ');
+    await within(await waitFor(() => panel())).findByText('Pending', { selector: 'dd *, dd' });
+
+    await editCell('Status');
+    await pick('Paid');
+
+    await waitFor(() => {
+      expect(within(panel()).getByText('Paid', { selector: 'dd *, dd' })).toBeTruthy();
+    });
+    expect(within(panel()).queryByText('Pending')).toBeNull();
+    expect(panel().querySelector('header')?.textContent).toContain('Paid');
+    expect(cellOf('Status').textContent).toContain('Paid');
+  });
+
+  it('says an order deleted since the list loaded was deleted, with Close', async () => {
+    vi.spyOn(globalThis, 'fetch').mockImplementation((input) =>
+      Promise.resolve(urlOf(input).endsWith('/preview') ? new Response(JSON.stringify({ message: 'Not found.' }), { status: 404 }) : new Response(null, { status: 204 })),
+    );
+    renderPage('Resources/Index', orders(), { url: '/lathe/resources/orders' });
+    firstCell().focus();
+    await press(' ');
+
+    expect(await within(await waitFor(() => panel())).findByText('This order was deleted.')).toBeTruthy();
+    expect(within(panel()).getByRole('button', { name: 'Close' })).toBeTruthy();
+    expect(within(panel()).queryByRole('link', { name: 'Edit' })).toBeNull();
   });
 });
