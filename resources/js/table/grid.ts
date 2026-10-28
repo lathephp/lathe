@@ -215,6 +215,10 @@ export function attachGrid(table: HTMLTableElement, select: { current: GridSelec
       if (event.shiftKey) {
         select.current.extend(found.row, row);
       }
+    } else if (event.key === ' ' && event.target === found.cell && found.cell.querySelector('input[type=checkbox]') !== null) {
+      // The checkbox cell ticks its row, as Enter does.
+      event.preventDefault();
+      found.cell.querySelector<HTMLElement>('input[type=checkbox]')?.click();
     } else if (event.key === ' ' && event.target === found.cell && select.current.preview !== undefined) {
       // From the cell only: Space on its checkbox ticks it.
       event.preventDefault();

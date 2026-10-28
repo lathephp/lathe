@@ -98,14 +98,19 @@ describe('the preview panel', () => {
     });
   });
 
-  it('leaves Space on a row checkbox to tick the row', async () => {
+  it('leaves Space on a row checkbox, or on its cell, to tick the row', async () => {
     previews();
     renderPage('Resources/Index', orders(), { url: '/lathe/resources/orders' });
-    const box = screen.getAllByRole('checkbox')[1] as HTMLElement;
+    const box = screen.getAllByRole('checkbox')[1] as HTMLInputElement;
 
     box.focus();
     await press(' ');
+    expect(panel()).toBeNull();
 
+    // The cursor on the checkbox column: Space ticks, as Enter does.
+    (box.closest('td') as HTMLElement).focus();
+    await press(' ');
+    expect(box.checked).toBe(true);
     expect(panel()).toBeNull();
   });
 

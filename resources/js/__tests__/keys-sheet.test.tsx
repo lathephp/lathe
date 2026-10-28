@@ -18,6 +18,16 @@ describe('keyboard shortcuts sheet', () => {
     expect(within(dialog).getAllByRole('heading').map((heading) => heading.textContent)).toEqual(['Keyboard shortcuts', ...groups]);
   });
 
+  it('names Space, which opens the preview panel', async () => {
+    renderPage('Dashboard', dashboard);
+
+    act(() => {
+      showKeys();
+    });
+
+    expect((await screen.findByRole('dialog', { name: 'Keyboard shortcuts' })).textContent).toContain('Preview the row beside the list');
+  });
+
   it('opens on showKeys and closes on Escape', async () => {
     renderPage('Dashboard', dashboard);
 

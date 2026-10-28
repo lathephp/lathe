@@ -39,6 +39,7 @@ export function KeysSheet({ onClose }: { onClose: () => void }) {
       name: __('Open'),
       rows: [
         [['Enter'], __('Open the row, on a cell that cannot be edited')],
+        [[__('Space')], __('Preview the row beside the list')],
         [['?'], __('Show this sheet')],
       ],
     },
