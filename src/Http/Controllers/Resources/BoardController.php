@@ -31,18 +31,43 @@ class BoardController
         $resource = $class::make();
         $columns = $this->columns($payload, $request, $class);
         $value = $this->column($request, $columns);
-        $page = $request->query('page');
-
-        if ($page !== null && (! is_string($page) || ! ctype_digit($page) || (int) $page < 1)) {
-            throw ValidationException::withMessages(['page' => 'The page must be a whole number of 1 or more.']);
-        }
-
-        $models = (new ResourceQuery($resource, $request))->columnRows($columns['attribute'], $value, self::PAGE_SIZE, $page === null ? 1 : (int) $page);
+        $models = (new ResourceQuery($resource, $request))->columnRows($columns['attribute'], $value, self::PAGE_SIZE, $this->offset($request, $resource));
 
         return new JsonResponse([
             'rows' => $payload->rows($class, $resource, $models->take(self::PAGE_SIZE), $payload->columns($resource), new ActionMenu($request, $authorization)),
             'hasMore' => $models->count() > self::PAGE_SIZE,
         ]);
+    }
+
+    /**
+     * Where the page starts: ?offset, the cards the Board already holds, so a card that left the column
+     * skips none; else ?page. Either stops at the count cap, as the list's pages do.
+     */
+    protected function offset(LatheRequest $request, Resource $resource): int
+    {
+        $cap = $resource->definition()->getCountCap();
+        $offset = $request->query('offset');
+        $page = $request->query('page');
+
+        if ($offset !== null) {
+            if (! is_string($offset) || ! ctype_digit($offset)) {
+                throw ValidationException::withMessages(['offset' => 'The offset must be a whole number of 0 or more.']);
+            }
+
+            $start = strlen($offset) > 9 ? $cap : (int) $offset;
+        } else {
+            if ($page !== null && (! is_string($page) || ! ctype_digit($page) || (int) $page < 1)) {
+                throw ValidationException::withMessages(['page' => 'The page must be a whole number of 1 or more.']);
+            }
+
+            $start = $page !== null && strlen($page) > 9 ? $cap : ((int) ($page ?? 1) - 1) * self::PAGE_SIZE;
+        }
+
+        if ($start >= $cap) {
+            throw ValidationException::withMessages([$offset !== null ? 'offset' : 'page' => 'Narrow the filters']);
+        }
+
+        return $start;
     }
 
     /**

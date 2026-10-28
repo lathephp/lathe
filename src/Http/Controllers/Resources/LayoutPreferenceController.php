@@ -21,6 +21,9 @@ class LayoutPreferenceController
     {
         $class = $this->viewableResource($request, $authorization);
 
+        // Only a list with a Board has a layout to choose.
+        abort_if($class::make()->definition()->getBoard() === null, 404);
+
         $data = Validator::make($request->all(), ['layout' => ['required', 'string', Rule::in(LayoutChoice::LAYOUTS)]])->validate();
 
         UserPreference::updateOrCreate(

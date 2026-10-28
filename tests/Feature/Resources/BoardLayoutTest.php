@@ -62,3 +62,9 @@ it('reads the saved columns, preview panel and layout in one query', function ()
 
     expect(collect(DB::getQueryLog())->filter(fn (array $query) => str_contains($query['query'], 'lathe_user_preferences')))->toHaveCount(1);
 });
+
+it('saves no layout for a Resource without a board', function () {
+    $this->putJson('/lathe/api/resources/products/layout', ['layout' => 'board'])->assertNotFound();
+
+    expect(UserPreference::where('key', 'layout:products')->exists())->toBeFalse();
+});

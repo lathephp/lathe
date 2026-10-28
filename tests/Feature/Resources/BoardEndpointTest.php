@@ -1,5 +1,6 @@
 <?php
 
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 use Lathe\Field\Field;
@@ -51,6 +52,10 @@ function thirtyPending(): void
         Order::forceCreate(['customer_id' => 1, 'number' => sprintf('BRD-%04d', $i), 'status' => 'pending', 'total_cents' => (($i * 37) % 101 + 1) * 100, 'placed_at' => now()]);
     }
 }
+
+afterEach(function () {
+    Model::preventLazyLoading(false);
+});
 
 beforeEach(function () {
     $this->artisan('migrate')->assertSuccessful();
@@ -146,20 +151,41 @@ it('refuses what the board cannot serve', function (string $path, int $status) {
     'unknown column on a nullable board' => ['board-nullable-customers/board?column=FR', 422],
     'page zero' => ['orders/board?column=pending&page=0', 422],
     'page not a number' => ['orders/board?column=pending&page=abc', 422],
+    'page too large for a number' => ['orders/board?column=pending&page=99999999999999999999', 422],
+    'page past the count cap' => ['orders/board?column=pending&page=401', 422],
+    'offset below zero' => ['orders/board?column=pending&offset=-1', 422],
+    'offset past the count cap' => ['orders/board?column=pending&offset=10000', 422],
     'resource without a board' => ['products/board?column=pending', 404],
     'counts of a resource without a board' => ['products/board/counts', 404],
 ]);
 
-it('runs the same queries for page 1 and page 4 of a column of 100 cards or more', function () {
-    foreach (range(1, 110) as $i) {
+it('runs the same queries for a column of 1 card and a column of 25, none per card', function () {
+    Order::query()->update(['status' => 'shipped']);
+    Order::forceCreate(['customer_id' => 1, 'number' => 'BRD-ONE', 'status' => 'cancelled', 'total_cents' => 100, 'placed_at' => now()]);
+
+    foreach (range(1, 25) as $i) {
         Order::forceCreate(['customer_id' => $i, 'number' => sprintf('BRD-%04d', $i), 'status' => 'pending', 'total_cents' => 100, 'placed_at' => now()]);
     }
     $this->getJson('/lathe/api/resources/orders/board?column=pending')->assertOk();
+    Model::preventLazyLoading();
 
-    $one = boardSqlDuring(fn () => $this->getJson('/lathe/api/resources/orders/board?column=pending&page=1')->assertOk());
-    $four = boardSqlDuring(fn () => $this->getJson('/lathe/api/resources/orders/board?column=pending&page=4')->assertOk());
+    $one = boardSqlDuring(fn () => expect($this->getJson('/lathe/api/resources/orders/board?column=cancelled')->assertOk()->json('rows'))->toHaveCount(1));
+    $many = boardSqlDuring(fn () => expect($this->getJson('/lathe/api/resources/orders/board?column=pending')->assertOk()->json('rows'))->toHaveCount(25));
 
-    expect(count($four))->toBe(count($one));
+    expect(count($many))->toBe(count($one));
+});
+
+it('starts a page at the offset the Board asks for, so a card that left the column skips none', function () {
+    thirtyPending();
+    $all = array_column(array_merge(
+        $this->getJson('/lathe/api/resources/orders/board?column=pending')->assertOk()->json('rows'),
+        $this->getJson('/lathe/api/resources/orders/board?column=pending&page=2')->assertOk()->json('rows'),
+    ), 'id');
+
+    $rest = $this->getJson('/lathe/api/resources/orders/board?column=pending&offset=24')->assertOk()->json();
+
+    expect(array_column($rest['rows'], 'id'))->toBe(array_slice($all, 24))
+        ->and($rest['hasMore'])->toBeFalse();
 });
 
 it('gives each card the abilities and the stale-edit token of a table row', function () {

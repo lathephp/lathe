@@ -241,17 +241,17 @@ class ResourceQuery
 
     /**
      * One page of a Board column, in the list's sort: the scoped query narrowed to the rows whose
-     * $attribute is $value, or null for the No value column. Returns $limit + 1 rows at most, the
-     * extra one telling the caller that another page exists.
+     * $attribute is $value, or null for the No value column, from row $offset. Returns $limit + 1 rows
+     * at most, the extra one telling the caller that another page exists.
      *
      * @return Collection<int, Model>
      */
-    public function columnRows(string $attribute, ?string $value, int $limit, int $page): Collection
+    public function columnRows(string $attribute, ?string $value, int $limit, int $offset): Collection
     {
         $query = $this->inColumn($this->scoped(), $attribute, $value);
 
         return $this->applySort($query->with($this->resource->with())->with($this->recordRelations(FieldContext::Index)))
-            ->offset(($page - 1) * $limit)
+            ->offset($offset)
             ->limit($limit + 1)
             ->get();
     }

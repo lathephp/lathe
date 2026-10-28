@@ -2498,6 +2498,7 @@ Lathe\Http\Controllers\Resources\BoardController::column(Lathe\Http\Requests\Lat
 Lathe\Http\Controllers\Resources\BoardController::columns(Lathe\Http\Payloads\IndexPayload $payload, Lathe\Http\Requests\LatheRequest $request, string $class): array  [protected]
 Lathe\Http\Controllers\Resources\BoardController::counts(Lathe\Http\Requests\LatheRequest $request, Lathe\Auth\ResourceAuthorization $authorization, Lathe\Http\Payloads\IndexPayload $payload): Illuminate\Http\JsonResponse
 Lathe\Http\Controllers\Resources\BoardController::index(Lathe\Http\Requests\LatheRequest $request, Lathe\Auth\ResourceAuthorization $authorization, Lathe\Http\Payloads\IndexPayload $payload): Illuminate\Http\JsonResponse
+Lathe\Http\Controllers\Resources\BoardController::offset(Lathe\Http\Requests\LatheRequest $request, Lathe\Resources\Resource $resource): int  [protected]
 Lathe\Http\Controllers\Resources\ColumnPreferenceController::destroy(Lathe\Http\Requests\LatheRequest $request, Lathe\Auth\ResourceAuthorization $authorization): Illuminate\Http\Response
 Lathe\Http\Controllers\Resources\ColumnPreferenceController::update(Lathe\Http\Requests\LatheRequest $request, Lathe\Auth\ResourceAuthorization $authorization, Lathe\Http\Payloads\IndexPayload $payload): Illuminate\Http\JsonResponse
 Lathe\Http\Controllers\Resources\CountController::__invoke(Lathe\Http\Requests\LatheRequest $request, Lathe\Auth\ResourceAuthorization $authorization, Lathe\Http\Payloads\IndexPayload $payload): Illuminate\Http\JsonResponse
@@ -3297,7 +3298,7 @@ Lathe\Query\ResourceQuery::bool $lensOrdered  [protected]
 Lathe\Query\ResourceQuery::cappedCount(int $cap, ?Illuminate\Database\Eloquent\Builder $counted = NULL): Lathe\Query\Count  [protected]
 Lathe\Query\ResourceQuery::change(Closure $change): static  [protected]
 Lathe\Query\ResourceQuery::columnCount(string $attribute, ?string $value): Lathe\Query\Count
-Lathe\Query\ResourceQuery::columnRows(string $attribute, ?string $value, int $limit, int $page): Illuminate\Database\Eloquent\Collection
+Lathe\Query\ResourceQuery::columnRows(string $attribute, ?string $value, int $limit, int $offset): Illuminate\Database\Eloquent\Collection
 Lathe\Query\ResourceQuery::config(): Lathe\Support\ConfigStore  [protected]
 Lathe\Query\ResourceQuery::count(): ?Lathe\Query\Count
 Lathe\Query\ResourceQuery::coverColumn(): ?string  [protected]
