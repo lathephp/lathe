@@ -7,7 +7,7 @@ import { PreviewModal } from '../fields/relation/lazy';
 import { cn } from '../lib/cn';
 import { instantProps } from '../lib/instant';
 import { TableCell } from '../table/cells';
-import { useGrid } from '../table/useGrid';
+import { useGrid, type GridRowSelection } from '../table/useGrid';
 import type { SharedProps } from '../types';
 import { GroupHeaderRow } from './GroupHeaderRow';
 import { GroupSummaryRow } from './GroupSummaryRow';
@@ -16,7 +16,6 @@ import { ColumnPicker, TableSummaryRow } from './lazy';
 import { hasRowMenu, RowMenu } from './RowMenu';
 import { TableSummaryPlaceholder } from './TableSummaryPlaceholder';
 import type { ColumnPin, IndexProps, Row } from './types';
-import type { RowSelection } from './useRowSelection';
 
 // A row's height at each table density; a loading row takes the same.
 export const rowHeights = { compact: 'h-8', comfortable: 'h-10', spacious: 'h-14' };
@@ -44,7 +43,7 @@ const cursorCell = 'focus:outline-2 focus:-outline-offset-2 focus:outline-ring';
 interface ResourceTableProps extends Pick<IndexProps, 'resource' | 'table' | 'state'> {
   loading: boolean;
   /** Only the calls the table makes, so a plugin can hand in its own selection. */
-  selection: Pick<RowSelection, 'isSelected' | 'toggle' | 'toggleAll'> & Partial<Pick<RowSelection, 'clear'>>;
+  selection: GridRowSelection;
   /** The ?sort= of the URL, `-total_cents,placed_at`. */
   sort: string | undefined;
   onSort: (sort: string) => void;
@@ -122,39 +121,7 @@ export function ResourceTable({ resource, table, state, loading, selection, sort
   const grid = useRef<HTMLTableElement>(null);
   // The data rows in the order the grid counts them: a folded group's rows are not drawn.
   const shown = table.rows.filter((row) => row.group === undefined || !collapsed.includes(row.group.key));
-  // The row a Shift+click or a Shift+arrow selects from: the last one ticked or toggled with X.
-  const anchor = useRef<Row['id'] | undefined>(undefined);
-
-  function tick(id: Row['id'] | undefined, range: boolean) {
-    const from = shown.findIndex((row) => row.id === anchor.current);
-    const to = shown.findIndex((row) => row.id === id);
-
-    if (range && from !== -1) {
-      // Ticks the unticked rows of the range; toggleAll would untick a range already all ticked.
-      const ids = shown.slice(Math.min(from, to), Math.max(from, to) + 1).map((row) => row.id).filter((each) => !selection.isSelected(each));
-
-      if (ids.length > 0) {
-        selection.toggleAll(ids);
-      }
-    } else if (id !== undefined) {
-      anchor.current = id;
-      selection.toggle(id);
-    }
-  }
-
-  useGrid(grid, {
-    toggle: (row) => {
-      tick(shown[row]?.id, false);
-    },
-    extend: (from, to) => {
-      anchor.current ??= shown[from]?.id;
-      tick(shown[to]?.id, true);
-    },
-    clear: () => {
-      anchor.current = undefined;
-      selection.clear?.();
-    },
-  });
+  const tick = useGrid(grid, shown, selection);
   // Where each stuck column starts, measured from the header cells.
   const [offsets, setOffsets] = useState<number[]>([]);
   // Whether columns sit scrolled beneath the start block, and beyond the row menu at the end.

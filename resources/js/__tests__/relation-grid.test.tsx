@@ -1,6 +1,6 @@
 import { router } from '@inertiajs/react';
 import { queryClient } from '@lathephp/core';
-import { act, screen, waitFor } from '@testing-library/react';
+import { act, fireEvent, screen, waitFor } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import type { LayoutBlock } from '../fields/types';
 import { clearUndo } from '../index/undo';
@@ -134,5 +134,21 @@ describe("a customer's Orders table", () => {
     await editCell('Number', 'Enter', 1);
 
     expect(visit.mock.calls[0]?.[0]).toBe('/lathe/resources/orders/40');
+  });
+
+  it('selects rows with X and Shift+Down', async () => {
+    answer();
+    renderCustomer();
+    await screen.findByText('ORD-00041');
+
+    await editCell('Number', 'x');
+    await editCell('Number', 'ArrowDown');
+    act(() => {
+      cellOf('Number').focus();
+    });
+    fireEvent.keyDown(cellOf('Number'), { key: 'ArrowDown', shiftKey: true });
+
+    expect(screen.getByRole<HTMLInputElement>('checkbox', { name: 'Select ORD-00041' }).checked).toBe(true);
+    expect(screen.getByRole<HTMLInputElement>('checkbox', { name: 'Select ORD-00040' }).checked).toBe(true);
   });
 });

@@ -116,7 +116,6 @@ function PanelBody({ parent, field, bodyId, onToggle, tab }: RelationPanelProps 
   const actions = useRelationActions(parent.uriKey, parent.id, field.relationship);
   const selection = useRowSelection();
   const grid = useRef<HTMLTableElement>(null);
-  useGrid(grid);
   // Cells and tokens an inline save sent back, by related record, over the row the panel had loaded; a reload's newer row wins.
   const [saved, setSaved] = useState<Record<string, { over: RelationRow; cells: RelationRow['cells']; updatedAt: string | null | undefined }>>({});
   const index = useRelationIndex(parent.uriKey, parent.id, field.relationship, state);
@@ -139,6 +138,7 @@ function PanelBody({ parent, field, bodyId, onToggle, tab }: RelationPanelProps 
   const rowActions = canEditPivot || canDetach;
   const createHref = `${basePath}/resources/${field.resource}/new?via=${parent.uriKey}/${String(parent.id)}/${field.relationship}`;
   const ids = rows.map((row) => row.id);
+  const tick = useGrid(grid, rows, selection);
   const ticked = ids.filter((id) => selection.selected.has(id)).length;
   const count = field.withCount && data?.count != null ? countText(data.count) : null;
 
@@ -340,8 +340,8 @@ function PanelBody({ parent, field, bodyId, onToggle, tab }: RelationPanelProps 
                         aria-label={__('Select :title', { title: row.title })}
                         className="block size-4"
                         checked={selection.selected.has(row.id)}
-                        onChange={() => {
-                          selection.toggle(row.id);
+                        onChange={(event) => {
+                          tick(row.id, (event.nativeEvent as globalThis.MouseEvent).shiftKey);
                         }}
                       />
                     </td>
