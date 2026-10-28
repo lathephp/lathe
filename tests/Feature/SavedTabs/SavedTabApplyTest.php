@@ -112,7 +112,8 @@ it('applies what still validates and marks the tab stale', function () {
             'badgeType' => null,
             'showCount' => false,
             'stale' => true,
-            'filters' => ['status' => 'paid'],
+            // The workbench's Status takes a list, so the stored scalar comes back as one.
+            'filters' => ['status' => ['paid']],
         ]);
 });
 

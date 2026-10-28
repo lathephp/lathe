@@ -71,6 +71,13 @@ export interface AvailableFilter {
   scale?: number;
 }
 
+/** A filter as the index sends it, with its key and value kind in the filter bar. */
+export interface IndexFilter extends AvailableFilter {
+  /** The filter's key in the filter bar, as in status:paid. */
+  token: string;
+  kind: 'select' | 'multiple' | 'range' | 'date' | 'boolean' | 'relation' | 'text';
+}
+
 /** What the panel hands each filter control, keyed by the server's component name. */
 export interface FilterControlProps {
   filter: AvailableFilter;
@@ -143,7 +150,7 @@ export interface IndexProps {
   lenses?: LensEntry[];
   state: { page: number; perPage: number; hasMorePages: boolean; sort: string };
   filters?: {
-    available: AvailableFilter[];
+    available: IndexFilter[];
     applied: Record<string, unknown>;
     /** The option labels of the applied remote filters, by filter key then value; the URL holds only the values. */
     labels?: Record<string, Record<string, string> | undefined>;

@@ -61,7 +61,7 @@ it('creates, lists, renames and deletes a saved tab', function () {
 
     expect($created)->toMatchArray([
         'name' => 'Paid',
-        'filters' => ['status' => 'paid'],
+        'filters' => ['status' => ['paid']],
         'q' => null,
         'sort' => null,
         'trashed' => null,

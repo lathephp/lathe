@@ -7,6 +7,7 @@ All notable changes to Lathe are listed here. The format follows [Keep a Changel
 ### Added
 
 - `php artisan lathe:preset copper` writes the copper colours of 1.0.0-beta.4 and the `0.625rem` radius into `config/lathe.php`, with no request, for an app that wants its old look back. A bare `lathe:preset` lists it.
+- [api] Each filter in the index payload's `filters.available` carries `token`, its key in the filter bar, and `kind`, the value that key takes: `select`, `multiple`, `range`, `date`, `boolean`, `relation` (a remote picker) or `text`. The token is the filter's `key()`, except that a `filterable()` field's filter goes by its label in snake case (`total` for Total) unless that clashes with another filter's key.
 - [api] A select opts into a status meter with `meter(except: [...])`. The payload carries the tick values as `meter`, and a meter with fewer than 2 or more than 5 ticks throws a `LogicException` naming the field when `fields()` builds.
 
 ### Changed

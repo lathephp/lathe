@@ -2682,6 +2682,7 @@ Lathe\Http\Payloads\IndexPayload::savedTabs(Lathe\Resources\Resource $resource, 
 Lathe\Http\Payloads\IndexPayload::summaries(string $class): ?array
 Lathe\Http\Payloads\IndexPayload::tabCounts(string $class): array
 Lathe\Http\Payloads\IndexPayload::visibleLenses(string $class): array
+Lathe\Http\Payloads\IndexPayload::withTokens(array $available, array $definitions): array  [protected]
 Lathe\Http\Payloads\RecordPayload::ABILITIES
 Lathe\Http\Payloads\RecordPayload::Lathe\Auth\ResourceAuthorization $authorization  [protected]
 Lathe\Http\Payloads\RecordPayload::Lathe\Http\Requests\LatheRequest $request  [protected]

@@ -10,6 +10,8 @@ use Lathe\Filters\RangeFilter;
 use Lathe\Http\Requests\LatheRequest;
 use Lathe\Lathe;
 use Lathe\Resources\ResourceDefinition;
+use Workbench\App\Lathe\Filters\OrderCustomer;
+use Workbench\App\Lathe\Filters\OrderStatus;
 use Workbench\App\Lathe\Resources\Order as OrderResource;
 use Workbench\App\Models\Order;
 use Workbench\App\Models\User;
@@ -103,8 +105,10 @@ class FilteredOrder extends OrderResource
 
     public function filters(LatheRequest $request): array
     {
+        // Status as a single select, which the workbench's Orders widens to a list.
         return [
-            ...parent::filters($request),
+            new OrderStatus,
+            new OrderCustomer,
             (new FilterTestTag)->multiple(),
             new FilterTestTotal,
             new FilterTestPlaced,
@@ -150,7 +154,7 @@ it('shows only pending orders for filter[status]=pending, on the API and the pag
         ->assertInertia(fn (AssertableInertia $page) => $page
             ->component('Resources/Index', shouldExist: false)
             ->where('table.rows', fn ($pageRows) => array_column($pageRows->all(), 'id') === array_column($rows, 'id'))
-            ->where('filters.applied', ['status' => 'pending'])
+            ->where('filters.applied', ['status' => ['pending']])
             ->has('filters.available', 3));
 });
 
@@ -213,7 +217,7 @@ it('drops a removed filter key from a page link and names it in staleFilters', f
         ->assertInertia(fn (AssertableInertia $page) => $page
             ->component('Resources/Index', shouldExist: false)
             ->where('staleFilters', ['gone'])
-            ->where('filters.applied', ['status' => 'pending'])
+            ->where('filters.applied', ['status' => ['pending']])
             ->where('table.rows', fn ($rows) => array_column($rows->all(), 'id') === array_column($unfiltered, 'id')));
 
     $this->getJson('/lathe/api/resources/orders?filter[gone]=1')
@@ -229,7 +233,7 @@ it('lists Status with four inline options and Customer as a remote picker', func
             [
                 'key' => 'status',
                 'name' => 'Status',
-                'component' => 'select-filter',
+                'component' => 'multi-select-filter',
                 'options' => [
                     ['label' => 'Pending', 'value' => 'pending'],
                     ['label' => 'Paid', 'value' => 'paid'],
@@ -240,6 +244,8 @@ it('lists Status with four inline options and Customer as a remote picker', func
                 'immediate' => false,
                 'placement' => 'panel',
                 'default' => null,
+                'token' => 'status',
+                'kind' => 'multiple',
             ],
             [
                 'key' => 'customer',
@@ -250,6 +256,8 @@ it('lists Status with four inline options and Customer as a remote picker', func
                 'immediate' => false,
                 'placement' => 'panel',
                 'default' => null,
+                'token' => 'customer',
+                'kind' => 'relation',
             ],
             [
                 'key' => 'field_total_cents',
@@ -262,6 +270,8 @@ it('lists Status with four inline options and Customer as a remote picker', func
                 'default' => null,
                 // The column holds cents and shows amounts, so the inputs take amounts.
                 'scale' => 100,
+                'token' => 'total',
+                'kind' => 'range',
             ],
         ]);
 });

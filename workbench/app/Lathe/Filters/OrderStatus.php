@@ -25,6 +25,6 @@ class OrderStatus extends Filter
 
     public function apply(LatheRequest $request, Builder $query, mixed $value): Builder
     {
-        return $query->where($query->qualifyColumn('status'), $value);
+        return $query->whereIn($query->qualifyColumn('status'), (array) $value);
     }
 }

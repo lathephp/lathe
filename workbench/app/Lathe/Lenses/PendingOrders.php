@@ -40,6 +40,6 @@ class PendingOrders extends Lens
 
     public function filters(LatheRequest $request): array
     {
-        return [new OrderStatus, new OrderCustomer];
+        return [(new OrderStatus)->multiple(), new OrderCustomer];
     }
 }

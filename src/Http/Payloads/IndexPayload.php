@@ -5,6 +5,7 @@ namespace Lathe\Http\Payloads;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
 use Lathe\Actions\ActionMenu;
 use Lathe\Auth\Impersonation;
 use Lathe\Auth\ResourceAuthorization;
@@ -87,7 +88,7 @@ class IndexPayload
         }
         $threshold = $resource->definition()->getFilterRemoteThreshold();
         $filters = $this->request->query('filter');
-        $definitions = array_map(fn (Filter $filter) => $filter->definition($this->request, $threshold), $available);
+        $definitions = $this->withTokens($available, array_map(fn (Filter $filter) => $filter->definition($this->request, $threshold), $available));
         $applied = (new FilterApplicator($resource, $lens !== null ? $available : null))->values($this->request, is_array($filters) ? $filters : []);
         $active = $query->activeGroup();
         $group = $active['group'] ?? null;
@@ -155,6 +156,37 @@ class IndexPayload
             : $resource->fieldsFor(FieldContext::Index, $this->request);
 
         return array_values($fields->forContext(FieldContext::Index, $this->request)->authorized($this->request)->all());
+    }
+
+    /**
+     * Each filter's key in the filter bar and the kind of value it takes. A field filter goes by its label in snake
+     * case (Total gives total) unless that is another filter's key or another field's label; then by its own key.
+     *
+     * @param  list<Filter>  $available
+     * @param  list<array<string, mixed>>  $definitions
+     * @return list<array<string, mixed>>
+     */
+    protected function withTokens(array $available, array $definitions): array
+    {
+        $keys = array_map(fn (Filter $filter) => $filter->key(), $available);
+        $labels = array_map(fn (Filter $filter) => str_starts_with($filter->key(), 'field_') ? Str::snake($filter->name()) : null, $available);
+        $taken = array_count_values([...$keys, ...array_filter($labels)]);
+
+        foreach ($definitions as $index => $definition) {
+            $label = $labels[$index];
+            $definitions[$index]['token'] = $label !== null && $taken[$label] === 1 ? $label : $keys[$index];
+            $definitions[$index]['kind'] = match (true) {
+                $definition['remote'] === true => 'relation',
+                $definition['component'] === 'range-filter' => 'range',
+                $definition['component'] === 'date-filter' => 'date',
+                $definition['component'] === 'boolean-filter' => 'boolean',
+                $definition['component'] === 'multi-select-filter' => 'multiple',
+                $definition['component'] === 'select-filter' && $definition['options'] !== [] => 'select',
+                default => 'text',
+            };
+        }
+
+        return $definitions;
     }
 
     /**

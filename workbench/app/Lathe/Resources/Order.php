@@ -121,7 +121,7 @@ class Order extends Resource
 
     public function filters(LatheRequest $request): array
     {
-        return [new OrderStatus, new OrderCustomer];
+        return [(new OrderStatus)->multiple(), new OrderCustomer];
     }
 
     public function lenses(LatheRequest $request): array
