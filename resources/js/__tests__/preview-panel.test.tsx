@@ -288,3 +288,18 @@ describe('the openers of the old preview modal', () => {
   });
 });
 
+
+describe('the panel without the view ability', () => {
+  it('shows no fields when the preview request answers 403', async () => {
+    vi.spyOn(globalThis, 'fetch').mockImplementation((input) =>
+      Promise.resolve(urlOf(input).endsWith('/preview') ? new Response(JSON.stringify({ message: 'This action is unauthorized.' }), { status: 403 }) : new Response(null, { status: 204 })),
+    );
+    renderPage('Resources/Index', orders(), { url: '/lathe/resources/orders' });
+    firstCell().focus();
+    await press(' ');
+
+    expect(await within(await waitFor(() => panel())).findByText('You may not view this order.')).toBeTruthy();
+    expect(panel().querySelector('dl')).toBeNull();
+    expect(within(panel()).queryByRole('link', { name: 'Edit' })).toBeNull();
+  });
+});
