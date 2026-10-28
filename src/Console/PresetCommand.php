@@ -40,7 +40,7 @@ class PresetCommand extends Command
 
     private const array BASE_COLORS = ['neutral', 'stone', 'zinc', 'mauve', 'olive', 'mist', 'taupe'];
 
-    /** The colours of 1.0.0-beta.4, which painted every app copper before the neutral default. */
+    /** The colours of 1.0.0-beta.4, the copper default before the steel and layout blue one. */
     private const array COPPER = [
         'background' => ['light' => 'oklch(0.985 0.003 70)', 'dark' => 'oklch(0.165 0.006 60)'],
         'foreground' => ['light' => 'oklch(0.22 0.012 55)', 'dark' => 'oklch(0.95 0.004 70)'],
