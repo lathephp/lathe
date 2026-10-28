@@ -86,7 +86,7 @@ it('asks once per parameter with --interactive and locks the lyra radius', funct
 it('shows the theme and makes no request', function () {
     $this->artisan('lathe:preset', ['--show' => true])
         ->expectsOutputToContain('Style: nova')
-        ->expectsOutputToContain('Radius: 0.625rem')
+        ->expectsOutputToContain('Radius: 0.5rem')
         ->assertExitCode(0);
 
     Http::assertNothingSent();
