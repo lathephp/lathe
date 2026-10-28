@@ -19,6 +19,8 @@
     "ui:add": "pnpm dlx shadcn@4.21.0 add"
   },
   "dependencies": {
+    "@atlaskit/pragmatic-drag-and-drop": "4.0.0",
+    "@atlaskit/pragmatic-drag-and-drop-live-region": "2.1.0",
     "@inertiajs/react": "3.9.1",
     "@lathephp/core": "workspace:*",
     "@lathephp/ui": "workspace:*",
