@@ -57,6 +57,7 @@ Lathe's CI fails a change that breaks one of these budgets, on SQLite, MySQL, Ma
 
 - Sort and search on indexed columns. A search that "contains" a term cannot use an index; `lathe:doctor` warns about it on large tables.
 - Keep relation columns on the index to `belongsTo` fields; Lathe loads them in one query per relation.
+- Index a Board's field together with each column users sort by, such as `(status, total_cents)`: every Board column reads its cards and its capped count through that field.
 - Run a queue worker in production, so large bulk actions, exports and imports run in the background (see [Deployment](deployment.md)).
 
 ## What you see

@@ -285,6 +285,22 @@ return $definition
 
 A slot you leave out is picked from the index: the record's title, the first badge, the first number and the first relation. A key that is not an index column is ignored, and Lathe picks instead.
 
+### Board
+
+Call `board()` with the key of an index select field to let users see the list as a Board, one column of cards per option:
+
+```php
+return $definition
+    ->model(\App\Models\Order::class)
+    ->board('status');
+```
+
+A Table/Board switch then sits beside the filter bar. The columns are the field's options in the order you declared them, with a last No value column when the field is `nullable()`. Each column shows 25 cards in the list's sort, with Show more for the next 25, and a count capped like the list's. A card shows the same slots as a phone card, so `phoneCard()` chooses its title, badge, value and meta. The Board follows the filter bar, the search and the open view, and Lathe remembers the layout each user chose per Resource; `?layout=board` in the URL opens the Board.
+
+Moving a card to another column, by dragging it, with Shift+Left or Shift+Right, or with the card's Move to menu, saves the field as its inline edit does: the user needs the `update` and `inlineEdit` abilities, the stale check applies, and Ctrl/Cmd+Z undoes the move. The field must be an `inline()` select with at most 12 options of its own; any other field stops the Resource from booting with a `LogicException` that names it. A lens and a phone show no Board.
+
+Each column runs one query for its cards and one capped count, both with your filters, so index the board field together with the columns users sort by, for example `$table->index(['status', 'total_cents'])`.
+
 ### Soft deletes, saved tabs and borders
 
 - Lathe detects the `SoftDeletes` trait on the model and adds a filter for trashed rows. Call `softDeletes(false)` to turn that off.
