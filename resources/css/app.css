@@ -828,6 +828,12 @@
     @apply tabular-nums;
   }
 
+  /* The editor's remove control is a kit button, which the toolbar's ghost rule would make 30 px tall;
+     both paints draw the same 20 px square. */
+  .lathe-toolbar:not([data-selecting]) .lathe-bar-box [data-slot="combobox-chip-remove"] {
+    @apply grid size-5 place-items-center rounded-[4px] border-0 bg-transparent px-0 text-muted-foreground shadow-none hover:bg-transparent hover:text-foreground;
+  }
+
   /* A chip that cannot apply: its reason in the danger tone. */
   .lathe-bar-box > [data-slot="combobox-chip"][data-error] {
     @apply bg-destructive-subtle text-destructive-subtle-foreground;

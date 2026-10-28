@@ -68,7 +68,8 @@ export function IndexToolbar({ resource, lens, q, visit, polling, selection, cou
           )}
         </div>
       ) : (
-        <div className="flex flex-wrap items-center gap-1">
+        // Grows into the row's free space, so the filter bar has room for its chips.
+        <div className="flex min-w-0 flex-1 flex-wrap items-center gap-1">
           {views}
           {(resource.searchable || resource.softDeletes || (page.props.filters?.available.length ?? 0) > 0) && <FilterBar q={q} visit={visit} />}
           <GroupMenu visit={visit} />
