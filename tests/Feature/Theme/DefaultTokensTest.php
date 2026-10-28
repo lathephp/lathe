@@ -69,3 +69,14 @@ it('defines the radius steps as variables, since the styles read var(--radius-md
         'radius-xl' => 'calc(var(--radius) + 4px)',
     ]);
 });
+
+it('keeps no copper value of 1.0.0-beta.4 in any default token that is not a plain white or black', function (string $block) {
+    // The beta.4 blocks, kept for lathe:preset copper; a neutral white such as oklch(1 0 0) may match by chance.
+    $copper = (string) file_get_contents(dirname(__DIR__, 2).'/Fixtures/copper-beta4.css');
+    preg_match_all('/--([\w-]+):\s*(oklch\([^)]*\));/', $copper, $matches);
+    $copperValues = array_diff(array_unique($matches[2]), ['oklch(1 0 0)']);
+
+    $left = array_filter(defaultTokens($block), fn (string $value) => in_array($value, $copperValues, true));
+
+    expect($left)->toBe([]);
+})->with('default blocks');
