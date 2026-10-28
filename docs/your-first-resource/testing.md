@@ -1,7 +1,7 @@
 ---
 title: Testing
 description: Test your panel from your own test suite with the Lathe test kit, the same one Lathe tests itself with.
-order: 7
+order: 8
 ---
 
 # Testing

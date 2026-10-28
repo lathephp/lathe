@@ -1,12 +1,12 @@
 ---
 title: Filters
 description: Write filters, register them on a Resource, and let fields generate filters for you.
-order: 2
+order: 4
 ---
 
 # Filters
 
-A filter narrows the rows of a Resource's table. The user picks a value in the filter panel, and Lathe applies the filter's `apply()` method to the query.
+A filter narrows the rows of a Resource's table. The user types a token such as `status:paid` in the [filter bar](filter-bar.md), and Lathe applies the filter's `apply()` method to the query.
 
 Before you write a filter class, check whether a [filterable field](#filterable-fields) covers the need. Most columns do not need custom code.
 
@@ -60,7 +60,7 @@ class UserType extends Filter
 
 Use `qualifyColumn()` so the filter still works when the Resource's `indexQuery()` joins another table.
 
-Call `multiple()` to let the user pick several options. `$value` is then a list.
+Call `multiple()` to let the user pick several options. `$value` is then a list. The filter bar needs it for a token such as `status:pending,paid`.
 
 ## Boolean filters
 
@@ -229,7 +229,7 @@ public function filters(LatheRequest $request): array
 
 ## Where and when a filter applies
 
-Filters apply when the user presses Apply in the panel. Call `immediate()` to apply each change at once. `placement()` chooses where the control shows: `toolbar`, `panel` (the default) or `inline`.
+On a Resource index and its lenses, the filter bar applies a filter when its chip is made, 300 ms after the last change. `immediate()` and `placement()` belong to the filter panel of a relation table. There the user presses Apply, unless the filter is `immediate()`, which applies each change at once. `placement()` chooses where the control shows: `toolbar`, `panel` (the default) or `inline`.
 
 ```php
 (new UserType)->immediate()->placement('toolbar')
@@ -305,7 +305,7 @@ public function filters(LatheRequest $request): array
 
 ## How filters reach the server
 
-The panel writes the filters into the URL in plain form, one parameter per filter key:
+The filter bar writes the filters into the URL in plain form, one parameter per filter key:
 
 ```text
 ?filter[status]=paid
@@ -356,4 +356,4 @@ The component receives the filter definition and the current `value`. It calls `
 
 ## What you see
 
-The index toolbar has a Filters button. It opens a panel with one control per filter, such as a dropdown, checkboxes, a date range or a minimum and maximum. After you press Apply, the table shows only the matching rows and the address bar carries the choice, for example `?filter[status]=paid`. Reload the page and the same rows return.
+Click the filter bar above the index table and a list of the Resource's filters opens. Choose Status, then a value, and a chip reads "Status: Paid". The table shows only the matching rows and the address bar carries the choice, for example `?filter[status]=paid`. Reload the page and the same chip and rows return. A relation table keeps a filter panel with one control per filter, such as a dropdown, checkboxes, a date range or a minimum and maximum.

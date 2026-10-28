@@ -1,7 +1,7 @@
 ---
 title: Row grouping
 description: Group the rows of a Resource's table under headers, with a subtotal row for each group.
-order: 5
+order: 7
 ---
 
 # Row grouping

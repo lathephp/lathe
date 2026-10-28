@@ -1,7 +1,7 @@
 ---
 title: Lenses
 description: Give a Resource alternate views with their own query, columns, filters, search and widgets.
-order: 3
+order: 5
 ---
 
 # Lenses
@@ -69,7 +69,7 @@ public function lenses(LatheRequest $request): array
 }
 ```
 
-The index toolbar gets a lens switcher. Each lens opens at `/lathe/resources/{resource}/lens/{lens}`. To link a lens from the sidebar, use `MenuItem::lens('users', 'most-valuable-users')`. See [Menus](../organizing/menus.md).
+The views rail lists the lens. Each lens opens at `/lathe/resources/{resource}/lens/{lens}`. To link a lens from the sidebar, use `MenuItem::lens('users', 'most-valuable-users')`. See [Menus](../organizing/menus.md).
 
 ## Name and key
 
@@ -117,7 +117,7 @@ public static function countQuery(LatheRequest $request, Builder $query): Builde
 
 ## Search
 
-A lens can have its own search box. The `#[Search]` attribute lists the columns. It takes one array:
+A lens can have its own search, which the filter bar uses. The `#[Search]` attribute lists the columns. It takes one array:
 
 ```php
 use Lathe\Attributes\Lens\Search;
@@ -220,4 +220,4 @@ A policy can also decide with a `viewLens` method that receives the user and the
 
 ## What you see
 
-The index toolbar has a lens switcher next to the Resource view. Choosing a lens opens its table at the lens address, with its own columns, filters, search box and cards. Sorting, filtering and paging work as on the index, and the rows are always a subset of what the index shows.
+The views rail lists the lenses below the Resource's tabs and saved views, and shows no count for them. Below 1100 px it folds into the Views menu. Choosing a lens opens its table at the lens address, with its own columns, its own [filter bar](filter-bar.md) and cards, and the same [workspace](workspace.md) keys. Sorting, filtering and paging work as on the index, and the rows are always a subset of what the index shows.

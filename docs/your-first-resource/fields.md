@@ -29,7 +29,7 @@ Every field is built by a static factory on `Field`. The first argument is the l
 
 ## Where a field shows
 
-A field shows in six places: the index, the detail page, the create form, the update form, the preview panel and the peek popover. Each has a pair of methods that take a boolean or a closure. The preview panel shows the detail fields without the relation lists, plus any field marked `showOnPreview()` or `onlyOnPreview()`, less those marked `hideFromPreview()`.
+A field shows in six places: the index, the detail page, the create form, the update form, the preview panel and the peek popover. Each has a pair of methods that take a boolean or a closure. The [preview panel](../querying/preview-panel.md) shows the detail fields without the relation lists, plus any field marked `showOnPreview()` or `onlyOnPreview()`, less those marked `hideFromPreview()`.
 
 ```php
 Field::text('Notes')->hideFromIndex();
@@ -239,7 +239,7 @@ Field::timezone();
 
 `displayUsingLabels()` shows the label instead of the value. `searchable()` adds a search box. The submitted value must be one of the options. `Field::country()` stores the two-letter ISO code and needs the `intl` extension.
 
-`meter(except: [...])` shows a select as a status meter. Its options in declared order, minus those in `except`, are the ticks. A value fills the ticks up to its place, and a value in `except` shows every tick empty. A meter needs 2 to 5 ticks and inline options, or `fields()` throws a `LogicException` that names the field. A select without `meter()` keeps the badge.
+`meter(except: [...])` shows a select as a status meter. Its options in declared order, minus those in `except`, are the ticks. A value fills the ticks up to its place, and a value in `except` shows every tick empty. A meter needs 2 to 5 ticks and inline options, or `fields()` throws a `LogicException` that names the field. A select without `meter()` keeps the badge. See [Status meters](status-meters.md).
 
 ```php
 Field::select('Status')->options(['pending', 'paid', 'shipped', 'cancelled'])->meter(except: ['cancelled']);

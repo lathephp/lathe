@@ -1,7 +1,7 @@
 ---
 title: Saved tabs
 description: Let each user save a table's filters, search and sort as a named tab they can return to.
-order: 4
+order: 6
 ---
 
 # Saved tabs
@@ -63,7 +63,7 @@ A tab can show how many rows match its filters and search. Lathe counts when the
 
 ## Order
 
-The user drags a tab by its handle to reorder tabs. Alt+Left and Alt+Right move a focused tab with the keyboard. Lathe saves the order and uses it on the next visit.
+The user drags a view in the rail to reorder views. Alt+Up and Alt+Down move a focused view with the keyboard. Lathe saves the order and uses it on the next visit.
 
 ## Limit
 
@@ -89,4 +89,4 @@ When the fingerprint no longer matches, Lathe applies the parts that are still v
 
 ## What you see
 
-On a Resource that opted in, the tab bar above the table offers a way to save the current view. Name it, choose whether to show a count and pick a badge colour, and a new tab appears beside the others. Click it and the table returns to the saved filters, search and sort. Drag the tab to move it. Delete or rename it from its menu.
+On a Resource that opted in, the views rail at the table's left offers Save view for the current filters, search and sort. Name it, choose whether to show a count and pick a badge colour, and a new view appears in the rail after the tabs you define. Click it and the table returns to the saved filters, search and sort, drawn as chips in the [filter bar](filter-bar.md). Drag the view to move it. Delete or rename it from its menu.

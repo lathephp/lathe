@@ -272,7 +272,7 @@ Field::tag('Tags', 'tags', Tag::class)
 ```
 
 - `displayAsList()` stacks the tags. `displayAsGroup()` puts them in a row, which is the default.
-- `withPreview()` opens the related record's preview when the user clicks a tag.
+- `withPreview()` opens the related record in the [preview panel](../querying/preview-panel.md) over the page when the user clicks a tag.
 - `preload()` loads every tag when the form opens. It applies only when the related table has at most 100 rows. Larger tables use the search picker.
 
 A `tag` field has no pivot fields. Use `belongsToMany` when you need them.

@@ -199,7 +199,7 @@ class Post extends Resource
 
 ### Click action
 
-A click on a row opens the detail page. Change that with `ClickAction`, or `->clickAction()` in the definition:
+A click on a cell moves the cursor there, and does not open the row. `clickAction` names what Enter does on a cell that cannot be edited, and what a click on the title cell does. By default both open the detail page. Change that with `ClickAction`, or `->clickAction()` in the definition. See [Workspace](../querying/workspace.md) for the keys:
 
 ```php
 use Lathe\Enums\ClickAction;
@@ -209,7 +209,7 @@ return $definition
     ->clickAction(ClickAction::Preview);
 ```
 
-| Case | What a click does |
+| Case | What Enter and a click on the title cell do |
 |---|---|
 | `Detail` | Opens the detail page. This is the default. |
 | `Edit` | Opens the edit form. |
@@ -217,7 +217,7 @@ return $definition
 | `Preview` | Opens the row in the preview panel beside the list. |
 | `Ignore` | Does nothing. |
 
-Space on any list cell opens the same preview panel, whatever the click action. It shows the record's detail fields without its relation lists; override `fieldsForPreview()` to choose its fields instead. The same pattern works for `fieldsForIndex()`, `fieldsForDetail()`, `fieldsForCreate()`, `fieldsForUpdate()` and `fieldsForPeeking()`: each one takes a `LatheRequest` and returns a list of fields.
+Space on any list cell opens the same [preview panel](../querying/preview-panel.md), whatever the click action. It shows the record's detail fields without its relation lists; override `fieldsForPreview()` to choose its fields instead. The same pattern works for `fieldsForIndex()`, `fieldsForDetail()`, `fieldsForCreate()`, `fieldsForUpdate()` and `fieldsForPeeking()`: each one takes a `LatheRequest` and returns a list of fields.
 
 ### Pagination
 
@@ -231,7 +231,7 @@ return $definition->model(\App\Models\Post::class)->perPage([25, 50, 100]);
 
 ### Search
 
-`searchable()` names the columns the search box looks in. A plain string matches the start of the value. Pass a `SearchableColumn` object for another strategy, such as `SearchableRelation` to search a related model's column:
+`searchable()` names the columns the filter bar searches. A plain string matches the start of the value. Pass a `SearchableColumn` object for another strategy, such as `SearchableRelation` to search a related model's column:
 
 ```php
 use Lathe\Search\SearchableRelation;
@@ -287,17 +287,7 @@ A slot you leave out is picked from the index: the record's title, the first bad
 
 ### Board
 
-Call `board()` with the key of an index select field to let users see the list as a Board, one column of cards per option:
-
-```php
-return $definition
-    ->model(\App\Models\Order::class)
-    ->board('status');
-```
-
-A Table/Board switch then sits beside the filter bar. The columns are the field's options in the order you declared them, with a last No value column when the field is `nullable()`. Each column shows 25 cards in the list's sort, with Show more for the next 25, and a count capped like the list's. A card shows the same slots as a phone card, so `phoneCard()` chooses its title, badge, value and meta. The Board follows the filter bar, the search and the open view, and Lathe remembers the layout each user chose per Resource; `?layout=board` in the URL opens the Board.
-
-Moving a card to another column, by dragging it, with Shift+Left or Shift+Right, or with the card's Move to menu, saves the field as its inline edit does: the user needs the `update` and `inlineEdit` abilities, the stale check applies, and Ctrl/Cmd+Z undoes the move. The field must be an `inline()` select with at most 12 options of its own; any other field stops the Resource from booting with a `LogicException` that names it. A lens and a phone show no Board.
+`->board('status')` on the definition shows the list as a Board too, one column of cards per option of that index select field. The [Board page](../querying/board.md) covers the columns, moving a card and the rules for the field.
 
 Each column runs one query for its cards and one capped count, both with your filters, so index the board field together with the columns users sort by, for example `$table->index(['status', 'total_cents'])`.
 
@@ -454,4 +444,4 @@ These definition methods have no section above:
 
 ## What you see
 
-After you run `php artisan lathe:resource Post`, add the fields and open `/lathe`. The sidebar has a Posts entry in the group and with the icon you set. It opens an index table with the columns from `fields()`, a search box on the columns you named, and a Create button. A click on a row does what you chose in `clickAction()`.
+After you run `php artisan lathe:resource Post`, add the fields and open `/lathe`. The sidebar has a Posts entry in the group and with the icon you set. It opens an index table with the columns from `fields()`, a filter bar that searches the columns you named, and a Create button. Enter on a cell and a click on the title cell do what you chose in `clickAction()`.

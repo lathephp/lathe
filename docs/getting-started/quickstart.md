@@ -98,7 +98,7 @@ class Post extends Resource
 }
 ```
 
-`title('title')` names the column that stands for a post in links and pickers. `searchable()` turns on the search box. The [Fields](../your-first-resource/fields.md) page lists every field type.
+`title('title')` names the column that stands for a post in links and pickers. `searchable()` lets the filter bar search. The [Fields](../your-first-resource/fields.md) page lists every field type.
 
 ## Step 4: who may do what
 
@@ -141,4 +141,4 @@ Open `/lathe/resources/posts`. Press "Create post", fill the form and choose the
 
 ## What you see
 
-The sidebar lists Posts. The list shows each post's id, title, author, status and date, with a search box and sortable columns, and "Create post" opens a form with the author picker.
+The sidebar lists Posts. The list shows each post's id, title, author, status and date, with a filter bar and sortable columns, and "Create post" opens a form with the author picker.

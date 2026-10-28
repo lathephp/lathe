@@ -261,7 +261,7 @@ public function tabs(LatheRequest $request): array
 }
 ```
 
-The first tab is the default view. `withCount()` shows the row count as a badge, and `canSee()` hides a tab from some users. Users can also save their own views. See [Saved tabs](../querying/saved-tabs.md).
+The tabs list in the views rail of the index, above the user's saved views. The first tab is the default view. `withCount()` shows the row count as a badge, and `canSee()` hides a tab from some users. Users can also save their own views. See [Saved tabs](../querying/saved-tabs.md).
 
 ## Theme style
 

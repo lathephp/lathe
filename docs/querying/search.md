@@ -1,18 +1,18 @@
 ---
 title: Search
 description: Declare the columns a Resource searches, choose how each column matches, and add global search and search providers.
-order: 1
+order: 3
 ---
 
 # Search
 
-Lathe has two searches. The search box above a Resource's table filters that table. Global search, opened with <kbd>Ctrl</kbd>+<kbd>K</kbd> (<kbd>Cmd</kbd>+<kbd>K</kbd> on a Mac), looks across Resources and other sources from any page.
+Lathe has two searches. The [filter bar](filter-bar.md) above a Resource's table searches that table. Global search, opened with <kbd>Ctrl</kbd>+<kbd>K</kbd> (<kbd>Cmd</kbd>+<kbd>K</kbd> on a Mac), looks across Resources and other sources from any page.
 
 Both read the same declaration: the columns a Resource says it searches.
 
 ## Declare the searchable columns
 
-Call `searchable()` on the definition in `configure()`. The table shows its search box once a Resource declares at least one column, or uses Scout.
+Call `searchable()` on the definition in `configure()`. The filter bar searches once a Resource declares at least one column, or uses Scout.
 
 ```php
 use Lathe\Resources\Resource;
@@ -287,4 +287,4 @@ Scout returns at most 200 keys. Change the cap with `scoutSearchResults()` or `#
 
 ## What you see
 
-Above the table, a search box finds rows as you type, and a typed `%` matches only a literal percent sign. Press <kbd>/</kbd> to move focus to it. The palette opens with <kbd>Ctrl</kbd>+<kbd>K</kbd> and lists results in groups, one per Resource and one per provider, each with a title, a subtitle and an avatar. Pressing Enter opens the highlighted record. A term with no match shows a "No results" message.
+Above the table, the filter bar finds rows as you type plain words, and a typed `%` matches only a literal percent sign. Press <kbd>/</kbd> to move focus to it. The palette opens with <kbd>Ctrl</kbd>+<kbd>K</kbd> and lists results in groups, one per Resource and one per provider, each with a title, a subtitle and an avatar. Pressing Enter opens the highlighted record. A term with no match shows a "No results" message.
