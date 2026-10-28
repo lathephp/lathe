@@ -6,7 +6,7 @@ order: 6
 
 # Commands
 
-Every Lathe command starts with `lathe:`. Run `php artisan list lathe` to see them, and `php artisan help <command>` for the full signature. None of them calls the network except `lathe:preset`, which downloads a preset from ui.shadcn.com.
+Every Lathe command starts with `lathe:`. Run `php artisan list lathe` to see them, and `php artisan help <command>` for the full signature. None of them calls the network except `lathe:preset` with a shadcn preset code, which downloads the preset from ui.shadcn.com.
 
 ## Set up and check
 
@@ -43,7 +43,7 @@ Each generator writes from a stub. `lathe:stubs` publishes the stubs to `stubs/l
 |---|---|
 | `lathe:plugins` | Lists the registered plugins. `--diagnose` re-checks each plugin's requirements, version ranges and module manifest, and exits 1 on a gap. |
 | `lathe:assets` | Copies the scripts and styles that plugins register to the public folder. `--force` replaces copies that exist. |
-| `lathe:preset <preset>` | Applies a shadcn preset code (such as `a5ONTE`) to the theme keys of `config/lathe.php`. `--interactive` asks for each parameter, `--show` prints the current theme without changing it, `--reset` sets every colour override back to `null`. This is the only command that uses the network, and only in the terminal. |
+| `lathe:preset <preset>` | Applies a shadcn preset code (such as `a5ONTE`) to the theme keys of `config/lathe.php`. `copper` writes the 1.0.0-beta.4 colours and the `0.625rem` radius with no request. `--interactive` asks for each parameter, `--show` prints the current theme without changing it, `--reset` sets every colour override back to `null`. This is the only command that uses the network, and only for a shadcn code in the terminal. |
 | `lathe:translate <language>` | Copies the English catalogue to `lang/vendor/lathe/<language>.json` for translating. `--force` replaces an existing file. |
 
 ## Housekeeping

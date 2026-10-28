@@ -6,6 +6,7 @@ All notable changes to Lathe are listed here. The format follows [Keep a Changel
 
 ### Added
 
+- `php artisan lathe:preset copper` writes the copper colours of 1.0.0-beta.4 and the `0.625rem` radius into `config/lathe.php`, with no request, for an app that wants its old look back. A bare `lathe:preset` lists it.
 - [api] A select opts into a status meter with `meter(except: [...])`. The payload carries the tick values as `meter`, and a meter with fewer than 2 or more than 5 ticks throws a `LogicException` naming the field when `fields()` builds.
 
 ## [1.0.0-beta.4] - 2026-10-19

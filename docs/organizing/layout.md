@@ -374,7 +374,7 @@ A family with no files must be a system font stack.
 php artisan lathe:preset a5ONTE
 ```
 
-It sets the style, the radius, the font and the colours. Use `--interactive` to choose each part in turn. `--show` prints the current theme without changing it. `--reset` sets every colour to `null`. The command asks the shadcn website for the preset, so it needs a network connection. If the preset has a font, add its files to `theme.font.files`, or the panel uses the fallback stack.
+It sets the style, the radius, the font and the colours. `php artisan lathe:preset copper` is the exception: it writes the copper colours of 1.0.0-beta.4 and the `0.625rem` radius, keeps your style and font, and makes no request. Use `--interactive` to choose each part in turn. `--show` prints the current theme without changing it. `--reset` sets every colour to `null`. A shadcn preset code makes the command ask the shadcn website, so it needs a network connection. If the preset has a font, add its files to `theme.font.files`, or the panel uses the fallback stack.
 
 ## Sidebar, header and content
 
