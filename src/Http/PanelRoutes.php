@@ -50,6 +50,7 @@ use Lathe\Http\Controllers\Resources\HistoryController;
 use Lathe\Http\Controllers\Resources\IndexController;
 use Lathe\Http\Controllers\Resources\IndexPageController;
 use Lathe\Http\Controllers\Resources\InlineUpdateController;
+use Lathe\Http\Controllers\Resources\LayoutPreferenceController;
 use Lathe\Http\Controllers\Resources\LensActionController;
 use Lathe\Http\Controllers\Resources\LensController;
 use Lathe\Http\Controllers\Resources\PeekController;
@@ -189,6 +190,7 @@ class PanelRoutes
             $router->get('resources/{resource}/count', CountController::class)->name('resources.count');
             $router->get('resources/{resource}/filters', [FilterController::class, 'index'])->name('resources.filters');
             $router->get('resources/{resource}/filters/{filter}/options', [FilterController::class, 'options'])->name('resources.filters.options');
+            $router->put('resources/{resource}/layout', [LayoutPreferenceController::class, 'update'])->name('resources.layout');
             $router->get('resources/{resource}/saved-tabs', [SavedTabController::class, 'index'])->name('resources.savedTabs.index');
             $router->post('resources/{resource}/saved-tabs', [SavedTabController::class, 'store'])->name('resources.savedTabs.store');
             $router->put('resources/{resource}/saved-tabs/reorder', [SavedTabController::class, 'reorder'])->name('resources.savedTabs.reorder');

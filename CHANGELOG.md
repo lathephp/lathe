@@ -11,6 +11,7 @@ All notable changes to Lathe are listed here. The format follows [Keep a Changel
 - [api] Each saved tab in the index payload's `tabs.saved` carries its search as `q`, and `filters.labels` names the remote values of the saved view `?saved_tab=` opens, so the filter bar draws an open saved view's filters and search as its chips and text; changing one leaves the view and writes every chip to the URL.
 - [api] A select opts into a status meter with `meter(except: [...])`. The payload carries the tick values as `meter`, and a meter with fewer than 2 or more than 5 ticks throws a `LogicException` naming the field when `fields()` builds.
 - [api] `->board('<field>')` on a Resource's definition shows its list as a Board too, one column per option of that index field in declared order, plus a No value column when the field is nullable. The field must be an inline select with at most 12 inline options; anything else throws a `LogicException` naming the field when the Resource boots, and a subclass that drops the field calls `->board(null)`. The index payload carries `table.board`, `{field, noValue}`, or `null` on a lens, without a board, or when the user cannot see the field.
+- [api] A list with a board opens in the layout its URL names, `?layout=board` or `?layout=table`, else in the one the user chose last on that Resource, else as the table. `PUT .../resources/{resource}/layout` with `{layout}` saves the choice per user, and the index sends the layout it opened in as `table.layout`, always `table` on a lens or without a board.
 
 ### Changed
 

@@ -21,6 +21,7 @@ use Lathe\Groups\Group;
 use Lathe\Http\Requests\LatheRequest;
 use Lathe\Lenses\Lens;
 use Lathe\Preferences\ColumnChoice;
+use Lathe\Preferences\LayoutChoice;
 use Lathe\Preferences\PreviewState;
 use Lathe\Preferences\UserPreference;
 use Lathe\Query\ResourceQuery;
@@ -97,7 +98,8 @@ class IndexPayload
         $menu = new ActionMenu($this->request, $this->authorization);
         $rowActions = $menu->forRows($class);
         // A lens keeps its code columns: the saved choice is the Resource index's only.
-        ['choice' => $choice, 'previewOpen' => $previewOpen] = $this->savedPreferences($class, $fields, $lens === null);
+        ['choice' => $choice, 'previewOpen' => $previewOpen, 'layout' => $layout] = $this->savedPreferences($class, $fields, $lens === null);
+        $board = $lens !== null ? null : $this->board($resource, $fields);
 
         return [
             'resource' => $this->resource($class),
@@ -119,7 +121,9 @@ class IndexPayload
                 'previewOpen' => $previewOpen,
                 'allColumns' => $lens !== null ? [] : array_map(fn (Field $field) => ['key' => $field->key(), 'label' => $field->label()], $fields),
                 'phoneCard' => PhoneCard::pick($fields, $resource->definition()->getPhoneCard()),
-                'board' => $lens !== null ? null : $this->board($resource, $fields),
+                'board' => $board,
+                // The URL's layout, so a Board link opens the Board, else the one this user chose last.
+                'layout' => $board === null ? 'table' : $this->layout($layout),
             ],
             'groups' => $this->groups($resource, $active, $lens),
             'filters' => [
@@ -240,25 +244,43 @@ class IndexPayload
 
     /**
      * The signed-in user's saved columns of this index, aged against the code's columns, or null when they saved none,
-     * and whether their preview panel is open. One query reads both rows; a lens keeps its code columns, so it reads
-     * the panel row alone.
+     * whether their preview panel is open, and the layout they chose last. One query reads the rows; a lens keeps its
+     * code columns and has no Board, so it reads the panel row alone.
      *
      * @param  class-string<\Lathe\Resources\Resource>  $class
      * @param  list<Field>  $fields
-     * @return array{choice: array{order: list<string>, hidden: list<string>, pinned: list<string>}|null, previewOpen: bool}
+     * @return array{choice: array{order: list<string>, hidden: list<string>, pinned: list<string>}|null, previewOpen: bool, layout: string|null}
      */
     protected function savedPreferences(string $class, array $fields, bool $withColumns): array
     {
         $uriKey = $class::uriKey();
-        $keys = $withColumns ? [ColumnChoice::key($uriKey), PreviewState::key($uriKey)] : [PreviewState::key($uriKey)];
+        $keys = $withColumns ? [ColumnChoice::key($uriKey), PreviewState::key($uriKey), LayoutChoice::key($uriKey)] : [PreviewState::key($uriKey)];
         $rows = UserPreference::where('user_id', UserPreference::userId($this->request))->whereIn('key', $keys)->get()->keyBy('key');
         $columns = $rows->get(ColumnChoice::key($uriKey));
         $preview = $rows->get(PreviewState::key($uriKey));
+        $layout = $rows->get(LayoutChoice::key($uriKey))?->value['layout'] ?? null;
 
         return [
             'choice' => $withColumns && $columns !== null ? ColumnChoice::age(array_map(fn (Field $field) => $field->key(), $fields), $columns->value) : null,
             'previewOpen' => $preview !== null && ($preview->value['open'] ?? false) === true,
+            'layout' => is_string($layout) ? $layout : null,
         ];
+    }
+
+    /**
+     * The layout the list opens in: the URL's ?layout, else the saved one, else the table.
+     */
+    protected function layout(?string $saved): string
+    {
+        $asked = $this->request->query('layout');
+
+        foreach ([$asked, $saved] as $layout) {
+            if (is_string($layout) && in_array($layout, LayoutChoice::LAYOUTS, true)) {
+                return $layout;
+            }
+        }
+
+        return 'table';
     }
 
     /**

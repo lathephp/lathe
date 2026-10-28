@@ -2535,6 +2535,7 @@ Lathe\Http\Controllers\Resources\IndexController::__invoke(Lathe\Http\Requests\L
 Lathe\Http\Controllers\Resources\IndexPageController::__invoke(Lathe\Http\Requests\LatheRequest $request, Lathe\Auth\ResourceAuthorization $authorization, Lathe\Http\Payloads\IndexPayload $payload): Symfony\Component\HttpFoundation\Response
 Lathe\Http\Controllers\Resources\InlineUpdateController::__invoke(Lathe\Http\Requests\LatheRequest $request, Lathe\Auth\ResourceAuthorization $authorization, string $resource, string $resourceId, string $field): Illuminate\Http\JsonResponse
 Lathe\Http\Controllers\Resources\InlineUpdateController::save(Lathe\Http\Requests\LatheRequest $request, string $class, Illuminate\Database\Eloquent\Model $model, Lathe\Field\Field $field): void  [protected]
+Lathe\Http\Controllers\Resources\LayoutPreferenceController::update(Lathe\Http\Requests\LatheRequest $request, Lathe\Auth\ResourceAuthorization $authorization): Illuminate\Http\Response
 Lathe\Http\Controllers\Resources\LensActionController::actions(Lathe\Http\Requests\LatheRequest $request, Lathe\Auth\ResourceAuthorization $authorization): Illuminate\Http\JsonResponse
 Lathe\Http\Controllers\Resources\LensActionController::associatable(Lathe\Http\Requests\LatheRequest $request, Lathe\Auth\ResourceAuthorization $authorization): Illuminate\Http\JsonResponse
 Lathe\Http\Controllers\Resources\LensActionController::batchDelete(Lathe\Http\Requests\LatheRequest $request, Lathe\Auth\ResourceAuthorization $authorization): Illuminate\Http\JsonResponse
@@ -2673,6 +2674,7 @@ Lathe\Http\Payloads\IndexPayload::columns(Lathe\Resources\Resource $resource, ?L
 Lathe\Http\Payloads\IndexPayload::count(string $class, ?Lathe\Lenses\Lens $lens = NULL): ?array
 Lathe\Http\Payloads\IndexPayload::groups(Lathe\Resources\Resource $resource, ?array $active, ?Lathe\Lenses\Lens $lens): array  [protected]
 Lathe\Http\Payloads\IndexPayload::key(Illuminate\Database\Eloquent\Model $model): string|int
+Lathe\Http\Payloads\IndexPayload::layout(?string $saved): string  [protected]
 Lathe\Http\Payloads\IndexPayload::lensEntry(Lathe\Lenses\Lens $lens): array  [protected]
 Lathe\Http\Payloads\IndexPayload::openSavedFilters(Lathe\Resources\Resource $resource, ?Lathe\Lenses\Lens $lens): array  [protected]
 Lathe\Http\Payloads\IndexPayload::query(Lathe\Resources\Resource $resource, ?Lathe\Lenses\Lens $lens): Lathe\Query\ResourceQuery  [protected]
@@ -3218,6 +3220,8 @@ Lathe\Preferences\ColumnChoice::known(array $codeKeys, mixed $keys): array  [pro
 Lathe\Preferences\ColumnChoice::visible(array $codeKeys, ?array $choice): array  [static]
 Lathe\Preferences\DashboardLayout::age(array $saved, array $codeWidths): array  [static]
 Lathe\Preferences\DashboardLayout::key(string $uriKey): string  [static]
+Lathe\Preferences\LayoutChoice::LAYOUTS
+Lathe\Preferences\LayoutChoice::key(string $uriKey): string  [static]
 Lathe\Preferences\PreviewState::key(string $uriKey): string  [static]
 Lathe\Preferences\UserPreference::$fillable  [protected]
 Lathe\Preferences\UserPreference::$table  [protected]
@@ -4889,6 +4893,7 @@ class Lathe\Http\Controllers\Resources\HistoryController
 class Lathe\Http\Controllers\Resources\IndexController
 class Lathe\Http\Controllers\Resources\IndexPageController
 class Lathe\Http\Controllers\Resources\InlineUpdateController
+class Lathe\Http\Controllers\Resources\LayoutPreferenceController
 class Lathe\Http\Controllers\Resources\LensActionController
 class Lathe\Http\Controllers\Resources\LensController
 class Lathe\Http\Controllers\Resources\PeekController
@@ -4949,6 +4954,7 @@ class Lathe\Plugins\ResourcePlugin
 class Lathe\Plugins\ResourcePluginRegistry
 class Lathe\Preferences\ColumnChoice
 class Lathe\Preferences\DashboardLayout
+class Lathe\Preferences\LayoutChoice
 class Lathe\Preferences\PreviewState
 class Lathe\Preferences\UserPreference
 class Lathe\Query\Count
