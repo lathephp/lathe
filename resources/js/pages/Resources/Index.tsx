@@ -250,7 +250,7 @@ function IndexPage({ resource, table, state, count, error, lens, actions, widget
             </div>
           )}
           <Card aria-hidden="true" data-lathe-card="" className="overflow-hidden">
-            <div data-lathe-toolbar="" className={`${toolbarRow} justify-end`}>
+            <div data-lathe-toolbar="" className={toolbarRow}>
               <div className={`h-9 w-96 max-w-full ${skeletonBar}`} />
             </div>
             <div className="h-10 border-b border-border" />

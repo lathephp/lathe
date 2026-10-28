@@ -114,6 +114,8 @@ describe('an instant visit from the sidebar', () => {
     expect(document.querySelector('[data-lathe-header] h1')?.textContent).toBe('Products');
     expect(toolbar?.parentElement?.hasAttribute('data-lathe-card')).toBe(true);
     expect(toolbar?.className).toContain('lathe-toolbar');
+    // The filter bar opens the row at its start, so its placeholder does too.
+    expect(toolbar?.className).not.toContain('justify-end');
   });
 
   it('leaves out the views rail of an index without tabs', async () => {
