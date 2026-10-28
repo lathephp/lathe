@@ -45,7 +45,7 @@ export function urlChips(url: string, props: BarProps, __: Translator): FilterCh
   const view = Object.fromEntries(Object.entries(openView(props)?.filters ?? {}).map(([key, value]) => [key, urlShape(value)]));
   const chips: FilterChip[] = Object.entries({ ...view, ...activeFilters(url, staleFilters) }).map(([key, value]) => {
     const filter = filters?.available.find((candidate) => candidate.key === key);
-    const label = `${filter?.name ?? key}: ${chipValue(value, filter, filters?.labels?.[key])}`;
+    const label = `${filter?.name ?? key}: ${chipValue(value, filter, filters?.labels?.[key], __)}`;
 
     return { token: label, key, value, label };
   });

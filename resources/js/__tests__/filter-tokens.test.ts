@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { chipFromResults, parseToken, splitInput, toUrlState, type FilterChip } from '../index/filterTokens';
+import { chipFromResults, parseToken, splitInput, suggest, toUrlState, type FilterChip } from '../index/filterTokens';
 import type { IndexFilter } from '../index/types';
 
 const __ = (key: string, replace: Record<string, string | number> = {}) =>
@@ -275,5 +275,36 @@ describe('toUrlState', () => {
     expect(toUrlState([chipOf('status:paid'), chipOf('total:>1'), chipOf('status:shipped')])).toEqual({
       filter: { status: 'shipped', field_total_cents: { min: '100' } },
     });
+  });
+});
+
+describe('review cases', () => {
+  // A filterable belongsTo under the remote threshold sends its ids as numbers.
+  const author = { ...base, key: 'field_author', name: 'Author', token: 'author', kind: 'select', component: 'select-filter', options: [{ label: 'Ann', value: 3 }] } as unknown as IndexFilter;
+  const rating: IndexFilter = { ...base, key: 'rating', name: 'Rating', token: 'rating', kind: 'range', component: 'range-filter' };
+
+  it('takes an option whose value the server sent as a number', () => {
+    const parsed = parseToken('author:ann', [author], { softDeletes: false }, __);
+
+    expect('chip' in parsed && parsed.chip.value).toBe('3');
+    expect(() => suggest('author:', [author], { softDeletes: false }, __)).not.toThrow();
+  });
+
+  it('keeps the decimals of a range side at scale 1', () => {
+    const parsed = parseToken('rating:>4.5', [rating], { softDeletes: false }, __);
+
+    expect('chip' in parsed && parsed.chip.value).toEqual({ min: '4.5' });
+  });
+
+  it('reads a key with no value as a red chip, never as a search', () => {
+    expect(splitInput('status:')).toEqual({ tokens: ['status:'], words: '' });
+
+    const parsed = parseToken('status:', [status], { softDeletes: false }, __);
+
+    expect('chip' in parsed && parsed.chip.error).toBe('Status needs a value');
+  });
+
+  it('joins a key to the value after a space', () => {
+    expect(splitInput('status: pending ann')).toEqual({ tokens: ['status:pending'], words: 'ann' });
   });
 });

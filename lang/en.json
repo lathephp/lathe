@@ -28,6 +28,7 @@
     ":filter takes a number, >n, <n or a..b": ":filter takes a number, >n, <n or a..b",
     ":filter takes any text": ":filter takes any text",
     ":filter takes one value": ":filter takes one value",
+    ":filter needs a value": ":filter needs a value",
     ":filter takes yes or no": ":filter takes yes or no",
     ":from–:to": ":from–:to",
     ":from–:to of :count": ":from–:to of :count",

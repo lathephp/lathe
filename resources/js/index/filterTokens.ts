@@ -52,11 +52,33 @@ export function splitInput(text: string): { tokens: string[]; words: string } {
   const tokens: string[] = [];
   const words: string[] = [];
 
-  for (const piece of pieces(text)) {
-    (/^[^\s:"]+:./.test(piece) ? tokens : words).push(piece);
+  const found = pieces(text);
+
+  for (let index = 0; index < found.length; index++) {
+    const piece = found[index] ?? '';
+    const next = found[index + 1];
+    const isToken = (candidate: string) => /^[^\s:"]+:/.test(candidate);
+
+    // status: pending reads as status:pending; a key with nothing after it stays a token, so it shows as a red chip.
+    if (/^[^\s:"]+:$/.test(piece) && next !== undefined && !isToken(next)) {
+      tokens.push(piece + next);
+      index++;
+    } else {
+      (isToken(piece) ? tokens : words).push(piece);
+    }
   }
 
   return { tokens, words: words.join(' ') };
+}
+
+/** The filter with its option values as text, as the URL holds them: the server sends a record's id as a number. */
+function textValues(filter: IndexFilter | undefined): IndexFilter | undefined {
+  // The same object when nothing needs turning, so a caller keyed on it does not see a new filter each time.
+  const raw = filter?.options as { label: string; value: unknown }[] | null | undefined;
+
+  return filter !== undefined && raw?.some((option) => typeof option.value !== 'string') === true
+    ? { ...filter, options: raw.map((option) => ({ label: option.label, value: String(option.value) })) }
+    : filter;
 }
 
 const unquote = (text: string): string => text.trim().replace(/^"(.*)"$/, '$1');
@@ -131,7 +153,7 @@ export function parseToken(token: string, filters: IndexFilter[], options: { sof
   const colon = token.indexOf(':');
   const typedKey = token.slice(0, colon);
   const raw = token.slice(colon + 1);
-  const filter = filters.find((candidate) => candidate.token.toLowerCase() === typedKey.toLowerCase());
+  const filter = textValues(filters.find((candidate) => candidate.token.toLowerCase() === typedKey.toLowerCase()));
   const fail = (key: string, error: string): ParsedToken => ({ chip: { token, key, label: token, error } });
 
   if (filter === undefined) {
@@ -148,6 +170,10 @@ export function parseToken(token: string, filters: IndexFilter[], options: { sof
 
   const name = filter.name;
   const chip = (value: FilterValue, shown: string): ParsedToken => ({ chip: { token, key: filter.key, value, label: `${name}: ${shown}` } });
+
+  if (unquote(raw) === '') {
+    return fail(filter.key, __(':filter needs a value', { filter: name }));
+  }
 
   if (filter.kind === 'text') {
     const text = unquote(raw);
@@ -175,7 +201,8 @@ export function parseToken(token: string, filters: IndexFilter[], options: { sof
       return fail(filter.key, __(':filter takes a number, >n, <n or a..b', { filter: name }));
     }
 
-    const stored = (side: string | undefined) => (side === undefined ? undefined : String(Math.round(Number(side) * scale)));
+    // At scale 1 the side goes as typed, decimals kept, as the filter panel writes it.
+    const stored = (side: string | undefined) => (side === undefined ? undefined : scale === 1 ? side : String(Math.round(Number(side) * scale)));
     const low = stored(found.low);
     const high = stored(found.high);
     const shown = (side: string | undefined) => (side === undefined ? undefined : formatNumber(Number(side)));
@@ -251,7 +278,7 @@ export function suggest(text: string, filters: IndexFilter[], options: { softDel
   const prefix = raw.slice(0, raw.lastIndexOf(',') + 1);
   const typed = raw.slice(prefix.length).trim().replace(/^"/, '').toLowerCase();
   const earlier = prefix === '' ? [] : values(prefix).slice(0, -1);
-  const filter = filters.find((candidate) => candidate.token.toLowerCase() === typedKey);
+  const filter = textValues(filters.find((candidate) => candidate.token.toLowerCase() === typedKey));
   const offer = (choices: FilterOption[]): Suggested => ({
     items: choices
       .filter((choice) => choice.label.toLowerCase().startsWith(typed) && !earlier.some((value) => [choice.value, choice.label].some((own) => own.toLowerCase() === value.toLowerCase())))
