@@ -86,6 +86,10 @@ describe('inline cells', () => {
     fireEvent.change(await screen.findByRole('textbox', { name: 'Name' }), { target: { value: 'Ann Lee' } });
     fireEvent.keyDown(await screen.findByRole('textbox', { name: 'Name' }), { key: 'Enter' });
     expect(await screen.findByText('Ann Lee')).toBeDefined();
+    // The cell shows the value while it saves and takes no edit until the reply.
+    await waitFor(() => {
+      expect(screen.queryByText('Saving…')).toBeNull();
+    });
 
     await editCell('Name');
     fireEvent.change(await screen.findByRole('textbox', { name: 'Name' }), { target: { value: '' } });
@@ -182,6 +186,10 @@ describe('inline cells', () => {
     fireEvent.change(await screen.findByRole('textbox', { name: 'Name' }), { target: { value: 'Ann Lee' } });
     fireEvent.keyDown(await screen.findByRole('textbox', { name: 'Name' }), { key: 'Enter' });
     expect(await screen.findByText('Ann Lee')).toBeDefined();
+    // The cell shows the value while it saves and takes no edit until the reply.
+    await waitFor(() => {
+      expect(screen.queryByText('Saving…')).toBeNull();
+    });
 
     // A queued run renamed the row since, and the index reloads its rows.
     router.reload({ only: ['table'] });

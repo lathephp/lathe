@@ -1,4 +1,4 @@
-import { router } from '@inertiajs/react';
+import { router, usePage } from '@inertiajs/react';
 import { request, useLathe } from '@lathephp/core';
 import { useEffect, useRef, useState } from 'react';
 import type { Row } from './types';
@@ -17,6 +17,8 @@ function linked(): string | null {
  */
 export function usePreview(uriKey: string, savedOpen: boolean, first: Row['id'] | undefined) {
   const { apiPath } = useLathe();
+  // A sort or a filter visits a URL built from the list's own keys; the panel puts its record back.
+  const { url } = usePage();
   // A link names its record; a list the user left with the panel open opens it on the first row.
   const [id, setId] = useState<string | null>(() => linked() ?? (savedOpen && first !== undefined ? String(first) : null));
   const open = useRef(id !== null);
@@ -32,22 +34,22 @@ export function usePreview(uriKey: string, savedOpen: boolean, first: Row['id'] 
   useEffect(() => {
     const timer = window.setTimeout(() => {
       if (linked() !== id) {
-        const url = new URL(window.location.href);
+        const next = new URL(window.location.href);
 
         if (id === null) {
-          url.searchParams.delete('preview');
+          next.searchParams.delete('preview');
         } else {
-          url.searchParams.set('preview', id);
+          next.searchParams.set('preview', id);
         }
 
-        router.replace({ url: `${url.pathname}${url.search}`, preserveScroll: true, preserveState: true });
+        router.replace({ url: `${next.pathname}${next.search}`, preserveScroll: true, preserveState: true });
       }
     }, restMs);
 
     return () => {
       window.clearTimeout(timer);
     };
-  }, [id]);
+  }, [id, url]);
 
   return {
     id,
