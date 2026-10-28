@@ -152,12 +152,21 @@ describe('editing a cell in place', () => {
     expect(screen.queryByRole('listbox')).toBeNull();
   });
 
-  it('serves the Pending Orders lens with the same grid', async () => {
+  it('serves the Pending Orders lens with the same grid, and a save there keeps the lens its own cells', async () => {
+    // The reply carries the Resource's own cells, which may format a column the lens computes otherwise.
+    vi.spyOn(globalThis, 'fetch').mockResolvedValue(
+      new Response(JSON.stringify({ field: 'status', fields: { status: { value: 'paid', display: 'Paid' }, placed: { value: '2026-10-14', display: 'Oct 14, 2026 09:00' } }, updatedAt: 't1' }), { status: 200 }),
+    );
     renderOrders(undefined, { uriKey: 'pending-orders', name: 'Pending Orders' });
 
     expect(screen.getByRole('heading', { name: 'Pending Orders' })).toBeDefined();
     await editCell('Status');
-
     expect(await screen.findAllByRole('option')).toHaveLength(4);
+    await pick('Paid');
+
+    await waitFor(() => {
+      expect(screen.queryByText('Saving…')).toBeNull();
+    });
+    expect(cellOf('Placed').textContent).toBe('Oct 14');
   });
 });

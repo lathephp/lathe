@@ -97,7 +97,7 @@ export function ResourceTable({ resource, table, state, loading, selection, sort
   const { props: { basePath, tableStyle }, onceProps } = usePage<SharedProps>();
   const { clickAction, showColumnBorders } = resource.definition;
   // Deferred with the count, so the footer arrives after the rows.
-  const { summaries, groups } = usePage<Pick<IndexProps, 'summaries' | 'groups'>>().props;
+  const { summaries, groups, lens } = usePage<Pick<IndexProps, 'summaries' | 'groups' | 'lens'>>().props;
   // The keys of the groups folded shut.
   const [collapsed, setCollapsed] = useState<string[]>([]);
   const rowClass = cn(
@@ -428,7 +428,9 @@ export function ResourceTable({ resource, table, state, loading, selection, sort
                                     cell={cell}
                                     token={fresh === undefined ? row.updatedAt : fresh.updatedAt}
                                     onRow={(cells, updatedAt) => {
-                                      setSaved((current) => ({ ...current, [String(row.id)]: { over: row, cells: { ...row.cells, ...cells }, updatedAt } }));
+                                      // A save answers with the Resource's cells; a lens computes its own, so it takes the edited one only.
+                                      const taken = lens == null ? cells : { [column.key]: cells[column.key] ?? cell };
+                                      setSaved((current) => ({ ...current, [String(row.id)]: { over: row, cells: { ...row.cells, ...taken }, updatedAt } }));
                                     }}
                                   />
                                 ) : (
