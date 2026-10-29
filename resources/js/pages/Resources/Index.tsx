@@ -1,4 +1,4 @@
-import { Head, Link, usePage } from '@inertiajs/react';
+import { Head, Link, router, usePage } from '@inertiajs/react';
 import { lazy, Suspense, useState } from 'react';
 import { __panel, emit, useShortcut, useTranslation } from '@lathephp/core';
 import { Plus } from 'lucide-react';
@@ -28,6 +28,15 @@ const DeleteMenu = lazy(() => import('../../actions/DeleteMenu').then((module) =
 // The cards load only when the page lists one, so the grid stays out of the index's first load.
 const ResourceWidgets = lazy(() => import('../../widgets/ResourceWidgets').then((module) => ({ default: module.ResourceWidgets })));
 const { RenderHook } = __panel;
+
+// Back and Forward paint the rows the history entry kept, which an inline save, an undo or a
+// record page has since changed; the list asks the server for its rows again. Registered here,
+// not in an effect: Inertia can announce the restore before the page's effects have run.
+router.on('navigate', (event) => {
+  if (event.detail.type === 'history' && event.detail.page.component === 'Resources/Index') {
+    router.reload({ only: ['table'] });
+  }
+});
 
 type IndexPageProps = IndexProps & { widgets?: WidgetDescriptor[] };
 

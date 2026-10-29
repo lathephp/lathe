@@ -134,6 +134,32 @@ export function ResourceTable({ resource, table, state, loading, selection, sort
   // The data rows in the order the grid counts them: a folded group's rows are not drawn.
   const shown = table.rows.filter((row) => row.group === undefined || !collapsed.includes(row.group.key));
   const tick = useGrid(grid, shown, selection, preview);
+  // The cursor's cell when the page was left, kept in its history entry, so Back puts the cursor there again.
+  const [cursor] = useState(() => router.restore<{ id: string; cell: number }>('cursor'));
+  const restored = cursor !== undefined && shown.some((row) => String(row.id) === cursor.id);
+
+  // A row's cell holds the tab stop when it is the restored cursor, or else the first row's title cell.
+  function stop(row: Row, cell: number) {
+    return (restored ? String(row.id) === cursor.id && cell === cursor.cell : shown[0] === row && cell === 1) ? 0 : -1;
+  }
+
+  useLayoutEffect(() => {
+    if (cursor !== undefined) {
+      grid.current?.querySelector<HTMLElement>('tbody td[tabindex="0"]')?.focus({ preventScroll: true });
+      // Read once: a later remount, such as rows coming back after an empty filter, keeps the focus where it is.
+      router.remember(undefined, 'cursor');
+    }
+
+    // Only a visit that leaves the list: a poll, a filter or a hover's prefetch keeps its page.
+    return router.on('before', ({ detail: { visit } }) => {
+      const cell = grid.current?.querySelector<HTMLTableCellElement>('tbody td[tabindex="0"]');
+
+      if (cell != null && !visit.prefetch && visit.url.pathname !== window.location.pathname) {
+        router.remember({ id: cell.parentElement?.dataset.row, cell: cell.cellIndex }, 'cursor');
+      }
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- once, on mount
+  }, []);
   // Where each stuck column starts, measured from the header cells.
   const [offsets, setOffsets] = useState<number[]>([]);
   // Whether columns sit scrolled beneath the start block, and beyond the row menu at the end.
@@ -378,8 +404,8 @@ export function ResourceTable({ resource, table, state, loading, selection, sort
                       />
                     )}
                     {!folded && (
-                      <tr data-row="" className={cn('group', rowClass)}>
-                        <td tabIndex={-1} className={cn(checkboxColumn, border, cursorCell)}>
+                      <tr data-row={row.id} className={cn('group', rowClass)}>
+                        <td tabIndex={stop(row, 0)} className={cn(checkboxColumn, border, cursorCell)}>
                           <input
                             type="checkbox"
                             tabIndex={-1}
@@ -400,7 +426,7 @@ export function ResourceTable({ resource, table, state, loading, selection, sort
                           return (
                             <td
                               key={column.key}
-                              tabIndex={shown[0] === row && index === 0 ? 0 : -1}
+                              tabIndex={stop(row, index + 1)}
                               // The title cell is the row's link: a click on it, not on a control inside, runs the click action.
                               data-open={url === undefined ? undefined : ''}
                               onClick={
@@ -457,7 +483,7 @@ export function ResourceTable({ resource, table, state, loading, selection, sort
                           );
                         })}
                         {withMenu && (
-                          <td data-row-menu="" tabIndex={-1} className={cn('z-[1] px-3 hover:z-10 focus-within:z-10', menuClass, border, cursorCell)}>
+                          <td data-row-menu="" tabIndex={stop(row, columns.length + 1)} className={cn('z-[1] px-3 hover:z-10 focus-within:z-10', menuClass, border, cursorCell)}>
                             <div className="flex items-center justify-end gap-0.5">
                               {row.abilities.view === true && (
                                 <Link
