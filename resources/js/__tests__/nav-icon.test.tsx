@@ -19,6 +19,34 @@ describe('NavIcon', () => {
     });
   });
 
+  it('draws a kebab-case name as its case name', async () => {
+    const { container, rerender } = render(<NavIcon name="shopping-cart" />);
+
+    expect(container.querySelector('svg.lucide-shopping-cart')).not.toBeNull();
+
+    rerender(<NavIcon name="mail" />);
+
+    await waitFor(() => {
+      expect(container.querySelector('svg.lucide-mail')).not.toBeNull();
+    });
+  });
+
+  it('draws a numbered Lucide name as its case name', async () => {
+    const named = render(<NavIcon name="BarChart" />);
+
+    await waitFor(() => {
+      expect(named.container.querySelector('svg:not(.lucide-circle)')).not.toBeNull();
+    });
+    const expected = named.container.innerHTML;
+    named.unmount();
+
+    const { container } = render(<NavIcon name="bar-chart-3" />);
+
+    await waitFor(() => {
+      expect(container.innerHTML).toBe(expected);
+    });
+  });
+
   it('draws a first-load icon at once and a circle for an unknown name', async () => {
     const { container, rerender } = render(<NavIcon name="ShoppingCart" />);
 

@@ -23,7 +23,10 @@ export function NavIcon({ name }: { name: string | null }) {
   // One element per render: the compiler's cache would only add first-load bytes.
   'use no memo';
 
-  const eager = name === null ? Circle : icons[name];
+  // An action takes the Lucide name ('shopping-cart'); the sets are keyed by case name ('ShoppingCart').
+  // Lucide's numbered names ('bar-chart-3') drop the number in the case.
+  const key = name?.replace(/(^|-)(\w)/g, (_, __, letter: string) => letter.toUpperCase()).replace(/\d+$/, '') ?? '';
+  const eager = name === null ? Circle : icons[key];
 
   if (eager !== undefined) {
     return createElement(eager, { 'aria-hidden': true, className: 'size-4 shrink-0' });
@@ -31,7 +34,7 @@ export function NavIcon({ name }: { name: string | null }) {
 
   return (
     <Suspense fallback={<span aria-hidden="true" className="inline-block size-4 shrink-0" />}>
-      <SetIcon name={name ?? ''} />
+      <SetIcon name={key} />
     </Suspense>
   );
 }

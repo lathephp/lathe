@@ -233,7 +233,7 @@ An action with a form always opens its modal, whether or not it is confirmable.
 
 ```php
 (new SendWelcomeEmail)->group('Communication')   // a heading in the menu
-(new SendWelcomeEmail)->icon('mail')             // a Lucide icon name
+(new SendWelcomeEmail)->icon('mail')             // a Lucide icon name, in kebab case
 (new GenerateReport)->description('Writes a CSV of every record')
 (new CreateInvoice)->pinned()                    // a toolbar button
 ```
