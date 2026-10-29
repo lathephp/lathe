@@ -56,6 +56,7 @@ export function RowMenu({ uriKey, row }: { uriKey: string; row: Row }) {
             row={row}
             open={open}
             menuId={menuId}
+            trigger={trigger}
             onClose={() => {
               // A closing menu hands the focus back to its button, also when an entry opens a dialog.
               trigger.current?.focus();

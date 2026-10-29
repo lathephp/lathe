@@ -1,7 +1,7 @@
 import { Link, usePage } from '@inertiajs/react';
 import { request, toast, useTranslation } from '@lathephp/core';
 import { Copy, Eye, Pencil, RotateCcw, Trash2 } from 'lucide-react';
-import { lazy, Suspense, useEffect, useId, useRef, useState } from 'react';
+import { lazy, type RefObject, Suspense, useId, useLayoutEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { Modal, modalFooter } from '../components/Modal';
 import { Button } from '../components/ui/Button';
@@ -38,11 +38,12 @@ interface RowMenuPanelProps {
   row: Row;
   open: boolean;
   menuId: string;
+  trigger: RefObject<HTMLButtonElement | null>;
   onClose: () => void;
 }
 
 /** The row menu's list, its delete confirmation and the row's inline actions, loaded on the menu's first open. */
-export function RowMenuPanel({ uriKey, row, open, menuId, onClose }: RowMenuPanelProps) {
+export function RowMenuPanel({ uriKey, row, open, menuId, trigger, onClose }: RowMenuPanelProps) {
   const { __ } = useTranslation();
   const { basePath } = usePage<SharedProps>().props;
   const [confirming, setConfirming] = useState<'delete' | 'forceDelete' | null>(null);
@@ -52,12 +53,28 @@ export function RowMenuPanel({ uriKey, row, open, menuId, onClose }: RowMenuPane
   const url = `${basePath}/api/resources/${uriKey}/${String(row.id)}`;
   const panel = useRef<HTMLDivElement>(null);
 
-  // An opening menu takes the focus to its first entry, so Escape and Tab work inside it.
-  useEffect(() => {
-    if (open) {
-      panel.current?.querySelector<HTMLElement>('[role=menuitem]')?.focus();
+  // The table card clips what overflows it, so an opening menu is fixed to the window under its
+  // button, or above it when the window ends first. It then takes the focus to its first entry,
+  // so Escape and Tab work inside it.
+  useLayoutEffect(() => {
+    const menu = panel.current;
+    const button = trigger.current?.getBoundingClientRect();
+
+    if (!open || menu === null || button === undefined) {
+      return;
     }
-  }, [open]);
+
+    const { width, height } = menu.getBoundingClientRect();
+    // Pinned by its bottom edge when above, so the row's inline actions, which load later, grow it upward.
+    const above = button.bottom + 4 + height > window.innerHeight;
+
+    Object.assign(menu.style, {
+      position: 'fixed',
+      [above ? 'bottom' : 'top']: `${String(above ? window.innerHeight - button.top + 4 : button.bottom + 4)}px`,
+      left: `${String(document.dir === 'rtl' ? button.left : button.right - width)}px`,
+    });
+    menu.querySelector<HTMLElement>('[role=menuitem]')?.focus();
+  }, [open, trigger]);
 
   const labels: Record<MenuAction, string> = {
     view: __('View'),
@@ -150,7 +167,7 @@ export function RowMenuPanel({ uriKey, row, open, menuId, onClose }: RowMenuPane
           id={menuId}
           role="menu"
           tabIndex={-1}
-          className="absolute end-0 top-full z-10 mt-1 w-60 rounded-[12px] border border-border bg-popover p-1 text-popover-foreground shadow-md"
+          className="z-10 w-60rounded-[12px] border border-border bg-popover p-1 text-popover-foreground shadow-md"
           onKeyDown={(event) => {
             if (event.key === 'Escape') {
               onClose();
