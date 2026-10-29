@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from '@testing-library/react';
+import { fireEvent, render, screen, within } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 import { DetailField, FormField, IndexField } from '../fields/registry';
 import type { FieldSchema } from '../fields/types';
@@ -56,15 +56,16 @@ const file = { path: 'photos/a.png', name: 'a.png', size: 120, preview: '/storag
 describe('file-field', () => {
   const field = schema('file-field');
 
-  it('shows the four values on index, detail and form', () => {
+  it('shows the four values on index, detail and form', async () => {
     expect(renderIndex(field, 5).textContent).toBe('5');
     expect(renderIndex(field, 'x').textContent).toBe('x');
     expect(renderIndex(field, true, 'Yes').textContent).toBe('Yes');
     expect(renderIndex(field, null).textContent).toBe('');
     expect(renderDetail(field, 5).textContent).toBe('5');
     expect(renderDetail(field, null, '').textContent).toBe('—');
-    expect(renderForm(field, 'x').textContent).toContain('No file');
-    expect(renderForm(field, null).textContent).toContain('No file');
+    // The file control is a lazy chunk, so the form shows it once it arrives.
+    expect((await within(renderForm(field, 'x')).findByText('No file')).textContent).toBe('No file');
+    expect((await within(renderForm(field, null)).findByText('No file')).textContent).toBe('No file');
   });
 
   it('shows the file name on the index', () => {

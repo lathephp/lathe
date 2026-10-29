@@ -112,8 +112,9 @@ describe('chunked uploader', () => {
     const onChange = vi.fn();
     const { container } = renderField(schema(), onChange);
 
+    // The file control is a lazy chunk, so the button shows once it arrives.
+    expect((await screen.findByRole('button', { name: 'Avatar' })).textContent).toBe('Upload');
     expect(container.querySelector('input[type="file"]')).toBeNull();
-    expect(screen.getByRole('button', { name: 'Avatar' }).textContent).toBe('Upload');
 
     const input = choose(sized(10));
 
