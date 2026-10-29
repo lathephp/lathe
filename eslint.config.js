@@ -49,7 +49,7 @@ export default defineConfig([
   },
   {
     // A ref synced in a passive effect is stale for a key pressed before that effect runs.
-    files: ['resources/js/**/*.{ts,tsx}'],
+    files: ['resources/js/**/*.{ts,tsx}', 'packages/*/src/**/*.{ts,tsx}'],
     ignores: ['**/__tests__/**'],
     plugins: { lathe },
     rules: { 'lathe/no-ref-in-passive-effect': 'error' },

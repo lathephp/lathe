@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useLayoutEffect, useRef } from 'react';
 import { sharedProps } from './props';
 
 type Handler = (event: KeyboardEvent) => void;
@@ -164,7 +164,7 @@ export function shortcutPauseCount(): number {
 export function useShortcut(keys: string, handler: Handler, active = true): void {
   const latest = useRef(handler);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     latest.current = handler;
   }, [handler]);
 
