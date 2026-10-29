@@ -42,6 +42,25 @@ class Navigation
     }
 
     /**
+     * The href of the first sidebar page the request may open inside the panel, else null.
+     * The panel root itself and links that leave the panel do not count.
+     *
+     * @internal
+     */
+    public function firstHref(Request $request): ?string
+    {
+        $root = '/'.trim(Lathe::path(), '/');
+
+        foreach ($this->assemble($request)['items'] as $item) {
+            if (str_starts_with($item->href(), $root.'/')) {
+                return $item->href();
+            }
+        }
+
+        return null;
+    }
+
+    /**
      * The values of the lazy item badges, keyed by item href. Each value is cached per user
      * for the badge's TTL, so a page view within it runs no badge query.
      *

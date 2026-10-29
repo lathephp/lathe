@@ -209,6 +209,8 @@ Lathe::registerDashboards(
 
 `canSeeWhen()` checks a Gate ability for the signed-in panel user. A dashboard the user may not see leaves the sidebar, and opening its URL by hand is refused.
 
+A user who may not see `Main` still opens `/lathe` without an error. Lathe sends them to the first dashboard they may see, else to the first sidebar page they may open. A user who may open nothing gets the 403 page. Signing in, the brand link and starting or stopping an impersonation all land at `/lathe`, so they follow the same path.
+
 ## What you see
 
 After you register a dashboard, the sidebar lists it under "Dashboards" with its icon. Opening it shows its title, the optional description line, and a grid of cards that fill in as their numbers arrive. With the refresh button on, each card shows a loading skeleton and then its new value when you click it.

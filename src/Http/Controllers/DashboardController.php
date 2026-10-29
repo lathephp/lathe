@@ -3,6 +3,7 @@
 namespace Lathe\Http\Controllers;
 
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -10,6 +11,8 @@ use Lathe\Dashboards\Dashboard;
 use Lathe\Dashboards\DashboardRegistry;
 use Lathe\Enums\CardWidth;
 use Lathe\Http\Requests\LatheRequest;
+use Lathe\Lathe;
+use Lathe\Menu\Navigation;
 use Lathe\Preferences\DashboardLayout;
 use Lathe\Preferences\UserPreference;
 use Lathe\Widgets\Widget;
@@ -23,11 +26,22 @@ class DashboardController
     }
 
     /**
-     * The panel home: the dashboard at the key main.
+     * The panel home: the dashboard at the key main. A user who may not see it goes to the first
+     * dashboard they may see, else the first sidebar page they may open, else gets a 403.
      */
-    public function __invoke(LatheRequest $request): Response
+    public function __invoke(LatheRequest $request): Response|RedirectResponse
     {
-        return $this->page($request, 'main');
+        if ($this->dashboards->main()->authorize($request)) {
+            return $this->page($request, 'main');
+        }
+
+        $root = '/'.trim(Lathe::path(), '/');
+        $first = $this->dashboards->authorized($request)[0] ?? null;
+        $href = $first !== null ? $root.'/'.$first->path() : app(Navigation::class)->firstHref($request);
+
+        abort_if($href === null, 403);
+
+        return redirect($href);
     }
 
     public function page(LatheRequest $request, string $dashboard): Response
