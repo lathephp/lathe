@@ -89,16 +89,19 @@ it('lists the changes of the newest release under Changed as behaviour changes, 
         ->not->toContain('A fix with no API change');
 })->group('frontend');
 
-it('tells a 1.0.0-beta.4 app every API, behaviour and string that changes in 1.0.0-beta.5', function () {
+it('tells a 1.0.0-beta.5 app every API and behaviour change in 1.0.0-beta.6', function () {
     $guide = File::get(dirname(__DIR__, 3).'/docs/getting-started/upgrade.md');
 
-    expect($guide)->toContain('## From 1.0.0-beta.4 to 1.0.0-beta.5')
-        ->toContain('a click on a cell moves the cursor', '`clickAction` now names what Enter', 'the title cell')
-        ->toContain('The preview modal', 'preview panel', 'With an empty `fieldsForPreview()` it returns the record\'s detail fields')
-        ->toContain('views in a 220 px rail', 'in place of the tab band', 'one bar above the table', 'the Filter button with its popover')
-        ->toContain('php artisan lathe:preset copper', 'rows are 40 px tall', 'are 32 px')
-        ->toContain('Undo covers cell edits and Board moves only')
-        ->toContain("->board('status')", "->meter(except: ['cancelled'])");
+    expect($guide)->toContain('## From 1.0.0-beta.5 to 1.0.0-beta.6')
+        ->toContain('7 days, 30 days and 12 months', 'still start at 30 days')
+        ->toContain('`FormData::get()` returns a `belongsTo` field\'s key')
+        ->toContain('`TrendResult::transform()` changes the trend\'s points')
+        ->toContain("`->icon('mail')`, a kebab-case Lucide name")
+        ->toContain('to the first dashboard they may see')
+        ->toContain('relative signed URLs checked with `signed:relative`')
+        ->toContain('defines no `:root` variable', 'it scans the extension\'s folder')
+        ->toContain('A column\'s `indexWidth()` holds')
+        ->toContain('`Field::heading()` and `Field::hidden()` are compact');
 })->group('frontend');
 
 it('names in the 1.0.0-beta.5 section every English string added or removed since 1.0.0-beta.4', function () {
@@ -114,6 +117,25 @@ it('names in the 1.0.0-beta.5 section every English string added or removed sinc
     $before = $keys($at('v1.0.0-beta.4')->output());
     $after = $keys($released->successful() ? $released->output() : File::get("{$root}/lang/en.json"));
     $section = explode('## [1.0.0-beta.4]', explode('## [1.0.0-beta.5]', File::get("{$root}/CHANGELOG.md"), 2)[1] ?? '', 2)[0];
+    preg_match_all('/`([^`]+)`/u', (string) preg_replace('/^ *```.*?^ *```$/ms', '', $section), $named);
+    $changed = [...array_diff($before, $after), ...array_diff($after, $before)];
+
+    expect(array_values(array_diff($changed, $named[1])))->toBe([]);
+})->group('frontend');
+
+it('names in the 1.0.0-beta.6 section every English string added or removed since 1.0.0-beta.5', function () {
+    $root = dirname(__DIR__, 3);
+    $keys = fn (string $json) => array_map('strval', array_keys((array) json_decode($json, true)));
+    $at = fn (string $tag) => Process::path($root)->run(['git', 'show', "{$tag}:lang/en.json"]);
+
+    if (! $at('v1.0.0-beta.5')->successful()) {
+        test()->markTestSkipped('This clone has no 1.0.0-beta.5 tag to compare with.');
+    }
+
+    $released = $at('v1.0.0-beta.6');
+    $before = $keys($at('v1.0.0-beta.5')->output());
+    $after = $keys($released->successful() ? $released->output() : File::get("{$root}/lang/en.json"));
+    $section = explode('## [1.0.0-beta.5]', explode('## [1.0.0-beta.6]', File::get("{$root}/CHANGELOG.md"), 2)[1] ?? '', 2)[0];
     preg_match_all('/`([^`]+)`/u', (string) preg_replace('/^ *```.*?^ *```$/ms', '', $section), $named);
     $changed = [...array_diff($before, $after), ...array_diff($after, $before)];
 

@@ -4,6 +4,8 @@ All notable changes to Lathe are listed here. The format follows [Keep a Changel
 
 ## [Unreleased]
 
+## [1.0.0-beta.6] - Unreleased
+
 ### Changed
 
 - [api] The panel home (`/lathe`) sends a user who may not see the main dashboard to the first dashboard they may see, else to the first sidebar page they may open, and answers 403 only when they may open nothing. Sign-in, the brand link and starting or stopping an impersonation land there too. `DashboardController::__invoke()` returns `Response|RedirectResponse`.
