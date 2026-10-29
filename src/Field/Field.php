@@ -1251,6 +1251,8 @@ class Field implements JsonSerializable
 
     /**
      * The value a field that is not nullable saves for what the form left blank (null or '').
+     *
+     * @internal
      */
     protected function whenBlank(mixed $value): mixed
     {
