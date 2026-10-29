@@ -65,7 +65,8 @@ it('passes a ref assigned in a layout effect, or in a handler or cleanup the eff
 });
 
 it('passes on the real tree', function () {
-    $result = Process::path(passiveEffectLintRoot())->run([passiveEffectLintRoot().'/node_modules/.bin/eslint', '--max-warnings=0', 'resources/js', 'packages/core/src', 'packages/ui/src', 'packages/vite-plugin/src']);
+    // About 20 seconds on a quiet machine and past a minute on a CI runner beside the other workers.
+    $result = Process::path(passiveEffectLintRoot())->timeout(300)->run([passiveEffectLintRoot().'/node_modules/.bin/eslint', '--max-warnings=0', 'resources/js', 'packages/core/src', 'packages/ui/src', 'packages/vite-plugin/src']);
 
     expect($result->exitCode())->toBe(0, $result->output());
 });
