@@ -355,7 +355,7 @@ describe('the card', () => {
     });
   });
 
-  it('lays cards out on 12 columns with a 20 px gap, value cards two across below 768 px', () => {
+  it('lays cards out on 12 columns with a 20 px gap, value cards of a third or less two across below 768 px', () => {
     renderDashboard(
       [3, 4, 6, 8, 9, 12].map((columns) => descriptor(`w${String(columns)}`, { columns })),
       {},
@@ -366,7 +366,7 @@ describe('the card', () => {
 
     for (const columns of [3, 4, 6, 8, 9, 12]) {
       const classes = card(`w${String(columns)}`).className.split(' ');
-      expect(classes).toContain('col-span-6');
+      expect(classes).toContain(columns <= 4 ? 'col-span-6' : 'col-span-12');
       expect(classes).toContain(`md:col-span-${String(columns)}`);
     }
   });

@@ -233,7 +233,7 @@ function RangePicker({ ranges, value, onPick }: { ranges: RangeOption[]; value: 
     <div
       role="radiogroup"
       aria-label={__('Range')}
-      className="grid auto-cols-fr grid-flow-col gap-0.5 rounded-lg bg-muted p-0.5 max-md:flex-1 md:inline-grid md:border"
+      className="grid auto-cols-fr grid-flow-col gap-0.5 rounded-lg bg-muted p-0.5 max-md:flex-1 max-md:overflow-x-auto md:inline-grid md:border"
     >
       {ranges.map((option, at) => {
         const checked = String(option.value) === value;
@@ -246,7 +246,7 @@ function RangePicker({ ranges, value, onPick }: { ranges: RangeOption[]; value: 
             aria-checked={checked}
             tabIndex={checked ? 0 : -1}
             className={cn(
-              'h-9 rounded-md px-2.5 text-sm font-medium whitespace-nowrap md:h-7 md:text-[13px]',
+              'h-9 shrink-0 rounded-md px-2.5 text-sm font-medium whitespace-nowrap md:h-7 md:text-[13px]',
               checked ? 'bg-card text-foreground shadow-xs' : 'text-muted-foreground hover:text-foreground',
             )}
             onClick={() => {

@@ -1,4 +1,4 @@
-import type { ComponentProps, ReactNode } from 'react';
+import { useLayoutEffect, useRef, useState, type ComponentProps, type ReactNode } from 'react';
 import { Legend, ResponsiveContainer, Tooltip, type LegendPayload, type TooltipPayloadEntry } from 'recharts';
 
 export {
@@ -40,9 +40,39 @@ export type ChartContainerProps = ComponentProps<'div'> & {
 
 /** A chart that fills its box and takes its colours from the theme. */
 export function ChartContainer({ className, children, ...props }: ChartContainerProps) {
+  const box = useRef<HTMLDivElement>(null);
+  const [empty, setEmpty] = useState(false);
+
+  // A box with no size (display: none, a hidden tab) makes Recharts warn "width(0) and height(0)", so the chart waits until the box has room.
+  useLayoutEffect(() => {
+    const element = box.current;
+
+    if (element === null || typeof ResizeObserver === 'undefined') {
+      return;
+    }
+
+    const measure = (width: number, height: number) => {
+      setEmpty(width === 0 || height === 0);
+    };
+    const { width, height } = element.getBoundingClientRect();
+    measure(width, height);
+    const observer = new ResizeObserver((entries) => {
+      const entry = entries[0];
+
+      if (entry !== undefined) {
+        measure(entry.contentRect.width, entry.contentRect.height);
+      }
+    });
+    observer.observe(element);
+
+    return () => {
+      observer.disconnect();
+    };
+  }, []);
+
   return (
-    <div data-slot="chart" className={join('cn-chart', chartClass, className)} {...props}>
-      <ResponsiveContainer initialDimension={{ width: 320, height: 200 }}>{children}</ResponsiveContainer>
+    <div ref={box} data-slot="chart" className={join('cn-chart', chartClass, className)} {...props}>
+      {!empty && <ResponsiveContainer initialDimension={{ width: 320, height: 200 }}>{children}</ResponsiveContainer>}
     </div>
   );
 }
