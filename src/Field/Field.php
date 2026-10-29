@@ -1242,9 +1242,19 @@ class Field implements JsonSerializable
 
         if ($this->isNullable() && $this->isNullValue($value)) {
             $value = null;
+        } elseif (! $this->isNullable()) {
+            $value = $this->whenBlank($value);
         }
 
         return $this->lifecycle->persist($model, $this->attribute, $value);
+    }
+
+    /**
+     * The value a field that is not nullable saves for what the form left blank (null or '').
+     */
+    protected function whenBlank(mixed $value): mixed
+    {
+        return $value;
     }
 
     protected function isNullValue(mixed $value): bool

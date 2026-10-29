@@ -4,6 +4,7 @@ namespace Lathe\Field;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Validation\Rule;
+use Lathe\Field\Concerns\SavesBlankAsEmptyList;
 use Lathe\Field\Contracts\FilterableField;
 use Lathe\Http\Requests\LatheRequest;
 
@@ -13,6 +14,7 @@ use Lathe\Http\Requests\LatheRequest;
 class MultiSelectField extends Field implements FilterableField
 {
     use HasOptions;
+    use SavesBlankAsEmptyList;
 
     protected string $component = 'multi-select-field';
 
@@ -32,7 +34,8 @@ class MultiSelectField extends Field implements FilterableField
 
     protected function impliedRules(): array
     {
-        return ['array'];
+        // A required field still refuses null, through its 'required' rule.
+        return ['nullable', 'array'];
     }
 
     public function getRules(FieldContext $context, ?LatheRequest $request = null, ?Model $model = null): array

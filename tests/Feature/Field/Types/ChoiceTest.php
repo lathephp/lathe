@@ -323,3 +323,18 @@ it('sends the badge tone of each value with badges()', function () {
 it('refuses a badge tone it does not know', function () {
     Field::select('Status')->badges(['paid' => 'green']);
 })->throws(\InvalidArgumentException::class, 'green');
+
+it('saves an untouched boolean group and multi select as an empty list', function (array $body, bool $json) {
+    $uri = rtrim(Lathe::path(), '/').'/api/resources/choice-things';
+    $response = $json ? $this->postJson($uri, $body) : $this->post($uri, $body, ['Accept' => 'application/json']);
+
+    $response->assertCreated();
+
+    $record = ChoiceRecord::query()->firstOrFail();
+
+    expect($record->getRawOriginal('perks'))->toBe('[]')
+        ->and($record->getRawOriginal('tags'))->toBe('[]');
+})->with([
+    'null in JSON' => [['perks' => null, 'tags' => null], true],
+    'empty strings in a form post' => [['perks' => '', 'tags' => ''], false],
+]);

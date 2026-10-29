@@ -4,6 +4,7 @@ namespace Lathe\Field;
 
 use Closure;
 use Illuminate\Database\Eloquent\Model;
+use Lathe\Field\Concerns\SavesBlankAsEmptyList;
 use Lathe\Field\Contracts\FilterableField;
 use Lathe\Http\Requests\LatheRequest;
 use Lathe\Lathe;
@@ -14,6 +15,7 @@ use Lathe\Lathe;
 class BooleanGroupField extends Field implements FilterableField
 {
     use HasOptions;
+    use SavesBlankAsEmptyList;
 
     protected string $component = 'boolean-group-field';
 
@@ -74,7 +76,8 @@ class BooleanGroupField extends Field implements FilterableField
 
     protected function impliedRules(): array
     {
-        return ['array', function (string $attribute, mixed $value, Closure $fail) {
+        // A required field still refuses null, through its 'required' rule.
+        return ['nullable', 'array', function (string $attribute, mixed $value, Closure $fail) {
             if (is_array($value) && array_diff(array_map('strval', array_keys($value)), $this->optionValues()) !== []) {
                 $fail(Lathe::__('The :attribute field holds an option that does not exist.'));
             }
