@@ -11,7 +11,8 @@ use Lathe\Support\ConfigStore;
 class PageController
 {
     /**
-     * An unknown page answers 404 and one the user may not see 403, both inside the shell.
+     * An unknown page answers 404 and one the user may not see 403, both inside the shell. The page's
+     * own path travels as pagePath, so the shell's shared basePath keeps the panel root.
      */
     public function __invoke(Request $request, PageRegistry $pages, ConfigStore $config, string $page, string $path = ''): Response
     {
@@ -22,7 +23,7 @@ class PageController
 
         return Inertia::render('Page', [
             'pageKey' => $found::uriKey(),
-            'basePath' => '/'.trim($config->string('path'), '/').'/'.$found->path(),
+            'pagePath' => '/'.trim($config->string('path'), '/').'/'.$found->path(),
             'path' => $path,
             'title' => $found->name(),
         ]);

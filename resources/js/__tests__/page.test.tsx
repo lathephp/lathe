@@ -8,7 +8,7 @@ function Gallery({ pageKey, basePath, path }: { pageKey: string; basePath: strin
 }
 
 function renderStandalone(key: string, path = '') {
-  return renderPage('Page', { pageKey: key, basePath: `/lathe/pages/${key}`, path, title: 'UI Gallery' }, { url: `/lathe/pages/${key}` });
+  return renderPage('Page', { pageKey: key, pagePath: `/lathe/pages/${key}`, path, title: 'UI Gallery' }, { url: `/lathe/pages/${key}` });
 }
 
 afterEach(() => {
@@ -29,5 +29,27 @@ describe('standalone page', () => {
 
     expect(within(screen.getByRole('main')).getByText('This page is not available.')).toBeTruthy();
     expect(error).toHaveBeenCalledWith('[lathe] no component is registered for the page "missing-page"');
+  });
+
+  it("ends the breadcrumb with its own name and leaves the dashboard's sidebar item inactive", () => {
+    page('system-status', Gallery);
+    renderPage(
+      'Page',
+      { pageKey: 'system-status', pagePath: '/lathe/pages/system-status', path: '', title: 'System Status' },
+      {
+        url: '/lathe/pages/system-status',
+        shared: {
+          navigation: [
+            { label: null, icon: null, items: [{ label: 'Sales', href: '/lathe', icon: 'LayoutDashboard' }] },
+            { label: 'Demo Kit', icon: null, items: [{ label: 'System Status', href: '/lathe/pages/system-status', icon: 'Activity' }] },
+          ],
+        },
+      },
+    );
+
+    const crumbs = screen.getByRole('navigation', { name: 'Breadcrumb' });
+    expect(within(crumbs).queryByText('Sales')).toBeNull();
+    expect(within(crumbs).getByText('System Status').getAttribute('aria-current')).toBe('page');
+    expect(screen.getByRole('link', { name: 'Sales' }).getAttribute('aria-current')).toBeNull();
   });
 });

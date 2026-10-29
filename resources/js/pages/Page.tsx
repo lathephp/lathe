@@ -4,16 +4,17 @@ import { createElement, Suspense, useEffect } from 'react';
 
 interface PageRouteProps {
   pageKey: string;
-  basePath: string;
+  pagePath: string;
   path: string;
   title: string;
 }
 
 /**
  * Hosts the component a module registered with page(uriKey, component) at /lathe/pages/{uriKey}.
- * A key no module registered shows an in-shell notice and logs the key.
+ * A key no module registered shows an in-shell notice and logs the key. The component gets the
+ * page's own path as basePath.
  */
-export default function Page({ pageKey, basePath, path, title }: PageRouteProps) {
+export default function Page({ pageKey, pagePath, path, title }: PageRouteProps) {
   const { __ } = useTranslation();
   const page = __panel.pageComponent(pageKey);
 
@@ -29,7 +30,7 @@ export default function Page({ pageKey, basePath, path, title }: PageRouteProps)
       {page === undefined ? (
         <p className="text-sm text-muted-foreground">{__('This page is not available.')}</p>
       ) : (
-        <Suspense fallback={null}>{createElement(page, { pageKey, basePath, path })}</Suspense>
+        <Suspense fallback={null}>{createElement(page, { pageKey, basePath: pagePath, path })}</Suspense>
       )}
     </>
   );

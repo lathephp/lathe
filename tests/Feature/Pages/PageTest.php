@@ -24,7 +24,8 @@ it('renders a page in the shell with its key, base path and sub path', function 
     $this->get('/lathe/pages/ui-gallery')->assertOk()->assertInertia(fn (AssertableInertia $page) => $page
         ->component('Page', false)
         ->where('pageKey', 'ui-gallery')
-        ->where('basePath', '/lathe/pages/ui-gallery')
+        ->where('pagePath', '/lathe/pages/ui-gallery')
+        ->where('basePath', '/lathe')
         ->where('path', '')
         ->where('title', 'UI Gallery'));
 
