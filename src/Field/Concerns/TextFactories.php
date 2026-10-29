@@ -64,18 +64,18 @@ trait TextFactories
     }
 
     /**
-     * A value the form submits with no control.
+     * A value the form submits with no control, and no label row.
      */
     public static function hidden(string $label, string $attribute): Field
     {
-        return (new Field($label, $attribute))->component('hidden-field')->onlyOnForms();
+        return (new Field($label, $attribute))->component('hidden-field')->onlyOnForms()->compact();
     }
 
     /**
-     * A heading on the page: the label is its content, as sanitized HTML.
+     * A heading on the page: the label is its content, as sanitized HTML, so no label row repeats it.
      */
     public static function heading(string $label): HeadingField
     {
-        return new HeadingField($label);
+        return (new HeadingField($label))->compact();
     }
 }

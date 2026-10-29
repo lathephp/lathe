@@ -216,6 +216,11 @@ it('renders a heading through the sanitizer', function () {
     expect(json_encode($schema['content']))->toBe('{"__html":"<b>Billing<\/b>"}');
 });
 
+it('draws a heading and a hidden field compact, with no label row', function () {
+    expect(Field::heading('What we may send')->schema(FieldContext::Create, textRequest())['compact'])->toBeTrue()
+        ->and(Field::hidden('Source', 'source')->schema(FieldContext::Create, textRequest())['compact'])->toBeTrue();
+});
+
 it('sends asHtml values as SafeHtml cleaned by the sanitizer', function (string $payload, string $clean) {
     $sample = TextSample::create(['name' => $payload]);
 
