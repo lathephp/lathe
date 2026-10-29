@@ -1,5 +1,5 @@
 import { request, toast, useLathe, useTranslation } from '@lathephp/core';
-import { useEffect, useRef, useState } from 'react';
+import { useLayoutEffect, useRef, useState } from 'react';
 import type { FormFieldData } from '../fields/types';
 
 /** What the server changed on one field for this form. */
@@ -45,11 +45,11 @@ export function useDependentFields({ uriKey, mode, id, fields, values, dirty, ap
   const previous = useRef(values);
   const latest = useRef({ fields, dirty, apply });
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     latest.current = { fields, dirty, apply };
   });
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     const before = previous.current;
     previous.current = values;
     const moved = Object.keys(values).filter((attribute) => values[attribute] !== before[attribute]);

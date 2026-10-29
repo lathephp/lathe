@@ -1,6 +1,6 @@
 import { useTranslation } from '@lathephp/core';
 import { X } from 'lucide-react';
-import { useEffect, useRef } from 'react';
+import { useEffect, useLayoutEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { NotificationItem } from './NotificationItem';
 import type { NotificationData, useNotifications } from './useNotifications';
@@ -51,7 +51,7 @@ export function NotificationPanel({ state, onClose }: Props) {
   const panel = useRef<HTMLDivElement>(null);
   const close = useRef(onClose);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     close.current = onClose;
   }, [onClose]);
 

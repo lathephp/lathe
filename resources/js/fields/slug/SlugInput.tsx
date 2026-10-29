@@ -1,5 +1,5 @@
 import { useTranslation } from '@lathephp/core';
-import { useEffect, useRef, useState } from 'react';
+import { useLayoutEffect, useRef, useState } from 'react';
 import { stringValue, type FormFieldProps } from '../registry';
 
 /** The slug of a text with the words joined by the separator, as the server's Str::slug does for plain Latin text. */
@@ -32,7 +32,7 @@ export default function SlugInput({ field, value, onChange, id, describedBy, inv
   const previous = useRef(source);
   const locked = field.locked === true && !unlocked;
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (previous.current === source) {
       return;
     }

@@ -1,5 +1,5 @@
 import { useLathe, useTranslation } from '@lathephp/core';
-import { Suspense, useEffect, useId, useRef, useState } from 'react';
+import { Suspense, useEffect, useId, useLayoutEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import type { Cell, FieldSchema } from '../fields/types';
 import { stringValue } from '../fields/registry';
@@ -42,7 +42,7 @@ export function InlineCell({ uriKey, rowId, column, cell, token, onRow }: Inline
   const [error, setError] = useState<string | null>(null);
   // An undo outlives this render: the stack calls it later, so it reads the latest row callback from a ref.
   const latest = useRef(onRow);
-  useEffect(() => {
+  useLayoutEffect(() => {
     latest.current = onRow;
   });
   // A save someone else's change refused: the value to save over theirs, and whether it was an undo.
@@ -53,7 +53,7 @@ export function InlineCell({ uriKey, rowId, column, cell, token, onRow }: Inline
   const busy = pending !== null;
   // What the grid's edit request reads when it comes, after this render.
   const current = useRef({ busy, shown, commit });
-  useEffect(() => {
+  useLayoutEffect(() => {
     current.current = { busy, shown, commit };
   });
   const options = (column.options as Option[] | undefined) ?? [];

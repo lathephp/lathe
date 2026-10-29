@@ -4,7 +4,16 @@ import jsxA11y from 'eslint-plugin-jsx-a11y';
 import reactHooks from 'eslint-plugin-react-hooks';
 import tseslint from 'typescript-eslint';
 import noMixedHistoryTests from './eslint-rules/no-mixed-history-tests.js';
+import noRefInPassiveEffect from './eslint-rules/no-ref-in-passive-effect.js';
 import noUntranslatedLiteral from './eslint-rules/no-untranslated-literal.js';
+
+const lathe = {
+  rules: {
+    'no-mixed-history-tests': noMixedHistoryTests,
+    'no-ref-in-passive-effect': noRefInPassiveEffect,
+    'no-untranslated-literal': noUntranslatedLiteral,
+  },
+};
 
 export default defineConfig([
   // A worktree under .claude carries its own copy of this config; vendor is the PHP side.
@@ -35,13 +44,20 @@ export default defineConfig([
     // Client source only: tests assert on literal text, and the tooling has no UI.
     files: ['resources/js/**/*.tsx', 'packages/*/src/**/*.tsx'],
     ignores: ['**/__tests__/**'],
-    plugins: { lathe: { rules: { 'no-untranslated-literal': noUntranslatedLiteral } } },
+    plugins: { lathe },
     rules: { 'lathe/no-untranslated-literal': 'error' },
+  },
+  {
+    // A ref synced in a passive effect is stale for a key pressed before that effect runs.
+    files: ['resources/js/**/*.{ts,tsx}'],
+    ignores: ['**/__tests__/**'],
+    plugins: { lathe },
+    rules: { 'lathe/no-ref-in-passive-effect': 'error' },
   },
   {
     // A test that asserts the URL or the history leaks router state into its neighbours.
     files: ['resources/js/**/__tests__/**/*.{ts,tsx}'],
-    plugins: { lathe: { rules: { 'no-mixed-history-tests': noMixedHistoryTests } } },
+    plugins: { lathe },
     rules: { 'lathe/no-mixed-history-tests': 'error' },
   },
   {

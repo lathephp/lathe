@@ -118,7 +118,7 @@ export function FilterBarEditor({ label, url, urlChips, leave, onChips, text, fo
     setChips([...urlChips, ...chips.filter((chip) => !applied(chip))]);
   }
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     latest.current = chips;
     onChips(chips);
   });

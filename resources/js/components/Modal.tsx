@@ -97,7 +97,7 @@ export function Modal({ labelledBy, onClose, children, className, locked = false
     answer.current = asking;
   }, [asking]);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     close.current = onClose;
     held.current = locked;
   }, [onClose, locked]);
