@@ -48,6 +48,7 @@ interface Options {
   definition?: Record<string, unknown>;
   rows?: TestRow[];
   tableStyle?: SharedProps['tableStyle'];
+  url?: string;
 }
 
 function renderOrders(options: Options = {}) {
@@ -77,7 +78,7 @@ function renderOrders(options: Options = {}) {
       state: { page: 1, perPage: 25, hasMorePages: true, sort: '' },
       count: { value: 10000, exact: false, capped: false, estimated: false },
     },
-    { url: '/lathe/resources/orders', shared: options.tableStyle === undefined ? {} : { tableStyle: options.tableStyle } },
+    { url: options.url ?? '/lathe/resources/orders', shared: options.tableStyle === undefined ? {} : { tableStyle: options.tableStyle } },
   );
 }
 
@@ -449,6 +450,13 @@ describe('soft deleted rows', () => {
 
     expect(within(rowOf('ORD-00001')).getByText('Soft Deleted')).toBeTruthy();
     expect(within(rowOf('ORD-00002')).queryByText('Soft Deleted')).toBeNull();
+  });
+
+  // Every row of the trashed-only view is deleted, so the badge would only widen the first column.
+  it('drops the badge in the trashed-only view', () => {
+    renderOrders({ rows: [row(1, { view: true }, true), row(2, { view: true }, true)], url: '/lathe/resources/orders?trashed=only' });
+
+    expect(screen.queryByText('Soft Deleted')).toBeNull();
   });
 });
 

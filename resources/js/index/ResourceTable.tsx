@@ -107,7 +107,9 @@ export function direction(sort: string | undefined, key: string): 'ascending' | 
 
 export function ResourceTable({ resource, table, state, loading, selection, sort, onSort, cards, preview }: ResourceTableProps) {
   const { __ } = useTranslation();
-  const { props: { basePath, tableStyle }, onceProps } = usePage<SharedProps>();
+  const { props: { basePath, tableStyle }, onceProps, url: pageUrl } = usePage<SharedProps>();
+  // Every row of the trashed-only view is deleted, so its rows carry no Soft Deleted badge.
+  const trashedOnly = new URLSearchParams(pageUrl.split('?')[1]).get('trashed') === 'only';
   const { clickAction, showColumnBorders } = resource.definition;
   // Deferred with the count, so the footer arrives after the rows.
   const { summaries, groups, lens } = usePage<Pick<IndexProps, 'summaries' | 'groups' | 'lens'>>().props;
@@ -474,7 +476,7 @@ export function ResourceTable({ resource, table, state, loading, selection, sort
                                 ) : (
                                   <TableCell column={column} cell={cell} />
                                 ))}
-                              {index === 0 && row.trashed === true && (
+                              {index === 0 && row.trashed === true && !trashedOnly && (
                                 <span className="ms-2 rounded-full bg-muted px-2 py-0.5 text-xs font-medium text-muted-foreground">
                                   {__('Soft Deleted')}
                                 </span>
