@@ -5,7 +5,7 @@ import { describe, expect, it } from 'vitest';
 // Read from disk: Vitest turns a stylesheet import into an empty string.
 const css = readFileSync('resources/css/app.css', 'utf8');
 // A selector list splits at its top-level commas only, not those inside :where() or :not().
-const toolbarSelectors = [...css.matchAll(/^\s*(\.lathe-toolbar[^{]*?)\s*\{/gm)].flatMap((match) => match[1].split(/,(?![^(]*\))/));
+const toolbarSelectors = [...css.matchAll(/^\s*(\.lathe-toolbar[^{]*?)\s*\{/gm)].flatMap((match) => (match[1] ?? '').split(/,(?![^(]*\))/));
 
 function button(): HTMLButtonElement {
   const element = document.createElement('button');
