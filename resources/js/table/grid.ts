@@ -125,8 +125,9 @@ export function attachGrid(table: HTMLTableElement, select: { current: GridSelec
     held = found !== null && found.cell === current() && found.cell.contains(document.activeElement);
   }
 
-  // A click on a cell, not on a control in it, puts the cursor there. A link in a cell, such as a
-  // related record's name, moves the cursor first and opens once its cell holds the cursor.
+  // A click on a cell, not on a control in it, puts the cursor there. In a list that edits inline,
+  // a link in a cell, such as a related record's name, moves the cursor first and opens once its
+  // cell holds the cursor; a list with nothing to edit, such as Action Events, follows it at once.
   function onClick(event: MouseEvent) {
     const found = locate(event.target);
     const control = event.target instanceof Element ? event.target.closest('a, button, input, label, select') : null;
@@ -135,7 +136,10 @@ export function attachGrid(table: HTMLTableElement, select: { current: GridSelec
       found.cell.focus();
     } else if (found !== null && control instanceof HTMLAnchorElement && !held && event.detail > 0 && !event.metaKey && !event.ctrlKey && !event.shiftKey) {
       // A pointer's click only: Enter on a focused link follows it.
-      event.preventDefault();
+      if (table.querySelector('[data-inline-cell]') !== null) {
+        event.preventDefault();
+      }
+
       found.cell.focus();
     }
 

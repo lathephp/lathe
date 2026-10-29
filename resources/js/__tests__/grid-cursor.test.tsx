@@ -97,7 +97,44 @@ describe('the cell cursor', () => {
     expect(links.filter((link) => link.tabIndex >= 0)).toEqual([]);
   });
 
-  it("moves the cursor from a first click on a related record's link, and opens it from a click once its cell holds the cursor", async () => {
+  it("moves the cursor from a first click on a related record's link in a list that edits inline, and opens it from a click once its cell holds the cursor", async () => {
+    const visit = vi.spyOn(router, 'visit').mockImplementation(() => undefined);
+    const base = orders(2);
+    renderPage(
+      'Resources/Index',
+      {
+        ...base,
+        table: {
+          ...base.table,
+          columns: base.table.columns.map((column) =>
+            column.key === 'customer'
+              ? { ...column, component: 'belongs-to-field' }
+              : column.key === 'status'
+                ? { ...column, component: 'select-field', inline: true, options: [{ value: 'pending', label: 'Pending' }, { value: 'paid', label: 'Paid' }] }
+                : column,
+          ),
+          rows: base.table.rows.map((row) => ({ ...row, cells: { ...row.cells, customer: { value: { value: 7, display: 'Ann Lee', href: '/lathe/resources/customers/7' }, display: 'Ann Lee' } } })),
+        },
+      },
+      { url: '/lathe/resources/orders' },
+    );
+    await waitFor(() => {
+      expect(screen.getByRole('grid').hasAttribute('data-grid-ready')).toBe(true);
+    });
+    const link = screen.getAllByRole('link', { name: 'Ann Lee' })[1] as HTMLElement;
+
+    fireEvent.pointerDown(link);
+    fireEvent.click(link, { detail: 1 });
+    expect(visit).not.toHaveBeenCalled();
+    expect(document.activeElement).toBe(link.closest('td'));
+
+    fireEvent.pointerDown(link);
+    fireEvent.click(link, { detail: 1 });
+    expect(visit.mock.calls[0]?.[0]).toBe('/lathe/resources/customers/7');
+  });
+
+  // A list with nothing to edit, such as Action Events, gains nothing from holding the link back.
+  it("opens a related record's link from the first click in a list that edits nothing inline, and moves the cursor", async () => {
     const visit = vi.spyOn(router, 'visit').mockImplementation(() => undefined);
     const base = orders(2);
     renderPage(
@@ -119,12 +156,9 @@ describe('the cell cursor', () => {
 
     fireEvent.pointerDown(link);
     fireEvent.click(link, { detail: 1 });
-    expect(visit).not.toHaveBeenCalled();
-    expect(document.activeElement).toBe(link.closest('td'));
 
-    fireEvent.pointerDown(link);
-    fireEvent.click(link, { detail: 1 });
     expect(visit.mock.calls[0]?.[0]).toBe('/lathe/resources/customers/7');
+    expect(document.activeElement).toBe(link.closest('td'));
   });
 
   it('reaches the header from the first row, presses its select-all with Enter, and leaves its controls out of the tab order', async () => {
