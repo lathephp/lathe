@@ -282,6 +282,8 @@ abstract class Widget
     /**
      * 30 days when the card keeps the ranges $stock declares, else null: a card with ranges of
      * its own starts at its first range, as it always did.
+     *
+     * @internal
      */
     protected function stockStartRange(string $stock): ?int
     {
