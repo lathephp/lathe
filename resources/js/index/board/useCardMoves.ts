@@ -1,8 +1,9 @@
 import { draggable, dropTargetForElements } from '@atlaskit/pragmatic-drag-and-drop/element/adapter';
 import { announce } from '@atlaskit/pragmatic-drag-and-drop-live-region';
+import { router } from '@inertiajs/react';
 import { toast, useLathe, useTranslation } from '@lathephp/core';
 import type { KeyboardEvent } from 'react';
-import { useLayoutEffect, useRef, useState } from 'react';
+import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { flushSync } from 'react-dom';
 import type { IndexProps, Row } from '../types';
 import type { useBoardColumns } from './useBoardColumns';
@@ -11,6 +12,17 @@ import type { useBoardColumns } from './useBoardColumns';
 // Orders' first load carries for the Board. They sit outside the hook because the React
 // Compiler skips a function that holds an import().
 const saving = () => Promise.all([import('../inlineSave'), import('../undo')]);
+
+// A move changes the views rail's tab counts and the sidebar's badges; moves that land within
+// 200 ms of each other ask for them once.
+let recount: ReturnType<typeof setTimeout> | undefined;
+
+function reloadCounts() {
+  clearTimeout(recount);
+  recount = setTimeout(() => {
+    router.reload({ only: ['tabCounts', 'navigationBadges'] });
+  }, 200);
+}
 
 type Board = NonNullable<IndexProps['table']['board']>;
 type Columns = ReturnType<typeof useBoardColumns>;
@@ -29,9 +41,9 @@ function dragCard(element: HTMLElement | null) {
 /**
  * Moves Board cards between columns by drag, Shift+Left/Right and the Move to menu. A move shows
  * at once, saves the board field through the inline PATCH, and joins the undo stack; a refused
- * move goes back where it was.
+ * move goes back where it was. `onSaved` hears each saved card, as the preview panel shows it.
  */
-export function useCardMoves(uriKey: string, board: Board, columns: Columns) {
+export function useCardMoves(uriKey: string, board: Board, columns: Columns, onSaved: (row: Row) => void) {
   const { __ } = useTranslation();
   const { apiPath } = useLathe();
   const [over, setOver] = useState<{ value: string | null } | null>(null);
@@ -46,6 +58,14 @@ export function useCardMoves(uriKey: string, board: Board, columns: Columns) {
   useLayoutEffect(() => {
     latest.current = columns;
   });
+
+  // A page the user left for another loads its own counts; the recount would reload that page.
+  useEffect(
+    () => () => {
+      clearTimeout(recount);
+    },
+    [],
+  );
 
   function labelOf(value: string | null): string {
     return value === null ? 'No value' : (latest.current.columns.find((column) => column.value === value)?.label ?? '');
@@ -86,6 +106,8 @@ export function useCardMoves(uriKey: string, board: Board, columns: Columns) {
       if (reply !== null) {
         tokens.current.set(row.id, { sent: token, got: reply.updatedAt });
         latest.current.saved(row.id, reply.fields, reply.updatedAt);
+        onSaved({ ...row, cells: { ...row.cells, ...reply.fields }, updatedAt: reply.updatedAt });
+        reloadCounts();
       }
 
       // Announcements stay in English.

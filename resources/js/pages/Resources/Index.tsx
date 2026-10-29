@@ -190,7 +190,17 @@ function IndexPage({ resource, table, state, count, error, lens, actions, widget
             />
           ) : board != null && layout === 'board' ? (
             <Suspense fallback={<div aria-hidden="true" className="min-h-40" />}>
-              <Board resource={resource} table={table} board={board} preview={preview} />
+              <Board
+                resource={resource}
+                table={table}
+                board={board}
+                preview={{
+                  ...preview,
+                  saved: (row) => {
+                    setSaved((current) => ({ ...current, [String(row.id)]: { over: row, row } }));
+                  },
+                }}
+              />
             </Suspense>
           ) : (
             <>
@@ -243,7 +253,8 @@ function IndexPage({ resource, table, state, count, error, lens, actions, widget
               resource={resource}
               table={table}
               id={preview.id}
-              row={kept !== undefined && shown !== undefined && sameRow(kept.over, shown) ? kept.row : shown}
+              // A Board card is not one of the page's rows, so its last save shows over whatever the page holds.
+              row={board != null && layout === 'board' ? (kept?.row ?? shown) : kept !== undefined && shown !== undefined && sameRow(kept.over, shown) ? kept.row : shown}
               onClose={() => {
                 preview.close();
                 // The grid's cursor takes the focus back from the panel, or the card it showed on a phone or the Board, where the list stays put.

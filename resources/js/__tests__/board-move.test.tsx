@@ -42,6 +42,8 @@ const ok = (value: string, updatedAt: string) =>
 /** Answers the Board's pages and counts, and each PATCH with the next reply given. */
 function moveServer(replies: (Response | Promise<Response>)[], abilities: Record<string, boolean> = { view: true, update: true, inlineEdit: true }, more: Record<string, number[]> = {}) {
   const patches: Patch[] = [];
+  // A saved move reloads the counts outside the Board; board-recount.test.tsx answers that visit.
+  vi.spyOn(router, 'reload').mockImplementation(() => undefined);
 
   vi.spyOn(globalThis, 'fetch').mockImplementation((input, init) => {
     const url = new URL(urlOf(input), 'http://localhost');

@@ -10,8 +10,8 @@ import { canMove, useCardMoves } from './useCardMoves';
 
 type BoardProps = Pick<IndexProps, 'resource' | 'table'> & {
   board: NonNullable<IndexProps['table']['board']>;
-  /** The preview panel: a click opens it on a card, Space toggles it, and an open panel follows the focus. */
-  preview: { show: (id: Row['id']) => void; toggle: (id: Row['id']) => void; follow: (id: Row['id']) => void };
+  /** The preview panel: a click opens it on a card, Space toggles it, an open panel follows the focus, and a moved card's save reaches it. */
+  preview: { show: (id: Row['id']) => void; toggle: (id: Row['id']) => void; follow: (id: Row['id']) => void; saved: (row: Row) => void };
 };
 
 // The arrows step to the next card in a column, or across to the card at the same height in the next one.
@@ -37,7 +37,7 @@ export function Board({ resource, table, board, preview }: BoardProps) {
   const { __ } = useTranslation();
   const state = useBoardColumns(resource.uriKey, board);
   const { columns, showMore } = state;
-  const moves = useCardMoves(resource.uriKey, board, state);
+  const moves = useCardMoves(resource.uriKey, board, state, preview.saved);
   const card = table.phoneCard;
 
   function part(row: Row, key: string | null | undefined) {
