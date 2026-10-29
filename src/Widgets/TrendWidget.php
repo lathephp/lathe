@@ -6,6 +6,7 @@ use Illuminate\Contracts\Database\Query\Expression;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Lathe\Http\Requests\LatheRequest;
+use Lathe\Lathe;
 use Lathe\Support\Timezone;
 use Lathe\Widgets\Results\TrendResult;
 use LogicException;
@@ -46,7 +47,7 @@ abstract class TrendWidget extends Widget
      */
     public function ranges(): array
     {
-        return [30 => '30 Days', 60 => '60 Days', 90 => '90 Days'];
+        return [7 => Lathe::__('7 days'), 30 => Lathe::__('30 days'), 365 => Lathe::__('12 months')];
     }
 
     /**
@@ -61,7 +62,7 @@ abstract class TrendWidget extends Widget
 
     public function defaultRangeKey(): int|string|null
     {
-        return $this->defaultRange ?? parent::defaultRangeKey();
+        return $this->defaultRange ?? $this->stockStartRange(self::class) ?? parent::defaultRangeKey();
     }
 
     public function lineOnly(bool $on = true): static
@@ -170,7 +171,7 @@ abstract class TrendWidget extends Widget
     {
         return [
             ...parent::descriptor(),
-            'defaultRange' => $this->defaultRange,
+            'defaultRange' => $this->defaultRange ?? $this->stockStartRange(self::class),
             'lineOnly' => $this->lineOnly,
             'stacked' => $this->stacked,
             'stackedExpand' => $this->stackedExpand,
@@ -441,7 +442,7 @@ abstract class TrendWidget extends Widget
             return (int) $range;
         }
 
-        $default = $this->defaultRange ?? array_key_first($this->ranges());
+        $default = $this->defaultRangeKey();
 
         return is_numeric($default) ? (int) $default : 30;
     }

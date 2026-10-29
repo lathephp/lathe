@@ -1,10 +1,14 @@
 <?php
 
+use Illuminate\Support\Facades\DB;
 use Inertia\Testing\AssertableInertia;
+use Lathe\Http\Requests\LatheRequest;
 use Lathe\Lathe;
 use Lathe\Tests\Fixtures\Dashboards\Cards;
 use Lathe\Tests\Fixtures\Widgets\RangeProbe;
+use Lathe\Tests\Fixtures\Widgets\TrendProbe;
 use Lathe\Tests\Fixtures\Widgets\ValueOrders;
+use Workbench\App\Models\Order;
 use Workbench\App\Models\User;
 use Workbench\Database\Seeders\DemoSeeder;
 
@@ -71,8 +75,60 @@ it('sends no range to a card without ranges', function () {
         ->toMatchArray(['value' => null])->not->toHaveKey('fallbackRange');
 });
 
-it('counts a value card over the fallback range, not the day count it was asked for', function () {
+/**
+ * One order 3, 20 and 200 days old, and none else.
+ */
+function ordersAged3And20And200Days(): void
+{
+    DB::table('orders')->delete();
+
+    foreach ([3, 20, 200] as $days) {
+        $at = now()->subDays($days)->toDateTimeString();
+        DB::table('orders')->insert(['customer_id' => 1, 'number' => "AGE-{$days}", 'status' => 'paid', 'total_cents' => 100, 'placed_at' => $at, 'created_at' => $at, 'updated_at' => $at]);
+    }
+}
+
+it('follows 7 days and 365 days on a stock value card, and starts at 30', function () {
+    ordersAged3And20And200Days();
     Cards::$widgets = [new ValueOrders];
+
+    $count = fn (string $query) => $this->getJson("/lathe/api/dashboards/cards/widgets/value-orders{$query}")->json();
+
+    expect($count('?range=7'))->not->toHaveKey('fallbackRange')
+        ->and($count('?range=7')['value']['value'])->toBe(1)
+        ->and($count('?range=365'))->not->toHaveKey('fallbackRange')
+        ->and($count('?range=365')['value']['value'])->toBe(3)
+        ->and($count('')['value']['value'])->toBe(2)
+        ->and((new ValueOrders)->descriptor()['defaultRange'])->toBe(30);
+});
+
+it('follows 7 days and 365 days on a stock trend card, and starts at 30', function () {
+    TrendProbe::$using = fn (LatheRequest $request) => $this->countByDays($request, Order::class);
+    Cards::$widgets = [new TrendProbe];
+
+    $trend = fn (string $query) => $this->getJson("/lathe/api/dashboards/cards/widgets/trend-probe{$query}")->json();
+
+    expect($trend('?range=7'))->not->toHaveKey('fallbackRange')
+        ->and($trend('?range=7')['value']['trend'])->toHaveCount(7)
+        ->and($trend('?range=365'))->not->toHaveKey('fallbackRange')
+        ->and($trend('?range=365')['value']['trend'])->toHaveCount(365)
+        ->and($trend('')['value']['trend'])->toHaveCount(30)
+        ->and((new TrendProbe)->descriptor()['defaultRange'])->toBe(30);
+});
+
+it('counts a value card over the fallback range, not the day count it was asked for', function () {
+    Cards::$widgets = [new class extends ValueOrders
+    {
+        public function ranges(): array
+        {
+            return [30 => '30 Days', 60 => '60 Days', 365 => '365 Days'];
+        }
+
+        public static function uriKey(): string
+        {
+            return 'value-orders';
+        }
+    }];
 
     expect($this->getJson('/lathe/api/dashboards/cards/widgets/value-orders?range=7')->json('value.value'))
         ->toBe($this->getJson('/lathe/api/dashboards/cards/widgets/value-orders?range=30')->json('value.value'));

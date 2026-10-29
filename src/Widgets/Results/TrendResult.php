@@ -102,7 +102,7 @@ class TrendResult implements JsonSerializable
     }
 
     /**
-     * Runs on the headline on the server, before it is rounded.
+     * Runs on the points, the series and the headline on the server, before they are rounded.
      *
      * @param  callable(int|float): mixed  $callback
      */
@@ -144,8 +144,8 @@ class TrendResult implements JsonSerializable
     {
         $headline = $this->headline ?? ($this->headlineFrom === 'sum' ? array_sum($this->data) : $this->latest());
 
-        if ($headline !== null && $this->transformCallback !== null) {
-            $headline = ($this->transformCallback)($headline);
+        if ($headline !== null) {
+            $headline = $this->transformed($headline);
         }
 
         return [
@@ -172,11 +172,20 @@ class TrendResult implements JsonSerializable
 
     /**
      * @param  array<string, int|float>  $points
-     * @return array<string, int|float>
+     * @return array<string, mixed>
      */
     private function roundPoints(array $points): array
     {
-        return array_map($this->round(...), $points);
+        return array_map(function (int|float $point) {
+            $value = $this->transformed($point);
+
+            return is_int($value) || is_float($value) ? $this->round($value) : $value;
+        }, $points);
+    }
+
+    private function transformed(int|float $number): mixed
+    {
+        return $this->transformCallback === null ? $number : ($this->transformCallback)($number);
     }
 
     private function round(int|float $number): int|float

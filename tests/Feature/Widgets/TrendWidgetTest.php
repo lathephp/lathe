@@ -104,8 +104,8 @@ it('dates the helpers by the column given', function () {
     expect(trendOf(new TrendProbe, ['range' => 1])['trend'])->toBe(['2026-05-15' => 1]);
 });
 
-it('offers 30, 60 and 90 days by default', function () {
-    expect((new TrendProbe)->ranges())->toBe([30 => '30 Days', 60 => '60 Days', 90 => '90 Days'])
+it('offers 7 days, 30 days and 12 months by default', function () {
+    expect((new TrendProbe)->ranges())->toBe([7 => '7 days', 30 => '30 days', 365 => '12 months'])
         ->and((new TrendProbe)->component())->toBe('trend-widget');
 });
 
@@ -143,7 +143,7 @@ it('describes a plain trend widget with every option off', function () {
         'showLabels' => false,
         'labelKey' => null,
         'twelveHourTime' => false,
-        'defaultRange' => null,
+        'defaultRange' => 30,
     ]);
 });
 
@@ -199,8 +199,19 @@ it('sends prefix, suffix, format and transforms the headline on the server', fun
         'suffixInflection' => false,
         'format' => ['style' => 'percent'],
         'value' => 2.5,
-        'trend' => ['a' => 250],
+        'trend' => ['a' => 2.5],
     ])->and(trendOf(trendProbe((new TrendResult([]))->euros()))['prefix'])->toBe('€');
+});
+
+it('transforms the points and the series as well as the headline', function () {
+    $result = (new TrendResult(['a' => 150000, 'b' => 250]))->withSeries(['paid' => ['a' => 100000, 'b' => 250]])
+        ->transform(fn (int $cents) => $cents / 100);
+
+    expect(trendOf(trendProbe($result)))->toMatchArray([
+        'trend' => ['a' => 1500, 'b' => 2.5],
+        'series' => ['paid' => ['a' => 1000, 'b' => 2.5]],
+        'value' => 2.5,
+    ]);
 });
 
 it('rounds the headline and the points with the widget precision and says which', function () {

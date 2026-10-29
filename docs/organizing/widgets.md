@@ -212,7 +212,7 @@ A cache store without tag support falls back to the time limit alone.
 
 ### Ranges
 
-Value and trend cards show a range selector on a Resource page. On a dashboard the header's range picker drives every card instead (see [Dashboards](dashboards.md#the-range)). Override `ranges()` to offer your own choices. The array maps a key to a label:
+Value and trend cards show a range selector on a Resource page. On a dashboard the header's range picker drives every card instead (see [Dashboards](dashboards.md#the-range)). A value or trend card offers the dashboard's ranges, 7 days, 30 days and 12 months, and starts at 30 days. Override `ranges()` to offer your own choices; a card with its own `ranges()` starts at its first choice. The array maps a key to a label:
 
 ```php
 public function ranges(): array
@@ -275,7 +275,7 @@ The helpers return a `ValueResult`. To build one by hand, use `new ValueResult($
 |--------|--------|
 | `previous($value, $label)` | Sets the earlier value, with an optional label |
 | `prefix()`, `suffix()`, `dollars()`, `euros()`, `currency()` | Text around the number |
-| `format('a')`, `format('.2')` | Compact notation, or fixed fraction digits |
+| `format('a')`, `format('.2')` | Compact notation, or fixed fraction digits. The zeros count: `'.0'` gives one fraction digit and `'.00'` two. For none, pass Intl options: `format(['maximumFractionDigits' => 0])` |
 | `transform(callable)` | Changes the number before it shows |
 | `allowZeroResult()` | Shows 0 instead of "No Data" |
 | `copyable()` | Adds a copy button |

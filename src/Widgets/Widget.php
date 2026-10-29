@@ -32,6 +32,7 @@ use Lathe\Support\Timezone;
 use Lathe\Widgets\Concerns\RoundingPrecision;
 use LogicException;
 use ReflectionClass;
+use ReflectionMethod;
 
 /**
  * One card of a dashboard, a Resource index or detail page, or a lens.
@@ -276,6 +277,15 @@ abstract class Widget
     public function defaultRangeKey(): int|string|null
     {
         return array_key_first($this->ranges());
+    }
+
+    /**
+     * 30 days when the card keeps the ranges $stock declares, else null: a card with ranges of
+     * its own starts at its first range, as it always did.
+     */
+    protected function stockStartRange(string $stock): ?int
+    {
+        return (new ReflectionMethod($this, 'ranges'))->getDeclaringClass()->getName() === $stock ? 30 : null;
     }
 
     /**

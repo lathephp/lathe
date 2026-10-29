@@ -159,12 +159,12 @@ it('sends the previous value with its label', function () {
         ->toMatchArray(['previous' => 100, 'previousLabel' => 'last month', 'change' => 50.0]);
 });
 
-it('offers 30, 60 and 365 days by default', function () {
-    expect((new ValueOrders)->ranges())->toBe([30 => '30 Days', 60 => '60 Days', 365 => '365 Days'])
+it('offers 7 days, 30 days and 12 months by default', function () {
+    expect((new ValueOrders)->ranges())->toBe([7 => '7 days', 30 => '30 days', 365 => '12 months'])
         ->and((new ValueOrders)->descriptor()['ranges'])->toBe([
-            ['value' => 30, 'label' => '30 Days'],
-            ['value' => 60, 'label' => '60 Days'],
-            ['value' => 365, 'label' => '365 Days'],
+            ['value' => 7, 'label' => '7 days'],
+            ['value' => 30, 'label' => '30 days'],
+            ['value' => 365, 'label' => '12 months'],
         ])
         ->and((new ValueOrders)->component())->toBe('value-widget');
 });
@@ -253,5 +253,5 @@ it('takes the default range when the request names none', function () {
     expect(valueOf($widget)['value'])->toBe(2)
         ->and(valueOf($widget, ['range' => 30])['value'])->toBe(1)
         ->and($widget->descriptor()['defaultRange'])->toBe(60)
-        ->and((new ValueOrders)->descriptor()['defaultRange'])->toBeNull();
+        ->and((new ValueOrders)->descriptor()['defaultRange'])->toBe(30);
 });
