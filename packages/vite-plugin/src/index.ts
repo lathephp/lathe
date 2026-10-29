@@ -1,6 +1,6 @@
 import { existsSync, mkdirSync, readdirSync, readFileSync, realpathSync, rmSync, writeFileSync } from 'node:fs';
 import type { AddressInfo } from 'node:net';
-import { join, relative, resolve, sep } from 'node:path';
+import { dirname, join, relative, resolve, sep } from 'node:path';
 import { build, type Plugin } from 'vite';
 
 export interface PluginModeOptions {
@@ -49,8 +49,8 @@ const bundledReact = /[\\/]node_modules[\\/](react|react-dom)[\\/]/;
 // The panel's stylesheet already holds the preflight and the token values, so the full
 // Tailwind import becomes its theme and utilities layers only. The theme is a reference
 // inlined into the utilities: emitted :root variables would override the panel's own
-// (--font-sans lost Archivo). With no source() of its own, it scans the CSS file's folder,
-// not the whole app.
+// (--font-sans lost Archivo). With no source() of its own, it scans the extension's folder:
+// the boot file's in an app, not the whole app, and a plugin's whole folder.
 const fullTailwind = /@import\s+(['"])tailwindcss\1([^;]*);/;
 
 // An import the dev server rewrote to its /@id/ URL.
@@ -247,11 +247,14 @@ export function lathe(options: PluginModeOptions | AppModeOptions): Plugin {
     },
     transform(code, id) {
       if (id.endsWith('.css')) {
+        const scanned = options.mode === 'app' ? dirname(resolve(root, bootFile)) : root;
+        const source = relative(dirname(id), scanned).split(sep).join('/') || '.';
+
         return fullTailwind.test(code)
           ? code.replace(
               fullTailwind,
               (_, _quote: string, rest: string) =>
-                `@import "tailwindcss/theme.css" layer(theme) theme(reference inline);\n@import "tailwindcss/utilities.css" layer(utilities)${rest.includes('source(') ? '' : ' source("./")'}${rest};`,
+                `@import "tailwindcss/theme.css" layer(theme) theme(reference inline);\n@import "tailwindcss/utilities.css" layer(utilities)${rest.includes('source(') ? '' : ` source("${source}")`}${rest};`,
             )
           : null;
       }

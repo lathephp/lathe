@@ -158,6 +158,21 @@ it('builds app extension CSS with no theme variables, from the extension folder 
     File::deleteDirectory($dir);
 });
 
+it('scans the whole plugin folder for a plugin whose CSS sits apart from its components', function () {
+    $dir = extensionFixture([
+        'resources/js/plugin.ts' => "import '../css/plugin.css';\nimport { plugin } from '@lathephp/core';\nplugin('apart', () => null);\n// p-4\n",
+        'resources/css/plugin.css' => "@import \"tailwindcss\";\n@import \"@lathephp/core/tokens.css\";\n",
+    ]);
+
+    $process = runExtensionScript($dir, ' await vite.build({ configFile: false, root, logLevel: "silent",'
+        .' plugins: [lathe({ mode: "plugin", name: "apart", entry: root + "/resources/js/plugin.ts" }), tailwindcss()] });');
+
+    expect($process->getExitCode())->toBe(0, $process->getErrorOutput())
+        ->and((string) file_get_contents("{$dir}/dist/apart.css"))->toContain('.p-4{');
+
+    File::deleteDirectory($dir);
+});
+
 it('builds each path-repository plugin it discovers to its own dist folder', function () {
     $plugin = fn (string $name) => [
         'vite.config.js' => 'import { lathe } from '.json_encode(extensionBuildRepo().'/packages/vite-plugin/dist/index.js').";\n"
