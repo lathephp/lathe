@@ -10,6 +10,7 @@ use Lathe\Field\Field;
 use Lathe\Field\FieldContext;
 use Lathe\Field\FieldPatch;
 use Lathe\Field\FormData;
+use Lathe\Field\Relations\BelongsToField;
 use Lathe\Http\Requests\LatheRequest;
 use Lathe\Query\QueryContext;
 use Lathe\Query\ResourceQuery;
@@ -79,7 +80,7 @@ class DependencyController
 
                 foreach ($field->dependencies() as $dependency) {
                     if ($dependency->appliesTo($context)) {
-                        $this->call($dependency, $patch, $request, new FormData($values, $request));
+                        $this->call($dependency, $patch, $request, new FormData($this->keys($values, $fields), $request));
                     }
                 }
 
@@ -127,6 +128,26 @@ class DependencyController
      * Call fn (FieldPatch $field, LatheRequest $request, FormData $formData), its parameters
      * matched by type, then by name, then by position.
      */
+    /**
+     * The values with each relation picker's {value, display} as its key, as fill() reads it.
+     *
+     * @param  array<array-key, mixed>  $values
+     * @param  array<string, Field>  $fields
+     * @return array<array-key, mixed>
+     */
+    protected function keys(array $values, array $fields): array
+    {
+        foreach ($fields as $field) {
+            $value = $values[$field->attribute()] ?? null;
+
+            if ($field instanceof BelongsToField && is_array($value)) {
+                $values[$field->attribute()] = $value['value'] ?? null;
+            }
+        }
+
+        return $values;
+    }
+
     protected function call(Dependency $dependency, FieldPatch $patch, LatheRequest $request, FormData $data): void
     {
         $byType = [FieldPatch::class => $patch, LatheRequest::class => $request, FormData::class => $data];

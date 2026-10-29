@@ -513,7 +513,7 @@ Field::number('Total')->dependsOn(['quantity', 'price'], function (FieldPatch $f
 });
 ```
 
-A patch has `show()`, `hide()`, `setValue()`, `options()`, `readonly()` and `required()`. `FormData` has `get()`, `has()`, `boolean()`, `file()`, `all()`, `resource()` and `request()`. A patch never overwrites a value the user typed. A cascade stops at depth five, and a closure that throws keeps the previous state and shows a retry toast.
+A patch has `show()`, `hide()`, `setValue()`, `options()`, `readonly()` and `required()`. `FormData` has `get()`, `has()`, `boolean()`, `file()`, `all()`, `resource()` and `request()`. For a `belongsTo` field, `get()` returns the picked record's key, so `Product::find($formData->get('product'))` finds it. A patch never overwrites a value the user typed. A cascade stops at depth five, and a closure that throws keeps the previous state and shows a retry toast.
 
 ## Filterable fields
 

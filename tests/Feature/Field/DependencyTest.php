@@ -15,6 +15,7 @@ use Lathe\Resources\ResourceDefinition;
 use LogicException;
 use RuntimeException;
 use Workbench\App\Models\Customer;
+use Workbench\App\Models\Order;
 use Workbench\App\Models\User;
 use Workbench\Database\Seeders\DemoSeeder;
 
@@ -61,11 +62,27 @@ class DependentCustomers extends Resource
     }
 }
 
+class DependentOrders extends Resource
+{
+    protected function configure(ResourceDefinition $definition): ResourceDefinition
+    {
+        return $definition->model(Order::class)->title('number')->canonical(false)->allowAll();
+    }
+
+    public function fields(LatheRequest $request): array
+    {
+        return [
+            Field::belongsTo('Customer'),
+            Field::text('Picked')->dependsOn('customer', fn (FieldPatch $field, FormData $formData) => $field->setValue($formData->get('customer'))),
+        ];
+    }
+}
+
 beforeEach(function () {
     $this->artisan('migrate')->assertSuccessful();
     $this->seed(DemoSeeder::class);
     Gate::define('viewLathe', fn (User $user) => true);
-    Lathe::registerResources(DependentCustomers::class);
+    Lathe::registerResources(DependentCustomers::class, DependentOrders::class);
     $this->actingAs(User::where('email', 'admin@lathephp.com')->firstOrFail());
 });
 
@@ -127,4 +144,12 @@ it('gives the callback the form values through FormData', function () {
     $data = lookup(['fields' => ['data'], 'values' => ['name' => 'Ann', 'flag' => 'true']])->json('changed.data');
 
     expect($data)->toBe(['get' => 'Ann', 'has' => false, 'boolean' => true, 'all' => ['name', 'flag'], 'customer' => 1, 'request' => true]);
+});
+
+it("gives the callback a relation field's key, not the picker's value and display", function () {
+    $picked = $this->postJson('/lathe/api/resources/dependent-orders/field-dependencies', [
+        'context' => 'create', 'dirty' => [], 'fields' => ['picked'], 'values' => ['customer' => ['value' => 7, 'display' => 'Ann']],
+    ])->assertOk()->json('changed.picked');
+
+    expect($picked)->toBe(7);
 });
