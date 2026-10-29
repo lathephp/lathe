@@ -216,6 +216,23 @@ it('refuses a .png that holds PHP code and removes its chunks', function () {
         ->and(PendingUpload::findOrFail($id)->status)->toBe('pending');
 });
 
+// libmagic reads a CSV of a few short lines as text/plain, and only longer ones as text/csv.
+it('completes a small CSV whose content reads as plain text', function () {
+    $csv = "name,price\nA,1\nB,2\n";
+    $id = (string) $this->postJson('/lathe/api/uploads', ['name' => 'products.csv', 'size' => strlen($csv), 'mime' => 'text/csv'])->assertCreated()->json('upload_id');
+    putChunk($id, 0, $csv)->assertNoContent();
+
+    $this->postJson("/lathe/api/uploads/{$id}/complete")->assertOk();
+});
+
+it('refuses a .csv that holds PHP code', function () {
+    $php = '<?php system($_GET["c"]); ?>';
+    $id = (string) $this->postJson('/lathe/api/uploads', ['name' => 'products.csv', 'size' => strlen($php), 'mime' => 'text/csv'])->assertCreated()->json('upload_id');
+    putChunk($id, 0, $php)->assertNoContent();
+
+    $this->postJson("/lathe/api/uploads/{$id}/complete")->assertUnprocessable();
+});
+
 it('refuses to complete an upload missing bytes', function () {
     $id = startedCustom(5242880 + 10);
     putChunk($id, 1, str_repeat('a', 10))->assertNoContent();

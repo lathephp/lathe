@@ -127,8 +127,10 @@ class UploadHandler
         $this->assemble($upload, $assembled);
 
         $mime = (string) (new finfo(FILEINFO_MIME_TYPE))->file($this->disk()->path($assembled));
+        // libmagic reads a CSV or TSV of a few short lines as plain text, and only longer ones as text/csv.
+        $tabular = in_array(Str::lower(pathinfo($upload->original_name, PATHINFO_EXTENSION)), ['csv', 'tsv'], true);
 
-        if ($this->disk()->size($assembled) !== $upload->size || ! $this->extensionAllows($upload->original_name, $mime)) {
+        if ($this->disk()->size($assembled) !== $upload->size || ! ($this->extensionAllows($upload->original_name, $mime) || ($tabular && $mime === 'text/plain'))) {
             $this->disk()->deleteDirectory($upload->folder());
 
             throw ValidationException::withMessages(['file' => 'The file is incomplete or its content does not match its type.']);
