@@ -14,6 +14,7 @@ use Lathe\Plugins\Plugin;
 use Lathe\Tests\Fixtures\Dashboards\Revenue;
 use Lathe\Tests\Fixtures\Models\Article as ArticleModel;
 use Lathe\Tests\Fixtures\Resources\Article;
+use Workbench\App\Models\Order as OrderModel;
 use Workbench\App\Models\User;
 use Workbench\App\Policies\ActionEventPolicy;
 use Workbench\Database\Seeders\DemoSeeder;
@@ -106,6 +107,15 @@ it('runs a lazy badge once within its TTL, per user', function () {
 
     sidebarProps('editor@lathephp.com');
     expect($runs)->toBe(3);
+});
+
+it("refreshes the user's own badge of a Resource after an inline save there, within the TTL", function () {
+    $before = (int) str_replace(',', '', sidebarProps()['navigationBadges']['/lathe/resources/orders']['value']);
+    $order = OrderModel::query()->where('status', 'pending')->firstOrFail();
+
+    test()->patchJson("/lathe/api/resources/orders/{$order->getKey()}/field/status", ['value' => 'paid'])->assertOk();
+
+    expect((int) str_replace(',', '', sidebarProps()['navigationBadges']['/lathe/resources/orders']['value']))->toBe($before - 1);
 });
 
 it('reports a lazy badge that throws and shows the page without it', function () {

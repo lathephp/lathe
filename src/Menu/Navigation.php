@@ -80,7 +80,7 @@ class Navigation
             }
 
             $resolve = fn () => (new Badge($lazy['value'], $lazy['type']))->jsonSerialize();
-            $key = 'lathe:menu-badge:'.sha1($item->href()).':'.$guard.':'.(is_scalar($user) ? $user : '');
+            $key = $this->badgeKey($item->href(), $guard, $user);
 
             // A badge that throws is reported and left off; it never takes the page down.
             try {
@@ -91,6 +91,24 @@ class Navigation
         }
 
         return $badges;
+    }
+
+    /**
+     * Drops the request user's cached badge of the item at the href, so a write they just made,
+     * such as an inline save or a Board move, shows in the next badge read within its TTL.
+     *
+     * @internal
+     */
+    public function forgetBadge(Request $request, string $href): void
+    {
+        $guard = app(FortifyConfig::class)->guard();
+
+        Cache::forget($this->badgeKey($href, $guard, $request->user($guard)?->getAuthIdentifier()));
+    }
+
+    private function badgeKey(string $href, string $guard, mixed $user): string
+    {
+        return 'lathe:menu-badge:'.sha1($href).':'.$guard.':'.(is_scalar($user) ? $user : '');
     }
 
     /**

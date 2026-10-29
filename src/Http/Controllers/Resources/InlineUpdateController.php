@@ -14,8 +14,10 @@ use Lathe\Field\FieldResolver;
 use Lathe\Field\Relations\MorphToField;
 use Lathe\Http\Requests\LatheRequest;
 use Lathe\Lathe;
+use Lathe\Menu\Navigation;
 use Lathe\Query\QueryContext;
 use Lathe\Query\ResourceQuery;
+use Lathe\Resources\Resource;
 use Lathe\Resources\TrafficCop;
 use Lathe\Resources\ValidationPipeline;
 use Lathe\Widgets\WidgetCache;
@@ -65,6 +67,8 @@ class InlineUpdateController
         (new ValidationPipeline(new FieldCollection([$target]), $request, FieldContext::Update, $class, $model))->validate();
 
         $this->save($request, $class, $model, $target);
+        // The Resource's sidebar badge, such as a count of pending orders, shows the save at once.
+        app(Navigation::class)->forgetBadge($request, '/'.trim(Lathe::path(), '/').'/resources/'.$class::uriKey());
 
         return new JsonResponse([
             'field' => $target->key(),
