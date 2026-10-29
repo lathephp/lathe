@@ -249,3 +249,42 @@ describe('column alignment', () => {
     expect(screen.getByRole('columnheader', { name: 'Number' }).style.width).toBe('');
   });
 });
+
+describe('column width', () => {
+  // The table lays out automatically, so a width on the header alone is a hint the cells' own cap (max-w-80) outgrows.
+  it('holds a column with indexWidth(240) at 240 px in its header and its cells', () => {
+    renderPage(
+      'Resources/Index',
+      {
+        resource: {
+          uriKey: 'posts',
+          label: 'Posts',
+          singularLabel: 'Post',
+          perPageOptions: [25],
+          searchable: false,
+          abilities: { create: false },
+          definition: { debounce: 0.5, paginationType: 'links', clickAction: 'detail', polling: null, showPollingToggle: false, tableStyle: 'default', showColumnBorders: false, softDeletes: false },
+        },
+        table: {
+          columns: [
+            { key: 'title', label: 'Title', component: 'text', sortable: false, sortKey: 'title', textAlign: 'left' },
+            { key: 'body', label: 'Body', component: 'text', sortable: false, sortKey: 'body', textAlign: 'left', indexWidth: 240 },
+          ],
+          sortKeys: [],
+          rows: [{ id: 1, title: 'First', cells: { title: { value: 'First', display: 'First' }, body: { value: 'A long body', display: 'A long body' } }, abilities: { view: true } }],
+          rowKey: 'id',
+        },
+        state: { page: 1, perPage: 25, hasMorePages: false, sort: '' },
+        count: { value: 1, exact: true, capped: false, estimated: false },
+      },
+      { url: '/lathe/resources/posts' },
+    );
+
+    const header = screen.getByRole('columnheader', { name: 'Body' });
+    const cell = screen.getByText('A long body').closest('td');
+
+    expect([header.style.width, header.style.minWidth, header.style.maxWidth]).toEqual(['240px', '240px', '240px']);
+    expect([cell?.style.width, cell?.style.minWidth, cell?.style.maxWidth]).toEqual(['240px', '240px', '240px']);
+    expect(screen.getByText('First').closest('td')?.style.maxWidth).toBe('');
+  });
+});

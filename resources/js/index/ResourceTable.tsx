@@ -56,11 +56,15 @@ interface ResourceTableProps extends Pick<IndexProps, 'resource' | 'table' | 'st
  * A click cycles one column through ascending, descending and off. A plain click makes it the
  * only sort; with append the other columns stay and a new one goes last.
  */
-/** A column's fixed width in pixels, from the field's `indexWidth()`; none lets the table size it. */
-export function columnWidth(column: object): { width: string } | undefined {
+/**
+ * A column's fixed width in pixels, from the field's `indexWidth()`; none lets the table size it.
+ * The table lays out automatically, so the header and each cell hold it as their least and most.
+ */
+export function columnWidth(column: object): { width: string; minWidth: string; maxWidth: string } | undefined {
   const width = 'indexWidth' in column ? column.indexWidth : undefined;
+  const px = `${String(width)}px`;
 
-  return typeof width === 'number' ? { width: `${String(width)}px` } : undefined;
+  return typeof width === 'number' ? { width: px, minWidth: px, maxWidth: px } : undefined;
 }
 
 /**
@@ -203,7 +207,7 @@ export function ResourceTable({ resource, table, state, loading, selection, sort
   const cellClasses = columns.map((column, index) => {
     const base = cn('max-w-80 px-3 whitespace-nowrap', alignClass(column), pins[index]?.className, border, cursorCell);
 
-    return { plain: cn(base, 'truncate'), inline: base };
+    return { plain: cn(base, 'truncate'), inline: base, style: { ...columnWidth(column), ...pins[index]?.style } };
   });
   const ids = table.rows.map((row) => row.id);
   const ticked = ids.filter((id) => selection.isSelected(id)).length;
@@ -410,7 +414,7 @@ export function ResourceTable({ resource, table, state, loading, selection, sort
                                     }
                               }
                               className={cn(inline ? cellClasses[index]?.inline : cellClasses[index]?.plain, url !== undefined && 'cursor-pointer hover:underline')}
-                              style={pins[index]?.style}
+                              style={cellClasses[index]?.style}
                               onMouseEnter={
                                 index === 0
                                   ? () => {
