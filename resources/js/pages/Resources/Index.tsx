@@ -6,13 +6,12 @@ import { AfterDelay, skeletonBar } from '../../lib/instant';
 import { Card } from '../../components/ui/Card';
 import { EmptyState } from '../../index/EmptyState';
 import { IndexBanner } from '../../index/IndexBanner';
-import { IndexFooter } from '../../index/IndexFooter';
 import { IndexToolbar, toolbarRow } from '../../index/IndexToolbar';
 import { useLoadMore } from '../../index/useLoadMore';
 import { usePolling, usePollingChoice } from '../../index/PollingToggle';
 import { PhoneCards } from '../../index/PhoneCards';
 import { ResourceTable, rowHeights, sameRow } from '../../index/ResourceTable';
-import { Board, PreviewPanel } from '../../index/lazy';
+import { Board, IndexFooter, PreviewPanel } from '../../index/lazy';
 import { useViews } from '../../index/ViewsRail';
 import type { IndexProps, Row } from '../../index/types';
 import type { IndexUrlState } from '../../index/useIndexState';
@@ -211,19 +210,21 @@ function IndexPage({ resource, table, state, count, error, lens, actions, widget
                 },
               }}
               />
-              <IndexFooter
-                resource={resource}
-                state={state}
-                count={count}
-                rowCount={more.rows.length}
-                loadedPage={more.page}
-                hasMorePages={more.hasMorePages}
-                loadingMore={more.loading}
-                visit={index.visit}
-                onLoadMore={() => {
-                  void more.loadMore();
-                }}
-              />
+              <Suspense fallback={<div className="lathe-footer" aria-hidden="true" />}>
+                <IndexFooter
+                  resource={resource}
+                  state={state}
+                  count={count}
+                  rowCount={more.rows.length}
+                  loadedPage={more.page}
+                  hasMorePages={more.hasMorePages}
+                  loadingMore={more.loading}
+                  visit={index.visit}
+                  onLoadMore={() => {
+                    void more.loadMore();
+                  }}
+                />
+              </Suspense>
             </>
           )}
         </Card>

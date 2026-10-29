@@ -2,7 +2,7 @@ import { useTranslation } from '@lathephp/core';
 import type { KeyboardEvent } from 'react';
 import { SelectBadge, styled } from '../../fields/choice/SelectFields';
 import { TableCell } from '../../table/cells';
-import { countText } from '../IndexFooter';
+import { countText } from '../countText';
 import type { IndexProps, Row } from '../types';
 import { MoveMenu } from './MoveMenu';
 import { useBoardColumns } from './useBoardColumns';

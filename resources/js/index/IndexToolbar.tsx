@@ -7,7 +7,7 @@ import { FilterBar } from './FilterBar';
 import { activeFilters } from './FilterChips';
 import { GroupMenu } from './GroupMenu';
 import { IndexBanner } from './IndexBanner';
-import { countText } from './IndexFooter';
+import { countText } from './countText';
 import { PollingToggle } from './PollingToggle';
 import type { Count, IndexProps } from './types';
 import type { IndexUrlState } from './useIndexState';

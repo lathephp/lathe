@@ -7,7 +7,7 @@ import { createPortal } from 'react-dom';
 import type { FieldSchema, RelationFieldSchema } from '../fields/types';
 import { InlineCell } from '../index/InlineCell';
 import { FilterPanel } from '../index/FilterPanel';
-import { countText } from '../index/IndexFooter';
+import { countText } from '../index/countText';
 import { Pagination } from '../index/Pagination';
 import { alignClass, direction, nextSort } from '../index/ResourceTable';
 import { ToolbarSearch } from '../index/ToolbarSearch';

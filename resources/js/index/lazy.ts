@@ -12,7 +12,9 @@ export const RowMenuPanel = lazyNamed(() => import('./RowMenuPanel').then((modul
 export const ConflictDialog = lazyNamed(() => import('../records/ConflictDialog').then((module) => module.ConflictDialog));
 // The column picker loads on the first press of Columns.
 export const ColumnPicker = lazyNamed(() => import('./ColumnPicker').then((module) => module.ColumnPicker));
-// The footer's pager loads after the rows paint; the range and the page size show at once.
+// The footer loads after the rows paint; its placeholder holds the footer's height meanwhile.
+export const IndexFooter = lazyNamed(() => import('./IndexFooter').then((module) => module.IndexFooter));
+// The footer's pager loads after the footer; the range and the page size show at once.
 export const Pagination = lazyNamed(() => import('./Pagination').then((module) => module.Pagination));
 // The preview panel loads when it first opens.
 export const PreviewPanel = lazyNamed(() => import('./PreviewPanel').then((module) => module.PreviewPanel));

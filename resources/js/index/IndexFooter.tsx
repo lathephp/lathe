@@ -1,9 +1,10 @@
 import { Deferred } from '@inertiajs/react';
-import { formatNumber, useTranslation } from '@lathephp/core';
+import { useTranslation } from '@lathephp/core';
 import { Suspense } from 'react';
 import { Select } from '../components/ui/Select';
+import { countText } from './countText';
 import { Pagination } from './lazy';
-import type { Count, IndexProps } from './types';
+import type { IndexProps } from './types';
 import type { IndexUrlState } from './useIndexState';
 
 interface IndexFooterProps extends Pick<IndexProps, 'resource' | 'state' | 'count'> {
@@ -15,15 +16,6 @@ interface IndexFooterProps extends Pick<IndexProps, 'resource' | 'state' | 'coun
   loadingMore: boolean;
   visit: (changes: IndexUrlState) => void;
   onLoadMore: () => void;
-}
-
-// An estimate is the database's guess for the table, so it reads as a rounded figure.
-export function countText(count: Count): string {
-  if (count.estimated) {
-    return `~${formatNumber(count.value, { notation: 'compact', maximumFractionDigits: 1 })}`;
-  }
-
-  return `${formatNumber(count.value)}${count.capped ? '+' : ''}`;
 }
 
 // Load-more stops here and a pager takes over, so the page never holds more rows.
