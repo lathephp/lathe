@@ -63,7 +63,9 @@ describe('a row menu near the bottom of the window', () => {
     const menu = screen.getByRole('menu');
 
     expect(within(menu).getAllByRole('menuitem').map((item) => item.textContent)).toEqual(['View', 'Edit', 'Replicate', 'Impersonate', 'Delete']);
-    expect([menu.style.position, menu.style.top, menu.style.bottom, menu.style.left]).toEqual(['fixed', '', '54px', '1168px']);
+    expect([menu.style.top, menu.style.bottom, menu.style.left]).toEqual(['', '54px', '1168px']);
+    // Fixed from its first render, so it never sits beside the button in the row and pushes it aside before the button is measured.
+    expect(['fixed', 'w-60', 'rounded-[12px]'].every((name) => menu.classList.contains(name))).toBe(true);
 
     fireEvent.click(within(menu).getByRole('menuitem', { name: 'Delete' }));
 

@@ -53,7 +53,8 @@ export function RowMenuPanel({ uriKey, row, open, menuId, trigger, onClose }: Ro
   const url = `${basePath}/api/resources/${uriKey}/${String(row.id)}`;
   const panel = useRef<HTMLDivElement>(null);
 
-  // The table card clips what overflows it, so an opening menu is fixed to the window under its
+  // The table card clips what overflows it, so the menu is fixed to the window (out of the row's
+  // flow from its first render, so it never moves the button it is measured from), under its
   // button, or above it when the window ends first. It then takes the focus to its first entry,
   // so Escape and Tab work inside it.
   useLayoutEffect(() => {
@@ -69,7 +70,6 @@ export function RowMenuPanel({ uriKey, row, open, menuId, trigger, onClose }: Ro
     const above = button.bottom + 4 + height > window.innerHeight;
 
     Object.assign(menu.style, {
-      position: 'fixed',
       [above ? 'bottom' : 'top']: `${String(above ? window.innerHeight - button.top + 4 : button.bottom + 4)}px`,
       left: `${String(document.dir === 'rtl' ? button.left : button.right - width)}px`,
     });
@@ -194,7 +194,7 @@ export function RowMenuPanel({ uriKey, row, open, menuId, trigger, onClose }: Ro
           id={menuId}
           role="menu"
           tabIndex={-1}
-          className="z-10 w-60rounded-[12px] border border-border bg-popover p-1 text-popover-foreground shadow-md"
+          className="fixed z-10 w-60 rounded-[12px] border border-border bg-popover p-1 text-popover-foreground shadow-md"
           onKeyDown={(event) => {
             if (event.key === 'Escape') {
               onClose();
