@@ -272,11 +272,15 @@ A status field shows a spinner for the `loadingWhen` values, a failed state for 
 ### Icon and sparkline
 
 ```php
-Field::icon('Plan')->map(['free' => 'user', 'team' => 'users'])->colors(['team' => 'success'])->fallback('circle');
+Field::icon('Plan')->map(['free' => 'circle', 'team' => 'star'])->colors(['team' => 'success'])->fallback('circle');
 Field::sparkline('Orders')->data(fn ($records) => $records->mapWithKeys(fn ($r) => [$r->getKey() => [1, 4, 2]])->all())->asBarChart();
 ```
 
-Icon names are Lucide names in kebab case. `data()` takes a closure that runs once per page and returns a series per record key, a trend widget, or an iterable that every row shares. `height()` and `width()` size the chart in pixels.
+Icon and badge icon names are Lucide names in kebab case, but a field draws only the names below. Any other name draws a circle and logs one warning in the browser console.
+
+`arrow-down`, `arrow-up`, `ban`, `bell`, `check`, `circle`, `circle-alert`, `circle-check`, `circle-x`, `clock`, `eye`, `flag`, `heart`, `info`, `loader-circle`, `lock`, `mail`, `package`, `star`, `trending-down`, `trending-up`, `triangle-alert`, `truck` and `x`. The older names `check-circle`, `alert-circle` and `alert-triangle` draw the same icons as `circle-check`, `circle-alert` and `triangle-alert`.
+
+`data()` takes a closure that runs once per page and returns a series per record key, a trend widget, or an iterable that every row shares. `height()` and `width()` size the chart in pixels.
 
 ### ID and hidden
 

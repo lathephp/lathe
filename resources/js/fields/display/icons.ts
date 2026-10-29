@@ -58,7 +58,16 @@ const icons: Record<string, LucideIcon | undefined> = {
   'alert-triangle': TriangleAlert,
 };
 
-/** A shipped icon by its Lucide kebab-case name, or a plain circle for a name the panel does not ship. */
+const warned = new Set<string>();
+
+/** A shipped icon by its Lucide kebab-case name, or a plain circle (and one console warning per name) for a name the panel does not ship. */
 export function iconNamed(name: string): LucideIcon {
-  return icons[name] ?? Circle;
+  const icon = icons[name];
+
+  if (icon === undefined && !warned.has(name)) {
+    warned.add(name);
+    console.warn(`Lathe draws no field icon named "${name}"; it shows a circle. See the fields docs for the names it draws.`);
+  }
+
+  return icon ?? Circle;
 }

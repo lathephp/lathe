@@ -55,7 +55,7 @@ These take the Lucide name as a string, so you may pass an enum value or any Luc
 ```php
 $definition->icon(Icon::ShoppingCart->value);   // a Resource's sidebar icon
 (new SendWelcomeEmail)->icon('mail');            // an action
-Field::badge('Status')->icons(['active' => 'check']);
+Field::badge('Status')->icons(['active' => 'check']); // field icons draw a smaller set, see Fields
 ```
 
 ## All icons
