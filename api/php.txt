@@ -2430,7 +2430,7 @@ Lathe\Http\Controllers\BulkRunController::show(Lathe\Http\Requests\LatheRequest 
 Lathe\Http\Controllers\BulkRunController::status(Lathe\Actions\BulkRun $run): array  [protected]
 Lathe\Http\Controllers\DashboardController::Lathe\Dashboards\DashboardRegistry $dashboards  [protected]
 Lathe\Http\Controllers\DashboardController::__construct(Lathe\Dashboards\DashboardRegistry $dashboards)
-Lathe\Http\Controllers\DashboardController::__invoke(Lathe\Http\Requests\LatheRequest $request): Inertia\Response
+Lathe\Http\Controllers\DashboardController::__invoke(Lathe\Http\Requests\LatheRequest $request): Inertia\Response|Illuminate\Http\RedirectResponse
 Lathe\Http\Controllers\DashboardController::arrange(Lathe\Http\Requests\LatheRequest $request, Lathe\Dashboards\Dashboard $dashboard, array $visible): array  [protected]
 Lathe\Http\Controllers\DashboardController::descriptor(Lathe\Widgets\Widget $widget, ?array $widths): array  [protected]
 Lathe\Http\Controllers\DashboardController::find(Illuminate\Http\Request $request, string $uriKey): Lathe\Dashboards\Dashboard  [protected]

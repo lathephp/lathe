@@ -135,7 +135,7 @@ class DependencyController
      * @param  array<string, Field>  $fields
      * @return array<array-key, mixed>
      */
-    protected function keys(array $values, array $fields): array
+    private function keys(array $values, array $fields): array
     {
         foreach ($fields as $field) {
             $value = $values[$field->attribute()] ?? null;
