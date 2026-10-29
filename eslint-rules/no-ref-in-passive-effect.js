@@ -1,7 +1,7 @@
 // Fails a ref assigned in the body of a passive effect: useEffect(() => { ref.current = value; }).
 // The browser paints and handles input before a passive effect runs, so a key or a pointer
-// event in that gap reads the old value (m16's Escape, m21's Board Shift+Right). Assign it in
-// useLayoutEffect instead. A handler or a cleanup the effect only defines runs later, so an
+// event in that gap reads the old value, such as an Escape pressed as a modal's form shows.
+// Assign it in useLayoutEffect instead. A handler or a cleanup the effect only defines runs later, so an
 // assignment inside a nested function is left alone.
 const isFunction = (node) =>
   node.type === 'ArrowFunctionExpression' || node.type === 'FunctionExpression' || node.type === 'FunctionDeclaration';
