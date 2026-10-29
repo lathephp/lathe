@@ -1,0 +1,1 @@
+import{S as e,j as t,v as n}from"./_lathe-vendor_react-oaj751s7.js";e();var r=n(void 0);function i(){return t(r)?.direction??`ltr`}export{i as n,r as t};

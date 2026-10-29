@@ -1,0 +1,1 @@
+import{c as e}from"react/compiler-runtime";import{jsx as t}from"react/jsx-runtime";function n(n){let r=e(3),{id:i,message:a}=n;if(a===void 0)return null;let o;return r[0]!==i||r[1]!==a?(o=t(`p`,{id:i,className:`text-sm text-destructive`,children:a}),r[0]=i,r[1]=a,r[2]=o):o=r[2],o}export{n as t};

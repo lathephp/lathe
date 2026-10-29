@@ -1,6 +1,6 @@
 {
   "name": "@lathephp/vite-plugin",
-  "version": "1.0.0-dev",
+  "version": "1.0.0-beta.6",
   "description": "Builds Lathe plugin modules with Vite.",
   "license": "MIT",
   "repository": {

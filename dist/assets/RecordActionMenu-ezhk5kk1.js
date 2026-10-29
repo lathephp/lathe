@@ -1,0 +1,1 @@
+export{t as RecordActionMenu}from"./RecordActionMenu-snwaddme.js";
