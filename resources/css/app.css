@@ -771,17 +771,18 @@
     @apply rounded-sm text-[13px] font-medium outline-none hover:underline focus-visible:ring-2 focus-visible:ring-ring;
   }
 
-  /* The toolbar's ghost buttons: 30 px, 13 px text, a muted 14 px icon. */
-  .lathe-toolbar .lathe-button-size-sm {
+  /* The toolbar's ghost buttons: 30 px, 13 px text, a muted 14 px icon. A dialog an action opens
+     renders inside the toolbar, so these rules stop at its edge and its buttons keep their own paint. */
+  .lathe-toolbar .lathe-button-size-sm:not(:where([role="dialog"], [role="alertdialog"]) *) {
     @apply h-[30px] gap-1.5 rounded-md px-2.5;
   }
 
   /* The Actions menu's kit button reads as a ghost too, until rows are ticked. */
-  .lathe-toolbar:not([data-selecting]) .cn-button {
+  .lathe-toolbar:not([data-selecting]) .cn-button:not(:where([role="dialog"], [role="alertdialog"]) *) {
     @apply h-[30px] border-transparent bg-transparent px-2.5 text-[13px] shadow-none hover:bg-accent aria-expanded:bg-accent;
   }
 
-  .lathe-toolbar .lathe-button > svg {
+  .lathe-toolbar .lathe-button:not(:where([role="dialog"], [role="alertdialog"]) *) > svg {
     @apply text-muted-foreground;
   }
 
