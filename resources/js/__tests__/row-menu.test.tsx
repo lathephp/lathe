@@ -70,3 +70,36 @@ describe('a row menu near the bottom of the window', () => {
     expect(screen.getByRole('alertdialog').textContent).toContain('Delete Ada?');
   });
 });
+
+// Fixed to the window, the menu would float away from its row as the page scrolls, so it closes as other menus do.
+describe('an open row menu', () => {
+  it('closes on a press outside it and gives the focus back to its button', () => {
+    renderUsers();
+    const button = screen.getByRole('button', { name: 'Actions for Ada' });
+    fireEvent.click(button);
+
+    fireEvent.pointerDown(document.body);
+
+    expect(screen.queryByRole('menu')).toBeNull();
+    expect(document.activeElement).toBe(button);
+  });
+
+  it('stays open on a press inside it', () => {
+    renderUsers();
+    fireEvent.click(screen.getByRole('button', { name: 'Actions for Ada' }));
+
+    fireEvent.pointerDown(within(screen.getByRole('menu')).getByRole('menuitem', { name: 'Edit' }));
+
+    expect(screen.queryByRole('menu')).not.toBeNull();
+  });
+
+  it('closes when the page or the card scrolls', () => {
+    renderUsers();
+    fireEvent.click(screen.getByRole('button', { name: 'Actions for Ada' }));
+
+    fireEvent.scroll(document.body);
+
+    expect(screen.queryByRole('menu')).toBeNull();
+  });
+});
+

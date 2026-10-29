@@ -1,7 +1,7 @@
 import { Link, usePage } from '@inertiajs/react';
 import { request, toast, useTranslation } from '@lathephp/core';
 import { Copy, Eye, Pencil, RotateCcw, Trash2 } from 'lucide-react';
-import { lazy, type RefObject, Suspense, useId, useLayoutEffect, useRef, useState } from 'react';
+import { lazy, type RefObject, Suspense, useEffect, useEffectEvent, useId, useLayoutEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { Modal, modalFooter } from '../components/Modal';
 import { Button } from '../components/ui/Button';
@@ -75,6 +75,33 @@ export function RowMenuPanel({ uriKey, row, open, menuId, trigger, onClose }: Ro
     });
     menu.querySelector<HTMLElement>('[role=menuitem]')?.focus();
   }, [open, trigger]);
+
+  // Fixed to the window, the open menu would float away from its row on a scroll, so a scroll
+  // closes it, as a press outside it and its button does.
+  const dismiss = useEffectEvent((event: Event) => {
+    const target = event.target instanceof Node ? event.target : null;
+
+    if (event.type === 'scroll' || (!panel.current?.contains(target) && !trigger.current?.contains(target))) {
+      onClose();
+    }
+  });
+
+  useEffect(() => {
+    if (!open) {
+      return;
+    }
+
+    const listener = (event: Event) => {
+      dismiss(event);
+    };
+    document.addEventListener('pointerdown', listener, true);
+    document.addEventListener('scroll', listener, true);
+
+    return () => {
+      document.removeEventListener('pointerdown', listener, true);
+      document.removeEventListener('scroll', listener, true);
+    };
+  }, [open]);
 
   const labels: Record<MenuAction, string> = {
     view: __('View'),
