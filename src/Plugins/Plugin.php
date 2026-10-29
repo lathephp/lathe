@@ -172,7 +172,7 @@ abstract class Plugin
             return new JsonResponse([
                 'fields' => array_map(fn (Field $field) => $field->schema(FieldContext::Update, $request), $fields),
                 'layout' => SectionPresenter::layout($items, new FieldCollection($fields), $request, FieldContext::Update),
-                'values' => (object) app(PluginSettings::class)->for(static::uriKey()),
+                'values' => (object) [...$this->settingDefaults($fields, $request), ...app(PluginSettings::class)->for(static::uriKey())],
             ]);
         }
 
@@ -204,6 +204,28 @@ abstract class Plugin
         $this->saveSettings($values);
 
         return new JsonResponse(['saved' => true]);
+    }
+
+    /**
+     * Each field's default, so the form shows it until a value is saved. A checkbox's implicit
+     * false draws the same as no value, so it is left out.
+     *
+     * @param  list<Field>  $fields
+     * @return array<string, mixed>
+     */
+    private function settingDefaults(array $fields, LatheRequest $request): array
+    {
+        $defaults = [];
+
+        foreach ($fields as $field) {
+            $default = $field->resolveDefaultValue($request);
+
+            if ($default !== null && $default !== false) {
+                $defaults[$field->attribute()] = $default;
+            }
+        }
+
+        return $defaults;
     }
 
     /**

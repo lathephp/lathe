@@ -1,7 +1,9 @@
 <?php
 
 use Illuminate\Support\Facades\Gate;
+use Lathe\Field\Field;
 use Lathe\Lathe;
+use Lathe\Plugins\Plugin;
 use Lathe\Plugins\PluginSetting;
 use Lathe\Plugins\PluginSettings;
 use Lathe\Tests\Fixtures\Plugins\Beacon;
@@ -118,3 +120,24 @@ it('stores a boolean sent as 1 or "0" as true or false', function (mixed $sent, 
     'one' => [1, true],
     'string zero' => ['0', false],
 ]);
+
+it('shows a field default until a value is saved', function () {
+    Lathe::registerPlugins(new class extends Plugin
+    {
+        public static function uriKey(): string
+        {
+            return 'thresholds';
+        }
+
+        public function settings(): array
+        {
+            return [Field::number('Threshold')->default(75), Field::text('Label')];
+        }
+    });
+
+    $this->getJson('/lathe/api/plugins/thresholds/settings')->assertOk()->assertJsonPath('values', ['threshold' => 75]);
+
+    $this->putJson('/lathe/api/plugins/thresholds/settings', ['threshold' => 40])->assertOk();
+
+    $this->getJson('/lathe/api/plugins/thresholds/settings')->assertOk()->assertJsonPath('values', ['threshold' => 40]);
+});
