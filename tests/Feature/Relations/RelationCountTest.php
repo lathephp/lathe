@@ -109,3 +109,14 @@ it('lists a through relation read-only, with no create', function () {
 
     expect($first)->toHaveCount(1);
 });
+
+it('offers a one-through panel the page size it answers', function () {
+    Lathe::registerResources(ThroughCustomers::class);
+    $order = Order::findOrFail(12);
+
+    $json = $this->getJson("/lathe/api/resources/through-customers/{$order->customer_id}/firstItem")->assertOk()->json();
+
+    expect($json['perPage'])->toBe(1)
+        ->and($json['perPageOptions'])->toBe([1])
+        ->and($json['rows'])->toHaveCount(1);
+});

@@ -434,6 +434,11 @@ class ResourceQuery
      */
     public function perPageOptionsInUse(): array
     {
+        // A one-through relation answers one row a page, so the panel's select offers that size only.
+        if ($this->relation instanceof HasOneThrough) {
+            return [1];
+        }
+
         $options = $this->relationField?->getPerPageOptions() ?: ($this->lens?->perPageOptions() ?? $this->resource->definition()->getPerPage());
 
         return $options !== null && $options !== [] ? $options : $this->perPageOptions();
