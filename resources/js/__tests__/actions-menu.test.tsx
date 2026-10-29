@@ -138,6 +138,29 @@ describe('the actions menu', () => {
     expect(within(menu).getByRole<HTMLButtonElement>('menuitem', { name: 'Cancel Order' }).disabled).toBe(true);
   });
 
+  it('closes on Escape pressed on its button and keeps the focus there', async () => {
+    renderOrders();
+    await openMenu();
+    const trigger = screen.getByRole('button', { name: 'Actions' });
+    trigger.focus();
+
+    fireEvent.keyDown(trigger, { key: 'Escape' });
+
+    expect(screen.queryByRole('menu', { name: 'Actions' })).toBeNull();
+    expect(document.activeElement).toBe(trigger);
+  });
+
+  it('closes on a press outside it and gives the focus back to its button', async () => {
+    renderOrders();
+    const menu = await openMenu();
+    within(menu).getByRole('menuitem', { name: 'Send Report' }).focus();
+
+    fireEvent.pointerDown(document.body);
+
+    expect(screen.queryByRole('menu', { name: 'Actions' })).toBeNull();
+    expect(document.activeElement).toBe(screen.getByRole('button', { name: 'Actions' }));
+  });
+
   it('renders nothing without a visible action', () => {
     renderOrders([]);
 

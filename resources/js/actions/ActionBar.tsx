@@ -1,12 +1,13 @@
 import { formatNumber, useLathe, useTranslation } from '@lathephp/core';
 import { Button } from '@lathephp/ui';
 import { ChevronDown } from 'lucide-react';
-import { Fragment, useId, useRef, useState } from 'react';
+import { Fragment, useEffect, useId, useRef, useState } from 'react';
 import { NavIcon } from '../components/NavIcon';
 import type { Count, Row } from '../index/types';
 import type { IndexUrlState } from '../index/useIndexState';
 import type { RowSelection } from '../index/useRowSelection';
 import { cn } from '../lib/cn';
+import { useMenuKeys } from '../widgets/menuKeys';
 import type { ActionList, ActionMeta } from './types';
 import { useActionRunner } from './useActionRunner';
 import { reloadIndexRows } from '../lib/instant';
@@ -36,6 +37,30 @@ export function ActionBar({ uriKey, lens, list, selection, rows, total, state }:
   const menuId = useId();
   const [open, setOpen] = useState(false);
   const trigger = useRef<HTMLButtonElement>(null);
+  const root = useRef<HTMLDivElement>(null);
+  useMenuKeys(root, open, () => {
+    setOpen(false);
+  });
+
+  // A press anywhere outside the menu closes it and hands the focus back to Actions.
+  useEffect(() => {
+    if (!open) {
+      return;
+    }
+
+    const close = (event: PointerEvent) => {
+      if (!(event.target instanceof Node) || root.current?.contains(event.target) !== true) {
+        trigger.current?.focus();
+        setOpen(false);
+      }
+    };
+
+    document.addEventListener('pointerdown', close);
+
+    return () => {
+      document.removeEventListener('pointerdown', close);
+    };
+  }, [open]);
   const base = lens === null ? `${apiPath}/resources/${uriKey}` : `${apiPath}/resources/${uriKey}/lenses/${lens}`;
   const ticked = selection.all ? (total?.value ?? Number.POSITIVE_INFINITY) : selection.selected.size;
   const tickedRows = rows.filter((row) => selection.isSelected(row.id));
@@ -101,7 +126,7 @@ export function ActionBar({ uriKey, lens, list, selection, rows, total, state }:
           {action.name}
         </Button>
       ))}
-      <div className="relative">
+      <div ref={root} className="relative">
         <Button
           ref={trigger}
           variant="outline"
@@ -123,12 +148,6 @@ export function ActionBar({ uriKey, lens, list, selection, rows, total, state }:
             aria-label={__('Actions')}
             tabIndex={-1}
             className="absolute end-0 top-full z-20 mt-1 w-72 rounded-lg border border-border bg-background p-1 shadow-lg"
-            onKeyDown={(event) => {
-              if (event.key === 'Escape') {
-                trigger.current?.focus();
-                setOpen(false);
-              }
-            }}
           >
             {list.actions.map((action, index) => {
               const previous = list.actions[index - 1];
