@@ -17,6 +17,10 @@ it('installs the packed release into a clean Laravel app', function () {
 it('adds the smoke user to the gate before it starts the server', function () {
     $script = (string) file_get_contents(dirname(__DIR__, 3).'/scripts/release-smoke.sh');
 
-    expect(strpos($script, "'smoke@example.com',|\" app/Providers/LatheServiceProvider.php"))
-        ->toBeLessThan(strpos($script, 'php artisan serve'));
+    $gate = strpos($script, "'smoke@example.com',|\" app/Providers/LatheServiceProvider.php");
+    $serve = strpos($script, 'php artisan serve');
+
+    expect($gate)->toBeInt()
+        ->and($serve)->toBeInt()
+        ->and($gate)->toBeLessThan($serve);
 });
