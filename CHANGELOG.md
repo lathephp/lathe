@@ -9,7 +9,7 @@ All notable changes to Lathe are listed here. The format follows [Keep a Changel
 ### Changed
 
 - [api] The panel home (`/lathe`) sends a user who may not see the main dashboard to the first dashboard they may see, else to the first sidebar page they may open, and answers 403 only when they may open nothing. Sign-in, the brand link and starting or stopping an impersonation land there too. `DashboardController::__invoke()` returns `Response|RedirectResponse`.
-- Export and import download links are relative signed URLs checked with `signed:relative`, so a link the queue worker built works at whatever address the panel is opened on, not only at `APP_URL`. A link issued before the upgrade stops working; the next status poll or a new export gives a fresh one.
+- [api] Export and import download links are relative signed URLs checked with `signed:relative`, so a link the queue worker built works at whatever address the panel is opened on, not only at `APP_URL`. `Export::downloadUrl()`, `Import::errorsUrl()`, the `download_url` of `GET .../api/exports/{export}` and the `errors_url` of `GET .../api/imports/{import}` return a path with no host, and so does the `url` of the Download button in the `ExportReady` notification and of Download failed rows in `ImportComplete`. A channel added with `Lathe::notificationChannels()` that sends them outside the panel, such as mail or Slack, puts its own host in front with `url()`. A link signed as absolute for these routes, including one issued before the upgrade, is refused; the next status poll or a new export gives a fresh one.
 - In a `dependsOn()` callback, `FormData::get()` returns a `belongsTo` field's key, not the picker's `{value, display}` array, so `Product::find($formData->get('product'))` finds the record. A callback that read `['value']` reads the key directly.
 - Value and trend cards offer the dashboard's ranges by default, 7 days, 30 days and 12 months (they were 30, 60 and 365 days, and 30, 60 and 90 days), and still start at 30 days, so a dashboard set to 7 days or 12 months no longer shows "Last 30 days" on its cards. A card with its own `ranges()` is unchanged.
 - `TrendResult::transform()` changes the trend's points and series as well as its headline, so `->transform(fn ($cents) => $cents / 100)` plots dollars.
@@ -24,6 +24,7 @@ All notable changes to Lathe are listed here. The format follows [Keep a Changel
 ### Fixed
 
 - An action dialog the toolbar opens with no row ticked, the Import wizard included, keeps its buttons' fills and borders.
+- The Import wizard accepts a short `.csv` or `.tsv` file whose content reads as plain text, which it refused as "The file is incomplete or its content does not match its type."
 - An untouched optional checkbox group or multi-select saves as an empty list on a create form and in the Create side sheet, where it failed "must be an array".
 - A plugin settings form shows each field's `default()` until a value is saved.
 - A custom page keeps the panel's breadcrumb and sidebar: it ends the trail with its own name and no longer lights the main dashboard.
