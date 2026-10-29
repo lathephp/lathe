@@ -308,7 +308,7 @@ class PanelRoutes
     protected function exportRoutes(Router $router): void
     {
         $router->get('exports/{export}', [ExportController::class, 'show'])->name('exports.show');
-        $router->get('exports/{export}/download', [ExportController::class, 'download'])->middleware('signed')->name('exports.download');
+        $router->get('exports/{export}/download', [ExportController::class, 'download'])->middleware('signed:relative')->name('exports.download');
     }
 
     protected function importRoutes(Router $router): void
@@ -317,7 +317,7 @@ class PanelRoutes
 
         $router->get('imports/{import}', [$controller, 'show'])->name('imports.show');
         $router->post('imports/{import}/resume', [$controller, 'resume'])->name('imports.resume');
-        $router->get('imports/{import}/download-errors', [$controller, 'downloadErrors'])->middleware('signed')->name('imports.downloadErrors');
+        $router->get('imports/{import}/download-errors', [$controller, 'downloadErrors'])->middleware('signed:relative')->name('imports.downloadErrors');
     }
 
     protected function resourcePluginRoutes(Router $router): void

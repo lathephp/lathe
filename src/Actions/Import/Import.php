@@ -108,6 +108,7 @@ class Import extends Model
             'lathe.api.imports.downloadErrors',
             now()->addHours(app(ConfigStore::class)->integer('imports.prune_after_hours')),
             ['import' => $this->id],
+            absolute: false,
         );
     }
 

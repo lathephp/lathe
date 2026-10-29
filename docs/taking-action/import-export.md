@@ -121,7 +121,7 @@ Set the disk and folder in `config/lathe.php`:
 ],
 ```
 
-Lathe saves the file as `{directory}/{ulid}-{name}.{type}`, so two users never overwrite each other. The download name is `{name}.{type}`. The download link is signed, works for the user who started the export only, and expires after `prune_after_hours`. `lathe:prune` deletes the record and the file after that time. See [Configuration](../getting-started/configuration.md).
+Lathe saves the file as `{directory}/{ulid}-{name}.{type}`, so two users never overwrite each other. The download name is `{name}.{type}`. The download link is signed and carries no host, so it works at whatever address you open the panel on. It works for the user who started the export only, and expires after `prune_after_hours`. `lathe:prune` deletes the record and the file after that time. See [Configuration](../getting-started/configuration.md).
 
 An export records no audit rows by default.
 

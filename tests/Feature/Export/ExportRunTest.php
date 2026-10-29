@@ -84,7 +84,7 @@ function workPushedExport(): ?Throwable
 
 function downloadUrl(Export $export, int $hours = 24): string
 {
-    return URL::temporarySignedRoute('lathe.api.exports.download', now()->addHours($hours), ['export' => $export->id]);
+    return URL::temporarySignedRoute('lathe.api.exports.download', now()->addHours($hours), ['export' => $export->id], absolute: false);
 }
 
 beforeEach(function () {
@@ -123,6 +123,21 @@ it('reports a queued run to its owner only, with a signed download link once fin
         && $notification->toArray()['actions'][0]['text'] === 'Download'
         && $notification->toArray()['actions'][0]['url'] === $json['download_url']
         && $notification->toArray()['actions'][0]['openInNewTab'] === true);
+});
+
+it('gives a download link with no host, so a link built under another app.url still downloads', function () {
+    config(['app.url' => 'http://localhost']);
+    $this->freezeTime();
+    $export = startQueuedExport($this);
+    workPushedExport();
+
+    $url = (string) $this->getJson("/lathe/api/exports/{$export->id}")->json('download_url');
+
+    expect($url)->toStartWith("/lathe/api/exports/{$export->id}/download?expires=")
+        ->and($url)->not->toContain('://');
+    $this->get('http://127.0.0.1:8000'.$url)->assertOk()->assertDownload('orders.csv');
+    $this->get('http://127.0.0.1:8000'.substr($url, 0, -1).(str_ends_with($url, 'a') ? 'b' : 'a'))->assertForbidden();
+    Notification::assertSentTo($this->admin, ExportReady::class, fn (ExportReady $notification) => $notification->toArray()['actions'][0]['url'] === $url);
 });
 
 it('refuses a download unsigned, to another user, after it expires, before it finishes and once the file is gone', function () {

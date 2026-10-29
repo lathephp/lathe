@@ -88,11 +88,12 @@ class Export extends Model
     }
 
     /**
-     * A signed link to the file, valid as long as the file is kept.
+     * A signed link to the file, valid as long as the file is kept. It is relative,
+     * so a link the queue worker built still works at the address the panel is opened on.
      */
     public function downloadUrl(): string
     {
-        return URL::temporarySignedRoute('lathe.api.exports.download', now()->addHours(Lathe::config()->integer('exports.prune_after_hours')), ['export' => $this->id]);
+        return URL::temporarySignedRoute('lathe.api.exports.download', now()->addHours(Lathe::config()->integer('exports.prune_after_hours')), ['export' => $this->id], absolute: false);
     }
 
     /**

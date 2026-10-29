@@ -50,7 +50,7 @@ function adminImport(array $attributes = [], bool $withErrors = false): Import
 
 function errorsUrl(Import $import, int $hours = 24): string
 {
-    return URL::temporarySignedRoute('lathe.api.imports.downloadErrors', now()->addHours($hours), ['import' => $import->id]);
+    return URL::temporarySignedRoute('lathe.api.imports.downloadErrors', now()->addHours($hours), ['import' => $import->id], absolute: false);
 }
 
 it('shows the owner the status of an import', function () {
@@ -109,6 +109,19 @@ it('downloads the error CSV from a signed URL for the owner only', function () {
     $url = errorsUrl($import, 1);
     $this->travel(2)->hours();
     $this->actingAs($this->admin)->get($url)->assertForbidden();
+});
+
+it('gives an errors link with no host, so a link built under another app.url still downloads', function () {
+    config(['app.url' => 'http://localhost']);
+    $this->freezeTime();
+    $import = adminImport(['status' => 'completed', 'failed_rows' => 25], withErrors: true);
+
+    $url = (string) $this->actingAs($this->admin)->getJson("/lathe/api/imports/{$import->id}")->json('errors_url');
+
+    expect($url)->toStartWith("/lathe/api/imports/{$import->id}/download-errors?expires=")
+        ->and($url)->not->toContain('://');
+    $this->actingAs($this->admin)->get('http://127.0.0.1:8000'.$url)->assertOk()->assertDownload("errors-{$import->id}.csv");
+    $this->actingAs($this->admin)->get('http://127.0.0.1:8000'.substr($url, 0, -1).(str_ends_with($url, 'a') ? 'b' : 'a'))->assertForbidden();
 });
 
 it('answers 404 to a download with no error file', function () {
