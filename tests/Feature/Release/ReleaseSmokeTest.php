@@ -11,3 +11,12 @@ it('installs the packed release into a clean Laravel app', function () {
     expect($process->getExitCode())->toBe(0, $process->getOutput().$process->getErrorOutput())
         ->and($process->getOutput())->toContain('lathe:install and lathe:doctor passed, /lathe/login answered 200, the Users list opened');
 })->skip(fn () => getenv('LATHE_RELEASE_SMOKE') !== '1', 'Set LATHE_RELEASE_SMOKE=1 to install the packed release into a clean app.');
+
+// The CLI server's opcache keeps a file it compiled for opcache.revalidate_freq (2 seconds), so a
+// gate edited after the first request can still deny the smoke user.
+it('adds the smoke user to the gate before it starts the server', function () {
+    $script = (string) file_get_contents(dirname(__DIR__, 3).'/scripts/release-smoke.sh');
+
+    expect(strpos($script, "'smoke@example.com',|\" app/Providers/LatheServiceProvider.php"))
+        ->toBeLessThan(strpos($script, 'php artisan serve'));
+});

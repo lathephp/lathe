@@ -70,6 +70,13 @@ php artisan lathe:install --no-interaction || fail "lathe:install failed"
 step "php artisan lathe:doctor"
 php artisan lathe:doctor || fail "lathe:doctor failed"
 
+step "add a user to the viewLathe gate"
+# Before the server starts: its opcache keeps a compiled file for up to 2 seconds, so a gate
+# edited after the first request could still deny the user.
+php artisan lathe:user --name=Smoke --email=smoke@example.com --password=smoke-password-1 --no-interaction >/dev/null || fail "lathe:user failed"
+sed -i "s|^            //$|            'smoke@example.com',|" app/Providers/LatheServiceProvider.php
+grep -q "'smoke@example.com'," app/Providers/LatheServiceProvider.php || fail "could not add the user to the viewLathe gate"
+
 step "GET /lathe/login"
 php artisan serve --port="$port" >"$work/serve.log" 2>&1 &
 server=$!
@@ -98,9 +105,6 @@ php -r '
 ' "$work/app/vendor/lathe/lathe/dist" || fail "the installed dist/ lacks files its manifest names"
 
 step "sign in and open the Users list"
-php artisan lathe:user --name=Smoke --email=smoke@example.com --password=smoke-password-1 --no-interaction >/dev/null || fail "lathe:user failed"
-sed -i "s|^            //$|            'smoke@example.com',|" app/Providers/LatheServiceProvider.php
-grep -q "'smoke@example.com'," app/Providers/LatheServiceProvider.php || fail "could not add the user to the viewLathe gate"
 base="http://127.0.0.1:$port/lathe"
 jar="$work/cookies.txt"
 curl -s -c "$jar" -o /dev/null "$base/login"
