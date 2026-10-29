@@ -134,6 +134,30 @@ it('lists the stylesheet of the CSS the app boot file imports in the extensions 
     File::deleteDirectory($dir);
 });
 
+it('builds app extension CSS with no theme variables, from the extension folder only', function () {
+    $dir = extensionFixture([
+        'resources/js/lathe/boot.ts' => "import './lathe.css';\nimport { widget } from '@lathephp/core';\nwidget('clock', () => null);\n// font-sans p-3 text-red-500\n",
+        'resources/js/lathe/lathe.css' => "@import \"tailwindcss\";\n@import \"@lathephp/core/tokens.css\";\n",
+        'resources/views/welcome.blade.php' => "<div class=\"lg:p-20\"></div>\n",
+    ]);
+
+    $process = runExtensionScript($dir, ' await vite.build({ configFile: false, root, logLevel: "silent", plugins: [lathe({ mode: "app", autoDiscover: false }), tailwindcss()] });');
+
+    expect($process->getExitCode())->toBe(0, $process->getErrorOutput());
+
+    $out = "{$dir}/public/vendor/lathe/extensions";
+    $css = (string) file_get_contents("{$out}/".json_decode((string) file_get_contents("{$out}/manifest.json"), true)['styles'][0]);
+
+    expect($css)->toContain('.p-3{')
+        ->and($css)->toContain('.font-sans{')
+        ->and($css)->toContain('.text-red-500{')
+        ->and($css)->not->toContain('--font-sans:')
+        ->and($css)->not->toContain(':root')
+        ->and($css)->not->toContain('lg\\:p-20');
+
+    File::deleteDirectory($dir);
+});
+
 it('builds each path-repository plugin it discovers to its own dist folder', function () {
     $plugin = fn (string $name) => [
         'vite.config.js' => 'import { lathe } from '.json_encode(extensionBuildRepo().'/packages/vite-plugin/dist/index.js').";\n"

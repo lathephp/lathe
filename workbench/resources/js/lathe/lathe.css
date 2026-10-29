@@ -1,8 +1,10 @@
 /* The utilities only the workbench's own components use. The panel's stylesheet holds the rest.
    They sit in the components layer, below the panel's utilities, so a class both sheets hold
-   (hidden, flex) never beats the panel's responsive variants (lg:flex). The panel ships preflight. */
-@import "tailwindcss/theme.css" layer(theme);
-@import "tailwindcss/utilities.css" layer(components);
+   (hidden, flex) never beats the panel's responsive variants (lg:flex). The panel ships preflight.
+   The theme is a reference inlined into the utilities, so no :root variable overrides the panel's
+   (--font-sans would lose Archivo), and only this folder is scanned. */
+@import "tailwindcss/theme.css" layer(theme) theme(reference inline);
+@import "tailwindcss/utilities.css" layer(components) source(none);
 @import "@lathephp/core/tokens.css";
 
 @source "./";

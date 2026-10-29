@@ -1,11 +1,13 @@
 /* The panel's colour and radius tokens as Tailwind theme values, for a plugin's stylesheet.
    Each utility reads the panel's CSS variable, so bg-card follows the panel's theme, and the
-   file writes no :root block and no preflight of its own. Keep it in step with resources/css/app.css. */
+   file writes no :root block and no preflight of its own: as a reference, it emits no variable,
+   since --shadow-xs: var(--shadow-xs) would override the panel's shadow with a cycle. Keep it in
+   step with resources/css/app.css. */
 
 /* dark: utilities follow the dark class on <html>, as in the panel. */
 @custom-variant dark (&:where(.dark, .dark *));
 
-@theme inline {
+@theme inline reference {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);

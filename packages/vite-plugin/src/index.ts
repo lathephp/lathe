@@ -47,7 +47,10 @@ const registration = /(?<![\w$.])(field|filter|widget|plugin|page|resourcePlugin
 const bundledReact = /[\\/]node_modules[\\/](react|react-dom)[\\/]/;
 
 // The panel's stylesheet already holds the preflight and the token values, so the full
-// Tailwind import becomes its theme and utilities layers only.
+// Tailwind import becomes its theme and utilities layers only. The theme is a reference
+// inlined into the utilities: emitted :root variables would override the panel's own
+// (--font-sans lost Archivo). With no source() of its own, it scans the CSS file's folder,
+// not the whole app.
 const fullTailwind = /@import\s+(['"])tailwindcss\1([^;]*);/;
 
 // An import the dev server rewrote to its /@id/ URL.
@@ -245,7 +248,11 @@ export function lathe(options: PluginModeOptions | AppModeOptions): Plugin {
     transform(code, id) {
       if (id.endsWith('.css')) {
         return fullTailwind.test(code)
-          ? code.replace(fullTailwind, '@import "tailwindcss/theme.css" layer(theme);\n@import "tailwindcss/utilities.css" layer(utilities)$2;')
+          ? code.replace(
+              fullTailwind,
+              (_, _quote: string, rest: string) =>
+                `@import "tailwindcss/theme.css" layer(theme) theme(reference inline);\n@import "tailwindcss/utilities.css" layer(utilities)${rest.includes('source(') ? '' : ' source("./")'}${rest};`,
+            )
           : null;
       }
 

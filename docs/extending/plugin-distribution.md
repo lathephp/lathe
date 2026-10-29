@@ -61,7 +61,7 @@ export default defineConfig({
 - The output is one ES2022 file, `dist/heartbeat.js`, with no chunks and no hash in the name. Lathe hashes the file when it serves it. A stylesheet imported by the entry comes out as `dist/heartbeat.css`.
 - These imports stay external: `react`, `react/jsx-runtime`, `react/compiler-runtime`, `react-dom`, `react-dom/client`, `@lathephp/core`, `@lathephp/ui` and every `@lathephp/ui/*` subpath. The panel's import map answers them at run time.
 - The build fails if code from `react` or `react-dom` ends up in the output. A second copy of React would break hooks.
-- In a CSS file, `@import "tailwindcss"` becomes the theme and utilities layers only. The panel already holds the base styles and the colour values.
+- In a CSS file, `@import "tailwindcss"` becomes the theme and utilities layers only. The panel already holds the base styles and the colour values. The theme is imported as a reference, so the file defines no `:root` variable that could override the panel's (its font, for one), and with no `source()` of its own it scans only the CSS file's folder, not the whole app.
 - It writes `dist/lathe-plugin.json`:
 
 ```json
