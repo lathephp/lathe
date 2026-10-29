@@ -17,6 +17,19 @@ All notable changes to Lathe are listed here. The format follows [Keep a Changel
 - A column's `indexWidth()` holds: its header and cells are that wide at least and at most, where the cells' 320 px cap could widen it before.
 - A list with no inline-editable cell, such as Action Events, follows a link in a cell, such as a related record's name, on the first click and still moves the cell cursor there. A list that edits inline keeps the beta.5 rule: the first click moves the cursor and the link opens once its cell holds it.
 - The trashed-only view of a soft-deleting list (`trashed:only`) draws no Soft Deleted badge, since every row in it is deleted; a view that mixes live and deleted rows keeps it.
+- An inline save, a Board move included, drops the saving user's cached sidebar badge of that Resource, so a badge such as a count of pending orders shows the change on the next read instead of after its TTL.
+
+### Fixed
+
+- An action dialog the toolbar opens with no row ticked, the Import wizard included, keeps its buttons' fills and borders.
+- An untouched optional checkbox group or multi-select saves as an empty list on a create form and in the Create side sheet, where it failed "must be an array".
+- A plugin settings form shows each field's `default()` until a value is saved.
+- A custom page keeps the panel's breadcrumb and sidebar: it ends the trail with its own name and no longer lights the main dashboard.
+- A row's actions menu stays inside the window on a short list and closes on a press outside it or a scroll; the toolbar's Actions menu closes on Escape and an outside press; a Customize card menu on the last row opens upward.
+- A one-through relation tab's Per page select shows its page size.
+- At 390 px the dashboard range control shows its labels in full and a Half card spans the row; the donut legend keeps each value whole; a chart in a box with no size draws nothing instead of warning.
+- Back to a list shows the rows as they are now, after an inline save, an undo or an edit on the record's page, and puts the cell cursor back on the cell it left.
+- A Board move updates the open preview's header badge, the views rail's counts and the sidebar badge without a reload.
 
 ## [1.0.0-beta.5] - 2026-10-28
 
