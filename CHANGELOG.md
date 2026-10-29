@@ -15,6 +15,8 @@ All notable changes to Lathe are listed here. The format follows [Keep a Changel
 - `Field::heading()` and `Field::hidden()` are compact, so a form draws no label row and no Optional mark for them.
 - An action's `->icon('mail')`, a kebab-case Lucide name, draws the same icon as `->icon('Mail')`. `Field::icon()` and a badge's `withIcons()` given a name the field icon set does not draw log one browser console warning that names it; the fields docs list the 27 names the set draws.
 - A column's `indexWidth()` holds: its header and cells are that wide at least and at most, where the cells' 320 px cap could widen it before.
+- A list with no inline-editable cell, such as Action Events, follows a link in a cell, such as a related record's name, on the first click and still moves the cell cursor there. A list that edits inline keeps the beta.5 rule: the first click moves the cursor and the link opens once its cell holds it.
+- The trashed-only view of a soft-deleting list (`trashed:only`) draws no Soft Deleted badge, since every row in it is deleted; a view that mixes live and deleted rows keeps it.
 
 ## [1.0.0-beta.5] - 2026-10-28
 
