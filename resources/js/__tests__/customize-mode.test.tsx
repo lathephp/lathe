@@ -6,6 +6,7 @@ import { renderPage } from './support';
 
 afterEach(() => {
   vi.restoreAllMocks();
+  vi.unstubAllGlobals();
 });
 
 const names: Record<string, string> = { revenue: 'Revenue', orders: 'Orders', 'orders-by-status': 'Orders by status', 'paid-orders': 'Paid orders' };
@@ -150,6 +151,24 @@ describe('customize mode', () => {
     await waitFor(() => {
       expect(document.activeElement).toBe(screen.getByRole('button', { name: 'Move Orders' }));
     });
+  });
+
+  it("opens a card's menu above its button when the window ends below it", async () => {
+    // A 900 px window; under its button the 240 px menu would reach 1,100 px.
+    vi.stubGlobal('innerHeight', 900);
+    vi.spyOn(Element.prototype, 'getBoundingClientRect').mockImplementation(function (this: Element) {
+      const top = this.getAttribute('role') === 'menu' ? 860 : 0;
+
+      return { x: 0, y: top, left: 0, top, width: 220, height: 240, right: 220, bottom: top + 240, toJSON: () => ({}) };
+    });
+    renderDashboard(true, ['orders', 'revenue']);
+
+    fireEvent.click(screen.getByRole('button', { name: 'Customize' }));
+    await screen.findByText('Editing layout');
+    fireEvent.click(within(card('revenue')).getByRole('button', { name: 'Menu for Revenue' }));
+    const menu = within(card('revenue')).getByRole('menu');
+
+    expect([menu.style.top, menu.style.bottom]).toEqual(['auto', 'calc(100% + 4px)']);
   });
 });
 

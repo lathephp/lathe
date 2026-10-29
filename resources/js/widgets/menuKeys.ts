@@ -1,4 +1,4 @@
-import { type RefObject, useEffect, useEffectEvent } from 'react';
+import { type RefObject, useEffectEvent, useLayoutEffect } from 'react';
 
 const items = (root: HTMLElement | null): HTMLElement[] => [...(root?.querySelectorAll<HTMLElement>('[role^="menuitem"]') ?? [])];
 
@@ -27,11 +27,19 @@ export function useMenuKeys(root: RefObject<HTMLElement | null>, open: boolean, 
     }
   });
 
-  useEffect(() => {
+  // A layout effect, so a menu that would run past the window's bottom opens above its button
+  // before it is drawn below it.
+  useLayoutEffect(() => {
     const element = root.current;
 
     if (!open || element === null) {
       return;
+    }
+
+    const menu = element.querySelector<HTMLElement>('[role=menu]');
+
+    if (menu !== null && menu.getBoundingClientRect().bottom > window.innerHeight) {
+      Object.assign(menu.style, { top: 'auto', bottom: 'calc(100% + 4px)' });
     }
 
     items(element)[0]?.focus();
