@@ -24,7 +24,8 @@ created=$(gh issue create --label "$label" --title "$title" --body "$body")
 created=${created##*/}
 kept=$(oldest)
 
-if [[ $kept != "$created" ]]; then
+# The list can lag behind the create, so only an older issue makes this one a duplicate.
+if [[ -n $kept && $kept -lt $created ]]; then
     gh issue close "$created" --comment "Duplicate of #$kept."
     gh issue comment "$kept" --body "$body"
 fi
