@@ -108,6 +108,13 @@ it('can be called by the release workflow and keeps each event in its own concur
         ->and(ciWorkflow()['concurrency']['group'])->toBe('ci-${{ github.event_name }}-${{ github.ref }}');
 });
 
+it('runs the upstream job against the 13.x branch with an hour for the suite', function () {
+    $job = ciWorkflow()['jobs']['upstream'];
+
+    expect($job['strategy']['matrix']['laravel'])->toBe(['13.x-dev'])
+        ->and($job['timeout-minutes'])->toBe(60);
+});
+
 it('runs the weekly schedule on Monday at 04:00 UTC', function () {
     expect(ciWorkflow()['on']['schedule'])->toBe([['cron' => '0 4 * * 1']]);
 });

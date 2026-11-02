@@ -252,14 +252,15 @@ jobs:
     name: upstream ${{ matrix.laravel }} ${{ matrix.php }} ${{ matrix.database }}
     if: github.event_name == 'schedule'
     runs-on: ubuntu-24.04
-    timeout-minutes: 30
+    timeout-minutes: 60
     permissions:
       contents: read
       issues: write
     strategy:
       fail-fast: false
       matrix:
-        laravel: ['13.x-dev', 'dev-master']
+        # Not dev-master: it carries the 13.0.x-dev alias, below what testbench and the Pest plugin need.
+        laravel: ['13.x-dev']
         php: ['8.4', '8.5']
         database: ['sqlite', 'mysql:8.4', 'mariadb:10.11', 'postgres:15']
         include:
