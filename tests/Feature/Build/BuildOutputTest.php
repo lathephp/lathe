@@ -74,8 +74,10 @@ function buildOutputFirstCopy(): string
 }
 
 /**
- * The parts that differ between the two builds' copies of each changed file, paired by the
- * name before the content hash; minified CSS and JS split at ; and } to make lines.
+ * The parts that differ between the two builds' copies of each changed file; minified CSS
+ * and JS split at ; and } to make lines. A file in both builds pairs with itself, and one
+ * only the first build wrote pairs by the name before the content hash with one only the
+ * second wrote, since several chunks can share that name.
  *
  * @param  array<string, string>  $first
  * @param  array<string, string>  $second
@@ -85,16 +87,16 @@ function buildOutputDifference(array $first, array $second): string
     $stem = fn (string $path) => (string) preg_replace('/-[0-9a-z]{8}(\.\w+)$/', '$1', $path);
     $seconds = [];
 
-    foreach (array_keys($second) as $path) {
+    foreach (array_keys(array_diff_key($second, $first)) as $path) {
         $seconds[$stem($path)] = $path;
     }
 
     $report = [];
 
     foreach ($first as $path => $hash) {
-        $other = $seconds[$stem($path)] ?? null;
+        $other = isset($second[$path]) ? $path : ($seconds[$stem($path)] ?? null);
 
-        if ($other === null || ($other === $path && $second[$other] === $hash) || $path === 'manifest.json') {
+        if ($other === null || $second[$other] === $hash || $path === 'manifest.json') {
             continue;
         }
 
