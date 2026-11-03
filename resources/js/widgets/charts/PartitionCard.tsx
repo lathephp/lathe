@@ -37,7 +37,7 @@ export function PartitionCard({ widget, value }: WidgetRendererProps) {
           <li key={segment.label} className="flex min-w-0 items-center gap-1.5 md:gap-2">
             <span className="size-2 shrink-0 rounded-full" style={{ backgroundColor: segment.color }} />
             {/* Beside the donut a label keeps 6 characters; the percentage hides first when the legend is under 12rem. */}
-            <span className="min-w-0 flex-1 truncate md:min-w-[6ch]">{segment.label}</span>
+            <span className={cn('min-w-0 flex-1 truncate', !asBar && 'md:min-w-[6ch]')}>{segment.label}</span>
             <span className="shrink-0 font-medium tabular-nums">{format(segment.value)}</span>
             <span className={cn('w-11 shrink-0 text-end text-muted-foreground tabular-nums max-md:hidden @max-[12rem]:hidden', asBar && 'hidden')}>{`${String(segment.percentage)}%`}</span>
           </li>

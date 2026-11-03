@@ -246,9 +246,6 @@ function RangePicker({ ranges, value, onPick }: { ranges: RangeOption[]; value: 
       return;
     }
 
-    // jsdom has no scrollIntoView.
-    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-    element.querySelector('[aria-checked="true"]')?.scrollIntoView?.({ block: 'nearest', inline: 'nearest' });
     measure(element);
 
     if (typeof ResizeObserver === 'undefined') {
@@ -263,7 +260,7 @@ function RangePicker({ ranges, value, onPick }: { ranges: RangeOption[]; value: 
     return () => {
       observer.disconnect();
     };
-  }, [value]);
+  }, []);
 
   return (
     <div

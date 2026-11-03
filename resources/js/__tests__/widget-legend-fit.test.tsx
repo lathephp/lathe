@@ -44,6 +44,13 @@ describe('a donut legend in a narrow card', () => {
     }
   });
 
+  it('lets a bar legend label give way, since its two columns sit side by side', () => {
+    render(<PartitionCard widget={{ ...widget, asBar: true }} value={{ value: segments }} />);
+    const region = screen.getByRole('region', { name: 'Orders legend' });
+
+    expect(classes(within(region).getByText('Shipped'))).not.toContain('md:min-w-[6ch]');
+  });
+
   it('hides the percentage column first when the legend is under 12rem', () => {
     const region = legend();
 
