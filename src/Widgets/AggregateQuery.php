@@ -282,6 +282,26 @@ class AggregateQuery
     }
 
     /**
+     * The aggregate over the buckets trend() draws for the range, the current one last, with the
+     * aggregate over as many buckets before them, so a value card's total is its trend's.
+     *
+     * @internal
+     */
+    public function calendarValue(): ValueResult
+    {
+        $unit = $this->unit;
+        $today = $unit->startOf(CarbonImmutable::now($this->zone()));
+        $start = $unit->shift($today, 1 - $this->range);
+        $before = $unit->shift($start, -$this->range);
+        $column = $this->qualifiedDateColumn();
+
+        return new ValueResult(
+            $this->aggregate($this->scoped()->where($column, '>=', $this->utc($start))->where($column, '<', $this->utc($unit->shift($today, 1)))),
+            $this->aggregate($this->scoped()->where($column, '>=', $this->utc($before))->where($column, '<', $this->utc($start))),
+        );
+    }
+
+    /**
      * The aggregate between two moments (both inclusive), with the one between two other moments.
      */
     public function valueBetween(DateTimeInterface $start, DateTimeInterface $end, ?DateTimeInterface $previousStart = null, ?DateTimeInterface $previousEnd = null): ValueResult

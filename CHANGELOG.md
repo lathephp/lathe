@@ -4,6 +4,10 @@ All notable changes to Lathe are listed here. The format follows [Keep a Changel
 
 ## [Unreleased]
 
+### Changed
+
+- A value card's number range counts calendar days in the user's time zone, today and the N - 1 days before it, compared with the N calendar days before those, so its total matches a trend card's for the same range. It counted the last N times 24 hours back from now, so at 7 days an order placed late on the eighth day ago counted in the card and not in the trend. `TODAY`, `YESTERDAY`, `THIS_WEEK`, `MTD`, `QTD`, `YTD` and `ALL` keep their windows, and `AggregateQuery::value()` is unchanged.
+
 ### Added
 
 - The Action Events list filters by Action Status, so the failed runs can be listed alone.

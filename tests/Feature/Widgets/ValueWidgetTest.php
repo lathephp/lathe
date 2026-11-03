@@ -4,8 +4,10 @@ use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\DB;
 use Lathe\Enums\Icon;
 use Lathe\Http\Requests\LatheRequest;
+use Lathe\Lathe;
 use Lathe\Tests\Fixtures\Widgets\ValueOrders;
 use Lathe\Tests\Fixtures\Widgets\ValueProbe;
+use Lathe\Widgets\AggregateQuery;
 use Lathe\Widgets\Results\ValueResult;
 use Lathe\Widgets\ValueWidget;
 use Lathe\Widgets\Widget;
@@ -255,3 +257,19 @@ it('takes the default range when the request names none', function () {
         ->and($widget->descriptor()['defaultRange'])->toBe(60)
         ->and((new ValueOrders)->descriptor()['defaultRange'])->toBe(30);
 });
+
+it('counts calendar days like the trend of the same range, and the same days before them', function (int $days, string $zone) {
+    Lathe::userTimezone(fn () => $zone);
+    $now = CarbonImmutable::parse('2026-11-03 15:00:00', $zone);
+    $this->travelTo($now);
+    $at = fn (int $daysAgo, string $time) => $now->subDays($daysAgo)->setTimeFromTimeString($time)->utc()->format('Y-m-d H:i:s');
+    valueOrder($at(0, '08:00:00'));
+    valueOrder($at($days - 1, '01:00:00'));
+    valueOrder($at($days, '23:00:00'));
+    valueOrder($at(2 * $days, '23:00:00'));
+    ValueProbe::$using = fn (LatheRequest $request) => $this->sum($request, Order::class, 'total_cents', 'placed_at');
+    $trend = AggregateQuery::for(Order::class)->sum('total_cents')->dateColumn('placed_at')->timezone($zone)->byDays($days)->trend();
+
+    expect(valueOf(new ValueProbe, ['range' => $days]))->toMatchArray(['value' => 200.0, 'previous' => 100.0])
+        ->and(array_sum($trend->jsonSerialize()))->toEqual(200);
+})->with([7, 30, 365])->with(['UTC', 'Asia/Dhaka', 'America/New_York']);

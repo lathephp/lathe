@@ -226,7 +226,7 @@ public function ranges(): array
 }
 ```
 
-On a value card, a number key means the last N days, compared with the N days before. The constants `TODAY`, `YESTERDAY`, `THIS_WEEK`, `MTD`, `QTD`, `YTD` and `ALL` compare against the matching earlier period. `defaultRange()` picks the choice that shows first. Return an empty array to hide the selector. The selected key reaches your code as `$request->query('range')`.
+On a value card, a number key means the last N calendar days in the user's time zone, today included, the same days a trend card draws for that range, compared with the N calendar days before them. The constants `TODAY`, `YESTERDAY`, `THIS_WEEK`, `MTD`, `QTD`, `YTD` and `ALL` compare against the matching earlier period. `defaultRange()` picks the choice that shows first. Return an empty array to hide the selector. The selected key reaches your code as `$request->query('range')`.
 
 ### The card menu
 

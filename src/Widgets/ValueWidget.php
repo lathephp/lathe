@@ -144,7 +144,7 @@ abstract class ValueWidget extends Widget
         $range = $this->selectedRange($request);
 
         if (is_int($range)) {
-            return $query->byDays($range)->value();
+            return $query->byDays($range)->calendarValue();
         }
 
         $now = CarbonImmutable::now($zone);
