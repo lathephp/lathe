@@ -59,6 +59,8 @@ describe('a donut legend in a narrow card', () => {
     expect(donut.closest('.\\@container\\/part')).not.toBeNull();
     expect(classes(donut)).toContain('@max-[16rem]/part:hidden');
     expect(classes(bar)).toContain('@max-[16rem]/part:flex');
+    // The row stacks as on a phone, so the bar takes the card's width instead of shrinking to nothing beside the legend.
+    expect(classes(bar.parentElement as HTMLElement)).toEqual(expect.arrayContaining(['@max-[16rem]/part:flex-col', '@max-[16rem]/part:items-stretch']));
   });
 
   it('hides the percentage column first when the legend is under 12rem', () => {

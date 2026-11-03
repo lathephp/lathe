@@ -56,7 +56,7 @@ export function PartitionCard({ widget, value }: WidgetRendererProps) {
       ) : (
         // Under 16rem the donut would leave the legend no room for its values, so the bar stands in for it.
         <div className="@container/part">
-          <div className="flex flex-col gap-2 md:flex-row md:items-center md:gap-4">
+          <div className="flex flex-col gap-2 md:flex-row md:items-center md:gap-4 @max-[16rem]/part:flex-col @max-[16rem]/part:items-stretch @max-[16rem]/part:gap-2">
             <div className="relative size-[132px] shrink-0 max-md:hidden @max-[16rem]/part:hidden">
               <ChartContainer className="size-full">
                 <PieChart>
