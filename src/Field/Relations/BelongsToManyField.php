@@ -148,12 +148,19 @@ class BelongsToManyField extends RelationField implements FilterableField
     }
 
     /**
-     * On a form (only when shown there) the value is the related records as picker items.
+     * On an index page with withCount() the value is the related count; on a form (only when
+     * shown there) it is the related records as picker items.
      *
-     * @return list<array<string, mixed>>|null
+     * @return list<array<string, mixed>>|int|null
      */
     public function resolve(object $record, ?string $attribute = null): mixed
     {
+        $count = parent::resolve($record, $attribute);
+
+        if (is_numeric($count)) {
+            return (int) $count;
+        }
+
         if (! $record instanceof Model || ! ($this->isShownOn(FieldContext::Update) || $this->isShownOn(FieldContext::Create))) {
             return null;
         }

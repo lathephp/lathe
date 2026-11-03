@@ -6,6 +6,7 @@ All notable changes to Lathe are listed here. The format follows [Keep a Changel
 
 ### Fixed
 
+- A `belongsToMany` or `morphToMany` field with `withCount()` shows the related count in its index column, loaded in one query for the page; the column was empty.
 - [api] Edit pivot, its form and Detach work on a `belongsToMany` or `morphToMany` whose pivot table has no id column, where they answered 404. A relation panel's row carries `pivot_id` only when the pivot table has an id column; the server finds a row of a pivot table with none by its related key and ignores any `pivot_id`, and a record attached to it twice answers 422 on `related_id` with "This record is attached more than once." and changes nothing.
 
 ## [1.0.0-beta.6] - 2026-10-29
