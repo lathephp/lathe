@@ -2,7 +2,7 @@ import { Link, router } from '@inertiajs/react';
 import { ApiError, QueryClientProvider, queryClient, request, toast, useLathe, useQuery, useTranslation } from '@lathephp/core';
 import { Button, Card } from '@lathephp/ui';
 import { ArrowDown, ArrowUp, ChevronDown, ListFilter, Plus } from 'lucide-react';
-import { lazy, Suspense, useId, useRef, useState, type MouseEvent } from 'react';
+import { lazy, Suspense, useEffect, useId, useRef, useState, type MouseEvent } from 'react';
 import { createPortal } from 'react-dom';
 import type { FieldSchema, RelationFieldSchema } from '../fields/types';
 import { InlineCell } from '../index/InlineCell';
@@ -46,9 +46,10 @@ interface RelationPanelProps {
   /**
    * Set when the panel fills a tab of the detail page's main card: the card draws the frame, the
    * tab names the panel, and the panel's buttons go into `actions` at the end of the tab row
-   * (null while the tab is not the open one).
+   * (null while the tab is not the open one). `onCount` hears the related count each time the
+   * unfiltered rows load, so the tab's badge follows an attach or a detach.
    */
-  tab?: { actions: HTMLElement | null };
+  tab?: { actions: HTMLElement | null; onCount?: (count: number) => void };
 }
 
 /**
@@ -141,6 +142,14 @@ function PanelBody({ parent, field, bodyId, onToggle, tab }: RelationPanelProps 
   const tick = useGrid(grid, rows, selection);
   const ticked = ids.filter((id) => selection.selected.has(id)).length;
   const count = field.withCount && data?.count != null ? countText(data.count) : null;
+  const total = filtered ? undefined : data?.count?.value;
+  const onCount = tab?.onCount;
+
+  useEffect(() => {
+    if (total !== undefined) {
+      onCount?.(total);
+    }
+  }, [total, onCount]);
 
   function change(changes: IndexUrlState) {
     setState(applyChanges(state, changes));

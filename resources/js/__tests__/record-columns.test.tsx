@@ -166,6 +166,13 @@ describe('record columns', () => {
     expect(first.getAttribute('aria-selected')).toBe('true');
   });
 
+  it('takes the tab count from its panel once the panel loads, so a detach shows at once', async () => {
+    // The page counted 3 items; the panel's endpoint now answers 0 rows, as after a detach.
+    renderOrder({ items: 3 });
+
+    expect(await screen.findByRole('tab', { name: 'Items 0' })).toBeTruthy();
+  });
+
   it('shows the count 0 for a relation without rows', () => {
     renderOrder({ items: 0 });
 

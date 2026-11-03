@@ -223,13 +223,15 @@ function RelationTabs({ parent, tabs, counts, active, opened, onSelect }: { pare
   const id = useId();
   // The open panel draws its Create or Attach button into this end of the tab row.
   const [actions, setActions] = useState<HTMLDivElement | null>(null);
+  // Counts the open panels loaded since the page did, over the page's own.
+  const [loaded, setLoaded] = useState<Record<string, number>>({});
 
   return (
     <Card className="overflow-hidden">
       <div className="flex items-center gap-2 border-b border-border px-4 pt-2.5 pb-2">
         <div role="tablist" aria-orientation="horizontal" className="flex min-w-0 flex-wrap gap-1">
           {tabs.map((field, index) => {
-            const count = field.withCount ? counts[field.key] : undefined;
+            const count = field.withCount ? (loaded[field.key] ?? counts[field.key]) : undefined;
 
             return (
               <button
@@ -267,7 +269,16 @@ function RelationTabs({ parent, tabs, counts, active, opened, onSelect }: { pare
           {opened.has(index) ? (
             <Suspense fallback={null}>
               {/* A tab shows its panel open; collapsed() folds it only outside a tab. */}
-              <RelationPanel parent={parent} field={{ ...field, collapsed: false }} tab={{ actions: index === active ? actions : null }} />
+              <RelationPanel
+                parent={parent}
+                field={{ ...field, collapsed: false }}
+                tab={{
+                  actions: index === active ? actions : null,
+                  onCount: (count) => {
+                    setLoaded((current) => (current[field.key] === count ? current : { ...current, [field.key]: count }));
+                  },
+                }}
+              />
             </Suspense>
           ) : null}
         </div>
