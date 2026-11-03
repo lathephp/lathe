@@ -4,6 +4,10 @@ All notable changes to Lathe are listed here. The format follows [Keep a Changel
 
 ## [Unreleased]
 
+### Added
+
+- The Action Events list filters by Action Status, so the failed runs can be listed alone.
+
 ### Fixed
 
 - An action whose `handle()` returns `ActionResult::danger()`, inline, standalone or in a queued chunk, leaves its action events Failed, with the message under Exception, where they read Finished. The response is unchanged: HTTP 200 with the danger toast, and the row counts as run, not failed.

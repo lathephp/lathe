@@ -67,7 +67,8 @@ class ActionEventResource extends Resource
                 : null),
             Field::make(Lathe::__('Action Initiated By'), 'action_initiated_by', fn (Model $event) => self::initiator($event)),
             new MorphToActionTarget(Lathe::__('Action Target'), 'action_target'),
-            Field::status(Lathe::__('Action Status'), 'status')->loadingWhen(['waiting', 'running'])->failedWhen('failed'),
+            Field::status(Lathe::__('Action Status'), 'status')->loadingWhen(['waiting', 'running'])->failedWhen('failed')
+                ->filterable(options: ['waiting' => Lathe::__('Waiting'), 'running' => Lathe::__('Running'), 'finished' => Lathe::__('Finished'), 'failed' => Lathe::__('Failed')]),
             Field::keyValue(Lathe::__('Original'), 'original')->showOnIndex(),
             Field::keyValue(Lathe::__('Changes'), 'changes')->showOnIndex(),
             Field::text(Lathe::__('Exception'), 'exception'),

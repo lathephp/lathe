@@ -242,3 +242,16 @@ class AuditLogGrantsEverything
         return true;
     }
 }
+
+it('filters the log by status', function () {
+    auditEvent(['status' => 'finished']);
+    auditEvent(['status' => 'failed', 'exception' => 'Refused.']);
+    auditEvent(['status' => 'failed', 'exception' => 'Boom']);
+
+    $filter = collect($this->getJson('/lathe/api/resources/action-events/filters')->assertOk()->json('filters'))->firstWhere('key', 'field_status');
+    $rows = $this->getJson('/lathe/api/resources/action-events?filter[field_status]=failed')->assertOk()->json('table.rows');
+
+    expect($filter['name'])->toBe('Action Status')
+        ->and(array_column($filter['options'], 'label'))->toBe(['Waiting', 'Running', 'Finished', 'Failed'])
+        ->and(array_column(array_column(array_column($rows, 'cells'), 'exception'), 'display'))->toBe(['Boom', 'Refused.']);
+});
