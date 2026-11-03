@@ -103,6 +103,7 @@ it('sends each Orders filter its token key and kind', function () {
     expect(filterTokens('/lathe/api/resources/orders'))->toBe([
         'status' => ['token' => 'status', 'kind' => 'multiple'],
         'customer' => ['token' => 'customer', 'kind' => 'relation'],
+        'placed' => ['token' => 'placed', 'kind' => 'date'],
         'field_total_cents' => ['token' => 'total', 'kind' => 'range'],
     ]);
 });

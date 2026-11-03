@@ -16,6 +16,15 @@ abstract class DateFilter extends Filter
     }
 
     /**
+     * The date column this filter narrows, so a dashboard card dated by it opens its list
+     * filtered to the card's days. Null, the default, leaves card links alone.
+     */
+    public function column(): ?string
+    {
+        return null;
+    }
+
+    /**
      * @return array{from: string|null, to: string|null}
      */
     public function normalize(LatheRequest $request, mixed $value, bool $remote): array

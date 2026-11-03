@@ -58,12 +58,13 @@ beforeEach(function () {
 it('lists the explicit filters, then one generated for each filterable field', function () {
     $filters = $this->getJson('/lathe/api/resources/orders/filters')->assertOk()->json('filters');
 
-    expect(array_column($filters, 'key'))->toBe(['status', 'customer', 'field_total_cents'])
-        ->and(array_column($filters, 'name'))->toBe(['Status', 'Customer', 'Total'])
-        ->and(array_column($filters, 'remote'))->toBe([false, true, false])
+    expect(array_column($filters, 'key'))->toBe(['status', 'customer', 'placed', 'field_total_cents'])
+        ->and(array_column($filters, 'name'))->toBe(['Status', 'Customer', 'Placed', 'Total'])
+        ->and(array_column($filters, 'remote'))->toBe([false, true, false, false])
         ->and(array_column($filters[0]['options'], 'value'))->toBe(['pending', 'paid', 'shipped', 'cancelled'])
         ->and($filters[1]['options'])->toBeNull()
-        ->and($filters[2]['component'])->toBe('range-filter');
+        ->and($filters[2]['component'])->toBe('date-filter')
+        ->and($filters[3]['component'])->toBe('range-filter');
 });
 
 it('makes a filter remote when its options pass the threshold of the Resource', function () {
@@ -141,7 +142,7 @@ it('returns the filterable fields and builds a field filter from one', function 
         ->and($filter->key())->toBe('field_total_cents')
         ->and($filter->name())->toBe('Total')
         ->and(array_map(fn (Filter $f) => $f->key(), $resource->availableFilters($request)))
-        ->toBe(['status', 'customer', 'field_total_cents']);
+        ->toBe(['status', 'customer', 'placed', 'field_total_cents']);
 });
 
 it('narrows the rows by a generated field filter', function () {

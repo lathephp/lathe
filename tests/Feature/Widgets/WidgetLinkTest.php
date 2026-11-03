@@ -1,11 +1,18 @@
 <?php
 
+use Carbon\CarbonImmutable;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Str;
 use Inertia\Testing\AssertableInertia;
+use Lathe\Http\Requests\LatheRequest;
 use Lathe\Lathe;
 use Lathe\Tests\Fixtures\Dashboards\Cards;
 use Lathe\Tests\Fixtures\Widgets\OrderCount;
+use Lathe\Tests\Fixtures\Widgets\TrendProbe;
 use Lathe\Tests\Fixtures\Widgets\ValueOrders;
+use Lathe\Tests\Fixtures\Widgets\ValueProbe;
+use Workbench\App\Models\Order;
 use Workbench\App\Models\User;
 use Workbench\Database\Seeders\DemoSeeder;
 
@@ -51,4 +58,43 @@ it('carries the link a card declares', function () {
     $this->actingAs(linkUser('admin@lathephp.com'))
         ->getJson('/lathe/api/dashboards/cards/widgets/order-count')
         ->assertJsonPath('link', '/somewhere');
+});
+
+it('opens the orders placed in the card\'s days, as many as the card counts', function () {
+    $this->travelTo(CarbonImmutable::parse('2026-11-03 15:00:00', 'UTC'));
+    DB::table('orders')->limit(6)->update(['placed_at' => '2026-10-28 00:30:00']);
+    DB::table('orders')->whereNotIn('placed_at', ['2026-10-28 00:30:00'])->limit(3)->update(['placed_at' => '2026-10-27 23:30:00']);
+    ValueProbe::$using = fn (LatheRequest $request) => $this->count($request, Order::class, null, 'placed_at');
+    Cards::$widgets = [new ValueProbe];
+    $this->actingAs(linkUser('admin@lathephp.com'));
+
+    $card = $this->getJson('/lathe/api/dashboards/cards/widgets/value-probe?range=7')->assertOk()->json();
+    $query = Str::after($card['link'], '?');
+
+    expect($card['link'])->toBe('/lathe/resources/orders?'.http_build_query(['filter' => ['placed' => ['from' => '2026-10-28', 'to' => '2026-11-03']]]))
+        ->and($this->getJson('/lathe/api/resources/orders/count?'.$query)->json('value'))->toBe($card['value']['value']);
+});
+
+it('opens the trend\'s days too, and the plain list for a trend counted by the hour', function () {
+    $this->travelTo(CarbonImmutable::parse('2026-11-03 15:00:00', 'UTC'));
+    TrendProbe::$using = fn (LatheRequest $request) => $this->countByDays($request, Order::class, null, 'placed_at');
+    Cards::$widgets = [new TrendProbe];
+    $this->actingAs(linkUser('admin@lathephp.com'));
+
+    $this->getJson('/lathe/api/dashboards/cards/widgets/trend-probe?range=30')
+        ->assertJsonPath('link', '/lathe/resources/orders?'.http_build_query(['filter' => ['placed' => ['from' => '2026-10-05', 'to' => '2026-11-03']]]));
+
+    TrendProbe::$using = fn (LatheRequest $request) => $this->countByHours($request, Order::class, null, 'placed_at');
+
+    $this->getJson('/lathe/api/dashboards/cards/widgets/trend-probe?range=24')->assertJsonPath('link', '/lathe/resources/orders');
+});
+
+it('keeps the plain link for a card dated by a column no date filter reads', function () {
+    $this->travelTo(CarbonImmutable::parse('2026-11-03 15:00:00', 'UTC'));
+    ValueProbe::$using = fn (LatheRequest $request) => $this->count($request, Order::class, null, 'updated_at');
+    Cards::$widgets = [new ValueProbe];
+
+    $this->actingAs(linkUser('admin@lathephp.com'))
+        ->getJson('/lathe/api/dashboards/cards/widgets/value-probe?range=7')
+        ->assertJsonPath('link', '/lathe/resources/orders');
 });

@@ -115,8 +115,15 @@ class CreatedBetween extends DateFilter
 
         return $query;
     }
+
+    public function column(): ?string
+    {
+        return 'created_at';
+    }
 }
 ```
+
+`column()` names the date column the filter narrows. It is optional, and null by default. When it names one, a dashboard card dated by that column opens this list with the filter set to the card's days (see [Open records](../organizing/widgets.md#open-records)). The card counts days in the user's time zone, so a filter that should list the same rows cuts its days there too, as `Timezone::dayBounds()` does.
 
 ## Range filters
 

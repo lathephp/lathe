@@ -52,6 +52,9 @@ class AggregateQuery
 
     protected ?Closure $callback = null;
 
+    /** @var array{column: string, from: string, to: string}|null */
+    private ?array $days = null;
+
     /**
      * @param  Builder<Model>  $builder
      */
@@ -294,11 +297,40 @@ class AggregateQuery
         $start = $unit->shift($today, 1 - $this->range);
         $before = $unit->shift($start, -$this->range);
         $column = $this->qualifiedDateColumn();
+        $this->window($start, $unit->shift($today, 1));
 
         return new ValueResult(
             $this->aggregate($this->scoped()->where($column, '>=', $this->utc($start))->where($column, '<', $this->utc($unit->shift($today, 1)))),
             $this->aggregate($this->scoped()->where($column, '>=', $this->utc($before))->where($column, '<', $this->utc($start))),
         );
+    }
+
+    /**
+     * The whole local days the last calendarValue() or day-or-longer trend() read, with the
+     * unqualified date column, or null when it read none.
+     *
+     * @internal
+     *
+     * @return array{column: string, from: string, to: string}|null
+     */
+    public function days(): ?array
+    {
+        return $this->days;
+    }
+
+    /**
+     * Keeps the local days from the start up to the end (exclusive) for days().
+     */
+    private function window(CarbonImmutable $start, CarbonImmutable $end): void
+    {
+        $table = $this->builder->getModel()->getTable().'.';
+        $column = $this->dateColumn ?? $this->builder->getModel()->getCreatedAtColumn() ?? 'created_at';
+
+        $this->days = [
+            'column' => str_starts_with($column, $table) ? substr($column, strlen($table)) : $column,
+            'from' => $start->format('Y-m-d'),
+            'to' => $end->subDay()->format('Y-m-d'),
+        ];
     }
 
     /**
@@ -332,6 +364,10 @@ class AggregateQuery
         $bucket = DateBucket::zoned($connection, $column, $unit, $zone, $first, $end);
         $clockTime = $unit === TrendUnit::Minute || $unit === TrendUnit::Hour;
         $offset = $clockTime ? DateBucket::offset($connection, $column, $zone, $first, $end) : null;
+
+        if (! $clockTime) {
+            $this->window($first, $end);
+        }
 
         $query = $this->scoped()
             ->addSelect($this->sql("{$bucket} as bucket_label"), $this->sql($this->aggregateSql().' as aggregate_value'))

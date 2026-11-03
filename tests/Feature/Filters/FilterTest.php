@@ -155,7 +155,7 @@ it('shows only pending orders for filter[status]=pending, on the API and the pag
             ->component('Resources/Index', shouldExist: false)
             ->where('table.rows', fn ($pageRows) => array_column($pageRows->all(), 'id') === array_column($rows, 'id'))
             ->where('filters.applied', ['status' => ['pending']])
-            ->has('filters.available', 3));
+            ->has('filters.available', 4));
 });
 
 it('narrows filter[customer]=12 to the orders of customer 12', function () {
@@ -259,6 +259,18 @@ it('lists Status with four inline options and Customer as a remote picker', func
                 'default' => null,
                 'token' => 'customer',
                 'kind' => 'relation',
+            ],
+            [
+                'key' => 'placed',
+                'name' => 'Placed',
+                'component' => 'date-filter',
+                'options' => [],
+                'remote' => false,
+                'immediate' => false,
+                'placement' => 'panel',
+                'default' => null,
+                'token' => 'placed',
+                'kind' => 'date',
             ],
             [
                 'key' => 'field_total_cents',

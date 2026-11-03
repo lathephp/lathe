@@ -21,6 +21,7 @@ use Lathe\Attributes\Widget\Width;
 use Lathe\Auth\FortifyConfig;
 use Lathe\Auth\ResourceAuthorization;
 use Lathe\Enums\CardWidth;
+use Lathe\Filters\DateFilter;
 use Lathe\Filters\Filter;
 use Lathe\Filters\FilterApplicator;
 use Lathe\Http\Requests\LatheRequest;
@@ -519,7 +520,7 @@ abstract class Widget
         unset($response[self::SOURCE]);
 
         // The cache may be shared between users, so the link is checked per request.
-        $link = $this->link ?? (is_array($source) && is_string($source['model'] ?? null) ? $this->resourceLink($request, $source['model']) : null);
+        $link = $this->link ?? (is_array($source) && is_string($source['model'] ?? null) ? $this->resourceLink($request, $source['model'], is_array($source['days'] ?? null) ? $source['days'] : null) : null);
 
         return $link === null ? $response : [...$response, 'link' => $link];
     }
@@ -543,11 +544,14 @@ abstract class Widget
     }
 
     /**
-     * The panel index of the model's Resource, when this request's user may list it.
+     * The panel index of the model's Resource, when this request's user may list it, filtered to
+     * the card's days when one of its date filters reads the column the card is dated by.
      *
      * @internal
+     *
+     * @param  array<mixed>|null  $days
      */
-    protected function resourceLink(LatheRequest $request, string $model): ?string
+    protected function resourceLink(LatheRequest $request, string $model, ?array $days = null): ?string
     {
         $resource = app(ResourceRegistry::class)->forModel($model);
         $authorization = app(ResourceAuthorization::class);
@@ -556,7 +560,19 @@ abstract class Widget
             return null;
         }
 
-        return '/'.trim(rtrim(Lathe::path(), '/').'/resources/'.$resource::uriKey(), '/');
+        $index = '/'.trim(rtrim(Lathe::path(), '/').'/resources/'.$resource::uriKey(), '/');
+
+        if ($days === null) {
+            return $index;
+        }
+
+        foreach ($resource::make()->availableFilters($request) as $filter) {
+            if ($filter instanceof DateFilter && $filter->column() !== null && $filter->column() === ($days['column'] ?? null)) {
+                return $index.'?'.http_build_query(['filter' => [$filter->key() => ['from' => $days['from'] ?? null, 'to' => $days['to'] ?? null]]]);
+            }
+        }
+
+        return $index;
     }
 
     /**
@@ -578,15 +594,19 @@ abstract class Widget
      * What the value read: its model when every aggregate read the same one, and the column
      * names of the last aggregate, for the CSV header.
      *
-     * @return array{model: class-string<Model>|null, column: string, group: string}
+     * @return array{model: class-string<Model>|null, days: array{column: string, from: string, to: string}|null, column: string, group: string}
      */
     private function source(): array
     {
         $models = array_values(array_unique(array_map(fn (AggregateQuery $query) => $query->model(), $this->aggregates)));
         $last = $this->aggregates === [] ? null : $this->aggregates[array_key_last($this->aggregates)];
+        $days = array_map(fn (AggregateQuery $query) => $query->days(), $this->aggregates);
+        $first = $days[0] ?? null;
 
         return [
             'model' => count($models) === 1 ? $models[0] : null,
+            // The days only when every aggregate read the same ones.
+            'days' => array_filter($days, fn (?array $read) => $read !== $first) === [] ? $first : null,
             'column' => $last?->columnName() ?? 'value',
             'group' => $last?->groupName() ?? 'label',
         ];

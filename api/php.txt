@@ -2290,6 +2290,7 @@ Lathe\Field\UiAvatarField::string $backgroundColor  [protected]
 Lathe\Field\UiAvatarField::string $component  [protected]
 Lathe\Filters\BooleanFilter::component(): string
 Lathe\Filters\BooleanFilter::normalize(Lathe\Http\Requests\LatheRequest $request, mixed $value, bool $remote): array
+Lathe\Filters\DateFilter::column(): ?string
 Lathe\Filters\DateFilter::component(): string
 Lathe\Filters\DateFilter::date(mixed $side): ?string  [protected]
 Lathe\Filters\DateFilter::normalize(Lathe\Http\Requests\LatheRequest $request, mixed $value, bool $remote): array

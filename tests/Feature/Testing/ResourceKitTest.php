@@ -29,7 +29,7 @@ it('lists the lenses the index page offers', function () {
 it('reads the filters of a Resource and of a lens', function () {
     $resource = LatheTest::resource('orders');
 
-    expect(array_column($resource->filters()->assertOk()->json('filters'), 'key'))->toBe(['status', 'customer', 'field_total_cents'])
+    expect(array_column($resource->filters()->assertOk()->json('filters'), 'key'))->toBe(['status', 'customer', 'placed', 'field_total_cents'])
         ->and(array_column($resource->lens('pending-orders')->filters()->assertOk()->json('filters'), 'key'))->toBe(['status', 'customer']);
 });
 

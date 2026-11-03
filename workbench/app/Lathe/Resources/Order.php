@@ -25,6 +25,7 @@ use Workbench\App\Lathe\Actions\MarkPaid;
 use Workbench\App\Lathe\Actions\MarkShipped;
 use Workbench\App\Lathe\Actions\Refund;
 use Workbench\App\Lathe\Filters\OrderCustomer;
+use Workbench\App\Lathe\Filters\OrderPlaced;
 use Workbench\App\Lathe\Filters\OrderStatus;
 use Workbench\App\Lathe\Lenses\PendingOrders;
 use Workbench\App\Lathe\ResourcePlugins\ActivityTimeline;
@@ -124,7 +125,7 @@ class Order extends Resource
 
     public function filters(LatheRequest $request): array
     {
-        return [(new OrderStatus)->multiple(), new OrderCustomer];
+        return [(new OrderStatus)->multiple(), new OrderCustomer, new OrderPlaced];
     }
 
     public function lenses(LatheRequest $request): array
