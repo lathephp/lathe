@@ -8,7 +8,7 @@ const __ = (key: string, replace: Record<string, string | number> = {}) =>
 const base = { component: '', options: null, remote: false, immediate: false, placement: 'panel', default: null } as const;
 
 const customer: IndexFilter = { ...base, key: 'customer', name: 'Customer', token: 'customer', kind: 'relation', remote: true };
-const total: IndexFilter = { ...base, key: 'field_total_cents', name: 'Total', token: 'total', kind: 'range', scale: 100 };
+const total: IndexFilter = { ...base, key: 'field_total_cents', name: 'Total', token: 'total', kind: 'range', scale: 100, strict: true };
 const featured: IndexFilter = { ...base, key: 'featured', name: 'Featured', token: 'featured', kind: 'boolean', options: [{ label: 'Featured', value: 'featured' }] };
 const filters = [customer, total, featured];
 

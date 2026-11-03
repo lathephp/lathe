@@ -12,6 +12,8 @@ use Lathe\Http\Requests\LatheRequest;
  */
 class FieldFilter extends RangeFilter
 {
+    protected bool $strict = true;
+
     public function __construct(protected string $label, protected string $attribute, protected int $scale = 1, protected ?Closure $callback = null)
     {
         //

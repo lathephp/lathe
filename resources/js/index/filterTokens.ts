@@ -205,16 +205,26 @@ export function parseToken(token: string, filters: IndexFilter[], options: { sof
     }
 
     // At scale 1 the side goes as typed, decimals kept, as the filter panel writes it.
-    const stored = (side: string | undefined) => (side === undefined ? undefined : scale === 1 ? side : String(Math.round(Number(side) * scale)));
-    const low = stored(found.low);
-    const high = stored(found.high);
+    // A side between two stored units goes to the one that lets in the same stored values as the
+    // typed number: up for min and lt, down for gt and max. A product a float misses by a hair,
+    // 1500.01 * 100, counts as the whole unit it means.
+    const stored = (side: string | undefined, up: boolean) => {
+      const exact = Number(side) * scale;
+      const near = Math.round(exact);
+
+      return side === undefined ? undefined : scale === 1 ? side : String(Math.abs(exact - near) < 1e-6 ? near : up ? Math.ceil(exact) : Math.floor(exact));
+    };
+    const strictSides = found.strict === true && filter.strict === true;
+    const low = stored(found.low, !strictSides);
+    const high = stored(found.high, strictSides);
     const shown = (side: string | undefined) => (side === undefined ? undefined : formatNumber(Number(side)));
-    // >n and <n filter strictly on the server; a..b and a bare n keep min and max, which include their ends.
-    const [lowKey, highKey] = found.strict ? ['gt', 'lt'] : ['min', 'max'];
+    // >n and <n filter strictly on a filter that takes gt and lt; a..b, a bare n and any other
+    // range filter keep min and max, which include their ends.
+    const [lowKey, highKey] = strictSides ? ['gt', 'lt'] : ['min', 'max'];
 
     return chip(
       { ...(low === undefined ? {} : { [lowKey]: low }), ...(high === undefined ? {} : { [highKey]: high }) },
-      sidesLabel(shown(found.low), shown(found.high), found.strict),
+      sidesLabel(shown(found.low), shown(found.high), strictSides),
     );
   }
 

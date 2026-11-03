@@ -191,6 +191,7 @@ it('answers 422 with errors.filter for a bad filter, never 500', function (strin
 })->with([
     'unknown key' => ['filter[nothing]=1'],
     'malformed range' => ['filter[total][min]=abc'],
+    'a strict side on a range filter that takes none' => ['filter[total][gt]=10'],
     'hidden by canSee' => ['filter[secret]=1'],
     'a list for a single select' => ['filter[status][]=paid'],
     'an option it does not offer' => ['filter[tag][]=lost'],
@@ -268,6 +269,7 @@ it('lists Status with four inline options and Customer as a remote picker', func
                 'immediate' => false,
                 'placement' => 'panel',
                 'default' => null,
+                'strict' => true,
                 // The column holds cents and shows amounts, so the inputs take amounts.
                 'scale' => 100,
                 'token' => 'total',

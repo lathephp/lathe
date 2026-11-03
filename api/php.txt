@@ -2296,6 +2296,7 @@ Lathe\Filters\DateFilter::normalize(Lathe\Http\Requests\LatheRequest $request, m
 Lathe\Filters\FieldFilter::?Closure $callback  [protected]
 Lathe\Filters\FieldFilter::__construct(string $label, string $attribute, int $scale = 1, ?Closure $callback = NULL)
 Lathe\Filters\FieldFilter::apply(Lathe\Http\Requests\LatheRequest $request, Illuminate\Database\Eloquent\Builder $query, mixed $value): Illuminate\Database\Eloquent\Builder
+Lathe\Filters\FieldFilter::bool $strict  [protected]
 Lathe\Filters\FieldFilter::definition(Lathe\Http\Requests\LatheRequest $request, int $threshold): array
 Lathe\Filters\FieldFilter::int $scale  [protected]
 Lathe\Filters\FieldFilter::key(): string
@@ -2345,7 +2346,9 @@ Lathe\Filters\FilterApplicator::apply(Lathe\Http\Requests\LatheRequest $request,
 Lathe\Filters\FilterApplicator::resolve(Lathe\Http\Requests\LatheRequest $request, array $filters): array  [protected]
 Lathe\Filters\FilterApplicator::values(Lathe\Http\Requests\LatheRequest $request, array $filters): array
 Lathe\Filters\RangeFilter::bool $integers  [protected]
+Lathe\Filters\RangeFilter::bool $strict  [protected]
 Lathe\Filters\RangeFilter::component(): string
+Lathe\Filters\RangeFilter::definition(Lathe\Http\Requests\LatheRequest $request, int $threshold): array
 Lathe\Filters\RangeFilter::integers(bool $integers = true): static
 Lathe\Filters\RangeFilter::normalize(Lathe\Http\Requests\LatheRequest $request, mixed $value, bool $remote): array
 Lathe\Filters\RangeFilter::number(mixed $side): int|float|null  [protected]

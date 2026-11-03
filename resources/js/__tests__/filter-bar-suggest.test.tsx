@@ -28,7 +28,7 @@ const status: IndexFilter = {
 
 const customer: IndexFilter = { ...base, key: 'customer', name: 'Customer', component: 'select-filter', options: null, remote: true, token: 'customer', kind: 'relation' };
 
-const total: IndexFilter = { ...base, key: 'field_total_cents', name: 'Total', component: 'range-filter', options: null, scale: 100, token: 'total', kind: 'range' };
+const total: IndexFilter = { ...base, key: 'field_total_cents', name: 'Total', component: 'range-filter', options: null, scale: 100, strict: true, token: 'total', kind: 'range' };
 
 function renderOrders() {
   return renderPage(

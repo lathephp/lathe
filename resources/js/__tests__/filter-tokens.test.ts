@@ -30,6 +30,7 @@ const total: IndexFilter = {
   kind: 'range',
   component: 'range-filter',
   scale: 100,
+  strict: true,
 };
 const created: IndexFilter = { ...base, key: 'created_at', name: 'Created', token: 'created', kind: 'date', component: 'date-filter' };
 const featured: IndexFilter = {
@@ -296,7 +297,7 @@ describe('toUrlState', () => {
 describe('review cases', () => {
   // A filterable belongsTo under the remote threshold sends its ids as numbers.
   const author = { ...base, key: 'field_author', name: 'Author', token: 'author', kind: 'select', component: 'select-filter', options: [{ label: 'Ann', value: 3 }] } as unknown as IndexFilter;
-  const rating: IndexFilter = { ...base, key: 'rating', name: 'Rating', token: 'rating', kind: 'range', component: 'range-filter' };
+  const rating: IndexFilter = { ...base, key: 'rating', name: 'Rating', token: 'rating', kind: 'range', component: 'range-filter', strict: true };
 
   it('takes an option whose value the server sent as a number', () => {
     const parsed = parseToken('author:ann', [author], { softDeletes: false }, __);
@@ -312,10 +313,35 @@ describe('review cases', () => {
   });
 
   it('writes a strict side at scale 1 as typed', () => {
-    const qty: IndexFilter = { ...base, key: 'qty', name: 'Qty', token: 'qty', kind: 'range', component: 'range-filter' };
+    const qty: IndexFilter = { ...base, key: 'qty', name: 'Qty', token: 'qty', kind: 'range', component: 'range-filter', strict: true };
     const parsed = parseToken('qty:>5', [qty], { softDeletes: false }, __);
 
     expect('chip' in parsed && parsed.chip.value).toEqual({ gt: '5' });
+  });
+
+  // 1,500.005 lies between two cents: >1500.005 still lists 1,500.01, and <1500.005 still lists 1,500.00.
+  it('rounds a side that falls between two stored units toward the values it lets in', () => {
+    const value = (token: string) => {
+      const parsed = parseToken(token, [total], { softDeletes: false }, __);
+
+      return 'chip' in parsed ? parsed.chip.value : undefined;
+    };
+
+    expect(value('total:>1500.005')).toEqual({ gt: '150000' });
+    expect(value('total:<1500.005')).toEqual({ lt: '150001' });
+    expect(value('total:1500.005..1600.005')).toEqual({ min: '150001', max: '160000' });
+    expect(value('total:>1500.01')).toEqual({ gt: '150001' });
+    expect(value('total:<0.29')).toEqual({ lt: '29' });
+  });
+
+  // A range filter of the app's own that reads only min and max would ignore gt and list every row.
+  it('keeps >n and <n inclusive, and says so, on a range filter that takes no strict sides', () => {
+    const own: IndexFilter = { ...base, key: 'price', name: 'Price', token: 'price', kind: 'range', component: 'range-filter', scale: 100 };
+    const above = parseToken('price:>1500', [own], { softDeletes: false }, __);
+    const below = parseToken('price:<1500', [own], { softDeletes: false }, __);
+
+    expect('chip' in above && [above.chip.value, above.chip.label]).toEqual([{ min: '150000' }, 'Price: ≥ 1,500']);
+    expect('chip' in below && [below.chip.value, below.chip.label]).toEqual([{ max: '150000' }, 'Price: ≤ 1,500']);
   });
 
   it('reads a key with no value as a red chip, never as a search', () => {

@@ -6,11 +6,17 @@ use Lathe\Http\Requests\LatheRequest;
 
 /**
  * A numeric range: filter[key][min] and filter[key][max], either side may be empty, both inclusive.
- * filter[key][gt] and filter[key][lt] are strict sides, as the filter bar's >n and <n write them.
+ * filter[key][gt] and filter[key][lt] are strict sides, as the filter bar's >n and <n write them,
+ * taken only by a filter whose apply() reads them.
  */
 abstract class RangeFilter extends Filter
 {
     protected bool $integers = false;
+
+    /**
+     * Whether apply() reads gt and lt. Without them the filter bar writes >n and <n as min and max.
+     */
+    protected bool $strict = false;
 
     /**
      * Take whole numbers only, for an integer column: PostgreSQL refuses 10.5 or 1e20 there.
@@ -28,6 +34,14 @@ abstract class RangeFilter extends Filter
     }
 
     /**
+     * @return array<string, mixed>
+     */
+    public function definition(LatheRequest $request, int $threshold): array
+    {
+        return [...parent::definition($request, $threshold), 'strict' => $this->strict];
+    }
+
+    /**
      * Min and max always, null when empty; gt and lt only when sent, so a link or a saved tab
      * from before them keeps its shape.
      *
@@ -35,7 +49,9 @@ abstract class RangeFilter extends Filter
      */
     public function normalize(LatheRequest $request, mixed $value, bool $remote): array
     {
-        if (! is_array($value) || array_diff_key($value, ['min' => 0, 'max' => 0, 'gt' => 0, 'lt' => 0]) !== []) {
+        $sides = $this->strict ? ['min' => 0, 'max' => 0, 'gt' => 0, 'lt' => 0] : ['min' => 0, 'max' => 0];
+
+        if (! is_array($value) || array_diff_key($value, $sides) !== []) {
             $this->invalid();
         }
 

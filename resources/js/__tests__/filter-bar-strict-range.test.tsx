@@ -25,6 +25,7 @@ const total: IndexFilter = {
   component: 'range-filter',
   options: null,
   scale: 100,
+  strict: true,
   token: 'total',
   kind: 'range',
 };

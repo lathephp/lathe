@@ -32,8 +32,8 @@ What a value looks like depends on the filter:
 |---|---|
 | Select | An option, by value or label: `status:pending`. |
 | Multiple select | Options separated by commas: `status:pending,paid`. |
-| Range | A number, `>n`, `<n` or `a..b`: `total:>1500`, `total:10..50`. |
-| Date | `YYYY-MM-DD`, `>date`, `<date` or `a..b`. |
+| Range | A number, `>n`, `<n` or `a..b`: `total:>1500`, `total:10..50`. On a filterable field `>n` and `<n` leave out n itself, and the chip reads "Total: > 1,500"; `a..b` and a lone number include their ends. A [range filter class](filters.md#range-filters) includes n unless it takes strict sides. |
+| Date | `YYYY-MM-DD`, `>date`, `<date` or `a..b`, each including the dates it names. |
 | Boolean with one option | `yes` or `no`. |
 | Relation | A related record's name: `customer:"Ann Taylor"`. When the related table is large enough to search on the server, the start of the name is enough; the bar looks it up and adds the chip. A small one lists its records, and the name must match one in full. |
 | Text | The text. |

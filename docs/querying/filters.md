@@ -144,6 +144,26 @@ class PriceRange extends RangeFilter
 
 For an integer column, call `integers()` on the filter. It refuses `10.5` and `1e20`, which PostgreSQL would reject with a server error.
 
+In the filter bar, `price:>10` and `price:<10` on this filter include 10: they write `min` and `max`, and the chip reads "≥ 10" or "≤ 10". To make them leave out 10, set `$strict` and read the strict sides `gt` and `lt`, which are absent when the URL does not send them:
+
+```php
+class PriceRange extends RangeFilter
+{
+    protected bool $strict = true;
+
+    public function apply(LatheRequest $request, Builder $query, mixed $value): Builder
+    {
+        return $query
+            ->when($value['min'] !== null, fn (Builder $q) => $q->where('price', '>=', $value['min']))
+            ->when($value['max'] !== null, fn (Builder $q) => $q->where('price', '<=', $value['max']))
+            ->when(isset($value['gt']), fn (Builder $q) => $q->where('price', '>', $value['gt']))
+            ->when(isset($value['lt']), fn (Builder $q) => $q->where('price', '<', $value['lt']));
+    }
+}
+```
+
+A filter that `filterable()` makes from a number or currency field takes the strict sides already, and a `filterable(fn ...)` callback on one receives them in `$value`.
+
 ## Register filters
 
 Return the filters from the Resource's `filters()` method:
@@ -311,6 +331,7 @@ The filter bar writes the filters into the URL in plain form, one parameter per 
 ?filter[status]=paid
 ?filter[tag][]=a&filter[tag][]=b
 ?filter[total][min]=10&filter[total][max]=50
+?filter[total][gt]=10
 ?filter[placed][from]=2026-01-01
 ```
 

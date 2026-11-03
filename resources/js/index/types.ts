@@ -70,6 +70,8 @@ export interface AvailableFilter {
   default: unknown;
   /** A range filter's inputs show the stored value divided by this, such as 100 for cents. */
   scale?: number;
+  /** Whether a range filter takes the strict sides gt and lt, which the filter bar's >n and <n write. */
+  strict?: boolean;
 }
 
 /** A filter as the index sends it, with its key and value kind in the filter bar. */
