@@ -163,6 +163,40 @@ class ActionEventRecorder
     }
 
     /**
+     * Writes Original and Changes on the action-ran events of a run: each model's stored
+     * attributes before the run against one read of its chunk after it. A model that changed
+     * nothing, or is gone, keeps both empty.
+     *
+     * @internal
+     *
+     * @param  Collection<int, Model>  $models  the models as loaded before the run
+     * @param  array<string, array<array-key, mixed>>  $before  each model's attributes before the run, by ActionEvent::keyOf()
+     * @param  class-string<resource>  $resourceClass
+     */
+    public function forActionChanges(string $batchId, Collection $models, array $before, string $resourceClass): void
+    {
+        if (! $this->shouldRecord($resourceClass)) {
+            return;
+        }
+
+        foreach ($models->chunk(200) as $chunk) {
+            $first = $chunk->firstOrFail();
+            $keyName = $first->getKeyName();
+            $after = $first->newModelQuery()->whereKey($chunk->map(fn (Model $model) => $model->getKey())->values()->all())->toBase()->get()->keyBy($keyName);
+
+            foreach ($chunk as $model) {
+                $row = $after->get(ActionEvent::keyOf($model));
+                [$original, $changes] = $this->changed($model, $before[ActionEvent::keyOf($model)] ?? [], $row === null ? [] : (array) $row, $resourceClass);
+
+                if ($changes !== []) {
+                    $this->model()::query()->where('batch_id', $batchId)->forActionable($model)
+                        ->update(['original' => json_encode($original), 'changes' => json_encode($changes)]);
+                }
+            }
+        }
+    }
+
+    /**
      * The impersonator is the user of the row and the impersonated user its record.
      */
     public function forImpersonationStarted(?LatheRequest $request, Model $impersonator, Model $impersonated): void
@@ -297,6 +331,29 @@ class ActionEventRecorder
             'created_at' => $now,
             'updated_at' => $now,
         ];
+    }
+
+    /**
+     * The original and new values of the attributes that differ between the two reads, without
+     * the update timestamp; hidden attributes drop out and a secret reads redacted on both sides,
+     * so it never counts as changed.
+     *
+     * @internal
+     *
+     * @param  array<array-key, mixed>  $before
+     * @param  array<array-key, mixed>  $after  empty when the record is gone
+     * @param  class-string<resource>  $resourceClass
+     * @return array{0: array<array-key, mixed>, 1: array<array-key, mixed>}
+     */
+    protected function changed(Model $model, array $before, array $after, string $resourceClass): array
+    {
+        $updatedAt = $model->usesTimestamps() ? $model->getUpdatedAtColumn() : null;
+        $changed = array_filter($before, fn (mixed $value, int|string $key) => $key !== $updatedAt && array_key_exists($key, $after) && $after[$key] !== $value, ARRAY_FILTER_USE_BOTH);
+        $original = $this->clean($changed, $model, $resourceClass);
+        $changes = $this->clean(array_intersect_key($after, $changed), $model, $resourceClass);
+        $changes = array_filter($changes, fn (mixed $value, int|string $key) => ($original[$key] ?? null) !== $value, ARRAY_FILTER_USE_BOTH);
+
+        return [array_intersect_key($original, $changes), $changes];
     }
 
     /**

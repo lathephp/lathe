@@ -113,8 +113,15 @@ class ActionDispatcher
         // No row of the selection may run, so nothing runs.
         abort_if($permitted->isEmpty(), 403, $this->authorization->denialMessage($class));
 
-        $action->withActionBatchId($this->record($request, $action, $permitted, $class, $fields));
+        $batchId = $this->record($request, $action, $permitted, $class, $fields);
+        $action->withActionBatchId($batchId);
+        $before = $batchId === null ? [] : $permitted->mapWithKeys(fn (Model $model) => [ActionEvent::keyOf($model) => $model->getAttributes()])->all();
         $run = $this->runChunk($action, $fields, $permitted);
+
+        if ($batchId !== null) {
+            $this->recorder->forActionChanges($batchId, $permitted, $before, $class);
+        }
+
         app(WidgetCache::class)->flushTables([$permitted->firstOrFail()->getTable()]);
         $failed = count($run['errors']);
         $succeeded = $permitted->count() - $failed;
