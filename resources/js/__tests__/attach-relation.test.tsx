@@ -93,7 +93,8 @@ function server({
   mayAttach = true,
   mayDetach = true,
   attach = () => new Response(JSON.stringify({ attached: true }), { status: 201 }),
-}: { attachAny?: boolean; mayAttach?: boolean; mayDetach?: boolean; attach?: () => Response | Promise<Response> } = {}) {
+  rows = () => [row(5, 'new', 2, 70), row(6, 'hot', 4)],
+}: { attachAny?: boolean; mayAttach?: boolean; mayDetach?: boolean; attach?: () => Response | Promise<Response>; rows?: (calls: Call[]) => unknown[] } = {}) {
   const calls: Call[] = [];
 
   vi.spyOn(globalThis, 'fetch').mockImplementation((input, init) => {
@@ -137,7 +138,7 @@ function server({
     return json({
       columns,
       sortKeys: ['name', 'position'],
-      rows: [row(5, 'new', 2, 70), row(6, 'hot', 4)],
+      rows: rows(calls),
       count: null,
       page: 1,
       perPage: 25,
@@ -366,6 +367,24 @@ describe('editing and detaching a pivot row', () => {
     });
     expect(api.asked('/tags/', 'DELETE').map((call) => call.url)).toEqual(['/lathe/api/resources/products/1/tags/6']);
     expect(screen.queryByRole('dialog')).toBeNull();
+  });
+
+  it('draws each row of a record attached twice to a pivot with no id, before and after a detach', async () => {
+    // collection_product holds product 7 twice; detaching product 6 must leave exactly those two rows.
+    const twins = [row(7, 'twin', 1), row(7, 'twin', 9)];
+    server({ rows: (calls) => (calls.some((call) => call.method === 'DELETE') ? twins : [row(6, 'hot', 4), ...twins]) });
+    renderProduct();
+    await screen.findByRole('cell', { name: 'hot' });
+    expect(screen.getAllByRole('cell', { name: 'twin' })).toHaveLength(2);
+
+    fireEvent.click(within(rowOf('hot')).getByRole('button', { name: 'Detach' }));
+    fireEvent.click(within(await screen.findByRole('dialog')).getByRole('button', { name: 'Detach' }));
+
+    await waitFor(() => {
+      expect(screen.queryByRole('cell', { name: 'hot' })).toBeNull();
+    });
+    expect(screen.getAllByRole('cell', { name: 'twin' })).toHaveLength(2);
+    expect(screen.getAllByRole('row')).toHaveLength(3);
   });
 
   it('sends the pivot id when it detaches a row that has one', async () => {

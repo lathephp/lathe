@@ -6,6 +6,7 @@ All notable changes to Lathe are listed here. The format follows [Keep a Changel
 
 ### Fixed
 
+- A relation panel draws each row of a record attached twice to a pivot table with no id column, and detaching another record no longer leaves one of them on screen twice.
 - A record page's relation tab with `withCount()` takes its badge from its panel once the panel loads, so an attach or a detach shows the new count at once; it kept the count the page loaded with until a reload.
 - On a create or edit page, toasts sit above the sticky save bar, so "Please fix the highlighted fields." no longer covers the Create or Update button.
 - A form whose fields are back to the values it loaded with shows no "Unsaved changes" and leaves with no prompt, where any change set it until a save. A number and the text its input sends count as the same, and so do the blanks (empty, an empty list, no value) and a key-value field's pairs in either form.

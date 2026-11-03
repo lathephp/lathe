@@ -39,6 +39,17 @@ const ownClick = 'a, button, input, label, select';
 // The cell cursor: the focused cell, outlined inside its edges.
 const cursorCell = 'focus:outline-2 focus:-outline-offset-2 focus:outline-ring';
 
+/**
+ * A row's React key: its id, and how many rows above share it. A record attached twice to a pivot
+ * table with no id column comes back twice under one id, and a repeated key left a row behind.
+ */
+function rowKey(rows: RelationRow[], position: number): string {
+  const id = rows[position]?.id;
+  const above = rows.slice(0, position).filter((row) => row.id === id).length;
+
+  return above === 0 ? String(id) : `${String(id)}#${String(above)}`;
+}
+
 interface RelationPanelProps {
   /** The record whose detail page holds the panel. */
   parent: { uriKey: string; id: string | number };
@@ -341,7 +352,7 @@ function PanelBody({ parent, field, bodyId, onToggle, tab }: RelationPanelProps 
               </thead>
               <tbody>
                 {rows.map((row, position) => (
-                  <tr key={row.id} data-row="" className="h-12 border-b border-border last:border-0">
+                  <tr key={rowKey(rows, position)} data-row="" className="h-12 border-b border-border last:border-0">
                     <td tabIndex={-1} className={cn('w-10 px-3', cursorCell)}>
                       <input
                         type="checkbox"
