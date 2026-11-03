@@ -1110,6 +1110,12 @@
   }
 }
 
+/* Toasts rise over the save bar (65 px, 77 px on a phone), so an error toast never covers Create
+   or Update. Outside the layers, so it wins over the viewport's bottom-4. */
+body:has(.lathe-form-footer) [data-slot='toast-viewport'] {
+  @apply bottom-21 max-md:bottom-24;
+}
+
 /* Only @lathephp/ui uses this class. The build test counts it in the built
    stylesheet to prove the package sources are scanned. */
 @utility lathe-probe-class {

@@ -43,7 +43,7 @@ function PlainToasts() {
   }
 
   return (
-    <section aria-label={__('Notifications')} className="fixed end-4 bottom-4 z-40 flex w-80 flex-col gap-2">
+    <section data-slot="toast-viewport" aria-label={__('Notifications')} className="fixed end-4 bottom-4 z-40 flex w-80 flex-col gap-2">
       {toasts.map((toast) => (
         <div
           key={toast.id}

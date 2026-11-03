@@ -6,6 +6,7 @@ All notable changes to Lathe are listed here. The format follows [Keep a Changel
 
 ### Fixed
 
+- On a create or edit page, toasts sit above the sticky save bar, so "Please fix the highlighted fields." no longer covers the Create or Update button.
 - A form whose fields are back to the values it loaded with shows no "Unsaved changes" and leaves with no prompt, where any change set it until a save. A number and the text its input sends count as the same, and so do the blanks (empty, an empty list, no value) and a key-value field's pairs in either form.
 - Enter in a searchable select's search box picks the first option the search matches and never submits the form; with no match it does nothing. Escape clears the search, and only an Escape on an empty search reaches the form, so it no longer closes a side sheet with the search still typed.
 - An untouched optional key-value field saves as an empty object on a create form and in the Create side sheet, or as null when it is `nullable()`, where it failed "must be a list of key and value pairs".
