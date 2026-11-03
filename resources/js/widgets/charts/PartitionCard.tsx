@@ -23,7 +23,7 @@ export function PartitionCard({ widget, value }: WidgetRendererProps) {
   const total = segments.reduce((sum, segment) => sum + segment.value, 0);
   const rows = segments.map((segment) => [segment.label, format(segment.value), `${String(segment.percentage)}%`]);
   const bar = (
-    <div className={cn('flex h-2.5 gap-0.5 overflow-hidden rounded-full bg-muted', !asBar && 'md:hidden')}>
+    <div className={cn('flex h-2.5 gap-0.5 overflow-hidden rounded-full bg-muted', !asBar && 'md:hidden @max-[16rem]/part:flex')}>
       {segments.map((segment) => (
         <div key={segment.label} className="h-full" style={{ width: `${String(segment.percentage)}%`, backgroundColor: segment.color }} />
       ))}
@@ -54,34 +54,37 @@ export function PartitionCard({ widget, value }: WidgetRendererProps) {
           {legend}
         </div>
       ) : (
-        <div className="flex flex-col gap-2 md:flex-row md:items-center md:gap-4">
-          <div className="relative size-[132px] shrink-0 max-md:hidden">
-            <ChartContainer className="size-full">
-              <PieChart>
-                {tooltip}
-                <Pie
-                  data={segments.map((segment) => ({ name: segment.label, value: segment.value, fill: segment.color }))}
-                  dataKey="value"
-                  nameKey="name"
-                  innerRadius={44}
-                  outerRadius={60}
-                  startAngle={90}
-                  endAngle={-270}
-                  stroke="var(--card)"
-                  strokeWidth={2}
-                >
-                  {widget.showLabels === true && <LabelList dataKey="name" position="outside" className="fill-foreground" stroke="none" fontSize={10} />}
-                </Pie>
-              </PieChart>
-            </ChartContainer>
-            {/* The whole the shares add up to, in the hole of the donut. */}
-            <div aria-hidden="true" className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center">
-              <span className="text-lg leading-6 font-[650] font-stretch-[122%] tabular-nums">{format(total)}</span>
-              <span className="text-[11px] text-muted-foreground">{__('Total')}</span>
+        // Under 16rem the donut would leave the legend no room for its values, so the bar stands in for it.
+        <div className="@container/part">
+          <div className="flex flex-col gap-2 md:flex-row md:items-center md:gap-4">
+            <div className="relative size-[132px] shrink-0 max-md:hidden @max-[16rem]/part:hidden">
+              <ChartContainer className="size-full">
+                <PieChart>
+                  {tooltip}
+                  <Pie
+                    data={segments.map((segment) => ({ name: segment.label, value: segment.value, fill: segment.color }))}
+                    dataKey="value"
+                    nameKey="name"
+                    innerRadius={44}
+                    outerRadius={60}
+                    startAngle={90}
+                    endAngle={-270}
+                    stroke="var(--card)"
+                    strokeWidth={2}
+                  >
+                    {widget.showLabels === true && <LabelList dataKey="name" position="outside" className="fill-foreground" stroke="none" fontSize={10} />}
+                  </Pie>
+                </PieChart>
+              </ChartContainer>
+              {/* The whole the shares add up to, in the hole of the donut. */}
+              <div aria-hidden="true" className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center">
+                <span className="text-lg leading-6 font-[650] font-stretch-[122%] tabular-nums">{format(total)}</span>
+                <span className="text-[11px] text-muted-foreground">{__('Total')}</span>
+              </div>
             </div>
+            {bar}
+            {legend}
           </div>
-          {bar}
-          {legend}
         </div>
       )}
     </ChartFrame>

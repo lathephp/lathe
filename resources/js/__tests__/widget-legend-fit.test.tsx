@@ -51,6 +51,16 @@ describe('a donut legend in a narrow card', () => {
     expect(classes(within(region).getByText('Shipped'))).not.toContain('md:min-w-[6ch]');
   });
 
+  it('trades the donut for the bar in a card under 16rem, so the legend keeps its values', () => {
+    const { container } = render(<PartitionCard widget={widget} value={{ value: segments }} />);
+    const donut = container.querySelector('.size-\\[132px\\]') as HTMLElement;
+    const bar = container.querySelector('.rounded-full.bg-muted') as HTMLElement;
+
+    expect(donut.closest('.\\@container\\/part')).not.toBeNull();
+    expect(classes(donut)).toContain('@max-[16rem]/part:hidden');
+    expect(classes(bar)).toContain('@max-[16rem]/part:flex');
+  });
+
   it('hides the percentage column first when the legend is under 12rem', () => {
     const region = legend();
 
