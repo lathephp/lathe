@@ -58,7 +58,7 @@ interface ResourceTableProps extends Pick<IndexProps, 'resource' | 'table' | 'st
  */
 /**
  * A column's fixed width in pixels, from the field's `indexWidth()`; none lets the table size it.
- * The table lays out automatically, so the header and each cell hold it as their least and most.
+ * The table lays out automatically, so each cell holds it as its least and most, and the header as its least.
  */
 export function columnWidth(column: object): { width: string; minWidth: string; maxWidth: string } | undefined {
   const width = 'indexWidth' in column ? column.indexWidth : undefined;
@@ -335,7 +335,8 @@ export function ResourceTable({ resource, table, state, loading, selection, sort
                   key={column.key}
                   scope="col"
                   aria-sort={sortable ? sorted : undefined}
-                  style={{ ...columnWidth(column), ...pins[index]?.style }}
+                  // No most on the header: a label wider than the column widens it, so it never runs into the next one.
+                  style={{ ...columnWidth(column), maxWidth: undefined, ...pins[index]?.style }}
                   className={cn('px-3 whitespace-nowrap', alignClass(column), pins[index]?.className, border)}
                 >
                   {sortable ? (

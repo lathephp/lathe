@@ -11,6 +11,8 @@ All notable changes to Lathe are listed here. The format follows [Keep a Changel
 
 ### Fixed
 
+- A list column narrower than its header's label, such as an image or avatar column at its 32 px `indexWidth()`, widens to fit the label, where the label ran over the next column's header. Its cells keep the width, and a column whose label fits is unchanged.
+- On the Board, Ctrl+Z pressed while a card's move is still saving takes that move back once it saves, where it undid the edit before it and left the card in its new column. A move the server refuses leaves the undo list, so the next Ctrl+Z takes back the edit before it.
 - The open toolbar Actions menu draws above the table's sticky end column, which covered its top-right corner, so a click on the top of Export landed on the table header.
 - In the toolbar Actions menu, an item with no icon keeps an icon-wide gap when other items have icons, so its label lines up with theirs rather than with the group headings. A menu where no item has an icon is unchanged.
 - [api] An action run's events show the values the action changed on each record under Original and Changes, where both were always empty. The records are read again once per 200 after the run; the update timestamp, hidden attributes and password or token attributes are left out, and a record the action did not change keeps both empty. A record's History card names the fields such a run changed, as "Cancel order: changed Status": the `title` of an `action-ran` entry from `GET .../history/latest` is that text where it was the action's name.

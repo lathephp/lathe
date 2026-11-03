@@ -252,6 +252,7 @@ describe('column alignment', () => {
 
 describe('column width', () => {
   // The table lays out automatically, so a width on the header alone is a hint the cells' own cap (max-w-80) outgrows.
+  // The header has no most, so a label wider than the column widens it rather than running into the next header.
   it('holds a column with indexWidth(240) at 240 px in its header and its cells', () => {
     renderPage(
       'Resources/Index',
@@ -283,7 +284,7 @@ describe('column width', () => {
     const header = screen.getByRole('columnheader', { name: 'Body' });
     const cell = screen.getByText('A long body').closest('td');
 
-    expect([header.style.width, header.style.minWidth, header.style.maxWidth]).toEqual(['240px', '240px', '240px']);
+    expect([header.style.width, header.style.minWidth, header.style.maxWidth]).toEqual(['240px', '240px', '']);
     expect([cell?.style.width, cell?.style.minWidth, cell?.style.maxWidth]).toEqual(['240px', '240px', '240px']);
     expect(screen.getByText('First').closest('td')?.style.maxWidth).toBe('');
   });
