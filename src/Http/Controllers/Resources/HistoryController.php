@@ -69,7 +69,7 @@ class HistoryController
             'title' => match ($event->type) {
                 ActionEventType::Create => Lathe::__('Created'),
                 ActionEventType::Update => $changed === '' ? Lathe::__('Updated') : Lathe::__('Changed :fields', ['fields' => $changed]),
-                ActionEventType::ActionRan => (string) $event->action_name,
+                ActionEventType::ActionRan => $changed === '' ? (string) $event->action_name : Lathe::__(':action: changed :fields', ['action' => (string) $event->action_name, 'fields' => $changed]),
                 ActionEventType::Attach => Lathe::__('Attached'),
                 ActionEventType::Detach => Lathe::__('Detached'),
                 default => $event->type->label(),

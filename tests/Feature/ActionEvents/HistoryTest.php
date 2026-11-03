@@ -62,6 +62,14 @@ it('says Updated when no changed attribute has a field', function () {
     expect($this->getJson('/lathe/api/resources/orders/12/history/latest')->json('events.0.title'))->toBe('Updated');
 });
 
+it('names the fields an action run changed after the action', function () {
+    $order = Order::query()->findOrFail(12);
+    ActionEvent::query()->forActionable($order)->delete();
+    historyEvent($order, '2026-10-17 09:00:00', ['type' => 'action-ran', 'action_name' => 'Cancel order', 'original' => ['status' => 'pending'], 'changes' => ['status' => 'cancelled']]);
+
+    expect($this->getJson('/lathe/api/resources/orders/12/history/latest')->json('events.0.title'))->toBe('Cancel order: changed Status');
+});
+
 it('answers an empty list for a record with no events', function () {
     $order = Order::query()->findOrFail(12);
     ActionEvent::query()->forActionable($order)->delete();

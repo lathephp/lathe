@@ -5,6 +5,7 @@
     "2. Add that user's email to gate() in app/Providers/LatheServiceProvider.php.": "2. Add that user's email to gate() in app/Providers/LatheServiceProvider.php.",
     "30 days": "30 days",
     "7 days": "7 days",
+    ":action: changed :fields": ":action: changed :fields",
     ":code is not a shadcn preset code.": ":code is not a shadcn preset code.",
     ":count action events deleted.": ":count action events deleted.",
     ":count bulk runs deleted.": ":count bulk runs deleted.",
