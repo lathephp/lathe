@@ -1,6 +1,6 @@
 import { __panel } from '@lathephp/core';
 import { cleanup, configure } from '@testing-library/react';
-import { afterEach, beforeAll, vi } from 'vitest';
+import { afterAll, afterEach, beforeAll, vi } from 'vitest';
 import { registerBuiltinFields } from '../fields/builtin';
 import { preloadChoiceForms } from '../fields/choice/lazy';
 import { preloadDateFields } from '../fields/date/lazy';
@@ -39,6 +39,31 @@ afterEach(async () => {
   // here. Under fake timers it never fires on its own, so there is nothing to wait for.
   if (!vi.isFakeTimers()) {
     await new Promise((resolve) => setTimeout(resolve, 2));
+  }
+});
+
+// Inertia saves the scroll position from a capturing window listener debounced by 100 ms, so a
+// scroll in the file's last test can fire it after jsdom is gone ("window is not defined").
+const inertiaScrollDebounceMs = 100;
+let lastScrollAt: number | null = null;
+
+if (typeof window !== 'undefined') {
+  window.addEventListener(
+    'scroll',
+    () => {
+      lastScrollAt = Date.now();
+    },
+    true,
+  );
+}
+
+afterAll(async () => {
+  if (lastScrollAt !== null && !vi.isFakeTimers()) {
+    const wait = lastScrollAt + inertiaScrollDebounceMs + 10 - Date.now();
+
+    if (wait > 0) {
+      await new Promise((resolve) => setTimeout(resolve, wait));
+    }
   }
 });
 
