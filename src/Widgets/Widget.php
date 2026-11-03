@@ -356,7 +356,8 @@ abstract class Widget
      */
     protected function requestForRange(LatheRequest $request, int|string|null $range): LatheRequest
     {
-        $used = $this->rangeFor($range);
+        // A card with no ranges of its own reads the dashboard's, as $request->query('range').
+        $used = $this->ranges() === [] ? $range : $this->rangeFor($range);
         $query = $request->query->all();
         unset($query['range']);
 

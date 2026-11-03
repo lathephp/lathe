@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Lathe\Http\Requests\LatheRequest;
 use Lathe\Widgets\PieWidget;
+use Workbench\App\Lathe\Widgets\Concerns\CountsRangeDays;
 use Workbench\App\Models\Customer;
 
 /**
@@ -13,6 +14,8 @@ use Workbench\App\Models\Customer;
  */
 class OrderingCountries extends PieWidget
 {
+    use CountsRangeDays;
+
     // Five bars and a row for the rest need no more height than they take.
     protected string $height = 'dynamic';
 
@@ -28,7 +31,7 @@ class OrderingCountries extends PieWidget
 
     public function calculate(LatheRequest $request): mixed
     {
-        $since = now()->subDays((int) $request->query('range', '30'));
+        $since = $this->rangeStart($request);
         /** @var Builder<Model> $ordered */
         $ordered = Customer::whereHas('orders', fn (Builder $query) => $query->where('placed_at', '>=', $since));
         $this->cacheTags(['orders']);

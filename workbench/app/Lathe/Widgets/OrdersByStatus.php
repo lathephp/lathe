@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Lathe\Http\Requests\LatheRequest;
 use Lathe\Widgets\BarWidget;
+use Workbench\App\Lathe\Widgets\Concerns\CountsRangeDays;
 use Workbench\App\Models\Order;
 
 /**
@@ -13,6 +14,8 @@ use Workbench\App\Models\Order;
  */
 class OrdersByStatus extends BarWidget
 {
+    use CountsRangeDays;
+
     public function ranges(): array
     {
         return [7 => '7 Days', 30 => '30 Days', 365 => '365 Days'];
@@ -31,7 +34,7 @@ class OrdersByStatus extends BarWidget
     public function calculate(LatheRequest $request): mixed
     {
         /** @var Builder<Model> $placed */
-        $placed = Order::where('placed_at', '>=', now()->subDays((int) $request->query('range', '30')));
+        $placed = Order::where('placed_at', '>=', $this->rangeStart($request));
 
         return $this->count($request, $placed, 'status')->label(fn (string $status) => ucfirst($status));
     }

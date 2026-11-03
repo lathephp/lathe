@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Lathe\Http\Requests\LatheRequest;
 use Lathe\Widgets\PartitionWidget;
+use Workbench\App\Lathe\Widgets\Concerns\CountsRangeDays;
 use Workbench\App\Models\Order;
 
 /**
@@ -13,6 +14,8 @@ use Workbench\App\Models\Order;
  */
 class StatusShare extends PartitionWidget
 {
+    use CountsRangeDays;
+
     public function name(): string
     {
         return 'Orders by status';
@@ -21,7 +24,7 @@ class StatusShare extends PartitionWidget
     public function calculate(LatheRequest $request): mixed
     {
         /** @var Builder<Model> $placed */
-        $placed = Order::where('placed_at', '>=', now()->subDays((int) $request->query('range', '30')));
+        $placed = Order::where('placed_at', '>=', $this->rangeStart($request));
         $result = $this->count($request, $placed, 'status');
         // The statuses in the order an order moves through them, whatever order the query returns.
         $result->data = array_merge(['shipped' => 0, 'paid' => 0, 'pending' => 0, 'cancelled' => 0], $result->data);

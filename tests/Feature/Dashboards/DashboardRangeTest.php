@@ -68,11 +68,16 @@ it('names a fallback that is not a day count by its own label', function () {
         ->toMatchArray(['value' => 'MTD', 'fallbackRange' => ['value' => 'MTD', 'label' => 'Month To Date']]);
 });
 
-it('sends no range to a card without ranges', function () {
+it('hands the dashboard range to a card without ranges of its own', function () {
     RangeProbe::$ranges = [];
 
     expect($this->getJson('/lathe/api/dashboards/cards/widgets/range-probe?range=365')->json())
-        ->toMatchArray(['value' => null])->not->toHaveKey('fallbackRange');
+        ->toMatchArray(['value' => '365'])->not->toHaveKey('fallbackRange');
+
+    $this->get('/lathe/dashboards/cards?range=7')->assertInertia(fn (AssertableInertia $page) => $page
+        ->loadDeferredProps(['range-probe'], fn (AssertableInertia $reload) => $reload
+            ->where('widgetValue:range-probe.value', '7')
+            ->missing('widgetValue:range-probe.fallbackRange')));
 });
 
 /**

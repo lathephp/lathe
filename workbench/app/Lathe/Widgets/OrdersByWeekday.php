@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\DB;
 use Lathe\Http\Requests\LatheRequest;
 use Lathe\Widgets\AggregateQuery;
 use Lathe\Widgets\BarWidget;
+use Workbench\App\Lathe\Widgets\Concerns\CountsRangeDays;
 use Workbench\App\Models\Order;
 
 /**
@@ -15,6 +16,8 @@ use Workbench\App\Models\Order;
  */
 class OrdersByWeekday extends BarWidget
 {
+    use CountsRangeDays;
+
     protected const DAYS = [1 => 'Mon', 2 => 'Tue', 3 => 'Wed', 4 => 'Thu', 5 => 'Fri', 6 => 'Sat', 0 => 'Sun'];
 
     public function name(): string
@@ -31,7 +34,7 @@ class OrdersByWeekday extends BarWidget
             default => "CAST(strftime('%w', placed_at) AS INTEGER)",
         });
         /** @var Builder<Model> $placed */
-        $placed = Order::where('placed_at', '>=', now()->subDays((int) $request->query('range', '30')));
+        $placed = Order::where('placed_at', '>=', $this->rangeStart($request));
         /** @var array<int|string, int|float> $counts the group labels are the weekday numbers */
         $counts = AggregateQuery::for($placed)
             ->count()->groupBy($weekday)->partition()->data;

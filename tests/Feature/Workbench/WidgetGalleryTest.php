@@ -44,7 +44,7 @@ it('fills each gallery card from the demo store', function () {
     $bars = $value('orders-by-status');
     expect($bars['name'])->toBe('Orders by status')
         ->and(collect($bars['value']['bars'])->pluck('label')->sort()->values()->all())->toBe(['Cancelled', 'Paid', 'Pending', 'Shipped'])
-        ->and(collect($bars['value']['bars'])->sum('value'))->toBe(Order::where('placed_at', '>=', now()->subDays(30))->count());
+        ->and(collect($bars['value']['bars'])->sum('value'))->toBe(Order::where('placed_at', '>=', now()->startOfDay()->subDays(29))->count());
 
     $pie = $value('products-by-category');
     expect($pie['name'])->toBe('Products by category')

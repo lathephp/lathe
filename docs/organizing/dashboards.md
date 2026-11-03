@@ -157,7 +157,7 @@ public function ranges(): array
 }
 ```
 
-A card shows the picked range when its own `ranges()` has that key. A card without it shows its default range and says which one, such as "Last 30 days" beside a value card's number. Return an empty array to hide the picker.
+A card shows the picked range when its own `ranges()` has that key. A card without it shows its default range and says which one, such as "Last 30 days" beside a value card's number. A card with no `ranges()` at all, such as a bar or partition card, gets the picked range as `$request->query('range')` and decides what it means. Return an empty array to hide the picker.
 
 ## Each user's layout
 

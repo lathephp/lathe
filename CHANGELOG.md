@@ -6,6 +6,7 @@ All notable changes to Lathe are listed here. The format follows [Keep a Changel
 
 ### Changed
 
+- On a dashboard, a card with no `ranges()` of its own receives the header's range as `$request->query('range')`, so a bar, partition, pie or progress card that reads it follows the picker; it received no range and showed whatever its code fell back to, with nothing on the card to say so. A card with `ranges()` is unchanged.
 - A value card's number range counts calendar days in the user's time zone, today and the N - 1 days before it, compared with the N calendar days before those, so its total matches a trend card's for the same range. It counted the last N times 24 hours back from now, so at 7 days an order placed late on the eighth day ago counted in the card and not in the trend. `TODAY`, `YESTERDAY`, `THIS_WEEK`, `MTD`, `QTD`, `YTD` and `ALL` keep their windows, and `AggregateQuery::value()` is unchanged.
 
 ### Added

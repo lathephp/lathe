@@ -5,6 +5,7 @@ namespace Workbench\App\Lathe\Widgets;
 use Illuminate\Database\Eloquent\Builder;
 use Lathe\Http\Requests\LatheRequest;
 use Lathe\Widgets\TableWidget;
+use Workbench\App\Lathe\Widgets\Concerns\CountsRangeDays;
 use Workbench\App\Models\Customer;
 
 /**
@@ -12,6 +13,8 @@ use Workbench\App\Models\Customer;
  */
 class BiggestSpenders extends TableWidget
 {
+    use CountsRangeDays;
+
     public function __construct()
     {
         parent::__construct();
@@ -36,7 +39,7 @@ class BiggestSpenders extends TableWidget
 
     public function rows(LatheRequest $request): array
     {
-        $since = now()->subDays((int) $request->query('range', '30'));
+        $since = $this->rangeStart($request);
         $inRange = fn (Builder $query) => $query->where('placed_at', '>=', $since);
         $customers = Customer::withCount(['orders' => $inRange])
             ->withSum(['orders' => $inRange], 'total_cents')

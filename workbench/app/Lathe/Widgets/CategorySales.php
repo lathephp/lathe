@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
 use Lathe\Http\Requests\LatheRequest;
 use Lathe\Widgets\PieWidget;
+use Workbench\App\Lathe\Widgets\Concerns\CountsRangeDays;
 use Workbench\App\Models\Category;
 use Workbench\App\Models\OrderItem;
 
@@ -15,6 +16,8 @@ use Workbench\App\Models\OrderItem;
  */
 class CategorySales extends PieWidget
 {
+    use CountsRangeDays;
+
     // Five bars and a row for the rest need no more height than they take.
     protected string $height = 'dynamic';
 
@@ -31,7 +34,7 @@ class CategorySales extends PieWidget
         $items = OrderItem::query()
             ->join('products', 'products.id', '=', 'order_items.product_id')
             ->join('orders', 'orders.id', '=', 'order_items.order_id')
-            ->where('orders.placed_at', '>=', now()->subDays((int) $request->query('range', '30')));
+            ->where('orders.placed_at', '>=', $this->rangeStart($request));
         $this->cacheTags(['orders', 'products', 'categories']);
 
         return $this->sum($request, $items, DB::raw('order_items.price_cents * order_items.quantity / 100.0'), 'products.category_id')
