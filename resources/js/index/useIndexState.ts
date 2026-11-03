@@ -1,5 +1,5 @@
 import { router, usePage } from '@inertiajs/react';
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 export type FilterValue = string | string[] | Record<string, string>;
 
@@ -145,6 +145,15 @@ export function useIndexState(defaults: IndexDefaults) {
   const [path = page.url, search = ''] = page.url.split('?');
   const state = parseQuery(search);
   const [loading, setLoading] = useState(false);
+  const skeletonTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+
+  // A list left before its skeleton time is up drops the timer that would end it.
+  useEffect(
+    () => () => {
+      clearTimeout(skeletonTimer.current);
+    },
+    [],
+  );
 
   function visit(changes: IndexUrlState) {
     let startedAt = 0;
@@ -157,7 +166,8 @@ export function useIndexState(defaults: IndexDefaults) {
         setLoading(true);
       },
       onFinish: () => {
-        setTimeout(
+        clearTimeout(skeletonTimer.current);
+        skeletonTimer.current = setTimeout(
           () => {
             setLoading(false);
           },
