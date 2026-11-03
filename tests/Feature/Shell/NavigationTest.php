@@ -80,6 +80,7 @@ it('lists the dashboard and the Resources', function () {
         ['label' => 'Heartbeat', 'icon' => null, 'items' => [['label' => 'Heartbeat', 'href' => '/lathe/plugins/heartbeat', 'icon' => 'Activity']]],
         ['label' => 'Catalog', 'icon' => null, 'items' => [
             ['label' => 'Categories', 'href' => '/lathe/resources/categories', 'icon' => 'Folder', 'component' => 'Resources/Index', 'cacheTag' => 'resource:categories', 'skeleton' => ['tabs' => false, 'actions' => false]],
+            ['label' => 'Collections', 'href' => '/lathe/resources/collections', 'icon' => 'Layers', 'component' => 'Resources/Index', 'cacheTag' => 'resource:collections', 'skeleton' => ['tabs' => false, 'actions' => false]],
             ['label' => 'Products', 'href' => '/lathe/resources/products', 'icon' => 'Package', 'component' => 'Resources/Index', 'cacheTag' => 'resource:products', 'skeleton' => ['tabs' => false, 'actions' => true]],
             ['label' => 'Tags', 'href' => '/lathe/resources/tags', 'icon' => 'Tag', 'component' => 'Resources/Index', 'cacheTag' => 'resource:tags', 'skeleton' => ['tabs' => false, 'actions' => true]],
         ]],

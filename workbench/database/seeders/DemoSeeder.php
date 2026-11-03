@@ -48,6 +48,7 @@ class DemoSeeder extends Seeder
         $this->catalog();
         $this->orders();
         $this->posts();
+        $this->collections();
     }
 
     public function forOrders(int $orders): static
@@ -256,6 +257,25 @@ class DemoSeeder extends Seeder
         foreach (array_chunk($comments, 500) as $batch) {
             DB::table('comments')->insert($batch);
         }
+    }
+
+    /**
+     * Collections hold products on a join table with no id: "Summer picks" has products 1 to 10
+     * at positions 1 to 10, "New in" has 11 to 13, and "Clearance" is empty.
+     */
+    protected function collections(): void
+    {
+        $now = now();
+
+        DB::table('collections')->insert(array_map(
+            fn (string $name) => ['name' => $name, 'created_at' => $now, 'updated_at' => $now],
+            ['Summer picks', 'New in', 'Clearance'],
+        ));
+
+        DB::table('collection_product')->insert([
+            ...array_map(fn (int $i) => ['collection_id' => 1, 'product_id' => $i, 'position' => $i], range(1, 10)),
+            ...array_map(fn (int $i) => ['collection_id' => 2, 'product_id' => $i, 'position' => $i - 10], range(11, 13)),
+        ]);
     }
 
     /**

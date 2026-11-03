@@ -2,11 +2,14 @@
 
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Schema;
 use Lathe\Resources\ResourceRegistry;
 use Workbench\App\Lathe\Resources\Category;
+use Workbench\App\Lathe\Resources\Collection;
 use Workbench\App\Lathe\Resources\Comment;
 use Workbench\App\Lathe\Resources\OrderItem;
 use Workbench\App\Lathe\Resources\Tag;
+use Workbench\App\Models\Collection as CollectionModel;
 use Workbench\App\Models\Order;
 use Workbench\App\Models\Product;
 use Workbench\App\Models\Tag as TagModel;
@@ -32,13 +35,21 @@ it('tags the first 100 products twice with integer positions', function () {
         ->and(Product::find(2)->tags->first()->pivot->position)->toBeInt();
 });
 
+it('seeds three collections on a join table with no id column', function () {
+    expect(Schema::hasColumn('collection_product', 'id'))->toBeFalse()
+        ->and(CollectionModel::withCount('products')->pluck('products_count', 'name')->all())
+        ->toBe(['Summer picks' => 10, 'New in' => 3, 'Clearance' => 0])
+        ->and(CollectionModel::find(1)->products()->where('products.id', 3)->first()->pivot->position)->toBe(3);
+});
+
 it('registers the Category, Tag, OrderItem and Comment resources by uri key', function () {
     $registry = app(ResourceRegistry::class);
 
     expect($registry->forKey('categories'))->toBe(Category::class)
         ->and($registry->forKey('tags'))->toBe(Tag::class)
         ->and($registry->forKey('order-items'))->toBe(OrderItem::class)
-        ->and($registry->forKey('comments'))->toBe(Comment::class);
+        ->and($registry->forKey('comments'))->toBe(Comment::class)
+        ->and($registry->forKey('collections'))->toBe(Collection::class);
 });
 
 it('lets the admin and not the editor use the relation abilities', function () {
@@ -54,6 +65,8 @@ it('lets the admin and not the editor use the relation abilities', function () {
             ->and($gate->allows('attachTags', [$product, [1]]))->toBe($allowed)
             ->and($gate->allows('detachTags', [$product, [1]]))->toBe($allowed)
             ->and($gate->allows('attachAnyTags', $product))->toBe($allowed)
-            ->and($gate->allows('addComments', $product))->toBe($allowed);
+            ->and($gate->allows('addComments', $product))->toBe($allowed)
+            ->and($gate->allows('attachProducts', [CollectionModel::first(), [1]]))->toBe($allowed)
+            ->and($gate->allows('detachProducts', [CollectionModel::first(), [1]]))->toBe($allowed);
     }
 });
