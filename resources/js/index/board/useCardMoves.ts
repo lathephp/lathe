@@ -26,8 +26,8 @@ function reloadCounts() {
 
 type Board = NonNullable<IndexProps['table']['board']>;
 type Columns = ReturnType<typeof useBoardColumns>;
-/** A move's place on the undo stack: `take` runs its undo, `drop` removes it unrun. */
-type Entry = { take: () => void; drop: () => void };
+/** A move's place on the undo stack: `take` runs its undo, `drop` removes it unrun, `taken` says whether it has run. */
+type Entry = { take: () => void; drop: () => void; taken: () => boolean };
 
 /** A card moves only for a user who may update the record and edit it inline, the inline cell's abilities. */
 export function canMove(row: Row): boolean {
@@ -97,7 +97,10 @@ export function useCardMoves(uriKey: string, board: Board, columns: Columns, onS
       undoing || moved === undefined
         ? undefined
         : loading.then(([, { pushUndo, dropUndo }]) => {
+            let taken = false;
             const undo = async () => {
+              taken = true;
+
               if (await done) {
                 await move(row, from ?? null, false, true);
               }
@@ -108,6 +111,7 @@ export function useCardMoves(uriKey: string, board: Board, columns: Columns, onS
               drop: () => {
                 dropUndo(undo);
               },
+              taken: () => taken,
             };
           });
     const done = (queue.current.get(row.id) ?? Promise.resolve(true)).then(() => save(row, to, moved, undoing, loading, entry));
@@ -138,9 +142,10 @@ export function useCardMoves(uriKey: string, board: Board, columns: Columns, onS
 
       const handle = await entry;
 
+      // A move taken back while it saved offers no Undo of its own; "Change undone" follows.
       if (handle === undefined) {
         toast.success(__('Change undone'));
-      } else {
+      } else if (!handle.taken()) {
         const value = reply?.fields[board.field.key]?.display ?? labelOf(to);
 
         toast.success(__(':field changed to :value.', { field: board.field.label, value }), { action: { label: __('Undo'), onClick: handle.take } });

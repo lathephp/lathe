@@ -320,6 +320,8 @@ async function undoWhileSaving(api: Server) {
   expect(api.targets).toEqual([first, moving, moving]);
   expect(api.status(first)).toBe('paid');
   expect(api.status(moving)).toBe('pending');
+  // The taken-back move offers no Undo of its own once it saves: only the first move's toast says it changed.
+  expect(toasts().filter((message) => message === 'Status changed to Paid.')).toHaveLength(1);
 }
 
 describe('a Ctrl+Z pressed before the last move has saved', () => {
