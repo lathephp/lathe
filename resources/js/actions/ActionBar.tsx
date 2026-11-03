@@ -149,7 +149,7 @@ export function ActionBar({ uriKey, lens, list, selection, rows, total, state }:
             role="menu"
             aria-label={__('Actions')}
             tabIndex={-1}
-            className="absolute end-0 top-full z-20 mt-1 w-72 rounded-lg border border-border bg-background p-1 shadow-lg"
+            className="absolute end-0 top-full z-30 mt-1 w-72 rounded-lg border border-border bg-background p-1 shadow-lg"
           >
             {list.actions.map((action, index) => {
               const previous = list.actions[index - 1];

@@ -112,6 +112,18 @@ describe('the actions menu', () => {
     expect(within(menu).getAllByRole('separator')).toHaveLength(1);
   });
 
+  it('stacks the open menu above the sticky end column of the table header', async () => {
+    renderOrders();
+    tick(1);
+    const menu = await openMenu();
+    const [header] = screen.getAllByRole('rowgroup');
+    const endCell = within(header as HTMLElement).getAllByRole('columnheader').at(-1);
+    const z = (element: Element | undefined) => Number(/(?:^|\s)z-(\d+)(?:\s|$)/.exec(element?.className ?? '')?.[1] ?? 0);
+
+    expect(endCell?.className).toContain('sticky');
+    expect(z(menu)).toBeGreaterThan(z(endCell));
+  });
+
   it('holds an icon-wide gap before an item with no icon when another item has one', async () => {
     renderOrders([meta('export', 'Export'), meta('mark-paid', 'Mark paid', { group: 'Fulfilment', icon: 'truck' })]);
     tick(1);
