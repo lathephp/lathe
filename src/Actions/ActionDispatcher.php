@@ -195,7 +195,8 @@ class ActionDispatcher
 
                 $action->markAsFailed($model, $e);
                 $key = $model->getKey();
-                $errors[] = ['id' => is_int($key) || is_string($key) ? $key : null, 'message' => $e->getMessage()];
+                // A database error quotes the value it refused, which may not encode as JSON.
+                $errors[] = ['id' => is_int($key) || is_string($key) ? $key : null, 'message' => mb_scrub($e->getMessage(), 'UTF-8')];
 
                 continue;
             }

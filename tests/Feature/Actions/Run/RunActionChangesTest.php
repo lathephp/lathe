@@ -46,10 +46,9 @@ class ChangesOrders extends Resource
                     $order->forceFill(['number' => 'SECRET-1', 'status' => 'cancelled'])->save();
                 }
             }),
-            Action::make()->withName('Scramble')->withUriKey('scramble')->handleUsing(function (ActionFields $fields, Collection $models) {
-                foreach ($models as $order) {
-                    $order->forceFill(['status' => "bad \xB1\x31 bytes"])->save();
-                }
+            Action::make()->withName('Garble')->withUriKey('garble')->handleUsing(function () {
+                // A database error quotes the value it refused, bytes and all.
+                throw new \RuntimeException("bad \xB1\x31 bytes");
             }),
             Action::make()->withName('Look')->withUriKey('look')->handleUsing(fn () => null),
             Action::make()->withName('Rename Customer')->withUriKey('rename-customer')->handleUsing(function (ActionFields $fields, Collection $models) {
@@ -177,12 +176,29 @@ it('keeps a Resource password attribute the model does not hide out of original 
         ->and($event->changes)->toBe(['status' => 'cancelled']);
 });
 
-it('records a changed value that is not valid UTF-8 without failing the run', function () {
-    Order::whereKey(12)->update(['status' => 'pending']);
+it('records a value that is not valid UTF-8 without failing', function () {
+    // A text column on MySQL or Postgres refuses such bytes, so the value comes from before the run.
+    $order = Order::findOrFail(12);
+    $order->forceFill(['status' => 'pending'])->save();
+    $batchId = app(ActionEventRecorder::class)->forActionRan(null, 'Look', new \Illuminate\Database\Eloquent\Collection([$order]), ChangesOrders::class, ActionEventStatus::Finished);
+    $before = $order->getAttributes();
+    $before['status'] = "bad \xB1\x31 bytes";
 
-    runChanges('changes-orders', 'scramble', [12]);
+    app(ActionEventRecorder::class)->forActionChanges($batchId, new \Illuminate\Database\Eloquent\Collection([$order]), [ActionEvent::keyOf($order) => $before], ChangesOrders::class);
 
-    expect(ActionEvent::sole()->changes)->toBe(['status' => "bad \u{FFFD}1 bytes"]);
+    expect(ActionEvent::sole()->original)->toBe(['status' => "bad \u{FFFD}1 bytes"])
+        ->and(ActionEvent::sole()->changes)->toBe(['status' => 'pending']);
+});
+
+it('records a failure whose message is not valid UTF-8', function () {
+    Exceptions::fake();
+
+    runChanges('changes-orders', 'garble', [12]);
+
+    $event = ActionEvent::sole();
+
+    expect($event->status)->toBe(ActionEventStatus::Failed)
+        ->and($event->exception)->toBe('bad ?1 bytes');
 });
 
 it('leaves out a value read as a stream, which never compares or encodes', function () {

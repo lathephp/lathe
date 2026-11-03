@@ -206,6 +206,9 @@ class ActionEvent extends Model
      */
     protected static function failure(?Throwable $exception): array
     {
-        return ['status' => ActionEventStatus::Failed->value, 'exception' => $exception?->getMessage(), 'updated_at' => now()];
+        // A database error quotes the value it refused, which a text column may refuse in turn.
+        $message = $exception === null ? null : mb_scrub($exception->getMessage(), 'UTF-8');
+
+        return ['status' => ActionEventStatus::Failed->value, 'exception' => $message, 'updated_at' => now()];
     }
 }

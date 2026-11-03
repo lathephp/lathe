@@ -21,6 +21,7 @@ All notable changes to Lathe are listed here. The format follows [Keep a Changel
 
 ### Fixed
 
+- An action whose `handle()` throws an error with a message that is not valid UTF-8, such as a MySQL or Postgres error quoting the value it refused, answers with the row's failure where it answered 500, and its action event reads Failed with the message, each invalid byte as `?`.
 - A trend card's span names both years when its first and last days fall in different years, so 12 months reads "Nov 4, 2025 – Nov 3, 2026" where it read "Nov 4 – Nov 3". A span inside one year stays short, and the axis, the tooltips and the headline keep their short labels.
 - Beside a donut in a narrow card, a legend label keeps at least six characters and the percentage column gives way first, so "Shipped" no longer reads "S…"; a bar card's legend labels still give way. A partition card under 16rem wide draws its proportion bar across the card above the legend, as on a phone, in place of a donut that pushed the legend's values past the card's edge.
 - A radial gauge stays inside a card taller than it is wide, where it drew past the card's right edge.
