@@ -143,12 +143,19 @@ abstract class ValueWidget extends Widget
 
         $range = $this->selectedRange($request);
 
-        if (is_int($range)) {
-            return $query->byDays($range)->calendarValue();
+        $result = is_int($range) ? $query->byDays($range)->calendarValue() : $this->between($query, $range, CarbonImmutable::now($zone));
+
+        // An average, minimum or maximum of no earlier rows is null; the card reads it as nothing
+        // to compare with, as it reads a count or a sum of 0. ALL compares with nothing at all.
+        if ($range !== self::ALL) {
+            $result->previous ??= 0;
         }
 
-        $now = CarbonImmutable::now($zone);
+        return $result;
+    }
 
+    private function between(AggregateQuery $query, string $range, CarbonImmutable $now): ValueResult
+    {
         return $query->valueBetween(...match ($range) {
             self::TODAY => [$now->startOfDay(), $now, $now->subDay()->startOfDay(), $now->subDay()->endOfDay()],
             self::YESTERDAY => [$now->subDay()->startOfDay(), $now->subDay()->endOfDay(), $now->subDays(2)->startOfDay(), $now->subDays(2)->endOfDay()],

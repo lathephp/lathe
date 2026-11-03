@@ -273,3 +273,23 @@ it('counts calendar days like the trend of the same range, and the same days bef
     expect(valueOf(new ValueProbe, ['range' => $days]))->toMatchArray(['value' => 200.0, 'previous' => 100.0])
         ->and(array_sum($trend->jsonSerialize()))->toEqual(200);
 })->with([7, 30, 365])->with(['UTC', 'Asia/Dhaka', 'America/New_York']);
+
+it('compares an average with nothing as 0 when the days before hold no rows, so the card says so', function (int|string $range) {
+    $this->travelTo(CarbonImmutable::parse('2026-11-03 15:00:00', 'UTC'));
+    valueOrder('2026-11-02 10:00:00', 300);
+    ValueProbe::$using = fn (LatheRequest $request) => $this->average($request, Order::class, 'total_cents', 'placed_at');
+
+    $payload = valueOf(new ValueProbe, ['range' => $range]);
+
+    expect($payload['value'])->toBe(300.0)
+        ->and($payload['previous'])->toBe(0)
+        ->and($payload['change'])->toBeNull();
+})->with([365, 7, ValueWidget::MTD]);
+
+it('has no previous average for ALL, which compares with nothing', function () {
+    $this->travelTo(CarbonImmutable::parse('2026-11-03 15:00:00', 'UTC'));
+    valueOrder('2026-11-02 10:00:00', 300);
+    ValueProbe::$using = fn (LatheRequest $request) => $this->average($request, Order::class, 'total_cents', 'placed_at');
+
+    expect(valueOf(new ValueProbe, ['range' => ValueWidget::ALL])['previous'])->toBeNull();
+});

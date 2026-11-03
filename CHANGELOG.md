@@ -17,6 +17,7 @@ All notable changes to Lathe are listed here. The format follows [Keep a Changel
 
 ### Fixed
 
+- [api] A value card that averages, or takes the minimum or maximum, says "No earlier data to compare with." when the days before its range hold no rows, as a count or a sum card does; Average order at 12 months showed no line. The `previous` of such a card's response is 0 where it was null. A card at `ALL` still has a null `previous`, and `AggregateQuery::value()` and `valueBetween()` still return null for an average of no rows.
 - A range typed in the filter bar with more decimals than the column stores, such as `total:1500.005..1600.005` on a cents column, rounds each side toward the values it names, so its ends are 1,500.01 and 1,600.00; both rounded to the nearest cent, letting in 1,500.00.
 - A list column narrower than its header's label, such as an image or avatar column at its 32 px `indexWidth()`, widens to fit the label, where the label ran over the next column's header. Its cells keep the width, and a column whose label fits is unchanged.
 - On the Board, Ctrl+Z pressed while a card's move is still saving takes that move back once it saves, where it undid the edit before it and left the card in its new column. A move the server refuses leaves the undo list, so the next Ctrl+Z takes back the edit before it. A move taken back by Ctrl+Z takes its own toast with it, so the Undo buttons left on screen each still undo the move they name.
