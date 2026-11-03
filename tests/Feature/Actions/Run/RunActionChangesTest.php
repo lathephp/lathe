@@ -5,10 +5,13 @@ namespace Lathe\Tests\Feature\Actions\Run;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Exceptions;
 use Illuminate\Support\Facades\Gate;
 use Lathe\ActionEvents\ActionEvent;
+use Lathe\ActionEvents\ActionEventRecorder;
 use Lathe\Actions\Action;
 use Lathe\Actions\ActionFields;
+use Lathe\Enums\ActionEventStatus;
 use Lathe\Field\Field;
 use Lathe\Http\Requests\LatheRequest;
 use Lathe\Lathe;
@@ -27,7 +30,7 @@ class ChangesOrders extends Resource
 
     public function fields(LatheRequest $request): array
     {
-        return [Field::text('Status')];
+        return [Field::text('Status'), Field::password('Number', 'number')];
     }
 
     public function actions(LatheRequest $request): array
@@ -36,6 +39,16 @@ class ChangesOrders extends Resource
             Action::make()->withName('Cancel')->withUriKey('cancel')->handleUsing(function (ActionFields $fields, Collection $models) {
                 foreach ($models as $order) {
                     $order->forceFill(['status' => 'cancelled'])->save();
+                }
+            }),
+            Action::make()->withName('Renumber')->withUriKey('renumber')->handleUsing(function (ActionFields $fields, Collection $models) {
+                foreach ($models as $order) {
+                    $order->forceFill(['number' => 'SECRET-1', 'status' => 'cancelled'])->save();
+                }
+            }),
+            Action::make()->withName('Scramble')->withUriKey('scramble')->handleUsing(function (ActionFields $fields, Collection $models) {
+                foreach ($models as $order) {
+                    $order->forceFill(['status' => "bad \xB1\x31 bytes"])->save();
                 }
             }),
             Action::make()->withName('Look')->withUriKey('look')->handleUsing(fn () => null),
@@ -151,4 +164,53 @@ it('reads the records back once per chunk, not once per record', function () {
 
     expect($large - $small)->toBeLessThanOrEqual(2)
         ->and(ActionEvent::whereNotNull('changes')->count())->toBe(200);
+});
+
+it('keeps a Resource password attribute the model does not hide out of original and changes', function () {
+    Order::whereKey(12)->update(['status' => 'pending']);
+
+    runChanges('changes-orders', 'renumber', [12]);
+
+    $event = ActionEvent::sole();
+
+    expect($event->original)->toBe(['status' => 'pending'])
+        ->and($event->changes)->toBe(['status' => 'cancelled']);
+});
+
+it('records a changed value that is not valid UTF-8 without failing the run', function () {
+    Order::whereKey(12)->update(['status' => 'pending']);
+
+    runChanges('changes-orders', 'scramble', [12]);
+
+    expect(ActionEvent::sole()->changes)->toBe(['status' => "bad \u{FFFD}1 bytes"]);
+});
+
+it('leaves out a value read as a stream, which never compares or encodes', function () {
+    $order = Order::findOrFail(12);
+    $batchId = app(ActionEventRecorder::class)->forActionRan(null, 'Look', new \Illuminate\Database\Eloquent\Collection([$order]), ChangesOrders::class, ActionEventStatus::Finished);
+    $before = $order->getAttributes();
+    $before['status'] = fopen('php://memory', 'r');
+
+    app(ActionEventRecorder::class)->forActionChanges($batchId, new \Illuminate\Database\Eloquent\Collection([$order]), [ActionEvent::keyOf($order) => $before], ChangesOrders::class);
+
+    expect(ActionEvent::sole()->changes)->toBeNull();
+});
+
+it('reports a failed audit write rather than failing a run that already committed', function () {
+    Exceptions::fake();
+    $order = Order::findOrFail(12);
+    $batchId = app(ActionEventRecorder::class)->forActionRan(null, 'Look', new \Illuminate\Database\Eloquent\Collection([$order]), ChangesOrders::class, ActionEventStatus::Finished);
+    $before = $order->getAttributes();
+    $before['status'] = new class implements \JsonSerializable
+    {
+        public function jsonSerialize(): mixed
+        {
+            throw new \RuntimeException('Cannot encode.');
+        }
+    };
+
+    app(ActionEventRecorder::class)->forActionChanges($batchId, new \Illuminate\Database\Eloquent\Collection([$order]), [ActionEvent::keyOf($order) => $before], ChangesOrders::class);
+
+    Exceptions::assertReported(fn (\RuntimeException $e) => $e->getMessage() === 'Cannot encode.');
+    expect(ActionEvent::sole()->changes)->toBeNull();
 });

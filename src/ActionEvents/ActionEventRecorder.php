@@ -17,6 +17,7 @@ use Lathe\Field\TokenField;
 use Lathe\Http\Requests\LatheRequest;
 use Lathe\Lathe;
 use Lathe\Resources\Resource;
+use Throwable;
 
 /**
  * Writes the action event rows. Bound per request or job, so disable() lasts for that scope only.
@@ -179,18 +180,36 @@ class ActionEventRecorder
             return;
         }
 
+        // The run has committed: a failed audit write is reported, never a reason to fail or retry it.
+        try {
+            $this->writeActionChanges($batchId, $models, $before, $resourceClass);
+        } catch (Throwable $e) {
+            report($e);
+        }
+    }
+
+    /**
+     * @param  Collection<int, Model>  $models
+     * @param  array<string, array<array-key, mixed>>  $before
+     * @param  class-string<resource>  $resourceClass
+     */
+    private function writeActionChanges(string $batchId, Collection $models, array $before, string $resourceClass): void
+    {
         foreach ($models->chunk(200) as $chunk) {
             $first = $chunk->firstOrFail();
             $keyName = $first->getKeyName();
-            $after = $first->newModelQuery()->whereKey($chunk->map(fn (Model $model) => $model->getKey())->values()->all())->toBase()->get()->keyBy($keyName);
+            // The write connection, so a lagging replica never hides what the run just saved.
+            $after = $first->newModelQuery()->useWritePdo()->whereKey($chunk->map(fn (Model $model) => $model->getKey())->values()->all())->toBase()->get()->keyBy($keyName);
 
             foreach ($chunk as $model) {
                 $row = $after->get(ActionEvent::keyOf($model));
                 [$original, $changes] = $this->changed($model, $before[ActionEvent::keyOf($model)] ?? [], $row === null ? [] : (array) $row, $resourceClass);
 
                 if ($changes !== []) {
-                    $this->model()::query()->where('batch_id', $batchId)->forActionable($model)
-                        ->update(['original' => json_encode($original), 'changes' => json_encode($changes)]);
+                    $this->model()::query()->where('batch_id', $batchId)->ofType(ActionEventType::ActionRan)->forActionable($model)->update([
+                        'original' => json_encode($original, JSON_INVALID_UTF8_SUBSTITUTE),
+                        'changes' => json_encode($changes, JSON_INVALID_UTF8_SUBSTITUTE),
+                    ]);
                 }
             }
         }
@@ -348,7 +367,9 @@ class ActionEventRecorder
     protected function changed(Model $model, array $before, array $after, string $resourceClass): array
     {
         $updatedAt = $model->usesTimestamps() ? $model->getUpdatedAtColumn() : null;
-        $changed = array_filter($before, fn (mixed $value, int|string $key) => $key !== $updatedAt && array_key_exists($key, $after) && $after[$key] !== $value, ARRAY_FILTER_USE_BOTH);
+        // A stream, such as a Postgres bytea column, never compares equal and cannot be encoded, so it is left out.
+        $changed = array_filter($before, fn (mixed $value, int|string $key) => $key !== $updatedAt && array_key_exists($key, $after)
+            && ! is_resource($value) && ! is_resource($after[$key]) && $after[$key] !== $value, ARRAY_FILTER_USE_BOTH);
         $original = $this->clean($changed, $model, $resourceClass);
         $changes = $this->clean(array_intersect_key($after, $changed), $model, $resourceClass);
         $changes = array_filter($changes, fn (mixed $value, int|string $key) => ($original[$key] ?? null) !== $value, ARRAY_FILTER_USE_BOTH);

@@ -56,7 +56,9 @@ class RunAuditOrders extends Resource
             }),
             Action::make()->withName('Refund')->withUriKey('refund')->handleUsing(
                 fn (ActionFields $fields, Collection $models) => ActionResult::danger('Order '.$models->firstOrFail()->getKey().' is past refund.'),
-            ),
+            )->then(function (Collection $models) {
+                static::$models[] = $models->count();
+            }),
             Action::make()->withName('Note')->withUriKey('note')->handleUsing(fn () => ActionResult::message('Noted.')),
             Action::make()->withName('Refuse All')->withUriKey('refuse-all')->standalone()->handleUsing(fn () => ActionResult::danger('Nothing to refuse.')),
             new RunAuditSigned,
@@ -161,7 +163,8 @@ it('records a run whose handler returns danger as failed with the message, row b
 
     $rows = ActionEvent::orderBy('actionable_id')->get();
 
-    expect($rows->pluck('status', 'actionable_id')->all())->toBe(['4' => ActionEventStatus::Failed, '5' => ActionEventStatus::Failed, '6' => ActionEventStatus::Failed])
+    expect(RunAuditOrders::$models)->toBe([3])
+        ->and($rows->pluck('status', 'actionable_id')->all())->toBe(['4' => ActionEventStatus::Failed, '5' => ActionEventStatus::Failed, '6' => ActionEventStatus::Failed])
         ->and($rows->pluck('exception')->all())->toBe(['Order 4 is past refund.', 'Order 5 is past refund.', 'Order 6 is past refund.']);
 });
 
