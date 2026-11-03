@@ -115,15 +115,41 @@ class CreatedBetween extends DateFilter
 
         return $query;
     }
-
-    public function column(): ?string
-    {
-        return 'created_at';
-    }
 }
 ```
 
-`column()` names the date column the filter narrows. It is optional, and null by default. When it names one, a dashboard card dated by that column opens this list with the filter set to the card's days (see [Open records](../organizing/widgets.md#open-records)). The card counts days in the user's time zone, so a filter that should list the same rows cuts its days there too, as `Timezone::dayBounds()` does.
+`whereDate()` compares the date as the database stores it, usually in UTC.
+
+`column()` names the date column the filter narrows. It is optional, and null by default. When it names one, a dashboard card dated by that column opens this list with the filter set to the card's days (see [Open records](../organizing/widgets.md#open-records)). The card counts days in the user's time zone, so a filter that names its column cuts its days there too, or the list and the card disagree about the rows near midnight. `Timezone::dayBounds()` gives a local day's start and end in UTC:
+
+```php
+use Lathe\Filters\DateFilter;
+use Lathe\Support\Timezone;
+
+class PlacedBetween extends DateFilter
+{
+    public function apply(LatheRequest $request, Builder $query, mixed $value): Builder
+    {
+        $timezone = app(Timezone::class);
+        $zone = $timezone->forRequest($request);
+
+        if ($value['from'] !== null) {
+            $query->where('placed_at', '>=', $timezone->dayBounds($value['from'], $zone)[0]);
+        }
+
+        if ($value['to'] !== null) {
+            $query->where('placed_at', '<', $timezone->dayBounds($value['to'], $zone)[1]);
+        }
+
+        return $query;
+    }
+
+    public function column(): ?string
+    {
+        return 'placed_at';
+    }
+}
+```
 
 ## Range filters
 

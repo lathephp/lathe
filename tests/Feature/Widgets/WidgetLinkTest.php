@@ -12,6 +12,7 @@ use Lathe\Tests\Fixtures\Widgets\OrderCount;
 use Lathe\Tests\Fixtures\Widgets\TrendProbe;
 use Lathe\Tests\Fixtures\Widgets\ValueOrders;
 use Lathe\Tests\Fixtures\Widgets\ValueProbe;
+use Lathe\Widgets\AggregateQuery;
 use Workbench\App\Models\Order;
 use Workbench\App\Models\User;
 use Workbench\Database\Seeders\DemoSeeder;
@@ -97,4 +98,32 @@ it('keeps the plain link for a card dated by a column no date filter reads', fun
     $this->actingAs(linkUser('admin@lathephp.com'))
         ->getJson('/lathe/api/dashboards/cards/widgets/value-probe?range=7')
         ->assertJsonPath('link', '/lathe/resources/orders');
+});
+
+it('keeps the link a dated card declares', function () {
+    $this->travelTo(CarbonImmutable::parse('2026-11-03 15:00:00', 'UTC'));
+    ValueProbe::$using = fn (LatheRequest $request) => $this->count($request, Order::class, null, 'placed_at');
+    Cards::$widgets = [(new ValueProbe)->link('/somewhere')];
+
+    $this->actingAs(linkUser('admin@lathephp.com'))
+        ->getJson('/lathe/api/dashboards/cards/widgets/value-probe?range=7')
+        ->assertJsonPath('link', '/somewhere');
+});
+
+it('lists what a day trend counted in a zone ahead of UTC, near its midnight', function () {
+    Lathe::userTimezone(fn () => 'Asia/Dhaka');
+    $this->travelTo(CarbonImmutable::parse('2026-11-03 15:00:00', 'Asia/Dhaka'));
+    // 00:30 on Oct 28 in Dhaka is still Oct 27 in UTC; 23:30 on Oct 27 in Dhaka is outside the 7 days.
+    DB::table('orders')->limit(4)->update(['placed_at' => '2026-10-27 18:30:00']);
+    DB::table('orders')->whereNotIn('placed_at', ['2026-10-27 18:30:00'])->limit(3)->update(['placed_at' => '2026-10-27 17:30:00']);
+    TrendProbe::$using = fn (LatheRequest $request) => $this->countByDays($request, Order::class, null, 'placed_at');
+    Cards::$widgets = [new TrendProbe];
+    $this->actingAs(linkUser('admin@lathephp.com'));
+
+    $card = $this->getJson('/lathe/api/dashboards/cards/widgets/trend-probe?range=7')->assertOk()->json();
+    $counted = array_sum(AggregateQuery::for(Order::class)->dateColumn('placed_at')->timezone('Asia/Dhaka')->byDays(7)->trend()->jsonSerialize());
+
+    expect($card['link'])->toBe('/lathe/resources/orders?'.http_build_query(['filter' => ['placed' => ['from' => '2026-10-28', 'to' => '2026-11-03']]]))
+        ->and($this->getJson('/lathe/api/resources/orders/count?'.Str::after($card['link'], '?'))->json('value'))->toBe($counted)
+        ->and($counted)->toBeGreaterThanOrEqual(4);
 });
