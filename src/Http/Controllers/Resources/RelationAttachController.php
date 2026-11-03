@@ -182,7 +182,8 @@ class RelationAttachController
 
     /**
      * The related key and pivot row the route names: 404 when not attached, 422 when several rows
-     * match and no ?pivot_id= picks one.
+     * match and no ?pivot_id= picks one. A pivot table with no id column has no pivot_id to send,
+     * so its row is found by the related key alone and any pivot_id is ignored.
      *
      * @param  BelongsToMany<Model, Model>  $relation
      * @return array{int|string, array<string, mixed>}
@@ -190,9 +191,11 @@ class RelationAttachController
     protected function attachedRow(LatheRequest $request, BelongsToMany $relation, string $relatedId): array
     {
         $pivotId = $request->query('pivot_id');
+        $pivotKey = $relation->newPivot()->getKeyName();
+        $hasPivotKey = $relation->getParent()->getConnection()->getSchemaBuilder()->hasColumn($relation->getTable(), $pivotKey);
 
-        if (is_string($pivotId)) {
-            $relation->wherePivot($relation->newPivot()->getKeyName(), $pivotId);
+        if (is_string($pivotId) && $hasPivotKey) {
+            $relation->wherePivot($pivotKey, $pivotId);
         }
 
         $rows = $relation->newPivotStatementForId($relatedId)->get();
@@ -200,9 +203,9 @@ class RelationAttachController
         abort_if($rows->isEmpty(), 404);
 
         if ($rows->count() > 1) {
-            throw ValidationException::withMessages([
-                'pivot_id' => Lathe::__('This record is attached more than once. Send the pivot_id of the row to change.'),
-            ]);
+            throw ValidationException::withMessages($hasPivotKey
+                ? ['pivot_id' => Lathe::__('This record is attached more than once. Send the pivot_id of the row to change.')]
+                : ['related_id' => Lathe::__('This record is attached more than once.')]);
         }
 
         /** @var array<string, mixed> $row */

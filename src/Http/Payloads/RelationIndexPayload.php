@@ -34,8 +34,8 @@ class RelationIndexPayload
     }
 
     /**
-     * Each row is an index row plus `related_id`, and `pivot_id` for a pivot relation; the
-     * count is capped.
+     * Each row is an index row plus `related_id`, and `pivot_id` for a pivot relation whose table
+     * has an id column; the count is capped.
      *
      * @param  class-string<\Lathe\Resources\Resource>  $class  The related Resource.
      * @param  Relation<Model, Model, mixed>  $relation
@@ -80,7 +80,7 @@ class RelationIndexPayload
                 'abilities' => $abilities[$this->index->key($model)] ?? [],
                 'related_id' => $model->getKey(),
                 ...($tokens ? ['updatedAt' => TrafficCop::token($model)] : []),
-                ...($relation instanceof BelongsToMany ? ['pivot_id' => $model->getAttribute('pivot_id')] : []),
+                ...($relation instanceof BelongsToMany && $model->getAttribute('pivot_id') !== null ? ['pivot_id' => $model->getAttribute('pivot_id')] : []),
                 ...($softDeletes ? ['trashed' => method_exists($model, 'trashed') && $model->trashed() === true] : []),
             ])->all()),
             'count' => $query->count()?->toArray(),

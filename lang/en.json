@@ -487,6 +487,7 @@
     "This page cannot be shown": "This page cannot be shown",
     "This page is not available.": "This page is not available.",
     "This record has changed": "This record has changed",
+    "This record is attached more than once.": "This record is attached more than once.",
     "This record is attached more than once. Send the pivot_id of the row to change.": "This record is attached more than once. Send the pivot_id of the row to change.",
     "This record was changed by someone else since you opened it.": "This record was changed by someone else since you opened it.",
     "Time": "Time",

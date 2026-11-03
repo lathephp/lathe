@@ -331,6 +331,23 @@ describe('editing and detaching a pivot row', () => {
     });
   });
 
+  it('edits the pivot of a row with no pivot id by its related id alone', async () => {
+    const api = server();
+    renderProduct();
+    await screen.findByRole('cell', { name: 'hot' });
+    fireEvent.click(within(rowOf('hot')).getByRole('button', { name: 'Edit pivot' }));
+    const dialog = await screen.findByRole('dialog');
+    const position = await within(dialog).findByRole('spinbutton', { name: 'Position' });
+    fireEvent.change(position, { target: { value: '5' } });
+    fireEvent.click(within(dialog).getByRole('button', { name: 'Update' }));
+
+    await waitFor(() => {
+      expect(screen.queryByRole('dialog')).toBeNull();
+    });
+    expect(api.asked('/pivot-fields').map((call) => call.url)).toEqual(['/lathe/api/resources/products/1/tags/6/pivot-fields']);
+    expect(api.asked('/pivot', 'PUT').map((call) => call.url)).toEqual(['/lathe/api/resources/products/1/tags/6/pivot']);
+  });
+
   it('asks before it detaches, then deletes and refetches', async () => {
     const api = server();
     renderProduct();
