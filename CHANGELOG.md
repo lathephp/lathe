@@ -4,8 +4,12 @@ All notable changes to Lathe are listed here. The format follows [Keep a Changel
 
 ## [Unreleased]
 
+## [1.0.0-beta.7] - Unreleased
+
 ### Changed
 
+- In the filter bar, `total:>1500` and `total:<1500` leave out an order of exactly 1,500, and their chips read "Total: > 1,500" and "Total: < 1,500"; `total:1000..1500` and a bare `total:1500` still include their ends. A date filter's `>` and `<` still include the date.
+- [api] New English strings since 1.0.0-beta.6, for an app that translates the panel; none was renamed or removed: `Waiting`, `Running`, `Finished` and `Failed` (the Action Events list's Action Status filter), `:action: changed :fields` (a History entry of an action run, as "Cancel order: changed Status") and `This record is attached more than once.` (Edit pivot or Detach on a record attached twice to a pivot table with no id column).
 - On a dashboard, a card with no `ranges()` of its own receives the header's range as `$request->query('range')`, so a bar, partition, pie or progress card that reads it follows the picker; it received no range and showed whatever its code fell back to, with nothing on the card to say so. A card with `ranges()` is unchanged.
 - A value card's number range counts calendar days in the user's time zone, today and the N - 1 days before it, compared with the N calendar days before those, so its total matches a trend card's for the same range. It counted the last N times 24 hours back from now, so at 7 days an order placed late on the eighth day ago counted in the card and not in the trend. `TODAY`, `YESTERDAY`, `THIS_WEEK`, `MTD`, `QTD`, `YTD` and `ALL` keep their windows, and `AggregateQuery::value()` is unchanged.
 
@@ -13,7 +17,6 @@ All notable changes to Lathe are listed here. The format follows [Keep a Changel
 
 - [api] A date filter can name the column it narrows with `DateFilter::column()`, null by default. When it names one, the Open records link of a dashboard card dated by that column opens the list with the filter set from the card's first day to its last, `filter[key][from]` and `filter[key][to]`, so the list holds the rows the card counted. This works for a value card with a number range and a trend by days, weeks or months; a trend by minutes or hours, a named range such as `MTD`, a card dated by another column and a card with its own `link()` keep their links.
 - The Action Events list filters by Action Status, so the failed runs can be listed alone.
-- In the filter bar, `total:>1500` and `total:<1500` leave out an order of exactly 1,500, and their chips read "Total: > 1,500" and "Total: < 1,500"; `total:1000..1500` and a bare `total:1500` still include their ends. A date filter's `>` and `<` still include the date.
 - [api] A range filter takes strict sides, `filter[key][gt]` and `filter[key][lt]`, compared with `>` and `<`; `min` and `max` stay inclusive, so an existing link or saved view keeps its meaning. A filter `filterable()` generates applies them on the column as stored, so a cents column compares `gt=150000` with 150000 cents. `RangeFilter::normalize()` returns `gt` and `lt` beside `min` and `max` only when the request sends them, and only for a filter whose `$strict` property is true: a filter `filterable()` generates sets it, so a `filterable(fn ...)` callback receives them and must read them. A `RangeFilter` subclass takes them once it sets `protected bool $strict = true` and reads them in `apply()`; until then it answers 422 to `gt` or `lt`, and the filter bar writes its `>n` and `<n` as `min` and `max`, chips "≥" and "≤" as before. Each range filter's definition in `filters.available` carries `strict`.
 
 ### Fixed
