@@ -363,6 +363,21 @@ it('fails the whole chunk when handle throws, calls failed per model and rethrow
         ->and(Order::where('status', 'shipped')->whereKey(range(1, 200))->count())->toBe(0);
 });
 
+it('records the values a chunk changed as original and changes', function () {
+    seedOrders(3);
+    signInAdmin();
+    QueuedCalls::$actions = [new QueuedAlways];
+    Bus::fake();
+
+    $this->postJson('/lathe/api/resources/queued-orders/action', queuedBody(['mode' => 'ids', 'ids' => [1, 2]]))->assertOk();
+    [, $planned] = runFakedPlanner();
+    [$chunk] = $planned->added[0]->withFakeBatch($planned->id);
+    app()->call([$chunk, 'handle']);
+
+    expect(ActionEvent::pluck('original')->all())->toBe([['status' => 'pending'], ['status' => 'pending']])
+        ->and(ActionEvent::pluck('changes')->all())->toBe([['status' => 'shipped'], ['status' => 'shipped']]);
+});
+
 it('marks a chunk whose handle returns danger failed with the message', function () {
     seedOrders(3);
     signInAdmin();

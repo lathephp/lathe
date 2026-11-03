@@ -6,7 +6,10 @@ use Illuminate\Bus\Batchable;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Queue\InteractsWithQueue;
+use Lathe\ActionEvents\ActionEvent;
+use Lathe\ActionEvents\ActionEventRecorder;
 use Lathe\Actions\ActionDispatcher;
 use Lathe\Actions\ActionFields;
 use Lathe\Actions\BulkRun;
@@ -68,6 +71,8 @@ class ExecuteAction implements ShouldQueue
                 return;
             }
 
+            $before = $batchId === null ? [] : $models->mapWithKeys(fn (Model $model) => [ActionEvent::keyOf($model) => $model->getAttributes()])->all();
+
             try {
                 $dispatcher->runQueuedChunk($action, new ActionFields($this->fields), $models, $batchId);
             } catch (Throwable $e) {
@@ -77,6 +82,10 @@ class ExecuteAction implements ShouldQueue
                 }
 
                 throw $e;
+            }
+
+            if ($batchId !== null) {
+                app(ActionEventRecorder::class)->forActionChanges($batchId, $models, $before, $this->resource);
             }
 
             BulkRun::addCounts($this->bulkRunId, $models->count());
