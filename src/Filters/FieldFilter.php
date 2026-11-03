@@ -9,6 +9,7 @@ use Lathe\Http\Requests\LatheRequest;
 
 /**
  * The range filter a filterable() field generates: min, max, gt and lt compare the column as stored.
+ * One with a filterable(fn ...) callback takes min and max only, as a RangeFilter subclass does.
  */
 class FieldFilter extends RangeFilter
 {
@@ -16,7 +17,8 @@ class FieldFilter extends RangeFilter
 
     public function __construct(protected string $label, protected string $attribute, protected int $scale = 1, protected ?Closure $callback = null)
     {
-        //
+        // A filterable(fn ...) callback written before strict sides reads only min and max.
+        $this->strict = $callback === null;
     }
 
     /**

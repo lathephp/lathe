@@ -2,6 +2,7 @@
 
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Validation\ValidationException;
 use Lathe\Field\Field;
 use Lathe\Filters\FieldFilter;
 use Lathe\Filters\Filter;
@@ -172,6 +173,21 @@ it('compares gt and lt strictly and min and max inclusively, in minor units', fu
     'min and max' => ['filter[field_total_cents][min]=149999&filter[field_total_cents][max]=150000', [149999, 150000], ['min' => 149999, 'max' => 150000]],
     'min alone, as an old link has it' => ['filter[field_total_cents][min]=150000', [150000, 150001], ['min' => 150000, 'max' => null]],
 ]);
+
+it('keeps a filterable(fn ...) callback on min and max, as before strict sides', function () {
+    $received = null;
+    $filter = new FieldFilter('Total', 'total_cents', 100, function (LatheRequest $request, Builder $query, mixed $value) use (&$received) {
+        $received = $value;
+    });
+    $request = app(LatheRequest::class);
+
+    $filter->apply($request, Order::query(), $filter->normalize($request, ['min' => '150000'], false));
+
+    expect($filter->definition($request, 50)['strict'])->toBeFalse()
+        ->and($received)->toBe(['min' => 150000, 'max' => null])
+        ->and(fn () => $filter->normalize($request, ['gt' => '150000'], false))->toThrow(ValidationException::class)
+        ->and((new FieldFilter('Total', 'total_cents', 100))->definition($request, 50)['strict'])->toBeTrue();
+});
 
 it('answers 422 for a gt or lt that is not a whole number on an integer column', function (string $query) {
     $this->getJson("/lathe/api/resources/orders?{$query}")

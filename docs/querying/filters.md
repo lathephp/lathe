@@ -195,7 +195,7 @@ class PriceRange extends RangeFilter
 }
 ```
 
-A filter that `filterable()` makes from a number or currency field takes the strict sides already, and a `filterable(fn ...)` callback on one receives them in `$value`.
+A filter that `filterable()` makes from a number or currency field takes the strict sides already. One with a `filterable(fn ...)` callback does not: the callback receives `min` and `max` only, and the filter bar writes `>n` and `<n` as `min` and `max`, as for a subclass that leaves `$strict` false.
 
 ## Register filters
 
