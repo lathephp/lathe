@@ -232,7 +232,7 @@ class ActionDispatcher
         $handler = ActionMethodResolver::handlerFor($action, $first::class);
 
         try {
-            $first->getConnection()->transaction(fn () => $action->{$handler}($fields, $models));
+            $result = $first->getConnection()->transaction(fn () => $action->{$handler}($fields, $models));
         } catch (Throwable $e) {
             $failedHandler = ActionMethodResolver::failedHandlerFor($action, $first::class);
 
@@ -247,9 +247,13 @@ class ActionDispatcher
             throw $e;
         }
 
+        $refusal = $result instanceof ActionResult ? $result->refusal() : null;
+
+        // A danger result ran but refused, so the chunk's events read failed with the message.
         if ($batchId !== null) {
-            $this->chunkEvents($batchId, $models)->where('status', ActionEventStatus::Running->value)
-                ->update(['status' => ActionEventStatus::Finished->value, 'updated_at' => now()]);
+            $this->chunkEvents($batchId, $models)->where('status', ActionEventStatus::Running->value)->update($refusal === null
+                ? ['status' => ActionEventStatus::Finished->value, 'updated_at' => now()]
+                : ['status' => ActionEventStatus::Failed->value, 'exception' => $refusal, 'updated_at' => now()]);
         }
 
         app(WidgetCache::class)->flushTables([$first->getTable()]);

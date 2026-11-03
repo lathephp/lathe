@@ -129,6 +129,19 @@ class QueuedAlways extends QueuedShip implements ShouldQueue
     //
 }
 
+class QueuedRefuse extends Action implements ShouldQueue
+{
+    public function uriKey(): string
+    {
+        return 'refuse';
+    }
+
+    public function handle(ActionFields $fields, Collection $models): ActionResult
+    {
+        return ActionResult::danger('Chunk refused.');
+    }
+}
+
 class QueuedBatchable extends QueuedShip implements BatchableAction
 {
     public function withBatch(ActionFields $fields, PendingBatch $batch): void
@@ -348,6 +361,21 @@ it('fails the whole chunk when handle throws, calls failed per model and rethrow
         ->and(QueuedCalls::$log)->toHaveCount(201)
         ->and(ActionEvent::where('status', 'failed')->where('exception', 'like', '%Chunk on hold.%')->count())->toBe(200)
         ->and(Order::where('status', 'shipped')->whereKey(range(1, 200))->count())->toBe(0);
+});
+
+it('marks a chunk whose handle returns danger failed with the message', function () {
+    seedOrders(3);
+    signInAdmin();
+    QueuedCalls::$actions = [new QueuedRefuse];
+    Bus::fake();
+
+    $this->postJson('/lathe/api/resources/queued-orders/action', queuedBody(['mode' => 'ids', 'ids' => [1, 2, 3]], 'refuse'))->assertOk();
+    [, $planned] = runFakedPlanner();
+    [$chunk] = $planned->added[0]->withFakeBatch($planned->id);
+    app()->call([$chunk, 'handle']);
+
+    expect(ActionEvent::pluck('status')->map->value->all())->toBe(['failed', 'failed', 'failed'])
+        ->and(ActionEvent::pluck('exception')->unique()->all())->toBe(['Chunk refused.']);
 });
 
 it('drains a 1,001-row run to finished', function () {
