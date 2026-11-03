@@ -17,6 +17,14 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 class Customer extends Model
 {
     /**
+     * @return array<string, string>
+     */
+    protected function casts(): array
+    {
+        return ['details' => 'array'];
+    }
+
+    /**
      * @return HasMany<Order, $this>
      */
     public function orders(): HasMany

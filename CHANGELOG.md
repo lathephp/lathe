@@ -6,6 +6,7 @@ All notable changes to Lathe are listed here. The format follows [Keep a Changel
 
 ### Fixed
 
+- An untouched optional key-value field saves as an empty object on a create form and in the Create side sheet, or as null when it is `nullable()`, where it failed "must be a list of key and value pairs".
 - A `belongsToMany` or `morphToMany` field with `withCount()` shows the related count in its index column, loaded in one query for the page; the column was empty.
 - [api] Edit pivot, its form and Detach work on a `belongsToMany` or `morphToMany` whose pivot table has no id column, where they answered 404. A relation panel's row carries `pivot_id` only when the pivot table has an id column; the server finds a row of a pivot table with none by its related key and ignores any `pivot_id`, and a record attached to it twice answers 422 on `related_id` with "This record is attached more than once." and changes nothing.
 

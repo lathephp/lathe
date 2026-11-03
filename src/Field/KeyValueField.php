@@ -4,6 +4,7 @@ namespace Lathe\Field;
 
 use Closure;
 use Illuminate\Database\Eloquent\Model;
+use Lathe\Field\Concerns\SavesBlankAsEmptyList;
 use Lathe\Http\Requests\LatheRequest;
 use Lathe\Lathe;
 use Lathe\Support\ConfigStore;
@@ -14,6 +15,8 @@ use Lathe\Support\ConfigStore;
  */
 class KeyValueField extends Field
 {
+    use SavesBlankAsEmptyList;
+
     protected string $component = 'key-value-field';
 
     protected bool|Closure $lockKeys = false;
@@ -132,7 +135,8 @@ class KeyValueField extends Field
 
     protected function impliedRules(): array
     {
-        return [function (string $attribute, mixed $value, Closure $fail) {
+        // An untouched optional field reaches the server as null and saves as {} (whenBlank).
+        return ['nullable', function (string $attribute, mixed $value, Closure $fail) {
             $rows = self::rows($value);
             $config = app(ConfigStore::class);
             $maxRows = $config->integer('limits.key_value_rows');

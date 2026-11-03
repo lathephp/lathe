@@ -48,6 +48,25 @@ class SlugSamples extends Resource
     }
 }
 
+/** The same samples with a nullable key-value field. */
+class NullableMetaSamples extends Resource
+{
+    public static function uriKey(): string
+    {
+        return 'nullable-meta-samples';
+    }
+
+    protected function configure(ResourceDefinition $definition): ResourceDefinition
+    {
+        return $definition->model(SlugSample::class)->title('title')->canonical(false)->allowAll();
+    }
+
+    public function fields(LatheRequest $request): array
+    {
+        return [Field::text('Title'), Field::keyValue('Meta')->nullable()];
+    }
+}
+
 function slugRequest(): LatheRequest
 {
     return LatheRequest::createFrom(Request::create('/lathe/api/resources/slug-samples'));
@@ -65,7 +84,7 @@ beforeEach(function () {
     });
     Gate::define('viewLathe', fn (User $user) => true);
     $this->actingAs(User::where('email', 'admin@lathephp.com')->firstOrFail());
-    Lathe::registerResources(SlugSamples::class);
+    Lathe::registerResources(SlugSamples::class, NullableMetaSamples::class);
 });
 
 it('builds the slug and key-value factories with their contexts', function () {
@@ -148,6 +167,20 @@ it('accepts the pairs as an object too', function () {
     $id = LatheTest::resource('slug-samples')->store(['title' => 'x', 'meta' => ['a' => '1']])->assertSuccessful()->json('id');
 
     expect(SlugSample::findOrFail($id)->meta)->toBe(['a' => '1']);
+});
+
+it('saves an untouched optional key-value field as an empty object, or null when it is nullable', function () {
+    $id = LatheTest::resource('slug-samples')->store(['title' => 'x', 'meta' => null])->assertCreated()->json('id');
+    $nullable = LatheTest::resource('nullable-meta-samples')->store(['title' => 'y', 'meta' => null])->assertCreated()->json('id');
+
+    expect(SlugSample::findOrFail($id)->meta)->toBe([])
+        ->and(SlugSample::findOrFail($nullable)->meta)->toBeNull();
+});
+
+it('still refuses a key-value field sent as a string', function () {
+    LatheTest::resource('slug-samples')->store(['title' => 'x', 'meta' => 'a=1'])
+        ->assertStatus(422)
+        ->assertJsonValidationErrors(['meta' => 'The Meta field must be a list of key and value pairs.']);
 });
 
 it('resolves an empty object to null', function () {
