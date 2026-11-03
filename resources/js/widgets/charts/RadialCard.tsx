@@ -117,7 +117,7 @@ export function RadialCard({ widget, value }: WidgetRendererProps) {
   return (
     <div className="flex h-full flex-col items-center gap-1">
       <ChartFrame name={widget.name} columns={[__('Label'), __('Value')]} rows={rows} className="min-h-0 flex-1">
-        <ChartContainer className="mx-auto aspect-square h-full">{chart}</ChartContainer>
+        <ChartContainer className="mx-auto aspect-square h-full max-w-full">{chart}</ChartContainer>
       </ChartFrame>
       {result.caption !== undefined && <p className="text-xs text-muted-foreground">{result.caption}</p>}
     </div>

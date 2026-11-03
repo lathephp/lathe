@@ -31,14 +31,15 @@ export function PartitionCard({ widget, value }: WidgetRendererProps) {
   );
   const legend = (
     // The legend scrolls within the card, so it takes keyboard focus to scroll by key.
-    <div role="region" aria-label={__(':name legend', { name: widget.name })} tabIndex={0} className="max-h-full min-w-0 flex-1 overflow-y-auto">
+    <div role="region" aria-label={__(':name legend', { name: widget.name })} tabIndex={0} className="@container max-h-full min-w-0 flex-1 overflow-y-auto">
       <ul className={cn('grid grid-cols-2 gap-x-3 gap-y-1 text-[13px]', !asBar && 'md:flex md:flex-col md:gap-2')}>
         {segments.map((segment) => (
           <li key={segment.label} className="flex min-w-0 items-center gap-1.5 md:gap-2">
             <span className="size-2 shrink-0 rounded-full" style={{ backgroundColor: segment.color }} />
-            <span className="min-w-0 flex-1 truncate">{segment.label}</span>
+            {/* Beside the donut a label keeps 6 characters; the percentage hides first when the legend is under 12rem. */}
+            <span className="min-w-0 flex-1 truncate md:min-w-[6ch]">{segment.label}</span>
             <span className="shrink-0 font-medium tabular-nums">{format(segment.value)}</span>
-            <span className={cn('w-11 shrink-0 text-end text-muted-foreground tabular-nums max-md:hidden', asBar && 'hidden')}>{`${String(segment.percentage)}%`}</span>
+            <span className={cn('w-11 shrink-0 text-end text-muted-foreground tabular-nums max-md:hidden @max-[12rem]:hidden', asBar && 'hidden')}>{`${String(segment.percentage)}%`}</span>
           </li>
         ))}
       </ul>
