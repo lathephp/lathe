@@ -28,6 +28,8 @@ describe('formChanged', () => {
     expect(formChanged({ details: [{ key: 'colour', value: 'red' }, { key: 'size', value: '4' }] }, fields)).toBe(false);
     expect(formChanged({ details: [{ key: 'colour', value: 'blue' }, { key: 'size', value: '4' }] }, fields)).toBe(true);
     expect(formChanged({ details: [] }, [field('details', 'key-value-field', null)])).toBe(false);
+    // An untouched key-value field still holds the object it loaded with.
+    expect(formChanged({ details: { colour: 'red', size: 4 }, rating: 4 }, [...fields, field('rating', 'number-field', 4)])).toBe(false);
   });
 
   it('reads a repeater row changed and changed back as unchanged', () => {

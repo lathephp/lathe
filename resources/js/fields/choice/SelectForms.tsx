@@ -84,9 +84,10 @@ export function SelectForm(props: FormFieldProps & { remote?: RemoteSource }) {
 
   const current = stringValue(value);
   const visible = remote?.options ?? filterOptions(optionsOf(field), query, [current]);
-  // Enter picks the first option the search matches, not the current one the list keeps.
-  const pickFirst = (search: string, matches: Option[]) => () => {
-    const first = search.trim() === '' ? undefined : matches[0];
+  // Enter picks the first option the search matches, not the current one the list keeps. A remote
+  // list answers after its debounce, so Enter there picks nothing.
+  const pickFirst = () => {
+    const first = query.trim() === '' ? undefined : filterOptions(optionsOf(field), query, [])[0];
 
     if (first !== undefined) {
       onChange(first.value);
@@ -96,9 +97,9 @@ export function SelectForm(props: FormFieldProps & { remote?: RemoteSource }) {
   return (
     <div>
       {remote !== undefined ? (
-        <SearchBox query={remote.query} onQuery={remote.onQuery} disabled={disabled} onFocus={remote.onFocus} onEnter={pickFirst(remote.query, remote.options)} />
+        <SearchBox query={remote.query} onQuery={remote.onQuery} disabled={disabled} onFocus={remote.onFocus} />
       ) : (
-        field.searchable === true && <SearchBox query={query} onQuery={setQuery} disabled={disabled} onEnter={pickFirst(query, filterOptions(optionsOf(field), query, []))} />
+        field.searchable === true && <SearchBox query={query} onQuery={setQuery} disabled={disabled} onEnter={pickFirst} />
       )}
       <Select
         id={id}

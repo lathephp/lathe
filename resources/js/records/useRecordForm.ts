@@ -44,13 +44,13 @@ function same(a: unknown, b: unknown): boolean {
 
 /**
  * Whether the values differ from the ones the fields loaded with. A key-value field loads an
- * object and edits it as a list of key and value rows, so its object is read as those rows.
+ * object and edits it as a list of key and value rows, so an object on either side is read as those rows.
  */
 export function formChanged(values: Record<string, unknown>, fields: FormFieldData[]): boolean {
   return fields.some((field) => {
-    const loaded = field.component === 'key-value-field' && isPlain(field.value) ? Object.entries(field.value).map(([key, value]) => ({ key, value })) : field.value;
+    const rows = (value: unknown) => (field.component === 'key-value-field' && isPlain(value) ? Object.entries(value).map(([key, item]) => ({ key, value: item })) : value);
 
-    return !same(values[field.attribute], loaded);
+    return !same(rows(values[field.attribute]), rows(field.value));
   });
 }
 

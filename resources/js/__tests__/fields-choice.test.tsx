@@ -202,13 +202,15 @@ describe('select-field', () => {
       expect(onChange).not.toHaveBeenCalled();
     });
 
-    it('picks the first option a remote search found on Enter', () => {
+    // A remote list answers a search after its debounce and keeps the current value first, so
+    // Enter there may not pick: it only keeps the form from submitting.
+    it('neither submits nor picks on Enter in a remote search', () => {
       const onChange = vi.fn();
       const remote = { options: [{ value: '7', label: 'Dhaka' }], query: 'Dh', onQuery: vi.fn(), onFocus: vi.fn() };
       render(<SelectForm {...formProps('select-field', null, {}, onChange)} remote={remote} />);
 
       expect(fireEvent.keyDown(screen.getByRole('searchbox'), { key: 'Enter' })).toBe(false);
-      expect(onChange).toHaveBeenCalledExactlyOnceWith('7');
+      expect(onChange).not.toHaveBeenCalled();
     });
 
     it('clears the search on Escape, and lets a second Escape through to the form', () => {

@@ -4,7 +4,7 @@ use Symfony\Component\Finder\Finder;
 
 // A test that shells out to ESLint, tsc, Vite or pnpm runs under the Process default of 60 s
 // unless it sets its own timeout; CI runners are slower than this machine, so a 20 s run here
-// timed out there (m22's whole-tree lint). Each such Process has to say how long it may take.
+// timed out there on the whole-tree lint. Each such Process has to say how long it may take.
 
 /**
  * The 1-based lines of each Process call in $source that names one of the tools and sets no timeout.
