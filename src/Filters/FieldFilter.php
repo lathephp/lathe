@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 use Lathe\Http\Requests\LatheRequest;
 
 /**
- * The range filter a filterable() field generates: min and max compare the column as stored.
+ * The range filter a filterable() field generates: min, max, gt and lt compare the column as stored.
  */
 class FieldFilter extends RangeFilter
 {
@@ -38,7 +38,7 @@ class FieldFilter extends RangeFilter
     /**
      * Whole numbers only when the Resource's model casts the attribute to an integer.
      *
-     * @return array{min: int|float|null, max: int|float|null}
+     * @return array{min: int|float|null, max: int|float|null, gt?: int|float, lt?: int|float}
      */
     public function normalize(LatheRequest $request, mixed $value, bool $remote): array
     {
@@ -53,7 +53,7 @@ class FieldFilter extends RangeFilter
 
     /**
      * @param  Builder<Model>  $query
-     * @param  array{min: int|float|null, max: int|float|null}  $value
+     * @param  array{min: int|float|null, max: int|float|null, gt?: int|float, lt?: int|float}  $value
      * @return Builder<Model>
      */
     public function apply(LatheRequest $request, Builder $query, mixed $value): Builder
@@ -66,9 +66,13 @@ class FieldFilter extends RangeFilter
         }
 
         $column = $query->qualifyColumn($this->attribute);
+        $gt = $value['gt'] ?? null;
+        $lt = $value['lt'] ?? null;
 
         return $query
             ->when($value['min'] !== null, fn (Builder $q) => $q->where($column, '>=', $value['min']))
-            ->when($value['max'] !== null, fn (Builder $q) => $q->where($column, '<=', $value['max']));
+            ->when($value['max'] !== null, fn (Builder $q) => $q->where($column, '<=', $value['max']))
+            ->when($gt !== null, fn (Builder $q) => $q->where($column, '>', $gt))
+            ->when($lt !== null, fn (Builder $q) => $q->where($column, '<', $lt));
     }
 }

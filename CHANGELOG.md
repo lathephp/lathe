@@ -7,6 +7,7 @@ All notable changes to Lathe are listed here. The format follows [Keep a Changel
 ### Added
 
 - The Action Events list filters by Action Status, so the failed runs can be listed alone.
+- [api] A range filter takes strict sides, `filter[key][gt]` and `filter[key][lt]`, compared with `>` and `<`; `min` and `max` stay inclusive, so an existing link or saved view keeps its meaning. A filter `filterable()` generates applies them on the column as stored, so a cents column compares `gt=150000` with 150000 cents. `RangeFilter::normalize()` returns `gt` and `lt` beside `min` and `max` only when the request sends them; a `RangeFilter` subclass or a `filterable(fn ...)` callback that builds its own query must read them, or a strict side filters nothing.
 
 ### Fixed
 

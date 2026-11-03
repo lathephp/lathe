@@ -3,6 +3,7 @@
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Gate;
 use Lathe\Filters\BooleanFilter;
+use Lathe\Http\Middleware\HandleInertiaRequests;
 use Lathe\Http\Requests\LatheRequest;
 use Lathe\Lathe;
 use Lathe\Resources\ResourceDefinition;
@@ -68,9 +69,31 @@ it('keeps a range and a boolean filter it saved, applied and not stale', functio
         ['field_total_cents' => ['min' => 100000, 'max' => null]],
         fn (Order $o) => $o->total_cents >= 100000,
     ],
+    'strict range' => [
+        ['field_total_cents' => ['gt' => '150000']],
+        ['field_total_cents' => ['min' => null, 'max' => null, 'gt' => 150000]],
+        fn (Order $o) => $o->total_cents > 150000,
+    ],
     'boolean' => [
         ['flags' => ['paid' => '1', 'shipped' => '0']],
         ['flags' => ['paid' => true, 'shipped' => false]],
         fn (Order $o) => $o->status === 'paid',
     ],
 ]);
+
+it('counts a saved strict range in the views rail as the list applies it', function () {
+    Order::query()->orderBy('id')->limit(3)->update(['total_cents' => 150000]);
+    $id = $this->postJson('/lathe/api/resources/saved-tab-shapes-orders/saved-tabs', ['name' => 'Over', 'filters' => ['field_total_cents' => ['gt' => '150000']], 'show_count' => true])
+        ->assertCreated()
+        ->json('id');
+
+    $counts = $this->get('/lathe/resources/saved-tab-shapes-orders', [
+        'X-Inertia' => 'true',
+        'X-Inertia-Partial-Component' => 'Resources/Index',
+        'X-Inertia-Partial-Data' => 'tabCounts',
+        'X-Inertia-Version' => (string) app(HandleInertiaRequests::class)->version(request()),
+    ])->assertOk()->json('props.tabCounts');
+
+    expect($counts["saved:{$id}"]['count']['value'])->toBe(Order::where('total_cents', '>', 150000)->count())
+        ->and(Order::where('total_cents', '>=', 150000)->count())->toBeGreaterThan(Order::where('total_cents', '>', 150000)->count());
+});

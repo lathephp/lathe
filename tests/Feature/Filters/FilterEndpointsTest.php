@@ -151,3 +151,33 @@ it('narrows the rows by a generated field filter', function () {
     expect($orders)->not->toBeEmpty()
         ->and($orders->min('total_cents'))->toBeGreaterThanOrEqual(100000);
 });
+
+it('compares gt and lt strictly and min and max inclusively, in minor units', function (string $query, array $listed, array $applied) {
+    // Three orders around 1,500.00, stored as cents, and every other order far from them.
+    Order::query()->update(['total_cents' => 1]);
+    $at = fn (int $cents) => Order::query()->whereKey(Order::query()->where('total_cents', 1)->value('id'))->update(['total_cents' => $cents]);
+    $at(149999);
+    $at(150000);
+    $at(150001);
+
+    $response = $this->getJson("/lathe/api/resources/orders?per_page=100&{$query}")->assertOk();
+    $totals = Order::whereIn('id', array_column($response->json('table.rows'), 'id'))->pluck('total_cents')->sort()->values()->all();
+
+    expect($totals)->toBe($listed)
+        ->and($response->json('filters.applied'))->toBe(['field_total_cents' => $applied]);
+})->with([
+    'gt' => ['filter[field_total_cents][gt]=150000', [150001], ['min' => null, 'max' => null, 'gt' => 150000]],
+    'lt' => ['filter[field_total_cents][lt]=150000&filter[field_total_cents][min]=2', [149999], ['min' => 2, 'max' => null, 'lt' => 150000]],
+    'min and max' => ['filter[field_total_cents][min]=149999&filter[field_total_cents][max]=150000', [149999, 150000], ['min' => 149999, 'max' => 150000]],
+    'min alone, as an old link has it' => ['filter[field_total_cents][min]=150000', [150000, 150001], ['min' => 150000, 'max' => null]],
+]);
+
+it('answers 422 for a gt or lt that is not a whole number on an integer column', function (string $query) {
+    $this->getJson("/lathe/api/resources/orders?{$query}")
+        ->assertUnprocessable()
+        ->assertJsonValidationErrors(['filter']);
+})->with([
+    'text' => ['filter[field_total_cents][gt]=abc'],
+    'a decimal' => ['filter[field_total_cents][lt]=10.5'],
+    'an unknown side' => ['filter[field_total_cents][ge]=10'],
+]);
