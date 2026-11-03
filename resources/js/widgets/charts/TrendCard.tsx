@@ -21,16 +21,18 @@ export interface TrendPayload extends NumberDisplay {
 type Curve = 'monotone' | 'linear' | 'step' | 'natural';
 
 /** A minute or hour bucket is an ISO 8601 instant; it shows as a date and a time, 2 PM style when asked. A day shows as Oct 17. */
-export function bucketLabel(key: string, twelveHourTime: boolean): string {
+export function bucketLabel(key: string, twelveHourTime: boolean, withYear = false): string {
+  const year = withYear ? ({ year: 'numeric' } as const) : {};
+
   if (/^\d{4}-\d{2}-\d{2}$/.test(key)) {
-    return formatDate(key, { dateStyle: undefined, month: 'short', day: 'numeric' });
+    return formatDate(key, { dateStyle: undefined, month: 'short', day: 'numeric', ...year });
   }
 
   if (!/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}/.test(key)) {
     return key;
   }
 
-  return formatDateTime(key, { dateStyle: undefined, timeStyle: undefined, month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit', hour12: twelveHourTime });
+  return formatDateTime(key, { dateStyle: undefined, timeStyle: undefined, month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit', hour12: twelveHourTime, ...year });
 }
 
 /** A number per time bucket as an area or a line, one per series. */
@@ -88,12 +90,15 @@ export function TrendCard({ widget, value }: WidgetRendererProps) {
   const marker = (color: string) => (names.length === 0 && !showDots && !dotColors && widget.dotStyle === undefined ? last(color) : dot(color));
   const first = data[0]?.label;
   const latest = data[data.length - 1];
+  // A span that crosses a year shows the year at each end; one inside a year stays short.
+  const crossesYear = keys[0]?.slice(0, 4) !== keys[keys.length - 1]?.slice(0, 4) && /^\d{4}-\d{2}-\d{2}/.test(keys[0] ?? '');
+  const edge = (key: string | undefined, label: string | undefined) => (crossesYear && key !== undefined && result.labels?.[key] === undefined ? bucketLabel(key, twelveHourTime, true) : label);
   // The headline: the last bucket and its value when it is the latest one, else the value alone, then the range on a desktop.
   const headline = result.value !== null && (
     <>
       {latest !== undefined && 'value' in latest && latest.value === result.value && <span>{latest.label} </span>}
       <strong className="font-semibold text-foreground">{full(result.value)}</strong>
-      {first !== undefined && latest !== undefined && first !== latest.label && <span className="max-md:hidden">{` · ${first} – ${latest.label}`}</span>}
+      {first !== undefined && latest !== undefined && first !== latest.label && <span className="max-md:hidden">{` · ${edge(keys[0], first) ?? ''} – ${edge(keys[keys.length - 1], latest.label) ?? ''}`}</span>}
     </>
   );
 
