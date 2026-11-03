@@ -1,7 +1,7 @@
 import { Head, router, usePage } from '@inertiajs/react';
 import { useLathe, useTranslation } from '@lathephp/core';
 import { RefreshCw, SlidersHorizontal } from 'lucide-react';
-import { type KeyboardEvent, Suspense, useEffect, useState } from 'react';
+import { type KeyboardEvent, Suspense, useEffect, useRef, useState } from 'react';
 import { AfterDelay, skeletonBar } from '../lib/instant';
 import { cn } from '../lib/cn';
 import { Button } from '../components/ui/Button';
@@ -229,11 +229,53 @@ function RangePicker({ ranges, value, onPick }: { ranges: RangeOption[]; value: 
     next?.click();
   };
 
+  // A fade at each edge that has more to scroll, so a clipped "12 months" reads as scrollable.
+  const [fade, setFade] = useState({ start: false, end: false });
+  const strip = useRef<HTMLDivElement>(null);
+
+  const measure = (element: HTMLElement) => {
+    const start = element.scrollLeft > 0;
+    const end = Math.ceil(element.scrollLeft) + element.clientWidth < element.scrollWidth - 1;
+    setFade((now) => (now.start === start && now.end === end ? now : { start, end }));
+  };
+
+  useEffect(() => {
+    const element = strip.current;
+
+    if (element === null) {
+      return;
+    }
+
+    // jsdom has no scrollIntoView.
+    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+    element.querySelector('[aria-checked="true"]')?.scrollIntoView?.({ block: 'nearest', inline: 'nearest' });
+    measure(element);
+
+    if (typeof ResizeObserver === 'undefined') {
+      return;
+    }
+
+    const observer = new ResizeObserver(() => {
+      measure(element);
+    });
+    observer.observe(element);
+
+    return () => {
+      observer.disconnect();
+    };
+  }, [value]);
+
   return (
     <div
+      ref={strip}
       role="radiogroup"
       aria-label={__('Range')}
-      className="grid auto-cols-fr grid-flow-col gap-0.5 rounded-lg bg-muted p-0.5 max-md:flex-1 max-md:overflow-x-auto md:inline-grid md:border"
+      data-fade-start={fade.start ? '' : undefined}
+      data-fade-end={fade.end ? '' : undefined}
+      onScroll={(event) => {
+        measure(event.currentTarget);
+      }}
+      className="grid auto-cols-fr grid-flow-col gap-0.5 rounded-lg bg-muted p-0.5 max-md:flex-1 max-md:overflow-x-auto max-md:[mask-image:linear-gradient(to_right,rgb(0_0_0/var(--fade-start,1)),#000_1.5rem,#000_calc(100%-1.5rem),rgb(0_0_0/var(--fade-end,1)))] max-md:data-fade-end:[--fade-end:0] max-md:data-fade-start:[--fade-start:0] md:inline-grid md:border"
     >
       {ranges.map((option, at) => {
         const checked = String(option.value) === value;
