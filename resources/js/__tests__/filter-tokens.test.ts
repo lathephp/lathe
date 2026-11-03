@@ -121,15 +121,27 @@ describe('select and multiple filters', () => {
 });
 
 describe('range filters', () => {
-  it('writes stored units for a minimum', () => {
+  it('writes stored units for a strict lower side', () => {
     const chip = chipOf('total:>1500');
 
-    expect(chip.label).toBe('Total: ≥ 1,500');
-    expect(toUrlState([chip])).toEqual({ filter: { field_total_cents: { min: '150000' } } });
+    expect(chip.value).toEqual({ gt: '150000' });
+    expect(chip.label).toBe('Total: > 1,500');
+    expect(toUrlState([chip])).toEqual({ filter: { field_total_cents: { gt: '150000' } } });
   });
 
-  it('writes a maximum', () => {
-    expect(toUrlState([chipOf('total:<20')])).toEqual({ filter: { field_total_cents: { max: '2000' } } });
+  it('writes a strict upper side', () => {
+    const chip = chipOf('total:<1500');
+
+    expect(chip.value).toEqual({ lt: '150000' });
+    expect(chip.label).toBe('Total: < 1,500');
+    expect(toUrlState([chipOf('total:<20')])).toEqual({ filter: { field_total_cents: { lt: '2000' } } });
+  });
+
+  it('keeps a span and a bare number inclusive', () => {
+    expect(chipOf('total:1000..1500').value).toEqual({ min: '100000', max: '150000' });
+    expect(chipOf('total:1000..1500').label).toBe('Total: 1,000 – 1,500');
+    expect(chipOf('total:1500').value).toEqual({ min: '150000', max: '150000' });
+    expect(chipOf('total:1500').label).toBe('Total: 1,500');
   });
 
   it('writes both sides of a span', () => {
@@ -162,6 +174,9 @@ describe('date filters', () => {
   it('takes >, < and a span', () => {
     expect(toUrlState([chipOf('created:>2026-03-05')])).toEqual({ filter: { created_at: { from: '2026-03-05' } } });
     expect(toUrlState([chipOf('created:<2026-03-05')])).toEqual({ filter: { created_at: { to: '2026-03-05' } } });
+    expect(chipOf('created:>2026-11-01').value).toEqual({ from: '2026-11-01' });
+    expect(chipOf('created:>2026-11-01').label).toBe('Created: ≥ 2026-11-01');
+    expect(chipOf('created:<2026-11-01').label).toBe('Created: ≤ 2026-11-01');
     expect(chipOf('created:2026-01-01..2026-01-31').label).toBe('Created: 2026-01-01 – 2026-01-31');
     expect(toUrlState([chipOf('created:2026-01-01..2026-01-31')])).toEqual({
       filter: { created_at: { from: '2026-01-01', to: '2026-01-31' } },
@@ -273,7 +288,7 @@ describe('trashed and unknown keys', () => {
 describe('toUrlState', () => {
   it('lets a later chip replace an earlier one for the same key', () => {
     expect(toUrlState([chipOf('status:paid'), chipOf('total:>1'), chipOf('status:shipped')])).toEqual({
-      filter: { status: 'shipped', field_total_cents: { min: '100' } },
+      filter: { status: 'shipped', field_total_cents: { gt: '100' } },
     });
   });
 });
@@ -293,7 +308,14 @@ describe('review cases', () => {
   it('keeps the decimals of a range side at scale 1', () => {
     const parsed = parseToken('rating:>4.5', [rating], { softDeletes: false }, __);
 
-    expect('chip' in parsed && parsed.chip.value).toEqual({ min: '4.5' });
+    expect('chip' in parsed && parsed.chip.value).toEqual({ gt: '4.5' });
+  });
+
+  it('writes a strict side at scale 1 as typed', () => {
+    const qty: IndexFilter = { ...base, key: 'qty', name: 'Qty', token: 'qty', kind: 'range', component: 'range-filter' };
+    const parsed = parseToken('qty:>5', [qty], { softDeletes: false }, __);
+
+    expect('chip' in parsed && parsed.chip.value).toEqual({ gt: '5' });
   });
 
   it('reads a key with no value as a red chip, never as a search', () => {

@@ -29,4 +29,12 @@ describe('a chip label read back from the URL', () => {
     expect(chipValue({ featured: '0' }, featured, undefined, __)).toBe('No');
     expect(chipValue({ gift: '1', rush: '0' }, flags, undefined, __)).toBe('Gift');
   });
+
+  it('reads a strict side of a scaled range as > or <, and an inclusive one as ≥', () => {
+    const total: AvailableFilter = { ...base, key: 'total', name: 'Total', component: 'range-filter', options: null, scale: 100 };
+
+    expect(chipValue({ gt: '150000' }, total, undefined, __)).toBe('> 1,500');
+    expect(chipValue({ lt: '150000' }, total, undefined, __)).toBe('< 1,500');
+    expect(chipValue({ min: '150000' }, total, undefined, __)).toBe('≥ 1,500');
+  });
 });

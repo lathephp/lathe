@@ -56,6 +56,13 @@ export function chipValue(value: FilterValue, filter: AvailableFilter | undefine
       stored === undefined || stored === '' ? undefined : filter?.component === 'range-filter' ? formatNumber(Number(stored) / scale) : stored;
     const low = side(value.min ?? value.from);
     const high = side(value.max ?? value.to);
+    // A range's gt and lt sides leave out the value itself, so they read as > and <.
+    const above = side(value.gt);
+    const below = side(value.lt);
+
+    if (low === undefined && high === undefined && (above !== undefined || below !== undefined)) {
+      return above !== undefined ? `> ${above}` : `< ${below ?? ''}`;
+    }
 
     // One value on both sides reads as that value, as the filter bar's parser labels it.
     return low !== undefined && high !== undefined ? (low === high ? low : `${low} – ${high}`) : low !== undefined ? `≥ ${low}` : `≤ ${high ?? ''}`;

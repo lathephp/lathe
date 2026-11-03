@@ -125,8 +125,8 @@ function isDate(text: string): boolean {
   return new Date(Date.UTC(year ?? 0, (month ?? 1) - 1, day ?? 1)).toISOString().slice(0, 10) === text;
 }
 
-/** The two sides of >a, <a, a..b or a bare a, undefined when a side fails `valid`. */
-function sides(text: string, valid: (side: string) => boolean): { low?: string; high?: string } | undefined {
+/** The two sides of >a, <a, a..b or a bare a, undefined when a side fails `valid`; `strict` marks >a and <a. */
+function sides(text: string, valid: (side: string) => boolean): { low?: string; high?: string; strict?: true } | undefined {
   const [first, second, ...rest] = text.split('..');
 
   if (first !== undefined && second !== undefined) {
@@ -134,18 +134,20 @@ function sides(text: string, valid: (side: string) => boolean): { low?: string; 
   }
 
   if (text.startsWith('>')) {
-    return valid(text.slice(1)) ? { low: text.slice(1) } : undefined;
+    return valid(text.slice(1)) ? { low: text.slice(1), strict: true } : undefined;
   }
 
   if (text.startsWith('<')) {
-    return valid(text.slice(1)) ? { high: text.slice(1) } : undefined;
+    return valid(text.slice(1)) ? { high: text.slice(1), strict: true } : undefined;
   }
 
   return valid(text) ? { low: text, high: text } : undefined;
 }
 
-function sidesLabel(low: string | undefined, high: string | undefined): string {
-  return low !== undefined && high !== undefined ? (low === high ? low : `${low} – ${high}`) : low !== undefined ? `≥ ${low}` : `≤ ${high ?? ''}`;
+function sidesLabel(low: string | undefined, high: string | undefined, strict = false): string {
+  const [above, below] = strict ? ['>', '<'] : ['≥', '≤'];
+
+  return low !== undefined && high !== undefined ? (low === high ? low : `${low} – ${high}`) : low !== undefined ? `${above} ${low}` : `${below} ${high ?? ''}`;
 }
 
 /** Turn one key:value token into a chip, or into a lookup the server must answer. */
@@ -207,8 +209,13 @@ export function parseToken(token: string, filters: IndexFilter[], options: { sof
     const low = stored(found.low);
     const high = stored(found.high);
     const shown = (side: string | undefined) => (side === undefined ? undefined : formatNumber(Number(side)));
+    // >n and <n filter strictly on the server; a..b and a bare n keep min and max, which include their ends.
+    const [lowKey, highKey] = found.strict ? ['gt', 'lt'] : ['min', 'max'];
 
-    return chip({ ...(low === undefined ? {} : { min: low }), ...(high === undefined ? {} : { max: high }) }, sidesLabel(shown(found.low), shown(found.high)));
+    return chip(
+      { ...(low === undefined ? {} : { [lowKey]: low }), ...(high === undefined ? {} : { [highKey]: high }) },
+      sidesLabel(shown(found.low), shown(found.high), found.strict),
+    );
   }
 
   if (filter.kind === 'date') {
