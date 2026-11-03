@@ -17,6 +17,43 @@ export function initialValues(fields: FormFieldData[]): Record<string, unknown> 
   return Object.fromEntries(fields.map((field) => [field.attribute, field.value]));
 }
 
+function isPlain(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null && Object.getPrototypeOf(value) === Object.prototype;
+}
+
+function isBlank(value: unknown): boolean {
+  return value == null || value === '' || (Array.isArray(value) && value.length === 0) || (isPlain(value) && Object.keys(value).length === 0);
+}
+
+/** Whether two values hold the same: blanks are alike, and so are a number and the text an input sends for it. */
+function same(a: unknown, b: unknown): boolean {
+  if (a === b || (isBlank(a) && isBlank(b))) {
+    return true;
+  }
+
+  if (typeof a === 'number' || typeof b === 'number') {
+    return String(a) === String(b);
+  }
+
+  if (Array.isArray(a) && Array.isArray(b)) {
+    return a.length === b.length && a.every((item, at) => same(item, b[at]));
+  }
+
+  return isPlain(a) && isPlain(b) && [...Object.keys(a), ...Object.keys(b)].every((key) => same(a[key], b[key]));
+}
+
+/**
+ * Whether the values differ from the ones the fields loaded with. A key-value field loads an
+ * object and edits it as a list of key and value rows, so its object is read as those rows.
+ */
+export function formChanged(values: Record<string, unknown>, fields: FormFieldData[]): boolean {
+  return fields.some((field) => {
+    const loaded = field.component === 'key-value-field' && isPlain(field.value) ? Object.entries(field.value).map(([key, value]) => ({ key, value })) : field.value;
+
+    return !same(values[field.attribute], loaded);
+  });
+}
+
 /** Components whose value is a stored file; the same list as the draft's. */
 const FILE_COMPONENTS = new Set(['file-field', 'image-field', 'audio-field']);
 
@@ -63,7 +100,13 @@ export function useRecordForm(
   const [payload, setPayload] = useState<FormPayload>(form);
   const attributes = persistable(form.fields);
   const [saved] = useState(() => (drafts ? readDraft(attributes) : null));
-  const [values, setValues] = useState<Record<string, unknown>>(() => ({ ...initialValues(form.fields), ...saved }));
+  const [values, setValuesState] = useState<Record<string, unknown>>(() => ({ ...initialValues(form.fields), ...saved }));
+  // The values as of now, so two setValue calls in one tick each see the other's change.
+  const valuesRef = useRef(values);
+  const setValues = (next: Record<string, unknown>) => {
+    valuesRef.current = next;
+    setValuesState(next);
+  };
   const [errors, setErrors] = useState<Record<string, string>>({});
   /** Counts the saves a 422 refused, so the page moves the user to the errors once per save. */
   const [failures, setFailures] = useState(0);
@@ -74,7 +117,7 @@ export function useRecordForm(
   const [conflict, setConflict] = useState<{ intent: SubmitIntent; updatedAt: string | null } | null>(null);
   const stored = useFormDraft(values, attributes, saved !== null);
   const draft = drafts ? stored : { restored: false, touch: () => undefined, clear: () => undefined };
-  // Typed or restored values not yet saved. The ref answers at once, so the redirect a save starts
+  // Values that differ from the loaded ones, typed or restored, not yet saved. The ref answers at once, so the redirect a save starts
   // in the same tick already reads clean; the state redraws the footer.
   const [dirty, setDirtyState] = useState(saved !== null);
   const dirtyRef = useRef(saved !== null);
@@ -87,9 +130,10 @@ export function useRecordForm(
   const updating = mode === 'update';
 
   const setValue = (attribute: string, value: unknown) => {
+    const next = { ...valuesRef.current, [attribute]: value };
     draft.touch();
-    setDirty(true);
-    setValues((current) => ({ ...current, [attribute]: value }));
+    setDirty(formChanged(next, payload.fields));
+    setValues(next);
     // A changed field's message is stale: drop it and the ones under its nested keys.
     setErrors((current) => {
       const kept = Object.entries(current).filter(([key]) => key !== attribute && !key.startsWith(`${attribute}.`));
@@ -212,7 +256,7 @@ export function useRecordForm(
     /** Values the server set (dependsOn), merged without counting as typed. */
     applyValues: (changed: Record<string, unknown>) => {
       if (Object.keys(changed).length > 0) {
-        setValues((current) => ({ ...current, ...changed }));
+        setValues({ ...valuesRef.current, ...changed });
       }
     },
   };

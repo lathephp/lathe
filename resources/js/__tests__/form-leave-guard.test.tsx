@@ -126,6 +126,22 @@ describe('leaving a form with unsaved changes', () => {
     expect(requests[0]?.url).toContain('/lathe/resources/orders');
   });
 
+  it('does not ask, or hold the tab open, once a changed field is back to its value', async () => {
+    const confirm = vi.spyOn(window, 'confirm').mockReturnValue(false);
+    renderForm();
+    type('Bea');
+    type('');
+
+    const unload = new Event('beforeunload', { cancelable: true });
+    window.dispatchEvent(unload);
+    clickOrders();
+    await act(() => vi.advanceTimersByTimeAsync(150));
+
+    expect(unload.defaultPrevented).toBe(false);
+    expect(confirm).not.toHaveBeenCalled();
+    expect(requests).toHaveLength(1);
+  });
+
   it('does not ask when nothing changed', async () => {
     const confirm = vi.spyOn(window, 'confirm').mockReturnValue(false);
     renderForm();

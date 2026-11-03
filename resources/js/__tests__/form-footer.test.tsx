@@ -100,6 +100,16 @@ describe('the form footer', () => {
     expect(within(footer()).getByText('Unsaved changes')).toBeTruthy();
   });
 
+  it('drops Unsaved changes once a changed field is back to its value', () => {
+    renderForm('update');
+
+    fireEvent.change(screen.getByLabelText('Name'), { target: { value: 'Bea' } });
+    expect(within(footer()).getByText('Unsaved changes')).toBeTruthy();
+
+    fireEvent.change(screen.getByLabelText('Name'), { target: { value: 'Ann' } });
+    expect(within(footer()).queryByText('Unsaved changes')).toBeNull();
+  });
+
   it('sticks the footer to the bottom of the viewport while the form scrolls', () => {
     renderForm();
 
