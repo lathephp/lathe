@@ -1,7 +1,7 @@
 import { draggable, dropTargetForElements } from '@atlaskit/pragmatic-drag-and-drop/element/adapter';
 import { announce } from '@atlaskit/pragmatic-drag-and-drop-live-region';
 import { router } from '@inertiajs/react';
-import { toast, useLathe, useTranslation } from '@lathephp/core';
+import { __panel, toast, useLathe, useTranslation } from '@lathephp/core';
 import type { KeyboardEvent } from 'react';
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { flushSync } from 'react-dom';
@@ -101,13 +101,22 @@ export function useCardMoves(uriKey: string, board: Board, columns: Columns, onS
             const undo = async () => {
               taken = true;
 
+              // Its toast goes too, so an Undo left on screen is always one that still works.
+              for (const shown of __panel.toasts.get()) {
+                if (shown.action?.onClick === take) {
+                  __panel.dismissToast(shown.id);
+                }
+              }
+
               if (await done) {
                 await move(row, from ?? null, false, true);
               }
             };
 
+            const take = pushUndo(undo);
+
             return {
-              take: pushUndo(undo),
+              take,
               drop: () => {
                 dropUndo(undo);
               },

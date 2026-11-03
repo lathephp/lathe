@@ -406,6 +406,44 @@ describe('a Ctrl+Z pressed before the last move has saved', () => {
   });
 });
 
+describe('a Ctrl+Z pressed after the last move has saved', () => {
+  it("takes that move's toast away, so the Undo left on screen is the first move's", async () => {
+    const api = server();
+    await openBoard();
+    await moveFirst(api);
+
+    card(moving).focus();
+    fireEvent.keyDown(card(moving), { key: 'ArrowRight', shiftKey: true });
+    await waitFor(() => {
+      expect(api.patches).toHaveLength(2);
+    });
+    await api.answer('tB');
+    await waitFor(() => {
+      expect(toasts().filter((message) => message === 'Status changed to Paid.')).toHaveLength(2);
+    });
+
+    fireEvent.keyDown(document.activeElement ?? document.body, { key: 'z', ctrlKey: true });
+    await waitFor(() => {
+      expect(api.patches).toHaveLength(3);
+    });
+    await api.answer('tU');
+    await waitFor(() => {
+      expect(toasts()).toContain('Change undone');
+    });
+
+    expect(toasts().filter((message) => message === 'Status changed to Paid.')).toHaveLength(1);
+    expect(api.targets).toEqual([first, moving, moving]);
+
+    // The Undo still on screen takes back the first move, the one its toast told of.
+    __panel.toasts.get().find((toast) => toast.action !== undefined)?.action?.onClick();
+    await waitFor(() => {
+      expect(api.patches).toHaveLength(4);
+    });
+
+    expect(api.targets).toEqual([first, moving, moving, first]);
+  });
+});
+
 // jsdom has no DataTransfer; Pragmatic reads and writes the drag's types through it.
 function transfer() {
   const data = new Map<string, string>();
