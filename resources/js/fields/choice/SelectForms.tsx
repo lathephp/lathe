@@ -26,8 +26,23 @@ export function DeferredRemote({ Form, ...props }: FormFieldProps & { Form: Comp
   );
 }
 
-/** The filter box above a searchable list. */
-export function SearchBox({ query, onQuery, disabled, onFocus }: { query: string; onQuery: (query: string) => void; disabled: boolean; onFocus?: () => void }) {
+/**
+ * The filter box above a searchable list. Enter never submits the form around it: it runs
+ * onEnter, if given. Escape clears a search and stops there; with no search it passes on.
+ */
+export function SearchBox({
+  query,
+  onQuery,
+  disabled,
+  onFocus,
+  onEnter,
+}: {
+  query: string;
+  onQuery: (query: string) => void;
+  disabled: boolean;
+  onFocus?: () => void;
+  onEnter?: () => void;
+}) {
   const { __ } = useTranslation();
 
   return (
@@ -40,6 +55,19 @@ export function SearchBox({ query, onQuery, disabled, onFocus }: { query: string
       onFocus={onFocus}
       onChange={(event) => {
         onQuery(event.target.value);
+      }}
+      onKeyDown={(event) => {
+        if (event.key === 'Enter') {
+          event.preventDefault();
+
+          if (!event.nativeEvent.isComposing) {
+            onEnter?.();
+          }
+        } else if (event.key === 'Escape' && query !== '') {
+          event.preventDefault();
+          event.stopPropagation();
+          onQuery('');
+        }
       }}
       className={`${inputClass} mb-1`}
     />
@@ -56,13 +84,21 @@ export function SelectForm(props: FormFieldProps & { remote?: RemoteSource }) {
 
   const current = stringValue(value);
   const visible = remote?.options ?? filterOptions(optionsOf(field), query, [current]);
+  // Enter picks the first option the search matches, not the current one the list keeps.
+  const pickFirst = (search: string, matches: Option[]) => () => {
+    const first = search.trim() === '' ? undefined : matches[0];
+
+    if (first !== undefined) {
+      onChange(first.value);
+    }
+  };
 
   return (
     <div>
       {remote !== undefined ? (
-        <SearchBox query={remote.query} onQuery={remote.onQuery} disabled={disabled} onFocus={remote.onFocus} />
+        <SearchBox query={remote.query} onQuery={remote.onQuery} disabled={disabled} onFocus={remote.onFocus} onEnter={pickFirst(remote.query, remote.options)} />
       ) : (
-        field.searchable === true && <SearchBox query={query} onQuery={setQuery} disabled={disabled} />
+        field.searchable === true && <SearchBox query={query} onQuery={setQuery} disabled={disabled} onEnter={pickFirst(query, filterOptions(optionsOf(field), query, []))} />
       )}
       <Select
         id={id}

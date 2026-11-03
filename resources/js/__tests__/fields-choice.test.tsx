@@ -1,6 +1,7 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { useState } from 'react';
-import { describe, expect, it, vi } from 'vitest';
+import { describe, expect, it, onTestFinished, vi } from 'vitest';
+import { SelectForm } from '../fields/choice/SelectForms';
 import { registries, type FormFieldProps } from '../fields/registry';
 import type { DetailFieldData, FieldSchema, FormFieldData } from '../fields/types';
 import { choose, optionLabels } from './support';
@@ -141,6 +142,88 @@ describe('select-field', () => {
     fireEvent.change(screen.getByRole('searchbox'), { target: { value: 'alp' } });
 
     expect(await optionLabels(screen.getByRole('combobox'))).toEqual(['—', 'Alpha', 'Gamma']);
+  });
+
+  describe('the search box inside a form', () => {
+    const countries = [
+      { value: 'BD', label: 'Bangladesh' },
+      { value: 'BE', label: 'Belgium' },
+      { value: 'US', label: 'United States' },
+    ];
+
+    // A dialog or side sheet hears Escape on the document, as Base UI's do.
+    function renderInForm(onChange = vi.fn(), onSubmit = vi.fn(), onKeyDown = vi.fn()) {
+      document.addEventListener('keydown', onKeyDown);
+      onTestFinished(() => {
+        document.removeEventListener('keydown', onKeyDown);
+      });
+      const Form = registries.form.get('select-field');
+
+      if (Form === undefined) {
+        throw new Error('No form renderer for select-field.');
+      }
+
+      render(
+        <form onSubmit={onSubmit}>
+          <Form {...formProps('select-field', 'US', { searchable: true, options: countries }, onChange)} />
+          <button type="submit">Save</button>
+        </form>,
+      );
+
+      return { onChange, onSubmit, onKeyDown, search: screen.getByRole('searchbox') };
+    }
+
+    it('keeps the matching country and the current one in the list', async () => {
+      const { search } = renderInForm();
+
+      fireEvent.change(search, { target: { value: 'Bang' } });
+
+      expect(await optionLabels(screen.getByRole('combobox'))).toEqual(['—', 'Bangladesh', 'United States']);
+    });
+
+    it('picks the first match on Enter and never submits the form', () => {
+      const { search, onChange, onSubmit } = renderInForm();
+      fireEvent.change(search, { target: { value: 'Bang' } });
+
+      const enter = fireEvent.keyDown(search, { key: 'Enter' });
+
+      expect(enter).toBe(false);
+      expect(onChange).toHaveBeenCalledExactlyOnceWith('BD');
+      expect(onSubmit).not.toHaveBeenCalled();
+    });
+
+    it('changes nothing on Enter when nothing matches, or the search is empty', () => {
+      const { search, onChange } = renderInForm();
+
+      expect(fireEvent.keyDown(search, { key: 'Enter' })).toBe(false);
+      fireEvent.change(search, { target: { value: 'zzz' } });
+      expect(fireEvent.keyDown(search, { key: 'Enter' })).toBe(false);
+
+      expect(onChange).not.toHaveBeenCalled();
+    });
+
+    it('picks the first option a remote search found on Enter', () => {
+      const onChange = vi.fn();
+      const remote = { options: [{ value: '7', label: 'Dhaka' }], query: 'Dh', onQuery: vi.fn(), onFocus: vi.fn() };
+      render(<SelectForm {...formProps('select-field', null, {}, onChange)} remote={remote} />);
+
+      expect(fireEvent.keyDown(screen.getByRole('searchbox'), { key: 'Enter' })).toBe(false);
+      expect(onChange).toHaveBeenCalledExactlyOnceWith('7');
+    });
+
+    it('clears the search on Escape, and lets a second Escape through to the form', () => {
+      const { search, onKeyDown } = renderInForm();
+      fireEvent.change(search, { target: { value: 'Bang' } });
+
+      fireEvent.keyDown(search, { key: 'Escape' });
+
+      expect(search).toHaveProperty('value', '');
+      expect(onKeyDown).not.toHaveBeenCalled();
+
+      fireEvent.keyDown(search, { key: 'Escape' });
+
+      expect(onKeyDown).toHaveBeenCalledOnce();
+    });
   });
 
   it('groups options by their group', async () => {
