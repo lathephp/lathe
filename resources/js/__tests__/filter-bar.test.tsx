@@ -156,7 +156,7 @@ describe('filter bar', () => {
     await enter('total:>1500');
     await advance(300);
 
-    expect(visitData(visit)).toEqual({ filter: { field_total_cents: { min: '150000' } } });
+    expect(visitData(visit)).toEqual({ filter: { field_total_cents: { gt: '150000' } } });
 
     await enter('total:10..50');
     await advance(300);
@@ -276,7 +276,7 @@ describe('filter bar', () => {
     await advance(1);
 
     expect(visit).toHaveBeenCalledTimes(1);
-    expect(visitData(visit)).toEqual({ filter: { status: 'paid', field_total_cents: { min: '150000' } } });
+    expect(visitData(visit)).toEqual({ filter: { status: 'paid', field_total_cents: { gt: '150000' } } });
   });
 
   it('names each chip\'s remove button after its filter', async () => {

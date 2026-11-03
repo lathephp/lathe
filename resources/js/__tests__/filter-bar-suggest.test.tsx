@@ -222,8 +222,8 @@ describe('filter bar suggestions', () => {
     await press('Enter');
     await advance(300);
 
-    expect(within(bar()).getByText('Total: ≥ 1,500')).toBeTruthy();
-    expect(visitData(visit)).toEqual({ filter: { field_total_cents: { min: '150000' } } });
+    expect(within(bar()).getByText('Total: > 1,500')).toBeTruthy();
+    expect(visitData(visit)).toEqual({ filter: { field_total_cents: { gt: '150000' } } });
   });
 
   it('parses the text on Enter once typing has left the highlighted item behind', async () => {
