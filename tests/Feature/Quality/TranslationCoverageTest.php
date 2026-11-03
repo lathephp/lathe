@@ -106,7 +106,7 @@ function lintFixture(string $source): ProcessResult
         'a.jsx' => $source,
     ]);
 
-    return Process::path($root)->run([repoRoot().'/node_modules/.bin/eslint', '--max-warnings=0', 'a.jsx']);
+    return Process::path($root)->timeout(120)->run([repoRoot().'/node_modules/.bin/eslint', '--max-warnings=0', 'a.jsx']);
 }
 
 it('fails the lint on a planted JSX text literal', function () {

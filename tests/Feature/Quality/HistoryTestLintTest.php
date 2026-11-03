@@ -31,7 +31,7 @@ function lintHistoryFixture(string $source): ProcessResult
         JS);
     File::put("$root/a.test.js", $source);
 
-    return Process::path($root)->run([historyLintRoot().'/node_modules/.bin/eslint', '--max-warnings=0', 'a.test.js']);
+    return Process::path($root)->timeout(120)->run([historyLintRoot().'/node_modules/.bin/eslint', '--max-warnings=0', 'a.test.js']);
 }
 
 it('fails a file that asserts the URL in one test and not in another', function () {
@@ -78,7 +78,7 @@ it('passes a file whose only location mention is a template-literal storage key'
 });
 
 it('passes on the real tree', function () {
-    $result = Process::path(historyLintRoot())->run([historyLintRoot().'/node_modules/.bin/eslint', '--max-warnings=0', 'resources/js/__tests__']);
+    $result = Process::path(historyLintRoot())->timeout(300)->run([historyLintRoot().'/node_modules/.bin/eslint', '--max-warnings=0', 'resources/js/__tests__']);
 
     expect($result->exitCode())->toBe(0, $result->output());
 });

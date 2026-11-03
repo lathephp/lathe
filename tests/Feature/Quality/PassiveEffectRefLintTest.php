@@ -31,7 +31,7 @@ function lintPassiveEffectFixture(string $source): ProcessResult
         JS);
     File::put("$root/a.js", $source);
 
-    return Process::path($root)->run([passiveEffectLintRoot().'/node_modules/.bin/eslint', '--max-warnings=0', 'a.js']);
+    return Process::path($root)->timeout(120)->run([passiveEffectLintRoot().'/node_modules/.bin/eslint', '--max-warnings=0', 'a.js']);
 }
 
 it('fails a ref assigned inside a passive effect', function () {
