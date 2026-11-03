@@ -60,7 +60,7 @@ it('shows an order with its fields, layout, abilities and default breadcrumbs', 
                 ['label' => 'ORD-00099454', 'href' => null],
             ])
             ->where('actions.actions', fn ($actions) => collect($actions)->map(fn ($action) => [$action['uriKey'], $action['authorizedToRun']])->all() === [
-                ['export', true], ['hold-order', true], ['mark-shipped', true], ['cancel-order', true],
+                ['export', true], ['refund', true], ['hold-order', true], ['mark-paid', true], ['mark-shipped', true], ['cancel-order', true],
             ])
             ->where('widgets', []));
 });

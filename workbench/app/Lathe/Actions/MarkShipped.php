@@ -13,7 +13,7 @@ class MarkShipped extends Action
     {
         parent::__construct();
 
-        $this->withName('Mark shipped')->group('Fulfilment')->confirmable('Mark :count orders as shipped?');
+        $this->withName('Mark shipped')->group('Fulfilment')->icon('truck')->confirmable('Mark :count orders as shipped?');
     }
 
     public function handle(ActionFields $fields, Collection $models): ActionResult

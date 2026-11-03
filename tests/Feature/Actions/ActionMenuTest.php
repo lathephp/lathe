@@ -87,14 +87,14 @@ it('lists the Orders actions in menu order with their metadata', function () {
     $json = $this->getJson('/lathe/api/resources/orders/actions?display=index')->assertOk()->json();
 
     expect(array_keys($json))->toBe(['actions', 'pivotActions', 'counts'])
-        ->and(array_column($json['actions'], 'uriKey'))->toBe(['export', 'hold-order', 'mark-shipped', 'cancel-order'])
+        ->and(array_column($json['actions'], 'uriKey'))->toBe(['export', 'refund', 'hold-order', 'mark-paid', 'mark-shipped', 'cancel-order'])
         ->and($json['actions'][0])->toMatchArray(['name' => 'Export', 'group' => null, 'standalone' => false])
-        ->and($json['actions'][2])->toMatchArray(['name' => 'Mark shipped', 'group' => 'Fulfilment', 'destructive' => false, 'confirmText' => 'Mark :count orders as shipped?', 'confirmButtonText' => 'Mark shipped'])
-        ->and($json['actions'][3])->toMatchArray(['name' => 'Cancel order', 'destructive' => true, 'confirmText' => null])
-        ->and($json['actions'][1])->toMatchArray(['name' => 'Hold order', 'sole' => true, 'showOnTableRow' => true])
+        ->and($json['actions'][4])->toMatchArray(['name' => 'Mark shipped', 'group' => 'Fulfilment', 'destructive' => false, 'confirmText' => 'Mark :count orders as shipped?', 'confirmButtonText' => 'Mark shipped'])
+        ->and($json['actions'][5])->toMatchArray(['name' => 'Cancel order', 'destructive' => true, 'confirmText' => null])
+        ->and($json['actions'][2])->toMatchArray(['name' => 'Hold order', 'sole' => true, 'showOnTableRow' => true])
         ->and($json['actions'][1])->not->toHaveKey('authorizedToRun')
         ->and($json['pivotActions'])->toBe([])
-        ->and($json['counts'])->toEqual(['standalone' => 0, 'sole' => 1, 'resource' => 3]);
+        ->and($json['counts'])->toEqual(['standalone' => 0, 'sole' => 2, 'resource' => 4]);
 });
 
 it('lists an action without resolving its fields', function () {
@@ -174,15 +174,15 @@ it('sends the action fields with their defaults on the form', function () {
 it('carries the action menu and row flags on the index page and JSON', function () {
     $json = $this->getJson('/lathe/api/resources/orders')->assertOk()->json();
 
-    expect(array_column($json['actions']['actions'], 'uriKey'))->toBe(['export', 'hold-order', 'mark-shipped', 'cancel-order'])
-        ->and($json['table']['rows'][0]['actions'])->toBe(['export', 'hold-order', 'mark-shipped', 'cancel-order']);
+    expect(array_column($json['actions']['actions'], 'uriKey'))->toBe(['export', 'refund', 'hold-order', 'mark-paid', 'mark-shipped', 'cancel-order'])
+        ->and($json['table']['rows'][0]['actions'])->toBe(['export', 'refund', 'hold-order', 'mark-paid', 'mark-shipped', 'cancel-order']);
 
     $this->get('/lathe/resources/orders')
         ->assertOk()
         ->assertInertia(fn (AssertableInertia $page) => $page
             ->component('Resources/Index', shouldExist: false)
-            ->where('actions.actions.2.uriKey', 'mark-shipped')
-            ->where('table.rows.0.actions', ['export', 'hold-order', 'mark-shipped', 'cancel-order'])
+            ->where('actions.actions.4.uriKey', 'mark-shipped')
+            ->where('table.rows.0.actions', ['export', 'refund', 'hold-order', 'mark-paid', 'mark-shipped', 'cancel-order'])
             ->etc());
 });
 
@@ -217,8 +217,8 @@ it('flags rows by run callback and policy, and skips standalone and hidden actio
 it('gives the lens index the same action menu', function () {
     $json = $this->getJson('/lathe/api/resources/orders/lenses/pending-orders')->assertOk()->json();
 
-    expect(array_column($json['actions']['actions'], 'uriKey'))->toBe(['export', 'hold-order', 'mark-shipped', 'cancel-order'])
-        ->and($json['table']['rows'][0]['actions'])->toBe(['export', 'hold-order', 'mark-shipped', 'cancel-order']);
+    expect(array_column($json['actions']['actions'], 'uriKey'))->toBe(['export', 'refund', 'hold-order', 'mark-paid', 'mark-shipped', 'cancel-order'])
+        ->and($json['table']['rows'][0]['actions'])->toBe(['export', 'refund', 'hold-order', 'mark-paid', 'mark-shipped', 'cancel-order']);
 });
 
 it('runs the same queries for 10 and 100 rows with 4 actions declared', function () {

@@ -21,7 +21,9 @@ use Lathe\Summaries\Summary;
 use Lathe\Tabs\Tab;
 use Workbench\App\Lathe\Actions\CancelOrder;
 use Workbench\App\Lathe\Actions\HoldOrder;
+use Workbench\App\Lathe\Actions\MarkPaid;
 use Workbench\App\Lathe\Actions\MarkShipped;
+use Workbench\App\Lathe\Actions\Refund;
 use Workbench\App\Lathe\Filters\OrderCustomer;
 use Workbench\App\Lathe\Filters\OrderStatus;
 use Workbench\App\Lathe\Lenses\PendingOrders;
@@ -132,7 +134,7 @@ class Order extends Resource
 
     public function actions(LatheRequest $request): array
     {
-        return [ExportAction::make(), new MarkShipped, new CancelOrder, new HoldOrder];
+        return [ExportAction::make(), new Refund, new MarkPaid, new MarkShipped, new CancelOrder, new HoldOrder];
     }
 
     public function groups(LatheRequest $request): array
