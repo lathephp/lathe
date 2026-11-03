@@ -24,6 +24,7 @@ use Lathe\Query\SelectionResolver;
 use Lathe\Resources\Resource;
 use Lathe\Support\JobContext;
 use Lathe\Widgets\WidgetCache;
+use RuntimeException;
 use Throwable;
 
 /**
@@ -192,7 +193,15 @@ class ActionDispatcher
                 continue;
             }
 
-            $action->markAsFinished($model);
+            $refusal = $result instanceof ActionResult ? $result->refusal() : null;
+
+            // A danger result ran but refused, so its event reads failed with the message.
+            if ($refusal !== null) {
+                $action->markAsFailed($model, new RuntimeException($refusal));
+            } else {
+                $action->markAsFinished($model);
+            }
+
             $succeeded[] = $model;
 
             if ($result instanceof ActionResult) {
@@ -334,7 +343,11 @@ class ActionDispatcher
             throw $e;
         }
 
-        if ($batchId !== null) {
+        $refusal = $result instanceof ActionResult ? $result->refusal() : null;
+
+        if ($batchId !== null && $refusal !== null) {
+            Lathe::actionEventModel()::markBatchAsFailed($batchId, new RuntimeException($refusal));
+        } elseif ($batchId !== null) {
             Lathe::actionEventModel()::markBatchAsFinished($batchId);
         }
 

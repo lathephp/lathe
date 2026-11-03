@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Gate;
 use Lathe\ActionEvents\ActionEvent;
 use Lathe\Actions\Action;
 use Lathe\Actions\ActionFields;
+use Lathe\Actions\ActionResult;
 use Lathe\Enums\ActionEventStatus;
 use Lathe\Enums\ActionEventType;
 use Lathe\Events\ActionExecuted;
@@ -53,6 +54,11 @@ class RunAuditOrders extends Resource
             Action::make()->withName('Rebuild Index')->withUriKey('rebuild-index')->standalone()->handleUsing(function (ActionFields $fields, Collection $models) {
                 static::$models[] = $models->count();
             }),
+            Action::make()->withName('Refund')->withUriKey('refund')->handleUsing(
+                fn (ActionFields $fields, Collection $models) => ActionResult::danger('Order '.$models->firstOrFail()->getKey().' is past refund.'),
+            ),
+            Action::make()->withName('Note')->withUriKey('note')->handleUsing(fn () => ActionResult::message('Noted.')),
+            Action::make()->withName('Refuse All')->withUriKey('refuse-all')->standalone()->handleUsing(fn () => ActionResult::danger('Nothing to refuse.')),
             new RunAuditSigned,
         ];
     }
@@ -144,4 +150,35 @@ it('fires ActionExecuted once for an inline run', function () {
 
     Event::assertDispatchedTimes(ActionExecuted::class, 1);
     Event::assertDispatched(ActionExecuted::class, fn (ActionExecuted $event) => $event->models->map(fn (Model $model) => $model->getKey())->all() === [1, 2]);
+});
+
+it('records a run whose handler returns danger as failed with the message, row by row', function () {
+    $this->postJson('/lathe/api/resources/run-audit-orders/action', runAuditBody('refund', [4, 5, 6]))
+        ->assertOk()
+        ->assertJsonPath('result.level', 'danger')
+        ->assertJsonPath('result.message', 'Order 6 is past refund.')
+        ->assertJsonPath('failed', 0);
+
+    $rows = ActionEvent::orderBy('actionable_id')->get();
+
+    expect($rows->pluck('status', 'actionable_id')->all())->toBe(['4' => ActionEventStatus::Failed, '5' => ActionEventStatus::Failed, '6' => ActionEventStatus::Failed])
+        ->and($rows->pluck('exception')->all())->toBe(['Order 4 is past refund.', 'Order 5 is past refund.', 'Order 6 is past refund.']);
+});
+
+it('records a run whose handler returns a message as finished', function () {
+    $this->postJson('/lathe/api/resources/run-audit-orders/action', runAuditBody('note', [4, 5, 6]))->assertOk();
+
+    expect(ActionEvent::pluck('status')->unique()->all())->toBe([ActionEventStatus::Finished])
+        ->and(ActionEvent::whereNotNull('exception')->count())->toBe(0);
+});
+
+it('records a standalone run whose handler returns danger as failed with the message', function () {
+    $this->postJson('/lathe/api/resources/run-audit-orders/action', ['action' => 'refuse-all'])
+        ->assertOk()
+        ->assertJsonPath('result.level', 'danger');
+
+    $row = ActionEvent::sole();
+
+    expect($row->status)->toBe(ActionEventStatus::Failed)
+        ->and($row->exception)->toBe('Nothing to refuse.');
 });

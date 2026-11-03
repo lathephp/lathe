@@ -176,6 +176,16 @@ class ActionResult implements JsonSerializable
     }
 
     /**
+     * The danger message, which the audit log keeps as the reason the run failed; null for a success.
+     *
+     * @internal
+     */
+    public function refusal(): ?string
+    {
+        return $this->level === 'danger' ? $this->message : null;
+    }
+
+    /**
      * @return array{message: string|null, level: 'success'|'danger', effect: array<string, mixed>|null}
      */
     public function jsonSerialize(): array

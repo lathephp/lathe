@@ -6,6 +6,7 @@ All notable changes to Lathe are listed here. The format follows [Keep a Changel
 
 ### Fixed
 
+- An action whose `handle()` returns `ActionResult::danger()` leaves its action events Failed, with the message under Exception, where they read Finished. The response is unchanged: HTTP 200 with the danger toast, and the row counts as run, not failed.
 - A relation panel draws each row of a record attached twice to a pivot table with no id column, and detaching another record no longer leaves one of them on screen twice.
 - A record page's relation tab with `withCount()` takes its badge from its panel once the panel loads, so an attach or a detach shows the new count at once; it kept the count the page loaded with until a reload.
 - On a create or edit page, toasts sit above the sticky save bar, so "Please fix the highlighted fields." no longer covers the Create or Update button.
