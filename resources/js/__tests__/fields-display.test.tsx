@@ -285,6 +285,7 @@ describe('column width', () => {
     const cell = screen.getByText('A long body').closest('td');
 
     expect([header.style.width, header.style.minWidth, header.style.maxWidth]).toEqual(['240px', '240px', '']);
+    expect(header.className).not.toMatch(/max-w-/);
     expect([cell?.style.width, cell?.style.minWidth, cell?.style.maxWidth]).toEqual(['240px', '240px', '240px']);
     expect(screen.getByText('First').closest('td')?.style.maxWidth).toBe('');
   });
