@@ -61,6 +61,15 @@ export function pushUndo(undo: () => Promise<void>): () => void {
   };
 }
 
+/** Takes one undo off the stack without running it, as for an edit the server refused. */
+export function dropUndo(undo: () => Promise<void>): void {
+  const at = stack.indexOf(undo);
+
+  if (at !== -1) {
+    stack.splice(at, 1);
+  }
+}
+
 /** An action, single or bulk, cannot be undone, and no older edit is undone after one. */
 export function clearUndo(): void {
   stack.length = 0;

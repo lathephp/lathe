@@ -26,6 +26,8 @@ function reloadCounts() {
 
 type Board = NonNullable<IndexProps['table']['board']>;
 type Columns = ReturnType<typeof useBoardColumns>;
+/** A move's place on the undo stack: `take` runs its undo, `drop` removes it unrun. */
+type Entry = { take: () => void; drop: () => void };
 
 /** A card moves only for a user who may update the record and edit it inline, the inline cell's abilities. */
 export function canMove(row: Row): boolean {
@@ -51,7 +53,7 @@ export function useCardMoves(uriKey: string, board: Board, columns: Columns, onS
   const latest = useRef(columns);
   // Each card's saves go one after another, and a move made before the last one answered sends
   // the token that save got back, not the one the card showed when it moved.
-  const queue = useRef(new Map<Row['id'], Promise<void>>());
+  const queue = useRef(new Map<Row['id'], Promise<boolean>>());
   const tokens = useRef(new Map<Row['id'], { sent: string | null | undefined; got: string | null | undefined }>());
 
   // In the commit, so a key pressed as the cards draw, before passive effects run, moves the drawn card.
@@ -88,14 +90,35 @@ export function useCardMoves(uriKey: string, board: Board, columns: Columns, onS
     }
 
     const loading = saving();
-    const done = (queue.current.get(row.id) ?? Promise.resolve()).then(() => save(row, to, moved, undoing, loading));
+    const from = moved?.from;
+    // The move joins the undo stack once its code loads, not when it saves, so a Ctrl+Z pressed
+    // while it saves takes this move back, after the save answers, and not the edit before it.
+    const entry =
+      undoing || moved === undefined
+        ? undefined
+        : loading.then(([, { pushUndo, dropUndo }]) => {
+            const undo = async () => {
+              if (await done) {
+                await move(row, from ?? null, false, true);
+              }
+            };
+
+            return {
+              take: pushUndo(undo),
+              drop: () => {
+                dropUndo(undo);
+              },
+            };
+          });
+    const done = (queue.current.get(row.id) ?? Promise.resolve(true)).then(() => save(row, to, moved, undoing, loading, entry));
     queue.current.set(row.id, done);
     await done;
   }
 
-  async function save(row: Row, to: string | null, moved: ReturnType<Columns['move']>, undoing: boolean, loading: ReturnType<typeof saving>): Promise<void> {
+  /** Saves a move and says whether the server took it. */
+  async function save(row: Row, to: string | null, moved: ReturnType<Columns['move']>, undoing: boolean, loading: ReturnType<typeof saving>, entry: Promise<Entry> | undefined): Promise<boolean> {
     try {
-      const [{ patchField }, { lastToken, pushUndo }] = await loading;
+      const [{ patchField }, { lastToken }] = await loading;
       // A move sends the card's token, which a save from this tab has already updated, as a cell
       // does; an undo sends the token this tab's last save returned, as a cell's undo does.
       const shown = moved?.row.updatedAt;
@@ -113,19 +136,28 @@ export function useCardMoves(uriKey: string, board: Board, columns: Columns, onS
       // Announcements stay in English.
       announce(`${row.title} moved to ${labelOf(to)}`);
 
-      if (undoing || moved === undefined) {
+      const handle = await entry;
+
+      if (handle === undefined) {
         toast.success(__('Change undone'));
       } else {
-        const { from } = moved;
-        const take = pushUndo(() => move(row, from, false, true));
         const value = reply?.fields[board.field.key]?.display ?? labelOf(to);
 
-        toast.success(__(':field changed to :value.', { field: board.field.label, value }), { action: { label: __('Undo'), onClick: take } });
+        toast.success(__(':field changed to :value.', { field: board.field.label, value }), { action: { label: __('Undo'), onClick: handle.take } });
       }
+
+      return true;
     } catch (failure) {
       if (moved !== undefined) {
         latest.current.putBack(moved);
       }
+      // A refused move leaves the stack, so the next Ctrl+Z takes back the edit before it.
+      void entry?.then(
+        (handle) => {
+          handle.drop();
+        },
+        () => undefined,
+      );
       // A save whose code failed to load has no reply to read the reason from.
       toast.error(
         await loading.then(
@@ -133,6 +165,8 @@ export function useCardMoves(uriKey: string, board: Board, columns: Columns, onS
           () => __('Something went wrong. Please try again.'),
         ),
       );
+
+      return false;
     }
   }
 
