@@ -110,6 +110,8 @@ export function ActionBar({ uriKey, lens, list, selection, rows, total, state }:
 
   const pinned = ticked > 0 ? list.actions.filter((action) => action.pinned) : [];
   const destructiveFrom = list.actions.findIndex((action) => action.destructive && !action.standalone);
+  // An item with no icon keeps an icon's width when others have one, so the labels line up.
+  const iconGap = list.actions.some((action) => action.icon !== null);
 
   return (
     <div className="flex flex-wrap items-center gap-2">
@@ -170,7 +172,7 @@ export function ActionBar({ uriKey, lens, list, selection, rows, total, state }:
                       choose(action);
                     }}
                   >
-                    {action.icon !== null && <NavIcon name={action.icon} />}
+                    {action.icon !== null ? <NavIcon name={action.icon} /> : iconGap && <span aria-hidden="true" className="size-4 shrink-0" />}
                     <span className="min-w-0">
                       <span className="block">{action.name}</span>
                       {action.description !== null && <span className="block text-xs text-muted-foreground">{action.description}</span>}

@@ -112,6 +112,32 @@ describe('the actions menu', () => {
     expect(within(menu).getAllByRole('separator')).toHaveLength(1);
   });
 
+  it('holds an icon-wide gap before an item with no icon when another item has one', async () => {
+    renderOrders([meta('export', 'Export'), meta('mark-paid', 'Mark paid', { group: 'Fulfilment', icon: 'truck' })]);
+    tick(1);
+    const menu = await openMenu();
+    const exportItem = within(menu).getByRole('menuitem', { name: 'Export' });
+    const paidItem = within(menu).getByRole('menuitem', { name: 'Mark paid' });
+    const gap = exportItem.firstElementChild;
+
+    expect(gap?.getAttribute('aria-hidden')).toBe('true');
+    expect(gap?.className).toContain('size-4');
+    expect(gap?.className).toContain('shrink-0');
+    expect(exportItem.children).toHaveLength(2);
+    expect(paidItem.children).toHaveLength(2);
+  });
+
+  it('starts every label at the padding when no item has an icon', async () => {
+    renderOrders([meta('export', 'Export'), meta('mark-paid', 'Mark paid', { group: 'Fulfilment' })]);
+    tick(1);
+    const menu = await openMenu();
+
+    for (const item of within(menu).getAllByRole('menuitem')) {
+      expect(item.children).toHaveLength(1);
+      expect(item.firstElementChild?.textContent).toBe(item.textContent);
+    }
+  });
+
   it('enables a standalone action with nothing ticked, a resource action once a row is, and a sole one at exactly one', async () => {
     renderOrders();
     let menu = await openMenu();

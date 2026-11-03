@@ -10,6 +10,7 @@ All notable changes to Lathe are listed here. The format follows [Keep a Changel
 
 ### Fixed
 
+- In the toolbar Actions menu, an item with no icon keeps an icon-wide gap when other items have icons, so its label lines up with theirs rather than with the group headings. A menu where no item has an icon is unchanged.
 - An action run's events show the values the action changed on each record under Original and Changes, where both were always empty. The records are read again once per 200 after the run; the update timestamp, hidden attributes and password or token attributes are left out, and a record the action did not change keeps both empty.
 - An action whose `handle()` returns `ActionResult::danger()`, inline, standalone or in a queued chunk, leaves its action events Failed, with the message under Exception, where they read Finished. The response is unchanged: HTTP 200 with the danger toast, and the row counts as run, not failed.
 - A relation panel draws each row of a record attached twice to a pivot table with no id column, and detaching another record no longer leaves one of them on screen twice.
