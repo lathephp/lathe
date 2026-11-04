@@ -192,6 +192,17 @@ describe('tabs', () => {
     expect(within(screen.getByRole('tab', { name: /Billing/ })).getByText('3').className).toContain('bg-destructive-subtle');
   });
 
+  it('scrolls a strip of tabs too wide for a phone inside its own box, each tab on one line', () => {
+    renderDetail([tabs('main', 'tab', ['order', 'billing'])], ['order', 'billing']);
+
+    // Without them a long label wraps and the strip pushes the page sideways at 390 px.
+    expect(screen.getByRole('tablist').className.split(' ')).toContain('overflow-x-auto');
+    for (const tab of screen.getAllByRole('tab')) {
+      expect(tab.className.split(' ')).toEqual(expect.arrayContaining(['shrink-0', 'whitespace-nowrap']));
+      expect(tab.className.split(' ')).not.toContain('-mb-px');
+    }
+  });
+
   it('marks the tab of a failed field with a red dot and opens it', async () => {
     vi.spyOn(globalThis, 'fetch').mockResolvedValue(
       new Response(JSON.stringify({ message: 'The billing field is required.', errors: { billing: ['The billing field is required.'] } }), { status: 422 }),

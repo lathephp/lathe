@@ -245,7 +245,13 @@ function TabGroup({ group, ...props }: RecordLayoutProps & { group: TabGroupBloc
 
   return (
     <section aria-label={group.label ?? undefined} className={cn('space-y-3', group.vertical && 'md:flex md:gap-6 md:space-y-0')}>
-      <div role="tablist" aria-orientation={group.vertical ? 'vertical' : 'horizontal'} className={cn('flex gap-1', group.vertical ? 'md:flex-col' : 'border-b border-border')}>
+      {/* The strip scrolls in its own box, so a phone never scrolls the page sideways; its line is an
+          inset shadow, since a scrolling box would clip a tab's underline drawn over a border. */}
+      <div
+        role="tablist"
+        aria-orientation={group.vertical ? 'vertical' : 'horizontal'}
+        className={cn('flex gap-1 overflow-x-auto', group.vertical ? 'md:flex-col md:overflow-visible' : 'shadow-[inset_0_-1px_0_var(--color-border)]')}
+      >
         {group.tabs.map((tab, index) => (
           <button
             key={tab.attribute}
@@ -255,7 +261,7 @@ function TabGroup({ group, ...props }: RecordLayoutProps & { group: TabGroupBloc
             aria-selected={index === active}
             aria-controls={`tabpanel-${group.attribute}-${tab.attribute}`}
             className={cn(
-              '-mb-px flex items-center gap-2 border-b-2 px-3 py-2 text-sm',
+              'flex shrink-0 items-center gap-2 border-b-2 px-3 py-2 text-sm whitespace-nowrap',
               index === active ? 'border-primary font-medium' : 'border-transparent text-muted-foreground',
             )}
             onClick={() => {
