@@ -98,7 +98,8 @@ it('tells a 1.0.0-beta.7 app every API and behaviour change in 1.0.0-beta.8', fu
         ->toContain('without a settings rule a plugin\'s settings follow its `authorize()`')
         ->toContain('lets every panel user read and change its settings')
         ->toContain('No English string is new, renamed or removed since 1.0.0-beta.7')
-        ->and($behaviour)->toContain('A dashboard\'s grid takes its layout from its own width, not the window\'s');
+        ->toContain('`WidgetCard` takes its columns from the width of the nearest container')
+        ->and($behaviour)->toContain('The cards of a dashboard, of a Resource\'s list and of its record page take their layout from the width of their grid');
 })->group('frontend');
 
 it('names in the 1.0.0-beta.5 section every English string added or removed since 1.0.0-beta.4', function () {

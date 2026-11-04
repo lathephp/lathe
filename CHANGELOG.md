@@ -8,7 +8,8 @@ All notable changes to Lathe are listed here. The format follows [Keep a Changel
 
 ### Changed
 
-- A dashboard's grid takes its layout from its own width, not the window's: beside the sidebar, from 768 px up to about 1,070 px the cards sit as on a phone, value and progress cards of a third or less two across and the rest across the row, where four quarter cards were squeezed to 101 px at 768 px and cut every title and number. A collapsed sidebar gets the 12 columns sooner.
+- The cards of a dashboard, of a Resource's list and of its record page take their layout from the width of their grid, not the window's: beside the sidebar, from 768 px up to about 1,070 px the cards sit as on a phone, value and progress cards of a third or less two across and the rest across the row, where four quarter cards were squeezed to 101 px at 768 px and cut every title and number. A collapsed sidebar gets the 12 columns sooner.
+- [api] `WidgetCard` takes its columns from the width of the nearest container, not the window's, so a custom page that puts cards in a grid of its own makes that grid a container (Tailwind's `@container`), as `WidgetGrid` does; in a grid that is not one, every card keeps its phone layout at any width.
 - [api] No English string is new, renamed or removed since 1.0.0-beta.7, so an app that translates the panel has nothing to add.
 
 ### Added
