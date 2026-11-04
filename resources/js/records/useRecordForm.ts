@@ -42,13 +42,36 @@ function same(a: unknown, b: unknown): boolean {
   return isPlain(a) && isPlain(b) && [...Object.keys(a), ...Object.keys(b)].every((key) => same(a[key], b[key]));
 }
 
+/** Components whose value names related records with keys only shown: their name and link. */
+const RELATION_COMPONENTS = new Set(['belongs-to-field', 'morph-to-field', 'tag-field']);
+
+/** A related record as its key alone: a record loads with its link, and the picker gives it without. */
+function keyOnly(value: unknown): unknown {
+  if (Array.isArray(value)) {
+    return value.map(keyOnly);
+  }
+
+  if (!isPlain(value)) {
+    return value;
+  }
+
+  return Object.fromEntries(Object.entries(value).filter(([key]) => key !== 'display' && key !== 'href'));
+}
+
 /**
  * Whether the values differ from the ones the fields loaded with. A key-value field loads an
  * object and edits it as a list of key and value rows, so an object on either side is read as those rows.
+ * A relation compares the records it names, not how it shows them.
  */
 export function formChanged(values: Record<string, unknown>, fields: FormFieldData[]): boolean {
   return fields.some((field) => {
-    const rows = (value: unknown) => (field.component === 'key-value-field' && isPlain(value) ? Object.entries(value).map(([key, item]) => ({ key, value: item })) : value);
+    const rows = (value: unknown) => {
+      if (field.component === 'key-value-field' && isPlain(value)) {
+        return Object.entries(value).map(([key, item]) => ({ key, value: item }));
+      }
+
+      return RELATION_COMPONENTS.has(field.component) ? keyOnly(value) : value;
+    };
 
     return !same(rows(values[field.attribute]), rows(field.value));
   });

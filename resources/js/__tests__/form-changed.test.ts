@@ -16,6 +16,20 @@ describe('formChanged', () => {
     expect(formChanged({ rating: '' }, fields)).toBe(true);
   });
 
+  it('reads a relation picked away and back, which loads with its link and is picked without it, as unchanged', () => {
+    const fields = [
+      field('category', 'belongs-to-field', { value: 3, display: 'Computers', href: '/lathe/resources/categories/3' }),
+      field('commentable', 'morph-to-field', { type: 'posts', id: 7, display: 'Hello', href: '/lathe/resources/posts/7' }),
+      field('tags', 'tag-field', [{ value: 1, display: 'Sale', href: '/lathe/resources/tags/1' }]),
+    ];
+    const picked = { category: { value: 3, display: 'Computers' }, commentable: { type: 'posts', id: 7, display: 'Hello' }, tags: [{ value: 1, display: 'Sale' }] };
+
+    expect(formChanged(picked, fields)).toBe(false);
+    expect(formChanged({ ...picked, category: { value: 4, display: 'Cameras' } }, fields)).toBe(true);
+    expect(formChanged({ ...picked, commentable: { type: 'products', id: 7, display: 'Hello' } }, fields)).toBe(true);
+    expect(formChanged({ ...picked, tags: [{ value: 2, display: 'Sale' }] }, fields)).toBe(true);
+  });
+
   it('reads a multi-select emptied back to no choice as unchanged', () => {
     expect(formChanged({ tags: [] }, [field('tags', 'multi-select-field', null)])).toBe(false);
     expect(formChanged({ tags: ['a', 'b'] }, [field('tags', 'multi-select-field', ['a', 'b'])])).toBe(false);
