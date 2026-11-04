@@ -37,7 +37,7 @@ class LatheServiceProvider extends LatheApplicationServiceProvider
         Lathe::withPasswordResetRoutes();
         Lathe::registerPages(UiGallery::class, SystemStatus::class);
         Lathe::registerSearchProviders(new DemoKitPages);
-        Lathe::registerPlugins(HelloPlugin::make(), InsightsPlugin::make(), PermissionPlugin::make()->withDefaultPolicies());
+        Lathe::registerPlugins(HelloPlugin::make()->canSeeSettingsWhen('manage plugin settings'), InsightsPlugin::make(), PermissionPlugin::make()->withDefaultPolicies());
 
         Menu::mainMenu(fn (Request $request, Menu $menu) => $menu->add(MenuSection::section('Demo Kit', [
             MenuItem::link('UI Gallery', 'pages/ui-gallery'),
@@ -68,6 +68,9 @@ class LatheServiceProvider extends LatheApplicationServiceProvider
         // never saved has no grants, so it asks Spatie nothing; a test app without Spatie's tables grants nothing.
         Gate::define('view system status', fn (User $user): bool => $user->getAttribute('email') === 'admin@lathephp.com'
             || ($user->exists && rescue(fn () => $user->checkPermissionTo('view system status'), false, report: false)));
+
+        // Every panel user may open Hello Plugin; only the admin reads or changes its settings.
+        Gate::define('manage plugin settings', fn (User $user): bool => $user->getAttribute('email') === 'admin@lathephp.com');
 
         // Every panel user may search across Resources.
         Gate::define('globalSearch', fn (User $user): bool => true);

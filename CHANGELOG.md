@@ -4,6 +4,10 @@ All notable changes to Lathe are listed here. The format follows [Keep a Changel
 
 ## [Unreleased]
 
+### Added
+
+- [api] A plugin can limit its settings to some of the users who may use it with `canSeeSettings(Closure $callback)` or `canSeeSettingsWhen(string $ability, mixed $arguments = [])`. The rule gates `GET` and `PUT` on the plugin's settings API, its settings page and the automatic Settings link, each answering `403` or leaving the link out for a user it refuses. It only narrows `canSee()`: a user `canSee()` denies is refused whatever the settings rule says, and a plugin without the rule behaves as before. A `menu()` list is kept as written, even an item named Settings, and `lathe:plugins` lists the plugin as an admin sees it.
+
 ### Fixed
 
 - A form whose `belongsTo`, `morphTo` or tag field is picked away and back to the record it loaded with shows no "Unsaved changes" and leaves with no prompt; the record it loaded carried its link and the picked one did not, so they read as different.

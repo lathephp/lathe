@@ -224,6 +224,16 @@ Lathe::registerPlugins(
 
 To use your own logic, override `authorize(Request $request): bool`. A plugin the user may not see is left out of the sidebar. Its page and its API answer `403`. An unknown plugin answers `404`.
 
+To let every user use a plugin but only some read or change its settings, add a second rule with `canSeeSettings()` or `canSeeSettingsWhen()`:
+
+```php
+Lathe::registerPlugins(
+    Heartbeat::make()->canSeeSettingsWhen('manage heartbeat settings'),
+);
+```
+
+The settings rule gates `GET` and `PUT` on the settings API, the settings page and the automatic Settings link. When it is absent, `authorize()` decides alone. The rule only narrows: a user `canSee()` denies gets `403` even when the settings rule allows them. A `menu()` list you return stays as you wrote it, even an item named Settings. A plugin with neither rule lets every panel user read and change its settings.
+
 The [permission plugin](permission-plugin.md) shows how to grant such an ability through roles.
 
 ## Add Resources, dashboards and widgets
@@ -316,7 +326,9 @@ public function settings(): ?array
 }
 ```
 
-With `menu()` left at `null`, the sidebar shows a "Settings" link for the plugin.
+With `menu()` left at `null`, the sidebar shows a "Settings" link for the plugin. The link is left out for a user the settings rule refuses.
+
+Anyone who may use the plugin may read and change its settings, unless you narrow that with `canSeeSettings()` or `canSeeSettingsWhen()`. See [Control who sees a plugin](#control-who-sees-a-plugin).
 
 Lathe serves the form from `GET /lathe/api/plugins/heartbeat/settings`, which returns the fields, the layout and the saved values. `PUT` to the same address validates with each field's rules and saves the values that the request carries. Both bypass `handleRequest()`. Other verbs answer `405`.
 

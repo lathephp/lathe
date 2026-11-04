@@ -8,6 +8,18 @@ use Lathe\Menu\Menu;
 use Lathe\Menu\MenuGroup;
 use Lathe\Menu\MenuItem;
 use Lathe\Menu\MenuSection;
+use Workbench\App\Models\User;
+
+/**
+ * A request signed in as the workbench admin, who alone sees Hello Plugin's Settings link.
+ */
+function adminRequest(): Request
+{
+    $request = Request::create('/');
+    $request->setUserResolver(fn () => (new User)->forceFill(['id' => 1, 'name' => 'Admin User', 'email' => 'admin@lathephp.com']));
+
+    return $request;
+}
 
 /**
  * The labels the main menu builds for a request, top level only.
@@ -16,7 +28,7 @@ use Lathe\Menu\MenuSection;
  */
 function builtLabels(?Request $request = null): array
 {
-    return array_column(Menu::build($request ?? Request::create('/'))->jsonSerialize(), 'label');
+    return array_column(Menu::build($request ?? adminRequest())->jsonSerialize(), 'label');
 }
 
 it('prepends to the start and adds to the end', function () {
@@ -48,7 +60,7 @@ it('hands the callback the request', function () {
 it('starts with the plugin menus and keeps the user menu apart', function () {
     Menu::using(fn (Request $request, Menu $menu) => $menu->add(MenuItem::link('Own', 'own')));
     Menu::userMenu(fn (Request $request, Menu $menu) => $menu->add(MenuItem::link('Profile', 'profile')));
-    $request = Request::create('/');
+    $request = adminRequest();
 
     expect(builtLabels($request))->toBe(['Insights', 'Hello Plugin', 'Heartbeat', 'Own'])
         ->and(array_column(Menu::buildUserMenu($request)->jsonSerialize(), 'label'))->toBe(['Profile']);
@@ -124,7 +136,7 @@ it('hides what canSee refuses', function () {
         MenuSection::section('Hidden section')->canSee(fn () => false),
         MenuSection::section('Shown', [MenuItem::link('Inner hidden', 'b')->canSee(fn () => false), MenuItem::link('Inner', 'c')]),
     ));
-    $json = array_column(Menu::build(Request::create('/'))->jsonSerialize(), null, 'label');
+    $json = array_column(Menu::build(adminRequest())->jsonSerialize(), null, 'label');
 
     expect(array_keys($json))->toBe(['Insights', 'Hello Plugin', 'Heartbeat', 'Shown'])
         ->and(array_column($json['Shown']['items'], 'label'))->toBe(['Inner']);

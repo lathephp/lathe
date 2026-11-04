@@ -1,6 +1,7 @@
 <?php
 
 use Lathe\Lathe;
+use Lathe\Plugins\PluginSetting;
 use Workbench\App\Models\User;
 use Workbench\Database\Seeders\DemoSeeder;
 
@@ -59,4 +60,24 @@ it('saves a filled form and returns the values on the next load', function () {
 
     expect($this->getJson('/lathe/api/plugins/hello-plugin/settings')->json('values'))->toBe($values)
         ->and(Lathe::plugins()->find('hello-plugin')?->setting('accent'))->toBe('green');
+});
+
+it('keeps the settings from an editor, who may still open the panel', function () {
+    $this->actingAs(User::where('email', 'editor@lathephp.com')->firstOrFail());
+    Lathe::plugins()->find('hello-plugin')?->saveSettings(['greeting' => 'Before']);
+
+    $this->putJson('/lathe/api/plugins/hello-plugin/settings', ['greeting' => 'EDITOR WAS HERE'])->assertForbidden();
+    $this->getJson('/lathe/api/plugins/hello-plugin/settings')->assertForbidden();
+    $this->get('/lathe/plugins/hello-plugin/settings')->assertForbidden();
+
+    $navigation = $this->get('/lathe')->assertOk()->viewData('page')['props']['navigation'];
+
+    expect(PluginSetting::find('hello-plugin')?->data)->toBe(['greeting' => 'Before'])
+        ->and(collect($navigation)->firstWhere('label', 'Hello Plugin'))->toBeNull();
+});
+
+it('lets the admin change the settings', function () {
+    $this->putJson('/lathe/api/plugins/hello-plugin/settings', ['greeting' => 'Hi'])->assertOk()->assertExactJson(['saved' => true]);
+
+    $this->getJson('/lathe/api/plugins/hello-plugin/settings')->assertOk()->assertJsonPath('values.greeting', 'Hi');
 });

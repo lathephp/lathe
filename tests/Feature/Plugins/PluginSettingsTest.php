@@ -13,7 +13,7 @@ use Workbench\App\Models\User;
 beforeEach(function () {
     $this->artisan('migrate')->assertSuccessful();
     Gate::define('viewLathe', fn () => true);
-    $this->actingAs((new User)->forceFill(['id' => 1, 'name' => 'Ada', 'email' => 'ada@example.test']));
+    $this->actingAs((new User)->forceFill(['id' => 1, 'name' => 'Admin User', 'email' => 'admin@lathephp.com']));
 });
 
 it('saves the declared keys of a PUT and reads them back in values', function () {
