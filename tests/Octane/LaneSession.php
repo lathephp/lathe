@@ -13,7 +13,9 @@ class LaneSession
 {
     /** Keys whose values change on every response, so the comparison drops them. */
     // insightsServerTime is the workbench Insights plugin's clock, provided on every page.
-    public const VOLATILE = ['csrf_token', 'nonce', 'requestId', 'request_id', 'insightsServerTime'];
+    // trace is the debug stack of an error, such as the editor's 403 on Hello Plugin's settings:
+    // its frames name the server's own middleware, which Octane and a fresh process order apart.
+    public const VOLATILE = ['csrf_token', 'nonce', 'requestId', 'request_id', 'insightsServerTime', 'trace'];
 
     protected Client $client;
 
