@@ -67,10 +67,10 @@ describe('a value card', () => {
 });
 
 describe('a card cell', () => {
-  it('stretches to its row with height as a minimum, from 768 px for a value card', () => {
-    expect(cellClass(widget).split(' ')).toContain('md:min-h-40');
+  it('stretches to its row with height as a minimum, from a 768 px grid for a value card', () => {
+    expect(cellClass(widget).split(' ')).toContain('@3xl:min-h-40');
     expect(cellClass({ ...widget, component: 'trend-widget' }).split(' ')).toContain('min-h-40');
-    expect(cellClass({ ...widget, height: 'double' }).split(' ')).toContain('md:min-h-80');
+    expect(cellClass({ ...widget, height: 'double' }).split(' ')).toContain('@3xl:min-h-80');
     expect(cellClass(widget)).not.toMatch(/(^|\s)h-40\b/);
   });
 

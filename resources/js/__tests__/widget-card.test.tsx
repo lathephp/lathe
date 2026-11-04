@@ -355,27 +355,31 @@ describe('the card', () => {
     });
   });
 
-  it('lays cards out on 12 columns with a 20 px gap, value cards of a third or less two across below 768 px', () => {
+  it('lays cards out on 12 columns with a 20 px gap, value cards of a third or less two across in a grid under 768 px', () => {
     renderDashboard(
       [3, 4, 6, 8, 9, 12].map((columns) => descriptor(`w${String(columns)}`, { columns })),
       {},
     );
 
-    expect(card('w3').parentElement?.className).toContain('grid-cols-12');
-    expect(card('w3').parentElement?.className).toContain('md:gap-5');
+    // The grid's own width picks the layout, so a sidebar beside a 768 px window still gets the phone's.
+    const grid = card('w3').parentElement?.className.split(' ');
+    expect(grid).toContain('@container');
+    expect(grid).toContain('grid-cols-12');
+    expect(grid).toContain('md:gap-5');
 
     for (const columns of [3, 4, 6, 8, 9, 12]) {
       const classes = card(`w${String(columns)}`).className.split(' ');
       expect(classes).toContain(columns <= 4 ? 'col-span-6' : 'col-span-12');
-      expect(classes).toContain(`md:col-span-${String(columns)}`);
+      expect(classes).toContain(`@3xl:col-span-${String(columns)}`);
+      expect(classes.filter((name) => /^md:(col-span|min-h)-/.test(name))).toEqual([]);
     }
   });
 
   it('is at least 160 px high, 320 px when double and sized to content when dynamic', () => {
     renderDashboard([descriptor('fixed'), descriptor('double', { height: 'double' }), descriptor('dynamic', { height: 'dynamic' })], {});
 
-    expect(card('fixed').className.split(' ')).toContain('md:min-h-40');
-    expect(card('double').className.split(' ')).toContain('md:min-h-80');
+    expect(card('fixed').className.split(' ')).toContain('@3xl:min-h-40');
+    expect(card('double').className.split(' ')).toContain('@3xl:min-h-80');
     expect(card('dynamic').className).not.toMatch(/\bh-(40|80)\b/);
   });
 });

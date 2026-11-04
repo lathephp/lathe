@@ -119,7 +119,7 @@ describe('saving a customized layout', () => {
 
     fireEvent.click(within(card('orders-by-status')).getByRole('button', { name: 'Menu for Orders by status' }));
     fireEvent.click(screen.getByRole('menuitemradio', { name: 'Large' }));
-    expect(card('orders-by-status').className).toContain('md:col-span-6');
+    expect(card('orders-by-status').className).toContain('@3xl:col-span-6');
 
     fireEvent.click(within(card('paid-orders')).getByRole('button', { name: 'Menu for Paid orders' }));
     fireEvent.click(screen.getByRole('menuitem', { name: 'Hide from this dashboard' }));
