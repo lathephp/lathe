@@ -8,7 +8,7 @@ import { flushSync } from 'react-dom';
 import type { IndexProps, Row } from '../types';
 import type { useBoardColumns } from './useBoardColumns';
 
-// The save and the undo stack load on the first move, so their chunks stay out of the list
+// The save and the undo stack load when the Board opens, so their chunks stay out of the list
 // Orders' first load carries for the Board. They sit outside the hook because the React
 // Compiler skips a function that holds an import().
 const saving = () => Promise.all([import('../inlineSave'), import('../undo')]);
@@ -60,6 +60,12 @@ export function useCardMoves(uriKey: string, board: Board, columns: Columns, onS
   useLayoutEffect(() => {
     latest.current = columns;
   });
+
+  // The Board asks for the save and the undo stack when it opens, so they have arrived by the
+  // first move and a Ctrl+Z pressed straight after it finds the move on the stack.
+  useEffect(() => {
+    void saving();
+  }, []);
 
   // A page the user left for another loads its own counts; the recount would reload that page.
   useEffect(
