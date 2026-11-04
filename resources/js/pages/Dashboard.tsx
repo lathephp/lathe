@@ -158,7 +158,8 @@ function DashboardPage({ dashboard, widgets, hiddenWidgets = [] }: DashboardProp
       )}
       {(shown.length > 0 || draft !== null) && (
         // One wrapper in both modes, so the grid keeps its cards, and their values, on entering Customize.
-        <div className="flex flex-col gap-5 xl:flex-row xl:items-start">
+        // A container, so in Customize the cards take the same columns as in view mode though the tray sits beside them.
+        <div className="@container flex flex-col gap-5 xl:flex-row xl:items-start">
           <div className="min-w-0 flex-1">
             <WidgetGrid
               widgets={shown}

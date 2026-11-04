@@ -148,6 +148,17 @@ describe('saving a customized layout', () => {
     expect(screen.getByRole('button', { name: 'Customize' })).toBeTruthy();
   });
 
+  // jsdom does no layout: at 1280 px the tray beside the edit grid left it 676 px, under the 768 px the spans need.
+  it('sizes the edited cards by the width of the grid and its tray together, as in view mode', async () => {
+    renderDashboard(['revenue', 'orders'], ['paid-orders']);
+    await customize();
+    const grid = card('revenue').parentElement as HTMLElement;
+    const container = grid.parentElement?.closest('.\\@container');
+
+    expect(grid.className.split(' ')).not.toContain('@container');
+    expect(container?.contains(screen.getByRole('region', { name: 'Add a widget' }))).toBe(true);
+  });
+
   it('saves a card added back from the panel last and shown', async () => {
     renderDashboard(['revenue', 'orders'], ['paid-orders']);
     const fetch = responding(200);

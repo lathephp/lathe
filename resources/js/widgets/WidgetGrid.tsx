@@ -54,8 +54,8 @@ export function WidgetGrid({ widgets, valueUrl, params, deferred, showRefreshBut
           </Button>
         </div>
       )}
-      {/* Customize mode packs its cards 16 px apart. */}
-      <div className={edit === undefined ? gridClass : '@container grid grid-cols-12 gap-4'}>
+      {/* Customize mode packs its cards 16 px apart, and they measure the dashboard's container, which holds the tray beside the grid. */}
+      <div className={edit === undefined ? gridClass : 'grid grid-cols-12 gap-4'}>
         {widgets.map((widget) => (
           <WidgetCard
             key={widget.uriKey}
