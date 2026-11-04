@@ -1,0 +1,1 @@
+import{formatNumber as e}from"@lathephp/core";function t(t){return t.estimated?`~${e(t.value,{notation:`compact`,maximumFractionDigits:1})}`:`${e(t.value)}${t.capped?`+`:``}`}export{t};
