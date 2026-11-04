@@ -81,3 +81,10 @@ it('shows a status meter with an exception on the status meters page', function 
 it('no longer says a click on a row opens the detail page', function () {
     expect(newFeaturePage('your-first-resource/defining-resources.md'))->not->toContain('A click on a row opens the detail page');
 })->group('frontend');
+
+it('documents the plugin settings rule and that a plugin with neither rule is open to every panel user', function () {
+    $page = newFeaturePage('extending/plugins.md');
+
+    expect(implode("\n", newFeaturePhpBlocks($page)))->toContain('canSeeSettingsWhen(')
+        ->and($page)->toContain('`canSeeSettings()`', '`canSeeSettingsWhen()`', 'A plugin with neither rule lets every panel user read and change its settings.');
+});
