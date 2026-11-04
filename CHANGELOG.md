@@ -16,6 +16,7 @@ All notable changes to Lathe are listed here. The format follows [Keep a Changel
 - On the Board, Ctrl+Z pressed straight after the first move on a page takes that move back, where it undid nothing until the save's code had loaded; the Board loads the save and the undo when it opens.
 - A dashboard's grid takes its layout from its own width, not the window's: beside the sidebar, from 768 px up to about 1,070 px the cards sit as on a phone, value and progress cards of a third or less two across and the rest across the row, where four quarter cards were squeezed to 101 px at 768 px and cut every title and number. A collapsed sidebar gets the 12 columns sooner.
 - A partition or pie card's legend shows each label whole, wrapping a long one onto more lines with its value, percentage and colour on the first line, where it cut the label with an ellipsis ("Cancell…" in a narrow card).
+- A dashboard's header fits its width beside the sidebar: from 768 px until the header has 768 px, Updated, Refresh and Customize sit on the title's row and the range strip takes a full-width row under it, where the one row of controls pushed the page 39 px sideways at 768 px.
 
 ## [1.0.0-beta.7] - 2026-11-04
 

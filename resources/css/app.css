@@ -477,6 +477,39 @@
     @apply ms-auto flex shrink-0 items-center gap-2 empty:hidden max-md:ms-0 max-md:w-full max-md:shrink max-md:flex-wrap;
   }
 
+  /* A dashboard's header is a container. Between the md breakpoint and 768 px of header, where its
+     one row of controls would push the page sideways, the controls join the title's row and the
+     range strip takes a full-width row of its own, scrolling inside itself if its ranges overflow.
+     A phone keeps its own layout. */
+  .lathe-dashboard-header {
+    container: dashboard-header / inline-size;
+  }
+
+  .lathe-dashboard-actions {
+    @apply flex w-full items-center gap-3;
+  }
+
+  @media (width >= 48rem) {
+    @container dashboard-header (width < 48rem) {
+      .lathe-dashboard-header .lathe-page-header {
+        @apply flex-wrap gap-x-3 gap-y-3;
+      }
+
+      .lathe-dashboard-header .lathe-page-heading {
+        @apply me-auto;
+      }
+
+      .lathe-dashboard-header .lathe-page-actions,
+      .lathe-dashboard-header .lathe-dashboard-actions {
+        @apply contents;
+      }
+
+      .lathe-dashboard-header [role='radiogroup'] {
+        @apply order-last basis-full overflow-x-auto;
+      }
+    }
+  }
+
   /* A phone's header that holds only the title, which the top bar shows, takes no room; the h1 stays
      for screen readers. */
   [data-page-bar] > .lathe-page-heading:has(> div:only-child > h1:only-child),

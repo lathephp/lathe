@@ -95,59 +95,62 @@ function DashboardPage({ dashboard, widgets, hiddenWidgets = [] }: DashboardProp
   return (
     <div className={draft === null ? 'space-y-5' : 'space-y-4'}>
       <Head title={dashboard.name} />
-      <PageHeader
-        title={dashboard.name}
-        badge={
-          draft !== null && (
-            <span className="inline-flex h-[22px] shrink-0 items-center rounded-md bg-primary-subtle px-2 text-xs font-semibold text-primary-subtle-foreground">
-              {__('Editing layout')}
-            </span>
-          )
-        }
-        subtitle={dashboard.description !== null && <p className="lathe-page-subtitle">{dashboard.description}</p>}
-        actions={
-          // The canvas spaces the header's controls 12 px apart, wider than the header's own gap.
-          <div className="flex w-full items-center gap-3">
-            {draft !== null && (
-              <Suspense fallback={null}>
-                <CustomizeHeader
-                  uriKey={dashboard.uriKey}
-                  draft={draft}
-                  onDone={() => {
-                    setDraft(null);
+      {/* A container, so a header too narrow for one row puts the range strip on a row of its own (app.css). */}
+      <div className="lathe-dashboard-header">
+        <PageHeader
+          title={dashboard.name}
+          badge={
+            draft !== null && (
+              <span className="inline-flex h-[22px] shrink-0 items-center rounded-md bg-primary-subtle px-2 text-xs font-semibold text-primary-subtle-foreground">
+                {__('Editing layout')}
+              </span>
+            )
+          }
+          subtitle={dashboard.description !== null && <p className="lathe-page-subtitle">{dashboard.description}</p>}
+          actions={
+            // The canvas spaces the header's controls 12 px apart, wider than the header's own gap (app.css).
+            <div className="lathe-dashboard-actions">
+              {draft !== null && (
+                <Suspense fallback={null}>
+                  <CustomizeHeader
+                    uriKey={dashboard.uriKey}
+                    draft={draft}
+                    onDone={() => {
+                      setDraft(null);
+                    }}
+                  />
+                </Suspense>
+              )}
+              {draft === null && widgets.length > 0 && (
+                <>
+                  <UpdatedAgo at={updatedAt} />
+                  <Button variant="outline" size="icon" aria-label={__('Refresh')} className="text-muted-foreground max-md:order-last" onClick={refresh}>
+                    <RefreshCw aria-hidden="true" className="size-4" />
+                  </Button>
+                  {dashboard.ranges.length > 0 && <RangePicker ranges={dashboard.ranges} value={range} onPick={pick} />}
+                </>
+              )}
+              {/* A user who hid every card still has a saved layout, and Customize to undo it. */}
+              {draft === null && dashboard.customizable && (widgets.length > 0 || hiddenWidgets.length > 0 || dashboard.customized) && (
+                // A phone shows Customize as an icon, so the range keeps its row and the button stays reachable.
+                <Button
+                  variant="outline"
+                  className="max-md:px-2.5"
+                  onPointerEnter={() => {
+                    void preloadCustomize();
                   }}
-                />
-              </Suspense>
-            )}
-            {draft === null && widgets.length > 0 && (
-              <>
-                <UpdatedAgo at={updatedAt} />
-                <Button variant="outline" size="icon" aria-label={__('Refresh')} className="text-muted-foreground max-md:order-last" onClick={refresh}>
-                  <RefreshCw aria-hidden="true" className="size-4" />
+                  onClick={() => {
+                    void customize();
+                  }}
+                >
+                  <SlidersHorizontal aria-hidden="true" className="size-4 md:hidden" />
+                  <span className="max-md:sr-only">{__('Customize')}</span>
                 </Button>
-                {dashboard.ranges.length > 0 && <RangePicker ranges={dashboard.ranges} value={range} onPick={pick} />}
-              </>
-            )}
-            {/* A user who hid every card still has a saved layout, and Customize to undo it. */}
-            {draft === null && dashboard.customizable && (widgets.length > 0 || hiddenWidgets.length > 0 || dashboard.customized) && (
-              // A phone shows Customize as an icon, so the range keeps its row and the button stays reachable.
-              <Button
-                variant="outline"
-                className="max-md:px-2.5"
-                onPointerEnter={() => {
-                  void preloadCustomize();
-                }}
-                onClick={() => {
-                  void customize();
-                }}
-              >
-                <SlidersHorizontal aria-hidden="true" className="size-4 md:hidden" />
-                <span className="max-md:sr-only">{__('Customize')}</span>
-              </Button>
-            )}
-          </div>
-        }
-      />
+              )}
+            </div>
+          }
+        />
+      </div>
       {draft !== null && (
         <Suspense fallback={null}>
           <CustomizeBanner />
