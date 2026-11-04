@@ -4,6 +4,11 @@ All notable changes to Lathe are listed here. The format follows [Keep a Changel
 
 ## [Unreleased]
 
+### Fixed
+
+- A form whose `belongsTo`, `morphTo` or tag field is picked away and back to the record it loaded with shows no "Unsaved changes" and leaves with no prompt; the record it loaded carried its link and the picked one did not, so they read as different.
+- On the Board, Ctrl+Z pressed straight after the first move on a page takes that move back, where it undid nothing until the save's code had loaded; the Board loads the save and the undo when it opens.
+
 ## [1.0.0-beta.7] - 2026-11-04
 
 ### Changed
