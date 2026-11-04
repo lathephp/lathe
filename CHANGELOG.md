@@ -17,6 +17,7 @@ All notable changes to Lathe are listed here. The format follows [Keep a Changel
 - A dashboard's grid takes its layout from its own width, not the window's: beside the sidebar, from 768 px up to about 1,070 px the cards sit as on a phone, value and progress cards of a third or less two across and the rest across the row, where four quarter cards were squeezed to 101 px at 768 px and cut every title and number. A collapsed sidebar gets the 12 columns sooner.
 - A partition or pie card's legend shows each label whole, wrapping a long one onto more lines with its value, percentage and colour on the first line, where it cut the label with an ellipsis ("Cancell…" in a narrow card).
 - A dashboard's header fits its width beside the sidebar: from 768 px until the header has 768 px, Updated, Refresh and Customize sit on the title's row and the range strip takes a full-width row under it, where the one row of controls pushed the page 39 px sideways at 768 px.
+- A value card's number shows whole from 768 px: its type follows the card's width, from 26 px down to 15 px, where a quarter card cut "$1,831,273.43" with an ellipsis at 1,280 px and narrower; a number too long even then wraps.
 
 ## [1.0.0-beta.7] - 2026-11-04
 

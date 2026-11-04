@@ -45,6 +45,19 @@ describe('a value card', () => {
     expect(screen.getByText('$1,948,466.99').className).toContain('max-md:sr-only');
   });
 
+  // jsdom does no layout, so this pins the classes; a browser check measured "$1,831,273.43" cut in a 222 px card at 26 px.
+  it('steps its headline down with the card width from 768 px, so the whole amount shows with no ellipsis', () => {
+    const { container } = showValue({ value: 1831273.43, prefix: '$' });
+    const headline = screen.getByText('$1,831,273.43').closest('p') as HTMLElement;
+    const classes = headline.className.split(' ');
+
+    expect((container.firstElementChild as HTMLElement).className.split(' ')).toContain('@container');
+    expect(classes).not.toContain('truncate');
+    expect(classes).not.toContain('md:text-[26px]');
+    expect(classes).toContain('md:text-[clamp(0.9375rem,11cqi,1.625rem)]');
+    expect(classes).toContain('wrap-anywhere');
+  });
+
   it('shows a rise in the destructive subtle colour when lower is better', () => {
     showValue({ value: 382, previous: 344, change: 11, lowerIsBetter: true });
 

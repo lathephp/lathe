@@ -29,14 +29,16 @@ export function ValueCard({ widget, value }: WidgetRendererProps) {
   const good = direction === 'flat' ? null : (direction === 'up') !== (result.lowerIsBetter === true);
 
   return (
-    <div className="flex flex-col gap-1 md:gap-1.5">
+    // A container, so the headline's type follows the card's width.
+    <div className="@container flex flex-col gap-1 md:gap-1.5">
       <div className="flex min-w-0 items-center gap-2">
         {icon !== null && (
           <Suspense fallback={<span className="size-5 shrink-0" />}>
             <WidgetIcon name={icon} />
           </Suspense>
         )}
-        <p className="truncate text-lg leading-6 font-[650] font-stretch-[122%] tabular-nums md:text-[26px] md:leading-8 md:tracking-[-0.02em]">
+        {/* From 768 px the type is 11% of the card's width, 15 to 26 px, so 13 characters such as "$1,831,273.43" fit on one line and a row of cards shares one size; a longer number wraps whole. */}
+        <p className="min-w-0 text-lg leading-6 font-[650] font-stretch-[122%] wrap-anywhere tabular-nums md:text-[clamp(0.9375rem,11cqi,1.625rem)] md:leading-8 md:tracking-[-0.02em]">
           {/* Every digit on a desktop; a phone shows the short form and reads the full one aloud. */}
           {short === full ? (
             full
