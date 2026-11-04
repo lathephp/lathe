@@ -8,6 +8,7 @@ All notable changes to Lathe are listed here. The format follows [Keep a Changel
 
 - A form whose `belongsTo`, `morphTo` or tag field is picked away and back to the record it loaded with shows no "Unsaved changes" and leaves with no prompt; the record it loaded carried its link and the picked one did not, so they read as different.
 - On a phone, a form's strip of tabs scrolls inside its own box, each tab on one line, where a long label wrapped and the strip pushed the page sideways, more so once a tab showed its error dot.
+- A form changed and changed back keeps no draft, and a draft that holds the record's own values opens with no "Unsaved changes"; reopening such a form in the same tab restored the draft and asked before leaving.
 - On the Board, Ctrl+Z pressed straight after the first move on a page takes that move back, where it undid nothing until the save's code had loaded; the Board loads the save and the undo when it opens.
 
 ## [1.0.0-beta.7] - 2026-11-04

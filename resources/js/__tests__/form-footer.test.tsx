@@ -110,6 +110,33 @@ describe('the form footer', () => {
     expect(within(footer()).queryByText('Unsaved changes')).toBeNull();
   });
 
+  it('keeps no draft of a form changed and changed back, so it opens again clean', async () => {
+    const { unmount } = renderForm('update');
+
+    fireEvent.change(screen.getByLabelText('Name'), { target: { value: 'Bea' } });
+    await act(async () => {
+      await new Promise((resolve) => setTimeout(resolve, 600));
+    });
+    fireEvent.change(screen.getByLabelText('Name'), { target: { value: 'Ann' } });
+    await act(async () => {
+      await new Promise((resolve) => setTimeout(resolve, 600));
+    });
+
+    expect(Object.keys(window.sessionStorage).filter((key) => key.startsWith('lathe-draft:'))).toEqual([]);
+
+    unmount();
+    renderForm('update');
+
+    expect(within(footer()).queryByText('Unsaved changes')).toBeNull();
+  });
+
+  it('opens a draft that holds the loaded values clean', () => {
+    window.sessionStorage.setItem(`lathe-draft:${window.location.pathname}`, JSON.stringify({ name: 'Ann', country: 'US' }));
+    renderForm('update');
+
+    expect(within(footer()).queryByText('Unsaved changes')).toBeNull();
+  });
+
   it('sticks the footer to the bottom of the viewport while the form scrolls', () => {
     renderForm();
 

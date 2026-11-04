@@ -142,8 +142,9 @@ export function useRecordForm(
   const draft = drafts ? stored : { restored: false, touch: () => undefined, clear: () => undefined };
   // Values that differ from the loaded ones, typed or restored, not yet saved. The ref answers at once, so the redirect a save starts
   // in the same tick already reads clean; the state redraws the footer.
-  const [dirty, setDirtyState] = useState(saved !== null);
-  const dirtyRef = useRef(saved !== null);
+  // A restored draft that holds the loaded values is no change.
+  const [dirty, setDirtyState] = useState(() => saved !== null && formChanged(values, form.fields));
+  const dirtyRef = useRef(dirty);
   const setDirty = (next: boolean) => {
     dirtyRef.current = next;
     setDirtyState(next);
@@ -154,8 +155,16 @@ export function useRecordForm(
 
   const setValue = (attribute: string, value: unknown) => {
     const next = { ...valuesRef.current, [attribute]: value };
-    draft.touch();
-    setDirty(formChanged(next, payload.fields));
+    const changed = formChanged(next, payload.fields);
+
+    // A form back to the values it loaded with keeps no draft to restore.
+    if (changed) {
+      draft.touch();
+    } else {
+      draft.clear();
+    }
+
+    setDirty(changed);
     setValues(next);
     // A changed field's message is stale: drop it and the ones under its nested keys.
     setErrors((current) => {
