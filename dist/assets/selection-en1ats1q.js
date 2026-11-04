@@ -1,0 +1,1 @@
+function e(e){return{mode:`ids`,ids:[e],exclusions:[],q:``,filters:{},tab:null,saved_tab:null,trashed:`with`,lens:null,via:null}}export{e as t};
