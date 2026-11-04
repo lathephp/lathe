@@ -88,6 +88,16 @@ it('lets every panel user read and change the settings of a plugin with neither 
     expect(sidebarSection('Rule open')['items'][0]['label'])->toBe('Settings');
 });
 
+it('lets the users canSee admits change the settings of a plugin with no settings rule, as in beta.7', function () {
+    registerRulePlugin(settingsRulePlugin('seen')->canSee(fn () => true));
+
+    $this->putJson('/lathe/api/plugins/seen/settings', ['label' => 'Hi'])->assertOk()->assertExactJson(['saved' => true]);
+    $this->get('/lathe/plugins/seen/settings')->assertOk();
+
+    expect(PluginSetting::find('seen')?->data)->toBe(['label' => 'Hi'])
+        ->and(sidebarSection('Rule seen')['items'][0]['label'])->toBe('Settings');
+});
+
 it('never admits a user canSee denies, whatever the settings rule says', function () {
     registerRulePlugin(settingsRulePlugin('narrow')->canSee(fn () => false)->canSeeSettings(fn () => true));
 
