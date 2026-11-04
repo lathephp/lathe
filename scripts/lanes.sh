@@ -1,7 +1,9 @@
 #!/usr/bin/env bash
 # Starts Lathe's own database containers for the multi-driver test lanes.
 #   lanes.sh up [mysql|mariadb|pgsql] | down [mysql|mariadb|pgsql] | env <mysql|mariadb|pgsql>
-# With no lane name, up and down act on all three.
+#   lanes.sh changed <mysql|mariadb|pgsql>
+# With no lane name, up and down act on all three. changed runs the test files that differ
+# from origin/main, committed or not, on that lane, so a milestone meets every driver before CI.
 # These containers are Lathe's. Never reuse another project's database container.
 set -uo pipefail
 
@@ -123,8 +125,20 @@ case ${1:-} in
         esac
         echo "export DB_CONNECTION=$driver DB_HOST=127.0.0.1 DB_PORT=$port DB_DATABASE=$database DB_USERNAME=$user DB_PASSWORD=$password"
         ;;
+    changed)
+        [[ -n ${2:-} && -n $(selected "$2") ]] || { echo "usage: lanes.sh changed <mysql|mariadb|pgsql>" >&2; exit 2; }
+        cd "$(dirname "$0")/.." || exit 1
+        mapfile -t files < <(git diff --name-only --diff-filter=d origin/main -- 'tests/*Test.php')
+        if ((${#files[@]} == 0)); then
+            echo "no test file differs from origin/main"
+            exit 0
+        fi
+        bash scripts/lanes.sh up "$2" || exit 1
+        eval "$(bash scripts/lanes.sh env "$2")"
+        exec php vendor/bin/pest --exclude-group=benchmark --exclude-group=scaffold "${files[@]}"
+        ;;
     *)
-        echo "usage: lanes.sh up [mysql|mariadb|pgsql] | down [mysql|mariadb|pgsql] | env <mysql|mariadb|pgsql>" >&2
+        echo "usage: lanes.sh up [mysql|mariadb|pgsql] | down [mysql|mariadb|pgsql] | env <mysql|mariadb|pgsql> | changed <mysql|mariadb|pgsql>" >&2
         exit 2
         ;;
 esac
