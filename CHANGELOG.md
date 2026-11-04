@@ -18,6 +18,7 @@ All notable changes to Lathe are listed here. The format follows [Keep a Changel
 - A partition or pie card's legend shows each label whole, wrapping a long one onto more lines with its value, percentage and colour on the first line, where it cut the label with an ellipsis ("Cancell…" in a narrow card).
 - A dashboard's header fits its width beside the sidebar: from 768 px until the header has 768 px, Updated, Refresh and Customize sit on the title's row and the range strip takes a full-width row under it, where the one row of controls pushed the page 39 px sideways at 768 px.
 - A value card's number shows whole from 768 px: its type follows the card's width, from 26 px down to 15 px, where a quarter card cut "$1,831,273.43" with an ellipsis at 1,280 px and narrower; a number too long even then wraps.
+- A dashboard card's title, and the total and dates a trend card shows beside it, wrap onto a second line where the row is too narrow, where they were cut with an ellipsis ("Orders per day" at 1,100 px).
 
 ## [1.0.0-beta.7] - 2026-11-04
 

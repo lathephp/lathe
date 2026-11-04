@@ -355,6 +355,18 @@ describe('the card', () => {
     });
   });
 
+  // jsdom does no layout, so this pins the classes; a browser check at 1,100 px measured "Orders per day" cut 95>78 beside its dates.
+  it('wraps a long title and the dates beside it onto more lines, never cut with an ellipsis', () => {
+    renderDashboard([descriptor('orders-per-day', { name: 'Orders per day', component: 'trend-widget' })], {});
+    const title = within(card('orders-per-day')).getByRole('heading', { name: 'Orders per day' });
+    const meta = card('orders-per-day').querySelector<HTMLElement>('span.ms-auto');
+
+    expect(title.className.split(' ')).not.toContain('truncate');
+    expect(title.className.split(' ')).toContain('wrap-break-word');
+    expect(meta?.className.split(' ')).not.toContain('truncate');
+    expect(meta?.className.split(' ')).toContain('wrap-break-word');
+  });
+
   it('lays cards out on 12 columns with a 20 px gap, value cards of a third or less two across in a grid under 768 px', () => {
     renderDashboard(
       [3, 4, 6, 8, 9, 12].map((columns) => descriptor(`w${String(columns)}`, { columns })),

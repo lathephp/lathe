@@ -209,7 +209,8 @@ export function WidgetCard({ widget, url, params, deferred, register, range: hos
       {edit ?? (
         <div className={cn('flex min-h-[18px] items-center justify-between gap-2', flush && 'px-3 md:px-5')}>
           <div className="flex min-w-0 items-center gap-1">
-            <h2 className={cn('truncate', compact ? 'text-xs font-medium text-muted-foreground md:text-[13px]' : 'text-sm font-semibold')}>{widget.name}</h2>
+            {/* A title too long for its row wraps whole, as a legend label does. */}
+            <h2 className={cn('wrap-break-word', compact ? 'text-xs font-medium text-muted-foreground md:text-[13px]' : 'text-sm font-semibold')}>{widget.name}</h2>
             {widget.help !== null && <HelpTooltip text={widget.help} width={widget.helpWidth} />}
           </div>
           {refreshing ? (
@@ -221,7 +222,7 @@ export function WidgetCard({ widget, url, params, deferred, register, range: hos
           <span
             ref={setMeta}
             className={cn(
-              'ms-auto min-w-0 truncate text-xs text-muted-foreground tabular-nums empty:hidden',
+              'ms-auto min-w-0 text-end text-xs wrap-break-word text-muted-foreground tabular-nums empty:hidden',
               (refreshing || value?.fallbackRange !== undefined) && 'hidden',
             )}
           />
