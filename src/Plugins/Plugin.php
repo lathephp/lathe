@@ -37,6 +37,13 @@ abstract class Plugin
     /** @var (Closure(Request): bool)|null */
     protected ?Closure $seeCallback = null;
 
+    /**
+     * @internal
+     *
+     * @var (Closure(Request): bool)|null
+     */
+    protected ?Closure $seeSettingsCallback = null;
+
     public static function make(): static
     {
         return new static;
@@ -69,9 +76,37 @@ abstract class Plugin
         return $this->canSee(fn (Request $request) => Gate::forUser($request->user(app(FortifyConfig::class)->guard()))->check($ability, $arguments));
     }
 
+    /**
+     * Narrows canSee() for the settings only: the settings API, the settings page and the
+     * automatic Settings link. It never admits a user canSee() denies.
+     *
+     * @param  Closure(Request): bool  $callback
+     */
+    public function canSeeSettings(Closure $callback): static
+    {
+        $this->seeSettingsCallback = $callback;
+
+        return $this;
+    }
+
+    public function canSeeSettingsWhen(string $ability, mixed $arguments = []): static
+    {
+        return $this->canSeeSettings(fn (Request $request) => Gate::forUser($request->user(app(FortifyConfig::class)->guard()))->check($ability, $arguments));
+    }
+
     public function authorize(Request $request): bool
     {
         return $this->seeCallback === null || ($this->seeCallback)($request);
+    }
+
+    /**
+     * Whether the request may use the settings: authorize() first, then the settings rule.
+     *
+     * @internal
+     */
+    public function authorizeSettings(Request $request): bool
+    {
+        return $this->authorize($request) && ($this->seeSettingsCallback === null || ($this->seeSettingsCallback)($request));
     }
 
     /**

@@ -3155,6 +3155,8 @@ Lathe\Plugins\Plugin::assets(): array
 Lathe\Plugins\Plugin::authorize(Illuminate\Http\Request $request): bool
 Lathe\Plugins\Plugin::boot(): void
 Lathe\Plugins\Plugin::canSee(Closure $callback): static
+Lathe\Plugins\Plugin::canSeeSettings(Closure $callback): static
+Lathe\Plugins\Plugin::canSeeSettingsWhen(string $ability, mixed $arguments = array ( )): static
 Lathe\Plugins\Plugin::canSeeWhen(string $ability, mixed $arguments = array ( )): static
 Lathe\Plugins\Plugin::handleRequest(Illuminate\Http\Request $request, string $path): Symfony\Component\HttpFoundation\Response
 Lathe\Plugins\Plugin::handleSettingsRequest(Illuminate\Http\Request $request): Symfony\Component\HttpFoundation\Response

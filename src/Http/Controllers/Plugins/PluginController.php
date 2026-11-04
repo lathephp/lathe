@@ -17,7 +17,7 @@ class PluginController
         $found = $plugins->find($plugin);
 
         abort_if($found === null, 404);
-        abort_unless($found->authorize($request), 403);
+        abort_unless($path === 'settings' ? $found->authorizeSettings($request) : $found->authorize($request), 403);
 
         return $path === 'settings' ? $found->handleSettingsRequest($request) : $found->handleRequest($request, $path);
     }

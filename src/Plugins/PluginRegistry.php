@@ -103,7 +103,7 @@ class PluginRegistry
         foreach ($this->authorized($request) as $plugin) {
             $menu = $plugin->menu($request);
 
-            if ($menu === null && $plugin->settings() !== null) {
+            if ($menu === null && $plugin->settings() !== null && $plugin->authorizeSettings($request)) {
                 $menu = [MenuSection::section($plugin->name(), [MenuItem::link('Settings', 'plugins/'.$plugin::uriKey().'/settings')])];
             }
 
