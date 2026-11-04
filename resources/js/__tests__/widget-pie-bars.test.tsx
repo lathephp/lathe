@@ -57,3 +57,18 @@ describe('a pie with many slices', () => {
     expect(screen.queryByRole('list', { name: 'Products by category' })).toBeNull();
   });
 });
+
+describe('a long slice label among many', () => {
+  it('wraps whole beside its bar, with the bar and the value on its first line', () => {
+    const label = 'A category named at forty characters long';
+    render(<PieCard widget={widget} value={{ value: [{ ...slices(1)[0], label }, ...slices(20).slice(1)] }} />);
+    const bars = within(screen.getByRole('list', { name: 'Products by category' }));
+    const name = bars.getByText(label);
+
+    expect(label).toHaveLength(41);
+    expect(name.className.split(' ')).not.toContain('truncate');
+    expect(name.className.split(' ')).toContain('wrap-break-word');
+    expect((name.parentElement as HTMLElement).className.split(' ')).toContain('items-start');
+    expect(bars.getByText('15 more').className.split(' ')).not.toContain('truncate');
+  });
+});

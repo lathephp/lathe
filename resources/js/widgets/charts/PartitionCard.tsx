@@ -34,10 +34,11 @@ export function PartitionCard({ widget, value }: WidgetRendererProps) {
     <div role="region" aria-label={__(':name legend', { name: widget.name })} tabIndex={0} className="@container max-h-full min-w-0 flex-1 overflow-y-auto">
       <ul className={cn('grid grid-cols-2 gap-x-3 gap-y-1 text-[13px]', !asBar && 'md:flex md:flex-col md:gap-2')}>
         {segments.map((segment) => (
-          <li key={segment.label} className="flex min-w-0 items-center gap-1.5 md:gap-2">
-            <span className="size-2 shrink-0 rounded-full" style={{ backgroundColor: segment.color }} />
+          // A long label wraps onto more lines, so the row lines up at the top: the dot, the value and the percentage sit on its first line.
+          <li key={segment.label} className="flex min-w-0 items-start gap-1.5 md:gap-2">
+            <span className="mt-[calc(0.5lh-0.25rem)] size-2 shrink-0 rounded-full" style={{ backgroundColor: segment.color }} />
             {/* Beside the donut a label keeps 6 characters; the percentage hides first when the legend is under 12rem. */}
-            <span className={cn('min-w-0 flex-1 truncate', !asBar && 'md:min-w-[6ch]')}>{segment.label}</span>
+            <span className={cn('min-w-0 flex-1 wrap-break-word', !asBar && 'md:min-w-[6ch]')}>{segment.label}</span>
             <span className="shrink-0 font-medium tabular-nums">{format(segment.value)}</span>
             <span className={cn('w-11 shrink-0 text-end text-muted-foreground tabular-nums max-md:hidden @max-[12rem]:hidden', asBar && 'hidden')}>{`${String(segment.percentage)}%`}</span>
           </li>

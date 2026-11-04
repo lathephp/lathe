@@ -88,6 +88,26 @@ describe('a donut legend in a narrow card', () => {
   });
 });
 
+const long = 'The Democratic Republic of the Congo (DRC)';
+
+describe('a long legend label', () => {
+  it('wraps whole onto more lines, never cut with an ellipsis, with its value on its first line', () => {
+    for (const asBar of [false, true]) {
+      const { unmount } = render(<PartitionCard widget={{ ...widget, asBar }} value={{ value: [{ label: long, value: 7, percentage: 100, color: '#22c55e' }] }} />);
+      const label = within(screen.getByRole('region', { name: 'Orders legend' })).getByText(long);
+      const row = label.parentElement as HTMLElement;
+
+      expect(long).toHaveLength(42);
+      expect(classes(label)).not.toContain('truncate');
+      expect(classes(label)).toContain('wrap-break-word');
+      // The row lines its items up at the top, so the value and percentage sit beside the first line.
+      expect(classes(row)).toContain('items-start');
+      expect(classes(row)).not.toContain('items-center');
+      unmount();
+    }
+  });
+});
+
 describe('a radial gauge in a tall card', () => {
   it('caps the square chart at its parent width', () => {
     const gauge = { value: 40, target: 80, percentage: 50, startAngle: 180, endAngle: 0, showTrack: true, showLabels: false, showGrid: false, color: 'var(--warning)' };

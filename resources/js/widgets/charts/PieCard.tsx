@@ -137,22 +137,24 @@ function SliceBars({ name, segments, format }: { name: string; segments: Segment
   const top = [...segments].sort((a, b) => b.value - a.value).slice(0, maxSlices - 1);
   const rest = segments.filter((segment) => !top.includes(segment));
   const largest = Math.max(...top.map((segment) => segment.value), 1);
-  const row = 'grid grid-cols-[minmax(0,8.125rem)_minmax(0,1fr)_auto] items-center gap-3';
+  // A long label wraps onto more lines, so the row lines up at the top and the bar centres on its first line.
+  const row = 'grid grid-cols-[minmax(0,8.125rem)_minmax(0,1fr)_auto] items-start gap-3';
+  const track = 'mt-[calc(0.5lh-0.3125rem)] h-2.5 rounded-[2px] bg-muted';
 
   return (
     <ul aria-label={name} className="flex flex-col gap-2.5 text-[13px]">
       {top.map((segment, rank) => (
         <li key={segment.label} className={row}>
-          <span className="truncate">{segment.label}</span>
-          <span className="h-2.5 rounded-[2px] bg-muted">
+          <span className="wrap-break-word">{segment.label}</span>
+          <span className={track}>
             <span data-bar="" className="block h-full rounded-[2px]" style={{ width: `${String((segment.value / largest) * 100)}%`, backgroundColor: seriesColor(rank) }} />
           </span>
           <span className="text-end font-medium tabular-nums">{format(segment.value)}</span>
         </li>
       ))}
       <li className={row}>
-        <span className="truncate">{__(':count more', { count: rest.length })}</span>
-        <span className="h-2.5 rounded-[2px] bg-muted" />
+        <span className="wrap-break-word">{__(':count more', { count: rest.length })}</span>
+        <span className={track} />
         <span className="text-end font-medium tabular-nums">{format(rest.reduce((sum, segment) => sum + segment.value, 0))}</span>
       </li>
     </ul>
