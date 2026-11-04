@@ -4,7 +4,9 @@ All notable changes to Lathe are listed here. The format follows [Keep a Changel
 
 ## [Unreleased]
 
-## [1.0.0-beta.8] - 2026-11-04
+## [1.0.0-beta.9] - Unreleased
+
+1.0.0-beta.8 was tagged from this code on 2026-11-04 but reached Packagist only: its release run stopped on security advisories against the Symfony packages in Lathe's own lock, so its npm packages and GitHub release were never published. 1.0.0-beta.9 ships the same code with the lock on Symfony 8.1.11; upgrade from 1.0.0-beta.7 or 1.0.0-beta.8 to it.
 
 ### Changed
 

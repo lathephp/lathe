@@ -8,9 +8,9 @@ order: 8
 
 This page is generated from the [changelog](changelog.md). Its API changes are the entries marked `[api]`, which change the public API: the classes and methods in the API snapshot, the artisan commands, the config keys, the route names and the JSON contract. Its behaviour changes are the other entries under Changed, which change what the panel does for your users.
 
-These changes happen between 1.0.0-beta.7 and 1.0.0-beta.8. Check each API change against your code before you update, and tell your users about the behaviour changes.
+These changes happen between 1.0.0-beta.7 and 1.0.0-beta.9. Check each API change against your code before you update, and tell your users about the behaviour changes.
 
-## From 1.0.0-beta.7 to 1.0.0-beta.8
+## From 1.0.0-beta.7 to 1.0.0-beta.9
 
 ### API changes
 

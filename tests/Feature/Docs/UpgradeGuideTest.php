@@ -89,9 +89,9 @@ it('lists the changes of the newest release under Changed as behaviour changes, 
         ->not->toContain('A fix with no API change');
 })->group('frontend');
 
-it('tells a 1.0.0-beta.7 app every API and behaviour change in 1.0.0-beta.8', function () {
+it('tells a 1.0.0-beta.7 app every API and behaviour change in 1.0.0-beta.9', function () {
     $guide = File::get(dirname(__DIR__, 3).'/docs/getting-started/upgrade.md');
-    $section = explode('## What you see', explode('## From 1.0.0-beta.7 to 1.0.0-beta.8', $guide, 2)[1] ?? '', 2)[0];
+    $section = explode('## What you see', explode('## From 1.0.0-beta.7 to 1.0.0-beta.9', $guide, 2)[1] ?? '', 2)[0];
     [$api, $behaviour] = explode('### Behaviour changes', $section, 2) + ['', ''];
 
     expect($api)->toContain('`canSeeSettings(Closure $callback)`', '`canSeeSettingsWhen(string $ability, mixed $arguments = [])`')
@@ -159,7 +159,7 @@ it('names in the 1.0.0-beta.7 section every English string added or removed sinc
     expect(array_values(array_diff($changed, $named[1])))->toBe([]);
 })->group('frontend');
 
-it('names in the 1.0.0-beta.8 section every English string added or removed since 1.0.0-beta.7', function () {
+it('names in the 1.0.0-beta.9 section every English string added or removed since 1.0.0-beta.7', function () {
     $root = dirname(__DIR__, 3);
     $keys = fn (string $json) => array_map('strval', array_keys((array) json_decode($json, true)));
     $at = fn (string $tag) => Process::path($root)->run(['git', 'show', "{$tag}:lang/en.json"]);
@@ -168,10 +168,10 @@ it('names in the 1.0.0-beta.8 section every English string added or removed sinc
         test()->markTestSkipped('This clone has no 1.0.0-beta.7 tag to compare with.');
     }
 
-    $released = $at('v1.0.0-beta.8');
+    $released = $at('v1.0.0-beta.9');
     $before = $keys($at('v1.0.0-beta.7')->output());
     $after = $keys($released->successful() ? $released->output() : File::get("{$root}/lang/en.json"));
-    $section = explode('## [1.0.0-beta.7]', explode('## [1.0.0-beta.8]', File::get("{$root}/CHANGELOG.md"), 2)[1] ?? '', 2)[0];
+    $section = explode('## [1.0.0-beta.7]', explode('## [1.0.0-beta.9]', File::get("{$root}/CHANGELOG.md"), 2)[1] ?? '', 2)[0];
     preg_match_all('/`([^`]+)`/u', (string) preg_replace('/^ *```.*?^ *```$/ms', '', $section), $named);
     $changed = [...array_diff($before, $after), ...array_diff($after, $before)];
 
