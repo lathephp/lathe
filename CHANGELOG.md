@@ -4,9 +4,16 @@ All notable changes to Lathe are listed here. The format follows [Keep a Changel
 
 ## [Unreleased]
 
+## [1.0.0-beta.8] - Unreleased
+
+### Changed
+
+- A dashboard's grid takes its layout from its own width, not the window's: beside the sidebar, from 768 px up to about 1,070 px the cards sit as on a phone, value and progress cards of a third or less two across and the rest across the row, where four quarter cards were squeezed to 101 px at 768 px and cut every title and number. A collapsed sidebar gets the 12 columns sooner.
+- [api] No English string is new, renamed or removed since 1.0.0-beta.7, so an app that translates the panel has nothing to add.
+
 ### Added
 
-- [api] A plugin can limit its settings to some of the users who may use it with `canSeeSettings(Closure $callback)` or `canSeeSettingsWhen(string $ability, mixed $arguments = [])`. The rule gates `GET` and `PUT` on the plugin's settings API, its settings page and the automatic Settings link, each answering `403` or leaving the link out for a user it refuses. It only narrows `canSee()`: a user `canSee()` denies is refused whatever the settings rule says, and a plugin without the rule behaves as before. A `menu()` list is kept as written, even an item named Settings, and `lathe:plugins` lists the plugin as an admin sees it.
+- [api] A plugin can limit its settings to some of the users who may use it with `canSeeSettings(Closure $callback)` or `canSeeSettingsWhen(string $ability, mixed $arguments = [])`. The rule gates `GET` and `PUT` on the plugin's settings API, its settings page and the automatic Settings link, each answering `403` or leaving the link out for a user it refuses. It only narrows `canSee()`: a user `canSee()` denies is refused whatever the settings rule says, and without a settings rule a plugin's settings follow its `authorize()`, as before. A plugin with neither a settings rule nor `canSee()` or `canSeeWhen()`, and no `authorize()` of its own, lets every panel user read and change its settings. A `menu()` list is kept as written, even an item named Settings, and `lathe:plugins` lists the plugin as an admin sees it.
 
 ### Fixed
 
@@ -14,7 +21,6 @@ All notable changes to Lathe are listed here. The format follows [Keep a Changel
 - On a phone, a form's strip of tabs scrolls inside its own box, each tab on one line, where a long label wrapped and the strip pushed the page sideways, more so once a tab showed its error dot.
 - A form changed and changed back keeps no draft, and a draft that holds the record's own values opens with no "Unsaved changes"; reopening such a form in the same tab restored the draft and asked before leaving.
 - On the Board, Ctrl+Z pressed straight after the first move on a page takes that move back, where it undid nothing until the save's code had loaded; the Board loads the save and the undo when it opens.
-- A dashboard's grid takes its layout from its own width, not the window's: beside the sidebar, from 768 px up to about 1,070 px the cards sit as on a phone, value and progress cards of a third or less two across and the rest across the row, where four quarter cards were squeezed to 101 px at 768 px and cut every title and number. A collapsed sidebar gets the 12 columns sooner.
 - A partition or pie card's legend shows each label whole, wrapping a long one onto more lines with its value, percentage and colour on the first line, where it cut the label with an ellipsis ("Cancell…" in a narrow card).
 - A dashboard's header fits its width beside the sidebar: from 768 px until the header has 768 px, Updated, Refresh and Customize sit on the title's row and the range strip takes a full-width row under it, where the one row of controls pushed the page 39 px sideways at 768 px.
 - A value card's number shows whole from 768 px: its type follows the card's width, from 26 px down to 15 px, where a quarter card cut "$1,831,273.43" with an ellipsis at 1,280 px and narrower; a number too long even then wraps.
