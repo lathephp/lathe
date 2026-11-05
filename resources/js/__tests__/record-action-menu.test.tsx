@@ -69,6 +69,58 @@ describe('the detail action menu beside the sidebar', () => {
   });
 });
 
+describe('the detail action menu at the edge of the content', () => {
+  function order() {
+    renderPage('Resources/Detail', {
+      resource: { uriKey: 'orders', label: 'Orders', singularLabel: 'Order', abilities: { create: false } },
+      record: { id: 12, title: 'ORD-12', subtitle: '', avatar: null, fields: [], layout: [], abilities: { view: true }, trashed: false },
+      breadcrumbs: [],
+      actions: { actions: [meta('mark-shipped', 'Mark Shipped', { authorizedToRun: true })], pivotActions: [], counts: {} },
+    });
+  }
+
+  // jsdom does no layout, so the rects are what a 390 px phone drew: the menu, ending at its button's
+  // end edge (217), began 39 px off the screen.
+  function drawn(menuLeft: number, menuRight: number) {
+    vi.spyOn(HTMLElement.prototype, 'getBoundingClientRect').mockImplementation(function (this: HTMLElement) {
+      const [left, right] = this.getAttribute('role') === 'menu' ? [menuLeft, menuRight] : this.id === 'content' ? [0, 390] : [0, 0];
+
+      return { left, right, top: 0, bottom: 0, x: left, y: 0, width: right - left, height: 0, toJSON: () => ({}) };
+    });
+  }
+
+  it('opens from its button\'s start edge when, ending at the button\'s end edge, it would run out of the content', async () => {
+    order();
+    drawn(-39, 217);
+
+    fireEvent.click(await screen.findByRole('button', { name: 'Actions' }));
+
+    expect(screen.getByRole('menu', { name: 'Actions' }).className).toMatch(/(?:^|\s)start-0(?:\s|$)/);
+    expect(screen.getByRole('menu', { name: 'Actions' }).className).not.toMatch(/(?:^|\s)end-0(?:\s|$)/);
+  });
+
+  it('ends at its button\'s end edge when it fits there', async () => {
+    order();
+    drawn(120, 376);
+
+    fireEvent.click(await screen.findByRole('button', { name: 'Actions' }));
+
+    expect(screen.getByRole('menu', { name: 'Actions' }).className).toMatch(/(?:^|\s)end-0(?:\s|$)/);
+  });
+
+  it('closes on Escape while the focus is still on Actions', async () => {
+    order();
+    const actions = await screen.findByRole('button', { name: 'Actions' });
+
+    fireEvent.click(actions);
+    actions.focus();
+    fireEvent.keyDown(actions, { key: 'Escape' });
+
+    expect(screen.queryByRole('menu', { name: 'Actions' })).toBeNull();
+    expect(document.activeElement).toBe(actions);
+  });
+});
+
 describe('the detail action menu and its dialog', () => {
   it('gives the focus back to Actions when the dialog an item opened closes', async () => {
     vi.spyOn(globalThis, 'fetch').mockResolvedValueOnce(json({ fields: [], confirmText: 'Cancel order ORD-12?' }));
