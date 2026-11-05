@@ -2,7 +2,7 @@ import { router } from '@inertiajs/react';
 import { useLathe, useTranslation } from '@lathephp/core';
 import { Button } from '@lathephp/ui';
 import { ChevronDown } from 'lucide-react';
-import { useId, useLayoutEffect, useRef, useState, type KeyboardEvent } from 'react';
+import { useEffect, useId, useLayoutEffect, useRef, useState, type KeyboardEvent } from 'react';
 import { cn } from '../lib/cn';
 import { recordSelection } from './selection';
 import type { ActionMeta } from './types';
@@ -41,6 +41,26 @@ export function RecordActionMenu({ uriKey, id, actions }: { uriKey: string; id: 
       setFromStart(true);
     }
   }, [open, fromStart]);
+
+  // Its side was chosen for the width it opened at, so a new width (a phone turned on its side) closes
+  // it. A new height alone, as a phone's address bar hides on scroll, keeps it open.
+  useEffect(() => {
+    if (!open) {
+      return undefined;
+    }
+
+    const width = window.innerWidth;
+    const close = () => {
+      if (window.innerWidth !== width) {
+        setOpen(false);
+      }
+    };
+    window.addEventListener('resize', close);
+
+    return () => {
+      window.removeEventListener('resize', close);
+    };
+  }, [open]);
 
   if (actions.length === 0) {
     return null;

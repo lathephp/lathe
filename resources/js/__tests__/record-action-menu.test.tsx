@@ -108,6 +108,20 @@ describe('the detail action menu at the edge of the content', () => {
     expect(screen.getByRole('menu', { name: 'Actions' }).className).toMatch(/(?:^|\s)end-0(?:\s|$)/);
   });
 
+  it('closes when the window changes width, since its side was chosen for the old one, and not for a new height', async () => {
+    order();
+    fireEvent.click(await screen.findByRole('button', { name: 'Actions' }));
+    const width = window.innerWidth;
+
+    vi.spyOn(window, 'innerHeight', 'get').mockReturnValue(window.innerHeight - 80);
+    fireEvent(window, new Event('resize'));
+    expect(screen.getByRole('menu', { name: 'Actions' })).toBeTruthy();
+
+    vi.spyOn(window, 'innerWidth', 'get').mockReturnValue(width - 400);
+    fireEvent(window, new Event('resize'));
+    expect(screen.queryByRole('menu', { name: 'Actions' })).toBeNull();
+  });
+
   it('closes on Escape while the focus is still on Actions', async () => {
     order();
     const actions = await screen.findByRole('button', { name: 'Actions' });
