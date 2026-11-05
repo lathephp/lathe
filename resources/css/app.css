@@ -450,17 +450,20 @@
     @apply order-last mx-1 size-9 rounded-md shadow-none;
   }
 
+  /* From md up the buttons wrap to a row below the title when the header is too narrow for both;
+     a phone's title sits in the top bar, so its header keeps one row. */
   .lathe-page-header {
-    @apply flex items-center gap-4;
+    @apply flex items-center gap-4 md:flex-wrap;
   }
 
   .lathe-page-heading {
     @apply flex min-w-0 flex-col gap-1;
   }
 
-  /* The nameplate width: page and record titles, like the plate on a machine. */
+  /* The nameplate width: page and record titles, like the plate on a machine. A long title wraps
+     onto more lines, never cut to an ellipsis. */
   .lathe-page-title {
-    @apply truncate text-[22px] leading-7 font-[640] font-stretch-[122%] tracking-[-0.01em];
+    @apply min-w-0 text-[22px] leading-7 font-[640] font-stretch-[122%] tracking-[-0.01em] wrap-anywhere;
   }
 
   /* The top bar shows a phone's title; the h1 stays for screen readers. */
