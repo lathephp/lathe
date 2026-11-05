@@ -192,3 +192,14 @@ it('names in the 1.0.0-beta.10 section every English string added or removed sin
 
     expect(array_values(array_diff($changed, $named[1])))->toBe([]);
 })->group('frontend');
+
+it('names every place a user meets the header and the Actions menu changed in 1.0.0-beta.10', function () {
+    $section = explode('## [1.0.0-beta.9]', explode('## [1.0.0-beta.10]', File::get(dirname(__DIR__, 3).'/CHANGELOG.md'), 2)[1] ?? '', 2)[0];
+    $fixed = explode('### Fixed', $section, 2)[1] ?? '';
+
+    expect($fixed)->toContain('"O…"', '"Sale" on Sales')
+        ->toContain('every list and lens, record, create and edit form, dashboard, plugin settings page, Security page and action run page')
+        ->toContain('a custom page that renders `DetailHeader`')
+        ->toContain('the record preview panel beside a list')
+        ->toContain('`ActionDropdown`');
+})->group('frontend');

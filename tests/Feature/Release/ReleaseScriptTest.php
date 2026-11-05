@@ -43,6 +43,9 @@ it('cuts the release branch and tag with the build, and pushes nothing', functio
 
     expect($result->exitCode())->toBe(0, $result->errorOutput())
         ->and($result->output())->toContain('Nothing was pushed')
+        ->and($result->output())->toContain('release: the audit passed: true')
+        ->and($result->output())->toContain('release: LATHE_RELEASE_BUILD stands in for pnpm build')
+        ->and($result->output())->toContain('release: LATHE_RELEASE_LICENSES_JSON stands in for the licence list from pnpm')
         ->and($git('git rev-parse v1.0.0-beta.1^{commit}'))->toBe($git('git rev-parse release/1.0.0-beta.1'))
         ->and($git('git show v1.0.0-beta.1:dist/app.js'))->toBe('built')
         ->and($git('git ls-tree main dist'))->toBe('')

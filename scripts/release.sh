@@ -10,7 +10,7 @@
 # Run `pnpm install --frozen-lockfile` and `composer install` first: the build and the licence
 # list need them. LATHE_RELEASE_AUDIT replaces both audits, LATHE_RELEASE_BUILD replaces the build
 # command and LATHE_RELEASE_LICENSES_JSON feeds the licence list from a file instead of pnpm (all
-# for the script's own test).
+# for the script's own test); a cut names each one that is set.
 set -euo pipefail
 
 version=${1:?usage: release.sh <version>}
@@ -67,6 +67,9 @@ done
 sed -i "s/^## \[$version\] - Unreleased$/## [$version] - $(date -u +%Y-%m-%d)/" CHANGELOG.md
 
 node scripts/upgrade-guide.mjs
+
+[[ -n ${LATHE_RELEASE_BUILD:-} ]] && echo "release: LATHE_RELEASE_BUILD stands in for pnpm build: $LATHE_RELEASE_BUILD"
+[[ -n ${LATHE_RELEASE_LICENSES_JSON:-} ]] && echo "release: LATHE_RELEASE_LICENSES_JSON stands in for the licence list from pnpm: $LATHE_RELEASE_LICENSES_JSON"
 
 build() {
     rm -rf dist
