@@ -4,6 +4,10 @@ All notable changes to Lathe are listed here. The format follows [Keep a Changel
 
 ## [Unreleased]
 
+### Fixed
+
+- A page title reads whole from 768 px up: when a header is too narrow for its title and its buttons on one row, the buttons move to a row below the title, and a long title wraps onto more lines where it ended in an ellipsis. At 768 px beside the sidebar an order's title read "O…" beside its Actions menu, Delete, Replicate and Edit. This is the header of every list, record, create and edit form, dashboard, plugin settings page, Security page and action run page; a header whose buttons fit beside its title keeps its one row, and a phone keeps its title in the top bar.
+
 ## [1.0.0-beta.9] - 2026-11-04
 
 1.0.0-beta.8 was tagged from this code on 2026-11-04 but reached Packagist only: its release run stopped on security advisories against the Symfony packages in Lathe's own lock, so its npm packages and GitHub release were never published. 1.0.0-beta.9 ships the same code with the lock on Symfony 8.1.11; upgrade from 1.0.0-beta.7 or 1.0.0-beta.8 to it.
