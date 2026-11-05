@@ -3,9 +3,9 @@
 #   bash scripts/release.sh <version>
 # It refuses the cut while CHANGELOG.md has entries under ## [Unreleased], and when
 # `composer audit --locked` or `pnpm audit --prod --audit-level=high` fails; both checks run
-# before the release branch exists. From a clean, green main it then: creates release/<version>;
+# before the release branch exists, and each prints a line when it passes. From a clean, green main it then: creates release/<version>;
 # sets every package.json version; dates the CHANGELOG section; regenerates the upgrade guide;
-# builds dist/ twice, refuses the cut when the two builds differ, and force-adds dist/; writes THIRD-PARTY-LICENSES.md; commits; and tags the
+# builds dist/ twice, refuses the cut when the two builds differ (a line says when they match), and force-adds dist/; writes THIRD-PARTY-LICENSES.md; commits; and tags the
 # commit v<version>. main never gets dist/.
 # Run `pnpm install --frozen-lockfile` and `composer install` first: the build and the licence
 # list need them. LATHE_RELEASE_AUDIT replaces both audits, LATHE_RELEASE_BUILD replaces the build
@@ -34,9 +34,12 @@ grep -q "^## \[$version\] - Unreleased$" CHANGELOG.md || fail "CHANGELOG.md has 
 # An advisory published after main's last CI run would stop the release run after the tag.
 if [[ -n ${LATHE_RELEASE_AUDIT:-} ]]; then
     (eval "$LATHE_RELEASE_AUDIT") || fail "the audit failed: $LATHE_RELEASE_AUDIT"
+    echo "release: the audit passed: $LATHE_RELEASE_AUDIT"
 else
     composer audit --locked || fail "composer audit --locked failed; take the fixes into composer.lock first"
+    echo "release: composer audit --locked passed"
     pnpm audit --prod --audit-level=high || fail "pnpm audit --prod --audit-level=high failed; take the fixes into pnpm-lock.yaml first"
+    echo "release: pnpm audit --prod --audit-level=high passed"
 fi
 
 git switch -q -c "$branch"
@@ -80,6 +83,8 @@ if [[ $first != "$second" ]]; then
     differ=$({ diff <(echo "$first") <(echo "$second") || true; } | sed -n 's|^[<>] [0-9a-f]*  \./|dist/|p' | sort -u | paste -sd ' ')
     fail "two builds of dist/ differ in $differ"
 fi
+files=$(grep -c . <<<"$first" || true)
+echo "release: the two builds of dist/ match, $files file$( ((files == 1)) || echo s)"
 
 if [[ -n ${LATHE_RELEASE_LICENSES_JSON:-} ]]; then
     node scripts/third-party-licenses.mjs --input "$LATHE_RELEASE_LICENSES_JSON"

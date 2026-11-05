@@ -131,7 +131,7 @@ it('runs composer audit --locked and then pnpm audit --prod --audit-level=high w
     File::ensureDirectoryExists($bin);
     foreach (['composer', 'pnpm'] as $tool) {
         $code = $tool === $failing ? 1 : 0;
-        File::put("{$bin}/{$tool}", "#!/usr/bin/env bash\necho \"{$tool} \$*\" >> {$repo}-calls.log\nexit {$code}\n");
+        File::put("{$bin}/{$tool}", "#!/usr/bin/env bash\necho \"{$tool} \$*\" >> {$repo}-calls.log\necho \"No advisories from {$tool}\"\nexit {$code}\n");
         chmod("{$bin}/{$tool}", 0755);
     }
 
@@ -142,7 +142,8 @@ it('runs composer audit --locked and then pnpm audit --prod --audit-level=high w
 
     if ($failing === 'none') {
         expect($result->exitCode())->toBe(0, $result->errorOutput())
-            ->and($calls)->toBe("composer audit --locked\npnpm audit --prod --audit-level=high\n");
+            ->and($calls)->toBe("composer audit --locked\npnpm audit --prod --audit-level=high\n")
+            ->and($result->output())->toMatch('/^release: composer audit --locked passed$.*^release: pnpm audit --prod --audit-level=high passed$.*^release: the two builds of dist\/ match, 1 file$.*^Tagged v1\.0\.0-beta\.1 /ms');
     } else {
         expect($result->exitCode())->toBe(1)
             ->and($result->errorOutput())->toContain("release: {$failing} audit")
