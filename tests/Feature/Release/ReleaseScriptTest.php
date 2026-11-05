@@ -156,3 +156,35 @@ it('runs composer audit --locked and then pnpm audit --prod --audit-level=high w
     File::deleteDirectory($bin);
     File::delete("{$repo}-calls.log");
 })->with(['none', 'composer', 'pnpm'])->group('frontend');
+
+it('refuses a cut whose two builds of dist differ, leaving main as it was, and cuts on the next run', function () {
+    $repo = releaseRepo();
+    $git = fn (string $command) => trim(Process::path($repo)->run($command)->output());
+    $build = fn (string $command) => Process::path($repo)
+        ->env(['LATHE_RELEASE_AUDIT' => 'true', 'LATHE_RELEASE_BUILD' => $command, 'LATHE_RELEASE_LICENSES_JSON' => "{$repo}/licenses.json"])
+        ->run(['bash', 'scripts/release.sh', '1.0.0-beta.1']);
+    $main = fn () => [File::get("{$repo}/package.json"), File::get("{$repo}/packages/core/package.json"), File::get("{$repo}/CHANGELOG.md")];
+    $before = $main();
+
+    $refused = $build('mkdir -p dist && echo built > dist/app.js && date +%s%N > dist/app.css');
+
+    expect($refused->exitCode())->toBe(1)
+        ->and($refused->errorOutput())->toMatch('/^release: .*dist\/app\.css/m')
+        ->and($refused->errorOutput())->not->toContain('dist/app.js')
+        ->and($git('git tag --list'))->toBe('')
+        ->and($git('git branch --show-current'))->toBe('main')
+        ->and($git('git branch --list "release/*"'))->toBe('')
+        ->and($git('git status --porcelain'))->toBe('')
+        ->and($main())->toBe($before);
+
+    $cut = $build("echo build >> {$repo}-builds.log && mkdir -p dist && echo built > dist/app.js && echo same > dist/app.css");
+
+    expect($cut->exitCode())->toBe(0, $cut->errorOutput())
+        ->and(File::get("{$repo}-builds.log"))->toBe("build\nbuild\n")
+        ->and($git('git show v1.0.0-beta.1:dist/app.js'))->toBe('built')
+        ->and($git('git show v1.0.0-beta.1:dist/app.css'))->toBe('same');
+
+    File::deleteDirectory($repo);
+    File::deleteDirectory("{$repo}-origin.git");
+    File::delete("{$repo}-builds.log");
+})->group('frontend');

@@ -5,7 +5,7 @@
 # `composer audit --locked` or `pnpm audit --prod --audit-level=high` fails; both checks run
 # before the release branch exists. From a clean, green main it then: creates release/<version>;
 # sets every package.json version; dates the CHANGELOG section; regenerates the upgrade guide;
-# runs the build and force-adds dist/; writes THIRD-PARTY-LICENSES.md; commits; and tags the
+# builds dist/ twice, refuses the cut when the two builds differ, and force-adds dist/; writes THIRD-PARTY-LICENSES.md; commits; and tags the
 # commit v<version>. main never gets dist/.
 # Run `pnpm install --frozen-lockfile` and `composer install` first: the build and the licence
 # list need them. LATHE_RELEASE_AUDIT replaces both audits, LATHE_RELEASE_BUILD replaces the build
@@ -41,6 +41,16 @@ fi
 
 git switch -q -c "$branch"
 
+# From here a refusal puts main back as it was and drops the branch, so the next run can cut.
+# The tree was clean, so every untracked file is this run's.
+undo() {
+    git reset -q --hard
+    git ls-files -z --others --exclude-standard | xargs -0 -r rm -f --
+    git switch -q main
+    git branch -q -D "$branch"
+}
+trap undo EXIT
+
 for manifest in package.json packages/*/package.json; do
     node -e '
         const fs = require("node:fs");
@@ -55,8 +65,20 @@ sed -i "s/^## \[$version\] - Unreleased$/## [$version] - $(date -u +%Y-%m-%d)/" 
 
 node scripts/upgrade-guide.mjs
 
-eval "${LATHE_RELEASE_BUILD:-pnpm build}"
-[[ -d dist ]] || fail "the build wrote no dist/"
+build() {
+    rm -rf dist
+    eval "${LATHE_RELEASE_BUILD:-pnpm build}"
+    [[ -d dist ]] || fail "the build wrote no dist/"
+    (cd dist && find . -type f -print0 | sort -z | xargs -0 sha256sum)
+}
+
+# lightningcss now and then drops CSS rules from a build, so two builds must agree file by file.
+first=$(build)
+second=$(build)
+if [[ $first != "$second" ]]; then
+    differ=$({ diff <(echo "$first") <(echo "$second") || true; } | sed -n 's|^[<>] [0-9a-f]*  \./|dist/|p' | sort -u | paste -sd ' ')
+    fail "two builds of dist/ differ in $differ"
+fi
 
 if [[ -n ${LATHE_RELEASE_LICENSES_JSON:-} ]]; then
     node scripts/third-party-licenses.mjs --input "$LATHE_RELEASE_LICENSES_JSON"
@@ -68,6 +90,7 @@ git add package.json packages/*/package.json CHANGELOG.md docs/getting-started/u
 git add -f dist
 git commit -q -m "Release $version"
 git tag -a "$tag" -m "Lathe $version"
+trap - EXIT
 
 echo "Tagged $tag on $branch at $(git rev-parse --short HEAD). Nothing was pushed."
 echo "To publish: git push origin $branch && git push origin $tag"
