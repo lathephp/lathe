@@ -1,12 +1,16 @@
 #!/usr/bin/env bash
 # Cuts a release on a local branch and tag, and pushes nothing.
 #   bash scripts/release.sh <version>
-# From a clean, green main whose CHANGELOG.md has nothing under ## [Unreleased] it: creates
-# release/<version>; sets every package.json version; dates the CHANGELOG section; regenerates the upgrade guide; runs the build and force-adds dist/; writes
-# THIRD-PARTY-LICENSES.md; commits; and tags the commit v<version>. main never gets dist/.
+# It refuses the cut while CHANGELOG.md has entries under ## [Unreleased], and when
+# `composer audit --locked` or `pnpm audit --prod --audit-level=high` fails; both checks run
+# before the release branch exists. From a clean, green main it then: creates release/<version>;
+# sets every package.json version; dates the CHANGELOG section; regenerates the upgrade guide;
+# runs the build and force-adds dist/; writes THIRD-PARTY-LICENSES.md; commits; and tags the
+# commit v<version>. main never gets dist/.
 # Run `pnpm install --frozen-lockfile` and `composer install` first: the build and the licence
-# list need them. LATHE_RELEASE_BUILD replaces the build command and LATHE_RELEASE_LICENSES_JSON feeds the
-# licence list from a file instead of pnpm (both for the script's own test).
+# list need them. LATHE_RELEASE_AUDIT replaces both audits, LATHE_RELEASE_BUILD replaces the build
+# command and LATHE_RELEASE_LICENSES_JSON feeds the licence list from a file instead of pnpm (all
+# for the script's own test).
 set -euo pipefail
 
 version=${1:?usage: release.sh <version>}
@@ -26,6 +30,14 @@ git rev-parse -q --verify "refs/heads/$branch" >/dev/null && fail "branch $branc
 awk '/^## \[Unreleased\]$/ { open = 1; next } open && /^## / { exit } open && NF { found = 1; exit } END { exit !found }' CHANGELOG.md \
     && fail "CHANGELOG.md has entries under ## [Unreleased]"
 grep -q "^## \[$version\] - Unreleased$" CHANGELOG.md || fail "CHANGELOG.md has no '## [$version] - Unreleased' section"
+
+# An advisory published after main's last CI run would stop the release run after the tag.
+if [[ -n ${LATHE_RELEASE_AUDIT:-} ]]; then
+    (eval "$LATHE_RELEASE_AUDIT") || fail "the audit failed: $LATHE_RELEASE_AUDIT"
+else
+    composer audit --locked || fail "composer audit --locked failed; take the fixes into composer.lock first"
+    pnpm audit --prod --audit-level=high || fail "pnpm audit --prod --audit-level=high failed; take the fixes into pnpm-lock.yaml first"
+fi
 
 git switch -q -c "$branch"
 

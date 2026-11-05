@@ -31,7 +31,7 @@ function releaseRepo(): string
 function runRelease(string $repo, string $version = '1.0.0-beta.1'): ProcessResult
 {
     return Process::path($repo)
-        ->env(['LATHE_RELEASE_BUILD' => 'mkdir -p dist && echo built > dist/app.js', 'LATHE_RELEASE_LICENSES_JSON' => "{$repo}/licenses.json"])
+        ->env(['LATHE_RELEASE_AUDIT' => 'true', 'LATHE_RELEASE_BUILD' => 'mkdir -p dist && echo built > dist/app.js', 'LATHE_RELEASE_LICENSES_JSON' => "{$repo}/licenses.json"])
         ->run(['bash', 'scripts/release.sh', $version]);
 }
 
@@ -105,3 +105,54 @@ it('cuts with an empty ## [Unreleased] heading followed by blank lines', functio
     File::deleteDirectory($repo);
     File::deleteDirectory("{$repo}-origin.git");
 })->group('frontend');
+
+it('refuses a cut whose audit fails, before the release branch exists', function () {
+    $repo = releaseRepo();
+    $git = fn (string $command) => trim(Process::path($repo)->run($command)->output());
+
+    $result = Process::path($repo)
+        ->env(['LATHE_RELEASE_AUDIT' => 'echo advisory >&2; exit 1', 'LATHE_RELEASE_BUILD' => 'mkdir -p dist && echo built > dist/app.js', 'LATHE_RELEASE_LICENSES_JSON' => "{$repo}/licenses.json"])
+        ->run(['bash', 'scripts/release.sh', '1.0.0-beta.1']);
+
+    expect($result->exitCode())->toBe(1)
+        ->and($result->errorOutput())->toMatch('/^release: .*audit/m')
+        ->and($git('git branch --show-current'))->toBe('main')
+        ->and($git('git branch --list "release/*"'))->toBe('')
+        ->and($git('git tag --list'))->toBe('');
+
+    File::deleteDirectory($repo);
+    File::deleteDirectory("{$repo}-origin.git");
+})->group('frontend');
+
+it('runs composer audit --locked and then pnpm audit --prod --audit-level=high when no audit command is set', function (string $failing) {
+    $repo = releaseRepo();
+    $git = fn (string $command) => trim(Process::path($repo)->run($command)->output());
+    $bin = "{$repo}-bin";
+    File::ensureDirectoryExists($bin);
+    foreach (['composer', 'pnpm'] as $tool) {
+        $code = $tool === $failing ? 1 : 0;
+        File::put("{$bin}/{$tool}", "#!/usr/bin/env bash\necho \"{$tool} \$*\" >> {$repo}-calls.log\nexit {$code}\n");
+        chmod("{$bin}/{$tool}", 0755);
+    }
+
+    $result = Process::path($repo)
+        ->env(['PATH' => $bin.PATH_SEPARATOR.getenv('PATH'), 'LATHE_RELEASE_BUILD' => 'mkdir -p dist && echo built > dist/app.js', 'LATHE_RELEASE_LICENSES_JSON' => "{$repo}/licenses.json"])
+        ->run(['bash', 'scripts/release.sh', '1.0.0-beta.1']);
+    $calls = File::get("{$repo}-calls.log");
+
+    if ($failing === 'none') {
+        expect($result->exitCode())->toBe(0, $result->errorOutput())
+            ->and($calls)->toBe("composer audit --locked\npnpm audit --prod --audit-level=high\n");
+    } else {
+        expect($result->exitCode())->toBe(1)
+            ->and($result->errorOutput())->toContain("release: {$failing} audit")
+            ->and($calls)->toStartWith('composer audit --locked')
+            ->and($git('git branch --show-current'))->toBe('main')
+            ->and($git('git branch --list "release/*"'))->toBe('');
+    }
+
+    File::deleteDirectory($repo);
+    File::deleteDirectory("{$repo}-origin.git");
+    File::deleteDirectory($bin);
+    File::delete("{$repo}-calls.log");
+})->with(['none', 'composer', 'pnpm'])->group('frontend');
