@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 # Cuts a release on a local branch and tag, and pushes nothing.
 #   bash scripts/release.sh <version>
-# From a clean, green main it: creates release/<version>; sets every package.json version;
-# dates the CHANGELOG section; regenerates the upgrade guide; runs the build and force-adds dist/; writes
+# From a clean, green main whose CHANGELOG.md has nothing under ## [Unreleased] it: creates
+# release/<version>; sets every package.json version; dates the CHANGELOG section; regenerates the upgrade guide; runs the build and force-adds dist/; writes
 # THIRD-PARTY-LICENSES.md; commits; and tags the commit v<version>. main never gets dist/.
 # Run `pnpm install --frozen-lockfile` and `composer install` first: the build and the licence
 # list need them. LATHE_RELEASE_BUILD replaces the build command and LATHE_RELEASE_LICENSES_JSON feeds the
@@ -22,6 +22,9 @@ fail() { echo "release: $*" >&2; exit 1; }
 [[ -z $(git status --porcelain) ]] || fail "the tree is not clean"
 git rev-parse -q --verify "refs/tags/$tag" >/dev/null && fail "tag $tag exists"
 git rev-parse -q --verify "refs/heads/$branch" >/dev/null && fail "branch $branch exists"
+# Entries under [Unreleased] belong in a version's section first; a cut would leave them out.
+awk '/^## \[Unreleased\]$/ { open = 1; next } open && /^## / { exit } open && NF { found = 1; exit } END { exit !found }' CHANGELOG.md \
+    && fail "CHANGELOG.md has entries under ## [Unreleased]"
 grep -q "^## \[$version\] - Unreleased$" CHANGELOG.md || fail "CHANGELOG.md has no '## [$version] - Unreleased' section"
 
 git switch -q -c "$branch"

@@ -71,3 +71,37 @@ it('refuses a dirty tree, a version without a changelog section and a tag that e
     File::deleteDirectory($repo);
     File::deleteDirectory("{$repo}-origin.git");
 })->group('frontend');
+
+it('refuses a cut while entries sit under ## [Unreleased], before it looks for the version section', function () {
+    $repo = releaseRepo();
+    $git = fn (string $command) => trim(Process::path($repo)->run($command)->output());
+
+    File::put("{$repo}/CHANGELOG.md", "# Changelog\n\n## [Unreleased]\n\n### Fixed\n\n- A fix.\n\n## [1.0.0-beta.1] - Unreleased\n\n- First.\n");
+    Process::path($repo)->run('git commit -qam "Note a fix"')->throw();
+
+    foreach (['1.0.0-beta.1', '1.0.0-beta.10'] as $version) {
+        $result = runRelease($repo, $version);
+
+        expect($result->exitCode())->toBe(1)
+            ->and($result->errorOutput())->toContain('release: CHANGELOG.md has entries under ## [Unreleased]')
+            ->and($git('git branch --show-current'))->toBe('main')
+            ->and($git('git branch --list "release/*"'))->toBe('');
+    }
+
+    File::deleteDirectory($repo);
+    File::deleteDirectory("{$repo}-origin.git");
+})->group('frontend');
+
+it('cuts with an empty ## [Unreleased] heading followed by blank lines', function () {
+    $repo = releaseRepo();
+
+    File::put("{$repo}/CHANGELOG.md", "# Changelog\n\n## [Unreleased]\n\n\n   \n## [1.0.0-beta.1] - Unreleased\n\n- First.\n");
+    Process::path($repo)->run('git commit -qam "Space out the changelog"')->throw();
+
+    $result = runRelease($repo);
+
+    expect($result->exitCode())->toBe(0, $result->errorOutput());
+
+    File::deleteDirectory($repo);
+    File::deleteDirectory("{$repo}-origin.git");
+})->group('frontend');
