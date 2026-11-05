@@ -67,7 +67,8 @@ node scripts/upgrade-guide.mjs
 
 build() {
     rm -rf dist
-    eval "${LATHE_RELEASE_BUILD:-pnpm build}"
+    # Its output goes to stderr: this function's stdout is the list of hashes, and vite prints timings.
+    eval "${LATHE_RELEASE_BUILD:-pnpm build}" >&2 || fail "the build failed"
     [[ -d dist ]] || fail "the build wrote no dist/"
     (cd dist && find . -type f -print0 | sort -z | xargs -0 sha256sum)
 }

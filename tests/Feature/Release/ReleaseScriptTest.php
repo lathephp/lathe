@@ -188,3 +188,31 @@ it('refuses a cut whose two builds of dist differ, leaving main as it was, and c
     File::deleteDirectory("{$repo}-origin.git");
     File::delete("{$repo}-builds.log");
 })->group('frontend');
+
+it('compares the files two builds write, not what the build prints, and refuses a build that fails', function () {
+    $repo = releaseRepo();
+    $build = fn (string $command) => Process::path($repo)
+        ->env(['LATHE_RELEASE_AUDIT' => 'true', 'LATHE_RELEASE_BUILD' => $command, 'LATHE_RELEASE_LICENSES_JSON' => "{$repo}/licenses.json"])
+        ->run(['bash', 'scripts/release.sh', '1.0.0-beta.1']);
+
+    $failed = $build('mkdir -p dist && echo same > dist/app.js && false');
+
+    expect($failed->exitCode())->toBe(1)
+        ->and($failed->errorOutput())->toContain('release: the build failed')
+        ->and(trim(Process::path($repo)->run('git tag --list')->output()))->toBe('');
+
+    $chatty = $build('echo "built in $(date +%s%N) ms" && mkdir -p dist && echo same > dist/app.js');
+
+    expect($chatty->exitCode())->toBe(0, $chatty->errorOutput());
+
+    File::deleteDirectory($repo);
+    File::deleteDirectory("{$repo}-origin.git");
+})->group('frontend');
+
+it('names both of its refusals in its header comment', function () {
+    $header = implode("\n", array_slice(file(dirname(__DIR__, 3).'/scripts/release.sh'), 0, 15));
+
+    expect($header)->toContain('entries under ## [Unreleased]')
+        ->and($header)->toContain('composer audit --locked')
+        ->and($header)->toContain('pnpm audit --prod --audit-level=high');
+});
