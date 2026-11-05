@@ -51,7 +51,7 @@ export function RecordActionMenu({ uriKey, id, actions }: { uriKey: string; id: 
           role="menu"
           aria-label={__('Actions')}
           tabIndex={-1}
-          className="absolute end-0 top-full z-20 mt-1 w-64 rounded-lg border border-border bg-background p-1 shadow-lg"
+          className="absolute end-0 top-full z-50 mt-1 w-64 rounded-lg border border-border bg-background p-1 shadow-lg"
           onKeyDown={(event) => {
             if (event.key === 'Escape') {
               trigger.current?.focus();

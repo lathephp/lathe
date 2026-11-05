@@ -49,6 +49,26 @@ describe('the detail action menu', () => {
   });
 });
 
+describe('the detail action menu beside the sidebar', () => {
+  // jsdom does no layout: at 768 px with the sidebar open the menu reached 14 px under the sidebar,
+  // which covered its edge, so the menu must stack above the sidebar.
+  it('stacks above the sidebar', async () => {
+    renderPage('Resources/Detail', {
+      resource: { uriKey: 'orders', label: 'Orders', singularLabel: 'Order', abilities: { create: false } },
+      record: { id: 12, title: 'ORD-12', subtitle: '', avatar: null, fields: [], layout: [], abilities: { view: true }, trashed: false },
+      breadcrumbs: [],
+      actions: { actions: [meta('mark-shipped', 'Mark Shipped', { authorizedToRun: true })], pivotActions: [], counts: {} },
+    });
+
+    fireEvent.click(await screen.findByRole('button', { name: 'Actions' }));
+    const layer = (element: Element | null) => Number(/(?:^|\s)z-(\d+)(?:\s|$)/.exec(element?.className ?? '')?.[1] ?? Number.NaN);
+    const sidebar = layer(document.querySelector('[data-lathe-sidebar]'));
+
+    expect(sidebar).toBeGreaterThan(0);
+    expect(layer(screen.getByRole('menu', { name: 'Actions' }))).toBeGreaterThan(sidebar);
+  });
+});
+
 describe('the detail action menu and its dialog', () => {
   it('gives the focus back to Actions when the dialog an item opened closes', async () => {
     vi.spyOn(globalThis, 'fetch').mockResolvedValueOnce(json({ fields: [], confirmText: 'Cancel order ORD-12?' }));
