@@ -391,7 +391,10 @@
 /* The shell: the top bar, the page header and the sidebar. The looks live here, so the
    first-load script of every page carries only the class names. */
 @layer components {
+  /* The top bar is a container, so the search box answers to the bar's width, which the sidebar
+     takes from, not to the window's. */
   .lathe-topbar {
+    container: topbar / inline-size;
     @apply flex h-14 items-center gap-1 border-b border-border bg-background px-2 md:gap-3 md:ps-4 md:pe-6;
   }
 
@@ -424,6 +427,20 @@
     @apply rounded-[4px] border border-border bg-muted px-[5px] font-mono text-[11px] leading-4 font-medium max-md:hidden;
   }
 
+  /* Under 45rem of bar content (a 768 px window, sidebar open or collapsed) the 260 px box would run
+     into a record's last crumb, so it drops to its icon, as it does under md. A 1024 px window with
+     the sidebar open keeps the box. Ctrl+K and the button still open search. */
+  @container topbar (width < 45rem) {
+    .lathe-topbar-search {
+      @apply md:w-8 md:justify-center md:border-0 md:bg-transparent md:px-0;
+    }
+
+    .lathe-topbar-search > span,
+    .lathe-topbar-search > kbd {
+      @apply hidden;
+    }
+  }
+
   .lathe-crumbs {
     @apply min-w-0 text-[13px] leading-[18px] text-muted-foreground max-md:hidden;
   }
@@ -433,12 +450,22 @@
     @apply flex items-center gap-1.5;
   }
 
+  /* When even the icon leaves too little room, only the last crumb gives way, with an ellipsis. */
+  .lathe-crumbs li:not(:last-child),
+  .lathe-crumbs svg {
+    @apply shrink-0;
+  }
+
+  .lathe-crumbs li:last-child {
+    @apply min-w-0;
+  }
+
   .lathe-crumbs a {
     @apply rounded-sm outline-none hover:text-foreground focus-visible:ring-2 focus-visible:ring-focus;
   }
 
   .lathe-crumbs [aria-current="page"] {
-    @apply font-medium text-foreground;
+    @apply truncate font-medium text-foreground;
   }
 
   .lathe-page-bar-title {
