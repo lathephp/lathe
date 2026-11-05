@@ -4,6 +4,10 @@ All notable changes to Lathe are listed here. The format follows [Keep a Changel
 
 ## [Unreleased]
 
+### Fixed
+
+- In the record preview panel beside a list, the Actions menu opens from its button's start edge when, ending at the button's end edge, it would run out of the panel, as it already did at the edge of the page's content. At 1280 px it began 152 px outside the 400 px panel, which hid every item's label, and where `ActionDropdown` sits in a box of its own that scrolls, it now keeps inside that box too.
+
 ## [1.0.0-beta.10] - 2026-11-05
 
 ### Changed

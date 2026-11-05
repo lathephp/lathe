@@ -11,6 +11,19 @@ import { useActionRunner } from './useActionRunner';
 const itemClass =
   'flex w-full items-start rounded-md px-2 py-1.5 text-start text-sm outline-none hover:bg-muted focus-visible:ring-2 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50';
 
+/** The box that cuts the menu off: the nearest ancestor that scrolls, as the preview panel does, or the content. */
+function clipOf(element: HTMLElement): DOMRect | undefined {
+  for (let parent = element.parentElement; parent !== null; parent = parent.parentElement) {
+    const style = getComputedStyle(parent);
+
+    if (parent.id === 'content' || style.overflowX !== 'visible' || style.overflowY !== 'visible') {
+      return parent.getBoundingClientRect();
+    }
+  }
+
+  return undefined;
+}
+
 /** The actions of the record a detail page shows, each enabled by its flag for that record. */
 export function RecordActionMenu({ uriKey, id, actions }: { uriKey: string; id: string | number; actions: ActionMeta[] }) {
   const { __ } = useTranslation();
@@ -18,7 +31,7 @@ export function RecordActionMenu({ uriKey, id, actions }: { uriKey: string; id: 
   const menuId = useId();
   const [open, setOpen] = useState(false);
   // A menu that, ending at its button's end edge, would run out of the content (a phone, or under the
-  // sidebar) opens from the button's start edge instead.
+  // sidebar) or of the preview panel it sits in opens from the button's start edge instead.
   const [fromStart, setFromStart] = useState(false);
   const trigger = useRef<HTMLButtonElement>(null);
   const menu = useRef<HTMLDivElement>(null);
@@ -35,7 +48,7 @@ export function RecordActionMenu({ uriKey, id, actions }: { uriKey: string; id: 
     }
 
     const box = menu.current.getBoundingClientRect();
-    const area = document.getElementById('content')?.getBoundingClientRect();
+    const area = clipOf(menu.current);
 
     if (box.left < (area?.left ?? 0) || box.right > (area?.right ?? window.innerWidth)) {
       setFromStart(true);
