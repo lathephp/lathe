@@ -4,9 +4,16 @@ All notable changes to Lathe are listed here. The format follows [Keep a Changel
 
 ## [Unreleased]
 
+## [1.0.0-beta.10] - Unreleased
+
+### Changed
+
+- The top bar's search shows as its icon button, as on a phone, whenever the top bar is narrower than about 760 px: in a window narrower than about 1,016 px with the sidebar open, or about 808 px with it collapsed. It showed the search box from 768 px up. Ctrl+K and ⌘K open search as before.
+- [api] No public API changed and no English string is new, renamed or removed since 1.0.0-beta.9, so an app updates with nothing to change in its code or its translations.
+
 ### Fixed
 
-- A page title reads whole from 768 px up: when a header is too narrow for its title and its buttons on one row, the buttons move to a row below the title, and a long title wraps onto more lines where it ended in an ellipsis. At 768 px beside the sidebar an order's title read "O…" beside its Actions menu, Delete, Replicate and Edit. This is the header of every list, record, create and edit form, dashboard, plugin settings page, Security page and action run page; a header whose buttons fit beside its title keeps its one row, and a phone keeps its title in the top bar.
+- A page title reads whole from 768 px up: when a header is too narrow for its title and its buttons on one row, the buttons move to a row below the title, and a long title wraps onto more lines where it ended in an ellipsis. At 768 px beside the sidebar an order's title read "O…" beside its Actions menu, Delete, Replicate and Edit. This is the header of every list and lens, record, create and edit form, dashboard, plugin settings page, Security page and action run page; a header whose buttons fit beside its title keeps its one row, and a phone keeps its title in the top bar.
 - The top bar's last breadcrumb reads whole beside the search: when the top bar is narrower than about 760 px, as at 768 px with the sidebar open or collapsed, the search box drops to its icon button, as on a phone, where it covered the crumb ("Sale" on Sales). The switch follows the top bar's own width, not the window's, so a 1024 px window with the sidebar open keeps the box. Ctrl+K and ⌘K still open search. A last crumb too long for the room left ends in an ellipsis, so the bell stays in the top bar.
 - A record's Actions menu stays on screen and above the sidebar: when, ending at its button's end edge, it would run out of the page's content, it opens from the button's start edge, where at 390 px it began 39 px off the screen and at 768 px with the sidebar open its edge went under the sidebar. Escape closes it while the focus is still on Actions, where it did nothing until the focus moved into the menu, and a new window width, as when a tablet turns, closes it rather than leaving it off the screen.
 
