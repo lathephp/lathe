@@ -24,12 +24,22 @@ it('lists the index cards the user may see as a page prop, without detail-only c
         ->where('widgets', fn ($widgets) => array_column($widgets->all(), 'uriKey') === ['order-count']));
 });
 
-it('lists the detail cards, detail-only ones included, as a page prop', function () {
+it('lists only the detail-only cards on a record page', function () {
     $order = Order::firstOrFail();
 
     $this->get("/lathe/resources/widget-orders/{$order->getKey()}")->assertOk()->assertInertia(fn (AssertableInertia $page) => $page
         ->component('Resources/Detail', false)
-        ->where('widgets', fn ($widgets) => array_column($widgets->all(), 'uriKey') === ['order-count', 'detail-only']));
+        ->where('widgets', fn ($widgets) => array_column($widgets->all(), 'uriKey') === ['detail-only']));
+});
+
+it("shows the workbench's Revenue card on Orders and its Order lines card on an order's page", function () {
+    $order = Order::has('items')->withCount('items')->firstOrFail();
+
+    $this->get('/lathe/resources/orders')->assertOk()->assertInertia(fn (AssertableInertia $page) => $page
+        ->where('widgets', fn ($widgets) => array_column($widgets->all(), 'name') === ['Revenue']));
+    $this->get("/lathe/resources/orders/{$order->getKey()}")->assertOk()->assertInertia(fn (AssertableInertia $page) => $page
+        ->where('widgets', fn ($widgets) => array_column($widgets->all(), 'name') === ['Order lines']));
+    expect($this->getJson("/lathe/api/resources/orders/widgets/order-lines?resourceId={$order->getKey()}")->assertOk()->json('value.value'))->toBe($order->items_count);
 });
 
 it('lists the lens cards the user may see as a page prop', function () {

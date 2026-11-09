@@ -29,6 +29,8 @@ use Workbench\App\Lathe\Filters\OrderPlaced;
 use Workbench\App\Lathe\Filters\OrderStatus;
 use Workbench\App\Lathe\Lenses\PendingOrders;
 use Workbench\App\Lathe\ResourcePlugins\ActivityTimeline;
+use Workbench\App\Lathe\Widgets\OrderLines;
+use Workbench\App\Lathe\Widgets\Revenue;
 use Workbench\App\Models\Order as OrderModel;
 use Workbench\App\Models\User;
 
@@ -126,6 +128,14 @@ class Order extends Resource
     public function filters(LatheRequest $request): array
     {
         return [(new OrderStatus)->multiple(), new OrderCustomer, new OrderPlaced];
+    }
+
+    /**
+     * Revenue above the list, and the order's own lines on its page.
+     */
+    public function widgets(LatheRequest $request): array
+    {
+        return [Revenue::make(), new OrderLines];
     }
 
     public function lenses(LatheRequest $request): array

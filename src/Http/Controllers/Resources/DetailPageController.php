@@ -42,7 +42,7 @@ class DetailPageController
             'breadcrumbs' => $breadcrumbs,
             // The actions shown on detail, each flagged for this one record.
             'actions' => $menu->build($class, 'detail', $model),
-            // The cards this user may see here, detail-only ones included; each fetches its own value.
+            // The detail-only cards this user may see here; each fetches its own value.
             'widgets' => fn () => array_values(array_map(
                 fn (Widget $widget) => $widget->descriptor(),
                 array_filter(

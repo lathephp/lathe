@@ -61,7 +61,7 @@ On a Resource the cards sit above the index table. A key may appear only once in
 
 ### Widgets on the detail page
 
-Call `onlyOnDetail()` to show a widget on the Resource detail page and not on the index. The attribute does the same. Inside `calculate()`, `$request->query('resourceId')` holds the key of the record on the page:
+Call `onlyOnDetail()` to show a widget on the Resource detail page and not on the index. The attribute does the same. The detail page shows only these widgets: the others stay above the index. Inside `calculate()`, `$request->query('resourceId')` holds the key of the record on the page:
 
 ```php
 use Lathe\Attributes\Widget\OnlyOnDetail;

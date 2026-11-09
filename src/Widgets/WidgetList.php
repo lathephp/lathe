@@ -37,7 +37,8 @@ class WidgetList
     }
 
     /**
-     * The widgets the request may see; detail-only ones only on a detail page.
+     * The widgets the request may see: a detail page shows only the detail-only ones, every other
+     * page all the rest.
      *
      * @return list<Widget>
      */
@@ -45,7 +46,7 @@ class WidgetList
     {
         return array_values(array_filter(
             $this->widgets,
-            fn (Widget $widget) => $widget->authorize($request) && ($detail || ! $widget->isOnlyOnDetail()),
+            fn (Widget $widget) => $widget->authorize($request) && $widget->isOnlyOnDetail() === $detail,
         ));
     }
 

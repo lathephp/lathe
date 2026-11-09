@@ -95,12 +95,12 @@ it('lists the widgets the user may see, without their values', function () {
         ->assertJsonMissingPath('widgets.0.value');
 });
 
-it('keeps detail-only widgets off the index and needs a resourceId for their value', function () {
+it('keeps detail-only widgets off the index, lists only them on a record, and needs a resourceId for their value', function () {
     $order = Order::firstOrFail();
     $this->actingAs(widgetAdmin());
 
     expect($this->getJson('/lathe/api/resources/widget-orders/widgets')->json('widgets.*.uriKey'))->toBe(['order-count'])
-        ->and($this->getJson("/lathe/api/resources/widget-orders/widgets?resourceId={$order->getKey()}")->json('widgets.*.uriKey'))->toBe(['order-count', 'detail-only']);
+        ->and($this->getJson("/lathe/api/resources/widget-orders/widgets?resourceId={$order->getKey()}")->json('widgets.*.uriKey'))->toBe(['detail-only']);
 
     $this->getJson('/lathe/api/resources/widget-orders/widgets/detail-only')->assertNotFound();
     $this->getJson("/lathe/api/resources/widget-orders/widgets/detail-only?resourceId={$order->getKey()}")->assertOk()
