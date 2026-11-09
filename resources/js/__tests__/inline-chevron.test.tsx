@@ -2,55 +2,42 @@
 import { screen, waitFor } from '@testing-library/react';
 import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
-import { cellOf, renderPage } from './support';
+import { cellOf, indexTable, renderPage } from './support';
 
 const definition = { debounce: 0.5, paginationType: 'links', clickAction: 'detail', polling: null, showPollingToggle: false, tableStyle: 'default', showColumnBorders: false, softDeletes: false };
 
-const title = { key: 'title', attribute: 'title', label: 'Title', component: 'text-field', sortable: false, sortKey: 'title' };
-const status = {
-  key: 'status',
-  attribute: 'status',
-  label: 'Status',
-  component: 'select-field',
-  sortable: false,
-  sortKey: 'status',
-  inline: true,
-  badges: { draft: 'neutral' },
-  options: [{ value: 'draft', label: 'Draft' }],
-};
-const name = { key: 'name', attribute: 'name', label: 'Name', component: 'text-field', sortable: false, sortKey: 'name', inline: true };
+const labels = { orders: ['Orders', 'Order'], customers: ['Customers', 'Customer'] } as const;
 
-function renderRows(update = true) {
+// Orders hold the inline Status with badges; customers hold the inline text Name. The workbench
+// Status also draws a meter, which takes the badge's place, so the badge case drops it.
+function renderRows(uriKey: 'orders' | 'customers', update = true) {
+  const table = indexTable(uriKey);
+  table.columns.forEach((column) => {
+    if ('meter' in column) {
+      column.meter = null;
+    }
+  });
+  table.rows.forEach((row) => {
+    row.abilities.update = update;
+  });
+
   return renderPage(
     'Resources/Index',
     {
-      resource: { uriKey: 'posts', label: 'Posts', singularLabel: 'Post', perPageOptions: [25], searchable: false, softDeletes: false, abilities: { create: false }, definition },
-      table: {
-        columns: [title, status, name],
-        rows: [
-          {
-            id: 1,
-            title: 'Hello',
-            cells: { title: { value: 'Hello', display: 'Hello' }, status: { value: 'draft', display: 'draft' }, name: { value: 'Ada', display: 'Ada' } },
-            abilities: { view: true, update },
-            updatedAt: '2026-10-14T09:00:00.000Z',
-          },
-        ],
-        rowKey: 'id',
-        sortKeys: [],
-      },
+      resource: { uriKey, label: labels[uriKey][0], singularLabel: labels[uriKey][1], perPageOptions: [25], searchable: false, softDeletes: false, abilities: { create: false }, definition },
+      table: { ...table, sortKeys: [] },
       state: { page: 1, perPage: 25, hasMorePages: false },
-      count: { value: 1, exact: true, capped: false, estimated: false },
+      count: { value: table.rows.length, exact: true, capped: false, estimated: false },
     },
-    { url: '/lathe/resources/posts' },
+    { url: `/lathe/resources/${uriKey}` },
   );
 }
 
 describe('the inline cell chevron', () => {
   it('sits inside a badge value and names the cell', async () => {
-    renderRows();
+    renderRows('orders');
 
-    const cell = await screen.findByRole('gridcell', { name: 'Status: Draft. Change status' });
+    const cell = await screen.findByRole('gridcell', { name: 'Status: Shipped. Change status' });
     const chevron = cell.querySelector('[data-lathe-badge-tone] svg[aria-hidden="true"]');
 
     expect(chevron).not.toBeNull();
@@ -58,32 +45,32 @@ describe('the inline cell chevron', () => {
   });
 
   it('follows a text value and names the cell', async () => {
-    renderRows();
+    renderRows('customers');
 
-    const cell = await screen.findByRole('gridcell', { name: 'Name: Ada. Change name' });
+    const cell = await screen.findByRole('gridcell', { name: 'Name: Grace Hopper. Change name' });
     const marker = cell.querySelector('[data-inline-chevron]');
 
-    expect(cell.textContent).toBe('Ada');
+    expect(cell.textContent).toBe('Grace Hopper');
     expect(marker?.querySelector('svg[aria-hidden="true"]')).not.toBeNull();
-    expect(marker?.previousSibling?.textContent).toBe('Ada');
+    expect(marker?.previousSibling?.textContent).toBe('Grace Hopper');
   });
 
   it('is left off a read-only cell', async () => {
-    renderRows();
+    renderRows('orders');
 
-    await screen.findByRole('gridcell', { name: 'Status: Draft. Change status' });
-    const cell = cellOf('Title');
+    await screen.findByRole('gridcell', { name: 'Status: Shipped. Change status' });
+    const cell = cellOf('Total');
 
-    expect(cell.textContent).toBe('Hello');
+    expect(cell.textContent).toBe('$499.00');
     expect(cell.querySelector('[data-inline-chevron]')).toBeNull();
     expect(cell.hasAttribute('aria-label')).toBe(false);
   });
 
   it('is left off every cell of a row the user may not update', async () => {
-    renderRows(false);
+    renderRows('orders', false);
 
     await waitFor(() => {
-      expect(cellOf('Status').textContent).toBe('Draft');
+      expect(cellOf('Status').textContent).toBe('Shipped');
     });
     expect(document.querySelector('[data-inline-chevron]')).toBeNull();
     expect(cellOf('Status').hasAttribute('aria-label')).toBe(false);

@@ -4,6 +4,7 @@ import { expect, vi } from 'vitest';
 import type { ComponentProps, ComponentType } from 'react';
 import { panelLayout } from '../layout/panelLayout';
 import type { SharedProps } from '../types';
+import indexPayload from './fixtures/index-payload.json';
 
 type InitialPage = ComponentProps<typeof App>['initialPage'];
 
@@ -83,6 +84,15 @@ export function renderPage(component: string, props: Record<string, unknown>, op
       defaultLayout={panelLayout}
     />,
   );
+}
+
+/**
+ * The table of a workbench index as the server sends it, from the snapshot
+ * tests/Feature/Resources/IndexPayloadSnapshotTest.php writes. A fresh copy each call, so a
+ * test can change a row's abilities or a column's flags.
+ */
+export function indexTable(uriKey: keyof typeof indexPayload) {
+  return structuredClone(indexPayload[uriKey]);
 }
 
 /** Props the server sends once per session, by key: the browser keeps them across visits. */
