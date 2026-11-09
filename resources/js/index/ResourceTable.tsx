@@ -139,8 +139,9 @@ export function ResourceTable({ resource, table, state, loading, selection, sort
   const pinned = rest.filter((column) => column.pinned === true);
   const columns = title === undefined ? [] : [title, ...pinned, ...rest.filter((column) => column.pinned !== true)];
   const stuck = columns.length === 0 ? 0 : pinned.length + 1;
-  // The title attribute's column links the record; the first column does while that one is not shown.
-  const linked = columns.some((column) => column.key === table.titleColumn) ? table.titleColumn : title?.key;
+  // The title attribute's column links the record; the first column does while that one is not shown or
+  // edits inline, since a cell that edits in place is no link.
+  const linked = columns.some((column) => column.key === table.titleColumn && column.inline !== true) ? table.titleColumn : title?.key;
   const header = useRef<HTMLTableRowElement>(null);
   const scroller = useRef<HTMLDivElement>(null);
   const grid = useRef<HTMLTableElement>(null);

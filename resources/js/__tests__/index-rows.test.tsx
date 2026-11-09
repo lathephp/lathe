@@ -495,7 +495,7 @@ describe('title column link', () => {
   const nameColumn = { key: 'name', label: 'Name', component: 'text', sortable: false, sortKey: 'name' };
 
   function renderCustomers(columns: (typeof idColumn)[], titleColumn: string | null) {
-    const customers = [3, 4].map((id) => ({ id, title: `Ada ${String(id)}`, cells: { id: { value: id, display: String(id) }, name: { value: `Ada ${String(id)}`, display: `Ada ${String(id)}` } }, abilities: { view: true } }));
+    const customers = [3, 4].map((id) => ({ id, title: `Ada ${String(id)}`, cells: { id: { value: id, display: String(id) }, name: { value: `Ada ${String(id)}`, display: `Ada ${String(id)}` } }, abilities: { view: true, update: true } }));
 
     return renderPage(
       'Resources/Index',
@@ -523,6 +523,15 @@ describe('title column link', () => {
 
     expect(within(rowOf('Ada 3')).getByText('3').closest('td')?.hasAttribute('data-open')).toBe(false);
     fireEvent.click(within(rowOf('Ada 3')).getByText('Ada 3'));
+
+    expect(visit.mock.calls[0]?.[0]).toBe('/lathe/resources/customers/3');
+  });
+
+  it('keeps the link on the first column when the title column edits inline', () => {
+    const visit = vi.spyOn(router, 'visit').mockImplementation(() => undefined);
+    renderCustomers([idColumn, { ...nameColumn, inline: true } as typeof idColumn], 'name');
+
+    fireEvent.click(within(bodyRows()[0] as HTMLElement).getByText('3'));
 
     expect(visit.mock.calls[0]?.[0]).toBe('/lathe/resources/customers/3');
   });
