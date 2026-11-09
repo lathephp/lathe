@@ -1,7 +1,8 @@
 import { usePage } from '@inertiajs/react';
 import { addShortcut, type Translator, useTranslation } from '@lathephp/core';
-import { Search, X } from 'lucide-react';
+import { ListFilter, Search, X } from 'lucide-react';
 import { Suspense, useEffect, useRef, useState } from 'react';
+import { Button } from '../components/ui/Button';
 import type { SharedProps } from '../types';
 import type { FilterChip } from './filterTokens';
 import { activeFilters, cancelFilterVisit, chipValue } from './FilterChips';
@@ -89,9 +90,13 @@ export function FilterBar({ q = '', visit }: FilterBarProps) {
   // A press focuses the input before the editor loads, so the click that opens the list lands here.
   const pressed = useRef(false);
   const timer = useRef<ReturnType<typeof setTimeout>>(undefined);
+  // How many times the Filter button asked the loaded editor to open its list.
+  const [opens, setOpens] = useState(0);
   // The editor's chips as last drawn, which may be ahead of the URL while their visit waits.
   const drawn = useRef<FilterChip[] | null>(null);
   const chips = urlChips(page.url, page.props, __);
+  const hasFilters = (page.props.filters?.available.length ?? 0) > 0;
+  const count = chips.filter((chip) => chip.key !== 'trashed').length;
   const named = { resource: resource.label.toLowerCase() };
   const label = resource.searchable ? __('Search :resource', named) : __('Filter :resource', named);
 
@@ -147,12 +152,24 @@ export function FilterBar({ q = '', visit }: FilterBarProps) {
     });
   }
 
+  /** The Filter button: the first paint's input takes a press and loads the editor open; a loaded editor is told to open. */
+  function openList() {
+    if (editor === null) {
+      pressed.current = true;
+    } else {
+      setOpens(opens + 1);
+    }
+
+    box.current?.querySelector('input')?.focus();
+  }
+
   function remove(chip: FilterChip) {
     cancelFilterVisit();
     visit({ ...leave, ...chipsState(chips.filter((other) => other !== chip)) });
   }
 
   return (
+    <>
     <div
       ref={box}
       data-lathe-filter-bar=""
@@ -201,9 +218,22 @@ export function FilterBar({ q = '', visit }: FilterBarProps) {
         </div>
       ) : (
         <Suspense fallback={null}>
-          <FilterBarEditor label={label} url={page.url} urlChips={chips} leave={leave} onChips={(next) => (drawn.current = next)} text={text} focus={editor.focus} pressed={editor.pressed} onType={type} onSettle={settle} visit={visit} />
+          <FilterBarEditor label={label} url={page.url} urlChips={chips} leave={leave} onChips={(next) => (drawn.current = next)} text={text} focus={editor.focus} pressed={editor.pressed} opens={opens} onType={type} onSettle={settle} visit={visit} />
         </Suspense>
       )}
     </div>
+    {hasFilters && (
+      <Button variant="outline" size="sm" onClick={openList}>
+        <ListFilter aria-hidden="true" className="size-3.5" />
+        {__('Filter')}
+        {count > 0 && (
+          <>
+            {' '}
+            <span className="rounded-full bg-muted px-1.5 text-xs tabular-nums">{count}</span>
+          </>
+        )}
+      </Button>
+    )}
+    </>
   );
 }

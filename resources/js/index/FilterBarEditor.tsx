@@ -55,6 +55,8 @@ interface FilterBarEditorProps {
   focus: boolean;
   /** Whether a press on the first paint's input loaded the editor, which opens the list as a click on it does. */
   pressed: boolean;
+  /** Counts the Filter button's presses, each of which opens the list. */
+  opens: number;
   onType: (text: string) => void;
   onSettle: (text: string) => void;
   visit: (changes: IndexUrlState) => void;
@@ -63,13 +65,14 @@ interface FilterBarEditorProps {
 const applied = (chip: FilterChip) => chip.error === undefined;
 
 /** The filter bar once focused: a Base UI chips input where Enter turns key:value tokens into chips and words into q. */
-export function FilterBarEditor({ label, url, urlChips, leave, onChips, text, focus, pressed, onType, onSettle, visit }: FilterBarEditorProps) {
+export function FilterBarEditor({ label, url, urlChips, leave, onChips, text, focus, pressed, opens, onType, onSettle, visit }: FilterBarEditorProps) {
   const { __ } = useTranslation();
   const page = usePage<IndexProps & SharedProps>();
   const { resource, filters, basePath } = page.props;
   const [chips, setChips] = useState(urlChips);
   const [seen, setSeen] = useState(url);
   const [open, setOpen] = useState(pressed);
+  const [asked, setAsked] = useState(opens);
   // The relation options the last search found, kept while the next one loads.
   const [found, setFound] = useState<{ key: string; options: LookupResult[] } | null>(null);
   const input = useRef<HTMLInputElement>(null);
@@ -111,6 +114,11 @@ export function FilterBarEditor({ label, url, urlChips, leave, onChips, text, fo
       clearTimeout(timer);
     };
   }, [base, searchFilter, searchTerm]);
+
+  if (opens !== asked) {
+    setAsked(opens);
+    setOpen(true);
+  }
 
   // A visit landed: the URL's chips come back, and the red ones, which the URL never holds, stay.
   if (url !== seen) {

@@ -290,10 +290,10 @@ describe('filter bar', () => {
     expect(visitData(visit)).toEqual({});
   });
 
-  it('replaces the Filter button and the chip row', () => {
+  it('replaces the Filters popover and the chip row', () => {
     renderOrders('/lathe/resources/orders?filter[status]=paid');
 
-    expect(screen.queryByRole('button', { name: /^Filter/ })).toBeNull();
+    expect(screen.queryByRole('button', { name: /^Filters/ })).toBeNull();
     expect(document.querySelector('[data-lathe-chips]')).toBeNull();
     expect(document.querySelector('[data-lathe-toolbar]')?.contains(bar())).toBe(true);
   });
