@@ -30,6 +30,12 @@ it('lists the widgets of a dashboard and reads one card with its range', functio
         ->and($sales->widget('orders', ['range' => 60])->json('value.value'))->not->toBe($sales->widget('orders')->json('value.value'));
 });
 
+it('shows the Sales money cards with both cents, so a round tenth keeps its zero', function () {
+    $sales = LatheTest::dashboard('main');
+
+    expect([$sales->widget('revenue')->json('value.format'), $sales->widget('average-order')->json('value.format')])->toBe(['.00', '.00']);
+});
+
 it('lists the widgets of a Resource and reads one, on the index and on a detail page', function () {
     $order = Order::firstOrFail();
     $orders = LatheTest::resource(WidgetOrder::class);

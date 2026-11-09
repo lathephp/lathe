@@ -15,6 +15,7 @@ class Revenue extends ValueWidget
     {
         return $this->sum($request, Order::class, 'total_cents', 'placed_at')
             ->transform(fn (int|float $cents) => round($cents / 100, 2))
-            ->dollars();
+            ->dollars()
+            ->format('.00');
     }
 }
