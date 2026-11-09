@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use Lathe\Field\Field;
 use Lathe\Http\Requests\LatheRequest;
 use Lathe\Lenses\Lens;
+use Lathe\Summaries\Summary;
 use Workbench\App\Lathe\Filters\OrderCustomer;
 use Workbench\App\Lathe\Filters\OrderStatus;
 use Workbench\App\Models\Order;
@@ -26,7 +27,7 @@ class PendingOrders extends Lens
                 ->inline(),
             Field::make('Total', 'total_cents', fn (Model $order) => $order instanceof Order
                 ? number_format($order->total_cents / 100, 2, '.', '')
-                : null)->sortable(),
+                : null)->sortable()->summarize(Summary::sum()->label('Total')->format(fn (int|float|string $cents) => number_format((float) $cents / 100, 2))),
             Field::make('Placed', 'placed_at', fn (Model $order) => $order instanceof Order
                 ? $order->placed_at->utc()->toIso8601ZuluString()
                 : null)->sortable(),

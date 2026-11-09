@@ -27,6 +27,7 @@ use Lathe\Resources\Resource;
 use Lathe\Resources\ResourceDefinition;
 use Lathe\SavedTabs\SavedTab;
 use Lathe\SavedTabs\SchemaHash;
+use Lathe\Summaries\Summary;
 use Workbench\App\Lathe\Lenses\PendingOrders;
 use Workbench\App\Lathe\Resources\Order as OrderResource;
 use Workbench\App\Models\Order;
@@ -150,7 +151,7 @@ class Gizmo extends Resource
 
     public function fields(LatheRequest $request): array
     {
-        return [Field::make('Name')->sortable()];
+        return [Field::make('Name')->sortable()->summarize(Summary::count())];
     }
 
     public function lenses(LatheRequest $request): array
@@ -311,6 +312,24 @@ it('sends the tab badges on a lens page as the index does', function () {
 
     expect($props['tabCounts']['all']['count']['value'])->toBe(Order::count())
         ->and($props['tabCounts']['paid']['count']['value'])->toBe(Order::where('status', 'paid')->count());
+});
+
+it("sums the Pending Orders lens's own Total in its footer", function () {
+    $this->get('/lathe/resources/orders/lens/pending-orders')
+        ->assertOk()
+        ->assertInertia(fn (AssertableInertia $page) => $page->where('resource.hasSummaries', true));
+
+    $summaries = $this->get('/lathe/resources/orders/lens/pending-orders', lensPartial('summaries'))->assertOk()->json('props.summaries');
+
+    expect($summaries['allRecords']['total_cents'])->toBe([['label' => 'Total', 'value' => number_format(Order::where('status', 'pending')->sum('total_cents') / 100, 2)]]);
+});
+
+it('reserves no footer on a lens that summarizes nothing, though its Resource does', function () {
+    $this->get('/lathe/resources/gizmos/lens/all-gizmos')
+        ->assertOk()
+        ->assertInertia(fn (AssertableInertia $page) => $page->where('resource.hasSummaries', false));
+
+    expect($this->get('/lathe/resources/gizmos/lens/all-gizmos', lensPartial('summaries'))->assertOk()->json('props.summaries'))->toBeNull();
 });
 
 it('lists only pending orders from the lens API and counts them', function () {

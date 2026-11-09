@@ -78,7 +78,7 @@ class IndexPayload
         $board = $lens !== null ? null : $this->board($resource, $fields);
 
         return [
-            'resource' => $this->resource($class),
+            'resource' => $this->resource($class, $lens),
             'table' => [
                 'columns' => $choice === null ? $fields : $this->chosenColumns($fields, $choice),
                 'sortKeys' => $query->sortKeys(),
@@ -328,7 +328,7 @@ class IndexPayload
      * @param  class-string<\Lathe\Resources\Resource>  $class
      * @return array{uriKey: string, label: string, singularLabel: string, perPageOptions: non-empty-list<int>, searchable: bool, softDeletes: bool, abilities: array{create: bool}, hasSummaries: bool, definition: array<string, mixed>, meta: array<string, mixed>, extra: array<string, mixed>}
      */
-    public function resource(string $class): array
+    public function resource(string $class, ?Lens $lens = null): array
     {
         $resource = $class::make();
         $definition = $resource->definition();
@@ -342,8 +342,9 @@ class IndexPayload
             // The filter panel offers Without, With and Only trashed when true.
             'softDeletes' => $definition->usesSoftDeletes(),
             'abilities' => ['create' => $this->authorization->allows($this->request->user(), $class, 'create')],
-            // Whether the deferred summaries prop will be non-null, so the page reserves the footer.
-            'hasSummaries' => ResourceSummaries::summarized($this->columns($resource)) !== [],
+            // Whether the deferred summaries prop will be non-null, so the page reserves the footer. A lens
+            // totals its own fields.
+            'hasSummaries' => ResourceSummaries::summarized($this->columns($resource, $lens)) !== [],
             'definition' => $definition->options(),
             'meta' => $resource->meta(),
             'extra' => $class::additionalInformation($this->request),
@@ -409,13 +410,13 @@ class IndexPayload
      * @param  class-string<\Lathe\Resources\Resource>  $class
      * @return array{allRecords: array<string, list<array{label: string|null, value: string|null}>>|null, page: array<string, list<array{label: string|null, value: string|null}>>|null, message: string|null, groups?: array<string, array<string, list<array{label: string|null, value: string|null}>>>}|null
      */
-    public function summaries(string $class): ?array
+    public function summaries(string $class, ?Lens $lens = null): ?array
     {
         $resource = $class::make();
-        $query = new ResourceQuery($resource, $this->request);
+        $query = $this->query($resource, $lens);
         $rows = $query->rows();
         [, $page] = $query->page();
-        $summaries = new ResourceSummaries($query, $this->columns($resource), $resource->definition()->getCountCap());
+        $summaries = new ResourceSummaries($query, $this->columns($resource, $lens), $resource->definition()->getCountCap());
         $totals = $summaries->compute($rows, $page > 1 || $query->hasMorePages());
         $active = $query->activeGroup();
 
