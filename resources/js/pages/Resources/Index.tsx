@@ -1,5 +1,5 @@
 import { Head, Link, router, usePage } from '@inertiajs/react';
-import { lazy, Suspense, useState } from 'react';
+import { lazy, Suspense, useRef, useState } from 'react';
 import { __panel, emit, useShortcut, useTranslation } from '@lathephp/core';
 import { Plus } from 'lucide-react';
 import { AfterDelay, skeletonBar } from '../../lib/instant';
@@ -16,6 +16,7 @@ import { useViews } from '../../index/ViewsRail';
 import type { IndexProps, Row } from '../../index/types';
 import type { IndexUrlState } from '../../index/useIndexState';
 import { useIndexState } from '../../index/useIndexState';
+import { useRailFit } from '../../index/useRailFit';
 import { useRowSelection } from '../../index/useRowSelection';
 import { phone, usePreview } from '../../index/usePreview';
 import type { IndexSkeletonHint, SharedProps } from '../../types';
@@ -94,6 +95,8 @@ function IndexPage({ resource, table, state, count, error, lens, actions, widget
   }
 
   const views = useViews({ resource, state: index.state, visit });
+  const body = useRef<HTMLDivElement>(null);
+  const railFolded = useRailFit(body, table.columns);
 
   // With no row ticked only a standalone action can run, so without one the menus draw nothing.
   const standalone = actions?.actions.some((action) => action.standalone) === true;
@@ -156,8 +159,8 @@ function IndexPage({ resource, table, state, count, error, lens, actions, widget
           <ResourceWidgets widgets={widgets} path={lens == null ? `resources/${resource.uriKey}` : `resources/${resource.uriKey}/lenses/${lens.uriKey}`} />
         </Suspense>
       )}
-      {/* The views rail at the card's left from 1100 px; narrower, or beside an open preview panel, it folds into the toolbar's Views menu. */}
-      <div className="lathe-index-body" data-preview-open={preview.id === null ? undefined : ''}>
+      {/* The views rail at the card's left from 1100 px; narrower, beside an open preview panel, or beside a table too wide to fit, it folds into the toolbar's Views menu. */}
+      <div ref={body} className="lathe-index-body" data-preview-open={preview.id === null ? undefined : ''} data-rail-folded={railFolded ? '' : undefined}>
       {views?.rail}
       {/* At 1280 px and wider an open preview panel sits beside the card; below that it lies over it. */}
       {/* One card: the toolbar row (the selection bar while rows are ticked) with the filter bar, then the table.

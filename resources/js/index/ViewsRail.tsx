@@ -67,8 +67,8 @@ const tabClass = 'lathe-tab';
 
 /**
  * The developer tabs, then the user's saved views, then the lenses, in a 220 px rail at the card's left. A
- * narrow window, or an open preview panel beside the card, folds the rail into the toolbar's Views menu,
- * which shows the same list. One owner keeps the saved views, the menus and the dialogs, so both lists
+ * narrow window, an open preview panel beside the card, or a table too wide to fit beside the rail folds
+ * it into the toolbar's Views menu, which shows the same list. One owner keeps the saved views, the menus and the dialogs, so both lists
  * agree and a dialog opened from the menu outlives it. Null when the index has no views to list.
  */
 export function useViews({ resource, state, visit }: ViewsProps): Views | null {

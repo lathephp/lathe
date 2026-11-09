@@ -740,7 +740,8 @@
   }
 
   /* The views rail: 220 px on the page ground at the card's left, one view per 32 px row, its count at
-     the row's end. Below 1100 px, or beside an open preview panel, the toolbar's Views menu holds it. */
+     the row's end. Below 1100 px, beside an open preview panel, or beside a table too wide to fit next to
+     it, the toolbar's Views menu holds it. */
   .lathe-index-body {
     @apply flex items-start gap-4;
   }
@@ -776,6 +777,15 @@
 
     .lathe-views-menu {
       @apply hidden;
+    }
+
+    /* Beside a table whose columns would not fit next to the rail, the card takes its width. */
+    [data-rail-folded] > .lathe-views-rail {
+      @apply hidden;
+    }
+
+    [data-rail-folded] .lathe-views-menu {
+      @apply block;
     }
   }
 

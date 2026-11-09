@@ -84,4 +84,11 @@ describe('the views rail', () => {
     expect(rule(wide, '[data-preview-open] > .lathe-views-rail')).toContain('hidden');
     expect(rule(wide, '[data-preview-open] .lathe-views-menu')).toContain('block');
   });
+
+  it('folds into the Views menu from 1100 px when the table would not fit beside it', () => {
+    const wide = media('width >= 1100px', '[data-rail-folded] > .lathe-views-rail');
+
+    expect(rule(wide, '[data-rail-folded] > .lathe-views-rail')).toContain('hidden');
+    expect(rule(wide, '[data-rail-folded] .lathe-views-menu')).toContain('block');
+  });
 });
