@@ -17,6 +17,7 @@ use Lathe\Attributes\Lens\Search;
 use Lathe\Attributes\Lens\ShowPollingToggle;
 use Lathe\Field\Field;
 use Lathe\Filters\Filter;
+use Lathe\Http\Middleware\HandleInertiaRequests;
 use Lathe\Http\Requests\LatheRequest;
 use Lathe\Lathe;
 use Lathe\Lenses\Lens;
@@ -24,7 +25,10 @@ use Lathe\Menu\MenuItem;
 use Lathe\Preferences\UserPreference;
 use Lathe\Resources\Resource;
 use Lathe\Resources\ResourceDefinition;
+use Lathe\SavedTabs\SavedTab;
+use Lathe\SavedTabs\SchemaHash;
 use Workbench\App\Lathe\Lenses\PendingOrders;
+use Workbench\App\Lathe\Resources\Order as OrderResource;
 use Workbench\App\Models\Order;
 use Workbench\App\Models\User;
 use Workbench\Database\Seeders\DemoSeeder;
@@ -241,6 +245,21 @@ function pendingOrderIds(): array
 }
 
 /**
+ * The headers of an Inertia partial reload of the lens page for the named props.
+ *
+ * @return array<string, string>
+ */
+function lensPartial(string $props): array
+{
+    return [
+        'X-Inertia' => 'true',
+        'X-Inertia-Partial-Component' => 'Resources/Index',
+        'X-Inertia-Partial-Data' => $props,
+        'X-Inertia-Version' => (string) app(HandleInertiaRequests::class)->version(request()),
+    ];
+}
+
+/**
  * The SQL each statement of a request ran.
  *
  * @return list<string>
@@ -265,6 +284,33 @@ it('shows the Pending Orders lens page with only pending rows and the lens colum
             ->where('table.rows', fn ($rows) => collect($rows)->pluck('id')->all() === array_slice(pendingOrderIds(), 0, 100))
             ->where('lens', ['uriKey' => 'pending-orders', 'name' => 'Pending Orders'])
             ->where('lenses', [['uriKey' => 'pending-orders', 'name' => 'Pending Orders']]));
+});
+
+it("keeps the Resource's tabs and the user's saved views on a lens page, with no tab current", function () {
+    SavedTab::create([
+        'user_id' => (string) auth()->id(),
+        'resource_class' => OrderResource::class,
+        'name' => 'Big paid',
+        'filters' => ['status' => 'paid'],
+        'position' => 1,
+        'schema_hash' => SchemaHash::for(OrderResource::make(), LatheRequest::createFrom(request())),
+    ]);
+
+    $this->get('/lathe/resources/orders/lens/pending-orders')
+        ->assertOk()
+        ->assertInertia(fn (AssertableInertia $page) => $page
+            ->where('tabs.items', fn ($items) => collect($items)->pluck('name')->all() === ['All', 'Pending', 'Paid'])
+            ->where('tabs.active', null)
+            ->where('tabs.saved', fn ($saved) => collect($saved)->pluck('name')->all() === ['Big paid'])
+            ->where('tabs.activeSaved', null)
+            ->where('lens', ['uriKey' => 'pending-orders', 'name' => 'Pending Orders']));
+});
+
+it('sends the tab badges on a lens page as the index does', function () {
+    $props = $this->get('/lathe/resources/orders/lens/pending-orders', lensPartial('tabCounts'))->assertOk()->json('props');
+
+    expect($props['tabCounts']['all']['count']['value'])->toBe(Order::count())
+        ->and($props['tabCounts']['paid']['count']['value'])->toBe(Order::where('status', 'paid')->count());
 });
 
 it('lists only pending orders from the lens API and counts them', function () {

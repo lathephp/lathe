@@ -1,4 +1,4 @@
-import { Link, usePage } from '@inertiajs/react';
+import { Link, router, usePage } from '@inertiajs/react';
 import { formatNumber, useTranslation } from '@lathephp/core';
 import { Bookmark, ChevronDown, Ellipsis, GripVertical } from 'lucide-react';
 import { Suspense, useEffect, useId, useRef, useState, type KeyboardEvent, type ReactNode } from 'react';
@@ -141,10 +141,16 @@ export function useViews({ resource, state, visit }: ViewsProps): Views | null {
     }
   }
 
-  // Choosing a view, or a dialog, from the Views menu closes it.
+  // Choosing a view, or a dialog, from the Views menu closes it. From a lens, a tab or a saved view
+  // opens the Resource's own list.
   function choose(changes: IndexUrlState) {
     setOpen(false);
-    visit(changes);
+
+    if (lens == null) {
+      visit(changes);
+    } else {
+      router.get(`${basePath}/resources/${resource.uriKey}`, Object.fromEntries(Object.entries(changes).filter(([, value]) => value !== undefined)));
+    }
   }
 
   function list(where: 'rail' | 'menu') {

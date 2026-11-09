@@ -63,6 +63,8 @@ class LensController
                 ),
             )),
             'count' => Inertia::defer(fn () => $payload->count($class, $lens), 'counts'),
+            // The Resource's tab badges, over its own scope as on the index.
+            'tabCounts' => Inertia::defer(fn () => $payload->tabCounts($class), 'counts'),
         ])->toResponse($request);
     }
 

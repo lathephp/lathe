@@ -99,10 +99,12 @@ class IndexPayload
                 // An open saved view's filters draw as chips too, so their names come along.
                 'labels' => array_replace_recursive($this->remoteLabels($available, $definitions, $this->openSavedFilters($resource, $lens)), $this->remoteLabels($available, $definitions, $applied)),
             ],
+            // A lens lists the Resource's tabs and saved views too, with its own entry current, so they
+            // stay one click away; their sort keys are the Resource's, not the lens's.
             'tabs' => [
-                'items' => $lens !== null ? [] : array_map(fn (Tab $tab) => $tab->toArray(), $query->tabs()),
+                'items' => array_map(fn (Tab $tab) => $tab->toArray(), $query->tabs()),
                 'active' => $lens !== null ? null : $query->activeTabKey(),
-                'saved' => $lens !== null ? [] : $this->savedTabs($resource, $query),
+                'saved' => $this->savedTabs($resource, $lens !== null ? $this->query($resource, null) : $query),
                 'activeSaved' => $lens !== null ? null : $this->activeSavedTab($resource),
             ],
             'lens' => $lens !== null ? $this->lensEntry($lens) : null,

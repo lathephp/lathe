@@ -1,4 +1,5 @@
-import { screen, within } from '@testing-library/react';
+import { router } from '@inertiajs/react';
+import { fireEvent, screen, within } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { renderPage } from './support';
 
@@ -8,8 +9,16 @@ afterEach(() => {
 
 const pending = { uriKey: 'pending-orders', name: 'Pending Orders' };
 
-function renderOrders(lenses: { uriKey: string; name: string }[], lens: { uriKey: string; name: string } | null = null) {
+const tabs = {
+  items: ['All', 'Pending', 'Paid'].map((name) => ({ key: name.toLowerCase(), name, icon: null, badge: null, badgeType: null, deferredBadge: false })),
+  active: null,
+  saved: [{ id: 7, name: 'Big paid', badgeType: null, showCount: false, stale: false, filters: { status: 'paid' }, q: null, sort: null }],
+  activeSaved: null,
+};
+
+function renderOrders(lenses: { uriKey: string; name: string }[], lens: { uriKey: string; name: string } | null = null, extra: Record<string, unknown> = {}) {
   const props = {
+    ...extra,
     resource: {
       uriKey: 'orders',
       label: 'Orders',
@@ -57,5 +66,29 @@ describe('lens tabs', () => {
     expect(screen.queryByRole('navigation', { name: 'Views' })).toBeNull();
     expect(screen.queryByRole('button', { name: /^Views/ })).toBeNull();
     expect(screen.queryByRole('combobox', { name: 'View' })).toBeNull();
+  });
+
+  it("lists the Resource's tabs, then the saved views, then the lenses on a lens, with only the lens current", () => {
+    renderOrders([pending], pending, { tabs });
+
+    const band = screen.getByRole('navigation', { name: 'Views' });
+
+    expect(within(band).getAllByRole('listitem').map((item) => item.textContent.trim())).toEqual(['All', 'Pending', 'Paid', 'Big paid', 'Pending Orders']);
+    expect(within(band).queryAllByRole('button', { current: 'page' })).toEqual([]);
+    expect(within(band).getByRole('link', { name: 'Pending Orders' }).getAttribute('aria-current')).toBe('page');
+  });
+
+  it("opens the Resource's list from a lens on a tab or a saved view", () => {
+    const get = vi.spyOn(router, 'get').mockImplementation(() => undefined);
+    renderOrders([pending], pending, { tabs });
+    const band = screen.getByRole('navigation', { name: 'Views' });
+
+    fireEvent.click(within(band).getByRole('button', { name: 'Paid' }));
+    fireEvent.click(within(band).getByRole('button', { name: 'Big paid' }));
+
+    expect(get.mock.calls.map(([url, data]) => [url, data])).toEqual([
+      ['/lathe/resources/orders', { tab: 'paid' }],
+      ['/lathe/resources/orders', { saved_tab: '7' }],
+    ]);
   });
 });
