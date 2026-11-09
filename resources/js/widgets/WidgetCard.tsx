@@ -1,4 +1,4 @@
-import { on, request, useTranslation } from '@lathephp/core';
+import { on, useTranslation } from '@lathephp/core';
 import { type ReactNode, Suspense, useEffect, useEffectEvent, useRef, useState } from 'react';
 import { Button } from '../components/ui/Button';
 import { Card } from '../components/ui/Card';
@@ -9,17 +9,12 @@ import { filterParams } from './filterParams';
 import { cellClass } from './layout';
 import { WidgetMeta } from './meta';
 import { widgetRenderers } from './registry';
-import type { WidgetDescriptor, WidgetValue } from './types';
+import type { WidgetDescriptor } from './types';
+import { useWidgetValue } from './useWidgetValue';
 import { WidgetMenu } from './WidgetMenu';
 
 /** The skeleton stays this long at least, so a fast answer does not flash. */
 const skeletonFloor = 300;
-
-/** A dashboard card's deferred prop: the value once it lands, or rescued when the server failed it. */
-export interface DeferredValue {
-  value: WidgetValue | undefined;
-  rescued: boolean;
-}
 
 export interface WidgetCardProps {
   widget: WidgetDescriptor;
@@ -27,8 +22,6 @@ export interface WidgetCardProps {
   url: string;
   /** Sent with every value request, such as resourceId on a detail page. */
   params?: Record<string, string>;
-  /** Given on a dashboard, where the first value comes as a deferred prop; otherwise the card fetches it. */
-  deferred?: DeferredValue;
   /** Hands the grid a function that refetches the card, for the Refresh button. */
   register?: (reload: () => void) => () => void;
   /** The range the host picked for every card, as a dashboard's header does; the card then has no picker of its own. */
@@ -39,22 +32,23 @@ export interface WidgetCardProps {
   edit?: ReactNode;
 }
 
-export function WidgetCard({ widget, url, params, deferred, register, range: hostRange, menu = false, edit }: WidgetCardProps) {
+export function WidgetCard({ widget, url, params, register, range: hostRange, menu = false, edit }: WidgetCardProps) {
   const { __ } = useTranslation();
   const Renderer = widgetRenderers[widget.component];
   const fetches = widget.requestsValue && Renderer !== undefined;
   const first = widget.ranges.find((option) => option.value === widget.defaultRange) ?? widget.ranges[0];
   const [ownRange, setRange] = useState(first === undefined ? null : String(first.value));
   const range = hostRange ?? ownRange;
-  const [fetched, setFetched] = useState<WidgetValue | undefined>(undefined);
-  const [failed, setFailed] = useState(false);
-  const [pending, setPending] = useState(fetches && deferred === undefined);
-  const [held, setHeld] = useState(fetches);
+  // The filters of the last filters:changed, sent with every later request and part of the cache key.
+  const [filters, setFilters] = useState<[string, string][]>([]);
+  const editing = edit !== undefined;
+  const { value, failed, fetchNow } = useWidgetValue(url, range, filters, params, { enabled: fetches, poll: editing ? 0 : widget.refreshEvery });
+  // True while a load the user asked for is out: a range change, Try again or Refresh.
+  const [pending, setPending] = useState(false);
+  // A value the cache already holds shows at once; only a card with nothing to show holds the skeleton.
+  const [held, setHeld] = useState(fetches && value === undefined);
   const holdTimer = useRef<ReturnType<typeof setTimeout>>(undefined);
   const latest = useRef(0);
-  // The filters of the last filters:changed, sent with every later request.
-  const filters = useRef<[string, string][]>([]);
-  const editing = edit !== undefined;
   // The header's right-hand slot, where a renderer puts a line such as a trend's latest value.
   const [meta, setMeta] = useState<HTMLSpanElement | null>(null);
   // A value or progress card is one number under a muted title; any other card has a heading.
@@ -62,30 +56,10 @@ export function WidgetCard({ widget, url, params, deferred, register, range: hos
   // A table runs to the card's edges, so the card pads only its header.
   const flush = widget.component === 'table-widget';
 
-  // Asks for the value and keeps the number on screen until the answer: a poll or an event.
-  const send = (nextRange: string | null) => {
-    const id = ++latest.current;
-    const query = new URLSearchParams([...(nextRange === null ? [] : [['range', nextRange]]), ...filters.current, ...Object.entries(params ?? {})]).toString();
-
-    request<WidgetValue>(query === '' ? url : `${url}?${query}`).then(
-      (data) => {
-        if (id === latest.current) {
-          setFetched(data ?? undefined);
-          setFailed(false);
-          setPending(false);
-        }
-      },
-      () => {
-        if (id === latest.current) {
-          setFailed(true);
-          setPending(false);
-        }
-      },
-    );
-  };
-  // Puts up the skeleton for at least the floor, then asks: a range change, Try again or Refresh.
+  // Puts up the skeleton for at least the floor, then asks past the cache: a range change, Try again or Refresh.
   // Under a host range the card dims its last value instead, so it holds no skeleton.
   const load = (nextRange = range) => {
+    const id = ++latest.current;
     setPending(true);
 
     if (hostRange === undefined) {
@@ -96,24 +70,21 @@ export function WidgetCard({ widget, url, params, deferred, register, range: hos
       }, skeletonFloor);
     }
 
-    send(nextRange);
+    void fetchNow(nextRange, filters).then(() => {
+      if (id === latest.current) {
+        setPending(false);
+      }
+    });
   };
-  const quietly = useEffectEvent(() => {
-    send(range);
+  // Asks past the cache and keeps the number on screen until the answer: an event.
+  const quietly = useEffectEvent((nextFilters: [string, string][] = filters) => {
+    void fetchNow(range, nextFilters);
   });
   const visibly = useEffectEvent(() => {
     load();
   });
-  // A dashboard card gets its first value as a deferred prop; any other card fetches it once, on mount.
-  const loadFirst = useEffectEvent(() => {
-    if (fetches && deferred === undefined) {
-      send(range);
-    }
-  });
 
   useEffect(() => {
-    loadFirst();
-
     const timer = setTimeout(() => {
       setHeld(false);
     }, skeletonFloor);
@@ -125,26 +96,13 @@ export function WidgetCard({ widget, url, params, deferred, register, range: hos
   }, []);
 
   useEffect(() => {
-    if (!fetches || editing || widget.refreshEvery <= 0) {
-      return;
-    }
-
-    const interval = setInterval(() => {
-      quietly();
-    }, widget.refreshEvery * 1000);
-
-    return () => {
-      clearInterval(interval);
-    };
-  }, [fetches, editing, widget.refreshEvery]);
-
-  useEffect(() => {
     const refetch = () => {
       quietly();
     };
     const refilter = (payload: unknown) => {
-      filters.current = filterParams(payload);
-      quietly();
+      const next = filterParams(payload);
+      quietly(next);
+      setFilters(next);
     };
     const offs = editing
       ? []
@@ -158,7 +116,7 @@ export function WidgetCard({ widget, url, params, deferred, register, range: hos
     };
   }, [fetches, editing, widget.refreshWhenActionsRun, widget.refreshWhenFiltersChange]);
 
-  // The host's range changed: the first value already came with the page, so only later picks refetch.
+  // The host's range changed: the mount read the first range through the cache, so only later picks refetch.
   const shownRange = useRef(hostRange);
   const repick = useEffectEvent(() => {
     if (fetches && shownRange.current !== hostRange) {
@@ -181,8 +139,7 @@ export function WidgetCard({ widget, url, params, deferred, register, range: hos
     [fetches, register],
   );
 
-  const value = fetched ?? deferred?.value;
-  const error = Renderer === undefined || (!pending && (failed || (fetched === undefined && deferred?.rescued === true)));
+  const error = Renderer === undefined || (!pending && failed);
   const refreshing = !error && hostRange !== undefined && pending && value !== undefined;
   const loading = !error && !refreshing && (held || pending || (fetches && value === undefined));
   const skeleton = (

@@ -1,8 +1,13 @@
 import { router } from '@inertiajs/react';
+import { queryClient } from '@lathephp/core';
 import { fireEvent, screen, waitFor, within } from '@testing-library/react';
-import { afterEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import type { WidgetDescriptor } from '../widgets/types';
 import { renderPage } from './support';
+
+beforeEach(() => {
+  queryClient.clear();
+});
 
 afterEach(() => {
   vi.restoreAllMocks();
@@ -52,9 +57,21 @@ const dashboard = {
   range: 30,
 };
 
-function renderDashboard(widgets: WidgetDescriptor[], values: Record<string, ReturnType<typeof value>>) {
+/** Renders the dashboard with each card's endpoint answering its values in turn, then the last one. */
+function renderDashboard(widgets: WidgetDescriptor[], values: Record<string, ReturnType<typeof value>[]>) {
+  const asked: Record<string, number> = {};
+  const fetch = vi.spyOn(globalThis, 'fetch').mockImplementation((input) => {
+    const key = /widgets\/([^/?]+)/.exec(input instanceof Request ? input.url : input.toString())?.[1] ?? '';
+    const list = values[key] ?? [];
+    const at = asked[key] ?? 0;
+    asked[key] = at + 1;
+
+    return Promise.resolve(new Response(JSON.stringify(list[Math.min(at, list.length - 1)]), { status: 200 }));
+  });
   vi.spyOn(router, 'reload').mockImplementation(() => undefined);
-  renderPage('Dashboard', { dashboard, widgets, ...Object.fromEntries(Object.entries(values).map(([key, found]) => [`widgetValue:${key}`, found])) });
+  renderPage('Dashboard', { dashboard, widgets });
+
+  return fetch;
 }
 
 function card(uriKey: string): HTMLElement {
@@ -78,7 +95,7 @@ async function openMenu(uriKey: string, name: string): Promise<HTMLElement> {
 
 describe('a dashboard widget menu', () => {
   it('offers Refresh, Open records and Download CSV on a chart that reads one resource', async () => {
-    renderDashboard([descriptor('orders-per-day', { csv: true })], { 'orders-per-day': value('orders-per-day', 12, '/lathe/resources/orders') });
+    renderDashboard([descriptor('orders-per-day', { csv: true })], { 'orders-per-day': [value('orders-per-day', 12, '/lathe/resources/orders')] });
 
     const menu = await openMenu('orders-per-day', 'Orders per day');
 
@@ -91,7 +108,7 @@ describe('a dashboard widget menu', () => {
   });
 
   it('has no Download CSV on a value card and no Open records without a link', async () => {
-    renderDashboard([descriptor('orders')], { orders: value('orders', 12) });
+    renderDashboard([descriptor('orders')], { orders: [value('orders', 12)] });
 
     const menu = await openMenu('orders', 'Orders');
 
@@ -99,20 +116,23 @@ describe('a dashboard widget menu', () => {
   });
 
   it('refetches the card from Refresh and closes', async () => {
-    const fetch = vi.spyOn(globalThis, 'fetch').mockResolvedValue(new Response(JSON.stringify(value('orders', 99)), { status: 200 }));
-    renderDashboard([descriptor('orders')], { orders: value('orders', 12) });
+    const fetch = renderDashboard([descriptor('orders')], { orders: [value('orders', 12), value('orders', 99)] });
 
     fireEvent.click(within(await openMenu('orders', 'Orders')).getByRole('menuitem', { name: 'Refresh' }));
 
     await waitFor(() => {
       expect(within(card('orders')).getByText('99')).toBeTruthy();
     });
-    expect(fetch.mock.calls.map(([input]) => (input instanceof Request ? input.url : input.toString()))).toEqual(['/lathe/api/dashboards/main/widgets/orders?range=30']);
+    // The mount's read, then Refresh's.
+    expect(fetch.mock.calls.map(([input]) => (input instanceof Request ? input.url : input.toString()))).toEqual([
+      '/lathe/api/dashboards/main/widgets/orders?range=30',
+      '/lathe/api/dashboards/main/widgets/orders?range=30',
+    ]);
     expect(screen.queryByRole('menu')).toBeNull();
   });
 
   it('takes focus into the menu, moves it with the arrow keys and closes on Escape back on its button', async () => {
-    renderDashboard([descriptor('orders-per-day', { csv: true })], { 'orders-per-day': value('orders-per-day', 12, '/lathe/resources/orders') });
+    renderDashboard([descriptor('orders-per-day', { csv: true })], { 'orders-per-day': [value('orders-per-day', 12, '/lathe/resources/orders')] });
 
     const menu = await openMenu('orders-per-day', 'Orders per day');
     const [refresh, open] = within(menu).getAllByRole('menuitem');
@@ -130,7 +150,7 @@ describe('a dashboard widget menu', () => {
   });
 
   it('closes on Escape while its button has focus', async () => {
-    renderDashboard([descriptor('orders')], { orders: value('orders', 12) });
+    renderDashboard([descriptor('orders')], { orders: [value('orders', 12)] });
     await openMenu('orders', 'Orders');
     const button = within(card('orders')).getByRole('button', { name: 'Menu for Orders' });
     button.focus();

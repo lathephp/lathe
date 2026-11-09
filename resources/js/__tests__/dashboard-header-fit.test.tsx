@@ -62,7 +62,6 @@ function dashboard() {
           ranges: [],
         },
       ],
-      'widgetValue:orders': { value: 1 },
     },
     {},
   );

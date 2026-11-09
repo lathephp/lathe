@@ -1,8 +1,13 @@
 import { router } from '@inertiajs/react';
+import { queryClient } from '@lathephp/core';
 import { act, fireEvent, screen, waitFor, within } from '@testing-library/react';
-import { afterEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import type { WidgetDescriptor } from '../widgets/types';
 import { renderPage } from './support';
+
+beforeEach(() => {
+  queryClient.clear();
+});
 
 afterEach(() => {
   vi.restoreAllMocks();
@@ -39,12 +44,16 @@ const value = (uriKey: string, number: number) => ({
 });
 
 function renderDashboard(customizable: boolean, shown: string[], hidden: string[] = []) {
+  vi.spyOn(globalThis, 'fetch').mockImplementation((input) => {
+    const key = /widgets\/([^/?]+)$/.exec(input as string)?.[1] ?? '';
+
+    return Promise.resolve(new Response(JSON.stringify(value(key, shown.indexOf(key) + 10)), { status: 200 }));
+  });
   vi.spyOn(router, 'reload').mockImplementation(() => undefined);
   renderPage('Dashboard', {
     dashboard: { uriKey: 'main', name: 'Sales', description: null, icon: null, showRefreshButton: false, customizable, customized: false, ranges: [], range: null },
     widgets: shown.map(descriptor),
     hiddenWidgets: hidden.map(descriptor),
-    ...Object.fromEntries(shown.map((key, at) => [`widgetValue:${key}`, value(key, at + 10)])),
   });
 }
 

@@ -56,7 +56,6 @@ describe('the dashboard range control on a phone', () => {
           range: 7,
         },
         widgets: [widget],
-        'widgetValue:orders': { value: 1 },
       },
       {},
     );

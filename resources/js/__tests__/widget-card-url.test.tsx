@@ -1,8 +1,13 @@
 import { router } from '@inertiajs/react';
+import { queryClient } from '@lathephp/core';
 import { fireEvent, screen, waitFor, within } from '@testing-library/react';
-import { afterEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import type { WidgetDescriptor } from '../widgets/types';
 import { renderPage } from './support';
+
+beforeEach(() => {
+  queryClient.clear();
+});
 
 afterEach(() => {
   vi.restoreAllMocks();
@@ -99,18 +104,10 @@ function card(uriKey: string): HTMLElement {
   return found;
 }
 
-function renderDashboard(widgets: WidgetDescriptor[], values: Record<string, number>, page: Record<string, unknown> = {}) {
+function renderDashboard(widgets: WidgetDescriptor[]) {
   const reload = vi.spyOn(router, 'reload').mockImplementation(() => undefined);
 
-  renderPage(
-    'Dashboard',
-    {
-      dashboard,
-      widgets,
-      ...Object.fromEntries(Object.entries(values).map(([key, value]) => [`widgetValue:${key}`, valueOf(key, value)])),
-    },
-    { page },
-  );
+  renderPage('Dashboard', { dashboard, widgets });
 
   return { reload };
 }
@@ -123,15 +120,18 @@ describe('the dashboard range', () => {
 
   it('refetches every card with the picked range and keeps it in the URL', async () => {
     const fetch = answer((url) => (url.includes('range=365') ? 365 : 30));
-    const { reload } = renderDashboard([descriptor('orders', { ranges }), descriptor('revenue')], { orders: 1, revenue: 2 });
+    const { reload } = renderDashboard([descriptor('orders', { ranges }), descriptor('revenue')]);
 
+    await waitFor(() => {
+      expect(within(card('revenue')).getByText('30')).toBeTruthy();
+    });
     fireEvent.click(screen.getByRole('radio', { name: '12 months' }));
 
     await waitFor(() => {
       expect(within(card('orders')).getByText('365')).toBeTruthy();
       expect(within(card('revenue')).getByText('365')).toBeTruthy();
     });
-    expect(calls(fetch).sort()).toEqual(['/lathe/api/dashboards/main/widgets/orders?range=365', '/lathe/api/dashboards/main/widgets/revenue?range=365']);
+    expect(calls(fetch, 'range=365').sort()).toEqual(['/lathe/api/dashboards/main/widgets/orders?range=365', '/lathe/api/dashboards/main/widgets/revenue?range=365']);
     expect(window.location.pathname + window.location.search).toBe('/lathe?range=365');
     expect(screen.getByRole('radio', { name: '12 months' }).getAttribute('aria-checked')).toBe('true');
     expect(reload).not.toHaveBeenCalled();

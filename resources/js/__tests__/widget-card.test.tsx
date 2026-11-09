@@ -1,11 +1,15 @@
 import { router } from '@inertiajs/react';
-import { emit } from '@lathephp/core';
+import { emit, queryClient } from '@lathephp/core';
 import { act, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
-import { afterEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { ResourceWidgets } from '../widgets/ResourceWidgets';
 import type { WidgetDescriptor } from '../widgets/types';
 import { WidgetGrid } from '../widgets/WidgetGrid';
 import { choose, renderPage } from './support';
+
+beforeEach(() => {
+  queryClient.clear();
+});
 
 afterEach(() => {
   vi.restoreAllMocks();
@@ -102,20 +106,26 @@ function card(uriKey: string): HTMLElement {
   return found;
 }
 
-function renderDashboard(widgets: WidgetDescriptor[], values: Record<string, number>, page: Record<string, unknown> = {}) {
+function renderDashboard(widgets: WidgetDescriptor[]) {
   const reload = vi.spyOn(router, 'reload').mockImplementation(() => undefined);
 
-  renderPage(
-    'Dashboard',
-    {
-      dashboard,
-      widgets,
-      ...Object.fromEntries(Object.entries(values).map(([key, value]) => [`widgetValue:${key}`, valueOf(key, value)])),
-    },
-    { page },
-  );
+  renderPage('Dashboard', { dashboard, widgets });
 
   return { reload };
+}
+
+/** The number for this card on this call: each card answers its list in turn, then keeps the last. */
+function inTurn(numbers: Record<string, (number | Error)[]>) {
+  const asked: Record<string, number> = {};
+
+  return (url: string) => {
+    const key = /widgets\/([^/?]+)/.exec(url)?.[1] ?? '';
+    const list = numbers[key] ?? [0];
+    const at = asked[key] ?? 0;
+    asked[key] = at + 1;
+
+    return list[Math.min(at, list.length - 1)] ?? 0;
+  };
 }
 
 async function pass(ms: number) {
@@ -125,9 +135,12 @@ async function pass(ms: number) {
 }
 
 describe('the dashboard grid', () => {
-  it('fills each card in from its own deferred prop', async () => {
-    // The revenue prop is still on its way: Inertia sends it in a later partial reload.
-    renderDashboard([descriptor('orders'), descriptor('revenue')], { orders: 1234 });
+  it('fills each card in from its own endpoint', async () => {
+    // The revenue value is still on its way.
+    vi.spyOn(globalThis, 'fetch').mockImplementation((input) =>
+      urlOf(input).includes('revenue') ? new Promise(() => undefined) : Promise.resolve(new Response(JSON.stringify(valueOf('orders', 1234)), { status: 200 })),
+    );
+    renderDashboard([descriptor('orders'), descriptor('revenue')]);
 
     await waitFor(() => {
       expect(within(card('orders')).getByText('1,234')).toBeTruthy();
@@ -135,17 +148,9 @@ describe('the dashboard grid', () => {
     expect(within(card('revenue')).getByRole('status', { name: 'Loading' })).toBeTruthy();
   });
 
-  it('draws the cards when the page has no rescued props, as the server sends it', async () => {
-    renderDashboard([descriptor('orders')], { orders: 1234 }, { rescuedProps: undefined });
-
-    await waitFor(() => {
-      expect(within(card('orders')).getByText('1,234')).toBeTruthy();
-    });
-  });
-
   it('shows a failed card alone, with Try again that loads the value', async () => {
-    const fetch = answer(() => 42);
-    renderDashboard([descriptor('orders'), descriptor('revenue')], { orders: 1234 }, { rescuedProps: ['widgetValue:revenue'] });
+    const fetch = answer(inTurn({ orders: [1234], revenue: [new Error('Server Error'), 42] }));
+    renderDashboard([descriptor('orders'), descriptor('revenue')]);
 
     await waitFor(() => {
       expect(within(card('revenue')).getByText('Revenue could not load')).toBeTruthy();
@@ -157,27 +162,36 @@ describe('the dashboard grid', () => {
     await waitFor(() => {
       expect(within(card('revenue')).getByText('42')).toBeTruthy();
     });
-    expect(calls(fetch)).toEqual(['/lathe/api/dashboards/main/widgets/revenue?range=30']);
+    expect(calls(fetch, 'revenue')).toEqual(['/lathe/api/dashboards/main/widgets/revenue?range=30', '/lathe/api/dashboards/main/widgets/revenue?range=30']);
   });
 
   it('keeps the empty state of a dashboard with no widgets', () => {
-    renderDashboard([], {});
+    renderDashboard([]);
 
     expect(screen.getByText('No widgets yet')).toBeTruthy();
     expect(document.querySelector('[data-lathe-widget]')).toBeNull();
   });
 
   it('refetches every card from the Refresh button in the header', async () => {
-    const fetch = answer((url) => (url.includes('orders') ? 7 : 8));
-    renderDashboard([descriptor('orders'), descriptor('revenue')], { orders: 1, revenue: 2 });
+    const fetch = answer(inTurn({ orders: [1, 7], revenue: [2, 8] }));
+    renderDashboard([descriptor('orders'), descriptor('revenue')]);
 
+    await waitFor(() => {
+      expect(within(card('orders')).getByText('1')).toBeTruthy();
+      expect(within(card('revenue')).getByText('2')).toBeTruthy();
+    });
     fireEvent.click(screen.getByRole('button', { name: 'Refresh' }));
 
     await waitFor(() => {
       expect(within(card('orders')).getByText('7')).toBeTruthy();
       expect(within(card('revenue')).getByText('8')).toBeTruthy();
     });
-    expect(calls(fetch).sort()).toEqual(['/lathe/api/dashboards/main/widgets/orders?range=30', '/lathe/api/dashboards/main/widgets/revenue?range=30']);
+    expect(calls(fetch).sort()).toEqual([
+      '/lathe/api/dashboards/main/widgets/orders?range=30',
+      '/lathe/api/dashboards/main/widgets/orders?range=30',
+      '/lathe/api/dashboards/main/widgets/revenue?range=30',
+      '/lathe/api/dashboards/main/widgets/revenue?range=30',
+    ]);
   });
 });
 
@@ -188,7 +202,8 @@ describe('the dashboard range', () => {
   ];
 
   it('offers one Range picker in the header and none on the cards', () => {
-    renderDashboard([descriptor('orders', { ranges }), descriptor('revenue')], { orders: 1, revenue: 2 });
+    answer(() => 1);
+    renderDashboard([descriptor('orders', { ranges }), descriptor('revenue')]);
 
     const picker = screen.getByRole('radiogroup', { name: 'Range' });
     expect(within(picker).getAllByRole('radio').map((radio) => radio.textContent)).toEqual(['7 days', '30 days', '12 months']);
@@ -198,10 +213,15 @@ describe('the dashboard range', () => {
   });
 
   it('names the range a card fell back to', async () => {
-    vi.spyOn(globalThis, 'fetch').mockResolvedValue(
-      new Response(JSON.stringify({ ...valueOf('orders', 5), fallbackRange: { value: 30, label: 'Last 30 days' } }), { status: 200 }),
+    vi.spyOn(globalThis, 'fetch').mockImplementation((input) =>
+      Promise.resolve(
+        new Response(
+          JSON.stringify(urlOf(input).includes('range=7') ? { ...valueOf('orders', 5), fallbackRange: { value: 30, label: 'Last 30 days' } } : valueOf('orders', 1)),
+          { status: 200 },
+        ),
+      ),
     );
-    renderDashboard([descriptor('orders')], { orders: 1 });
+    renderDashboard([descriptor('orders')]);
 
     await waitFor(() => {
       expect(within(card('orders')).getByText('1')).toBeTruthy();
@@ -216,12 +236,14 @@ describe('the dashboard range', () => {
 
   it('keeps the last value on screen, dimmed, while a card reloads', async () => {
     let finish: (response: Response) => void = () => undefined;
-    vi.spyOn(globalThis, 'fetch').mockReturnValue(
-      new Promise((resolve) => {
-        finish = resolve;
-      }),
-    );
-    renderDashboard([descriptor('orders')], { orders: 1234 });
+    vi.spyOn(globalThis, 'fetch')
+      .mockResolvedValueOnce(new Response(JSON.stringify(valueOf('orders', 1234)), { status: 200 }))
+      .mockReturnValue(
+        new Promise((resolve) => {
+          finish = resolve;
+        }),
+      );
+    renderDashboard([descriptor('orders')]);
 
     await waitFor(() => {
       expect(within(card('orders')).getByText('1,234')).toBeTruthy();
@@ -242,9 +264,12 @@ describe('the dashboard range', () => {
   });
 
   it('shows a failed card by name while the others keep their values', async () => {
-    answer((url) => (url.includes('orders') ? new Error('Server Error') : 8));
-    renderDashboard([descriptor('orders'), descriptor('revenue')], { orders: 1, revenue: 2 });
+    answer((url) => (url.includes('range=365') ? (url.includes('orders') ? new Error('Server Error') : 8) : 1));
+    renderDashboard([descriptor('orders'), descriptor('revenue')]);
 
+    await waitFor(() => {
+      expect(within(card('orders')).getByText('1')).toBeTruthy();
+    });
     fireEvent.click(screen.getByRole('radio', { name: '12 months' }));
 
     await waitFor(() => {
@@ -260,20 +285,28 @@ describe('refresh triggers', () => {
   it('polls every refreshEvery seconds without an Inertia visit', async () => {
     vi.useFakeTimers();
     const fetch = answer(() => 5);
-    const { reload } = renderDashboard([descriptor('orders', { refreshEvery: 5 })], { orders: 1 });
+    const { reload } = renderDashboard([descriptor('orders', { refreshEvery: 5 })]);
     const visit = vi.spyOn(router, 'visit');
 
     await pass(10_500);
 
-    expect(calls(fetch)).toEqual(['/lathe/api/dashboards/main/widgets/orders?range=30', '/lathe/api/dashboards/main/widgets/orders?range=30']);
+    // The mount's read, then one every 5 s.
+    expect(calls(fetch)).toEqual([
+      '/lathe/api/dashboards/main/widgets/orders?range=30',
+      '/lathe/api/dashboards/main/widgets/orders?range=30',
+      '/lathe/api/dashboards/main/widgets/orders?range=30',
+    ]);
     expect(visit).not.toHaveBeenCalled();
     expect(reload).not.toHaveBeenCalled();
   });
 
   it('refetches after actions run only the cards that ask for it', async () => {
-    const fetch = answer(() => 9);
-    renderDashboard([descriptor('orders', { refreshWhenActionsRun: true }), descriptor('revenue')], { orders: 1, revenue: 2 });
+    const fetch = answer(inTurn({ orders: [1, 9], revenue: [2, 9] }));
+    renderDashboard([descriptor('orders', { refreshWhenActionsRun: true }), descriptor('revenue')]);
 
+    await waitFor(() => {
+      expect(within(card('revenue')).getByText('2')).toBeTruthy();
+    });
     act(() => {
       emit('actions:ran');
     });
@@ -281,13 +314,20 @@ describe('refresh triggers', () => {
     await waitFor(() => {
       expect(within(card('orders')).getByText('9')).toBeTruthy();
     });
-    expect(calls(fetch)).toEqual(['/lathe/api/dashboards/main/widgets/orders?range=30']);
+    expect(calls(fetch)).toEqual([
+      '/lathe/api/dashboards/main/widgets/orders?range=30',
+      '/lathe/api/dashboards/main/widgets/revenue?range=30',
+      '/lathe/api/dashboards/main/widgets/orders?range=30',
+    ]);
   });
 
   it('refetches after the filters change only the cards that ask for it', async () => {
-    const fetch = answer(() => 9);
-    renderDashboard([descriptor('orders'), descriptor('revenue', { refreshWhenFiltersChange: true })], { orders: 1, revenue: 2 });
+    const fetch = answer(inTurn({ orders: [1, 9], revenue: [2, 9] }));
+    renderDashboard([descriptor('orders'), descriptor('revenue', { refreshWhenFiltersChange: true })]);
 
+    await waitFor(() => {
+      expect(within(card('orders')).getByText('1')).toBeTruthy();
+    });
     act(() => {
       emit('filters:changed');
     });
@@ -295,7 +335,11 @@ describe('refresh triggers', () => {
     await waitFor(() => {
       expect(within(card('revenue')).getByText('9')).toBeTruthy();
     });
-    expect(calls(fetch)).toEqual(['/lathe/api/dashboards/main/widgets/revenue?range=30']);
+    expect(calls(fetch)).toEqual([
+      '/lathe/api/dashboards/main/widgets/orders?range=30',
+      '/lathe/api/dashboards/main/widgets/revenue?range=30',
+      '/lathe/api/dashboards/main/widgets/revenue?range=30',
+    ]);
   });
 
   it('refetches only the card whose range changes on a Resource page', async () => {
@@ -333,7 +377,8 @@ describe('the card', () => {
   });
 
   it('shows the help text in a tooltip helpWidth px wide', () => {
-    renderDashboard([descriptor('orders', { help: 'Paid orders only.' }), descriptor('revenue', { help: 'Net.', helpWidth: 400 })], { orders: 1, revenue: 2 });
+    answer(() => 1);
+    renderDashboard([descriptor('orders', { help: 'Paid orders only.' }), descriptor('revenue', { help: 'Net.', helpWidth: 400 })]);
 
     const help = within(card('orders')).getByRole('button', { name: 'Help' });
     fireEvent.mouseEnter(help);
@@ -348,16 +393,20 @@ describe('the card', () => {
   });
 
   it('shows an unknown renderer as the error state', async () => {
-    renderDashboard([descriptor('chart', { component: 'unknown-widget' })], { chart: 1 });
+    const fetch = answer(() => 1);
+    renderDashboard([descriptor('chart', { component: 'unknown-widget' })]);
 
     await waitFor(() => {
       expect(within(card('chart')).getByText('Chart could not load')).toBeTruthy();
     });
+    // A card with no renderer has nothing to draw a value with, so it asks for none.
+    expect(calls(fetch)).toEqual([]);
   });
 
   // jsdom does no layout, so this pins the classes; a browser check at 1,100 px measured "Orders per day" cut 95>78 beside its dates.
   it('wraps a long title and the dates beside it onto more lines, never cut with an ellipsis', () => {
-    renderDashboard([descriptor('orders-per-day', { name: 'Orders per day', component: 'trend-widget' })], {});
+    answer(() => 1);
+    renderDashboard([descriptor('orders-per-day', { name: 'Orders per day', component: 'trend-widget' })]);
     const title = within(card('orders-per-day')).getByRole('heading', { name: 'Orders per day' });
     const meta = card('orders-per-day').querySelector<HTMLElement>('span.ms-auto');
 
@@ -368,10 +417,8 @@ describe('the card', () => {
   });
 
   it('lays cards out on 12 columns with a 20 px gap, value cards of a third or less two across in a grid under 768 px', () => {
-    renderDashboard(
-      [3, 4, 6, 8, 9, 12].map((columns) => descriptor(`w${String(columns)}`, { columns })),
-      {},
-    );
+    answer(() => 1);
+    renderDashboard([3, 4, 6, 8, 9, 12].map((columns) => descriptor(`w${String(columns)}`, { columns })));
 
     // The grid's own width picks the layout, so a sidebar beside a 768 px window still gets the phone's.
     const grid = card('w3').parentElement?.className.split(' ');
@@ -388,7 +435,8 @@ describe('the card', () => {
   });
 
   it('is at least 160 px high, 320 px when double and sized to content when dynamic', () => {
-    renderDashboard([descriptor('fixed'), descriptor('double', { height: 'double' }), descriptor('dynamic', { height: 'dynamic' })], {});
+    answer(() => 1);
+    renderDashboard([descriptor('fixed'), descriptor('double', { height: 'double' }), descriptor('dynamic', { height: 'dynamic' })]);
 
     expect(card('fixed').className.split(' ')).toContain('@3xl:min-h-40');
     expect(card('double').className.split(' ')).toContain('@3xl:min-h-80');

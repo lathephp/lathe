@@ -7,7 +7,7 @@ import { cn } from '../lib/cn';
 import { Button } from '../components/ui/Button';
 import { Card } from '../components/ui/Card';
 import { AddPanel, CustomizeBanner, CustomizeHeader, EditCardHeader, preloadCustomize } from '../widgets/customize/lazy';
-import type { LayoutDraft, WidgetDescriptor, WidgetValue } from '../widgets/types';
+import type { LayoutDraft, WidgetDescriptor } from '../widgets/types';
 import { WidgetGrid } from '../widgets/WidgetGrid';
 import { PageHeader } from '../layout/PageHeader';
 
@@ -52,8 +52,6 @@ function DashboardPage({ dashboard, widgets, hiddenWidgets = [] }: DashboardProp
   const { __ } = useTranslation();
   const { apiPath } = useLathe();
   const page = usePage();
-  // The server leaves rescuedProps out when no deferred prop failed, whatever the type says.
-  const rescued = (page.rescuedProps as string[] | undefined) ?? [];
   // The cards' reload functions, for the header's Refresh button.
   const [reloads] = useState(() => new Set<() => void>());
   const [updatedAt, setUpdatedAt] = useState(() => Date.now());
@@ -167,11 +165,6 @@ function DashboardPage({ dashboard, widgets, hiddenWidgets = [] }: DashboardProp
               range={range}
               reloads={reloads}
               menus
-              // Each card's value is its own deferred prop, so the cards fill in one by one.
-              deferred={(uriKey) => ({
-                value: page.props[`widgetValue:${uriKey}`] as WidgetValue | undefined,
-                rescued: rescued.includes(`widgetValue:${uriKey}`),
-              })}
               edit={
                 draft === null
                   ? undefined

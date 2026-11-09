@@ -37,7 +37,6 @@ function strip() {
           ranges: [],
         },
       ],
-      'widgetValue:orders': { value: 1 },
     },
     {},
   );

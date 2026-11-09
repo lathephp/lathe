@@ -1,9 +1,13 @@
-import { widget as registerWidget, type WidgetProps } from '@lathephp/core';
+import { queryClient, widget as registerWidget, type WidgetProps } from '@lathephp/core';
 import { render, screen, within } from '@testing-library/react';
-import { afterEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { TableCard } from '../widgets/TableCard';
 import type { WidgetDescriptor } from '../widgets/types';
 import { WidgetGrid } from '../widgets/WidgetGrid';
+
+beforeEach(() => {
+  queryClient.clear();
+});
 
 afterEach(() => {
   vi.restoreAllMocks();

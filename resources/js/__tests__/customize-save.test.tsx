@@ -1,5 +1,5 @@
 import { router } from '@inertiajs/react';
-import { __panel } from '@lathephp/core';
+import { __panel, queryClient } from '@lathephp/core';
 import { fireEvent, screen, waitFor, within } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import type { WidgetDescriptor } from '../widgets/types';
@@ -10,6 +10,7 @@ const elementFromPoint = Object.getOwnPropertyDescriptor(document, 'elementFromP
 
 beforeEach(() => {
   __panel.toasts.set([]);
+  queryClient.clear();
 });
 
 afterEach(() => {
@@ -56,8 +57,20 @@ const value = (uriKey: string, number: number) => ({
   value: { value: number, previous: null, change: null, previousLabel: null, prefix: null, suffix: null, suffixInflection: true, format: null, allowZeroResult: false, copyable: false },
 });
 
+// What the layout endpoint answers; each card's value endpoint answers its own number.
+let layout: { status: number; body: unknown } = { status: 200, body: { layout: [] } };
+
 // The reload stands in for Inertia's: it finishes at once.
 function renderDashboard(shown: string[], hidden: string[] = []) {
+  vi.spyOn(globalThis, 'fetch').mockImplementation((input) => {
+    const key = /widgets\/([^/?]+)$/.exec(input as string)?.[1];
+
+    return Promise.resolve(
+      key === undefined
+        ? new Response(layout.status === 204 ? null : JSON.stringify(layout.body), { status: layout.status })
+        : new Response(JSON.stringify(value(key, 10)), { status: 200 }),
+    );
+  });
   const reload = vi.spyOn(router, 'reload').mockImplementation((options) => {
     options?.onFinish?.({} as never);
   });
@@ -65,7 +78,6 @@ function renderDashboard(shown: string[], hidden: string[] = []) {
     dashboard: { uriKey: 'main', name: 'Sales', description: null, icon: null, showRefreshButton: false, customizable: true, customized: false, ranges: [], range: null },
     widgets: shown.map(descriptor),
     hiddenWidgets: hidden.map(descriptor),
-    ...Object.fromEntries(shown.map((key, at) => [`widgetValue:${key}`, value(key, at + 10)])),
   });
   reload.mockClear();
 
@@ -73,11 +85,14 @@ function renderDashboard(shown: string[], hidden: string[] = []) {
 }
 
 function responding(status: number, body: unknown = { layout: [] }) {
-  return vi.spyOn(globalThis, 'fetch').mockImplementation(() => Promise.resolve(new Response(status === 204 ? null : JSON.stringify(body), { status })));
+  layout = { status, body };
+
+  return vi.mocked(globalThis.fetch);
 }
 
+/** The layout requests, leaving out the cards' value reads. */
 function calls(fetch: { mock: { calls: unknown[][] } }) {
-  return fetch.mock.calls.map((call) => {
+  return fetch.mock.calls.filter((call) => !String(call[0]).includes('/widgets/')).map((call) => {
     const init = call[1] as RequestInit | undefined;
 
     return { url: call[0], method: init?.method, body: typeof init?.body === 'string' ? (JSON.parse(init.body) as unknown) : undefined };
@@ -168,7 +183,7 @@ describe('saving a customized layout', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Save layout' }));
 
     await waitFor(() => {
-      expect(fetch).toHaveBeenCalledTimes(1);
+      expect(calls(fetch)).toHaveLength(1);
     });
     expect(calls(fetch)[0]?.body).toEqual({
       widgets: [
@@ -206,7 +221,7 @@ describe('saving a customized layout', () => {
 
     expect(screen.queryByText('Editing layout')).toBeNull();
     expect(order()).toEqual(['orders', 'revenue']);
-    expect(fetch).not.toHaveBeenCalled();
+    expect(calls(fetch)).toEqual([]);
     expect(reload).not.toHaveBeenCalled();
   });
 

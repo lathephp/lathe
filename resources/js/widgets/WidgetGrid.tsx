@@ -3,15 +3,13 @@ import { type ReactNode, useState } from 'react';
 import { Button } from '../components/ui/Button';
 import { gridClass } from './layout';
 import type { WidgetDescriptor } from './types';
-import { type DeferredValue, WidgetCard } from './WidgetCard';
+import { WidgetCard } from './WidgetCard';
 
 export interface WidgetGridProps {
   widgets: WidgetDescriptor[];
   /** The widgets endpoint; a card's value is at {valueUrl}/{uriKey}. */
   valueUrl: string;
   params?: Record<string, string>;
-  /** On a dashboard: each card's deferred value prop. */
-  deferred?: (uriKey: string) => DeferredValue;
   showRefreshButton?: boolean;
   /** On a dashboard: the header's range, which every card shows. */
   range?: string;
@@ -24,7 +22,7 @@ export interface WidgetGridProps {
 }
 
 /** The cards of a dashboard, a Resource page or a lens, on a 12-column grid. */
-export function WidgetGrid({ widgets, valueUrl, params, deferred, showRefreshButton = false, range, reloads: hostReloads, menus = false, edit }: WidgetGridProps) {
+export function WidgetGrid({ widgets, valueUrl, params, showRefreshButton = false, range, reloads: hostReloads, menus = false, edit }: WidgetGridProps) {
   const { __ } = useTranslation();
   // The cards' reload functions; one Set for the life of the grid.
   const [ownReloads] = useState(() => new Set<() => void>());
@@ -62,7 +60,6 @@ export function WidgetGrid({ widgets, valueUrl, params, deferred, showRefreshBut
             widget={widget}
             url={`${valueUrl}/${widget.uriKey}`}
             params={params}
-            deferred={deferred?.(widget.uriKey)}
             register={register}
             range={range}
             menu={menus}

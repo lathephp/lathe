@@ -1,9 +1,13 @@
-import { emit } from '@lathephp/core';
+import { emit, queryClient } from '@lathephp/core';
 import { act, render, screen, waitFor, within } from '@testing-library/react';
-import { afterEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import type { WidgetDescriptor } from '../widgets/types';
 import { WidgetGrid } from '../widgets/WidgetGrid';
 import { choose } from './support';
+
+beforeEach(() => {
+  queryClient.clear();
+});
 
 afterEach(() => {
   vi.restoreAllMocks();
