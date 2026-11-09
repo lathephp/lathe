@@ -395,7 +395,10 @@ describe('conflict dialog', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Update Order' }));
     const dialog = await screen.findByRole('dialog', { name: 'This record has changed' });
 
-    expect(document.activeElement).toBe(within(dialog).getByRole('button', { name: 'Load their version' }));
+    // The modal moves the focus in an effect after it paints, so the dialog can show a beat before.
+    await waitFor(() => {
+      expect(document.activeElement).toBe(within(dialog).getByRole('button', { name: 'Load their version' }));
+    });
   });
 
   it('Load their version reloads the stored values and drops the draft', async () => {
