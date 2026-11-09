@@ -1,0 +1,1 @@
+import{S as e,j as t,v as n}from"./_lathe-vendor_react-oaj751s7.js";import{b as r}from"./floating-ui.utils.dom-nbwa6hxv.js";e();var i=n(void 0);function a(e){let n=t(i);if(n===void 0&&!e)throw Error(r(69));return n}export{a as t};
