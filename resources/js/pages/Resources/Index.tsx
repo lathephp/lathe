@@ -101,7 +101,7 @@ function IndexPage({ resource, table, state, count, error, lens, actions, widget
     // Hidden when the ticked rows allow nothing; while the menus load, a spacer of their height
     // keeps the controls beside them from moving.
     <div className="flex items-center gap-2 empty:hidden">
-      <Suspense fallback={standalone ? <div aria-hidden="true" className="cn-button-size-sm" /> : null}>
+      <Suspense fallback={standalone || selection.all || selection.selected.size > 0 ? <div aria-hidden="true" className="cn-button-size-sm" /> : null}>
         <DeleteMenu
           uriKey={resource.uriKey}
           lens={lens?.uriKey ?? null}
