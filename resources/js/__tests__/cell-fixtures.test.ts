@@ -15,6 +15,7 @@ const legacy = [
   'fields-date.test.tsx',
   'fields-display.test.tsx',
   'grid-cursor.test.tsx',
+  'grid-selection.test.tsx',
   'group-rows.test.tsx',
   'impersonation.test.tsx',
   'index-back.test.tsx',
@@ -56,7 +57,7 @@ describe('index cell fixtures', () => {
   it('come from the snapshot in every test outside the legacy list', () => {
     const handWritten = readdirSync(folder)
       .filter((file) => /\.tsx?$/.test(file))
-      .filter((file) => /cells: \{/.test(readFileSync(`${folder}/${file}`, 'utf8')));
+      .filter((file) => /\bcells\s*:/.test(readFileSync(`${folder}/${file}`, 'utf8')));
     const added = handWritten.filter((file) => !legacy.includes(file));
 
     expect(
