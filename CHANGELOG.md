@@ -4,8 +4,24 @@ All notable changes to Lathe are listed here. The format follows [Keep a Changel
 
 ## [Unreleased]
 
+### Changed
+
+- The toolbar's Actions menu lists only standalone actions while no row is ticked, and shows no button when the Resource has none; ticking a row lists every action as before. This holds on a Resource's list, on a lens, on the Board, which ticks nothing, and in a relation list's pivot Actions menu. The Delete menu already showed only for ticked rows.
+- On a list that edits inline, the view and edit links and the row menu at a row's end open on the first click. A link inside a data cell, such as a related record's name, still moves the cell cursor on the first click and opens on the second.
+- A lens page lists the Resource's tabs and the user's saved views in its views rail, before the lenses, with the lens marked current and the tab badges counted as on the list. A tab or a saved view chosen there opens the Resource's list.
+- A record page shows only the cards marked `onlyOnDetail()`, as the widget docs describe; the other cards of the Resource show above its list and no longer repeat on each record.
+- [api] New English strings since 1.0.0-beta.10, for an app that translates the panel; none was renamed or removed: `Filter` (the list's Filter button), `Change :field` (the spoken name of a cell that edits inline, as "Status: Paid. Change status") and `Waiting for a queue worker. Is one running?` (the import wizard and a queued run's toast).
+
+### Added
+
+- A list or lens with filters shows a Filter button beside the filter bar. It opens the filter bar's list of filters, as a click in the bar does, and counts the active filters, as "Filter 2". A relation list keeps its Filters popover.
+- A cell that edits inline shows a small chevron at its value's end, inside the badge for a select shown as a badge, while the pointer is over the cell or the cell cursor is on it, and a screen reader names it "Status: Paid. Change status". A read-only cell shows none.
+- The import wizard and a queued run's progress toast say "Waiting for a queue worker. Is one running?" once the job has waited 10 s without starting, and the line goes once the job starts.
+
 ### Fixed
 
+- A lens's footer totals the lens's own fields that call `summarize()`, and a lens with none of them draws no footer. The footer showed the Resource's skeleton and never filled.
+- The record link of a list's row sits in the column of the Resource's title attribute, so a list whose ID column comes before the name links the record from the name; the first column keeps the link while the title's column is hidden, or when the title is no column. The columns keep their order.
 - In the record preview panel beside a list, the Actions menu opens from its button's start edge when, ending at the button's end edge, it would run out of the panel, as it already did at the edge of the page's content. At 1280 px it began 152 px outside the 400 px panel, which hid every item's label, and where `ActionDropdown` sits in a box of its own that scrolls, it now keeps inside that box too.
 
 ## [1.0.0-beta.10] - 2026-11-05
