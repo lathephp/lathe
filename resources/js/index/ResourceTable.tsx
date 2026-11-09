@@ -245,7 +245,8 @@ export function ResourceTable({ resource, table, state, loading, selection, sort
   const [saved, setSaved] = useState<Record<string, { over: Row; cells: Row['cells']; updatedAt: string | null | undefined }>>({});
   // Each column's cell classes, worked out once per render rather than once per cell.
   const cellClasses = columns.map((column, index) => {
-    const base = cn('max-w-80 px-3 whitespace-nowrap', alignClass(column), pins[index]?.className, border, cursorCell);
+    // The sticky title column takes at most 40% of a narrow table, so it never covers the columns that scroll beside it.
+    const base = cn(index === 0 ? 'max-w-[min(20rem,40cqi)]' : 'max-w-80', 'px-3 whitespace-nowrap', alignClass(column), pins[index]?.className, border, cursorCell);
 
     return { plain: cn(base, 'truncate'), inline: base, style: { ...columnWidth(column), ...pins[index]?.style } };
   });
@@ -313,7 +314,8 @@ export function ResourceTable({ resource, table, state, loading, selection, sort
     <div
       ref={scroller}
       // Below 768 px the page shows the rows as cards instead.
-      className={cn('relative overflow-x-auto', cards === true && 'max-md:hidden')}
+      // A container, so the sticky title column can take a share of the table's own width.
+      className={cn('relative @container overflow-x-auto', cards === true && 'max-md:hidden')}
       role="region"
       aria-label={__(':resource table', { resource: resource.label })}
       onScroll={measureEdges}

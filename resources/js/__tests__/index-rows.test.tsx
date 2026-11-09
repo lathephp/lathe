@@ -542,3 +542,17 @@ describe('title column link', () => {
     expect(within(bodyRows()[0] as HTMLElement).getByText('3').closest('td')?.hasAttribute('data-open')).toBe(true);
   });
 });
+
+// jsdom does no layout, so this pins the classes; at 768 px with the sidebar open a browser measured a 314 px
+// sticky title column and the sticky row actions covering Posts' Status in a 462 px scroller.
+describe('the sticky title column', () => {
+  it('takes at most 40% of a narrow table, so the columns beside it stay in view', () => {
+    renderOrders();
+    const scroller = screen.getByRole('region', { name: 'Orders table' });
+    const [titleCell, totalCell] = Array.from(within(rowOf('ORD-00012')).getAllByRole('cell').slice(1, 3));
+
+    expect(scroller.className.split(' ')).toContain('@container');
+    expect(titleCell?.className.split(' ')).toContain('max-w-[min(20rem,40cqi)]');
+    expect(totalCell?.className.split(' ')).toContain('max-w-80');
+  });
+});
