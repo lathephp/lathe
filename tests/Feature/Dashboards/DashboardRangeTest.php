@@ -36,24 +36,15 @@ it('offers 7 days, 30 days and 12 months and picks 30 days until the URL names a
     $this->get('/lathe/dashboards/cards?range=60')->assertInertia(fn (AssertableInertia $page) => $page->where('dashboard.range', 30));
 });
 
-it('computes each card of the page with the range in the URL', function () {
-    $this->get('/lathe/dashboards/cards?range=365')->assertInertia(fn (AssertableInertia $page) => $page
-        ->loadDeferredProps(['range-probe'], fn (AssertableInertia $reload) => $reload
-            ->where('widgetValue:range-probe.value', '365')
-            ->missing('widgetValue:range-probe.fallbackRange')));
-
-    $this->get('/lathe/dashboards/cards')->assertInertia(fn (AssertableInertia $page) => $page
-        ->loadDeferredProps(['range-probe'], fn (AssertableInertia $reload) => $reload
-            ->where('widgetValue:range-probe.value', '30')));
+it('computes each card with the range the page picked', function () {
+    expect($this->getJson('/lathe/api/dashboards/cards/widgets/range-probe?range=365')->json())
+        ->toMatchArray(['value' => '365'])->not->toHaveKey('fallbackRange')
+        ->and($this->getJson('/lathe/api/dashboards/cards/widgets/range-probe?range=30')->json())
+        ->toMatchArray(['value' => '30']);
 });
 
 it('falls back to the default of a card that does not offer the range, and says which it used', function () {
     RangeProbe::$ranges = [30 => '30 Days', 60 => '60 Days', 365 => '365 Days'];
-
-    $this->get('/lathe/dashboards/cards?range=7')->assertInertia(fn (AssertableInertia $page) => $page
-        ->loadDeferredProps(['range-probe'], fn (AssertableInertia $reload) => $reload
-            ->where('widgetValue:range-probe.value', '30')
-            ->where('widgetValue:range-probe.fallbackRange', ['value' => 30, 'label' => 'Last 30 days'])));
 
     expect($this->getJson('/lathe/api/dashboards/cards/widgets/range-probe?range=7')->json())
         ->toMatchArray(['value' => '30', 'fallbackRange' => ['value' => 30, 'label' => 'Last 30 days']])
@@ -72,12 +63,9 @@ it('hands the dashboard range to a card without ranges of its own', function () 
     RangeProbe::$ranges = [];
 
     expect($this->getJson('/lathe/api/dashboards/cards/widgets/range-probe?range=365')->json())
-        ->toMatchArray(['value' => '365'])->not->toHaveKey('fallbackRange');
-
-    $this->get('/lathe/dashboards/cards?range=7')->assertInertia(fn (AssertableInertia $page) => $page
-        ->loadDeferredProps(['range-probe'], fn (AssertableInertia $reload) => $reload
-            ->where('widgetValue:range-probe.value', '7')
-            ->missing('widgetValue:range-probe.fallbackRange')));
+        ->toMatchArray(['value' => '365'])->not->toHaveKey('fallbackRange')
+        ->and($this->getJson('/lathe/api/dashboards/cards/widgets/range-probe?range=7')->json())
+        ->toMatchArray(['value' => '7'])->not->toHaveKey('fallbackRange');
 });
 
 /**

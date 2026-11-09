@@ -81,10 +81,7 @@ it('changes the Sales Orders number and its change for 60 days', function () {
         ->and($thirty['change'])->toBeGreaterThan(0);
 });
 
-it('paints the gallery in one visit with 11 descriptors and a deferred group per value card', function () {
-    // The partial reload asserts the page file again; the page tests run without a build.
-    config(['inertia.testing.ensure_pages_exist' => false]);
-
+it('paints the gallery in one visit with 11 descriptors and no card values', function () {
     $this->get('/lathe/dashboards/widget-gallery')->assertOk()->assertInertia(fn (AssertableInertia $page) => $page
         ->component('Dashboard', false)
         ->where('dashboard.name', 'Widget Gallery')
@@ -93,9 +90,6 @@ it('paints the gallery in one visit with 11 descriptors and a deferred group per
         ->missing('widgets.0.value')
         ->missing('widgetValue:orders'));
 
-    // The help and clock cards ask for no value, so 9 of the 11 cards defer one.
-    expect(array_keys($this->get('/lathe/dashboards/widget-gallery')->viewData('page')['deferredProps']))->toBe([
-        'orders', 'orders-per-day', 'paid-orders', 'top-customers', 'orders-by-status', 'products-by-category',
-        'customers-by-country', 'sales-by-weekday', 'order-completion',
-    ]);
+    // Each card reads its value from its own endpoint, so the page defers none.
+    expect($this->get('/lathe/dashboards/widget-gallery')->viewData('page'))->not->toHaveKey('deferredProps');
 });

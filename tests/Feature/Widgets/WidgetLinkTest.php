@@ -4,7 +4,6 @@ use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Str;
-use Inertia\Testing\AssertableInertia;
 use Lathe\Http\Requests\LatheRequest;
 use Lathe\Lathe;
 use Lathe\Tests\Fixtures\Dashboards\Cards;
@@ -36,11 +35,6 @@ it('points a card that counts orders at the orders index', function () {
     expect($this->getJson('/lathe/api/dashboards/cards/widgets/value-orders?range=30')->json())
         ->toMatchArray(['link' => '/lathe/resources/orders'])
         ->not->toHaveKey('_source');
-
-    $this->get('/lathe/dashboards/cards')->assertInertia(fn (AssertableInertia $page) => $page
-        ->loadDeferredProps(['value-orders'], fn (AssertableInertia $reload) => $reload
-            ->where('widgetValue:value-orders.link', '/lathe/resources/orders')
-            ->missing('widgetValue:value-orders._source')));
 });
 
 it('leaves the link off for a user who may not list orders, after the admin warmed the shared cache', function () {

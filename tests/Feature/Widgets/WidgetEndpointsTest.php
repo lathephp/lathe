@@ -133,10 +133,8 @@ it('refuses a refresh under 5 seconds and detail-only widgets that refresh on fi
         ->and(fn () => OrderCount::make()->refreshWhenFiltersChange()->onlyOnDetail())->toThrow(LogicException::class);
 });
 
-it('paints a dashboard in one visit with descriptors and one deferred group per card', function () {
+it('paints a dashboard with descriptors only, and each card asks its endpoint for its value', function () {
     Cards::$widgets = [new OrderCount, AttributedCard::make()];
-    // The partial reload asserts the page file again; the page tests run without a build.
-    config(['inertia.testing.ensure_pages_exist' => false]);
 
     $this->actingAs(widgetAdmin())->get('/lathe/dashboards/cards')->assertOk()->assertInertia(fn (AssertableInertia $page) => $page
         ->component('Dashboard', false)
@@ -144,10 +142,9 @@ it('paints a dashboard in one visit with descriptors and one deferred group per 
         ->where('widgets.0.uriKey', 'order-count')
         ->missing('widgets.0.value')
         ->missing('widgetValue:order-count')
-        ->loadDeferredProps(['order-count'], fn (AssertableInertia $reload) => $reload
-            ->where('widgetValue:order-count.value', Order::count())
-            ->missing('widgetValue:attributed-card')));
+        ->missing('widgetValue:attributed-card'));
 
-    expect($this->get('/lathe/dashboards/cards')->viewData('page')['deferredProps'])
-        ->toBe(['order-count' => ['widgetValue:order-count'], 'attributed-card' => ['widgetValue:attributed-card']]);
+    expect($this->get('/lathe/dashboards/cards')->viewData('page'))->not->toHaveKey('deferredProps')
+        ->and($this->getJson('/lathe/api/dashboards/cards/widgets/order-count')->assertOk()->json('value'))->toBe(Order::count())
+        ->and($this->getJson('/lathe/api/dashboards/cards/widgets/attributed-card')->assertOk()->json('uriKey'))->toBe('attributed-card');
 });

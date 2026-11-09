@@ -49,21 +49,12 @@ class DashboardController
         $found = $this->find($request, $dashboard);
         $visible = (new WidgetList($found->widgets($request), $found::class))->visible($request);
         [$widgets, $hidden, $widths] = $this->arrange($request, $found, $visible);
-        $range = $found->selectedRange($request);
-        $values = [];
 
-        // Each card's value is its own deferred group, so the cards fill in in parallel.
-        foreach ($widgets as $widget) {
-            if ($widget->requestsValue()) {
-                $values['widgetValue:'.$widget::uriKey()] = Inertia::defer(fn () => $widget->withCacheOwner('dashboard:'.$dashboard)->responseForRange($request, $range), $widget::uriKey());
-            }
-        }
-
+        // The cards read their values from the widget endpoints, so a return visit can serve them from the browser's cache.
         return Inertia::render('Dashboard', [
-            'dashboard' => [...$found->payload(), 'range' => $range, 'customized' => $widths !== null],
+            'dashboard' => [...$found->payload(), 'range' => $found->selectedRange($request), 'customized' => $widths !== null],
             'widgets' => array_map(fn (Widget $widget) => $this->descriptor($widget, $widths), $widgets),
             'hiddenWidgets' => array_map(fn (Widget $widget) => $this->descriptor($widget, $widths), $hidden),
-            ...$values,
         ]);
     }
 
