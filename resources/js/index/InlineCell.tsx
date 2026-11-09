@@ -4,7 +4,7 @@ import { createPortal } from 'react-dom';
 import type { Cell, FieldSchema } from '../fields/types';
 import { stringValue } from '../fields/registry';
 import { InlineChevron, InlineChevronContext } from '../fields/choice/InlineChevron';
-import { badgesOf } from '../fields/choice/SelectFields';
+import { styled } from '../fields/choice/SelectFields';
 import { lazyNamed } from '../lib/lazy';
 import { TableCell } from '../table/cells';
 import { ConflictDialog } from './lazy';
@@ -147,7 +147,7 @@ export function InlineCell({ uriKey, rowId, column, cell, token, onRow }: Inline
       ) : (
         <InlineChevronContext.Provider value>
           <TableCell column={column} cell={shown} />
-          {badgesOf(column) === null ? <InlineChevron className="ms-1 inline-flex align-middle" /> : null}
+          {styled(column) ? null : <InlineChevron className="ms-1 inline-flex align-middle" />}
         </InlineChevronContext.Provider>
       )}
       {busy ? <span className="ms-2 text-xs text-muted-foreground">{__('Saving…')}</span> : null}

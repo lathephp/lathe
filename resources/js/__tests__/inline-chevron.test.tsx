@@ -9,12 +9,18 @@ const definition = { debounce: 0.5, paginationType: 'links', clickAction: 'detai
 const labels = { orders: ['Orders', 'Order'], customers: ['Customers', 'Customer'] } as const;
 
 // Orders hold the inline Status with badges; customers hold the inline text Name. The workbench
-// Status also draws a meter, which takes the badge's place, so the badge case drops it.
-function renderRows(uriKey: 'orders' | 'customers', update = true, meter = false) {
+// Status also draws a meter, which takes the badge's place, so the badge case drops it; the meter
+// cases keep it, with or without its badges.
+type Shape = { update?: boolean; meter?: boolean; badges?: boolean };
+
+function renderRows(uriKey: 'orders' | 'customers', { update = true, meter = false, badges = true }: Shape = {}) {
   const table = indexTable(uriKey);
   table.columns.forEach((column) => {
     if ('meter' in column && !meter) {
       column.meter = null;
+    }
+    if ('badges' in column && !badges) {
+      column.badges = null;
     }
   });
   table.rows.forEach((row) => {
@@ -45,11 +51,20 @@ describe('the inline cell chevron', () => {
   });
 
   it('sits inside a meter value, as the workbench Status draws it', async () => {
-    renderRows('orders', true, true);
+    renderRows('orders', { meter: true });
 
     const cell = await screen.findByRole('gridcell', { name: 'Status: Shipped. Change status' });
 
     expect(cell.querySelector('[data-lathe-meter] [data-inline-chevron] svg[aria-hidden="true"]')).not.toBeNull();
+  });
+
+  it('draws once on a meter with no badges', async () => {
+    renderRows('orders', { meter: true, badges: false });
+
+    const cell = await screen.findByRole('gridcell', { name: 'Status: Shipped. Change status' });
+
+    expect(cell.querySelectorAll('[data-inline-chevron]')).toHaveLength(1);
+    expect(cell.querySelector('[data-lathe-meter] [data-inline-chevron]')).not.toBeNull();
   });
 
   it('follows a text value and names the cell', async () => {
@@ -75,7 +90,7 @@ describe('the inline cell chevron', () => {
   });
 
   it('is left off every cell of a row the user may not update', async () => {
-    renderRows('orders', false);
+    renderRows('orders', { update: false });
 
     await waitFor(() => {
       expect(cellOf('Status').textContent).toBe('Shipped');
