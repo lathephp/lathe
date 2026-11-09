@@ -2,7 +2,9 @@ import { useTranslation } from '@lathephp/core';
 import { Link, router, usePage } from '@inertiajs/react';
 import { Columns3, Eye, Pencil } from 'lucide-react';
 import { Fragment, Suspense, useLayoutEffect, useRef, useState, type MouseEvent } from 'react';
-import type { FieldSchema } from '../fields/types';
+import { optionsOf } from '../fields/choice/options';
+import { shown } from '../fields/choice/SelectFields';
+import type { Cell, FieldSchema } from '../fields/types';
 import { cn } from '../lib/cn';
 import { instantProps } from '../lib/instant';
 import { TableCell } from '../table/cells';
@@ -14,9 +16,16 @@ import { InlineCell } from './InlineCell';
 import { ColumnPicker, TableSummaryRow } from './lazy';
 import { hasRowMenu, RowMenu } from './RowMenu';
 import { TableSummaryPlaceholder } from './TableSummaryPlaceholder';
-import type { ColumnPin, IndexProps, Row } from './types';
+import type { Column, ColumnPin, IndexProps, Row } from './types';
 
 // A row's height at each table density; a loading row takes the same.
+/** A cell's value as it reads on screen: a select with options says its option's label, as its badge shows it. */
+function spoken(column: Column, cell: Cell): string {
+  const field = column as unknown as FieldSchema;
+
+  return optionsOf(field).length > 0 ? shown(field, cell.value) : cell.display;
+}
+
 export const rowHeights = { compact: 'h-8', comfortable: 'h-10', spacious: 'h-14' };
 
 // Under 768 px the table scrolls inside its card; the checkbox and the first column stay as the row's anchor.
@@ -434,7 +443,7 @@ export function ResourceTable({ resource, table, state, loading, selection, sort
                               tabIndex={stop(row, index + 1)}
                               // The name tells a screen reader the cell edits: "Status: Draft. Change status".
                               role={inline ? 'gridcell' : undefined}
-                              aria-label={inline && cell !== undefined ? `${column.label}: ${cell.display}. ${__('Change :field', { field: column.label.toLowerCase() })}` : undefined}
+                              aria-label={inline && cell !== undefined ? `${column.label}: ${spoken(column, cell)}. ${__('Change :field', { field: column.label.toLowerCase() })}` : undefined}
                               // The title cell is the row's link: a click on it, not on a control inside, runs the click action.
                               data-open={url === undefined ? undefined : ''}
                               onClick={

@@ -24,7 +24,8 @@ export function styled(field: FieldSchema): boolean {
   return badgesOf(field) !== null || meterOf(field) !== null;
 }
 
-function shown(field: IndexFieldProps['field'], value: unknown): string {
+/** A select's value as its cell shows it: the option's label when the select draws labels, badges or a meter. */
+export function shown(field: IndexFieldProps['field'], value: unknown): string {
   return field.displayUsingLabels === true || styled(field) ? labelOf(optionsOf(field), stringValue(value)) : stringValue(value);
 }
 

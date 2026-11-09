@@ -31,7 +31,7 @@ function renderRows(update = true) {
           {
             id: 1,
             title: 'Hello',
-            cells: { title: { value: 'Hello', display: 'Hello' }, status: { value: 'draft', display: 'Draft' }, name: { value: 'Ada', display: 'Ada' } },
+            cells: { title: { value: 'Hello', display: 'Hello' }, status: { value: 'draft', display: 'draft' }, name: { value: 'Ada', display: 'Ada' } },
             abilities: { view: true, update },
             updatedAt: '2026-10-14T09:00:00.000Z',
           },
