@@ -213,3 +213,37 @@ it('names every place a user meets the header and the Actions menu changed in 1.
         ->toContain('the record preview panel beside a list')
         ->toContain('`ActionDropdown`');
 })->group('frontend');
+
+it('names in the 1.0.0-beta.11 section every English string added or removed since 1.0.0-beta.10', function () {
+    $root = dirname(__DIR__, 3);
+    $keys = fn (string $json) => array_map('strval', array_keys((array) json_decode($json, true)));
+    $at = fn (string $tag) => Process::path($root)->run(['git', 'show', "{$tag}:lang/en.json"]);
+
+    if (! $at('v1.0.0-beta.10')->successful()) {
+        test()->markTestSkipped('This clone has no 1.0.0-beta.10 tag to compare with.');
+    }
+
+    $released = $at('v1.0.0-beta.11');
+    $before = $keys($at('v1.0.0-beta.10')->output());
+    $after = $keys($released->successful() ? $released->output() : File::get("{$root}/lang/en.json"));
+    $section = explode('## [1.0.0-beta.10]', explode('## [1.0.0-beta.11]', File::get("{$root}/CHANGELOG.md"), 2)[1] ?? '', 2)[0];
+    preg_match_all('/`([^`]+)`/u', (string) preg_replace('/^ *```.*?^ *```$/ms', '', $section), $named);
+    $changed = [...array_diff($before, $after), ...array_diff($after, $before)];
+
+    expect($changed)->not->toBeEmpty()
+        ->and(array_values(array_diff($changed, $named[1])))->toBe([]);
+})->group('frontend');
+
+it('names every place a user meets the Actions menu, the cards and the cell cursor changed in 1.0.0-beta.11', function () {
+    $section = explode('## [1.0.0-beta.10]', explode('## [1.0.0-beta.11]', File::get(dirname(__DIR__, 3).'/CHANGELOG.md'), 2)[1] ?? '', 2)[0];
+
+    expect($section)
+        ->toContain('This holds on a Resource\'s list, on a lens, on the Board, which ticks nothing, and in a relation list\'s pivot Actions menu.')
+        ->toContain('This holds on a Resource\'s list, on a lens and on a relation list.')
+        ->toContain('on a Resource\'s list, on a lens and on a relation list. On a list and a lens a screen reader names the cell')
+        ->toContain('The cards of a dashboard, of a Resource\'s list, of a lens and of a record page')
+        ->toContain('The exported `WidgetGrid` and `WidgetCard` read through the same cache')
+        ->toContain('above a Resource\'s list, a lens or a record page, and in a plugin\'s `WidgetCard`')
+        ->toContain('In the record preview panel beside a list, the Actions menu opens from its button\'s start edge')
+        ->toContain('`ActionDropdown`');
+})->group('frontend');
