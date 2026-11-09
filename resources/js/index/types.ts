@@ -135,6 +135,8 @@ export interface IndexProps {
   };
   table: {
     columns: Column[];
+    /** The column of the Resource's title attribute, which links the record; null when the title is no column. */
+    titleColumn?: string | null;
     sortKeys: string[];
     rows: Row[];
     rowKey: string;

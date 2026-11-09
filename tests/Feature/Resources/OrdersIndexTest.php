@@ -60,6 +60,14 @@ it('lists 25 orders newest first from the API', function () {
         ->and($rows[0]['cells']['customer']['display'])->toBe(Order::find(10000)?->customer?->name);
 });
 
+it("names the title attribute's column, which links the record, and none when the title is no column", function () {
+    signInAs('admin@lathephp.com');
+
+    expect($this->getJson('/lathe/api/resources/orders')->assertOk()->json('table.titleColumn'))->toBe('number')
+        ->and($this->getJson('/lathe/api/resources/customers')->assertOk()->json('table.titleColumn'))->toBe('name')
+        ->and($this->getJson('/lathe/api/resources/order-items')->assertOk()->json('table'))->toHaveKey('titleColumn', null);
+});
+
 it('draws Placed as a date-time and Status as labelled badges', function () {
     signInAs('admin@lathephp.com');
 

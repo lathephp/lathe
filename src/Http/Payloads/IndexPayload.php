@@ -81,6 +81,7 @@ class IndexPayload
             'resource' => $this->resource($class, $lens),
             'table' => [
                 'columns' => $choice === null ? $fields : $this->chosenColumns($fields, $choice),
+                'titleColumn' => $this->titleColumn($resource, $fields),
                 'sortKeys' => $query->sortKeys(),
                 'rowKey' => $rowKey,
                 'rows' => $mapped,
@@ -386,6 +387,19 @@ class IndexPayload
             'available' => $lens !== null ? [] : array_map(fn (Group $group) => $group->toArray(), $resource->groups($this->request)),
             'active' => $active === null ? null : ['id' => $active['group']->id(), 'direction' => $active['direction'], 'collapsible' => $active['group']->isCollapsible()],
         ];
+    }
+
+    /**
+     * The key of the column that shows the Resource's title attribute, which links the record; null
+     * when the title is a closure or no column shows it.
+     *
+     * @param  list<Field>  $fields
+     */
+    protected function titleColumn(Resource $resource, array $fields): ?string
+    {
+        $title = $resource->definition()->getTitle();
+
+        return is_string($title) && in_array($title, array_map(fn (Field $field) => $field->key(), $fields), true) ? $title : null;
     }
 
     protected function query(Resource $resource, ?Lens $lens): ResourceQuery

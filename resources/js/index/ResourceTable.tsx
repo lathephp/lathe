@@ -130,6 +130,8 @@ export function ResourceTable({ resource, table, state, loading, selection, sort
   const pinned = rest.filter((column) => column.pinned === true);
   const columns = title === undefined ? [] : [title, ...pinned, ...rest.filter((column) => column.pinned !== true)];
   const stuck = columns.length === 0 ? 0 : pinned.length + 1;
+  // The title attribute's column links the record; the first column does while that one is not shown.
+  const linked = columns.some((column) => column.key === table.titleColumn) ? table.titleColumn : title?.key;
   const header = useRef<HTMLTableRowElement>(null);
   const scroller = useRef<HTMLDivElement>(null);
   const grid = useRef<HTMLTableElement>(null);
@@ -424,7 +426,7 @@ export function ResourceTable({ resource, table, state, loading, selection, sort
                           const cell = (fresh?.cells ?? row.cells)[column.key];
                           // A cell edits in place for a user who may update the row and edit inline.
                           const inline = column.inline === true && row.abilities.update === true && row.abilities.inlineEdit !== false;
-                          const url = index === 0 && !inline && clickAction !== 'ignore' ? rowUrl(row) : undefined;
+                          const url = column.key === linked && !inline && clickAction !== 'ignore' ? rowUrl(row) : undefined;
 
                           return (
                             <td
@@ -448,14 +450,14 @@ export function ResourceTable({ resource, table, state, loading, selection, sort
                               className={cn(inline ? cellClasses[index]?.inline : cellClasses[index]?.plain, url !== undefined && 'cursor-pointer hover:underline')}
                               style={cellClasses[index]?.style}
                               onMouseEnter={
-                                index === 0
+                                column.key === linked
                                   ? () => {
                                       prefetchRow(row);
                                     }
                                   : undefined
                               }
                               onMouseLeave={
-                                index === 0
+                                column.key === linked
                                   ? () => {
                                       window.clearTimeout(hover.current);
                                     }

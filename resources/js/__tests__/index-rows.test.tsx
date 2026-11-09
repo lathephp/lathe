@@ -489,3 +489,47 @@ describe('table visuals', () => {
     expect(screen.getAllByRole('columnheader').some((cell) => cell.classList.contains('border-e'))).toBe(false);
   });
 });
+
+describe('title column link', () => {
+  const idColumn = { key: 'id', label: 'ID', component: 'text', sortable: false, sortKey: 'id' };
+  const nameColumn = { key: 'name', label: 'Name', component: 'text', sortable: false, sortKey: 'name' };
+
+  function renderCustomers(columns: (typeof idColumn)[], titleColumn: string | null) {
+    const customers = [3, 4].map((id) => ({ id, title: `Ada ${String(id)}`, cells: { id: { value: id, display: String(id) }, name: { value: `Ada ${String(id)}`, display: `Ada ${String(id)}` } }, abilities: { view: true } }));
+
+    return renderPage(
+      'Resources/Index',
+      {
+        resource: {
+          uriKey: 'customers',
+          label: 'Customers',
+          singularLabel: 'Customer',
+          perPageOptions: [25],
+          searchable: false,
+          abilities: { create: false },
+          definition: { debounce: 0.5, paginationType: 'links', clickAction: 'detail', polling: null, showPollingToggle: false, tableStyle: 'default', showColumnBorders: false, softDeletes: false },
+        },
+        table: { columns, titleColumn, sortKeys: [], rows: customers, rowKey: 'id' },
+        state: { page: 1, perPage: 25, hasMorePages: false, sort: '' },
+        count: { value: 2, exact: true, capped: false, estimated: false },
+      },
+      { url: '/lathe/resources/customers' },
+    );
+  }
+
+  it("links the title attribute's column, not the ID column before it", () => {
+    const visit = vi.spyOn(router, 'visit').mockImplementation(() => undefined);
+    renderCustomers([idColumn, nameColumn], 'name');
+
+    expect(within(rowOf('Ada 3')).getByText('3').closest('td')?.hasAttribute('data-open')).toBe(false);
+    fireEvent.click(within(rowOf('Ada 3')).getByText('Ada 3'));
+
+    expect(visit.mock.calls[0]?.[0]).toBe('/lathe/resources/customers/3');
+  });
+
+  it('keeps the link on the first column when the title column is not shown', () => {
+    renderCustomers([idColumn], 'name');
+
+    expect(within(bodyRows()[0] as HTMLElement).getByText('3').closest('td')?.hasAttribute('data-open')).toBe(true);
+  });
+});
