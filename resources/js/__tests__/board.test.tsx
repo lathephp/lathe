@@ -27,6 +27,17 @@ async function settle() {
 }
 
 describe('the Board', () => {
+  it('lists only the standalone action in its Actions menu, since the Board selects nothing', async () => {
+    boardServer();
+    const action = { icon: null, description: null, group: null, destructive: false, sole: false, pinned: false, withoutConfirmation: true, confirmText: null, confirmButtonText: 'Run Action', cancelButtonText: 'Cancel', size: '2xl', style: 'window', asBlob: false, showOnIndex: true, showOnDetail: true, showOnTableRow: false };
+    const list = [{ ...action, uriKey: 'send-report', name: 'Send Report', standalone: true }, { ...action, uriKey: 'refund', name: 'Refund', standalone: false }];
+    renderPage('Resources/Index', orders({ layout: 'board' }, { actions: { actions: list, pivotActions: [], counts: {} } }), { url: '/lathe/resources/orders' });
+
+    fireEvent.click(await screen.findByRole('button', { name: 'Actions' }));
+
+    expect(within(screen.getByRole('menu', { name: 'Actions' })).getAllByRole('menuitem').map((item) => item.textContent)).toEqual(['Send Report']);
+  });
+
   it('draws a column per option in order, each headed by its meter and its capped count', async () => {
     boardServer({ counts: { pending: 2424, paid: 2552, shipped: 2564, cancelled: 'capped' } });
     renderPage('Resources/Index', orders({ layout: 'board' }), { url: '/lathe/resources/orders' });

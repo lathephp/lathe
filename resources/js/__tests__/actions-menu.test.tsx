@@ -1,5 +1,5 @@
 import { router } from '@inertiajs/react';
-import { __panel } from '@lathephp/core';
+import { __panel, actionModal, type ActionModalProps } from '@lathephp/core';
 import { fireEvent, screen, waitFor, within } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import type { ActionMeta } from '../actions/types';
@@ -150,16 +150,18 @@ describe('the actions menu', () => {
     }
   });
 
-  it('enables a standalone action with nothing ticked, a resource action once a row is, and a sole one at exactly one', async () => {
+  it('lists only the standalone action with nothing ticked, every action once a row is, and enables a sole one at exactly one', async () => {
     renderOrders();
     let menu = await openMenu();
     const disabled = () => within(menu).getAllByRole<HTMLButtonElement>('menuitem').filter((item) => item.disabled).map((item) => item.textContent);
 
-    expect(disabled()).toEqual(['ExportDownload the rows', 'Mark Shipped', 'Hold order', 'Cancel Order']);
+    expect(within(menu).getAllByRole('menuitem').map((item) => item.textContent)).toEqual(['Send Report']);
+    expect(disabled()).toEqual([]);
 
     fireEvent.click(screen.getByRole('button', { name: 'Actions' }));
     tick(1);
     menu = await openMenu();
+    expect(within(menu).getAllByRole('menuitem')).toHaveLength(5);
     expect(disabled()).toEqual([]);
 
     fireEvent.click(screen.getByRole('button', { name: 'Actions' }));
@@ -197,6 +199,27 @@ describe('the actions menu', () => {
 
     expect(screen.queryByRole('menu', { name: 'Actions' })).toBeNull();
     expect(document.activeElement).toBe(screen.getByRole('button', { name: 'Actions' }));
+  });
+
+  it('shows no Actions button until a row is ticked when no action is standalone', async () => {
+    renderOrders(actions.filter((action) => !action.standalone));
+
+    expect(await screen.findByRole('grid')).toBeTruthy();
+    expect(screen.queryByRole('button', { name: 'Actions' })).toBeNull();
+    tick(1);
+    const menu = await openMenu();
+    expect(within(menu).getAllByRole('menuitem').map((item) => item.textContent)).toEqual(['ExportDownload the rows', 'Mark Shipped', 'Hold order', 'Cancel Order']);
+  });
+
+  it("keeps a run's response modal open after the run clears the ticked rows", async () => {
+    actionModal('held', ({ data }: ActionModalProps) => <p>Held {String(data.id)}</p>);
+    vi.spyOn(globalThis, 'fetch').mockResolvedValueOnce(json({ result: { message: null, level: 'success', effect: { type: 'modal', component: 'held', data: { id: 1 } } }, permitted: 1, skipped: 0, failed: 0, errors: [] }));
+    renderOrders([meta('hold-order', 'Hold', { withoutConfirmation: true })]);
+    tick(1);
+    fireEvent.click(within(await openMenu()).getByRole('menuitem', { name: 'Hold' }));
+
+    expect(await screen.findByText('Held 1')).toBeTruthy();
+    expect(screen.queryByRole('button', { name: 'Actions' })).toBeNull();
   });
 
   it('renders nothing without a visible action', () => {

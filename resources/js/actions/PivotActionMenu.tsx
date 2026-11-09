@@ -37,6 +37,12 @@ export function PivotActionMenu({ resource, via, actions, ids, queryKey }: Pivot
     },
   });
   const selection: SelectionDescriptor = { mode: 'ids', ids, exclusions: [], q: '', filters: {}, tab: null, saved_tab: null, trashed: null, lens: null, via };
+  // With no row ticked only a standalone action can run; the runner stays for a run still showing.
+  const shown = ids.length > 0 ? actions : actions.filter((action) => action.standalone);
+
+  if (shown.length === 0) {
+    return runner.element;
+  }
 
   return (
     <div className="relative">
@@ -55,12 +61,11 @@ export function PivotActionMenu({ resource, via, actions, ids, queryKey }: Pivot
       </Button>
       {open && (
         <div id={menuId} role="menu" aria-label={__('Actions')} tabIndex={-1} className="absolute start-0 top-full z-20 mt-1 w-56 rounded-lg border border-border bg-background p-1 shadow-lg">
-          {actions.map((action) => (
+          {shown.map((action) => (
             <button
               key={action.uriKey}
               type="button"
               role="menuitem"
-              disabled={!action.standalone && ids.length === 0}
               className={cn(itemClass, action.destructive && 'text-destructive')}
               onClick={() => {
                 trigger.current?.focus();

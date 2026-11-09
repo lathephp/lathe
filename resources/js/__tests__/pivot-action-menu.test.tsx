@@ -19,10 +19,10 @@ const moveToFirst: ActionMeta = {
   size: '2xl', style: 'window', asBlob: false, showOnIndex: true, showOnDetail: true, showOnTableRow: false,
 };
 
-function renderMenu(ids: number[]) {
+function renderMenu(ids: number[], actions = [moveToFirst]) {
   return render(
     <QueryClientProvider client={queryClient}>
-      <PivotActionMenu resource="tags" via="products/1/tags" actions={[moveToFirst]} ids={ids} queryKey={['relation', 'products', '1', 'tags']} />
+      <PivotActionMenu resource="tags" via="products/1/tags" actions={actions} ids={ids} queryKey={['relation', 'products', '1', 'tags']} />
     </QueryClientProvider>,
   );
 }
@@ -44,11 +44,17 @@ describe('the pivot action menu', () => {
     expect(JSON.parse(fetch.mock.calls[0]?.[1]?.body as string)).toMatchObject({ action: 'move-to-first', selection: { mode: 'ids', ids: [3, 5], via: 'products/1/tags' } });
   });
 
-  it('disables a pivot action until a row is ticked', () => {
+  it('shows no Actions button until a row is ticked when no pivot action is standalone', () => {
     renderMenu([]);
+
+    expect(screen.queryByRole('button', { name: 'Actions' })).toBeNull();
+  });
+
+  it('lists only the standalone pivot action with nothing ticked', () => {
+    renderMenu([], [moveToFirst, { ...moveToFirst, uriKey: 'sync-tags', name: 'Sync tags', standalone: true }]);
 
     fireEvent.click(screen.getByRole('button', { name: 'Actions' }));
 
-    expect(screen.getByRole<HTMLButtonElement>('menuitem', { name: 'Move to First' }).disabled).toBe(true);
+    expect(screen.getAllByRole('menuitem').map((item) => item.textContent)).toEqual(['Sync tags']);
   });
 });

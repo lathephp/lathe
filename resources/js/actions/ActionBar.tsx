@@ -75,8 +75,12 @@ export function ActionBar({ uriKey, lens, list, selection, rows, total, state }:
     },
   });
 
-  if (list.actions.length === 0) {
-    return null;
+  // With nothing ticked only a standalone action can run, so the rest stay out of the menu.
+  const shown = ticked > 0 ? list.actions : list.actions.filter((action) => action.standalone);
+
+  // The runner stays, since a run that cleared the ticked rows may still show its response.
+  if (shown.length === 0) {
+    return runner.element;
   }
 
   function enabled(action: ActionMeta): boolean {
@@ -109,9 +113,9 @@ export function ActionBar({ uriKey, lens, list, selection, rows, total, state }:
   }
 
   const pinned = ticked > 0 ? list.actions.filter((action) => action.pinned) : [];
-  const destructiveFrom = list.actions.findIndex((action) => action.destructive && !action.standalone);
+  const destructiveFrom = shown.findIndex((action) => action.destructive && !action.standalone);
   // An item with no icon keeps an icon's width when others have one, so the labels line up.
-  const iconGap = list.actions.some((action) => action.icon !== null);
+  const iconGap = shown.some((action) => action.icon !== null);
 
   return (
     <div className="flex flex-wrap items-center gap-2">
@@ -151,8 +155,8 @@ export function ActionBar({ uriKey, lens, list, selection, rows, total, state }:
             tabIndex={-1}
             className="absolute end-0 top-full z-30 mt-1 w-72 rounded-lg border border-border bg-background p-1 shadow-lg"
           >
-            {list.actions.map((action, index) => {
-              const previous = list.actions[index - 1];
+            {shown.map((action, index) => {
+              const previous = shown[index - 1];
               const heading = !action.standalone && !action.destructive && action.group !== null && previous?.group !== action.group ? action.group : null;
 
               return (
