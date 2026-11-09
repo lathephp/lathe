@@ -22,7 +22,7 @@ All notable changes to Lathe are listed here. The format follows [Keep a Changel
 
 ### Fixed
 
-- The panel drops every value it keeps in its query cache, such as card values, search results and relation lists, when the signed-in user changes at sign-out, sign-in or impersonation in the same tab, so one user never sees another's values.
+- The panel drops every value it keeps in its query cache, such as card values, search results and relation lists, when the signed-in user leaves, at sign-out or impersonation in the same tab, so the next user never sees the last one's values.
 - A card's range select drops below a title too wide to share its row, so the title reads whole; at 390 px a 148 px card cut "Cancellations" to "Cancellation". This holds wherever a card has its own range select: above a Resource's list, a lens or a record page, and in a plugin's `WidgetCard`.
 - A list's sticky title column takes at most 40% of a narrow table, so at 768 px with the sidebar open the columns beside it stay in view; Posts' Status sat under the 314 px title and the row actions at every scroll position. A table 800 px or wider keeps the 320 px cap. This holds on a Resource's list and on a lens.
 - A lens's footer totals the lens's own fields that call `summarize()`, and a lens with none of them draws no footer. The footer showed the Resource's skeleton and never filled.
