@@ -15,6 +15,7 @@ import { assetHashFromUrl, markBuildStale, setEntryHash } from './lib/assets';
 import './lib/instant';
 import { DirectionProvider } from './lib/direction';
 import { pages, preloadPanelPages } from './lib/pages';
+import { followUser } from './lib/session';
 import { pageTitle } from './lib/title';
 import { showFlash } from './lib/visits';
 import type { SharedProps } from './types';
@@ -71,6 +72,7 @@ void createInertiaApp({
   setup({ el, App, props }) {
     __panel.setRouter(router);
     __panel.sharedProps.set(props.initialPage.props);
+    followUser(props.initialPage.props);
     showFlash(props.initialPage.props.flash as SharedProps['flash']);
     // useNavigationProgress follows the visits a person waits for, never a prefetch or a poll.
     router.on('start', (event) => {
@@ -85,6 +87,7 @@ void createInertiaApp({
     });
     router.on('navigate', (event) => {
       __panel.sharedProps.set(event.detail.page.props);
+      followUser(event.detail.page.props);
     });
     // A visit's response carries its flash once; history navigation replays no toast.
     router.on('success', (event) => {
