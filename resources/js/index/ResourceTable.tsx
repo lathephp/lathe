@@ -430,6 +430,9 @@ export function ResourceTable({ resource, table, state, loading, selection, sort
                             <td
                               key={column.key}
                               tabIndex={stop(row, index + 1)}
+                              // The name tells a screen reader the cell edits: "Status: Draft. Change status".
+                              role={inline ? 'gridcell' : undefined}
+                              aria-label={inline && cell !== undefined ? `${column.label}: ${cell.display}. ${__('Change :field', { field: column.label.toLowerCase() })}` : undefined}
                               // The title cell is the row's link: a click on it, not on a control inside, runs the click action.
                               data-open={url === undefined ? undefined : ''}
                               onClick={

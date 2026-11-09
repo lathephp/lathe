@@ -1184,3 +1184,16 @@ body:has(.lathe-form-footer) [data-slot='toast-viewport'] {
 @utility lathe-probe-class {
   display: inline-flex;
 }
+
+/* The chevron of a cell that edits in place: it keeps its space and shows on hover and on the cell cursor. */
+[data-inline-chevron] {
+  opacity: 0;
+}
+
+td:hover [data-inline-chevron] {
+  opacity: 1;
+}
+
+td:focus [data-inline-chevron] {
+  opacity: 1;
+}

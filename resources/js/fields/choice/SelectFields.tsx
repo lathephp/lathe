@@ -2,6 +2,7 @@ import { Badge, isBadgeTone, type BadgeTone } from '../../components/ui/Badge';
 import { cn } from '../../lib/cn';
 import type { FieldSchema } from '../types';
 import { stringValue, type DetailFieldProps, type IndexFieldProps } from '../registry';
+import { BadgeChevron } from './InlineChevron';
 import { labelOf, optionsOf, stringsOf } from './options';
 
 // A tone's label colour and its tick fill; a neutral label stays readable while its ticks are grey.
@@ -62,6 +63,7 @@ export function SelectBadge({ field, value }: { field: FieldSchema; value: unkno
   return (
     <Badge tone={tone} dot>
       {text}
+      <BadgeChevron />
     </Badge>
   );
 }
