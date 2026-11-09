@@ -1082,8 +1082,9 @@
       @apply text-sm placeholder:text-muted-foreground!;
     }
 
+    /* 160 px keeps the input at least 120 px wide: the Views and Filter buttons wrap to a row of their own first. */
     .lathe-bar {
-      @apply mx-0 min-w-0;
+      @apply mx-0 min-w-[160px];
     }
 
     .lathe-bar-box {

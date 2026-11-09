@@ -47,9 +47,9 @@ function rule(source: string, selector: string): string[] {
 }
 
 describe('the filter bar on a phone', () => {
-  it('gives up its 320 px floor, so a 390 px page never scrolls sideways', () => {
+  it('drops its 320 px floor to 160 px, so a 390 px page never scrolls sideways and the buttons beside it wrap before its input gets narrower than 120 px', () => {
     expect(rule(css, '.lathe-bar')).toContain('min-w-[320px]');
-    expect(rule(media('width < 48rem', '.lathe-bar {'), '.lathe-bar')).toContain('min-w-0');
+    expect(rule(media('width < 48rem', '.lathe-bar {'), '.lathe-bar')).toContain('min-w-[160px]');
   });
 
   it('opens its suggestions as a sheet along the bottom edge, as wide as the screen', () => {
