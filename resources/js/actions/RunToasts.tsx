@@ -7,6 +7,9 @@ import { reloadIndexRows } from '../lib/instant';
 /** How often a running run asks the server for its progress, in milliseconds. */
 export const RUN_POLL_MS = 2_000;
 
+/** How long a queued job may wait before the person is asked whether a queue worker runs, in milliseconds. */
+export const QUEUE_WORKER_HINT_MS = 10_000;
+
 interface BulkStatus {
   status: 'waiting' | 'running' | 'finished' | 'failed' | 'cancelled';
   total: number;
@@ -42,6 +45,13 @@ type Run =
   | { kind: 'export'; id: string; status: ExportStatus | null }
   | { kind: 'import'; id: string; status: ImportStatus | null };
 
+/** A run no worker has picked up: before the first poll answers, or while the server still says waiting or queued. */
+function unstarted(run: Run): boolean {
+  const status = run.status?.status;
+
+  return status === undefined || status === 'waiting' || status === 'queued' || status === 'uploaded';
+}
+
 function done(run: Run): boolean {
   const status = run.status?.status;
 
@@ -75,6 +85,42 @@ export function RunToasts() {
   const runs = started.map((run: StartedRun) => ({ ...run, status: statuses[`${run.kind}:${run.id}`] ?? null }) as Run);
 
   const active = runs.filter((run) => !done(run)).map((run) => `${run.kind}:${run.id}`).join(',');
+
+  // A run that has waited 10 s for a worker; each run's timer starts when the toast first follows it.
+  const [stalled, setStalled] = useState<Set<string>>(new Set());
+  const stalls = useRef(new Map<string, ReturnType<typeof setTimeout>>());
+  const waiting = runs.filter(unstarted).map((run) => `${run.kind}:${run.id}`).join(',');
+
+  useEffect(() => {
+    const keys = new Set(waiting === '' ? [] : waiting.split(','));
+
+    for (const key of keys) {
+      if (!stalls.current.has(key)) {
+        stalls.current.set(
+          key,
+          setTimeout(() => {
+            setStalled((current) => new Set(current).add(key));
+          }, QUEUE_WORKER_HINT_MS),
+        );
+      }
+    }
+
+    for (const [key, timer] of stalls.current) {
+      if (!keys.has(key)) {
+        clearTimeout(timer);
+        stalls.current.delete(key);
+      }
+    }
+  }, [waiting]);
+
+  useEffect(
+    () => () => {
+      for (const timer of stalls.current.values()) {
+        clearTimeout(timer);
+      }
+    },
+    [],
+  );
 
   useEffect(() => {
     if (active === '') {
@@ -206,7 +252,9 @@ export function RunToasts() {
   useEffect(() => {
     for (const run of runs) {
       const key = `${run.kind}:${run.id}`;
-      const { message, body } = text(run);
+      const copy = text(run);
+      const { message } = copy;
+      const body = stalled.has(key) && unstarted(run) ? __('Waiting for a queue worker. Is one running?') : copy.body;
       const status = run.status;
       const ended = done(run);
       const links: ToastLink[] = [];

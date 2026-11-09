@@ -8,6 +8,7 @@ import { Select } from '../components/ui/Select';
 import type { SelectionDescriptor } from '../index/useRowSelection';
 import { cn } from '../lib/cn';
 import { uploadImportFile } from './import/uploadImportFile';
+import { QUEUE_WORKER_HINT_MS } from './RunToasts';
 import { runAction } from './runAction';
 import type { ActionMeta, ActionRun } from './types';
 
@@ -77,16 +78,31 @@ export function ImportModal({ base, action, selection, onClose }: ImportModalPro
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [report, setReport] = useState<ImportStatus | null>(null);
+  const [stalled, setStalled] = useState(false);
   const poll = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const stall = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(
     () => () => {
       if (poll.current !== null) {
         clearTimeout(poll.current);
       }
+
+      if (stall.current !== null) {
+        clearTimeout(stall.current);
+      }
     },
     [],
   );
+
+  function clearStall() {
+    if (stall.current !== null) {
+      clearTimeout(stall.current);
+      stall.current = null;
+    }
+
+    setStalled(false);
+  }
 
   async function step(fields: Record<string, unknown>): Promise<ImportRun | null> {
     setBusy(true);
@@ -137,6 +153,10 @@ export function ImportModal({ base, action, selection, onClose }: ImportModalPro
     poll.current = setTimeout(() => {
       request<ImportStatus>(`${apiPath}/imports/${String(id)}`, { toastOnError: false })
         .then((status) => {
+          if (status !== null && status.status !== 'uploaded' && status.status !== 'queued') {
+            clearStall();
+          }
+
           if (status !== null && (status.status === 'completed' || status.status === 'failed')) {
             setBusy(false);
             setReport(status);
@@ -160,6 +180,11 @@ export function ImportModal({ base, action, selection, onClose }: ImportModalPro
 
     if (run?.import_run !== undefined) {
       setBusy(true);
+      clearStall();
+      // The 10 s run from here, so the window before the first poll answers counts too.
+      stall.current = setTimeout(() => {
+        setStalled(true);
+      }, QUEUE_WORKER_HINT_MS);
       follow(run.import_run.id);
     }
   }
@@ -324,6 +349,7 @@ export function ImportModal({ base, action, selection, onClose }: ImportModalPro
       {detected !== null && mapped && (
         <div className="flex flex-col gap-2 px-6 pt-4 text-sm max-md:px-4">
           {report === null && <p className="text-muted-foreground">{busy ? __('Checking the file…') : __('Check the file before importing. Nothing is saved.')}</p>}
+          {report === null && busy && stalled && <p className="text-muted-foreground">{__('Waiting for a queue worker. Is one running?')}</p>}
           {report?.status === 'failed' && (
             <p role="alert" className="text-destructive">
               {report.exception ?? __('Something went wrong. Please try again.')}
