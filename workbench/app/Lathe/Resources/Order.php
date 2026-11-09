@@ -5,6 +5,7 @@ namespace Workbench\App\Lathe\Resources;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Lathe\Actions\Export\ExportAction;
+use Lathe\Enums\CardWidth;
 use Lathe\Enums\Icon;
 use Lathe\Field\CurrencyField;
 use Lathe\Field\Field;
@@ -29,6 +30,7 @@ use Workbench\App\Lathe\Filters\OrderPlaced;
 use Workbench\App\Lathe\Filters\OrderStatus;
 use Workbench\App\Lathe\Lenses\PendingOrders;
 use Workbench\App\Lathe\ResourcePlugins\ActivityTimeline;
+use Workbench\App\Lathe\Widgets\Cancellations;
 use Workbench\App\Lathe\Widgets\OrderLines;
 use Workbench\App\Lathe\Widgets\Revenue;
 use Workbench\App\Models\Order as OrderModel;
@@ -131,11 +133,12 @@ class Order extends Resource
     }
 
     /**
-     * Revenue above the list, and the order's own lines on its page.
+     * Revenue and cancellations above the list, as thirds with their own range selects as in
+     * lathe-demo, and the order's own lines on its page.
      */
     public function widgets(LatheRequest $request): array
     {
-        return [Revenue::make(), new OrderLines];
+        return [Revenue::make()->width(CardWidth::Third), Cancellations::make()->width(CardWidth::Third), new OrderLines];
     }
 
     public function lenses(LatheRequest $request): array
