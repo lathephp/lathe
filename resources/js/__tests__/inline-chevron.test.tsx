@@ -10,10 +10,10 @@ const labels = { orders: ['Orders', 'Order'], customers: ['Customers', 'Customer
 
 // Orders hold the inline Status with badges; customers hold the inline text Name. The workbench
 // Status also draws a meter, which takes the badge's place, so the badge case drops it.
-function renderRows(uriKey: 'orders' | 'customers', update = true) {
+function renderRows(uriKey: 'orders' | 'customers', update = true, meter = false) {
   const table = indexTable(uriKey);
   table.columns.forEach((column) => {
-    if ('meter' in column) {
+    if ('meter' in column && !meter) {
       column.meter = null;
     }
   });
@@ -42,6 +42,14 @@ describe('the inline cell chevron', () => {
 
     expect(chevron).not.toBeNull();
     expect(chevron?.closest('[data-inline-chevron]')).not.toBeNull();
+  });
+
+  it('sits inside a meter value, as the workbench Status draws it', async () => {
+    renderRows('orders', true, true);
+
+    const cell = await screen.findByRole('gridcell', { name: 'Status: Shipped. Change status' });
+
+    expect(cell.querySelector('[data-lathe-meter] [data-inline-chevron] svg[aria-hidden="true"]')).not.toBeNull();
   });
 
   it('follows a text value and names the cell', async () => {

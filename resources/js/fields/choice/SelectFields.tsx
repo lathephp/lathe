@@ -57,6 +57,7 @@ export function SelectBadge({ field, value }: { field: FieldSchema; value: unkno
           ))}
         </span>
         {text}
+        <BadgeChevron />
       </span>
     );
   }
