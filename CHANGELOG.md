@@ -23,6 +23,7 @@ All notable changes to Lathe are listed here. The format follows [Keep a Changel
 ### Fixed
 
 - The panel drops every value it keeps in its query cache, such as card values, search results and relation lists, when the signed-in user changes at sign-out, sign-in or impersonation in the same tab, so one user never sees another's values.
+- A card's range select drops below a title too wide to share its row, so the title reads whole; at 390 px a 148 px card cut "Cancellations" to "Cancellation". This holds wherever a card has its own range select: above a Resource's list, a lens or a record page, and in a plugin's `WidgetCard`.
 - A lens's footer totals the lens's own fields that call `summarize()`, and a lens with none of them draws no footer. The footer showed the Resource's skeleton and never filled.
 - The record link of a list's row sits in the column of the Resource's title attribute, so a list whose ID column comes before the name links the record from the name; the first column keeps the link while the title's column is hidden, or when the title is no column. The columns keep their order.
 - In the record preview panel beside a list, the Actions menu opens from its button's start edge when, ending at the button's end edge, it would run out of the panel, as it already did at the edge of the page's content. At 1280 px it began 152 px outside the 400 px panel, which hid every item's label, and where `ActionDropdown` sits in a box of its own that scrolls, it now keeps inside that box too.

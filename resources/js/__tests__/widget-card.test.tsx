@@ -376,6 +376,15 @@ describe('the card', () => {
     expect(within(card('revenue')).queryByRole('combobox')).toBeNull();
   });
 
+  // jsdom does no layout, so this pins the class; at 390 px a browser measured "Cancellations" cut by its range select in a 148 px card.
+  it('lets a range select drop below a title too wide for one row beside it', () => {
+    answer(() => 1);
+    render(<WidgetGrid widgets={[descriptor('orders', { name: 'Cancellations', ranges: [{ value: 30, label: '30 Days' }] })]} valueUrl="/lathe/api/resources/orders/widgets" />);
+    const row = within(card('orders')).getByRole('combobox', { name: 'Range' }).closest('div.justify-between');
+
+    expect(row?.className.split(' ')).toContain('flex-wrap');
+  });
+
   it('shows the help text in a tooltip helpWidth px wide', () => {
     answer(() => 1);
     renderDashboard([descriptor('orders', { help: 'Paid orders only.' }), descriptor('revenue', { help: 'Net.', helpWidth: 400 })]);

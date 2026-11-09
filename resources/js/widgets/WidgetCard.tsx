@@ -164,7 +164,8 @@ export function WidgetCard({ widget, url, params, register, range: hostRange, me
     >
       {refreshing && <span aria-hidden="true" className="absolute start-0 top-0 h-0.5 w-[55%] rounded-ss-[inherit] bg-brand" />}
       {edit ?? (
-        <div className={cn('flex min-h-[18px] items-center justify-between gap-2', flush && 'px-3 md:px-5')}>
+        // The row wraps, so a range select drops below a title too wide to share its row, rather than cutting a word.
+        <div className={cn('flex min-h-[18px] flex-wrap items-center justify-between gap-2', flush && 'px-3 md:px-5')}>
           <div className="flex min-w-0 items-center gap-1">
             {/* A title too long for its row wraps whole, as a legend label does. */}
             <h2 className={cn('wrap-break-word', compact ? 'text-xs font-medium text-muted-foreground md:text-[13px]' : 'text-sm font-semibold')}>{widget.name}</h2>
