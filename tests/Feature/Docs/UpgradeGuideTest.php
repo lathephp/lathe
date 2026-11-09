@@ -89,13 +89,23 @@ it('lists the changes of the newest release under Changed as behaviour changes, 
         ->not->toContain('A fix with no API change');
 })->group('frontend');
 
-it('tells a 1.0.0-beta.9 app every API and behaviour change in 1.0.0-beta.10', function () {
+it('tells a 1.0.0-beta.10 app every API and behaviour change in 1.0.0-beta.11', function () {
     $guide = File::get(dirname(__DIR__, 3).'/docs/getting-started/upgrade.md');
-    $section = explode('## What you see', explode('## From 1.0.0-beta.9 to 1.0.0-beta.10', $guide, 2)[1] ?? '', 2)[0];
+    $section = explode('## What you see', explode('## From 1.0.0-beta.10 to 1.0.0-beta.11', $guide, 2)[1] ?? '', 2)[0];
     [$api, $behaviour] = explode('### Behaviour changes', $section, 2) + ['', ''];
 
-    expect($api)->toContain('No public API changed and no English string is new, renamed or removed since 1.0.0-beta.9')
-        ->and($behaviour)->toContain('The top bar\'s search shows as its icon button, as on a phone, whenever the top bar is narrower than about 760 px');
+    expect($api)->toContain('No public API changed since 1.0.0-beta.10', '`Filter`', '`Change :field`', '`Waiting for a queue worker. Is one running?`')
+        ->and($behaviour)->toContain(
+            'Actions menu lists only standalone actions while no row is ticked',
+            'the views rail of a list or a lens folds',
+            'open on the first click',
+            'shows a small chevron',
+            'A lens page lists the Resource\'s tabs',
+            'A lens\'s footer totals the lens\'s own fields',
+            'shows a Filter button',
+            'keeps a value fresh for 60 s',
+            'A record page shows only the cards marked `onlyOnDetail()`',
+        );
 })->group('frontend');
 
 it('names in the 1.0.0-beta.5 section every English string added or removed since 1.0.0-beta.4', function () {
