@@ -78,7 +78,8 @@ class IndexPayload
         $board = $lens !== null ? null : $this->board($resource, $fields);
 
         return [
-            'resource' => $this->resource($class, $lens),
+            // A lens totals its own fields, so it reserves the footer only when one of them summarizes.
+            'resource' => $lens === null ? $this->resource($class) : [...$this->resource($class), 'hasSummaries' => ResourceSummaries::summarized($fields) !== []],
             'table' => [
                 'columns' => $choice === null ? $fields : $this->chosenColumns($fields, $choice),
                 'titleColumn' => $this->titleColumn($resource, $fields),
@@ -329,7 +330,7 @@ class IndexPayload
      * @param  class-string<\Lathe\Resources\Resource>  $class
      * @return array{uriKey: string, label: string, singularLabel: string, perPageOptions: non-empty-list<int>, searchable: bool, softDeletes: bool, abilities: array{create: bool}, hasSummaries: bool, definition: array<string, mixed>, meta: array<string, mixed>, extra: array<string, mixed>}
      */
-    public function resource(string $class, ?Lens $lens = null): array
+    public function resource(string $class): array
     {
         $resource = $class::make();
         $definition = $resource->definition();
@@ -343,9 +344,8 @@ class IndexPayload
             // The filter panel offers Without, With and Only trashed when true.
             'softDeletes' => $definition->usesSoftDeletes(),
             'abilities' => ['create' => $this->authorization->allows($this->request->user(), $class, 'create')],
-            // Whether the deferred summaries prop will be non-null, so the page reserves the footer. A lens
-            // totals its own fields.
-            'hasSummaries' => ResourceSummaries::summarized($this->columns($resource, $lens)) !== [],
+            // Whether the deferred summaries prop will be non-null, so the page reserves the footer.
+            'hasSummaries' => ResourceSummaries::summarized($this->columns($resource)) !== [],
             'definition' => $definition->options(),
             'meta' => $resource->meta(),
             'extra' => $class::additionalInformation($this->request),
@@ -393,6 +393,8 @@ class IndexPayload
      * The key of the column that shows the Resource's title attribute, which links the record; null
      * when the title is a closure or no column shows it.
      *
+     * @internal
+     *
      * @param  list<Field>  $fields
      */
     protected function titleColumn(Resource $resource, array $fields): ?string
@@ -424,7 +426,31 @@ class IndexPayload
      * @param  class-string<\Lathe\Resources\Resource>  $class
      * @return array{allRecords: array<string, list<array{label: string|null, value: string|null}>>|null, page: array<string, list<array{label: string|null, value: string|null}>>|null, message: string|null, groups?: array<string, array<string, list<array{label: string|null, value: string|null}>>>}|null
      */
-    public function summaries(string $class, ?Lens $lens = null): ?array
+    public function summaries(string $class): ?array
+    {
+        return $this->summarize($class, null);
+    }
+
+    /**
+     * A lens page's footer totals: those of the lens's own fields, over the lens's rows.
+     *
+     * @internal
+     *
+     * @param  class-string<\Lathe\Resources\Resource>  $class
+     * @return array{allRecords: array<string, list<array{label: string|null, value: string|null}>>|null, page: array<string, list<array{label: string|null, value: string|null}>>|null, message: string|null, groups?: array<string, array<string, list<array{label: string|null, value: string|null}>>>}|null
+     */
+    public function lensSummaries(string $class, Lens $lens): ?array
+    {
+        return $this->summarize($class, $lens);
+    }
+
+    /**
+     * @internal
+     *
+     * @param  class-string<\Lathe\Resources\Resource>  $class
+     * @return array{allRecords: array<string, list<array{label: string|null, value: string|null}>>|null, page: array<string, list<array{label: string|null, value: string|null}>>|null, message: string|null, groups?: array<string, array<string, list<array{label: string|null, value: string|null}>>>}|null
+     */
+    protected function summarize(string $class, ?Lens $lens): ?array
     {
         $resource = $class::make();
         $query = $this->query($resource, $lens);

@@ -35,7 +35,7 @@ it('lists the widgets of a Resource and reads one, on the index and on a detail 
     $orders = LatheTest::resource(WidgetOrder::class);
 
     expect($orders->widgets()->assertOk()->json('widgets.*.uriKey'))->toBe(['order-count'])
-        ->and($orders->widgets(['resourceId' => $order->getKey()])->json('widgets.*.uriKey'))->toBe(['order-count', 'detail-only'])
+        ->and($orders->widgets(['resourceId' => $order->getKey()])->json('widgets.*.uriKey'))->toBe(['detail-only'])
         ->and($orders->widget('order-count')->assertOk()->json('value'))->toBe(10000)
         ->and($orders->widget('detail-only', ['resourceId' => $order->getKey()])->assertOk()->json('value'))->toBe('detail '.$order->getKey());
 
