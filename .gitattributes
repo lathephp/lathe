@@ -4,6 +4,7 @@
 /.gitattributes export-ignore
 /.github export-ignore
 /.gitignore export-ignore
+/.mem-outbox.json export-ignore
 /coverage-floors.json export-ignore
 /docs export-ignore
 /eslint-rules export-ignore
