@@ -25,6 +25,21 @@ const waitMs = 300;
 // The list searches a relation's options this long after the last keystroke.
 const searchMs = 150;
 
+// The list's width; a narrower bar gives it its own.
+const listWidth = 320;
+
+/**
+ * Where the list opens: under the text cursor, so it follows the chips as they grow, and inside
+ * the bar, so near the bar's end it moves back. Its start edge meets the input's start edge.
+ */
+export function listPlace(bar: DOMRect, field: DOMRect, rtl: boolean): DOMRect {
+  const width = Math.min(listWidth, bar.width);
+  const start = rtl ? field.right - width : field.left;
+  const x = Math.min(Math.max(start, bar.left), bar.right - width);
+
+  return new DOMRect(x, bar.top, width, bar.height);
+}
+
 const isSuggestion = (item: FilterChip | Suggestion): item is Suggestion => 'text' in item || 'chip' in item;
 
 /** A filter's options matching the term, from the endpoint under `base`. */
@@ -141,6 +156,16 @@ export function FilterBarEditor({ label, url, urlChips, leave, onChips, text, fo
       element.setSelectionRange(element.value.length, element.value.length);
     }
   }, [focus]);
+
+  /** The list's anchor: a box under the text cursor, measured each time the list places itself. */
+  function caret() {
+    const bar = anchor.current;
+    const field = input.current;
+
+    return bar === null || field === null
+      ? bar
+      : { contextElement: bar, getBoundingClientRect: () => listPlace(bar.getBoundingClientRect(), field.getBoundingClientRect(), getComputedStyle(bar).direction === 'rtl') };
+  }
 
   function send(next: FilterChip[], changes: IndexUrlState = {}) {
     const state = toUrlState(next);
@@ -270,7 +295,7 @@ export function FilterBarEditor({ label, url, urlChips, leave, onChips, text, fo
         />
         <kbd aria-hidden="true">/</kbd>
       </ComboboxChips>
-      <ComboboxContent anchor={anchor} className="lathe-bar-list">
+      <ComboboxContent anchor={caret} className="lathe-bar-list">
         <ComboboxList>
           {items.map((item, index) => (
             <ComboboxItem key={`${String(index)}:${item.label}`} value={item}>
