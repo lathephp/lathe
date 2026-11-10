@@ -41,6 +41,11 @@ function untimedToolProcesses(string $source): array
             $text .= $piece;
         }
 
+        // A fake runs nothing, so a tool named in its patterns needs no timeout.
+        if (preg_match('/^Process::\s*fake\b/', $text) === 1) {
+            continue;
+        }
+
         if (preg_match('/[\'"][^\'"]*\b(eslint|tsc|vite|pnpm)\b/', $text) === 1 && stripos($text, 'timeout') === false) {
             $lines[] = $token[2];
         }
@@ -79,6 +84,7 @@ it('passes a tool Process that sets a timeout, and a Process that runs no tool',
     'the facade' => ["Process::path(\$root)->timeout(300)->run(['eslint', 'resources/js']);"],
     'a named argument' => ["(new Process(['pnpm', 'build'], \$root, timeout: 600))->mustRun();"],
     'git' => ["Process::path(\$repo)->run('git init -q -b main');"],
+    'a fake' => ["Process::fake(['*pnpm*' => Process::result(exitCode: 1)]);"],
 ]);
 
 it('finds no tool Process without a timeout in the tests', function () {
