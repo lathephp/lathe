@@ -114,7 +114,9 @@ class ApiCheckCommand extends Command
      */
     protected function jsExports(string $root, string $jsRoot): ?array
     {
-        $result = Process::path($root)->run(['bash', 'scripts/pnpm.sh', 'exec', 'node', 'scripts/js-api.mjs', $jsRoot]);
+        // Plain node, not pnpm exec: in a linked worktree whose node_modules links the main
+        // checkout's, pnpm refuses to run (ERR_PNPM_UNSAFE_MODULES_DIR).
+        $result = Process::path($root)->run(['node', 'scripts/js-api.mjs', $jsRoot]);
 
         if (! $result->successful()) {
             $this->components->error('Could not list the JavaScript exports: '.trim($result->errorOutput()));
@@ -122,7 +124,7 @@ class ApiCheckCommand extends Command
             return null;
         }
 
-        // pnpm may print install notes first in a fresh checkout; every export line names a package.
+        // Every export line names a package; anything else is not an export.
         return array_values(array_filter(
             array_map('trim', explode("\n", $result->output())),
             fn (string $line) => str_starts_with($line, '@lathephp/'),

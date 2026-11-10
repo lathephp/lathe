@@ -101,6 +101,22 @@ it('fails on a JavaScript export missing from the snapshot', function () {
         ->expectsOutputToContain('js.txt: not in the snapshot: @lathephp/core extra');
 })->group('frontend');
 
+it('lists the JavaScript exports where pnpm refuses to run, as in a linked worktree', function () {
+    Process::fake([
+        '*pnpm*' => Process::result(errorOutput: '[ERR_PNPM_UNSAFE_MODULES_DIR] Refusing to remove the modules directory', exitCode: 1),
+    ]);
+    [$root, , $class] = apiFixture('    public function ping(): bool { return true; }');
+    File::put("{$root}/api/php.txt", "class {$class}\n{$class}::ping(): bool\n");
+    foreach (['core', 'ui'] as $package) {
+        File::ensureDirectoryExists("{$root}/packages/{$package}/src");
+        File::put("{$root}/packages/{$package}/package.json", json_encode(['name' => "@lathephp/{$package}"]));
+        File::put("{$root}/packages/{$package}/src/index.ts", "export const known = 1;\n");
+    }
+    File::put("{$root}/api/js.txt", "@lathephp/core known\n@lathephp/ui known\n");
+
+    $this->artisan('lathe:api-check', ['--src' => "{$root}/src", '--api' => "{$root}/api", '--js-root' => $root])->assertSuccessful();
+})->group('frontend');
+
 it('keeps pnpm chatter out of the JavaScript snapshot', function () {
     Process::fake([
         '*js-api.mjs*' => Process::result("Scope: all 5 workspace projects\nLockfile is up to date\n@lathephp/core addShortcut\n@lathephp/ui type ButtonProps\n"),
