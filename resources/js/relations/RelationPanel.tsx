@@ -154,6 +154,8 @@ function PanelBody({ parent, field, bodyId, onToggle, tab }: RelationPanelProps 
   const ticked = ids.filter((id) => selection.selected.has(id)).length;
   const count = field.withCount && data?.count != null ? countText(data.count) : null;
   const total = filtered ? undefined : data?.count?.value;
+  // One page that the smallest page size holds has nothing to page through or resize.
+  const paged = data !== null && (data.page > 1 || data.hasMore || rows.length > Math.min(...data.perPageOptions));
   const onCount = tab?.onCount;
 
   useEffect(() => {
@@ -440,7 +442,7 @@ function PanelBody({ parent, field, bodyId, onToggle, tab }: RelationPanelProps 
             </table>
           </div>
         )}
-        {data !== null && (
+        {data !== null && paged && (
           <div className="flex flex-wrap items-center justify-end gap-2 border-t border-border px-3 py-2 text-sm">
             <label htmlFor={perPageId} className="text-muted-foreground">
               {__('Per page')}
