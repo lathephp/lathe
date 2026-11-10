@@ -11,9 +11,9 @@ const labels = { orders: ['Orders', 'Order'], customers: ['Customers', 'Customer
 // Orders hold the inline Status with badges; customers hold the inline text Name. The workbench
 // Status also draws a meter, which takes the badge's place, so the badge case drops it; the meter
 // cases keep it, with or without its badges.
-type Shape = { update?: boolean; meter?: boolean; badges?: boolean };
+type Shape = { update?: boolean; meter?: boolean; badges?: boolean; boolean?: boolean };
 
-function renderRows(uriKey: 'orders' | 'customers', { update = true, meter = false, badges = true }: Shape = {}) {
+function renderRows(uriKey: 'orders' | 'customers', { update = true, meter = false, badges = true, boolean = false }: Shape = {}) {
   const table = indexTable(uriKey);
   table.columns.forEach((column) => {
     if ('meter' in column && !meter) {
@@ -26,6 +26,13 @@ function renderRows(uriKey: 'orders' | 'customers', { update = true, meter = fal
   table.rows.forEach((row) => {
     row.abilities.update = update;
   });
+  // The workbench has no inline boolean, so the customers' Name column is re-typed as one.
+  if (boolean) {
+    Object.assign(table.columns[0] ?? {}, { component: 'boolean-field', asCheckbox: false, trueValue: true });
+    table.rows.forEach((row) => {
+      (row.cells as Record<string, unknown>).name = { value: false, display: 'No' };
+    });
+  }
 
   return renderPage(
     'Resources/Index',
@@ -38,6 +45,56 @@ function renderRows(uriKey: 'orders' | 'customers', { update = true, meter = fal
     { url: `/lathe/resources/${uriKey}` },
   );
 }
+
+// jsdom has no layout, so the cause is what the test reads: the value and the chevron are siblings
+// in one row that centres them on the cross axis.
+function expectCentredRow(cell: HTMLElement, value: Element | ChildNode | null | undefined) {
+  const chevron = cell.querySelector('[data-inline-chevron]');
+  const row = chevron?.parentElement;
+
+  expect(row?.classList.contains('flex')).toBe(true);
+  expect(row?.classList.contains('items-center')).toBe(true);
+  expect(value?.parentElement).toBe(row);
+}
+
+describe('the inline cell row', () => {
+  it('centres the chevron beside a boolean icon and text', async () => {
+    renderRows('customers', { boolean: true });
+
+    const cell = (await screen.findAllByRole('gridcell', { name: /^Name: .*Change name$/ }))[0] as HTMLElement;
+
+    expect(cell.querySelectorAll('[data-inline-chevron]')).toHaveLength(1);
+    expectCentredRow(cell, cell.querySelector('svg:not([data-inline-chevron] svg)')?.parentElement);
+  });
+
+  it('centres the chevron beside a plain text value', async () => {
+    renderRows('customers');
+
+    const cell = await screen.findByRole('gridcell', { name: 'Name: Grace Hopper. Change name' });
+    const row = cell.querySelector('[data-inline-chevron]')?.parentElement;
+
+    expectCentredRow(cell, row?.firstChild);
+    expect(row?.firstChild?.textContent).toBe('Grace Hopper');
+  });
+
+  it('centres the chevron beside a meter', async () => {
+    renderRows('orders', { meter: true });
+
+    const cell = await screen.findByRole('gridcell', { name: 'Status: Shipped. Change status' });
+
+    expect(cell.querySelectorAll('[data-inline-chevron]')).toHaveLength(1);
+    expect(cell.querySelector('[data-lathe-meter] [data-inline-chevron]')).not.toBeNull();
+  });
+
+  it('keeps a badge chevron once, inside the badge', async () => {
+    renderRows('orders');
+
+    const cell = await screen.findByRole('gridcell', { name: 'Status: Shipped. Change status' });
+
+    expect(cell.querySelectorAll('[data-inline-chevron]')).toHaveLength(1);
+    expect(cell.querySelector('[data-lathe-badge-tone] [data-inline-chevron]')).not.toBeNull();
+  });
+});
 
 describe('the inline cell chevron', () => {
   it('sits inside a badge value and names the cell', async () => {

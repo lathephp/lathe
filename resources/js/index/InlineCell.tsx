@@ -128,7 +128,7 @@ export function InlineCell({ uriKey, rowId, column, cell, token, onRow }: Inline
   }
 
   return (
-    <div ref={root} data-inline-cell="" className="relative">
+    <div ref={root} data-inline-cell="" className={editing ? 'relative' : 'relative flex items-center'}>
       {editing ? (
         <Suspense fallback={<TableCell column={column} cell={shown} />}>
           <InlineEditor
@@ -147,7 +147,7 @@ export function InlineCell({ uriKey, rowId, column, cell, token, onRow }: Inline
       ) : (
         <InlineChevronContext.Provider value>
           <TableCell column={column} cell={shown} />
-          {styled(column) ? null : <InlineChevron className="ms-1 inline-flex align-middle" />}
+          {styled(column) ? null : <InlineChevron className="ms-1 inline-flex" />}
         </InlineChevronContext.Provider>
       )}
       {busy ? <span className="ms-2 text-xs text-muted-foreground">{__('Saving…')}</span> : null}
