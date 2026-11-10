@@ -137,6 +137,14 @@ function PanelBody({ parent, field, bodyId, onToggle, tab }: RelationPanelProps 
     queryFn: () => request<{ filters: IndexFilter[] }>(`${apiPath}/resources/${field.resource}/filters`),
   });
   const data = index.data ?? null;
+  // Whether the related Resource searches, from the last reply that loaded, so a refused request leaves the bar as it was.
+  const [searchable, setSearchable] = useState(false);
+  if (data !== null && data.searchable !== searchable) {
+    setSearchable(data.searchable);
+  }
+  // A search or filter the server refused, such as a term over its length: the panel says why, as the index does.
+  const refused = index.error instanceof ApiError && index.error.status === 422 ? index.error.data as { message?: string; errors?: Record<string, string[]> } | null : undefined;
+  const refusal = refused === undefined ? null : (Object.values(refused?.errors ?? {})[0]?.[0] ?? refused?.message ?? __('Please fix the highlighted fields.'));
   const rows = data?.rows ?? [];
   const available = filters.data?.filters ?? [];
   const filtered = (state.q ?? '') !== '' || Object.keys(state.filter ?? {}).length > 0;
@@ -159,7 +167,7 @@ function PanelBody({ parent, field, bodyId, onToggle, tab }: RelationPanelProps 
   const onCount = tab?.onCount;
   // The filter bar reads the tab's state as the index reads its URL; the page URL never holds it.
   const host: BarHost = {
-    resource: { uriKey: field.resource, label: field.label, searchable: data?.searchable === true, softDeletes: false },
+    resource: { uriKey: field.resource, label: field.label, searchable, softDeletes: false },
     filters: { available, applied: {} },
     url: searchParams(state),
     debounce: 0.3,
@@ -253,9 +261,9 @@ function PanelBody({ parent, field, bodyId, onToggle, tab }: RelationPanelProps 
         </>
       )}
       <Frame id={bodyId} className="overflow-hidden">
-        {(data?.searchable === true || available.length > 0 || (data?.pivotActions?.length ?? 0) > 0) && (
+        {(searchable || available.length > 0 || (data?.pivotActions?.length ?? 0) > 0) && (
           <div className="flex flex-wrap items-center gap-2 border-b border-border p-3">
-            {(data?.searchable === true || available.length > 0) && <FilterBar q={state.q} visit={change} host={host} />}
+            {(searchable || available.length > 0) && <FilterBar q={state.q} visit={change} host={host} />}
             {(data?.pivotActions?.length ?? 0) > 0 && (
               <Suspense fallback={null}>
                 <PivotActionMenu
@@ -269,7 +277,20 @@ function PanelBody({ parent, field, bodyId, onToggle, tab }: RelationPanelProps 
             )}
           </div>
         )}
-        {empty ? (
+        {refusal !== null ? (
+          <div role="alert" className="flex flex-wrap items-center justify-between gap-3 p-4 text-sm">
+            <p>{refusal}</p>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => {
+                setState({});
+              }}
+            >
+              {__('Reset')}
+            </Button>
+          </div>
+        ) : empty ? (
           <div className="space-y-4 p-12 text-center text-sm text-muted-foreground">
             <p>{filtered ? __('No results match your filters') : __('No :resource yet', { resource: field.label })}</p>
             {canCreate && !filtered ? create : null}

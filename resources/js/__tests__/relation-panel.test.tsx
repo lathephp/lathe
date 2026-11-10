@@ -341,12 +341,93 @@ describe('relation panel', () => {
     expect(await screen.findByRole('gridcell', { name: 'Status: Pending. Change status' })).toBeTruthy();
   });
 
-  it('shows no search box when the related Resource has nothing to search', async () => {
+  it('says why the server refused a search, and still searches after Reset', async () => {
+    const long = 'x'.repeat(300);
+    const fetch = vi.spyOn(globalThis, 'fetch').mockImplementation((input) => {
+      const url = typeof input === 'string' ? input : '';
+      const refused = url.includes(`q=${long}`);
+      const body = url.includes('/relate-authorization')
+        ? { items: { add: false, attach: false, attachAny: false } }
+        : url.includes('/filters')
+          ? { filters: [statusFilter] }
+          : refused
+            ? { message: 'The search term may not be longer than 100 characters.', errors: { q: ['The search term may not be longer than 100 characters.'] } }
+            : { columns, sortKeys: ['quantity'], rows: url.includes('q=ea') ? [items[1]] : items, count: null, page: 1, perPage: 25, perPageOptions: [25], hasMore: false, searchable: true };
+
+      return Promise.resolve(new Response(JSON.stringify(body), { status: refused ? 422 : 200 }));
+    });
+    renderDetail([relationBlock()]);
+    await screen.findByText('Autem blanditiis');
+
+    const input = await focusBar('Search items');
+    fireEvent.change(input, { target: { value: long } });
+    fireEvent.keyDown(input, { key: 'Enter' });
+
+    expect((await screen.findByRole('alert')).textContent).toContain('The search term may not be longer than 100 characters.');
+    fireEvent.click(screen.getByRole('button', { name: 'Reset' }));
+    await screen.findByText('Autem blanditiis');
+
+    fireEvent.change(screen.getByRole('combobox', { name: 'Search items' }), { target: { value: 'ea' } });
+    fireEvent.keyDown(screen.getByRole('combobox', { name: 'Search items' }), { key: 'Enter' });
+    await waitFor(() => {
+      expect(listCalls(fetch).at(-1)).toBe('/lathe/api/resources/orders/12/items?q=ea');
+    });
+    await waitFor(() => {
+      expect(screen.queryByText('Autem blanditiis')).toBeNull();
+    });
+    expect(screen.getByText('Ea ducimus')).toBeTruthy();
+  });
+
+  it('searches again after a refused search, with no Reset', async () => {
+    const long = 'x'.repeat(300);
+    const fetch = vi.spyOn(globalThis, 'fetch').mockImplementation((input) => {
+      const url = typeof input === 'string' ? input : '';
+      const refused = url.includes(`q=${long}`);
+      const body = url.includes('/relate-authorization')
+        ? { items: { add: false, attach: false, attachAny: false } }
+        : url.includes('/filters')
+          ? { filters: [statusFilter] }
+          : refused
+            ? { message: 'The search term may not be longer than 100 characters.', errors: { q: ['The search term may not be longer than 100 characters.'] } }
+            : { columns, sortKeys: ['quantity'], rows: url.includes('q=ea') ? [items[1]] : items, count: null, page: 1, perPage: 25, perPageOptions: [25], hasMore: false, searchable: true };
+
+      return Promise.resolve(new Response(JSON.stringify(body), { status: refused ? 422 : 200 }));
+    });
+    renderDetail([relationBlock()]);
+    await screen.findByText('Autem blanditiis');
+
+    const input = await focusBar('Search items');
+    fireEvent.change(input, { target: { value: long } });
+    fireEvent.keyDown(input, { key: 'Enter' });
+
+    expect((await screen.findByRole('alert')).textContent).toContain('The search term may not be longer than 100 characters.');
+
+    fireEvent.change(screen.getByRole('combobox', { name: 'Search items' }), { target: { value: 'ea' } });
+    fireEvent.keyDown(screen.getByRole('combobox', { name: 'Search items' }), { key: 'Enter' });
+    await waitFor(() => {
+      expect(listCalls(fetch).at(-1)).toBe('/lathe/api/resources/orders/12/items?q=ea');
+    });
+    await waitFor(() => {
+      expect(screen.queryByText('Autem blanditiis')).toBeNull();
+    });
+    expect(screen.getByText('Ea ducimus')).toBeTruthy();
+  });
+
+  it('shows no filter bar when the related Resource has no filters and nothing to search', async () => {
     answer({ searchable: false });
     renderDetail([relationBlock()]);
     await screen.findByText('Autem blanditiis');
 
-    expect(screen.queryByRole('searchbox', { name: 'Search items' })).toBeNull();
+    expect(document.querySelector('[data-lathe-filter-bar]')).toBeNull();
+    expect(screen.queryByRole('searchbox')).toBeNull();
+  });
+
+  it('shows a filter bar with no search when the related Resource has filters only', async () => {
+    answer({ searchable: false, filters: [statusFilter] });
+    renderDetail([relationBlock()]);
+    await screen.findByText('Autem blanditiis');
+
+    expect(await screen.findByRole('searchbox', { name: 'Filter items' })).toBeTruthy();
   });
 
   it('asks for another page size from the footer', async () => {
