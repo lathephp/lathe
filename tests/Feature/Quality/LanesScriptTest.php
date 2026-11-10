@@ -46,3 +46,31 @@ it('runs the Octane lane when a workbench or Octane test file differs from origi
 
     File::deleteDirectory($repo);
 });
+
+it('gives each changed run a database of its own and drops it after', function () {
+    $repo = lanesRepo();
+    File::ensureDirectoryExists("{$repo}/bin");
+    File::ensureDirectoryExists("{$repo}/tests");
+    File::put("{$repo}/bin/podman", "#!/usr/bin/env bash\necho \"\$*\" >> {$repo}/podman.log\n");
+    File::put("{$repo}/bin/php", "#!/usr/bin/env bash\necho \"pest on \$DB_DATABASE\"\n");
+    chmod("{$repo}/bin/podman", 0755);
+    chmod("{$repo}/bin/php", 0755);
+    File::put("{$repo}/tests/ProbeTest.php", "<?php\n");
+    $run = fn () => Process::path($repo)->env(['PATH' => "{$repo}/bin:".getenv('PATH')])->run(['bash', 'scripts/lanes.sh', 'changed', 'pgsql']);
+
+    $first = $run();
+    $second = $run();
+    preg_match('/pest on (\S+)/', $first->output(), $a);
+    preg_match('/pest on (\S+)/', $second->output(), $b);
+    $log = File::get("{$repo}/podman.log");
+
+    expect($first->exitCode())->toBe(0, $first->errorOutput())
+        ->and($a[1] ?? null)->toStartWith('lathe_test_')
+        ->and($b[1] ?? null)->toStartWith('lathe_test_')
+        ->and($a[1])->not->toBe($b[1])
+        ->and($log)->toContain("create database {$a[1]}")
+        ->and($log)->toContain("drop database if exists {$a[1]}")
+        ->and($log)->toContain("drop database if exists {$b[1]}");
+
+    File::deleteDirectory($repo);
+});

@@ -3,7 +3,8 @@
 #   lanes.sh up [mysql|mariadb|pgsql] | down [mysql|mariadb|pgsql] | env <mysql|mariadb|pgsql>
 #   lanes.sh changed <mysql|mariadb|pgsql|octane>
 # With no lane name, up and down act on all three. changed runs the test files that differ
-# from origin/main, committed, uncommitted or untracked, on that lane, so a milestone meets every driver before CI.
+# from origin/main, committed, uncommitted or untracked, on that lane in a database of the run's own,
+# so a milestone meets every driver before CI.
 # changed octane runs scripts/octane-lane.sh when a file under workbench/ or tests/Octane differs.
 # These containers are Lathe's. Never reuse another project's database container.
 set -uo pipefail
@@ -86,6 +87,15 @@ grant() {
     esac
 }
 
+# Runs one statement on a lane's server as the lathe user.
+own() {
+    case $1 in
+        pgsql) podman exec lathe-pg15 psql -q -U $user -d $database -c "$2" ;;
+        mariadb) podman exec lathe-mariadb1011 mariadb -h127.0.0.1 -u$user -p$password -e "$2" ;;
+        mysql) podman exec lathe-mysql84 mysql -h127.0.0.1 -u$user -p$password -e "$2" 2>/dev/null ;;
+    esac
+}
+
 # Prints the lanes the second argument picks, or all of them.
 selected() {
     local lane
@@ -143,7 +153,11 @@ case ${1:-} in
         fi
         bash scripts/lanes.sh up "$2" || exit 1
         eval "$(bash scripts/lanes.sh env "$2")"
-        exec php vendor/bin/pest --exclude-group=benchmark --exclude-group=scaffold "${files[@]}"
+        # A database of this run's own, so two sessions on one lane never share lathe_test.
+        DB_DATABASE=${database}_run$$
+        own "$2" "create database $DB_DATABASE" || exit 1
+        trap 'own "$2" "drop database if exists $DB_DATABASE"' EXIT
+        php vendor/bin/pest --exclude-group=benchmark --exclude-group=scaffold "${files[@]}"
         ;;
     *)
         echo "usage: lanes.sh up [mysql|mariadb|pgsql] | down [mysql|mariadb|pgsql] | env <mysql|mariadb|pgsql> | changed <mysql|mariadb|pgsql|octane>" >&2
