@@ -2,16 +2,16 @@
   "machine": "cloud-vm",
   "writes": [
     {
-      "base": "01M72VW8XPJAMSWZ1BVCVXQGVE",
-      "body": "# plan: m35-cloud-lanes\n\n- [x] t1 Run ci.yml on a push of a ci/ ref, installing lathe as main's alias, held by a Quality test\n- [x] t2 Say on the verify page how a cloud thread meets every driver  [after: t1]\n",
-      "id": "01M72VX1QYSMQDVQ9GJPDFZB6J",
-      "path": "projects/01M4T1WADSK9655DJEZ17PGMYC/plan.md"
+      "base": null,
+      "body": "+++\ncreated = \"2026-11-10T14:11:55.73037723Z\"\nid = \"01M72WT6TRVWCSDY2ZM317GEK5\"\nkind = \"log\"\nmachine = \"cloud-vm\"\nmodified = \"2026-11-10T14:11:55.73037723Z\"\nproject = \"lathe\"\ntitle = \"walk: UI-free milestone; its Show path is workflow land's own ci/ push and wait. Evidence before …\"\n+++\n\nwalk: UI-free milestone; its Show path is workflow land's own ci/ push and wait. Evidence before land: run 42820838902 on ci/lathe-m99-ci-red (same ci.yml) installed and ran every job, red only on the planted Postgres probe\n",
+      "id": "01M72WT6TSAXP3S0EFRQKKC58Y",
+      "path": "projects/01M4T1WADSK9655DJEZ17PGMYC/items/01M72WT6TRVWCSDY2ZM317GEK5.md"
     },
     {
       "base": null,
-      "body": "+++\ncreated = \"2026-11-10T13:56:00.431911502Z\"\nid = \"01M72VX1X632W8REVFXF6S9TVS\"\nkind = \"log\"\nmachine = \"cloud-vm\"\nmodified = \"2026-11-10T13:56:00.431911502Z\"\nproject = \"lathe\"\ntitle = \"t2 landed: verify#cloud says ci.yml on ci/lathe-*, land waits, benchmark and Octane stay on a dev…\"\n+++\n\nt2 landed: verify#cloud says ci.yml on ci/lathe-*, land waits, benchmark and Octane stay on a device; mini line dropped\n",
-      "id": "01M72VX1X7P73ZEDZHMABPFXR9",
-      "path": "projects/01M4T1WADSK9655DJEZ17PGMYC/items/01M72VX1X632W8REVFXF6S9TVS.md"
+      "body": "+++\ncreated = \"2026-11-10T14:11:55.963106452Z\"\nid = \"01M72WT71MWCBXPG2HARJVADM0\"\nkind = \"handoff\"\nmachine = \"cloud-vm\"\nmodified = \"2026-11-10T14:11:55.963106452Z\"\nproject = \"lathe\"\ntitle = \"Next: none (m35 is 37 of 37). m35-cloud-lanes landed on main. ci.yml runs on push to main and ci/…\"\n+++\n\nNext: none (m35 is 37 of 37). m35-cloud-lanes landed on main. ci.yml runs on push to main and ci/** with top-level COMPOSER_ROOT_VERSION 1.0.x-dev (CiWorkflowTest); .mem-outbox.json export-ignored (PackageArchiveTest); verify#cloud rewritten (ci.yml on ci/lathe-*, land waits; octane job covers Octane, only the 10M benchmark stays on a device, ruling #KHDF5D5V). Numbers: ~1h10 wall clock to land call, 2 tasks + 1 review fix, all solo; composer install cost ~25 min (a full phpstan clone is 11 GB: fetch --depth 1 the locked ref instead); review 2 blocks (1 fixed, 1 dropped), 3 later as ideas; suite 3515 pest + 209 vitest files green. Question #TXNHEFZ0 is moot: the cloud thread built m35.\n",
+      "id": "01M72WT71MRH5A0T77Q8MFNHTK",
+      "path": "projects/01M4T1WADSK9655DJEZ17PGMYC/items/01M72WT71MWCBXPG2HARJVADM0.md"
     }
   ]
 }
