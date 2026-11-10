@@ -19,7 +19,7 @@ All notable changes to Lathe are listed here. The format follows [Keep a Changel
 - The edit chevron of a cell that edits inline sits centred beside its value, whether a boolean's icon and text, a badge, a meter or plain text, where it rode high beside "✕ No"; a value its column aligns to the end, such as a number or a price, stays at the end. This holds on a Resource's list, on a lens and on a relation list.
 - A relation list's cell that edits inline has the spoken name a list's cell has, as "Status: Pending. Change status", where a screen reader heard only the value.
 - A relation list draws its footer only when its rows page, so a tab whose rows fit its smallest page shows no "Per page" choice and no pager, as an order's Items tab did under two rows.
-- A relation list's search that the server refuses, such as one over 100 characters, shows the server's message with Reset, as a Resource's list does, and the tab keeps searching; it showed an empty table and stopped searching until a reload.
+- A relation list's search that the server refuses, such as one over 100 characters, shows the server's message with Reset, as a Resource's list does, and the tab keeps its search box; the tab lost its rows and its search box until a reload.
 
 ## [1.0.0-beta.11] - 2026-11-09
 
