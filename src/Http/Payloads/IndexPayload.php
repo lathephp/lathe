@@ -178,6 +178,8 @@ class IndexPayload
     /**
      * Give a group on a field with options the labels of those options for its headings. The field
      * is found among the Resource's index fields, hidden ones too; a date or relation group has none.
+     *
+     * @internal
      */
     protected function labelGroup(Group $group, Resource $resource): void
     {

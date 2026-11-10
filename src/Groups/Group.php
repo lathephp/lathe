@@ -35,7 +35,11 @@ class Group
 
     protected string $timezone = 'UTC';
 
-    /** @var array<array-key, string> */
+    /**
+     * @var array<array-key, string>
+     *
+     * @internal
+     */
     protected array $optionLabels = [];
 
     final public function __construct(protected string $column, protected ?string $id = null)
