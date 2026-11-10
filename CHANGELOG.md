@@ -4,9 +4,22 @@ All notable changes to Lathe are listed here. The format follows [Keep a Changel
 
 ## [Unreleased]
 
+## [1.0.0-beta.12] - Unreleased
+
 ### Changed
 
-- [api] One English string is gone since 1.0.0-beta.11, for an app that translates the panel: `Filters`, the relation list's popover button, which the list's filter bar and its Filter button replace. The filters endpoint's JSON gains each filter's `token` and `kind`, as the list's filters already carry.
+- [api] No public API changed since 1.0.0-beta.11: the classes and methods of the API snapshot, the artisan commands, the config keys and the route names are as they were, and the filters endpoint's JSON only gains each filter's `token` and `kind`, as the list's filters already carry, so an app updates with nothing to change in its code. One English string is gone, for an app that translates the panel; none is new or renamed: `Filters`, the relation list's popover button, which the list's filter bar and its Filter button replace.
+- A relation list on a record page searches and filters with the list's filter bar: one input for search and filters, a chip for each filter, and the Filter button with its count, in place of its search box and Filters popover. Each relation tab keeps its own search and chips while the user stays on the page, so they stay while another tab is open and a reload clears them; the page URL never holds them, and a relation list has no saved views. A relation tab whose Resource has no filters and no search shows no filter bar.
+- The filter bar's list of filters opens as a 320 px popover under the text cursor, so it follows the chips as they grow, and stays inside the bar when the cursor is near the bar's end, in a right-to-left panel too; it was as wide as the bar. On a phone it is the bottom sheet, as before. This holds on a Resource's list, on a lens and on a relation list.
+- A group heading on a select field reads the option's label, as "Status: Pending", where it read the stored value, "Status: pending". A `titleUsing()` closure, date groups, relation columns and fields with no options keep their headings, and the group's key stays the stored value.
+- When the server refuses an inline select's save, the editor comes back with its list closed and the cell's old value, so the message reads whole, where the open list covered it and the cell kept the refused value; Escape leaves the cell. A text or number cell keeps the refused draft to fix. This holds on a Resource's list, on a lens and on a relation list.
+
+### Fixed
+
+- The edit chevron of a cell that edits inline sits centred beside its value, whether a boolean's icon and text, a badge, a meter or plain text, where it rode high beside "✕ No"; a value its column aligns to the end, such as a number or a price, stays at the end. This holds on a Resource's list, on a lens and on a relation list.
+- A relation list's cell that edits inline has the spoken name a list's cell has, as "Status: Pending. Change status", where a screen reader heard only the value.
+- A relation list draws its footer only when its rows page, so a tab whose rows fit its smallest page shows no "Per page" choice and no pager, as an order's Items tab did under two rows.
+- A relation list's search that the server refuses, such as one over 100 characters, shows the server's message with Reset, as a Resource's list does, and the tab keeps searching; it showed an empty table and stopped searching until a reload.
 
 ## [1.0.0-beta.11] - 2026-11-09
 

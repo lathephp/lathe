@@ -89,22 +89,17 @@ it('lists the changes of the newest release under Changed as behaviour changes, 
         ->not->toContain('A fix with no API change');
 })->group('frontend');
 
-it('tells a 1.0.0-beta.10 app every API and behaviour change in 1.0.0-beta.11', function () {
+it('tells a 1.0.0-beta.11 app every API and behaviour change in 1.0.0-beta.12', function () {
     $guide = File::get(dirname(__DIR__, 3).'/docs/getting-started/upgrade.md');
-    $section = explode('## What you see', explode('## From 1.0.0-beta.10 to 1.0.0-beta.11', $guide, 2)[1] ?? '', 2)[0];
+    $section = explode('## What you see', explode('## From 1.0.0-beta.11 to 1.0.0-beta.12', $guide, 2)[1] ?? '', 2)[0];
     [$api, $behaviour] = explode('### Behaviour changes', $section, 2) + ['', ''];
 
-    expect($api)->toContain('No public API changed since 1.0.0-beta.10', '`Filter`', '`Change :field`', '`Waiting for a queue worker. Is one running?`')
+    expect($api)->toContain('No public API changed since 1.0.0-beta.11', '`token`', '`kind`', '`Filters`')
         ->and($behaviour)->toContain(
-            'Actions menu lists only standalone actions while no row is ticked',
-            'the views rail of a list or a lens folds',
-            'open on the first click',
-            'shows a small chevron',
-            'A lens page lists the Resource\'s tabs',
-            'A lens\'s footer totals the lens\'s own fields',
-            'shows a Filter button',
-            'keeps a value fresh for 60 s',
-            'A record page shows only the cards marked `onlyOnDetail()`',
+            'A relation list on a record page searches and filters with the list\'s filter bar',
+            'opens as a 320 px popover under the text cursor',
+            'reads the option\'s label, as "Status: Pending"',
+            'the editor comes back with its list closed and the cell\'s old value',
         );
 })->group('frontend');
 
@@ -246,4 +241,33 @@ it('names every place a user meets the Actions menu, the cards and the cell curs
         ->toContain('above a Resource\'s list, a lens or a record page, and in a plugin\'s `WidgetCard`')
         ->toContain('In the record preview panel beside a list, the Actions menu opens from its button\'s start edge')
         ->toContain('`ActionDropdown`');
+})->group('frontend');
+
+it('names in the 1.0.0-beta.12 section every English string added or removed since 1.0.0-beta.11', function () {
+    $root = dirname(__DIR__, 3);
+    $keys = fn (string $json) => array_map('strval', array_keys((array) json_decode($json, true)));
+    $at = fn (string $tag) => Process::path($root)->run(['git', 'show', "{$tag}:lang/en.json"]);
+
+    if (! $at('v1.0.0-beta.11')->successful()) {
+        test()->markTestSkipped('This clone has no 1.0.0-beta.11 tag to compare with.');
+    }
+
+    $released = $at('v1.0.0-beta.12');
+    $before = $keys($at('v1.0.0-beta.11')->output());
+    $after = $keys($released->successful() ? $released->output() : File::get("{$root}/lang/en.json"));
+    $section = explode('## [1.0.0-beta.11]', explode('## [1.0.0-beta.12]', File::get("{$root}/CHANGELOG.md"), 2)[1] ?? '', 2)[0];
+    preg_match_all('/`([^`]+)`/u', (string) preg_replace('/^ *```.*?^ *```$/ms', '', $section), $named);
+    $changed = [...array_diff($before, $after), ...array_diff($after, $before)];
+
+    expect($changed)->not->toBeEmpty()
+        ->and(array_values(array_diff($changed, $named[1])))->toBe([]);
+})->group('frontend');
+
+it('names every place a user meets the filter bar and the inline cell changed in 1.0.0-beta.12', function () {
+    $section = explode('## [1.0.0-beta.11]', explode('## [1.0.0-beta.12]', File::get(dirname(__DIR__, 3).'/CHANGELOG.md'), 2)[1] ?? '', 2)[0];
+    $entry = fn (string $start) => (string) collect(explode("\n", $section))->first(fn (string $line) => str_contains($line, $start));
+
+    expect($entry('opens as a 320 px popover'))->toContain('This holds on a Resource\'s list, on a lens and on a relation list.')
+        ->and($entry('refuses an inline select\'s save'))->toContain('This holds on a Resource\'s list, on a lens and on a relation list.')
+        ->and($entry('The edit chevron of a cell that edits inline sits centred'))->toContain('This holds on a Resource\'s list, on a lens and on a relation list.');
 })->group('frontend');
