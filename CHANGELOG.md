@@ -4,6 +4,10 @@ All notable changes to Lathe are listed here. The format follows [Keep a Changel
 
 ## [Unreleased]
 
+### Changed
+
+- [api] One English string is gone since 1.0.0-beta.11, for an app that translates the panel: `Filters`, the relation list's popover button, which the list's filter bar and its Filter button replace. The filters endpoint's JSON gains each filter's `token` and `kind`, as the list's filters already carry.
+
 ## [1.0.0-beta.11] - 2026-11-09
 
 ### Changed
