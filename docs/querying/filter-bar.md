@@ -8,7 +8,7 @@ order: 2
 
 A Resource index and its [lenses](lenses.md) filter and search from one bar above the table. You type tokens, press Enter, and each token becomes a chip. The chips write the same `filter[...]` keys that [filters](filters.md) read, so a saved view, an export and a shared link all see them.
 
-Relation tables keep their own search box and filter panel.
+A record's relation tables search and filter from the same bar, with the related Resource's filters. Their chips stay while you stay on the page, even as you switch between its tabs, and each table keeps its own. They are not written to the URL and cannot be saved as a view, so a reload clears them.
 
 ## The grammar
 
