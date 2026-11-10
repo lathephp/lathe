@@ -269,5 +269,11 @@ it('names every place a user meets the filter bar and the inline cell changed in
 
     expect($entry('opens as a 320 px popover'))->toContain('This holds on a Resource\'s list, on a lens and on a relation list.')
         ->and($entry('refuses an inline select\'s save'))->toContain('This holds on a Resource\'s list, on a lens and on a relation list.')
-        ->and($entry('The edit chevron of a cell that edits inline sits centred'))->toContain('This holds on a Resource\'s list, on a lens and on a relation list.');
+        ->and($entry('The edit chevron of a cell that edits inline sits centred'))->toContain('This holds on a Resource\'s list, on a lens and on a relation list.')
+        ->and($entry('A relation list on a record page searches and filters'))->toContain('The `/` key no longer focuses a relation list\'s search')
+        ->and($section)->toContain(
+            'A relation list\'s cell that edits inline has the spoken name a list\'s cell has',
+            'A relation list draws its footer only when its rows page',
+            'A relation list\'s search that the server refuses',
+        );
 })->group('frontend');
