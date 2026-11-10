@@ -10,7 +10,7 @@ import { type BarHost, FilterBar } from '../index/FilterBar';
 import { filterVisits } from '../index/FilterChips';
 import { countText } from '../index/countText';
 import { Pagination } from '../index/Pagination';
-import { alignClass, direction, nextSort } from '../index/ResourceTable';
+import { alignClass, direction, inlineName, nextSort } from '../index/ResourceTable';
 import type { IndexFilter } from '../index/types';
 import { applyChanges, type IndexUrlState } from '../index/useIndexState';
 import { useRowSelection } from '../index/useRowSelection';
@@ -355,6 +355,8 @@ function PanelBody({ parent, field, bodyId, onToggle, tab }: RelationPanelProps 
                           key={column.key}
                           tabIndex={position === 0 && index === 0 ? 0 : -1}
                           data-open={opens ? '' : undefined}
+                          role={inline ? 'gridcell' : undefined}
+                          aria-label={inline && cell !== undefined ? inlineName(column, cell, __) : undefined}
                           onClick={
                             opens
                               ? (event) => {

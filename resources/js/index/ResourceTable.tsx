@@ -1,4 +1,4 @@
-import { useTranslation } from '@lathephp/core';
+import { type Translator, useTranslation } from '@lathephp/core';
 import { Link, router, usePage } from '@inertiajs/react';
 import { Columns3, Eye, Pencil } from 'lucide-react';
 import { Fragment, Suspense, useLayoutEffect, useRef, useState, type MouseEvent } from 'react';
@@ -24,6 +24,11 @@ function spoken(column: Column, cell: Cell): string {
   const field = column as unknown as FieldSchema;
 
   return optionsOf(field).length > 0 ? shown(field, cell.value) : cell.display;
+}
+
+/** What a screen reader calls a cell that edits inline, on a list and on a relation table: "Status: Paid. Change status". */
+export function inlineName(column: Column, cell: Cell, __: Translator): string {
+  return `${column.label}: ${spoken(column, cell)}. ${__('Change :field', { field: column.label.toLowerCase() })}`;
 }
 
 export const rowHeights = { compact: 'h-8', comfortable: 'h-10', spacious: 'h-14' };
@@ -446,7 +451,7 @@ export function ResourceTable({ resource, table, state, loading, selection, sort
                               tabIndex={stop(row, index + 1)}
                               // The name tells a screen reader the cell edits: "Status: Draft. Change status".
                               role={inline ? 'gridcell' : undefined}
-                              aria-label={inline && cell !== undefined ? `${column.label}: ${spoken(column, cell)}. ${__('Change :field', { field: column.label.toLowerCase() })}` : undefined}
+                              aria-label={inline && cell !== undefined ? inlineName(column, cell, __) : undefined}
                               // The title cell is the row's link: a click on it, not on a control inside, runs the click action.
                               data-open={url === undefined ? undefined : ''}
                               onClick={

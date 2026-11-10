@@ -3,7 +3,7 @@ import { queryClient } from '@lathephp/core';
 import { act, fireEvent, screen, waitFor, within } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import type { LayoutBlock, PanelBlock, TabGroupBlock } from '../fields/types';
-import { choose, renderPage } from './support';
+import { choose, indexTable, renderPage } from './support';
 
 afterEach(() => {
   queryClient.clear();
@@ -321,6 +321,24 @@ describe('relation panel', () => {
 
     fireEvent.click(screen.getByRole('tab', { name: 'Notes' }));
     expect(within(notes).getByText('Status: Paid')).toBeTruthy();
+  });
+
+  it('names an inline cell as the index does, its option label then what a change does', async () => {
+    const { columns: orderColumns, rows: orderRows } = indexTable('orders');
+    const pending = orderRows.find((row) => 'status' in row.cells && row.cells.status.value === 'pending');
+    vi.spyOn(globalThis, 'fetch').mockImplementation((input) => {
+      const url = typeof input === 'string' ? input : '';
+      const body = url.includes('/relate-authorization')
+        ? {}
+        : url.includes('/filters')
+          ? { filters: [] }
+          : { columns: orderColumns, sortKeys: [], rows: [{ ...pending, related_id: pending?.id }], count: null, page: 1, perPage: 25, perPageOptions: [25], hasMore: false, searchable: false };
+
+      return Promise.resolve(new Response(JSON.stringify(body), { status: 200 }));
+    });
+    renderDetail([relationBlock({ resource: 'orders' })]);
+
+    expect(await screen.findByRole('gridcell', { name: 'Status: Pending. Change status' })).toBeTruthy();
   });
 
   it('shows no search box when the related Resource has nothing to search', async () => {
