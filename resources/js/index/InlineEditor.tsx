@@ -1,4 +1,4 @@
-import { Suspense, useRef, useState, type KeyboardEvent } from 'react';
+import { Suspense, useEffect, useRef, useState, type KeyboardEvent } from 'react';
 import { SelectMenu } from '../components/ui/SelectMenu';
 import { SelectBadge, styled } from '../fields/choice/SelectFields';
 import type { Cell, FieldSchema } from '../fields/types';
@@ -42,6 +42,13 @@ export function InlineEditor({ uriKey, rowId, column, cell, describedBy, invalid
   const [morphDraft, setMorphDraft] = useState<unknown>(undefined);
   // Enter, Tab or Escape ends a text edit; the blur as the input leaves the page must not save again.
   const done = useRef(false);
+  // A select refused by the server comes back with its list closed; its trigger takes the focus.
+  const menu = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (invalid) {
+      menu.current?.querySelector<HTMLElement>('[role="combobox"]')?.focus();
+    }
+  }, [invalid]);
   const options = (column.options as Option[] | undefined) ?? [];
   const common = { 'aria-label': column.label, 'aria-describedby': describedBy, 'aria-invalid': invalid || undefined, size: 'sm' as const, className: 'max-w-full' };
 
@@ -58,14 +65,17 @@ export function InlineEditor({ uriKey, rowId, column, cell, describedBy, invalid
 
     return (
       // The list is portaled, but its keys still pass here through React; Escape marks a cancel.
+      // eslint-disable-next-line jsx-a11y/no-static-element-interactions -- Escape from the trigger inside
       <div
+        ref={menu}
         onKeyDownCapture={(event) => {
           done.current ||= event.key === 'Escape';
         }}
+        onKeyDown={escape}
       >
         <SelectMenu
           multiple
-          defaultOpen
+          defaultOpen={!invalid}
           {...common}
           value={many}
           options={options}
@@ -87,23 +97,28 @@ export function InlineEditor({ uriKey, rowId, column, cell, describedBy, invalid
 
   if (column.component === 'select-field') {
     return (
-      <SelectMenu
-        defaultOpen
-        {...common}
-        {...(!styled(column) ? {} : { display: (value: string) => <SelectBadge field={column} value={value} /> })}
-        value={stringValue(cell.value)}
-        // A column that cannot hold null offers no blank choice.
-        options={column.nullable ? [{ value: '', label: '—' }, ...options] : options}
-        onChange={(value) => {
-          onCommit(value);
-          onClose();
-        }}
-        onOpenChange={(open) => {
-          if (!open) {
+      // After a refusal the list stays closed on the focused trigger, so the message shows whole;
+      // Escape on that closed trigger leaves the cell.
+      // eslint-disable-next-line jsx-a11y/no-static-element-interactions -- Escape from the trigger inside
+      <div ref={menu} onKeyDown={escape}>
+        <SelectMenu
+          defaultOpen={!invalid}
+          {...common}
+          {...(!styled(column) ? {} : { display: (value: string) => <SelectBadge field={column} value={value} /> })}
+          value={stringValue(cell.value)}
+          // A column that cannot hold null offers no blank choice.
+          options={column.nullable ? [{ value: '', label: '—' }, ...options] : options}
+          onChange={(value) => {
+            onCommit(value);
             onClose();
-          }
-        }}
-      />
+          }}
+          onOpenChange={(open) => {
+            if (!open) {
+              onClose();
+            }
+          }}
+        />
+      </div>
     );
   }
 

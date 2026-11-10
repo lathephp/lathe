@@ -104,6 +104,42 @@ describe('inline cells', () => {
     expect(bodies(fetch)[1]?._updated_at).toBe('2026-10-14T09:00:02.000Z');
   });
 
+  it('brings a refused select back closed with its old value, and Escape leaves that value', async () => {
+    vi.spyOn(globalThis, 'fetch').mockResolvedValueOnce(reply(422, { message: 'Refused.', errors: { status: ['Support may not cancel an order.'] } }));
+    renderRows();
+
+    await editCell('Status');
+    await pick('shipped');
+
+    expect((await screen.findByRole('tooltip')).textContent).toBe('Support may not cancel an order.');
+    const trigger = await screen.findByRole('combobox', { name: 'Status' });
+    expect(screen.queryByRole('listbox')).toBeNull();
+    expect(trigger.textContent).toBe('pending');
+    expect(trigger.getAttribute('aria-invalid')).toBe('true');
+    expect(trigger.getAttribute('aria-describedby')).toBe(screen.getByRole('tooltip').id);
+
+    fireEvent.keyDown(trigger, { key: 'Escape' });
+
+    await waitFor(() => {
+      expect(screen.queryByRole('tooltip')).toBeNull();
+    });
+    expect(screen.queryByRole('combobox', { name: 'Status' })).toBeNull();
+    expect(cellOf('Status').textContent).toBe('pending');
+    expect(document.activeElement).toBe(cellOf('Status'));
+  });
+
+  it('reopens a refused text cell holding the refused text', async () => {
+    vi.spyOn(globalThis, 'fetch').mockResolvedValueOnce(reply(422, { message: 'Too odd.', errors: { name: ['That name is taken.'] } }));
+    renderRows();
+
+    await editCell('Name');
+    fireEvent.change(await screen.findByRole('textbox', { name: 'Name' }), { target: { value: 'Bob' } });
+    fireEvent.keyDown(await screen.findByRole('textbox', { name: 'Name' }), { key: 'Enter' });
+
+    expect((await screen.findByRole('tooltip')).textContent).toBe('That name is taken.');
+    expect((await screen.findByRole<HTMLInputElement>('textbox', { name: 'Name' })).value).toBe('Bob');
+  });
+
   it('flips a boolean at once from Enter, and keeps one request in flight', async () => {
     let answer: (response: Response) => void = () => undefined;
     const fetch = vi.spyOn(globalThis, 'fetch').mockReturnValue(

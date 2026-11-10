@@ -145,7 +145,11 @@ export async function commit(save: InlineSave, value: unknown, shownWhilePending
       save.setError(Object.values(errors)[0]?.[0] ?? __('Please fix the highlighted fields.'));
       // A boolean has no editor to reopen; its message shows on the cell.
       if (column.component !== 'boolean-field') {
-        save.setDraft(shownWhilePending ?? { value, display: save.displayOf(value) });
+        // A select comes back holding the old value, so its list does not cover the message.
+        if (column.component !== 'select-field' && column.component !== 'multi-select-field') {
+          save.setDraft(shownWhilePending ?? { value, display: save.displayOf(value) });
+        }
+
         save.setEditing(true);
       }
     } else if (!refused(save, failure, value, extra, false)) {
