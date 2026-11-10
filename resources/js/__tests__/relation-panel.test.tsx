@@ -121,16 +121,24 @@ interface Reply {
   add?: boolean;
   searchable?: boolean;
   hasMore?: boolean;
+  filters?: unknown[];
 }
 
+const filterBase = { remote: false, immediate: false, placement: 'panel', default: null };
+const statusFilter = { ...filterBase, key: 'status', name: 'Status', component: 'multi-select-filter', options: [{ label: 'Pending', value: 'pending' }, { label: 'Paid', value: 'paid' }], token: 'status', kind: 'multiple' };
+const customerFilter = { ...filterBase, key: 'customer', name: 'Customer', component: 'select-filter', options: null, remote: true, token: 'customer', kind: 'relation' };
+const placedFilter = { ...filterBase, key: 'placed', name: 'Placed', component: 'date-filter', options: [], token: 'placed', kind: 'date' };
+
 /** Answers the panel's three endpoints and records every URL asked for. */
-function answer({ rows = items, count = { value: 7, exact: true, capped: false, estimated: false }, add = true, searchable = true, hasMore = false }: Reply = {}) {
+function answer({ rows = items, count = { value: 7, exact: true, capped: false, estimated: false }, add = true, searchable = true, hasMore = false, filters = [] }: Reply = {}) {
   return vi.spyOn(globalThis, 'fetch').mockImplementation((input) => {
     const url = typeof input === 'string' ? input : input instanceof URL ? input.href : input.url;
     const body = url.includes('/relate-authorization')
       ? { items: { add, attach: false, attachAny: false } }
-      : url.includes('/filters')
-        ? { filters: [] }
+      : url.includes('/options')
+        ? { options: [{ label: 'Ann Taylor', value: 12 }], hasMore: false }
+        : url.includes('/filters')
+        ? { filters }
         : { columns, sortKeys: ['quantity'], rows, count, page: 1, perPage: 25, perPageOptions: [25, 50, 100], hasMore, searchable };
 
     return Promise.resolve(new Response(JSON.stringify(body), { status: 200 }));
@@ -141,6 +149,15 @@ function listCalls(fetch: ReturnType<typeof answer>): string[] {
   return fetch.mock.calls
     .map(([input]) => (typeof input === 'string' ? input : ''))
     .filter((url) => url.startsWith('/lathe/api/resources/orders/12/items'));
+}
+
+/** Focuses a tab's filter bar and waits for its editor to take over. */
+async function focusBar(name: string): Promise<HTMLInputElement> {
+  act(() => {
+    screen.getByRole('searchbox', { name }).focus();
+  });
+
+  return screen.findByRole<HTMLInputElement>('combobox', { name });
 }
 
 async function settle() {
@@ -235,6 +252,75 @@ describe('relation panel', () => {
     await waitFor(() => {
       expect(listCalls(fetch).at(-1)).toBe('/lathe/api/resources/orders/12/items?q=ea');
     });
+  });
+
+  it('filters its rows with the filter bar, with no page visit', async () => {
+    const fetch = answer({ filters: [statusFilter, customerFilter, placedFilter] });
+    const visit = vi.spyOn(router, 'visit');
+    renderDetail([relationBlock()]);
+    await screen.findByText('Autem blanditiis');
+
+    expect(screen.queryByRole('button', { name: 'Filters' })).toBeNull();
+    const input = await focusBar('Search items');
+    fireEvent.change(input, { target: { value: 'status:pending' } });
+    fireEvent.keyDown(input, { key: 'Enter' });
+
+    expect(await screen.findByText('Status: Pending')).toBeTruthy();
+    await waitFor(() => {
+      expect(decodeURIComponent(listCalls(fetch).at(-1) ?? '')).toBe('/lathe/api/resources/orders/12/items?filter[status]=pending');
+    });
+    expect(screen.getByRole('button', { name: 'Filter 1' })).toBeTruthy();
+    expect(visit).not.toHaveBeenCalled();
+  });
+
+  it('opens the bar\'s list of filters from its Filter button', async () => {
+    answer({ filters: [statusFilter, customerFilter, placedFilter] });
+    renderDetail([relationBlock()]);
+    await screen.findByText('Autem blanditiis');
+
+    fireEvent.click(screen.getByRole('button', { name: 'Filter' }));
+
+    expect(await screen.findByRole('option', { name: /^Status/ })).toBeTruthy();
+    expect(screen.getByRole('option', { name: /^Customer/ })).toBeTruthy();
+    expect(screen.getByRole('option', { name: /^Placed/ })).toBeTruthy();
+  });
+
+  it('keeps a remote filter\'s chip named by its record after the rows load', async () => {
+    const fetch = answer({ filters: [statusFilter, customerFilter, placedFilter] });
+    renderDetail([relationBlock()]);
+    await screen.findByText('Autem blanditiis');
+
+    const input = await focusBar('Search items');
+    fireEvent.change(input, { target: { value: 'customer:ann' } });
+    fireEvent.keyDown(input, { key: 'Enter' });
+
+    await waitFor(() => {
+      expect(decodeURIComponent(listCalls(fetch).at(-1) ?? '')).toBe('/lathe/api/resources/orders/12/items?filter[customer]=12');
+    });
+    await settle();
+    expect(screen.getByText('Customer: Ann Taylor')).toBeTruthy();
+  });
+
+  it('keeps each tab\'s chips to its own rows, and keeps them across a tab switch', async () => {
+    const fetch = answer({ filters: [statusFilter] });
+    renderDetail([notesBlock, relationBlock()]);
+    const notes = screen.getByRole('tabpanel', { name: 'Notes' });
+    await within(notes).findByText('Autem blanditiis');
+
+    const input = await focusBar('Search notes');
+    fireEvent.change(input, { target: { value: 'status:paid' } });
+    fireEvent.keyDown(input, { key: 'Enter' });
+    await waitFor(() => {
+      expect(fetch.mock.calls.some(([url]) => typeof url === 'string' && decodeURIComponent(url).endsWith('/notes?filter[status]=paid'))).toBe(true);
+    });
+
+    fireEvent.click(screen.getByRole('tab', { name: 'Items' }));
+    await within(screen.getByRole('tabpanel', { name: 'Items' })).findByText('Autem blanditiis');
+    expect(listCalls(fetch)).toEqual(['/lathe/api/resources/orders/12/items']);
+    expect(within(screen.getByRole('tabpanel', { name: 'Items' })).queryByText('Status: Paid')).toBeNull();
+
+    fireEvent.click(screen.getByRole('tab', { name: 'Notes' }));
+    expect(within(notes).getByText('Status: Paid')).toBeTruthy();
   });
 
   it('shows no search box when the related Resource has nothing to search', async () => {

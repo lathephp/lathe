@@ -867,19 +867,6 @@
     @apply text-primary;
   }
 
-  /* The search box: 260 x 30 with the / key at its end. A phone shows only its icon until it has focus or text. */
-  .lathe-search {
-    @apply mx-1 flex h-[30px] w-[260px] items-center gap-2 rounded-md border border-input bg-card px-2 text-muted-foreground focus-within:ring-2 focus-within:ring-ring max-md:w-[30px] max-md:has-[input:focus]:w-44 max-md:has-[input:not(:placeholder-shown)]:w-44;
-  }
-
-  .lathe-search > input {
-    @apply min-w-0 flex-1 bg-transparent text-[13px] leading-[18px] text-foreground outline-none placeholder:text-muted-foreground max-md:placeholder:text-transparent;
-  }
-
-  .lathe-search > kbd {
-    @apply rounded-[4px] border border-border bg-muted px-[5px] font-mono text-[11px] leading-4 font-medium max-md:hidden;
-  }
-
   /* The filter bar: chips then the input in one box, at least 320 px and growing into the toolbar's free space.
      The first paint and the editor draw the same box, so the swap on focus moves nothing. */
   .lathe-bar {
@@ -1072,14 +1059,6 @@
     /* The Views menu and the filter bar share one line. */
     .lathe-toolbar > div:first-child {
       @apply min-w-0 flex-1 flex-nowrap;
-    }
-
-    .lathe-search {
-      @apply mx-0 h-10 w-full! px-2.5 text-sm;
-    }
-
-    .lathe-search > input {
-      @apply text-sm placeholder:text-muted-foreground!;
     }
 
     /* 160 px keeps the input at least 120 px wide: the Views and Filter buttons wrap to a row of their own first. */

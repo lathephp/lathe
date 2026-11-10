@@ -1,17 +1,17 @@
 import { Link, router } from '@inertiajs/react';
 import { ApiError, QueryClientProvider, queryClient, request, toast, useLathe, useQuery, useTranslation } from '@lathephp/core';
 import { Button, Card } from '@lathephp/ui';
-import { ArrowDown, ArrowUp, ChevronDown, ListFilter, Plus } from 'lucide-react';
+import { ArrowDown, ArrowUp, ChevronDown, Plus } from 'lucide-react';
 import { lazy, Suspense, useEffect, useId, useRef, useState, type MouseEvent } from 'react';
 import { createPortal } from 'react-dom';
 import type { FieldSchema, RelationFieldSchema } from '../fields/types';
 import { InlineCell } from '../index/InlineCell';
-import { FilterPanel } from '../index/FilterPanel';
+import { type BarHost, FilterBar } from '../index/FilterBar';
+import { filterVisits } from '../index/FilterChips';
 import { countText } from '../index/countText';
 import { Pagination } from '../index/Pagination';
 import { alignClass, direction, nextSort } from '../index/ResourceTable';
-import { ToolbarSearch } from '../index/ToolbarSearch';
-import type { AvailableFilter } from '../index/types';
+import type { IndexFilter } from '../index/types';
 import { applyChanges, type IndexUrlState } from '../index/useIndexState';
 import { useRowSelection } from '../index/useRowSelection';
 import { Modal } from '../components/Modal';
@@ -22,7 +22,7 @@ import { useGrid } from '../table/useGrid';
 import { AttachRelationModal } from './AttachRelationModal';
 import { UpdatePivotModal } from './UpdatePivotModal';
 import { useRelationActions } from './useRelationActions';
-import { useRelateFlags, useRelationIndex, type RelationRow } from './useRelationIndex';
+import { searchParams, useRelateFlags, useRelationIndex, type RelationRow } from './useRelationIndex';
 
 // The pivot action menu loads only for a panel that offers pivot actions.
 const PivotActionMenu = lazy(() => import('../actions/PivotActionMenu').then((module) => ({ default: module.PivotActionMenu })));
@@ -118,9 +118,9 @@ function PanelBody({ parent, field, bodyId, onToggle, tab }: RelationPanelProps 
   const { __ } = useTranslation();
   const { basePath, apiPath } = useLathe();
   const [state, setState] = useState<IndexUrlState>({});
-  const [filtersOpen, setFiltersOpen] = useState(false);
+  // The tab's own wait for a chip change, so another tab's change never drops it.
+  const [visits] = useState(filterVisits);
   const perPageId = useId();
-  const filtersId = useId();
   const detachTitleId = useId();
   const [attaching, setAttaching] = useState(false);
   const [editing, setEditing] = useState<RelationRow | null>(null);
@@ -134,7 +134,7 @@ function PanelBody({ parent, field, bodyId, onToggle, tab }: RelationPanelProps 
   const flags = useRelateFlags(parent.uriKey, parent.id);
   const filters = useQuery({
     queryKey: ['filters', field.resource],
-    queryFn: () => request<{ filters: AvailableFilter[] }>(`${apiPath}/resources/${field.resource}/filters`),
+    queryFn: () => request<{ filters: IndexFilter[] }>(`${apiPath}/resources/${field.resource}/filters`),
   });
   const data = index.data ?? null;
   const rows = data?.rows ?? [];
@@ -157,6 +157,15 @@ function PanelBody({ parent, field, bodyId, onToggle, tab }: RelationPanelProps 
   // One page that the smallest page size holds has nothing to page through or resize.
   const paged = data !== null && (data.page > 1 || data.hasMore || rows.length > Math.min(...data.perPageOptions));
   const onCount = tab?.onCount;
+  // The filter bar reads the tab's state as the index reads its URL; the page URL never holds it.
+  const host: BarHost = {
+    resource: { uriKey: field.resource, label: field.label, searchable: data?.searchable === true, softDeletes: false },
+    filters: { available, applied: {} },
+    url: searchParams(state),
+    debounce: 0.3,
+    shortcut: false,
+    visits,
+  };
 
   useEffect(() => {
     if (total !== undefined) {
@@ -246,29 +255,7 @@ function PanelBody({ parent, field, bodyId, onToggle, tab }: RelationPanelProps 
       <Frame id={bodyId} className="overflow-hidden">
         {(data?.searchable === true || available.length > 0 || (data?.pivotActions?.length ?? 0) > 0) && (
           <div className="flex flex-wrap items-center gap-2 border-b border-border p-3">
-            {data?.searchable === true && (
-              <ToolbarSearch
-                label={field.label}
-                value={state.q ?? ''}
-                debounce={0.3}
-                onSearch={(q) => {
-                  change({ q });
-                }}
-              />
-            )}
-            {available.length > 0 && (
-              <Button
-                variant="outline"
-                aria-expanded={filtersOpen}
-                aria-controls={filtersId}
-                onClick={() => {
-                  setFiltersOpen(!filtersOpen);
-                }}
-              >
-                <ListFilter aria-hidden="true" className="size-4" />
-                {__('Filters')}
-              </Button>
-            )}
+            {(data?.searchable === true || available.length > 0) && <FilterBar q={state.q} visit={change} host={host} />}
             {(data?.pivotActions?.length ?? 0) > 0 && (
               <Suspense fallback={null}>
                 <PivotActionMenu
@@ -279,18 +266,6 @@ function PanelBody({ parent, field, bodyId, onToggle, tab }: RelationPanelProps 
                   queryKey={['relation', parent.uriKey, String(parent.id), field.relationship]}
                 />
               </Suspense>
-            )}
-            {filtersOpen && available.length > 0 && (
-              <div id={filtersId} className="basis-full pt-2">
-                <FilterPanel
-                  resource={field.resource}
-                  endpoint={`${apiPath}/resources/${field.resource}/filters`}
-                  available={available}
-                  softDeletes={false}
-                  state={state}
-                  visit={change}
-                />
-              </div>
             )}
           </div>
         )}

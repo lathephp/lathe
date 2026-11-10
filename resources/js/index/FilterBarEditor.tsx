@@ -134,9 +134,10 @@ export function FilterBarEditor({ host, label, urlChips, leave, onChips, text, f
   }
 
   // A visit landed: the URL's chips come back, and the red ones, which the URL never holds, stay.
+  // A chip drawn with the same value keeps its label, since a relation tab gets no labels for a remote filter's records.
   if (url !== seen) {
     setSeen(url);
-    setChips([...urlChips, ...chips.filter((chip) => !applied(chip))]);
+    setChips([...urlChips.map((chip) => chips.find((drawn) => applied(drawn) && drawn.key === chip.key && JSON.stringify(drawn.value) === JSON.stringify(chip.value)) ?? chip), ...chips.filter((chip) => !applied(chip))]);
   }
 
   useLayoutEffect(() => {
