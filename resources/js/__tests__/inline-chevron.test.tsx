@@ -11,9 +11,9 @@ const labels = { orders: ['Orders', 'Order'], customers: ['Customers', 'Customer
 // Orders hold the inline Status with badges; customers hold the inline text Name. The workbench
 // Status also draws a meter, which takes the badge's place, so the badge case drops it; the meter
 // cases keep it, with or without its badges.
-type Shape = { update?: boolean; meter?: boolean; badges?: boolean; boolean?: boolean };
+type Shape = { update?: boolean; meter?: boolean; badges?: boolean; boolean?: boolean; number?: boolean };
 
-function renderRows(uriKey: 'orders' | 'customers', { update = true, meter = false, badges = true, boolean = false }: Shape = {}) {
+function renderRows(uriKey: 'orders' | 'customers', { update = true, meter = false, badges = true, boolean = false, number = false }: Shape = {}) {
   const table = indexTable(uriKey);
   table.columns.forEach((column) => {
     if ('meter' in column && !meter) {
@@ -34,6 +34,11 @@ function renderRows(uriKey: 'orders' | 'customers', { update = true, meter = fal
     });
   }
 
+  // Nor an inline number, so the Name column is re-typed as a right-aligned one.
+  if (number) {
+    Object.assign(table.columns[0] ?? {}, { component: 'number-field', textAlign: 'right' });
+  }
+
   return renderPage(
     'Resources/Index',
     {
@@ -52,12 +57,23 @@ function expectCentredRow(cell: HTMLElement, value: Element | ChildNode | null |
   const chevron = cell.querySelector('[data-inline-chevron]');
   const row = chevron?.parentElement;
 
-  expect(row?.classList.contains('flex')).toBe(true);
+  expect(row?.classList.contains('inline-flex')).toBe(true);
   expect(row?.classList.contains('items-center')).toBe(true);
   expect(value?.parentElement).toBe(row);
 }
 
 describe('the inline cell row', () => {
+  it('lines up with its column: an inline row the cell\'s own text alignment places', async () => {
+    renderRows('customers', { number: true });
+
+    const cell = await screen.findByRole('gridcell', { name: 'Name: Grace Hopper. Change name' });
+    const row = cell.querySelector('[data-inline-chevron]')?.parentElement;
+
+    expect(cell.classList.contains('text-end')).toBe(true);
+    expect(row?.classList.contains('inline-flex')).toBe(true);
+    expect(row?.classList.contains('flex')).toBe(false);
+  });
+
   it('centres the chevron beside a boolean icon and text', async () => {
     renderRows('customers', { boolean: true });
 

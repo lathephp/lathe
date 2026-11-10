@@ -128,7 +128,7 @@ export function InlineCell({ uriKey, rowId, column, cell, token, onRow }: Inline
   }
 
   return (
-    <div ref={root} data-inline-cell="" className={editing ? 'relative' : 'relative flex items-center'}>
+    <div ref={root} data-inline-cell="" className={editing ? 'relative' : 'relative inline-flex max-w-full items-center'}>
       {editing ? (
         <Suspense fallback={<TableCell column={column} cell={shown} />}>
           <InlineEditor
