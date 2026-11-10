@@ -1,0 +1,1 @@
+function e(e,t,n,r){return e.addEventListener(t,n,r),()=>{e.removeEventListener(t,n,r)}}function t(e,t){return e.getAnimations(t).filter(e=>{let t=e.effect?.getTiming();return t?.duration!==1/0&&t?.iterations!==1/0})}export{e as n,t};
