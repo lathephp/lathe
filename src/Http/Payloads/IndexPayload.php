@@ -72,7 +72,7 @@ class IndexPayload
         $available = $lens?->availableFilters($this->request) ?? $resource->availableFilters($this->request);
         $threshold = $resource->definition()->getFilterRemoteThreshold();
         $filters = $this->request->query('filter');
-        $definitions = $this->withTokens($available, array_map(fn (Filter $filter) => $filter->definition($this->request, $threshold), $available));
+        $definitions = $this->filterDefinitions($available, $threshold);
         $applied = (new FilterApplicator($resource, $lens !== null ? $available : null))->values($this->request, is_array($filters) ? $filters : []);
         // A lens keeps its code columns: the saved choice is the Resource index's only.
         ['choice' => $choice, 'previewOpen' => $previewOpen, 'layout' => $layout] = $this->savedPreferences($class, $fields, $lens === null);
@@ -228,6 +228,19 @@ class IndexPayload
             : $resource->fieldsFor(FieldContext::Index, $this->request);
 
         return array_values($fields->forContext(FieldContext::Index, $this->request)->authorized($this->request)->all());
+    }
+
+    /**
+     * The filters as the filter bar reads them: each definition with its token and kind.
+     *
+     * @param  list<Filter>  $available
+     * @return list<array<string, mixed>>
+     *
+     * @internal
+     */
+    public function filterDefinitions(array $available, int $threshold): array
+    {
+        return $this->withTokens($available, array_map(fn (Filter $filter) => $filter->definition($this->request, $threshold), $available));
     }
 
     /**

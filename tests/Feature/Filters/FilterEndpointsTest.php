@@ -56,6 +56,13 @@ beforeEach(function () {
     $this->actingAs(User::where('email', 'admin@lathephp.com')->firstOrFail());
 });
 
+it('names each filter by its filter bar token and kind, as the index does', function () {
+    $filters = $this->getJson('/lathe/api/resources/orders/filters')->assertOk()->json('filters');
+
+    expect(array_column($filters, 'token'))->toBe(['status', 'customer', 'placed', 'total'])
+        ->and(array_column($filters, 'kind'))->toBe(['multiple', 'relation', 'date', 'range']);
+});
+
 it('lists the explicit filters, then one generated for each filterable field', function () {
     $filters = $this->getJson('/lathe/api/resources/orders/filters')->assertOk()->json('filters');
 

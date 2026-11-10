@@ -6,6 +6,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Validator;
 use Lathe\Auth\ResourceAuthorization;
 use Lathe\Filters\Filter;
+use Lathe\Http\Payloads\IndexPayload;
 use Lathe\Http\Requests\LatheRequest;
 
 class FilterController
@@ -19,10 +20,8 @@ class FilterController
         $resource = $this->viewableResource($request, $authorization)::make();
         $threshold = $resource->definition()->getFilterRemoteThreshold();
 
-        return new JsonResponse(['filters' => array_map(
-            fn (Filter $filter) => $filter->definition($request, $threshold),
-            $resource->availableFilters($request),
-        )]);
+        // A relation tab's filter bar reads them here, so they carry the bar's tokens as on the index.
+        return new JsonResponse(['filters' => (new IndexPayload($request, $authorization))->filterDefinitions($resource->availableFilters($request), $threshold)]);
     }
 
     /**

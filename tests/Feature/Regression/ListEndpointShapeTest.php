@@ -43,7 +43,7 @@ test('each_list_endpoint_has_its_documented_shape', function (string $uri, array
     // An index with an inline cell sends each row's stale-edit token.
     'resource index' => ['/lathe/api/resources/orders', ['resource', 'table', 'filters', 'tabs', 'groups', 'lens', 'lenses', 'state', 'actions'], 'table.rows.0', ['id', 'title', 'cells', 'abilities', 'updatedAt', 'actions']],
     'resource count' => ['/lathe/api/resources/orders/count', ['value', 'exact', 'capped', 'estimated'], null, []],
-    'filters' => ['/lathe/api/resources/orders/filters', ['filters'], 'filters.0', ['key', 'name', 'component', 'options', 'remote', 'immediate', 'placement', 'default']],
+    'filters' => ['/lathe/api/resources/orders/filters', ['filters'], 'filters.0', ['key', 'name', 'component', 'options', 'remote', 'immediate', 'placement', 'default', 'token', 'kind']],
     'filter options' => ['/lathe/api/resources/orders/filters/customer/options?q=a', ['options', 'hasMore'], 'options.0', ['label', 'value']],
     'saved tabs' => ['/lathe/api/resources/orders/saved-tabs', ['tabs'], null, []],
     'lens index' => ['/lathe/api/resources/orders/lenses/pending-orders', ['resource', 'table', 'filters', 'tabs', 'groups', 'lens', 'lenses', 'state', 'actions'], 'table.rows.0', ['id', 'title', 'cells', 'abilities', 'updatedAt', 'actions']],
