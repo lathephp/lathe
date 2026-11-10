@@ -35,6 +35,9 @@ class Group
 
     protected string $timezone = 'UTC';
 
+    /** @var array<array-key, string> */
+    protected array $optionLabels = [];
+
     final public function __construct(protected string $column, protected ?string $id = null)
     {
         //
@@ -119,6 +122,20 @@ class Group
     public function inTimezone(string $timezone): static
     {
         $this->timezone = $timezone;
+
+        return $this;
+    }
+
+    /**
+     * The labels of the group field's options by value, so a heading reads "Paid" for `paid`.
+     *
+     * @param  array<array-key, string>  $labels
+     *
+     * @internal
+     */
+    public function labelledBy(array $labels): static
+    {
+        $this->optionLabels = $labels;
 
         return $this;
     }
@@ -208,7 +225,7 @@ class Group
     public function titleFor(Model $model): string
     {
         $key = $this->keyFor($model);
-        $title = $this->title !== null ? ($this->title)($model) : ($key === self::NULL_KEY ? '—' : $key);
+        $title = $this->title !== null ? ($this->title)($model) : ($key === self::NULL_KEY ? '—' : ($this->optionLabels[$key] ?? $key));
         $title = is_scalar($title) ? (string) $title : '';
 
         return $this->prefixed ? "{$this->getLabel()}: {$title}" : $title;

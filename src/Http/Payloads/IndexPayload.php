@@ -15,6 +15,7 @@ use Lathe\Field\Field;
 use Lathe\Field\FieldCollection;
 use Lathe\Field\FieldContext;
 use Lathe\Field\FieldResolver;
+use Lathe\Field\SelectField;
 use Lathe\Filters\Filter;
 use Lathe\Filters\FilterApplicator;
 use Lathe\Groups\Group;
@@ -158,6 +159,10 @@ class IndexPayload
         $tokens = $resource->definition()->usesTrafficCop() && $inline;
         $rowActions = $menu->forRows($class);
 
+        if ($group !== null) {
+            $this->labelGroup($group, $resource);
+        }
+
         return $rows->map(fn (Model $model) => [
             'id' => $model->getAttribute($rowKey),
             'title' => $resource->forModel($model)->title(),
@@ -168,6 +173,25 @@ class IndexPayload
             ...($softDeletes ? ['trashed' => method_exists($model, 'trashed') && $model->trashed() === true] : []),
             ...($group !== null ? ['group' => ['key' => $group->keyFor($model), 'title' => $group->titleFor($model), 'description' => $group->descriptionFor($model)]] : []),
         ])->values()->all();
+    }
+
+    /**
+     * Give a group on a field with options the labels of those options for its headings. The field
+     * is found among the Resource's index fields, hidden ones too; a date or relation group has none.
+     */
+    protected function labelGroup(Group $group, Resource $resource): void
+    {
+        if ($group->isDate() || $group->relation() !== null) {
+            return;
+        }
+
+        foreach ($resource->fieldsFor(FieldContext::Index, $this->request)->authorized($this->request) as $field) {
+            if ($field->attribute() === $group->column() && $field instanceof SelectField) {
+                $group->labelledBy(array_column($field->resolvedOptions(), 'label', 'value'));
+
+                return;
+            }
+        }
     }
 
     /**

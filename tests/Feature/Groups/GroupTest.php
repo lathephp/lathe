@@ -77,6 +77,27 @@ class CountryGroupedOrders extends OrderResource
     }
 }
 
+class CustomTitleOrders extends OrderResource
+{
+    public function groups(LatheRequest $request): array
+    {
+        return [Group::make('status')->titlePrefixedWithLabel()->titleUsing(fn (Model $order) => strtoupper($order->getAttribute('status')).'!')];
+    }
+}
+
+class HiddenStatusOrders extends OrderResource
+{
+    protected function configure(ResourceDefinition $definition): ResourceDefinition
+    {
+        return parent::configure($definition)->board(null);
+    }
+
+    public function fieldsForIndex(LatheRequest $request): array
+    {
+        return [Field::text('Number'), Field::select('Status')->options(['paid' => 'Paid'])->inline()->hideFromIndex()];
+    }
+}
+
 class ItemGroupedOrders extends OrderResource
 {
     protected function configure(ResourceDefinition $definition): ResourceDefinition
@@ -170,6 +191,51 @@ function groupThings(): void
     ]);
 }
 
+it('heads a group on a field with options by the option label, keyed by the raw value', function () {
+    $customer = Customer::create(['name' => 'Ann', 'email' => 'ann@example.com']);
+    UserFactory::new()->create(['email' => 'admin@lathephp.com']);
+
+    foreach (['pending', 'paid', 'shipped', 'cancelled'] as $i => $status) {
+        Order::create(['customer_id' => $customer->id, 'number' => "ORD-{$i}", 'status' => $status, 'total_cents' => 100, 'placed_at' => '2026-03-08 10:00:00']);
+    }
+
+    actAsGroupAdmin();
+    $rows = collect($this->getJson('/lathe/api/resources/orders?group=status&sort=number')->assertOk()->json('table.rows'));
+
+    expect($rows->pluck('group.title')->all())->toBe(['Status: Cancelled', 'Status: Paid', 'Status: Pending', 'Status: Shipped'])
+        ->and($rows->pluck('group.key')->all())->toBe(['cancelled', 'paid', 'pending', 'shipped']);
+});
+
+it('heads a group on a field with options hidden from the index by its label', function () {
+    $customer = Customer::create(['name' => 'Ann', 'email' => 'ann@example.com']);
+    UserFactory::new()->create(['email' => 'admin@lathephp.com']);
+    Order::create(['customer_id' => $customer->id, 'number' => 'ORD-1', 'status' => 'paid', 'total_cents' => 100, 'placed_at' => '2026-03-08 10:00:00']);
+
+    actAsGroupAdmin();
+    $payload = groupPayload(HiddenStatusOrders::class, ['group' => 'status'])['payload'];
+
+    expect($payload['table']['rows'][0]['group']['title'])->toBe('Status: Paid');
+});
+
+it('keeps the raw value, and the dash for null, on a group with no options', function () {
+    groupThings();
+
+    $payload = groupPayload(GroupThings::class, ['group' => 'tier'])['payload'];
+
+    expect(collect($payload['table']['rows'])->pluck('group.title')->sort()->values()->all())->toBe(['gold', 'gold', '—', '—']);
+});
+
+it('lets titleUsing win over the option label', function () {
+    $customer = Customer::create(['name' => 'Ann', 'email' => 'ann@example.com']);
+    UserFactory::new()->create(['email' => 'admin@lathephp.com']);
+    Order::create(['customer_id' => $customer->id, 'number' => 'ORD-1', 'status' => 'paid', 'total_cents' => 100, 'placed_at' => '2026-03-08 10:00:00']);
+
+    actAsGroupAdmin();
+    $payload = groupPayload(CustomTitleOrders::class, ['group' => 'status'])['payload'];
+
+    expect($payload['table']['rows'][0]['group'])->toBe(['key' => 'paid', 'title' => 'Status: PAID!', 'description' => null]);
+});
+
 it('orders by status descending, then the sort, under "Status: paid" headers with one subtotal query', function () {
     app(DemoSeeder::class)->forOrders(40)->run();
     actAsGroupAdmin();
@@ -179,7 +245,7 @@ it('orders by status descending, then the sort, under "Status: paid" headers wit
     $expected = DB::table('orders')->orderByDesc('status')->orderByDesc('total_cents')->orderByDesc('id')->pluck('id')->all();
 
     expect($rows->pluck('id')->all())->toBe($expected)
-        ->and($rows->pluck('group.title')->unique()->values()->all())->toBe(['Status: shipped', 'Status: pending', 'Status: paid', 'Status: cancelled'])
+        ->and($rows->pluck('group.title')->unique()->values()->all())->toBe(['Status: Shipped', 'Status: Pending', 'Status: Paid', 'Status: Cancelled'])
         ->and($rows->pluck('group.key')->unique()->values()->all())->toBe(['shipped', 'pending', 'paid', 'cancelled'])
         ->and($json['groups'])->toBe([
             'available' => [['id' => 'status', 'label' => 'Status'], ['id' => 'placed', 'label' => 'Placed']],
