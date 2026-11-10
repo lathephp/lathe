@@ -1,5 +1,4 @@
-import { usePage } from '@inertiajs/react';
-import { request, useTranslation } from '@lathephp/core';
+import { request, useLathe, useTranslation } from '@lathephp/core';
 import {
   Combobox,
   ComboboxChip,
@@ -12,11 +11,9 @@ import {
 } from '@lathephp/ui/combobox';
 import { Search } from 'lucide-react';
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
-import type { SharedProps } from '../types';
-import { chipName } from './FilterBar';
-import { deferFilterVisit } from './FilterChips';
+import { type BarHost, chipName } from './FilterBar';
 import { chipFromResults, type FilterChip, type LookupResult, parseToken, splitInput, suggest, type Suggestion, toUrlState } from './filterTokens';
-import type { IndexFilter, IndexProps } from './types';
+import type { IndexFilter } from './types';
 import type { IndexUrlState } from './useIndexState';
 
 // A chip change requests the list this long after the last one, so chips added together send one visit.
@@ -57,8 +54,9 @@ async function lookup(base: string, filter: IndexFilter, term: string): Promise<
 }
 
 interface FilterBarEditorProps {
+  /** The index page or the relation tab the bar searches. */
+  host: BarHost;
   label: string;
-  url: string;
   /** The chips the URL holds, with the first paint's labels. */
   urlChips: FilterChip[];
   /** On a saved view, what leaving it sets: no saved_tab, the view's search and sort. */
@@ -80,10 +78,10 @@ interface FilterBarEditorProps {
 const applied = (chip: FilterChip) => chip.error === undefined;
 
 /** The filter bar once focused: a Base UI chips input where Enter turns key:value tokens into chips and words into q. */
-export function FilterBarEditor({ label, url, urlChips, leave, onChips, text, focus, pressed, opens, onType, onSettle, visit }: FilterBarEditorProps) {
+export function FilterBarEditor({ host, label, urlChips, leave, onChips, text, focus, pressed, opens, onType, onSettle, visit }: FilterBarEditorProps) {
   const { __ } = useTranslation();
-  const page = usePage<IndexProps & SharedProps>();
-  const { resource, filters, basePath } = page.props;
+  const { apiPath } = useLathe();
+  const { resource, filters, url } = host;
   const [chips, setChips] = useState(urlChips);
   const [seen, setSeen] = useState(url);
   const [open, setOpen] = useState(pressed);
@@ -95,7 +93,7 @@ export function FilterBarEditor({ label, url, urlChips, leave, onChips, text, fo
   const highlighted = useRef<FilterChip | Suggestion | undefined>(undefined);
   // The chips as last drawn, for an Enter that waited on a lookup.
   const latest = useRef(chips);
-  const base = `${basePath}/api/resources/${resource.uriKey}`;
+  const base = `${apiPath}/resources/${resource.uriKey}`;
   const suggested = suggest(text, filters?.available ?? [], { softDeletes: resource.softDeletes }, __);
   const searching = 'lookup' in suggested ? suggested.lookup : undefined;
   const items: Suggestion[] =
@@ -170,7 +168,7 @@ export function FilterBarEditor({ label, url, urlChips, leave, onChips, text, fo
   function send(next: FilterChip[], changes: IndexUrlState = {}) {
     const state = toUrlState(next);
 
-    deferFilterVisit(() => {
+    host.visits.defer(() => {
       visit({ ...leave, filter: state.filter, trashed: state.trashed, ...changes });
     }, waitMs);
   }
@@ -274,7 +272,7 @@ export function FilterBarEditor({ label, url, urlChips, leave, onChips, text, fo
             key={`${String(index)}:${chip.token}`}
             data-error={applied(chip) ? undefined : ''}
             title={applied(chip) ? undefined : chip.token}
-            removeLabel={__('Remove :filter filter', { filter: chipName(chip, page.props, __) })}
+            removeLabel={__('Remove :filter filter', { filter: chipName(chip, host, __) })}
           >
             <span>{chip.error ?? chip.label}</span>
           </ComboboxChip>
@@ -283,7 +281,7 @@ export function FilterBarEditor({ label, url, urlChips, leave, onChips, text, fo
           ref={input}
           placeholder={label}
           aria-label={label}
-          aria-keyshortcuts="/"
+          aria-keyshortcuts={host.shortcut ? '/' : undefined}
           onKeyDown={(event) => {
             // Enter on a highlighted item is Base UI's pick; otherwise it parses the whole text.
             if (event.key === 'Enter' && !(shown && highlighted.current !== undefined)) {
@@ -293,7 +291,7 @@ export function FilterBarEditor({ label, url, urlChips, leave, onChips, text, fo
             }
           }}
         />
-        <kbd aria-hidden="true">/</kbd>
+        {host.shortcut ? <kbd aria-hidden="true">/</kbd> : null}
       </ComboboxChips>
       <ComboboxContent anchor={caret} className="lathe-bar-list">
         <ComboboxList>

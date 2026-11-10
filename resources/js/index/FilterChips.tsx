@@ -3,32 +3,56 @@ import { formatNumber, type Translator } from '@lathephp/core';
 import type { AvailableFilter } from './types';
 import { type FilterValue, parseQuery } from './useIndexState';
 
-// The filter change still waiting to be sent; a chip or Reset that visits first drops it.
-let pending: ReturnType<typeof setTimeout> | undefined;
-let stopWatching: (() => void) | undefined;
+/** A bar's filter change that waits before it is sent, so chips added together send one visit. */
+export interface FilterVisits {
+  /** Sends a filter change after the wait, replacing one still waiting. */
+  defer: (send: () => void, wait: number) => void;
+  /** Drops the filter change still waiting, so it cannot undo a visit made since. */
+  cancel: () => void;
+}
+
+/** A wait of its own: a relation tab's change never drops another tab's, nor the index's. */
+export function filterVisits(): FilterVisits {
+  let pending: ReturnType<typeof setTimeout> | undefined;
+  let stopWatching: (() => void) | undefined;
+
+  function cancel() {
+    clearTimeout(pending);
+    stopWatching?.();
+    stopWatching = undefined;
+  }
+
+  return {
+    defer(send, wait) {
+      cancel();
+      // A visit to another page meanwhile drops it too, so the wait cannot pull the person back.
+      stopWatching = router.on('start', (event) => {
+        const { visit } = event.detail;
+
+        if (!visit.prefetch && !visit.async && visit.url.pathname !== window.location.pathname) {
+          cancel();
+        }
+      });
+      pending = setTimeout(() => {
+        cancel();
+        send();
+      }, wait);
+    },
+    cancel,
+  };
+}
+
+/** The index page's wait, which its filter bar and filter panel share. */
+export const indexVisits = filterVisits();
 
 /** Sends a filter change after the wait, replacing one still waiting. */
 export function deferFilterVisit(send: () => void, wait: number): void {
-  cancelFilterVisit();
-  // A visit to another page meanwhile drops it too, so the wait cannot pull the person back.
-  stopWatching = router.on('start', (event) => {
-    const { visit } = event.detail;
-
-    if (!visit.prefetch && !visit.async && visit.url.pathname !== window.location.pathname) {
-      cancelFilterVisit();
-    }
-  });
-  pending = setTimeout(() => {
-    cancelFilterVisit();
-    send();
-  }, wait);
+  indexVisits.defer(send, wait);
 }
 
 /** Drops the filter change still waiting, so it cannot undo a visit made since. */
 export function cancelFilterVisit(): void {
-  clearTimeout(pending);
-  stopWatching?.();
-  stopWatching = undefined;
+  indexVisits.cancel();
 }
 
 /** The URL's filters without the keys the server dropped as stale. */

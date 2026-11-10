@@ -5,12 +5,25 @@ import { Suspense, useEffect, useRef, useState } from 'react';
 import { Button } from '../components/ui/Button';
 import type { SharedProps } from '../types';
 import type { FilterChip } from './filterTokens';
-import { activeFilters, cancelFilterVisit, chipValue } from './FilterChips';
+import { activeFilters, chipValue, type FilterVisits, indexVisits } from './FilterChips';
 import { FilterBarEditor } from './lazy';
 import type { IndexProps, SavedTab } from './types';
 import { type FilterValue, type IndexUrlState, parseQuery } from './useIndexState';
 
-type BarProps = Pick<IndexProps, 'resource' | 'filters' | 'staleFilters' | 'tabs'>;
+type BarProps = Pick<IndexProps, 'filters' | 'staleFilters' | 'tabs'> & { resource: { softDeletes: boolean } };
+
+/** What a filter bar searches and filters: the index page, or a relation tab that keeps its own state. */
+export interface BarHost extends BarProps {
+  resource: { uriKey: string; label: string; searchable: boolean; softDeletes: boolean };
+  /** The seconds a typed search waits. */
+  debounce: number;
+  /** The state as a URL; a relation tab's holds only its query. */
+  url: string;
+  /** Whether `/` focuses this bar: the index's does. */
+  shortcut: boolean;
+  /** The wait a chip change sends after, the bar's own. */
+  visits: FilterVisits;
+}
 
 /** The saved view ?saved_tab= opens, if any. */
 export function openView({ tabs }: BarProps): SavedTab | undefined {
@@ -65,20 +78,23 @@ export function chipName(chip: FilterChip, { filters }: BarProps, __: Translator
 interface FilterBarProps {
   q: string | undefined;
   visit: (changes: IndexUrlState) => void;
+  /** Left out on the index, whose page and URL the bar reads. */
+  host?: BarHost;
 }
 
 /**
  * The filter bar's first paint: the URL's chips and a plain input holding q. The editor, with
  * Base UI and the token parser, loads on the first focus and takes over in the same box.
  */
-export function FilterBar({ q = '', visit }: FilterBarProps) {
+export function FilterBar({ q = '', visit, host }: FilterBarProps) {
   const { __ } = useTranslation();
   const page = usePage<IndexProps & SharedProps>();
-  const { resource } = page.props;
-  const view = openView(page.props);
+  const bar = host ?? { ...page.props, url: page.url, debounce: page.props.resource.definition.debounce, shortcut: true, visits: indexVisits };
+  const { resource, url, visits, shortcut } = bar;
+  const view = openView(bar);
   // A chip or search changed on a saved view leaves it, keeping the view's search and sort.
   const leave: IndexUrlState =
-    view === undefined ? {} : { saved_tab: undefined, q: q === '' ? (view.q ?? undefined) : q, sort: parseQuery(page.url.split('?')[1] ?? '').sort ?? view.sort ?? undefined };
+    view === undefined ? {} : { saved_tab: undefined, q: q === '' ? (view.q ?? undefined) : q, sort: parseQuery(url.split('?')[1] ?? '').sort ?? view.sort ?? undefined };
   // The URL's search, else that of the saved view it opens.
   const searched = q === '' ? (view?.q ?? '') : q;
   const [text, setText] = useState(searched);
@@ -94,8 +110,8 @@ export function FilterBar({ q = '', visit }: FilterBarProps) {
   const [opens, setOpens] = useState(0);
   // The editor's chips as last drawn, which may be ahead of the URL while their visit waits.
   const drawn = useRef<FilterChip[] | null>(null);
-  const chips = urlChips(page.url, page.props, __);
-  const hasFilters = (page.props.filters?.available.length ?? 0) > 0;
+  const chips = urlChips(url, bar, __);
+  const hasFilters = (bar.filters?.available.length ?? 0) > 0;
   const count = chips.filter((chip) => chip.key !== 'trashed').length;
   const named = { resource: resource.label.toLowerCase() };
   const label = resource.searchable ? __('Search :resource', named) : __('Filter :resource', named);
@@ -112,12 +128,14 @@ export function FilterBar({ q = '', visit }: FilterBarProps) {
 
   useEffect(
     () =>
-      addShortcut('/', (event) => {
-        // Keeps the slash out of the input it focuses.
-        event.preventDefault();
-        box.current?.querySelector('input')?.focus();
-      }),
-    [],
+      shortcut
+        ? addShortcut('/', (event) => {
+            // Keeps the slash out of the input it focuses.
+            event.preventDefault();
+            box.current?.querySelector('input')?.focus();
+          })
+        : undefined,
+    [shortcut],
   );
 
   useEffect(
@@ -136,7 +154,7 @@ export function FilterBar({ q = '', visit }: FilterBarProps) {
         // An empty term leaves q out of the URL.
         // The search carries the chips as drawn, so a chip made just before it is not lost.
         visit({ ...leave, ...chipsState((drawn.current ?? chips).filter((chip) => chip.error === undefined)), q: next.trim() });
-      }, resource.definition.debounce * 1000);
+      }, bar.debounce * 1000);
     }
   }
 
@@ -164,7 +182,7 @@ export function FilterBar({ q = '', visit }: FilterBarProps) {
   }
 
   function remove(chip: FilterChip) {
-    cancelFilterVisit();
+    visits.cancel();
     visit({ ...leave, ...chipsState(chips.filter((other) => other !== chip)) });
   }
 
@@ -189,7 +207,7 @@ export function FilterBar({ q = '', visit }: FilterBarProps) {
                 type="button"
                 data-slot="combobox-chip-remove"
                 className="cn-combobox-chip-remove"
-                aria-label={__('Remove :filter filter', { filter: chipName(chip, page.props, __) })}
+                aria-label={__('Remove :filter filter', { filter: chipName(chip, bar, __) })}
                 onClick={() => {
                   remove(chip);
                 }}
@@ -205,7 +223,7 @@ export function FilterBar({ q = '', visit }: FilterBarProps) {
             value={text}
             placeholder={label}
             aria-label={label}
-            aria-keyshortcuts="/"
+            aria-keyshortcuts={shortcut ? '/' : undefined}
             onChange={(event) => {
               type(event.target.value);
             }}
@@ -214,11 +232,11 @@ export function FilterBar({ q = '', visit }: FilterBarProps) {
             }}
             onFocus={edit}
           />
-          <kbd aria-hidden="true">/</kbd>
+          {shortcut ? <kbd aria-hidden="true">/</kbd> : null}
         </div>
       ) : (
         <Suspense fallback={null}>
-          <FilterBarEditor label={label} url={page.url} urlChips={chips} leave={leave} onChips={(next) => (drawn.current = next)} text={text} focus={editor.focus} pressed={editor.pressed} opens={opens} onType={type} onSettle={settle} visit={visit} />
+          <FilterBarEditor host={bar} label={label} urlChips={chips} leave={leave} onChips={(next) => (drawn.current = next)} text={text} focus={editor.focus} pressed={editor.pressed} opens={opens} onType={type} onSettle={settle} visit={visit} />
         </Suspense>
       )}
     </div>
