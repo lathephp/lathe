@@ -2,16 +2,16 @@
   "machine": "cloud-vm",
   "writes": [
     {
-      "base": "01M72T86YW843DNWWY6MHCH1FR",
-      "body": "# plan: m35-cloud-lanes\n\n- [x] t1 Run ci.yml on a push of a ci/ ref, installing lathe as main's alias, held by a Quality test\n- [ ] t2 Say on the verify page how a cloud thread meets every driver  [after: t1]\n",
-      "id": "01M72VW8XPJAMSWZ1BVCVXQGVE",
+      "base": "01M72VW8XPJAMSWZ1BVCVXQGVE",
+      "body": "# plan: m35-cloud-lanes\n\n- [x] t1 Run ci.yml on a push of a ci/ ref, installing lathe as main's alias, held by a Quality test\n- [x] t2 Say on the verify page how a cloud thread meets every driver  [after: t1]\n",
+      "id": "01M72VX1QYSMQDVQ9GJPDFZB6J",
       "path": "projects/01M4T1WADSK9655DJEZ17PGMYC/plan.md"
     },
     {
       "base": null,
-      "body": "+++\ncreated = \"2026-11-10T13:55:35.012572524Z\"\nid = \"01M72VW92VF7V2FDSAHQS69607\"\nkind = \"log\"\nmachine = \"cloud-vm\"\nmodified = \"2026-11-10T13:55:35.012572524Z\"\nproject = \"lathe\"\ntitle = \"t1 landed: ci.yml runs on push to ci/** with COMPOSER_ROOT_VERSION 1.0.x-dev, held by CiWorkflowTest\"\n+++\n\nt1 landed: ci.yml runs on push to ci/** with COMPOSER_ROOT_VERSION 1.0.x-dev, held by CiWorkflowTest\n",
-      "id": "01M72VW92WW15XGKDXBX0PR5TY",
-      "path": "projects/01M4T1WADSK9655DJEZ17PGMYC/items/01M72VW92VF7V2FDSAHQS69607.md"
+      "body": "+++\ncreated = \"2026-11-10T13:56:00.431911502Z\"\nid = \"01M72VX1X632W8REVFXF6S9TVS\"\nkind = \"log\"\nmachine = \"cloud-vm\"\nmodified = \"2026-11-10T13:56:00.431911502Z\"\nproject = \"lathe\"\ntitle = \"t2 landed: verify#cloud says ci.yml on ci/lathe-*, land waits, benchmark and Octane stay on a dev…\"\n+++\n\nt2 landed: verify#cloud says ci.yml on ci/lathe-*, land waits, benchmark and Octane stay on a device; mini line dropped\n",
+      "id": "01M72VX1X7P73ZEDZHMABPFXR9",
+      "path": "projects/01M4T1WADSK9655DJEZ17PGMYC/items/01M72VX1X632W8REVFXF6S9TVS.md"
     }
   ]
 }
