@@ -3,11 +3,16 @@ name: ci
 on:
   pull_request:
   push:
-    branches: [main]
+    # workflow land pushes a milestone's rebased sha to ci/<project>-<slug> and waits on this run.
+    branches: [main, 'ci/**']
   schedule:
     - cron: '0 4 * * 1'
   # The release workflow re-runs the required jobs on its tag.
   workflow_call:
+
+env:
+  # A ci/ ref is no branch Composer knows: install lathe as main's alias.
+  COMPOSER_ROOT_VERSION: 1.0.x-dev
 
 concurrency:
   # The event keeps the weekly run and a push to main from cancelling each other.

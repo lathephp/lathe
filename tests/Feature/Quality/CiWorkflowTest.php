@@ -115,6 +115,17 @@ it('runs the upstream job against the 13.x branch with an hour for the suite', f
         ->and($job['timeout-minutes'])->toBe(60);
 });
 
+it('runs on a push to main or to a ci/ ref workflow land writes, and on no other branch', function () {
+    // A milestone's cloud/<project>-<slug> pushes run nothing; land pushes the rebased sha to ci/<project>-<slug>.
+    expect(ciWorkflow()['on']['push'])->toBe(['branches' => ['main', 'ci/**']]);
+});
+
+it('installs lathe as the alias of main on a ci/ ref, which Composer knows as no version', function () {
+    $alias = json_decode((string) file_get_contents(dirname(__DIR__, 3).'/composer.json'), true)['extra']['branch-alias']['dev-main'];
+
+    expect(ciWorkflow()['env']['COMPOSER_ROOT_VERSION'] ?? null)->toBe($alias);
+});
+
 it('runs the weekly schedule on Monday at 04:00 UTC', function () {
     expect(ciWorkflow()['on']['schedule'])->toBe([['cron' => '0 4 * * 1']]);
 });
