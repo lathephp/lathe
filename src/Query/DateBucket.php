@@ -101,7 +101,7 @@ class DateBucket
 
         foreach (array_reverse($transitions) as $transition) {
             // The storage zone's offset just before the change: a wall time the storage zone repeats
-            // reads with its earlier offset, as Eloquent reads it.
+            // reads with its earlier offset, as PHP reads it.
             $wall = $transition['ts'] + $stored->getOffset(new DateTimeImmutable('@'.($transition['ts'] - 1)));
             $cases .= " WHEN {$wrapped} >= '".gmdate('Y-m-d H:i:s', $wall)."' THEN ".(int) $transition['offset'];
         }

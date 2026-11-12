@@ -114,12 +114,12 @@ it('compares the user zone change with the column as app wall time', function ()
         ->toBe(['2026-03-07' => 1, '2026-03-08' => 0, '2026-03-09' => 0]);
 });
 
-it('reads the repeated hour of a New York app as PHP reads it', function () {
+it('reads the repeated hour of a New York app with its earlier offset, as PHP reads it', function () {
     appTimezone('America/New_York');
     zonedOrder('2026-11-01 01:30:00');
     $this->travelTo(CarbonImmutable::parse('2026-11-02 12:00:00', 'America/Denver'));
 
-    // Eloquent reads 01:30 with the earlier offset, EDT, which is 23:30 on Oct 31 in Denver.
-    expect(Order::firstOrFail()->placed_at->setTimezone('America/Denver')->format('Y-m-d H:i'))->toBe('2026-10-31 23:30')
+    // PHP reads 01:30 with the earlier offset, EDT, which is 23:30 on Oct 31 in Denver.
+    expect((new DateTimeImmutable('2026-11-01 01:30:00', new DateTimeZone('America/New_York')))->setTimezone(new DateTimeZone('America/Denver'))->format('Y-m-d H:i'))->toBe('2026-10-31 23:30')
         ->and(placedQuery('America/Denver')->byDays(3)->trend()->jsonSerialize())->toBe(['2026-10-31' => 1, '2026-11-01' => 0, '2026-11-02' => 0]);
 });

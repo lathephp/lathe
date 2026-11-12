@@ -45,7 +45,9 @@ const UTC_APP_BUCKETS = [
 ];
 
 it('writes the bucket SQL of beta.12 on a UTC app', function (string $driver) {
-    $connection = Mockery::mock(DB::connection())->makePartial();
+    // A SQLite connection's grammar quotes as the pinned text does, on every lane.
+    config(['database.connections.bucket_pin' => ['driver' => 'sqlite', 'database' => ':memory:', 'prefix' => '']]);
+    $connection = Mockery::mock(DB::connection('bucket_pin'))->makePartial();
     $connection->shouldReceive('getDriverName')->andReturn($driver);
     $from = CarbonImmutable::parse('2026-03-01 00:00:00', 'America/New_York');
     $to = CarbonImmutable::parse('2026-03-15 00:00:00', 'America/New_York');
