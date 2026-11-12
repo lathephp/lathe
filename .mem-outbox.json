@@ -2,22 +2,10 @@
   "machine": "cloud-vm",
   "writes": [
     {
-      "base": "01M78YGA7DXTFAHQRBPCMGH7E6",
-      "body": "# plan: m41-queued-runs\n\n- [x] t1 Count a queued chunk's rows once, on its last attempt whatever the worker's tries, and move a retried chunk's failed events back to running\n- [x] t2 Give the planner and the delete chunk one attempt, and end a run whose planner failed as failed  [after: t1]\n- [x] t3 Answer 422 to an import step replayed on a queued, processing or imported import, and keep a resumed import working\n- [x] t4 Match an import's keys as the database compares them: without case on MySQL and MariaDB only  [after: t3]\n- [x] t5 Toast an import's imported count without its skipped rows\n- [x] t6 Put back the worker's user, default guard and locale when a Lathe job ends or throws  [after: t2, t4]\n- [x] t7 Store the starting request's ip and user agent on a queued run's audit rows  [after: t6]\n- [x] t8 Queue a standalone action that implements ShouldQueue and run it once on the worker  [after: t7]\n",
-      "id": "01M78YV274PSQBW7ECGXD5DR54",
-      "path": "projects/01M4T1WADSK9655DJEZ17PGMYC/plan.md"
-    },
-    {
       "base": null,
-      "body": "+++\ncreated = \"2026-11-12T22:42:47.696432111Z\"\nid = \"01M78YV2BKWC5HK19G02B4EJNB\"\nkind = \"log\"\nmachine = \"cloud-vm\"\nmodified = \"2026-11-12T22:42:47.696432111Z\"\nproject = \"lathe\"\ntitle = \"t8 landed: RunStandaloneAction; standalone ShouldQueue queues (bulk run total 1)\"\n+++\n\nt8 landed: RunStandaloneAction; standalone ShouldQueue queues (bulk run total 1)\n",
-      "id": "01M78YV2BK98VT4KV9MZ0HQT8V",
-      "path": "projects/01M4T1WADSK9655DJEZ17PGMYC/items/01M78YV2BKWC5HK19G02B4EJNB.md"
-    },
-    {
-      "base": null,
-      "body": "+++\nby = \"agent\"\ncreated = \"2026-11-12T22:42:47.847158309Z\"\nid = \"01M78YV2GZFEZ18MYF7BKQ09AC\"\nkind = \"ruling\"\nmachine = \"cloud-vm\"\nmodified = \"2026-11-12T22:42:47.847158309Z\"\nproject = \"lathe\"\ntitle = \"m41 t8: a queued standalone action's bulk run has total 1 and counts one processed (and one faile…\"\n+++\n\nm41 t8: a queued standalone action's bulk run has total 1 and counts one processed (and one failed when the queue gives up), so the toast reads 0 of 1, then 'Action was executed successfully.' or the failure line; its action event is written by the job's first attempt under the job batch id, so a run cancelled before the worker reached it has no event.\n",
-      "id": "01M78YV2H0J2G1EA70AEC4CSD5",
-      "path": "projects/01M4T1WADSK9655DJEZ17PGMYC/items/01M78YV2GZFEZ18MYF7BKQ09AC.md"
+      "body": "+++\ncreated = \"2026-11-12T23:14:04.892402367Z\"\nid = \"01M790MBJJAX3WSDJT0TA5T6MR\"\nkind = \"log\"\nmachine = \"cloud-vm\"\nmodified = \"2026-11-12T23:14:04.892402367Z\"\nproject = \"lathe\"\ntitle = \"m41 review fixes landed: ExecuteAction::failed closes open events; ImportSteps puts the claim bac…\"\n+++\n\nm41 review fixes landed: ExecuteAction::failed closes open events; ImportSteps puts the claim back on a throw; CHANGELOG notes batch callbacks run signed out\n",
+      "id": "01M790MBJK7NCCCN8C7T1C3EH2",
+      "path": "projects/01M4T1WADSK9655DJEZ17PGMYC/items/01M790MBJJAX3WSDJT0TA5T6MR.md"
     }
   ]
 }
