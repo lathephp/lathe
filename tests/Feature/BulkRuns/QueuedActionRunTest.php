@@ -20,6 +20,7 @@ use Lathe\Actions\ActionFields;
 use Lathe\Actions\ActionResult;
 use Lathe\Actions\BatchableAction;
 use Lathe\Actions\BulkRun;
+use Lathe\Actions\Jobs\DeleteChunk;
 use Lathe\Actions\Jobs\ExecuteAction;
 use Lathe\Actions\Jobs\PlanBulkRun;
 use Lathe\Events\ActionExecuted;
@@ -27,6 +28,7 @@ use Lathe\Http\Requests\LatheRequest;
 use Lathe\Lathe;
 use Lathe\Resources\Resource;
 use Lathe\Resources\ResourceDefinition;
+use Lathe\Support\JobContext;
 use RuntimeException;
 use Throwable;
 use Workbench\App\Models\Order;
@@ -45,6 +47,9 @@ class QueuedCalls
     public static array $throwOn = [];
 
     public static bool $throwAll = false;
+
+    /** The key whose row the planner throws on, once set after the request. */
+    public static ?int $plannerThrowsOn = null;
 
     /** Attempts that throw before the chunk passes. */
     public static int $throwTimes = 0;
@@ -138,6 +143,23 @@ class QueuedAlways extends QueuedShip implements ShouldQueue
     //
 }
 
+/** Twenty rows a chunk, and a planner that throws on the row of QueuedCalls::$plannerThrowsOn. */
+class QueuedSmallChunks extends QueuedShip implements ShouldQueue
+{
+    public static int $chunkCount = 20;
+
+    public function __construct()
+    {
+        $this->canRunWhen(function (Model $model): bool {
+            if ($model->getKey() === QueuedCalls::$plannerThrowsOn) {
+                throw new RuntimeException('Planner lost its database.');
+            }
+
+            return true;
+        });
+    }
+}
+
 class QueuedRefuse extends Action implements ShouldQueue
 {
     public function uriKey(): string
@@ -225,6 +247,7 @@ beforeEach(function () {
     QueuedCalls::$throwOn = [];
     QueuedCalls::$throwAll = false;
     QueuedCalls::$throwTimes = 0;
+    QueuedCalls::$plannerThrowsOn = null;
     QueuedCalls::$context = [];
     Lathe::registerResources(QueuedOrders::class, SmallQueuedOrders::class);
 });
@@ -544,4 +567,46 @@ it('counts a chunk that fails all three tries once, with its events failed on th
         ->assertExactJson(['status' => 'failed', 'total' => 200, 'processed' => 200, 'failed' => 200, 'skipped' => 0]);
     expect(ActionEvent::where('status', 'failed')->where('exception', 'like', '%Chunk on hold, attempt 0.%')->count())->toBe(200)
         ->and(QueuedCalls::$throwTimes)->toBe(0);
+});
+
+it('runs a planner that throws after queueing 4 of 10 chunks once on a worker with three tries, and ends the run failed', function () {
+    seedOrders(200);
+    signInAdmin();
+    config(['queue.default' => 'database']);
+    QueuedCalls::$actions = [new QueuedSmallChunks];
+
+    $id = $this->postJson('/lathe/api/resources/queued-orders/action', queuedBody(['mode' => 'all']))->json('bulk_run.id');
+    QueuedCalls::$plannerThrowsOn = 81;
+    drainQueue(tries: 3);
+
+    expect(QueuedCalls::$log)->toBe(['handle:20:1', 'handle:20:1', 'handle:20:1', 'handle:20:1'])
+        ->and(DB::table('job_batches')->value('total_jobs'))->toBe(5)
+        ->and(ActionEvent::where('status', 'finished')->count())->toBe(80);
+    $this->getJson("/lathe/api/bulk-runs/{$id}")
+        ->assertExactJson(['status' => 'failed', 'total' => 200, 'processed' => 80, 'failed' => 0, 'skipped' => 0]);
+});
+
+it('ends a run failed when its planner fails after the run read finished', function () {
+    seedOrders(10);
+    $admin = signInAdmin();
+    $run = BulkRun::create(['user_id' => (string) $admin->id, 'resource_class' => QueuedOrders::class, 'action_name' => 'Mark Shipped', 'status' => 'finished', 'total' => 10, 'processed' => 4, 'completed_at' => now()]);
+    $context = JobContext::capture(app(LatheRequest::class));
+
+    (new PlanBulkRun($run->id, $context, QueuedOrders::class, ['mode' => 'all'], 'mark-shipped'))->failed(new RuntimeException('Planner lost its database.'));
+
+    expect($run->fresh()?->status)->toBe('failed');
+});
+
+it('gives the planner and the delete chunk one attempt, and counts a delete chunk the queue gave up on as failed', function () {
+    seedOrders(10);
+    $admin = signInAdmin();
+    $run = BulkRun::create(['user_id' => (string) $admin->id, 'resource_class' => QueuedOrders::class, 'action_name' => 'Delete', 'status' => 'running', 'total' => 10]);
+    $context = JobContext::capture(app(LatheRequest::class));
+    $chunk = new DeleteChunk($run->id, $context, QueuedOrders::class, ['mode' => 'all'], [1, 2, 3], 'delete', false);
+
+    $chunk->failed(new RuntimeException('Worker lost.'));
+
+    expect($chunk->tries)->toBe(1)
+        ->and((new PlanBulkRun($run->id, $context, QueuedOrders::class, ['mode' => 'all']))->tries)->toBe(1)
+        ->and($run->fresh()?->only('processed', 'failed'))->toBe(['processed' => 3, 'failed' => 3]);
 });

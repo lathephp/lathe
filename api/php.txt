@@ -522,7 +522,9 @@ Lathe\Actions\Jobs\DeleteChunk::__construct(string $bulkRunId, Lathe\Support\Job
 Lathe\Actions\Jobs\DeleteChunk::array $keys
 Lathe\Actions\Jobs\DeleteChunk::array $selection
 Lathe\Actions\Jobs\DeleteChunk::bool $authorized
+Lathe\Actions\Jobs\DeleteChunk::failed(?Throwable $exception): void
 Lathe\Actions\Jobs\DeleteChunk::handle(Lathe\Resources\RecordDeleter $deleter, Lathe\ActionEvents\ActionEventRecorder $recorder): void
+Lathe\Actions\Jobs\DeleteChunk::int $tries
 Lathe\Actions\Jobs\DeleteChunk::string $ability
 Lathe\Actions\Jobs\DeleteChunk::string $bulkRunId
 Lathe\Actions\Jobs\DeleteChunk::string $resource
@@ -576,7 +578,9 @@ Lathe\Actions\Jobs\PlanBulkRun::actionFor(Lathe\Http\Requests\LatheRequest $requ
 Lathe\Actions\Jobs\PlanBulkRun::array $fields
 Lathe\Actions\Jobs\PlanBulkRun::array $selection
 Lathe\Actions\Jobs\PlanBulkRun::chunkSelection(array $selection, array $keys): Lathe\Query\Selection  [static]
+Lathe\Actions\Jobs\PlanBulkRun::failed(?Throwable $exception): void
 Lathe\Actions\Jobs\PlanBulkRun::handle(Lathe\Actions\ActionDispatcher $dispatcher, Lathe\ActionEvents\ActionEventRecorder $recorder, Lathe\Auth\ResourceAuthorization $authorization): void
+Lathe\Actions\Jobs\PlanBulkRun::int $tries
 Lathe\Actions\Jobs\PlanBulkRun::keys(Illuminate\Support\Collection $models): array  [protected]
 Lathe\Actions\Jobs\PlanBulkRun::planAction(Illuminate\Bus\Batch $batch, Lathe\Http\Requests\LatheRequest $request, Lathe\Actions\ActionDispatcher $dispatcher, Lathe\ActionEvents\ActionEventRecorder $recorder): int  [protected]
 Lathe\Actions\Jobs\PlanBulkRun::planDelete(Illuminate\Bus\Batch $batch, Lathe\Http\Requests\LatheRequest $request, Lathe\Auth\ResourceAuthorization $authorization, string $ability): int  [protected]

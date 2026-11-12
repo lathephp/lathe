@@ -23,6 +23,7 @@ use Lathe\Query\SelectionResolver;
 use Lathe\Resources\Resource;
 use Lathe\Support\JobContext;
 use RuntimeException;
+use Throwable;
 
 /**
  * The first job of a bulk run's batch. It reads the selection again, 200 rows at a time,
@@ -32,6 +33,9 @@ use RuntimeException;
 class PlanBulkRun implements ShouldQueue
 {
     use Batchable, InteractsWithQueue, Queueable;
+
+    /** One attempt, whatever the worker's --tries: a retry would queue the chunks it added again. */
+    public int $tries = 1;
 
     /**
      * @param  class-string<\Lathe\Resources\Resource>  $resource
@@ -78,6 +82,16 @@ class PlanBulkRun implements ShouldQueue
         } finally {
             app()->forgetInstance(LatheRequest::class);
         }
+    }
+
+    /**
+     * The planner threw, timed out or lost its worker, so the run never read all its rows: it
+     * ends failed, also when the chunks it queued had already ended it finished.
+     */
+    public function failed(?Throwable $exception): void
+    {
+        BulkRun::whereKey($this->bulkRunId)->whereIn('status', ['waiting', 'running', 'finished'])
+            ->update(['status' => 'failed', 'completed_at' => now()]);
     }
 
     /**

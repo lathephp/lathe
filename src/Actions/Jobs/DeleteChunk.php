@@ -12,6 +12,7 @@ use Lathe\Http\Requests\LatheRequest;
 use Lathe\Query\SelectionResolver;
 use Lathe\Resources\RecordDeleter;
 use Lathe\Support\JobContext;
+use Throwable;
 
 /**
  * One chunk of a queued delete, force delete or restore, each row through RecordDeleter as
@@ -20,6 +21,9 @@ use Lathe\Support\JobContext;
 class DeleteChunk implements ShouldQueue
 {
     use Batchable, InteractsWithQueue, Queueable;
+
+    /** One attempt, whatever the worker's --tries: a retry would write the rows it already wrote again. */
+    public int $tries = 1;
 
     /**
      * @param  class-string<\Lathe\Resources\Resource>  $resource
@@ -58,5 +62,13 @@ class DeleteChunk implements ShouldQueue
         } finally {
             app()->forgetInstance(LatheRequest::class);
         }
+    }
+
+    /**
+     * The chunk threw, timed out or lost its worker before it counted: its rows count as failed.
+     */
+    public function failed(?Throwable $exception): void
+    {
+        BulkRun::addCounts($this->bulkRunId, count($this->keys), count($this->keys));
     }
 }
