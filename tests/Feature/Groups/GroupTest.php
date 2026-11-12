@@ -389,3 +389,18 @@ it('fails the manifest naming the Resource for a group on a to-many relation', f
 
     expect(fn () => Lathe::resources()->manifest())->toThrow(InvalidConfigurationException::class, ItemGroupedOrders::class);
 });
+
+it('buckets a date cast with a format by its stored day, as a date cast', function (string $cast, bool $local) {
+    $model = new class extends Model
+    {
+        public static string $placedCast = 'date';
+
+        public function getCasts(): array
+        {
+            return ['placed_at' => self::$placedCast];
+        }
+    };
+    $model::$placedCast = $cast;
+
+    expect(Group::make('placed_at')->date()->bucketsLocalDay($model))->toBe($local);
+})->with([['date', false], ['date:Y-m-d', false], ['immutable_date:Y-m-d', false], ['datetime', true], ['datetime:Y-m-d H:i', true]]);

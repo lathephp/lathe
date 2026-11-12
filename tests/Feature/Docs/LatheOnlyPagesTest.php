@@ -27,3 +27,9 @@ it('lets the quickstart policy save the belongsTo field it adds', function () {
     // A belongsTo field asks the policy for add{Relation}; the Author field reads the user relation.
     expect(docsPage('getting-started/quickstart.md'))->toContain("Field::belongsTo('Author', 'user'", 'public function addUser(');
 });
+
+it('says a date time field stores the app time zone, not UTC', function () {
+    expect(docsPage('your-first-resource/fields.md'))->toContain("stores the app's time zone, `app.timezone`")
+        ->not->toContain('stores UTC')
+        ->and(docsPage('taking-action/import-export.md'))->not->toContain('stores it in UTC');
+});

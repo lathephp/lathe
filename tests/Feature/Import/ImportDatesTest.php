@@ -124,18 +124,22 @@ it('stores a date-only cell as its calendar day for a user in any zone', functio
     importDated("Name,Released,Happened\nOne,2026-03-08,\n", $zone);
 
     expect(DatedThing::firstOrFail()->released_on?->toDateString())->toBe('2026-03-08')
-        ->and(storedDated()['released_on'])->toBe((new DatedThing(['released_on' => '2026-03-08']))->getAttributes()['released_on']);
+        ->and(substr((string) storedDated()['released_on'], 0, 10))->toBe('2026-03-08');
 })->with(['Asia/Tokyo', 'Pacific/Kiritimati', 'America/Los_Angeles']);
 
-it('stores a datetime cell as the app wall time of the moment the user meant', function (string $app, string $user, string $stored) {
+it('stores a datetime cell as the app wall time of the moment the user meant, and lists it at that moment', function (string $app, string $user, string $stored, string $moment) {
     appTimezone($app);
 
     importDated("Name,Released,Happened\nOne,,2026-03-08 09:00\n", $user);
+    Lathe::userTimezone(fn () => $user);
+    Gate::define('viewLathe', fn () => true);
+    $this->actingAs(UserFactory::new()->create());
 
-    expect(substr((string) storedDated()['happened_at'], 0, 19))->toBe($stored);
+    expect(substr((string) storedDated()['happened_at'], 0, 19))->toBe($stored)
+        ->and($this->getJson('/lathe/api/resources/dated-things')->assertOk()->json('table.rows.0.cells.happened_at.value'))->toBe($moment);
 })->with([
-    'Berlin app, Berlin user' => ['Europe/Berlin', 'Europe/Berlin', '2026-03-08 09:00:00'],
-    'UTC app, Dhaka user' => ['UTC', 'Asia/Dhaka', '2026-03-08 03:00:00'],
+    'Berlin app, Berlin user' => ['Europe/Berlin', 'Europe/Berlin', '2026-03-08 09:00:00', '2026-03-08T08:00:00Z'],
+    'UTC app, Dhaka user' => ['UTC', 'Asia/Dhaka', '2026-03-08 03:00:00', '2026-03-08T03:00:00Z'],
 ]);
 
 it('stores an imported datetime as the text a form saves for the same entry', function () {

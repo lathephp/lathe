@@ -104,3 +104,22 @@ it('counts the rolling range against the app wall time', function () {
 
     expect(placedQuery('UTC')->byHours(1)->value()->value)->toBe(1);
 });
+
+it('compares the user zone change with the column as app wall time', function () {
+    appTimezone('Asia/Dhaka');
+    zonedOrder('2026-03-08 10:30:00'); // 04:30 UTC, still 23:30 on the 7th in New York
+    $this->travelTo(CarbonImmutable::parse('2026-03-09 12:00:00', 'America/New_York'));
+
+    expect(placedQuery('America/New_York')->byDays(3)->trend()->jsonSerialize())
+        ->toBe(['2026-03-07' => 1, '2026-03-08' => 0, '2026-03-09' => 0]);
+});
+
+it('reads the repeated hour of a New York app as PHP reads it', function () {
+    appTimezone('America/New_York');
+    zonedOrder('2026-11-01 01:30:00');
+    $this->travelTo(CarbonImmutable::parse('2026-11-02 12:00:00', 'America/Denver'));
+
+    // Eloquent reads 01:30 with the earlier offset, EDT, which is 23:30 on Oct 31 in Denver.
+    expect(Order::firstOrFail()->placed_at->setTimezone('America/Denver')->format('Y-m-d H:i'))->toBe('2026-10-31 23:30')
+        ->and(placedQuery('America/Denver')->byDays(3)->trend()->jsonSerialize())->toBe(['2026-10-31' => 1, '2026-11-01' => 0, '2026-11-02' => 0]);
+});
