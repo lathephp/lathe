@@ -191,7 +191,8 @@ class BelongsToManyField extends RelationField implements FilterableField
 
         $ids = TagField::ids($request->input($attribute));
         $posted = $request->input($attribute.'_pivot');
-        $columns = array_map(fn (Field $field) => $field->attribute(), $this->pivotFieldsFor($request));
+        // sync() writes only the columns it is given, so a dropped pivot field keeps its stored value.
+        $columns = array_map(fn (Field $field) => $field->attribute(), $this->writablePivotFields($request));
         $records = [];
 
         foreach ($ids as $id) {
@@ -212,6 +213,31 @@ class BelongsToManyField extends RelationField implements FilterableField
             $rules[$this->attribute][] = $this->relatedIdsRule($request, $this->owner, $model);
         }
 
+        if ($request !== null && $request->exists($this->attribute)) {
+            foreach (TagField::ids($request->input($this->attribute)) as $id) {
+                foreach ($this->writablePivotFields($request) as $field) {
+                    foreach ($field->getRules($context, $request) as $key => $fieldRules) {
+                        $rules[$this->attribute.'_pivot.'.$id.'.'.$key] = $fieldRules;
+                    }
+                }
+            }
+        }
+
         return $rules;
+    }
+
+    /**
+     * The pivot fields a write may fill: seen by the user, neither readonly nor computed.
+     *
+     * @internal
+     *
+     * @return list<Field>
+     */
+    protected function writablePivotFields(LatheRequest $request, ?Model $related = null): array
+    {
+        return array_values(array_filter(
+            $this->pivotFieldsFor($request, $related),
+            fn (Field $field) => $field->authorizedToSee($request) && ! $field->isReadonly($request, $related) && ! $field->isComputed(),
+        ));
     }
 }

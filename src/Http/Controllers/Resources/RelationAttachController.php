@@ -41,7 +41,7 @@ class RelationAttachController
 
         $this->authorizeIds($request, $authorization, $class, $parent, 'attach'.Str::studly($relationship), [$key]);
 
-        $fields = $this->pivotFields($request, $field, $related);
+        $fields = $this->writablePivotFields($request, $field, $related);
         $pivot = $this->pivotValues($request, $fields);
 
         $this->validatePivot($request, $fields, FieldContext::Create, [
@@ -59,8 +59,9 @@ class RelationAttachController
 
     public function detach(LatheRequest $request, ResourceAuthorization $authorization, string $resource, string $resourceId, string $relationship, string $relatedId): JsonResponse
     {
-        [$class, $parent, , $relation] = $this->resolve($request, $authorization, $resourceId, $relationship);
+        [$class, $parent, $field, $relation] = $this->resolve($request, $authorization, $resourceId, $relationship);
         [$key, $row] = $this->attachedRow($request, $relation, $relatedId);
+        $this->relatableRecord($request, $class, $field, $key);
 
         $this->authorizeIds($request, $authorization, $class, $parent, 'detach'.Str::studly($relationship), [$key]);
 
@@ -77,10 +78,11 @@ class RelationAttachController
     {
         [$class, $parent, $field, $relation] = $this->resolve($request, $authorization, $resourceId, $relationship);
         [$key, $row] = $this->attachedRow($request, $relation, $relatedId);
+        $related = $this->relatableRecord($request, $class, $field, $key);
 
         $this->authorizeIds($request, $authorization, $class, $parent, 'attach'.Str::studly($relationship), [$key]);
 
-        $fields = $this->pivotFields($request, $field, (new Associatable($request, $class, $field))->query()?->option((string) $key));
+        $fields = $this->writablePivotFields($request, $field, $related);
         $this->validatePivot($request, $fields, FieldContext::Update);
 
         // A pivot field the request leaves out keeps its stored value.
@@ -232,6 +234,39 @@ class RelationAttachController
     protected function pivotFields(LatheRequest $request, BelongsToManyField $field, ?Model $related): array
     {
         return array_values((new FieldCollection($field->pivotFieldsFor($request, $related)))->authorized($request)->all());
+    }
+
+    /**
+     * The pivot fields a write fills, the way a record field is filled: a readonly or computed
+     * one keeps its stored value. The pivot forms still show them.
+     *
+     * @internal
+     *
+     * @return list<Field>
+     */
+    protected function writablePivotFields(LatheRequest $request, BelongsToManyField $field, ?Model $related): array
+    {
+        return array_values(array_filter(
+            $this->pivotFields($request, $field, $related),
+            fn (Field $pivot) => ! $pivot->isReadonly($request, $related) && ! $pivot->isComputed(),
+        ));
+    }
+
+    /**
+     * The attached record from the attach picker's relatable query; 404 outside it. A trashed
+     * record on a withTrashed() field still counts, so it can be detached.
+     *
+     * @internal
+     *
+     * @param  class-string<\Lathe\Resources\Resource>  $class
+     */
+    protected function relatableRecord(LatheRequest $request, string $class, BelongsToManyField $field, int|string $key): Model
+    {
+        $related = (new Associatable($request, $class, $field))->forSavedValue()->query()?->option((string) $key);
+
+        abort_if($related === null, 404);
+
+        return $related;
     }
 
     /**
