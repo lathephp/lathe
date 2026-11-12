@@ -4,6 +4,7 @@ namespace Lathe\Actions\Import;
 
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\Relation;
@@ -15,7 +16,12 @@ use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 use Lathe\Actions\Export\ExportWriter;
+use Lathe\Actions\Jobs\PlanBulkRun;
+use Lathe\Http\Requests\LatheRequest;
 use Lathe\Lathe;
+use Lathe\Query\QueryContext;
+use Lathe\Query\ResourceQuery;
+use Lathe\Resources\Resource;
 use Lathe\Support\ConfigStore;
 use Lathe\Support\JobContext;
 use Lathe\Widgets\WidgetCache;
@@ -48,6 +54,13 @@ class ProcessImport implements ShouldQueue
      */
     protected array $seen = [];
 
+    /**
+     * The panel request the lookups read the scopes through, bound while the job runs.
+     *
+     * @internal
+     */
+    protected ?LatheRequest $request = null;
+
     public function __construct(public Import $import, public ImportAction $action, public JobContext $context)
     {
         $this->onConnection($action->connection);
@@ -58,7 +71,8 @@ class ProcessImport implements ShouldQueue
 
     public function handle(): void
     {
-        $this->context->restore();
+        $resource = $this->resource();
+        $this->request = $resource !== null ? PlanBulkRun::requestFor($this->context, $resource) : $this->bareRequest();
         $import = $this->import->refresh();
         $import->update(['status' => 'processing', 'exception' => null]);
 
@@ -71,7 +85,54 @@ class ProcessImport implements ShouldQueue
             $this->notify($import);
 
             throw $exception;
+        } finally {
+            $this->request = null;
+            app()->forgetInstance(LatheRequest::class);
         }
+    }
+
+    /**
+     * The Resource whose edit scope the rows are matched in: the action's own when it lists the
+     * import's model, else the model's Resource; null when no Resource lists the model.
+     *
+     * @internal
+     *
+     * @return class-string<\Lathe\Resources\Resource>|null
+     */
+    protected function resource(): ?string
+    {
+        $resource = $this->action->getResourceClass();
+
+        return $resource !== null && $resource::model() === $this->import->model_class
+            ? $resource
+            : Lathe::resources()->forModel($this->import->model_class);
+    }
+
+    /**
+     * A panel request for a model no Resource lists, so a relationship column still reads the
+     * related Resource's scope.
+     *
+     * @internal
+     */
+    protected function bareRequest(): LatheRequest
+    {
+        $this->context->restore();
+        $request = LatheRequest::create('/');
+        app()->instance(LatheRequest::class, $request);
+
+        return $request;
+    }
+
+    /**
+     * @internal
+     *
+     * @param  class-string<Model>  $model
+     * @param  class-string<\Lathe\Resources\Resource>|null  $resource
+     * @return Builder<Model>
+     */
+    protected function lookup(string $model, QueryContext $context, ?string $resource = null): Builder
+    {
+        return ResourceQuery::lookup($this->request ?? $this->bareRequest(), $model, $context, $resource);
     }
 
     /**
@@ -272,7 +333,7 @@ class ProcessImport implements ShouldQueue
             $found[$key] = $this->seen[$key] ?? [];
 
             if ($values !== []) {
-                foreach ($this->newModel()->whereIn($key, $values)->get() as $model) {
+                foreach ($this->lookup($this->import->model_class, QueryContext::Edit, $this->resource())->whereIn($key, $values)->get() as $model) {
                     $found[$key][$this->keyString($model->getAttribute($key))] = $model;
                 }
             }
@@ -340,7 +401,7 @@ class ProcessImport implements ShouldQueue
             $ownerKey = $relation instanceof BelongsTo ? $relation->getOwnerKeyName() : $related->getKeyName();
             $ids = [];
 
-            foreach ($related->whereIn($relationship['resolveBy'], $values)->get([$ownerKey, $relationship['resolveBy']]) as $record) {
+            foreach ($this->lookup($related::class, QueryContext::Relatable)->whereIn($relationship['resolveBy'], $values)->get([$ownerKey, $relationship['resolveBy']]) as $record) {
                 $ids[$this->keyString($record->getAttribute($relationship['resolveBy']))] = $record->getAttribute($ownerKey);
             }
 

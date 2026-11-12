@@ -27,6 +27,7 @@ use Lathe\Groups\Group;
 use Lathe\Http\Requests\LatheRequest;
 use Lathe\Lenses\Lens;
 use Lathe\Resources\Resource;
+use Lathe\Resources\ResourceRegistry;
 use Lathe\SavedTabs\SavedTab;
 use Lathe\SavedTabs\SavedTabQueryApplicator;
 use Lathe\Search\LikeSearch;
@@ -85,6 +86,23 @@ class ResourceQuery
         protected QueryContext $context = QueryContext::Index,
     ) {
         //
+    }
+
+    /**
+     * The rows a queued job reads by key: the Resource's scoped query for the context, or the
+     * model's own query, global scopes and all, when no Resource lists the model.
+     *
+     * @internal
+     *
+     * @param  class-string<Model>  $model
+     * @param  class-string<resource>|null  $resource  the model's Resource, when the caller knows it
+     * @return Builder<Model>
+     */
+    public static function lookup(LatheRequest $request, string $model, QueryContext $context, ?string $resource = null): Builder
+    {
+        $resource ??= app(ResourceRegistry::class)->forModel($model);
+
+        return $resource === null ? (new $model)->newQuery() : (new self($resource::make(), $request, $context))->scoped();
     }
 
     public function withTrashed(): static

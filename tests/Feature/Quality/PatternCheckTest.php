@@ -33,6 +33,7 @@ it('fails on each banned pattern', function (string $path, string $content) {
     'model query()' => ['src/Http/Notes.php', "<?php\n\$rows = Note::query()->get();\n"],
     'resource query()' => ['src/Http/Orders.php', "<?php\n\$rows = OrderResource::query()->get();\n"],
     'newQuery()' => ['src/Http/Tags.php', "<?php\n\$rows = \$model->newQuery()->get();\n"],
+    'unscoped model lookup in an action' => ['src/Actions/Import/Lookup.php', "<?php\n\$rows = \$this->newModel()->whereIn('sku', \$values)->get();\n"],
     'eval' => ['src/Support/Run.php', "<?php\neval(\$code);\n"],
     'unserialize' => ['src/Support/Load.php', "<?php\n\$x = unserialize(\$data);\n"],
     'shell execution' => ['src/Support/Shell.php', "<?php\nshell_exec('ls');\n"],

@@ -40,6 +40,12 @@ while IFS= read -r file; do
     esac
 done < <(files | xargs -0 -r grep -lP '\b[A-Z]\w*::query\s*\(|->newQuery\s*\(' -- 2>/dev/null)
 
+# An action's job reads the table it writes through ResourceQuery::lookup(), which applies the
+# Resource's scope; the bare model would read rows the user's scope hides.
+while IFS= read -r file; do
+    hits+=("unscoped model lookup in an action: $file")
+done < <(files | xargs -0 -r grep -lP 'newModel\(\)->whereIn\s*\(' -- 2>/dev/null | grep '^src/Actions/')
+
 # Raw HTML only where the sinks file lists the file and the reason.
 while IFS= read -r file; do
     if [ ! -f "$sinks" ] || ! grep -qE "^${file}[[:space:]]" "$sinks"; then
