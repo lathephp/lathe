@@ -130,6 +130,7 @@ it('stores the uploaded file and answers its headers, preview and mapping', func
                     ['name' => 'name', 'label' => 'Name', 'required' => true],
                     ['name' => 'sku', 'label' => 'Sku', 'required' => true],
                     ['name' => 'price', 'label' => 'Price', 'required' => true],
+                    ['name' => 'released_on', 'label' => 'Released', 'required' => false],
                 ],
                 'auto_mapping' => ['name', 'sku', 'price'],
             ],
