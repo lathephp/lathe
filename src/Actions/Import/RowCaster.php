@@ -105,10 +105,17 @@ class RowCaster
             return $this->stored(Carbon::instance($value), $day);
         }
 
+        $text = is_scalar($value) ? (string) $value : '';
+
+        // PHP rolls a day the calendar lacks, 2026-02-30, over into the next month; refuse it.
+        if (($format === null ? date_parse($text) : date_parse_from_format($format, $text))['warning_count'] > 0) {
+            throw new RowCastException('Invalid date');
+        }
+
         try {
             $date = $format === null
-                ? Carbon::parse(is_scalar($value) ? (string) $value : '', $this->timezone)
-                : Carbon::createFromFormat($format, is_scalar($value) ? (string) $value : '', $this->timezone);
+                ? Carbon::parse($text, $this->timezone)
+                : Carbon::createFromFormat($format, $text, $this->timezone);
         } catch (Throwable) {
             throw new RowCastException('Invalid date');
         }

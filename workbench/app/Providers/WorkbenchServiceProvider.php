@@ -4,6 +4,7 @@ namespace Workbench\App\Providers;
 
 use Illuminate\Contracts\Http\Kernel;
 use Illuminate\Http\Request;
+use Illuminate\Support\Env;
 use Illuminate\Support\ServiceProvider;
 use Laravel\Fortify\Features;
 use Lathe\Assets\ExtensionManifest;
@@ -24,7 +25,8 @@ class WorkbenchServiceProvider extends ServiceProvider
     {
         // The Testbench skeleton fixes app.timezone at UTC; BENCH_APP_TIMEZONE runs the workbench on
         // another zone, as Laravel's own boot would: the config and PHP's default zone together.
-        $zone = getenv('BENCH_APP_TIMEZONE');
+        // Testbench reads workbench/.env without putenv(), so getenv() would not see it.
+        $zone = Env::get('BENCH_APP_TIMEZONE');
 
         if (is_string($zone) && $zone !== '') {
             config(['app.timezone' => $zone]);

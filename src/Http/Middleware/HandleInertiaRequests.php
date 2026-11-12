@@ -9,6 +9,7 @@ use Lathe\Lathe;
 use Lathe\Menu\Menu;
 use Lathe\Menu\Navigation;
 use Lathe\Menu\NavigationProp;
+use Lathe\Support\Timezone;
 use Lathe\Support\TranslationManager;
 
 class HandleInertiaRequests extends Middleware
@@ -96,7 +97,7 @@ class HandleInertiaRequests extends Middleware
             'versionLabel' => fn () => Lathe::versionLabel(),
             'keyboardShortcuts' => fn () => Lathe::config()->boolean('keyboard_shortcuts.enabled'),
             'locale' => fn () => Lathe::resolveUserLocale($request),
-            'timezone' => fn () => Lathe::resolveUserTimezone($request),
+            'timezone' => fn () => app(Timezone::class)->forRequest($request),
             'translations' => fn () => app(TranslationManager::class)->all(Lathe::resolveUserLocale($request)),
             'footer' => fn () => Lathe::footerFor($request),
             'notifications' => fn () => [

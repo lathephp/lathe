@@ -74,6 +74,10 @@ it('throws on a date that does not parse', function () {
     caster()->cast(ImportColumn::make('a')->date(), 'not a date');
 })->throws(RowCastException::class, 'Invalid date');
 
+it('throws on a day the calendar does not have, where PHP would roll it over', function (?string $format, string $cell) {
+    caster()->cast(ImportColumn::make('a')->date($format), $cell);
+})->with([[null, '2026-02-30'], [null, '2026-02-30 10:00'], ['d/m/Y', '30/02/2026']])->throws(RowCastException::class, 'Invalid date');
+
 it('runs castUsing last', function () {
     $column = ImportColumn::make('a')->numeric()->castUsing(fn ($v) => $v * 2);
 

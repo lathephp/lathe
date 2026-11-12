@@ -122,6 +122,12 @@ it('sets the request locale so validation messages follow it', function () {
     expect(validator([], ['name' => 'required'])->errors()->first('name'))->toBe('Le champ name est obligatoire.');
 });
 
+it('sends the app timezone in the once-per-session data when the user names none', function () {
+    appTimezone('Asia/Dhaka');
+
+    expect($this->get('/lathe/login', ['X-Inertia' => 'true'])->json('props.timezone'))->toBe('Asia/Dhaka');
+});
+
 it('sends the user timezone in the once-per-session data', function () {
     Lathe::userTimezone(fn () => 'Pacific/Kiritimati');
 
