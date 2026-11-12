@@ -31,15 +31,18 @@ class ImportController
     {
         $run = $this->owned($request, $import);
 
-        abort_unless($run->status === 'failed', 422, Lathe::__('Only a failed import can be resumed.'));
-
         $resource = $resources->forModel($run->model_class);
         $action = $resource === null ? null : $resource::make()->availableActions($request)
             ->first(fn (mixed $action) => $action instanceof ImportAction);
 
         abort_unless($action instanceof ImportAction, 404);
 
-        $run->update(['status' => 'queued']);
+        // Two resumes sent together claim the failed run once.
+        $claimed = Import::whereKey($run->id)->where('status', 'failed')->update(['status' => 'queued']);
+
+        abort_if($claimed === 0, 422, Lathe::__('Only a failed import can be resumed.'));
+
+        $run->refresh();
         Bus::dispatch(new ProcessImport($run, $action->forResource($resource), JobContext::capture($request)));
 
         return new JsonResponse(['status' => 'queued'], 202);

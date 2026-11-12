@@ -228,3 +228,36 @@ it('answers 404 for an import of another user', function () {
 
     expect(Product::count())->toBe(500)->and($theirs->fresh()?->status)->toBe('uploaded');
 });
+
+it('imports a file after its dry run completed', function () {
+    $importId = uploadedProductsImport();
+    $map = ['name', 'sku', 'price'];
+
+    importStep(['import_step' => 'dry_run', 'import_id' => $importId, 'column_map' => $map])->assertOk();
+    importStep(['import_step' => 'dry_run', 'import_id' => $importId, 'column_map' => $map])->assertOk();
+    importStep(['import_step' => 'import', 'import_id' => $importId, 'column_map' => $map])->assertOk();
+
+    expect(Import::findOrFail($importId)->only('status', 'mode', 'created_rows', 'updated_rows'))
+        ->toBe(['status' => 'completed', 'mode' => 'import', 'created_rows' => 2, 'updated_rows' => 1])
+        ->and(Product::count())->toBe(502);
+});
+
+it('answers 422 to an import step sent again for an import that is imported, running or waiting, and keeps its counts', function (string $status, string $mode, string $step) {
+    $importId = uploadedProductsImport();
+    $counts = ['created_rows' => 7, 'updated_rows' => 3, 'failed_rows' => 1];
+    Import::findOrFail($importId)->update(['status' => $status, 'mode' => $mode, ...$counts]);
+
+    importStep(['import_step' => $step, 'import_id' => $importId, 'column_map' => ['name', 'sku', 'price']])
+        ->assertUnprocessable()->assertJsonPath('message', 'This import has already started.');
+
+    expect(Import::findOrFail($importId)->only('status', 'mode', 'created_rows', 'updated_rows', 'failed_rows'))
+        ->toBe(['status' => $status, 'mode' => $mode, ...$counts])
+        ->and(Product::count())->toBe(500);
+})->with([
+    'completed import, import again' => ['completed', 'import', 'import'],
+    'completed import, dry run' => ['completed', 'import', 'dry_run'],
+    'processing import' => ['processing', 'import', 'import'],
+    'processing dry run' => ['processing', 'dry_run', 'import'],
+    'queued import' => ['queued', 'import', 'import'],
+    'failed import, which resumes instead' => ['failed', 'import', 'import'],
+]);

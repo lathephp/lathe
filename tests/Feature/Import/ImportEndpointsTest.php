@@ -129,3 +129,14 @@ it('answers 404 to a download with no error file', function () {
 
     $this->actingAs($this->admin)->get(errorsUrl($import))->assertNotFound();
 });
+
+it('resumes a failed import after its last saved chunk', function () {
+    Storage::disk('local')->put('lathe-imports/two.csv', "Name,SKU,Price\nTrail Mug,SKU-90001,12.50\nCamp Kettle,SKU-90002,34.00\n");
+    $failed = adminImport(['file_name' => 'lathe-imports/two.csv', 'status' => 'failed', 'total_rows' => 2, 'processed_rows' => 1, 'last_processed_row' => 2, 'created_rows' => 1]);
+
+    $this->actingAs($this->admin)->postJson("/lathe/api/imports/{$failed->id}/resume")->assertStatus(202);
+
+    expect($failed->fresh()?->only('status', 'processed_rows', 'created_rows'))->toBe(['status' => 'completed', 'processed_rows' => 2, 'created_rows' => 2])
+        ->and(Product::where('sku', 'SKU-90001')->exists())->toBeFalse()
+        ->and(Product::where('sku', 'SKU-90002')->exists())->toBeTrue();
+});

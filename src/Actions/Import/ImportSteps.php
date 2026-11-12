@@ -2,6 +2,7 @@
 
 namespace Lathe\Actions\Import;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
@@ -116,6 +117,13 @@ class ImportSteps
         $import = Import::find($request->integer('fields.import_id'));
 
         abort_unless($import !== null && $import->ownedBy($this->uploads->ownerId($request->user())) && $import->model_class === $action->getModel(), 404);
+
+        // A run that is waiting or running, or a file already imported, never runs again; a failed import resumes from its run page.
+        $claimed = Import::whereKey($import->id)
+            ->where(fn (Builder $query) => $query->where('status', 'uploaded')->orWhere(fn (Builder $query) => $query->where('mode', 'dry_run')->whereIn('status', ['completed', 'failed'])))
+            ->update(['status' => 'queued']);
+
+        abort_if($claimed === 0, 422, Lathe::__('This import has already started.'));
 
         $map = array_map(fn (mixed $name) => is_string($name) ? $name : null, $request->array('fields.column_map'));
         $import->update(['column_map' => $map]);
