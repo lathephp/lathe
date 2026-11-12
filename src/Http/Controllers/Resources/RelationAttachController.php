@@ -253,8 +253,9 @@ class RelationAttachController
     }
 
     /**
-     * The attached record from the attach picker's relatable query; 404 outside it. A trashed
-     * record on a withTrashed() field still counts, so it can be detached.
+     * The attached record from the related Resource's relatable scope; 404 outside it. The
+     * field's and the parent's picker hooks do not apply, and a trashed record still counts, so
+     * a row the picker no longer offers can still be edited and detached.
      *
      * @internal
      *
@@ -262,7 +263,8 @@ class RelationAttachController
      */
     protected function relatableRecord(LatheRequest $request, string $class, BelongsToManyField $field, int|string $key): Model
     {
-        $related = (new Associatable($request, $class, $field))->forSavedValue()->query()?->option((string) $key);
+        $resource = $field->relatedResource();
+        $related = $resource === null ? null : (new ResourceQuery($resource::make(), $request, QueryContext::Relatable))->withTrashed()->scoped()->whereKey($key)->first();
 
         abort_if($related === null, 404);
 

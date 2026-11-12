@@ -65,6 +65,24 @@ class PivotHiddenProducts extends PivotWriteProducts
     }
 }
 
+/** Products whose Tags picker no longer offers tag 5, through the field's own relatableQuery. */
+class PivotNarrowedProducts extends PivotWriteProducts
+{
+    public static function uriKey(): string
+    {
+        return 'pivot-narrowed-products';
+    }
+
+    public function fields(LatheRequest $request): array
+    {
+        return [
+            Field::text('Name')->required(),
+            Field::morphToMany('Tags')->resource(PivotWriteTags::class)->pivotFields([$this->position()])
+                ->relatableQuery(fn (LatheRequest $request, Builder $query) => $query->whereKeyNot(5)),
+        ];
+    }
+}
+
 /** Tags whose relatable scope hides "sale". */
 class PivotWriteTags extends Resource
 {
@@ -94,7 +112,7 @@ beforeEach(function () {
     $this->seed(DemoSeeder::class);
     Gate::define('viewLathe', fn () => true);
     $this->actingAs(User::where('email', 'admin@lathephp.com')->firstOrFail());
-    Lathe::registerResources(PivotWriteProducts::class, PivotReadonlyProducts::class, PivotHiddenProducts::class, PivotWriteTags::class);
+    Lathe::registerResources(PivotNarrowedProducts::class, PivotWriteProducts::class, PivotReadonlyProducts::class, PivotHiddenProducts::class, PivotWriteTags::class);
     Product::findOrFail(1)->tags()->sync([5 => ['position' => 1], 7 => ['position' => 2]]);
 });
 
@@ -163,4 +181,14 @@ it('answers 404 on detach and update pivot for a tag outside the related relatab
     $this->putJson('/lathe/api/resources/pivot-write-products/1/tags/1/pivot', ['pivot' => ['position' => 8]])->assertNotFound();
 
     expect(pivotPosition(1))->toBe(4);
+});
+
+it('still edits and detaches a tag the field\'s own picker no longer offers', function () {
+    $this->putJson('/lathe/api/resources/pivot-narrowed-products/1/tags/5/pivot', ['pivot' => ['position' => 8]])->assertOk();
+
+    expect(pivotPosition(5))->toBe(8);
+
+    $this->deleteJson('/lathe/api/resources/pivot-narrowed-products/1/tags/5')->assertSuccessful();
+
+    expect(pivotPosition(5))->toBeNull();
 });
