@@ -755,3 +755,20 @@ it('still runs a standalone action without ShouldQueue in the request', function
         ->and(BulkRun::count())->toBe(0)
         ->and(ActionEvent::sole()->status)->toBe(ActionEventStatus::Finished);
 });
+
+it('marks a chunk\'s open events failed when its last attempt timed out', function () {
+    seedOrders(1001);
+    signInAdmin();
+    Bus::fake();
+
+    $id = $this->postJson('/lathe/api/resources/queued-orders/action', queuedBody(['mode' => 'all']))->json('bulk_run.id');
+    [, $planned] = runFakedPlanner();
+    [$chunk] = $planned->added[0]->withFakeBatch($planned->id);
+    ActionEvent::where('batch_id', $planned->id)->whereIn('actionable_id', range(1, 200))->update(['status' => 'running']);
+
+    $chunk->failed(new RuntimeException('The job ran too long.'));
+
+    expect(ActionEvent::where('status', 'failed')->where('exception', 'The job ran too long.')->count())->toBe(200)
+        ->and(ActionEvent::where('status', 'waiting')->count())->toBe(801)
+        ->and(BulkRun::findOrFail($id)->only('processed', 'failed'))->toBe(['processed' => 200, 'failed' => 200]);
+});

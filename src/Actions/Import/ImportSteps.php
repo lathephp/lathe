@@ -14,6 +14,7 @@ use Lathe\Support\ConfigStore;
 use Lathe\Support\JobContext;
 use Lathe\Uploads\UploadHandler;
 use LogicException;
+use Throwable;
 
 /**
  * The steps of the import modal, each a POST /action with fields.import_step: `upload` stores
@@ -118,6 +119,8 @@ class ImportSteps
 
         abort_unless($import !== null && $import->ownedBy($this->uploads->ownerId($request->user())) && $import->model_class === $action->getModel(), 404);
 
+        $status = $import->status;
+
         // A run that is waiting or running, or a file already imported, never runs again; a failed import resumes from its run page.
         $claimed = Import::whereKey($import->id)
             ->where(fn (Builder $query) => $query->where('status', 'uploaded')->orWhere(fn (Builder $query) => $query->where('mode', 'dry_run')->whereIn('status', ['completed', 'failed'])))
@@ -127,7 +130,15 @@ class ImportSteps
 
         $map = array_map(fn (mixed $name) => is_string($name) ? $name : null, $request->array('fields.column_map'));
         $import->update(['column_map' => $map]);
-        $action->start($import, $mode, JobContext::capture($request));
+
+        try {
+            $action->start($import, $mode, JobContext::capture($request));
+        } catch (Throwable $exception) {
+            // A run that never queued leaves the import as it was, so the step can be sent again.
+            Import::whereKey($import->id)->where('status', 'queued')->update(['status' => $status]);
+
+            throw $exception;
+        }
 
         $result = ActionResult::message($mode === 'import' ? Lathe::__('Import started.') : Lathe::__('Validation started.'));
 

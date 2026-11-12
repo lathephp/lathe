@@ -261,3 +261,15 @@ it('answers 422 to an import step sent again for an import that is imported, run
     'queued import' => ['queued', 'import', 'import'],
     'failed import, which resumes instead' => ['failed', 'import', 'import'],
 ]);
+
+it('puts an import back as it was when its run could not be queued', function () {
+    $importId = uploadedProductsImport();
+    config(['queue.default' => 'missing']);
+
+    importStep(['import_step' => 'import', 'import_id' => $importId, 'column_map' => ['name', 'sku', 'price']])->assertServerError();
+
+    config(['queue.default' => 'sync']);
+    expect(Import::findOrFail($importId)->status)->toBe('uploaded');
+    importStep(['import_step' => 'import', 'import_id' => $importId, 'column_map' => ['name', 'sku', 'price']])->assertOk();
+    expect(Product::count())->toBe(502);
+});

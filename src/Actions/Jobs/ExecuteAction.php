@@ -13,7 +13,9 @@ use Lathe\ActionEvents\ActionEventRecorder;
 use Lathe\Actions\ActionDispatcher;
 use Lathe\Actions\ActionFields;
 use Lathe\Actions\BulkRun;
+use Lathe\Enums\ActionEventStatus;
 use Lathe\Http\Requests\LatheRequest;
+use Lathe\Lathe;
 use Lathe\Query\SelectionResolver;
 use Lathe\Support\IsolatesJobContext;
 use Lathe\Support\JobContext;
@@ -94,5 +96,16 @@ class ExecuteAction implements ShouldQueue
     public function failed(?Throwable $exception): void
     {
         BulkRun::addCounts($this->bulkRunId, count($this->keys), count($this->keys));
+
+        // A timeout or a lost worker leaves the chunk's events open; a throw has marked them already.
+        $batch = $this->batch();
+
+        if ($batch !== null) {
+            Lathe::actionEventModel()::forBatch($batch->id)
+                ->where('actionable_type', $this->resource::newModel()->getMorphClass())
+                ->whereIn('actionable_id', array_map(fn (int|string $key) => (string) $key, $this->keys))
+                ->whereIn('status', [ActionEventStatus::Waiting->value, ActionEventStatus::Running->value])
+                ->update(['status' => ActionEventStatus::Failed->value, 'exception' => $exception === null ? null : mb_scrub($exception->getMessage(), 'UTF-8'), 'updated_at' => now()]);
+        }
     }
 }
