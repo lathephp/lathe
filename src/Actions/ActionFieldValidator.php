@@ -11,6 +11,7 @@ use Lathe\Field\FieldContext;
 use Lathe\Field\FileField;
 use Lathe\Field\Relations\Associatable;
 use Lathe\Field\Relations\BelongsToField;
+use Lathe\Field\Relations\MorphToField;
 use Lathe\Http\Requests\LatheRequest;
 use Lathe\Lathe;
 use Lathe\Rules\Relatable;
@@ -48,6 +49,11 @@ class ActionFieldValidator
             if ($field instanceof BelongsToField) {
                 $relations[] = $field->attribute();
                 // An action field has no owner, so the key is checked here against the query its picker reads.
+                $rules[$field->attribute()][] = new Relatable($request, new Associatable($request, $class, $field), $field);
+            }
+
+            // A morphTo's own rules check the type; with no owner, the key is checked here the same way.
+            if ($field instanceof MorphToField) {
                 $rules[$field->attribute()][] = new Relatable($request, new Associatable($request, $class, $field), $field);
             }
 
