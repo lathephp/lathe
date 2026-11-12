@@ -2,16 +2,16 @@
   "machine": "cloud-vm",
   "writes": [
     {
-      "base": "01M78XW1HC3SBWMNSH5FAND6GC",
-      "body": "# plan: m41-queued-runs\n\n- [x] t1 Count a queued chunk's rows once, on its last attempt whatever the worker's tries, and move a retried chunk's failed events back to running\n- [x] t2 Give the planner and the delete chunk one attempt, and end a run whose planner failed as failed  [after: t1]\n- [x] t3 Answer 422 to an import step replayed on a queued, processing or imported import, and keep a resumed import working\n- [x] t4 Match an import's keys as the database compares them: without case on MySQL and MariaDB only  [after: t3]\n- [x] t5 Toast an import's imported count without its skipped rows\n- [x] t6 Put back the worker's user, default guard and locale when a Lathe job ends or throws  [after: t2, t4]\n- [ ] t7 Store the starting request's ip and user agent on a queued run's audit rows  [after: t6]\n- [ ] t8 Queue a standalone action that implements ShouldQueue and run it once on the worker  [after: t7]\n",
-      "id": "01M78Y84SXX5CACGS8T0C6K8G6",
+      "base": "01M78Y84SXX5CACGS8T0C6K8G6",
+      "body": "# plan: m41-queued-runs\n\n- [x] t1 Count a queued chunk's rows once, on its last attempt whatever the worker's tries, and move a retried chunk's failed events back to running\n- [x] t2 Give the planner and the delete chunk one attempt, and end a run whose planner failed as failed  [after: t1]\n- [x] t3 Answer 422 to an import step replayed on a queued, processing or imported import, and keep a resumed import working\n- [x] t4 Match an import's keys as the database compares them: without case on MySQL and MariaDB only  [after: t3]\n- [x] t5 Toast an import's imported count without its skipped rows\n- [x] t6 Put back the worker's user, default guard and locale when a Lathe job ends or throws  [after: t2, t4]\n- [x] t7 Store the starting request's ip and user agent on a queued run's audit rows  [after: t6]\n- [ ] t8 Queue a standalone action that implements ShouldQueue and run it once on the worker  [after: t7]\n",
+      "id": "01M78YGA7DXTFAHQRBPCMGH7E6",
       "path": "projects/01M4T1WADSK9655DJEZ17PGMYC/plan.md"
     },
     {
       "base": null,
-      "body": "+++\ncreated = \"2026-11-12T22:32:27.784274763Z\"\nid = \"01M78Y850ZEMNB49AFRTASBFJ1\"\nkind = \"log\"\nmachine = \"cloud-vm\"\nmodified = \"2026-11-12T22:32:27.784274763Z\"\nproject = \"lathe\"\ntitle = \"t6 landed: JobContext::isolate + IsolatesJobContext middleware on the 5 jobs; failed() of import/…\"\n+++\n\nt6 landed: JobContext::isolate + IsolatesJobContext middleware on the 5 jobs; failed() of import/export isolated\n",
-      "id": "01M78Y850ZSHDZRH1NB42VD44H",
-      "path": "projects/01M4T1WADSK9655DJEZ17PGMYC/items/01M78Y850ZEMNB49AFRTASBFJ1.md"
+      "body": "+++\ncreated = \"2026-11-12T22:36:55.484573011Z\"\nid = \"01M78YGADMWHBTKZ366J31287B\"\nkind = \"log\"\nmachine = \"cloud-vm\"\nmodified = \"2026-11-12T22:36:55.484573011Z\"\nproject = \"lathe\"\ntitle = \"t7 landed: JobContext ip/userAgent + server(); planner, import and export requests carry them\"\n+++\n\nt7 landed: JobContext ip/userAgent + server(); planner, import and export requests carry them\n",
+      "id": "01M78YGADN9KAN4DY2EY2P9ERT",
+      "path": "projects/01M4T1WADSK9655DJEZ17PGMYC/items/01M78YGADMWHBTKZ366J31287B.md"
     }
   ]
 }
