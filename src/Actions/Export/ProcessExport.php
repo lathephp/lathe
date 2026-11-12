@@ -55,7 +55,7 @@ class ProcessExport implements ShouldQueue
     public function handle(): void
     {
         $this->context->restore();
-        $request = LatheRequest::createFrom(Request::create('/'));
+        $request = LatheRequest::createFrom(Request::create('/', server: $this->context->server()));
         $request->setUserResolver(fn () => Auth::guard($this->context->guard)->user());
         $resource = $this->resource::make();
         $action = $resource->availableActions($request)->findByUriKey($this->action);

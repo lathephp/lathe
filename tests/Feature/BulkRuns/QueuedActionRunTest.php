@@ -635,3 +635,19 @@ it('puts back the worker\'s user, default guard and locale once the run\'s jobs 
         ->and(app()->getLocale())->toBe('en')
         ->and(BulkRun::sole()->status)->toBe($throws ? 'failed' : 'finished');
 })->with(['ends' => false, 'throws' => true]);
+
+it('stores the starting request\'s ip and user agent on a run\'s action events, queued or inline', function (bool $queued) {
+    seedOrders(10);
+    signInAdmin();
+    config(['queue.default' => 'database']);
+    QueuedCalls::$actions = [$queued ? new QueuedAlways : new QueuedShip];
+
+    $this->withServerVariables(['REMOTE_ADDR' => '203.0.113.7'])->withHeader('User-Agent', 'Probe/1.0')
+        ->postJson('/lathe/api/resources/queued-orders/action', queuedBody(['mode' => 'ids', 'ids' => [1, 2, 3]]))->assertOk();
+    drainQueue();
+
+    expect(ActionEvent::count())->toBe(3)
+        ->and(ActionEvent::where('status', 'finished')->count())->toBe(3)
+        ->and(ActionEvent::pluck('ip_address')->unique()->all())->toBe(['203.0.113.7'])
+        ->and(ActionEvent::pluck('user_agent')->unique()->all())->toBe(['Probe/1.0']);
+})->with(['queued' => true, 'inline' => false]);

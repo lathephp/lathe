@@ -3834,11 +3834,14 @@ Lathe\Support\ConfigValidator::unknownIn(array $given, array $known, string $pre
 Lathe\Support\ConfigValidator::unknownKeys(array $config): array
 Lathe\Support\HtmlSanitizer::clean(?string $html): string  [static]
 Lathe\Support\IsolatesJobContext::middleware(): array
-Lathe\Support\JobContext::__construct(string|int|null $actor, string $guard, string $locale, string $timezone, array $extra = array ( ))
+Lathe\Support\JobContext::?string $ip
+Lathe\Support\JobContext::?string $userAgent
+Lathe\Support\JobContext::__construct(string|int|null $actor, string $guard, string $locale, string $timezone, array $extra = array ( ), ?string $ip = NULL, ?string $userAgent = NULL)
 Lathe\Support\JobContext::array $extra
 Lathe\Support\JobContext::capture(Lathe\Http\Requests\LatheRequest $request): Lathe\Support\JobContext  [static]
 Lathe\Support\JobContext::isolate(Closure $callback): mixed
 Lathe\Support\JobContext::restore(): void
+Lathe\Support\JobContext::server(): array
 Lathe\Support\JobContext::string $guard
 Lathe\Support\JobContext::string $locale
 Lathe\Support\JobContext::string $timezone

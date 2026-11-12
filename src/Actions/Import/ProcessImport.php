@@ -125,7 +125,7 @@ class ProcessImport implements ShouldQueue
     protected function bareRequest(): LatheRequest
     {
         $this->context->restore();
-        $request = LatheRequest::create('/');
+        $request = LatheRequest::create('/', server: $this->context->server());
         app()->instance(LatheRequest::class, $request);
 
         return $request;

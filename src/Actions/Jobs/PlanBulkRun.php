@@ -105,7 +105,7 @@ class PlanBulkRun implements ShouldQueue
     {
         $context->restore();
 
-        $request = LatheRequest::create('/'.$resource::uriKey());
+        $request = LatheRequest::create('/'.$resource::uriKey(), server: $context->server());
         $route = (new Route('GET', '{resource}', []))->bind($request);
         $request->setRouteResolver(fn () => $route);
         app()->instance(LatheRequest::class, $request);

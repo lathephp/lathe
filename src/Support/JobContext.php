@@ -11,8 +11,8 @@ use Lathe\Lathe;
 
 /**
  * What a queued job needs of the request that dispatched it, so queued code never reads
- * a request: who started it, on which guard, in which locale and timezone, and whatever
- * the host added through Lathe::captureJobContext().
+ * a request: who started it, on which guard, in which locale and timezone, from which ip and
+ * user agent for the audit rows, and whatever the host added through Lathe::captureJobContext().
  */
 class JobContext
 {
@@ -25,6 +25,8 @@ class JobContext
         public readonly string $locale,
         public readonly string $timezone,
         public readonly array $extra = [],
+        public readonly ?string $ip = null,
+        public readonly ?string $userAgent = null,
     ) {
         //
     }
@@ -40,7 +42,22 @@ class JobContext
             app()->getLocale(),
             app(Timezone::class)->forRequest($request),
             Lathe::capturedJobContext(),
+            $request->ip(),
+            $request->userAgent(),
         );
+    }
+
+    /**
+     * The server values a job's own panel request carries, so its audit rows name the ip and
+     * user agent of the request that started it. A job queued before they were captured has
+     * none, and its request keeps Symfony's.
+     *
+     * @return array<string, string>
+     */
+    public function server(): array
+    {
+        // A job serialized before 1.0.0-beta.13 leaves both unset, which ?? reads as null.
+        return array_filter(['REMOTE_ADDR' => $this->ip ?? null, 'HTTP_USER_AGENT' => $this->userAgent ?? null], fn (?string $value) => $value !== null);
     }
 
     /**
