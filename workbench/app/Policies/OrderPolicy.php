@@ -20,7 +20,7 @@ class OrderPolicy
 
     public function update(User $user, Order $order): bool
     {
-        return $user->email === 'admin@lathephp.com';
+        return in_array($user->email, ['admin@lathephp.com', 'support@lathephp.com'], true);
     }
 
     public function inlineEdit(User $user, Order $order): bool
@@ -50,7 +50,7 @@ class OrderPolicy
 
     public function create(User $user): bool
     {
-        return $user->email === 'admin@lathephp.com';
+        return in_array($user->email, ['admin@lathephp.com', 'support@lathephp.com'], true);
     }
 
     public function addCustomer(User $user, Order $order): bool

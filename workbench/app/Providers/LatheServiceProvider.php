@@ -59,6 +59,7 @@ class LatheServiceProvider extends LatheApplicationServiceProvider
         Gate::define('viewLathe', fn (User $user): bool => in_array($user->getAttribute('email'), [
             'admin@lathephp.com',
             'editor@lathephp.com',
+            'support@lathephp.com',
         ], true));
 
         // Whoever passes viewLathe may read the audit log.

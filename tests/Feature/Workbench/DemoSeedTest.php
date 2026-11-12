@@ -20,10 +20,10 @@ function seedDemo(): void
     test()->seed(DatabaseSeeder::class);
 }
 
-it('seeds 10 users, 1,000 customers and 10,000 orders', function () {
+it('seeds 11 users, 1,000 customers and 10,000 orders', function () {
     seedDemo();
 
-    expect(User::count())->toBe(10)
+    expect(User::count())->toBe(11)
         ->and(Customer::count())->toBe(1000)
         ->and(Order::count())->toBe(10000);
 });
@@ -98,7 +98,7 @@ it('seeds only when no user exists', function () {
     seedDemo();
     seedDemo();
 
-    expect(User::count())->toBe(10)
+    expect(User::count())->toBe(11)
         ->and(Customer::count())->toBe(1000)
         ->and(Order::count())->toBe(10000);
 });
@@ -110,7 +110,7 @@ it('reseeds the default store with lathe:demo-seed', function () {
 
     $this->artisan('lathe:demo-seed')->assertExitCode(0);
 
-    expect(User::count())->toBe(10)
+    expect(User::count())->toBe(11)
         ->and(Customer::count())->toBe(1000)
         ->and(Order::count())->toBe(10000);
 });

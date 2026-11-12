@@ -10,6 +10,7 @@ use Illuminate\Support\Str;
 use Spatie\Permission\Models\Permission;
 use Workbench\App\Models\Post;
 use Workbench\App\Models\Product;
+use Workbench\App\Models\User;
 use Workbench\Database\Factories\UserFactory;
 
 class DemoSeeder extends Seeder
@@ -77,6 +78,14 @@ class DemoSeeder extends Seeder
         }
 
         UserFactory::new()->count(6)->create();
+
+        // Created after the factory users so Faker's sequence, and the data seeded from it, stays the same.
+        User::forceCreate([
+            'name' => 'Support User',
+            'email' => 'support@lathephp.com',
+            'email_verified_at' => now(),
+            'password' => 'password',
+        ]);
     }
 
     /**

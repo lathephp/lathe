@@ -7,9 +7,10 @@ use Workbench\App\Models\User;
 
 class CustomerPolicy
 {
+    // Support works orders and may open one order's customer, but not list every customer.
     public function viewAny(User $user): bool
     {
-        return true;
+        return $user->email !== 'support@lathephp.com';
     }
 
     public function view(User $user, Customer $customer): bool

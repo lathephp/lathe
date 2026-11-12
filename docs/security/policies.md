@@ -158,6 +158,8 @@ Two more are not policy methods. `globalSearch` is a gate: define it with `Gate:
 
 A policy that has no `viewLens` or `viewWidget` method hides every lens and widget of the Resource.
 
+A relation picker, and the remote options of a relation filter, list the related records only when the related Resource passes `canSee` and `viewAny`, and answer 403 otherwise. A form still shows its saved value when the user may `view` that one related record. A hand-written filter whose `searchOptions()` reads another Resource's table must make the same check itself, as the workbench's `OrderCustomer` filter does.
+
 ### Many records at once
 
 Bulk delete, restore and force delete look for a method named after the ability with `Any` on the end: `deleteAny`, `restoreAny` and `forceDeleteAny`. It takes the user and the query, and returns the query narrowed to the records the user may touch:

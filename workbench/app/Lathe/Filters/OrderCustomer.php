@@ -5,9 +5,11 @@ namespace Workbench\App\Lathe\Filters;
 use Closure;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Lathe\Auth\ResourceAuthorization;
 use Lathe\Filters\Filter;
 use Lathe\Http\Requests\LatheRequest;
 use Lathe\Search\LikeSearch;
+use Workbench\App\Lathe\Resources\Customer as CustomerResource;
 use Workbench\App\Models\Customer;
 
 class OrderCustomer extends Filter
@@ -34,6 +36,10 @@ class OrderCustomer extends Filter
 
     public function searchOptions(LatheRequest $request, string $term, int $page, int $perPage): array
     {
+        // A hand-written filter asks for itself what a relation filter asks: the customers may be listed.
+        $authorization = app(ResourceAuthorization::class);
+        abort_unless($authorization->canSee($request, CustomerResource::class) && $authorization->allows($request->user(), CustomerResource::class, 'viewAny'), 403);
+
         // The panel's own prefix match: escaped, and case-insensitive on PostgreSQL too.
         $customers = Customer::where(function (Builder $query) use ($term) {
             /** @var Builder<Model> $query */

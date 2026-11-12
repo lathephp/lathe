@@ -6,6 +6,7 @@ use Closure;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Lathe\Auth\ResourceAuthorization;
 use Lathe\Field\Relations\MorphToField;
 use Lathe\Field\Relations\RelationField;
 use Lathe\Http\Requests\LatheRequest;
@@ -68,6 +69,12 @@ class RelationFilter extends Filter
         if ($query === null || $this->field instanceof MorphToField) {
             return parent::searchOptions($request, $term, $page, $perPage);
         }
+
+        // Listing the related records needs canSee and viewAny on their Resource, as a relation picker does.
+        $related = $this->field->relatedResource();
+        $authorization = app(ResourceAuthorization::class);
+
+        abort_unless($related !== null && $authorization->canSee($request, $related) && $authorization->allows($request->user(), $related, 'viewAny'), 403);
 
         // The picker reads q and page from the request and pages by $perPage.
         $models = $query->options($perPage);

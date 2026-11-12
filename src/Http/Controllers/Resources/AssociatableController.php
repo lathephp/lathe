@@ -145,6 +145,9 @@ class AssociatableController
 
         abort_if($related === null, 404);
 
+        $authorization = app(ResourceAuthorization::class);
+        // Listing the related records needs canSee and viewAny on their Resource, as its index does.
+        $listable = $authorization->canSee($request, $related) && $authorization->allows($request->user(), $related, 'viewAny');
         $resource = $related::make();
         $query = $associatable->query();
 
@@ -159,16 +162,21 @@ class AssociatableController
             $row = $query->option($current);
 
             abort_if($row === null, 404);
+            // Without viewAny the form still shows its saved value when the user may view that record.
+            // The option row holds only the picker's columns, so the policy reads the whole row.
+            abort_unless($listable || $authorization->allows($request->user(), $related, 'view', $query->scoped()->whereKey($current)->first()), 403, $authorization->denialMessage($related));
 
             $rows = new Collection([$row]);
         } else {
+            abort_unless($listable, 403, $authorization->denialMessage($related));
+
             $rows = $query->options($resource->definition()->getPickerResults(), $field->reordersAssociatables());
         }
 
         // The attach modal offers only the records the policy lets the user attach: one call with the page's ids.
         if ($field->attaches() && $record !== null) {
             $keys = array_values(array_filter($rows->map(fn (Model $row) => $row->getKey())->all(), fn (mixed $key) => is_int($key) || is_string($key)));
-            $allowed = app(ResourceAuthorization::class)->allowedIds($request->user(), $parent, 'attach'.Str::studly($field->attribute()), $record, $keys);
+            $allowed = $authorization->allowedIds($request->user(), $parent, 'attach'.Str::studly($field->attribute()), $record, $keys);
             $rows = $rows->filter(fn (Model $row) => in_array($row->getKey(), $allowed, true))->values();
         }
 
