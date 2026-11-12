@@ -16,6 +16,6 @@ trait CountsRangeDays
     {
         $days = max(1, (int) $request->query('range', '30'));
 
-        return CarbonImmutable::now(app(Timezone::class)->forRequest($request))->startOfDay()->subDays($days - 1)->utc();
+        return CarbonImmutable::now(app(Timezone::class)->forRequest($request))->startOfDay()->subDays($days - 1)->setTimezone(app(Timezone::class)->storage());
     }
 }

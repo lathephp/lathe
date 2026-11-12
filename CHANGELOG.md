@@ -18,6 +18,7 @@ All notable changes to Lathe are listed here. The format follows [Keep a Changel
 
 ### Fixed
 
+- The fields guide said a date time field stores UTC; it stores the app's time zone, as Laravel's own timestamps do, and shows the user's. The filters, row grouping, widgets and import guides say the same.
 - An admin who impersonates a user who may not open the panel can press Stop Impersonating on the page that answers 403, and is back as themselves on the page the impersonation started from; the stop answered 403 too. That user signed in on their own still gets 403 everywhere in the panel.
 - The impersonation bar wraps its sentence on a narrow screen, so a phone reads the impersonated user's name in full; it was cut to "You are currently impersonatin…" at 390 px.
 - A link in rich text whose target is `_BLANK` or any other case of `_blank` gets `rel="noopener noreferrer"`, as a lowercase `_blank` did.

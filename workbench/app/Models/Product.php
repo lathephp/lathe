@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
+use Illuminate\Support\Carbon;
 use Lathe\ActionEvents\Actionable;
 
 /**
@@ -15,8 +16,9 @@ use Lathe\ActionEvents\Actionable;
  * @property string $name
  * @property string $sku
  * @property int $price_cents
+ * @property Carbon|null $released_on
  */
-#[Fillable(['category_id', 'name', 'sku', 'price_cents'])]
+#[Fillable(['category_id', 'name', 'sku', 'price_cents', 'released_on'])]
 class Product extends Model
 {
     use Actionable;
@@ -26,7 +28,7 @@ class Product extends Model
      */
     protected function casts(): array
     {
-        return ['specifications' => 'array'];
+        return ['specifications' => 'array', 'released_on' => 'date'];
     }
 
     /**

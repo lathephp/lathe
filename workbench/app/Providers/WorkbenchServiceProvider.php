@@ -22,7 +22,14 @@ class WorkbenchServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        // The Testbench skeleton fixes app.timezone at UTC; BENCH_APP_TIMEZONE runs the workbench on
+        // another zone, as Laravel's own boot would: the config and PHP's default zone together.
+        $zone = getenv('BENCH_APP_TIMEZONE');
+
+        if (is_string($zone) && $zone !== '') {
+            config(['app.timezone' => $zone]);
+            date_default_timezone_set($zone);
+        }
     }
 
     /**

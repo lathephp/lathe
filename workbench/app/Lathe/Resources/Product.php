@@ -33,6 +33,7 @@ class Product extends Resource
             Field::belongsTo('Category'),
             Field::text('SKU', 'sku')->required()->immutable()->rules('max:16', 'unique:products,sku,{{resourceId}}'),
             Field::currency('Price', 'price_cents')->asMinorUnits()->required()->min(0)->sortable(),
+            Field::date('Released', 'released_on')->nullable()->sortable(),
             Field::number('Reorder level')->min(0)->max(10)->step(1)->required(),
             StarRating::make('Rating')->rules('nullable', 'integer', 'between:1,5'),
             Field::textarea('Description')->onlyOnDetail(),

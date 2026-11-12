@@ -17,6 +17,7 @@ class ImportProducts extends ImportAction
             ImportColumn::make('name')->rules('required'),
             ImportColumn::make('sku')->rules('required'),
             ImportColumn::make('price')->numeric(2)->rules('required', 'numeric'),
+            ImportColumn::make('released_on')->label('Released')->date()->nullable(),
         )
             ->upsertBy('sku')
             ->beforeSave(function (array $row) {

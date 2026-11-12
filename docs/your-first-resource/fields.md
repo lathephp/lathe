@@ -213,7 +213,7 @@ Field::date('Born');
 Field::dateTime('Placed', 'placed_at')->min('2020-01-01');
 ```
 
-A date field needs a `date` cast on the model. A date time field shows the user's time zone and stores UTC. `min()`, `max()` and `step()` become input attributes and the `after_or_equal` and `before_or_equal` rules.
+A date field needs a `date` cast on the model. It is a calendar day that no time zone moves. A date time field shows the user's time zone and stores the app's time zone, `app.timezone`, as Laravel's own timestamps do. `min()`, `max()` and `step()` become input attributes and the `after_or_equal` and `before_or_equal` rules.
 
 ### Boolean and boolean group
 

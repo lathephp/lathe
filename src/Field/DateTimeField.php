@@ -17,7 +17,8 @@ use Lathe\Support\Timezone;
  * moment as wall time in the user's timezone (Lathe::resolveUserTimezone(), else the app's), and
  * sends back either that wall time ("2026-10-14T09:00") or an unedited UTC value ("...Z" or with an
  * offset). A string with no offset is read in the user's timezone, so 09:00 in Pacific/Kiritimati
- * stores 2026-10-13T19:00:00Z. min and max are compared as given, so write them as wall time.
+ * is the moment 2026-10-13T19:00:00Z, stored as its wall time in the app timezone: "2026-10-13 19:00:00"
+ * on an app that runs on UTC. min and max are compared as given, so write them as wall time.
  */
 class DateTimeField extends DateField implements FilterableField
 {
