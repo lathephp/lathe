@@ -2,10 +2,16 @@
   "machine": "cloud-vm",
   "writes": [
     {
+      "base": "01M78EB0F2XYSRW3ZPWRNB68HX",
+      "body": "# plan: m40-dates\n\n- [x] t1 Count a record in a value widget and a trend on the day and hour the app stored it, whatever the app's and the user's zones, with a UTC app's SQL unchanged\n- [ ] t2 Cut a day group's subtotal, a date filter and a card's Open records link on the same stored days as the dashboard  [after: t1]\n- [ ] t3 Store an imported datetime in the app's zone and an imported date-only cell as its calendar day\n- [ ] t4 Export a date-only column as its calendar day, so export then import leaves dates unchanged  [after: t3]\n- [ ] t5 Give the workbench Products a date-only Released column its import reads, read BENCH_APP_TIMEZONE, and correct the docs on what a date time field stores  [after: t1, t2, t3, t4]\n",
+      "id": "01M78F2S0CQ729H655QABE73ED",
+      "path": "projects/01M4T1WADSK9655DJEZ17PGMYC/plan.md"
+    },
+    {
       "base": null,
-      "body": "+++\ncreated = \"2026-11-12T16:27:40.706189374Z\"\nid = \"01M789C6YQQDMV3QW0RYX6VZDF\"\nkind = \"handoff\"\nmachine = \"cloud-vm\"\nmodified = \"2026-11-12T16:27:40.706189374Z\"\nproject = \"lathe\"\ntitle = \"Next: m40-dates. m39-sessions landed on main. Numbers: about 75 min wall clock (15:12 to 16:27 UT…\"\n+++\n\nNext: m40-dates. m39-sessions landed on main. Numbers: about 75 min wall clock (15:12 to 16:27 UTC, about 25 of it the cold composer install); 5 tasks, all solo (t3 and t4 in one commit 0cbe30e2), no delegation. Suite on 89d92c2e: 3,568 PHP passed (2 skipped), 1,569 JS passed. Review: 1 [blocks] (a user with no email read as signed out, wiping drafts and recents) fixed aae6952e with 2 [later] (same-URL stop skipped navigate, throttle key was the target's while impersonating); 4 [later] filed as ideas (429 copy in ConfirmPasswordDialog, confirmation forgetting lives in the swappable Impersonation class, token-field values still drafted, named targets keep opener). Walk: steps 1-2, 4-7 pass, 2 findings (#WQ2VCJWV silent Enable on the Security page while impersonating, #BAGNFV4M bar cut at 390) fixed 89d92c2e; re-walk R1-R5 pass. Plan correction: the password throttle counts every try, right or wrong (#14JF9YG9). Changelog Unreleased lists the new string 'Security settings are not available while impersonating.' for m43. Taste notes from the walk: the beforeunload prompt on a typed draft fires on sidebar links too; a plain editor's DELETE /lathe/api/impersonate answers 200 doing nothing.\n",
-      "id": "01M789C6YQDK3F8XAZ9RDW220A",
-      "path": "projects/01M4T1WADSK9655DJEZ17PGMYC/items/01M789C6YQQDMV3QW0RYX6VZDF.md"
+      "body": "+++\ncreated = \"2026-11-12T18:07:23.194665208Z\"\nid = \"01M78F2S4X1DDQSBMB282S91BT\"\nkind = \"log\"\nmachine = \"cloud-vm\"\nmodified = \"2026-11-12T18:07:23.194665208Z\"\nproject = \"lathe\"\ntitle = \"t1 landed: widgets and trends read datetime columns as app-timezone wall time (Timezone::storage/…\"\n+++\n\nt1 landed: widgets and trends read datetime columns as app-timezone wall time (Timezone::storage/stored, DateBucket $storage)\n",
+      "id": "01M78F2S4Y5AZBMZFFK4VPJRD3",
+      "path": "projects/01M4T1WADSK9655DJEZ17PGMYC/items/01M78F2S4X1DDQSBMB282S91BT.md"
     }
   ]
 }
