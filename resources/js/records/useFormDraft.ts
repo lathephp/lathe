@@ -1,21 +1,36 @@
 import { toast, useTranslation } from '@lathephp/core';
 import { useEffect, useRef, useState } from 'react';
 import type { FormFieldData } from '../fields/types';
+import { claimStorage, removeKeys } from '../lib/owner';
 
-/** Components whose value is a file: a draft never holds one. */
-const FILE_COMPONENTS = new Set(['file-field', 'image-field', 'audio-field', 'avatar-field']);
+/** Components a draft never holds: a file, and a password, which must never sit in the browser. */
+const UNKEPT_COMPONENTS = new Set(['file-field', 'image-field', 'audio-field', 'avatar-field', 'password-field']);
 
-/** The attributes a draft keeps: every field but the file ones. */
+/** The attributes a draft keeps: every field but the file and password ones. */
 export function persistable(fields: FormFieldData[]): string[] {
-  return fields.filter((field) => !FILE_COMPONENTS.has(field.component)).map((field) => field.attribute);
+  return fields.filter((field) => !UNKEPT_COMPONENTS.has(field.component)).map((field) => field.attribute);
 }
+
+const prefix = 'lathe-draft:';
 
 function storageKey(): string {
-  return `lathe-draft:${window.location.pathname}`;
+  return `${prefix}${window.location.pathname}`;
 }
 
-/** The draft of this form's page, keeping only the given attributes; null when there is none. */
-export function readDraft(attributes: string[]): Record<string, unknown> | null {
+/** Drops this tab's drafts when the signed-in user is not the one who typed them. */
+export function claimDrafts(email: string | null): void {
+  claimStorage(() => window.sessionStorage, 'lathe-draft-owner', email, (store) => {
+    removeKeys(store, prefix);
+  });
+}
+
+/**
+ * The draft of this form's page, keeping only the given attributes; null when there is none, or
+ * when another user than `email` typed it.
+ */
+export function readDraft(attributes: string[], email: string | null): Record<string, unknown> | null {
+  claimDrafts(email);
+
   try {
     const raw = window.sessionStorage.getItem(storageKey());
 

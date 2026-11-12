@@ -2,6 +2,7 @@ import { router } from '@inertiajs/react';
 import { __panel, QueryClientProvider, queryClient } from '@lathephp/core';
 import { act, fireEvent, render, screen, within } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { followUser } from '../lib/session';
 import { SearchPalette } from '../palette/SearchPalette';
 import { renderPage } from './support';
 
@@ -463,6 +464,44 @@ describe('recent searches', () => {
     fireEvent.keyDown(box(), { key: 'Enter' });
 
     expect(visit).toHaveBeenCalledWith('/lathe/resources/customers/1');
+  });
+
+  const as = (email: string | null) => ({ auth: { user: email === null ? null : { name: email, email } } });
+
+  it('lists none once another user signs in after a sign-out', async () => {
+    followUser(as('admin@lathephp.com'));
+    await choose('ann', found);
+
+    followUser(as(null));
+    followUser(as('editor@lathephp.com'));
+    renderPalette();
+
+    expect(stored()).toEqual([]);
+    expect(screen.queryByText('Recent searches')).toBeNull();
+    expect(screen.queryAllByRole('option')).toHaveLength(0);
+  });
+
+  it('keeps them while the same user browses', async () => {
+    followUser(as('admin@lathephp.com'));
+    await choose('ann', found);
+
+    followUser(as('admin@lathephp.com'));
+    renderPalette();
+
+    expect(stored()).toEqual(['/resources/customers/12']);
+    expect(screen.getByText('Recent searches')).toBeTruthy();
+  });
+
+  it('lists none once an impersonation starts, nor once it stops', async () => {
+    followUser(as('admin@lathephp.com'));
+    await choose('ann', found);
+
+    followUser(as('editor@lathephp.com'));
+    expect(stored()).toEqual([]);
+
+    await choose('c1', single(1));
+    followUser(as('admin@lathephp.com'));
+    expect(stored()).toEqual([]);
   });
 
   it('still works with storage blocked, with no recents', async () => {

@@ -112,17 +112,18 @@ export function firstErrors(data: unknown): Record<string, string> {
  * a 422 shows the messages under their fields, any other failure toasts with Retry.
  * A create under a `via` sends it back, so the server forces the parent it names.
  * A form in a modal passes `drafts: false`: the draft key is the page's, and the modal
- * must neither restore nor clear the draft of the form behind it.
+ * must neither restore nor clear the draft of the form behind it. `user` is the page's signed-in
+ * email: a draft another user typed never opens.
  */
 export function useRecordForm(
-  { resource, mode, id, form, via = null, drafts = true }: Pick<FormProps, 'resource' | 'mode' | 'id' | 'form'> & { via?: string | null; drafts?: boolean },
+  { resource, mode, id, form, via = null, drafts = true, user = null }: Pick<FormProps, 'resource' | 'mode' | 'id' | 'form'> & { via?: string | null; drafts?: boolean; user?: string | null },
   onDone: (redirect: string, id: string | number) => void,
 ) {
   const { __ } = useTranslation();
   const { apiPath } = useLathe();
   const [payload, setPayload] = useState<FormPayload>(form);
   const attributes = persistable(form.fields);
-  const [saved] = useState(() => (drafts ? readDraft(attributes) : null));
+  const [saved] = useState(() => (drafts ? readDraft(attributes, user) : null));
   const [values, setValuesState] = useState<Record<string, unknown>>(() => ({ ...initialValues(form.fields), ...saved }));
   // The values as of now, so two setValue calls in one tick each see the other's change.
   const valuesRef = useRef(values);
