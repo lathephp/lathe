@@ -264,12 +264,13 @@ it('answers 422 to an import step sent again for an import that is imported, run
 
 it('puts an import back as it was when its run could not be queued', function () {
     $importId = uploadedProductsImport();
+    importStep(['import_step' => 'dry_run', 'import_id' => $importId, 'column_map' => ['name', 'sku', 'price']])->assertOk();
     config(['queue.default' => 'missing']);
 
     importStep(['import_step' => 'import', 'import_id' => $importId, 'column_map' => ['name', 'sku', 'price']])->assertServerError();
 
     config(['queue.default' => 'sync']);
-    expect(Import::findOrFail($importId)->status)->toBe('uploaded');
+    expect(Import::findOrFail($importId)->only('status', 'mode'))->toBe(['status' => 'completed', 'mode' => 'dry_run']);
     importStep(['import_step' => 'import', 'import_id' => $importId, 'column_map' => ['name', 'sku', 'price']])->assertOk();
     expect(Product::count())->toBe(502);
 });

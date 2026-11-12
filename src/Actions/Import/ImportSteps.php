@@ -119,7 +119,7 @@ class ImportSteps
 
         abort_unless($import !== null && $import->ownedBy($this->uploads->ownerId($request->user())) && $import->model_class === $action->getModel(), 404);
 
-        $status = $import->status;
+        $before = ['status' => $import->status, 'mode' => $import->mode];
 
         // A run that is waiting or running, or a file already imported, never runs again; a failed import resumes from its run page.
         $claimed = Import::whereKey($import->id)
@@ -135,7 +135,7 @@ class ImportSteps
             $action->start($import, $mode, JobContext::capture($request));
         } catch (Throwable $exception) {
             // A run that never queued leaves the import as it was, so the step can be sent again.
-            Import::whereKey($import->id)->where('status', 'queued')->update(['status' => $status]);
+            Import::whereKey($import->id)->where('status', 'queued')->update($before);
 
             throw $exception;
         }
