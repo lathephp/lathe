@@ -14,6 +14,7 @@ use Illuminate\Validation\ValidationException;
 use Lathe\ActionEvents\ActionEvent;
 use Lathe\ActionEvents\ActionEventRecorder;
 use Lathe\Actions\Jobs\PlanBulkRun;
+use Lathe\Actions\Jobs\RunStandaloneAction;
 use Lathe\Auth\ResourceAuthorization;
 use Lathe\Enums\ActionEventStatus;
 use Lathe\Events\ActionExecuted;
@@ -55,7 +56,7 @@ class ActionDispatcher
         $resource = $class::make();
 
         if ($action->isStandalone()) {
-            return $this->runStandalone($request, $action, $class);
+            return $action instanceof ShouldQueue ? $this->queueStandalone($request, $action, $class) : $this->runStandalone($request, $action, $class);
         }
 
         $resolver = new SelectionResolver($resource, $request, $selection);
@@ -292,7 +293,54 @@ class ActionDispatcher
 
         /** @var array<string, mixed> $values */
         $values = $fields->toArray();
-        $batch = Bus::batch([new PlanBulkRun($run->id, JobContext::capture($request), $class, $selection->toArray(), $action->uriKey(), $values)]);
+        $this->dispatchRun($run, $action, $fields, new PlanBulkRun($run->id, JobContext::capture($request), $class, $selection->toArray(), $action->uriKey(), $values));
+
+        return [
+            'result' => ActionResult::message(Lathe::__('This action is being processed...')),
+            'permitted' => $total,
+            'skipped' => 0,
+            'failed' => 0,
+            'errors' => [],
+            'bulk_run' => ['id' => $run->id, 'total' => $total],
+        ];
+    }
+
+    /**
+     * Starts a queued standalone action: a waiting bulk run of one and a batch holding the one
+     * job that runs the handler in the worker.
+     *
+     * @param  class-string<\Lathe\Resources\Resource>  $class
+     * @return array{result: ActionResult, permitted: int, skipped: int, failed: int, errors: list<array{id: int|string|null, message: string}>, bulk_run: array{id: string, total: int}}
+     */
+    protected function queueStandalone(LatheRequest $request, Action $action, string $class): array
+    {
+        $fields = $this->validator->validate($request, $action);
+        $run = BulkRun::begin($request, $class, $action->name(), 1);
+
+        /** @var array<string, mixed> $values */
+        $values = $fields->toArray();
+        $job = new RunStandaloneAction($run->id, JobContext::capture($request), $class, $action->uriKey(), $values);
+        $job->timeout = $action->timeout;
+        $job->tries = $action->tries;
+        $this->dispatchRun($run, $action, $fields, $job);
+
+        return [
+            'result' => ActionResult::message(Lathe::__('This action is being processed...')),
+            'permitted' => 0,
+            'skipped' => 0,
+            'failed' => 0,
+            'errors' => [],
+            'bulk_run' => ['id' => $run->id, 'total' => 1],
+        ];
+    }
+
+    /**
+     * Dispatches the run's batch of its first job, on the action's connection and queue, with
+     * the callbacks a BatchableAction adds.
+     */
+    protected function dispatchRun(BulkRun $run, Action $action, ActionFields $fields, ShouldQueue $job): void
+    {
+        $batch = Bus::batch([$job]);
 
         if ($action->connection !== null) {
             $batch->onConnection($action->connection);
@@ -307,15 +355,6 @@ class ActionDispatcher
         }
 
         $run->dispatchBatch($batch);
-
-        return [
-            'result' => ActionResult::message(Lathe::__('This action is being processed...')),
-            'permitted' => $total,
-            'skipped' => 0,
-            'failed' => 0,
-            'errors' => [],
-            'bulk_run' => ['id' => $run->id, 'total' => $total],
-        ];
     }
 
     /**
@@ -341,8 +380,53 @@ class ActionDispatcher
     protected function runStandalone(LatheRequest $request, Action $action, string $class): array
     {
         $fields = $this->validator->validate($request, $action);
+        $batchId = $this->record($request, $action, new Collection, $class, $fields);
+
+        return [
+            'result' => $this->runStandaloneHandler($action, $class, $fields, $batchId),
+            'permitted' => 0,
+            'skipped' => 0,
+            'failed' => 0,
+            'errors' => [],
+        ];
+    }
+
+    /**
+     * A queued standalone action in the worker, under the one audit row of the job's batch: the
+     * first attempt writes it, a retry marks it running again. A throw marks it failed and
+     * reaches the job, so the action's tries apply.
+     *
+     * @param  class-string<\Lathe\Resources\Resource>  $class
+     */
+    public function runQueuedStandalone(LatheRequest $request, Action $action, string $class, ActionFields $fields, string $batchId): void
+    {
+        $eventBatchId = null;
+
+        if ($action->recordsActionEvents()) {
+            $eventBatchId = $batchId;
+            $events = Lathe::actionEventModel()::forBatch($batchId);
+
+            if ($events->exists()) {
+                $events->update(['status' => ActionEventStatus::Running->value, 'exception' => null, 'updated_at' => now()]);
+            } else {
+                // The cancel endpoint reads the run's events by the job batch id.
+                Lathe::actionEventModel()::forBatch((string) $this->record($request, $action, new Collection, $class, $fields))->update(['batch_id' => $batchId]);
+            }
+        }
+
+        $this->runStandaloneHandler($action, $class, $fields, $eventBatchId);
+    }
+
+    /**
+     * The handler of a standalone action, once with an empty collection, in one transaction.
+     * A throw marks its audit row failed and reaches the caller.
+     *
+     * @param  class-string<\Lathe\Resources\Resource>  $class
+     */
+    protected function runStandaloneHandler(Action $action, string $class, ActionFields $fields, ?string $batchId): ActionResult
+    {
         $models = new Collection;
-        $batchId = $this->record($request, $action, $models, $class, $fields);
+        $action->withActionBatchId($batchId);
         $modelClass = $class::make()->definition()->getModel();
         $handler = $modelClass === null ? 'handle' : ActionMethodResolver::handlerFor($action, $modelClass);
 
@@ -368,13 +452,7 @@ class ActionDispatcher
         event(new ActionExecuted($action, $models));
         $action->runThen($models);
 
-        return [
-            'result' => $action->handleResult($fields, $result instanceof ActionResult ? [$result] : []),
-            'permitted' => 0,
-            'skipped' => 0,
-            'failed' => 0,
-            'errors' => [],
-        ];
+        return $action->handleResult($fields, $result instanceof ActionResult ? [$result] : []);
     }
 
     /**

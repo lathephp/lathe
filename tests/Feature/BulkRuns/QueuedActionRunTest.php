@@ -23,6 +23,7 @@ use Lathe\Actions\BulkRun;
 use Lathe\Actions\Jobs\DeleteChunk;
 use Lathe\Actions\Jobs\ExecuteAction;
 use Lathe\Actions\Jobs\PlanBulkRun;
+use Lathe\Enums\ActionEventStatus;
 use Lathe\Events\ActionExecuted;
 use Lathe\Http\Requests\LatheRequest;
 use Lathe\Lathe;
@@ -139,6 +140,42 @@ class QueuedBigChunks extends QueuedShip
 }
 
 class QueuedAlways extends QueuedShip implements ShouldQueue
+{
+    //
+}
+
+/** A standalone report, queued or run in the request. */
+class QueuedReport extends Action
+{
+    public function __construct()
+    {
+        $this->standalone();
+    }
+
+    public function uriKey(): string
+    {
+        return 'report';
+    }
+
+    public function handle(ActionFields $fields, Collection $models): ActionResult
+    {
+        QueuedCalls::$log[] = 'report:'.$models->count().':'.Auth::id();
+
+        if (QueuedCalls::$throwTimes > 0) {
+            QueuedCalls::$throwTimes--;
+
+            throw new RuntimeException('Report on hold for now.');
+        }
+
+        if (QueuedCalls::$throwAll) {
+            throw new RuntimeException('Report on hold.');
+        }
+
+        return ActionResult::message('Report sent.');
+    }
+}
+
+class QueuedStandaloneReport extends QueuedReport implements ShouldQueue
 {
     //
 }
@@ -651,3 +688,70 @@ it('stores the starting request\'s ip and user agent on a run\'s action events, 
         ->and(ActionEvent::pluck('ip_address')->unique()->all())->toBe(['203.0.113.7'])
         ->and(ActionEvent::pluck('user_agent')->unique()->all())->toBe(['Probe/1.0']);
 })->with(['queued' => true, 'inline' => false]);
+
+it('queues a standalone ShouldQueue action and runs it once on the worker', function () {
+    seedOrders(1);
+    $admin = signInAdmin();
+    config(['queue.default' => 'database']);
+    QueuedCalls::$actions = [new QueuedStandaloneReport];
+
+    $response = $this->withServerVariables(['REMOTE_ADDR' => '203.0.113.7'])
+        ->postJson('/lathe/api/resources/queued-orders/action', queuedBody(['mode' => 'ids', 'ids' => []], 'report'))->assertOk();
+
+    $run = BulkRun::sole();
+    expect($response->json('bulk_run'))->toBe(['id' => $run->id, 'total' => 1])
+        ->and($response->json('result.message'))->toBe('This action is being processed...')
+        ->and(QueuedCalls::$log)->toBe([]);
+
+    drainQueue(tries: 3);
+
+    $this->getJson("/lathe/api/bulk-runs/{$run->id}")
+        ->assertExactJson(['status' => 'finished', 'total' => 1, 'processed' => 1, 'failed' => 0, 'skipped' => 0]);
+    expect(QueuedCalls::$log)->toBe(['report:0:'.$admin->id])
+        ->and(ActionEvent::sole()->only('status', 'actionable_id', 'ip_address', 'batch_id'))
+        ->toBe(['status' => ActionEventStatus::Finished, 'actionable_id' => null, 'ip_address' => '203.0.113.7', 'batch_id' => $run->fresh()?->batch_id]);
+});
+
+it('runs a queued standalone action again after a failed try, under one action event', function () {
+    seedOrders(1);
+    signInAdmin();
+    config(['queue.default' => 'database']);
+    QueuedCalls::$actions = [new QueuedStandaloneReport];
+    QueuedCalls::$throwTimes = 1;
+
+    $id = $this->postJson('/lathe/api/resources/queued-orders/action', queuedBody(['mode' => 'ids', 'ids' => []], 'report'))->json('bulk_run.id');
+    drainQueue(tries: 3);
+
+    $this->getJson("/lathe/api/bulk-runs/{$id}")
+        ->assertExactJson(['status' => 'finished', 'total' => 1, 'processed' => 1, 'failed' => 0, 'skipped' => 0]);
+    expect(ActionEvent::sole()->only('status', 'exception'))->toBe(['status' => ActionEventStatus::Finished, 'exception' => null]);
+});
+
+it('ends a queued standalone action that throws as failed', function () {
+    seedOrders(1);
+    signInAdmin();
+    config(['queue.default' => 'database']);
+    QueuedCalls::$actions = [new QueuedStandaloneReport];
+    QueuedCalls::$throwAll = true;
+
+    $id = $this->postJson('/lathe/api/resources/queued-orders/action', queuedBody(['mode' => 'ids', 'ids' => []], 'report'))->json('bulk_run.id');
+    drainQueue();
+
+    $this->getJson("/lathe/api/bulk-runs/{$id}")
+        ->assertExactJson(['status' => 'failed', 'total' => 1, 'processed' => 1, 'failed' => 1, 'skipped' => 0]);
+    expect(ActionEvent::sole()->only('status', 'exception'))->toBe(['status' => ActionEventStatus::Failed, 'exception' => 'Report on hold.']);
+});
+
+it('still runs a standalone action without ShouldQueue in the request', function () {
+    seedOrders(1);
+    $admin = signInAdmin();
+    config(['queue.default' => 'database']);
+    QueuedCalls::$actions = [new QueuedReport];
+
+    $this->postJson('/lathe/api/resources/queued-orders/action', queuedBody(['mode' => 'ids', 'ids' => []], 'report'))
+        ->assertOk()->assertJsonMissingPath('bulk_run')->assertJsonPath('result.message', 'Report sent.');
+
+    expect(QueuedCalls::$log)->toBe(['report:0:'.$admin->id])
+        ->and(BulkRun::count())->toBe(0)
+        ->and(ActionEvent::sole()->status)->toBe(ActionEventStatus::Finished);
+});

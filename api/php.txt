@@ -204,12 +204,16 @@ Lathe\Actions\ActionDispatcher::MAX_ERRORS
 Lathe\Actions\ActionDispatcher::__construct(Lathe\ActionEvents\ActionEventRecorder $recorder, Lathe\Auth\ResourceAuthorization $authorization, Lathe\Actions\ActionFieldValidator $validator)
 Lathe\Actions\ActionDispatcher::chunkEvents(string $batchId, Illuminate\Database\Eloquent\Collection $models): Illuminate\Database\Eloquent\Builder  [protected]
 Lathe\Actions\ActionDispatcher::dispatch(Lathe\Http\Requests\LatheRequest $request, Lathe\Actions\Action $action, Lathe\Query\Selection $selection): array
+Lathe\Actions\ActionDispatcher::dispatchRun(Lathe\Actions\BulkRun $run, Lathe\Actions\Action $action, Lathe\Actions\ActionFields $fields, Illuminate\Contracts\Queue\ShouldQueue $job): void  [protected]
 Lathe\Actions\ActionDispatcher::filterForExecution(Lathe\Http\Requests\LatheRequest $request, Lathe\Actions\Action $action, string $class, Illuminate\Support\Collection $models): Illuminate\Support\Collection
 Lathe\Actions\ActionDispatcher::queue(Lathe\Http\Requests\LatheRequest $request, Lathe\Actions\Action $action, string $class, Lathe\Query\Selection $selection, Lathe\Query\SelectionResolver $resolver, Lathe\Actions\ActionFields $fields): array  [protected]
+Lathe\Actions\ActionDispatcher::queueStandalone(Lathe\Http\Requests\LatheRequest $request, Lathe\Actions\Action $action, string $class): array  [protected]
 Lathe\Actions\ActionDispatcher::record(Lathe\Http\Requests\LatheRequest $request, Lathe\Actions\Action $action, Illuminate\Database\Eloquent\Collection $models, string $class, Lathe\Actions\ActionFields $fields): ?string  [protected]
 Lathe\Actions\ActionDispatcher::runChunk(Lathe\Actions\Action $action, Lathe\Actions\ActionFields $fields, Illuminate\Database\Eloquent\Collection $models): array
 Lathe\Actions\ActionDispatcher::runQueuedChunk(Lathe\Actions\Action $action, Lathe\Actions\ActionFields $fields, Illuminate\Database\Eloquent\Collection $models, ?string $batchId): void
+Lathe\Actions\ActionDispatcher::runQueuedStandalone(Lathe\Http\Requests\LatheRequest $request, Lathe\Actions\Action $action, string $class, Lathe\Actions\ActionFields $fields, string $batchId): void
 Lathe\Actions\ActionDispatcher::runStandalone(Lathe\Http\Requests\LatheRequest $request, Lathe\Actions\Action $action, string $class): array  [protected]
+Lathe\Actions\ActionDispatcher::runStandaloneHandler(Lathe\Actions\Action $action, string $class, Lathe\Actions\ActionFields $fields, ?string $batchId): Lathe\Actions\ActionResult  [protected]
 Lathe\Actions\ActionDispatcher::shouldQueue(Lathe\Actions\Action $action, Lathe\Query\SelectionResolver $resolver, int $max): bool  [protected]
 Lathe\Actions\ActionFieldValidator::validate(Lathe\Http\Requests\LatheRequest $request, Lathe\Actions\Action $action): Lathe\Actions\ActionFields
 Lathe\Actions\ActionMenu::Lathe\Auth\ResourceAuthorization $authorization  [protected]
@@ -587,6 +591,31 @@ Lathe\Actions\Jobs\PlanBulkRun::planDelete(Illuminate\Bus\Batch $batch, Lathe\Ht
 Lathe\Actions\Jobs\PlanBulkRun::requestFor(Lathe\Support\JobContext $context, string $resource): Lathe\Http\Requests\LatheRequest  [static]
 Lathe\Actions\Jobs\PlanBulkRun::string $bulkRunId
 Lathe\Actions\Jobs\PlanBulkRun::string $resource
+Lathe\Actions\Jobs\RunStandaloneAction::$afterCommit
+Lathe\Actions\Jobs\RunStandaloneAction::$batchId
+Lathe\Actions\Jobs\RunStandaloneAction::$chainCatchCallbacks
+Lathe\Actions\Jobs\RunStandaloneAction::$chainConnection
+Lathe\Actions\Jobs\RunStandaloneAction::$chainQueue
+Lathe\Actions\Jobs\RunStandaloneAction::$chained
+Lathe\Actions\Jobs\RunStandaloneAction::$connection
+Lathe\Actions\Jobs\RunStandaloneAction::$debounceOwner
+Lathe\Actions\Jobs\RunStandaloneAction::$deduplicator
+Lathe\Actions\Jobs\RunStandaloneAction::$delay
+Lathe\Actions\Jobs\RunStandaloneAction::$job
+Lathe\Actions\Jobs\RunStandaloneAction::$messageGroup
+Lathe\Actions\Jobs\RunStandaloneAction::$middleware
+Lathe\Actions\Jobs\RunStandaloneAction::$queue
+Lathe\Actions\Jobs\RunStandaloneAction::$uniqueLockOwner
+Lathe\Actions\Jobs\RunStandaloneAction::?int $timeout
+Lathe\Actions\Jobs\RunStandaloneAction::?int $tries
+Lathe\Actions\Jobs\RunStandaloneAction::Lathe\Support\JobContext $context
+Lathe\Actions\Jobs\RunStandaloneAction::__construct(string $bulkRunId, Lathe\Support\JobContext $context, string $resource, string $action, array $fields)
+Lathe\Actions\Jobs\RunStandaloneAction::array $fields
+Lathe\Actions\Jobs\RunStandaloneAction::failed(?Throwable $exception): void
+Lathe\Actions\Jobs\RunStandaloneAction::handle(Lathe\Actions\ActionDispatcher $dispatcher): void
+Lathe\Actions\Jobs\RunStandaloneAction::string $action
+Lathe\Actions\Jobs\RunStandaloneAction::string $bulkRunId
+Lathe\Actions\Jobs\RunStandaloneAction::string $resource
 Lathe\Assets\AssetManifest::?array $manifest  [protected]
 Lathe\Assets\AssetManifest::?string $distPath  [protected]
 Lathe\Assets\AssetManifest::ENTRY
@@ -4695,6 +4724,7 @@ class Lathe\Actions\Import\RowCaster
 class Lathe\Actions\Jobs\DeleteChunk
 class Lathe\Actions\Jobs\ExecuteAction
 class Lathe\Actions\Jobs\PlanBulkRun
+class Lathe\Actions\Jobs\RunStandaloneAction
 class Lathe\Assets\AssetManifest
 class Lathe\Assets\AssetRegistry
 class Lathe\Assets\ExtensionManifest

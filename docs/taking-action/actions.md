@@ -324,7 +324,9 @@ A run is queued in two cases:
 
 A queued run needs a queue worker. Without one, nothing runs. See [Deployment](../getting-started/deployment.md).
 
-Lathe splits the selection into chunks of 200 rows and runs one job per chunk. Change the size with the static `$chunkCount`. Unlike an inline run, a chunk calls `handle()` once with all its models, inside one transaction. If it throws, the whole chunk rolls back and the action's `tries` apply.
+Lathe splits the selection into chunks of 200 rows and runs one job per chunk. Change the size with the static `$chunkCount`. Unlike an inline run, a chunk calls `handle()` once with all its models, inside one transaction. If it throws, the whole chunk rolls back and the action's `tries` apply, or the worker's `--tries` when the action sets none. A chunk's rows count as failed only once its last attempt fails, so a chunk that passes on a retry counts as done.
+
+A standalone action that implements `ShouldQueue` queues too: one job calls `handle()` once with an empty collection, and the run counts as one.
 
 ```php
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -349,7 +351,7 @@ The user sees "This action is being processed..." and a progress toast, with a C
 
 A queued action cannot have a file field, because a job cannot carry an upload. Lathe refuses it when it builds the Resource. A non-queued action with a file field may run on at most `limits.bulk_inline_max` rows.
 
-Queued code does not see the request. The job carries the user, the guard, the locale and the time zone.
+Queued code does not see the request. The job carries the user, the guard, the locale and the time zone, and the ip address and user agent its audit rows store. Once the job ends, or throws, the worker is signed out again and back on its own guard and locale.
 
 ### Batches
 
