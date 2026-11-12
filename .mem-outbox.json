@@ -2,10 +2,22 @@
   "machine": "cloud-vm",
   "writes": [
     {
+      "base": "01M786G1D4WFBFWZT47ZN2PTWS",
+      "body": "# plan: m39-sessions\n\n- [x] t1 Let an impersonating session stop from a page that answers 403, while a user who fails viewLathe on their own stays out\n- [x] t2 Forget the password confirmation at an impersonation's start and stop, and refuse the password and two-factor routes while impersonating  [after: t1]\n- [x] t3 Keep no password field in a form draft, and clear drafts when the signed-in user changes, sign-in, sign-out and impersonation included\n- [ ] t4 Clear recent searches when the signed-in user changes  [after: t3]\n- [x] t5 Throttle confirm-password and the password update to 5 tries a minute per user, and force noopener on a new-tab link whatever the case of its target\n",
+      "id": "01M786WREA9DD279WZKPQ1AHK9",
+      "path": "projects/01M4T1WADSK9655DJEZ17PGMYC/plan.md"
+    },
+    {
+      "base": "01M786WREA9DD279WZKPQ1AHK9",
+      "body": "# plan: m39-sessions\n\n- [x] t1 Let an impersonating session stop from a page that answers 403, while a user who fails viewLathe on their own stays out\n- [x] t2 Forget the password confirmation at an impersonation's start and stop, and refuse the password and two-factor routes while impersonating  [after: t1]\n- [x] t3 Keep no password field in a form draft, and clear drafts when the signed-in user changes, sign-in, sign-out and impersonation included\n- [x] t4 Clear recent searches when the signed-in user changes  [after: t3]\n- [x] t5 Throttle confirm-password and the password update to 5 tries a minute per user, and force noopener on a new-tab link whatever the case of its target\n",
+      "id": "01M786WRFM6FARHQ5QZEDZKCZ2",
+      "path": "projects/01M4T1WADSK9655DJEZ17PGMYC/plan.md"
+    },
+    {
       "base": null,
-      "body": "+++\ncreated = \"2026-11-12T14:09:14.973335854Z\"\nid = \"01M781EQT83V8BD332A35TEG3N\"\nkind = \"handoff\"\nmachine = \"cloud-vm\"\nmodified = \"2026-11-12T14:09:14.973335854Z\"\nproject = \"lathe\"\ntitle = \"Next: m39-sessions. m38-scoped-writes landed on main. Numbers: about 80 min wall clock (12:49 to …\"\n+++\n\nNext: m39-sessions. m38-scoped-writes landed on main. Numbers: about 80 min wall clock (12:49 to 14:09 UTC, 20 of it a cold composer install); 5 tasks, 2 solo (t1 import scope, t4 action morphTo) and 3 delegated (t2 pivot, t3 pickers + support user, t5 permission fields), each delegated task launched twice because the first three worktrees' vendor copies filled the disk (verify#cloud now says to strip vendor .git clones); one fix on t2 after landing (pivot rules only for posted rows). Review: 1 [blocks] (preloaded TagField listed tags without viewAny, fixed f00c11a3), 7 [later]: 3 fixed (detach/update pivot scope 1a95477a, picker 403 toast bd5acf6c, import docs), 3 ideas (import without forResource, RoleSelectField test, canSee replacement on permission fields), 1 test assertion fixed. Walk: 9 steps pass, 2 findings (picker and filter bar 403 UI) fixed and re-walked R1-R7 pass. Suite on 7c20f5c3: 3,548 PHP passed (2 skipped), 1,556 JS passed. Plan corrections recorded: workbench Tags is detail-only, Orders' Customer filter is hand-written, support joins viewLathe and may create orders. Follow-up ideas: relation filter inline options()/labels() without viewAny; support not in UserPolicy's demo-protected list; pivotFieldValues GET unscoped; immutable pivot fields on update pivot.\n",
-      "id": "01M781EQT82DZN4YRJ9K2TH242",
-      "path": "projects/01M4T1WADSK9655DJEZ17PGMYC/items/01M781EQT83V8BD332A35TEG3N.md"
+      "body": "+++\ncreated = \"2026-11-12T15:44:17.452496286Z\"\nid = \"01M786WRN6C2WX25AN85B6GXH7\"\nkind = \"log\"\nmachine = \"cloud-vm\"\nmodified = \"2026-11-12T15:44:17.452496286Z\"\nproject = \"lathe\"\ntitle = \"m39 t3+t4 landed in one commit 0cbe30e2: drafts skip password fields; drafts (sessionStorage) and…\"\n+++\n\nm39 t3+t4 landed in one commit 0cbe30e2: drafts skip password fields; drafts (sessionStorage) and recent searches (localStorage) carry an owner tag and are cleared on user change via followUser and readDraft\n",
+      "id": "01M786WRN7NZBWY3N6BCFWC5KJ",
+      "path": "projects/01M4T1WADSK9655DJEZ17PGMYC/items/01M786WRN6C2WX25AN85B6GXH7.md"
     }
   ]
 }
