@@ -2,16 +2,16 @@
   "machine": "cloud-vm",
   "writes": [
     {
-      "base": "01M78F86KJY5F9QE22PVP1EAAM",
-      "body": "# plan: m40-dates\n\n- [x] t1 Count a record in a value widget and a trend on the day and hour the app stored it, whatever the app's and the user's zones, with a UTC app's SQL unchanged\n- [x] t2 Cut a day group's subtotal, a date filter and a card's Open records link on the same stored days as the dashboard  [after: t1]\n- [x] t3 Store an imported datetime in the app's zone and an imported date-only cell as its calendar day\n- [ ] t4 Export a date-only column as its calendar day, so export then import leaves dates unchanged  [after: t3]\n- [ ] t5 Give the workbench Products a date-only Released column its import reads, read BENCH_APP_TIMEZONE, and correct the docs on what a date time field stores  [after: t1, t2, t3, t4]\n",
-      "id": "01M78FHS9X3XX6SG1SRW6TR0J3",
+      "base": "01M78FHS9X3XX6SG1SRW6TR0J3",
+      "body": "# plan: m40-dates\n\n- [x] t1 Count a record in a value widget and a trend on the day and hour the app stored it, whatever the app's and the user's zones, with a UTC app's SQL unchanged\n- [x] t2 Cut a day group's subtotal, a date filter and a card's Open records link on the same stored days as the dashboard  [after: t1]\n- [x] t3 Store an imported datetime in the app's zone and an imported date-only cell as its calendar day\n- [x] t4 Export a date-only column as its calendar day, so export then import leaves dates unchanged  [after: t3]\n- [ ] t5 Give the workbench Products a date-only Released column its import reads, read BENCH_APP_TIMEZONE, and correct the docs on what a date time field stores  [after: t1, t2, t3, t4]\n",
+      "id": "01M78FPJBE5EKJBBY1NSNYHCZR",
       "path": "projects/01M4T1WADSK9655DJEZ17PGMYC/plan.md"
     },
     {
       "base": null,
-      "body": "+++\ncreated = \"2026-11-12T18:15:35.016183553Z\"\nid = \"01M78FHSEFE1AJZD3QCEDGJPD8\"\nkind = \"log\"\nmachine = \"cloud-vm\"\nmodified = \"2026-11-12T18:15:35.016183553Z\"\nproject = \"lathe\"\ntitle = \"t3 landed: import stores datetimes in app tz, date-only casts keep the calendar day (DateField::c…\"\n+++\n\nt3 landed: import stores datetimes in app tz, date-only casts keep the calendar day (DateField::castsToDay shared)\n",
-      "id": "01M78FHSEG4MT4ZHGSAMG5XD98",
-      "path": "projects/01M4T1WADSK9655DJEZ17PGMYC/items/01M78FHSEFE1AJZD3QCEDGJPD8.md"
+      "body": "+++\ncreated = \"2026-11-12T18:18:11.734937043Z\"\nid = \"01M78FPJGZ57DF4790XYA7WBPV\"\nkind = \"log\"\nmachine = \"cloud-vm\"\nmodified = \"2026-11-12T18:18:11.734937043Z\"\nproject = \"lathe\"\ntitle = \"t4 landed: export prints date-only casts as Y-m-d; export then import round trip pinned\"\n+++\n\nt4 landed: export prints date-only casts as Y-m-d; export then import round trip pinned\n",
+      "id": "01M78FPJH0H2ZQV875BBB1MRTW",
+      "path": "projects/01M4T1WADSK9655DJEZ17PGMYC/items/01M78FPJGZ57DF4790XYA7WBPV.md"
     }
   ]
 }
