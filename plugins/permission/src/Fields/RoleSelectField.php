@@ -17,6 +17,8 @@ use Spatie\Permission\PermissionRegistrar;
  */
 class RoleSelectField extends SelectField
 {
+    use SyncsNames;
+
     public function __construct(string $label = 'Role', string|Closure|null $attribute = 'role', ?Closure $resolver = null)
     {
         parent::__construct($label, $attribute, $resolver);
@@ -44,5 +46,6 @@ class RoleSelectField extends SelectField
         });
 
         $this->hideFromIndex();
+        $this->seenWithViewAnyOn(0);
     }
 }

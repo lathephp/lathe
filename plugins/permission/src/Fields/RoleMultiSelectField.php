@@ -45,5 +45,6 @@ class RoleMultiSelectField extends MultiSelectField
         });
 
         $this->hideFromIndex();
+        $this->seenWithViewAnyOn(0);
     }
 }

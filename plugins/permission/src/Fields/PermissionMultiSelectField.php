@@ -45,5 +45,6 @@ class PermissionMultiSelectField extends MultiSelectField
         });
 
         $this->hideFromIndex();
+        $this->seenWithViewAnyOn(1);
     }
 }

@@ -121,6 +121,8 @@ public function fields(LatheRequest $request): array
 
 Each takes a label, an attribute and an optional resolver. They show on forms and the detail page and hide on the index. They save only when the request carries the attribute, so a form that leaves them out changes nothing. `RoleSelectField` suits an app where a user holds one role. It sends the roles to the form when there are at most 100.
 
+A user sees the role fields only when they may list the Roles Resource, and the permission field only when they may list the Permissions Resource. For anyone else the field is left off the form, its posted value is ignored, and its picker answers 403.
+
 ## Change the Resources
 
 Swap in your own Resource classes with the setters. Each returns the plugin:
