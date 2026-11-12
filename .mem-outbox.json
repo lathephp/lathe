@@ -2,16 +2,22 @@
   "machine": "cloud-vm",
   "writes": [
     {
-      "base": "01M77YFDP2JDFFQ1AHXR3WN5QG",
-      "body": "# plan: m38-scoped-writes\n\n- [x] t1 Look up import keys through the Resource's edit scope and relationship cells through the related relatable scope, held by check-patterns\n- [ ] t2 Refuse readonly, hidden and invalid pivot values on the form, attach and update pivot, and 404 detach and update pivot outside the related scope\n- [ ] t3 Answer 403 from relation pickers and relation-filter options without the related Resource's viewAny or canSee, keep the saved-record lookup, and seed support@lathephp.com\n- [x] t4 Answer 422 for an action morphTo key its picker would not offer  [after: t3]\n- [x] t5 Hide the permission plugin's role and permission fields from a user who fails viewAny on Role or Permission\n",
-      "id": "01M77YHNHMSFPMMAG3TF13MKZ3",
+      "base": "01M77YHNHMSFPMMAG3TF13MKZ3",
+      "body": "# plan: m38-scoped-writes\n\n- [x] t1 Look up import keys through the Resource's edit scope and relationship cells through the related relatable scope, held by check-patterns\n- [x] t2 Refuse readonly, hidden and invalid pivot values on the form, attach and update pivot, and 404 detach and update pivot outside the related scope\n- [ ] t3 Answer 403 from relation pickers and relation-filter options without the related Resource's viewAny or canSee, keep the saved-record lookup, and seed support@lathephp.com\n- [x] t4 Answer 422 for an action morphTo key its picker would not offer  [after: t3]\n- [x] t5 Hide the permission plugin's role and permission fields from a user who fails viewAny on Role or Permission\n",
+      "id": "01M77Z1ZNN1D89C63N98846CB8",
       "path": "projects/01M4T1WADSK9655DJEZ17PGMYC/plan.md"
     },
     {
       "base": null,
-      "body": "+++\ncreated = \"2026-11-12T13:18:25.388232034Z\"\nid = \"01M77YHNRRQA2EKPHM1YRH00GK\"\nkind = \"log\"\nmachine = \"cloud-vm\"\nmodified = \"2026-11-12T13:18:25.388232034Z\"\nproject = \"lathe\"\ntitle = \"t5 landed: the permission plugin's role and permission fields ask viewAny on the plugin's Role/Pe…\"\n+++\n\nt5 landed: the permission plugin's role and permission fields ask viewAny on the plugin's Role/Permission Resource through canSee\n",
-      "id": "01M77YHNRSRY5RT43VJ6AH55VP",
-      "path": "projects/01M4T1WADSK9655DJEZ17PGMYC/items/01M77YHNRRQA2EKPHM1YRH00GK.md"
+      "body": "+++\ncreated = \"2026-11-12T13:27:20.034805192Z\"\nid = \"01M77Z1ZVGXA053FDJPMBN4BA5\"\nkind = \"log\"\nmachine = \"cloud-vm\"\nmodified = \"2026-11-12T13:27:20.034805192Z\"\nproject = \"lathe\"\ntitle = \"t2 landed: pivot writes drop readonly, hidden and computed fields, the form runs pivot rules on e…\"\n+++\n\nt2 landed: pivot writes drop readonly, hidden and computed fields, the form runs pivot rules on each posted row (tags_pivot.<id>.<attr>), detach and update pivot answer 404 outside the attach picker's relatable scope\n",
+      "id": "01M77Z1ZVH2G83T0B96A672CYW",
+      "path": "projects/01M4T1WADSK9655DJEZ17PGMYC/items/01M77Z1ZVGXA053FDJPMBN4BA5.md"
+    },
+    {
+      "base": null,
+      "body": "+++\nby = \"agent\"\ncreated = \"2026-11-12T13:27:20.227425363Z\"\nid = \"01M77Z200TSAA9M9YF4H8WGDC6\"\nkind = \"ruling\"\nmachine = \"cloud-vm\"\nmodified = \"2026-11-12T13:27:20.227425363Z\"\nproject = \"lathe\"\ntitle = \"m38 t2: a form's pivot rules run only for the rows it posts under {attr}_pivot.<id>; a tag sent w…\"\n+++\n\nm38 t2: a form's pivot rules run only for the rows it posts under {attr}_pivot.<id>; a tag sent with no row keeps its stored pivot values (sync writes only given columns), so a required pivot field does not refuse a form that posts ids alone. No client sends _pivot today.\n",
+      "id": "01M77Z200VN2WT1RK9GJQ2HY29",
+      "path": "projects/01M4T1WADSK9655DJEZ17PGMYC/items/01M77Z200TSAA9M9YF4H8WGDC6.md"
     }
   ]
 }
