@@ -492,13 +492,15 @@ Lathe\Actions\Import\ProcessImport::run(Lathe\Actions\Import\Import $import): vo
 Lathe\Actions\Import\ProcessImport::saveRow(Lathe\Actions\Import\Import $import, array $row, int $number, array $found): void  [protected]
 Lathe\Actions\Import\ProcessImport::values(array $rows, string $column): array  [protected]
 Lathe\Actions\Import\ProcessImport::writeErrorFile(Lathe\Actions\Import\Import $import): string  [protected]
-Lathe\Actions\Import\RowCaster::__construct(string $timezone)
+Lathe\Actions\Import\RowCaster::?Illuminate\Database\Eloquent\Model $model  [protected]
+Lathe\Actions\Import\RowCaster::__construct(string $timezone, ?Illuminate\Database\Eloquent\Model $model = NULL)
 Lathe\Actions\Import\RowCaster::cast(Lathe\Actions\Import\ImportColumn $column, mixed $value): mixed
 Lathe\Actions\Import\RowCaster::castRow(array $columns, array $row): array
 Lathe\Actions\Import\RowCaster::clean(string $value): string  [protected]
+Lathe\Actions\Import\RowCaster::stored(Illuminate\Support\Carbon $date, bool $day): Illuminate\Support\Carbon  [protected]
 Lathe\Actions\Import\RowCaster::string $timezone  [protected]
 Lathe\Actions\Import\RowCaster::toBoolean(mixed $value): bool  [protected]
-Lathe\Actions\Import\RowCaster::toDate(mixed $value, ?string $format): Illuminate\Support\Carbon  [protected]
+Lathe\Actions\Import\RowCaster::toDate(mixed $value, ?string $format, bool $day = false): Illuminate\Support\Carbon  [protected]
 Lathe\Actions\Import\RowCaster::toNumber(mixed $value, ?int $decimalPlaces): int|float|null  [protected]
 Lathe\Actions\Jobs\DeleteChunk::$afterCommit
 Lathe\Actions\Jobs\DeleteChunk::$batchId

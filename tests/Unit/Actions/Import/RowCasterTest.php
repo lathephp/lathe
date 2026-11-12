@@ -1,5 +1,6 @@
 <?php
 
+use Illuminate\Database\Eloquent\Model;
 use Lathe\Actions\Import\ImportColumn;
 use Lathe\Actions\Import\RowCaster;
 use Lathe\Actions\Import\RowCastException;
@@ -37,7 +38,7 @@ it('casts numbers', function () {
         ->and(caster()->cast(ImportColumn::make('a')->numeric(2), '1.23456'))->toBe(1.23);
 });
 
-it('reads a date in the given timezone and returns UTC', function () {
+it('reads a date in the given timezone and returns it in the app zone', function () {
     $column = ImportColumn::make('a')->date();
 
     $date = (new RowCaster('Pacific/Kiritimati'))->cast($column, '2026-03-09 13:30:00');
@@ -45,6 +46,23 @@ it('reads a date in the given timezone and returns UTC', function () {
     expect($date->format('Y-m-d H:i:s'))->toBe('2026-03-08 23:30:00')
         ->and($date->timezoneName)->toBe('UTC');
 });
+
+it('keeps the calendar day of a cell for a column the model casts to a day', function (string $cast) {
+    $model = new class extends Model
+    {
+        public static string $dayCast = 'date';
+
+        public function getCasts(): array
+        {
+            return ['released_on' => self::$dayCast];
+        }
+    };
+    $model::$dayCast = $cast;
+
+    $date = (new RowCaster('Pacific/Kiritimati', $model))->cast(ImportColumn::make('released_on')->date(), '2026-03-08');
+
+    expect($date->format('Y-m-d H:i:s'))->toBe('2026-03-08 00:00:00');
+})->with(['date', 'immutable_date', 'date:Y-m-d']);
 
 it('reads a date with an explicit format', function () {
     $column = ImportColumn::make('a')->date('d/m/Y H:i');

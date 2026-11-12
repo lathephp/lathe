@@ -95,10 +95,19 @@ class DateField extends Field implements FilterableField
             return;
         }
 
-        $cast = $record->getCasts()[$this->attribute] ?? '';
-
-        if (preg_match('/^(immutable_)?date(:.*)?\z/', $cast) !== 1) {
+        if (! self::castsToDay($record, $this->attribute)) {
             throw new LogicException("The date field [{$this->attribute}] needs a date cast on ".$record::class.'.');
         }
+    }
+
+    /**
+     * Whether the model casts the attribute to a calendar day: date, immutable_date, or either
+     * with a format. Such a value is a day that no time zone moves.
+     *
+     * @internal
+     */
+    public static function castsToDay(Model $model, string $attribute): bool
+    {
+        return preg_match('/^(immutable_)?date(:.*)?\z/', $model->getCasts()[$attribute] ?? '') === 1;
     }
 }

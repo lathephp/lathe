@@ -212,7 +212,7 @@ ImportColumn::make('status')->castUsing(fn ($value) => strtolower($value) === 'y
 |---|---|
 | `boolean()` | `1`, `true`, `yes`, `on` and `y` (any case) become `true`. Everything else becomes `false`. |
 | `numeric(?int $decimalPlaces)` | Keeps digits, `.` and `-`, so a currency symbol and a thousands separator fall away. A whole number becomes an integer. A cell with no digits becomes `null`. |
-| `date(?string $format)` | Parses the cell as a date in the user's time zone and stores it in UTC. Without a format Lathe guesses. A cell that does not parse fails the row with "Invalid date". |
+| `date(?string $format)` | Parses the cell as a date in the user's time zone and stores it in the app's time zone, as a form does. A column the model casts to `date` keeps the cell's calendar day, so `2026-03-08` stores March 8 in any zone. Without a format Lathe guesses. A cell that does not parse fails the row with "Invalid date". |
 | `relationship($name, $resolveBy = 'id')` | Looks up the related record by that column and stores its key. A cell with no match becomes `null`, and your rules decide whether that is an error. Lathe does one lookup per chunk. |
 | `castUsing(Closure)` | Runs your closure on the cleaned value, after any other cast. |
 

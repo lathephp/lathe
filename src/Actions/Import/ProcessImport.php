@@ -202,7 +202,7 @@ class ProcessImport implements ShouldQueue
     protected function processChunk(Import $import, array $chunk): void
     {
         $columns = $this->columns();
-        $caster = new RowCaster($this->context->timezone);
+        $caster = new RowCaster($this->context->timezone, $this->newModel());
         $mapped = [];
         $rows = [];
         $typed = [];

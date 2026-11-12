@@ -8,6 +8,7 @@ use Closure;
 use DateTimeInterface;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
+use Lathe\Field\DateField;
 use UnitEnum;
 
 /**
@@ -187,7 +188,7 @@ class Group
      */
     public function bucketsLocalDay(Model $model): bool
     {
-        return $this->date && ! $model->hasCast($this->attribute(), ['date', 'immutable_date']);
+        return $this->date && ! DateField::castsToDay($model, $this->attribute());
     }
 
     /**

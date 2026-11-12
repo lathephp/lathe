@@ -2,16 +2,20 @@
 
 namespace Lathe\Actions\Import;
 
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Carbon;
+use Lathe\Field\DateField;
+use Lathe\Support\Timezone;
 use Throwable;
 
 /**
  * Cleans and casts the cells of one import row. Relationship lookups are not here: the job
- * resolves them with one query per chunk.
+ * resolves them with one query per chunk. A date cell is read in the user's zone and lands in
+ * the app's, as a form saves it; on a column the model casts to a day it stays that calendar day.
  */
 class RowCaster
 {
-    public function __construct(protected string $timezone)
+    public function __construct(protected string $timezone, protected ?Model $model = null)
     {
         //
     }
@@ -51,7 +55,7 @@ class RowCaster
         $value = match ($column->getCast()) {
             'boolean' => $this->toBoolean($value),
             'numeric' => $this->toNumber($value, $column->getDecimalPlaces()),
-            'date' => $this->toDate($value, $column->getDateFormat()),
+            'date' => $this->toDate($value, $column->getDateFormat(), $this->model !== null && DateField::castsToDay($this->model, $column->getName())),
             default => $value,
         };
 
@@ -95,10 +99,10 @@ class RowCaster
         return is_float($value) && floor($value) === $value ? (int) $value : $value;
     }
 
-    protected function toDate(mixed $value, ?string $format): Carbon
+    protected function toDate(mixed $value, ?string $format, bool $day = false): Carbon
     {
         if ($value instanceof \DateTimeInterface) {
-            return Carbon::instance($value)->utc();
+            return $this->stored(Carbon::instance($value), $day);
         }
 
         try {
@@ -114,6 +118,20 @@ class RowCaster
             throw new RowCastException('Invalid date');
         }
 
-        return $date->utc();
+        return $this->stored($date, $day);
+    }
+
+    /**
+     * The moment in the app's zone, or its calendar day there at midnight.
+     */
+    protected function stored(Carbon $date, bool $day): Carbon
+    {
+        $storage = app(Timezone::class)->storage();
+
+        if ($day) {
+            return Carbon::createFromFormat('!Y-m-d', $date->format('Y-m-d'), $storage) ?: $date;
+        }
+
+        return $date->setTimezone($storage);
     }
 }
