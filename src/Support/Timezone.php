@@ -57,8 +57,9 @@ class Timezone
     }
 
     /**
-     * The UTC start (inclusive) and end (exclusive) of a local calendar day, which is
-     * shorter or longer than 24 hours on a daylight saving change.
+     * The start (inclusive) and end (exclusive) of a local calendar day, which is shorter or
+     * longer than 24 hours on a daylight saving change, in the storage zone, so a query binding
+     * either compares with a datetime column as the column holds it.
      *
      * @return array{0: CarbonImmutable, 1: CarbonImmutable}
      */
@@ -70,6 +71,6 @@ class Timezone
             throw new \InvalidArgumentException("{$day} is not a Y-m-d date.");
         }
 
-        return [$start->utc(), $start->addDay()->utc()];
+        return [$start->setTimezone($this->storage()), $start->addDay()->setTimezone($this->storage())];
     }
 }

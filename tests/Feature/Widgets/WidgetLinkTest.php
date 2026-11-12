@@ -121,3 +121,20 @@ it('lists what a day trend counted in a zone ahead of UTC, near its midnight', f
         ->and($this->getJson('/lathe/api/resources/orders/count?'.Str::after($card['link'], '?'))->json('value'))->toBe($counted)
         ->and($counted)->toBeGreaterThanOrEqual(4);
 });
+
+it('lists what a day card counted on a Dhaka app, from the day the app stored', function () {
+    appTimezone('Asia/Dhaka');
+    Lathe::userTimezone(fn () => 'Asia/Dhaka');
+    $this->travelTo(CarbonImmutable::parse('2026-11-11 23:45:00', 'Asia/Dhaka'));
+    DB::table('orders')->update(['placed_at' => '2026-01-01 12:00:00']);
+    DB::table('orders')->limit(2)->update(['placed_at' => '2026-11-11 23:30:00']);
+    ValueProbe::$using = fn (LatheRequest $request) => $this->count($request, Order::class, null, 'placed_at');
+    Cards::$widgets = [new ValueProbe];
+    $this->actingAs(linkUser('admin@lathephp.com'));
+
+    $card = $this->getJson('/lathe/api/dashboards/cards/widgets/value-probe?range=1')->assertOk()->json();
+
+    expect($card['value']['value'])->toBe(2)
+        ->and($card['link'])->toBe('/lathe/resources/orders?'.http_build_query(['filter' => ['placed' => ['from' => '2026-11-11', 'to' => '2026-11-11']]]))
+        ->and($this->getJson('/lathe/api/resources/orders/count?'.Str::after($card['link'], '?'))->json('value'))->toBe(2);
+});

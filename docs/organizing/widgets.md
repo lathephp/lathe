@@ -363,7 +363,7 @@ public function calculate(LatheRequest $request): mixed
 }
 ```
 
-A trend holds at most 366 points, and a larger count throws a `LogicException`. A bucket with no rows shows 0. Buckets are cut in the user's time zone.
+A trend holds at most 366 points, and a larger count throws a `LogicException`. A bucket with no rows shows 0. Buckets are cut in the user's time zone. The date column is read as wall time in the app's time zone, `app.timezone`, as forms and Laravel's timestamps store it, so an app need not run on UTC.
 
 ### Chart appearance
 

@@ -158,7 +158,7 @@ class ResourceSummaries
 
     /**
      * The SQL of a row's group key, with its bindings, and the WHERE that keeps the page's keys.
-     * A datetime day group buckets by the user's local day through UTC range conditions.
+     * A datetime day group buckets by the user's local day through range conditions on the stored text.
      *
      * @param  list<string>  $keys
      * @return array{0: string, 1: list<mixed>}

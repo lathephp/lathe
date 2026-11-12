@@ -346,6 +346,25 @@ it('groups a datetime column by the user\'s local day', function (string $zone, 
     'America/New_York' => ['America/New_York', ['2026-03-07', '2026-03-08', '2026-03-09'], ['2026-03-07' => '$0.20', '2026-03-08' => '$1.00', '2026-03-09' => '$0.03']],
 ]);
 
+it('groups and filters an order on a Dhaka app on the day the app stored it', function () {
+    appTimezone('Asia/Dhaka');
+    Lathe::userTimezone(fn () => 'Asia/Dhaka');
+    $customer = Customer::create(['name' => 'Ann', 'email' => 'ann@example.com']);
+    UserFactory::new()->create(['email' => 'admin@lathephp.com']);
+    Order::create(['customer_id' => $customer->id, 'number' => 'ORD-1', 'status' => 'paid', 'total_cents' => 100, 'placed_at' => '2026-11-11 23:30:00']);
+    Order::create(['customer_id' => $customer->id, 'number' => 'ORD-2', 'status' => 'paid', 'total_cents' => 20, 'placed_at' => '2026-11-12 00:30:00']);
+
+    actAsGroupAdmin();
+    $rows = $this->getJson('/lathe/api/resources/orders?group=placed&sort=number')->assertOk()->json('table.rows');
+    $summaries = $this->get('/lathe/resources/orders?group=placed&sort=number', groupPartial())->assertOk()->json('props.summaries');
+    $placedOn = fn (string $day) => array_column($this->getJson('/lathe/api/resources/orders?'.http_build_query(['filter' => ['placed' => ['from' => $day, 'to' => $day]]]))->assertOk()->json('table.rows'), 'title');
+
+    expect(array_column(array_column($rows, 'group'), 'key'))->toBe(['2026-11-11', '2026-11-12'])
+        ->and(array_map(fn (array $group) => $group['total_cents'][0]['value'], $summaries['groups']))->toBe(['2026-11-11' => '$1.00', '2026-11-12' => '$0.20'])
+        ->and($placedOn('2026-11-11'))->toBe(['ORD-1'])
+        ->and($placedOn('2026-11-12'))->toBe(['ORD-2']);
+});
+
 it('joins a to-one relation group like a relation sort', function () {
     app(DemoSeeder::class)->forOrders(40)->run();
 

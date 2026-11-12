@@ -95,7 +95,7 @@ Call `date()` on a date or datetime column to group by calendar day instead of t
 Group::make('created_at')->date()
 ```
 
-For a datetime column, Lathe uses the day in the user's own time zone. A row at 23:30 UTC on a Monday lands under Tuesday for a user in Tokyo. Subtotals use the same day boundaries, so a header and its subtotal agree.
+For a datetime column, Lathe uses the day in the user's own time zone. The column holds wall time in the app's time zone, so on an app that runs on UTC a row stored at 23:30 on a Monday lands under Tuesday for a user in Tokyo. Subtotals use the same day boundaries, so a header and its subtotal agree.
 
 ## Collapsible groups
 

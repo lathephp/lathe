@@ -118,9 +118,9 @@ class CreatedBetween extends DateFilter
 }
 ```
 
-`whereDate()` compares the date as the database stores it, usually in UTC.
+`whereDate()` compares the date as the database stores it: a datetime column holds wall time in the app's time zone, `app.timezone`.
 
-`column()` names the date column the filter narrows. It is optional, and null by default. When it names one, a dashboard card dated by that column opens this list with the filter set to the card's days (see [Open records](../organizing/widgets.md#open-records)). The card counts days in the user's time zone, so a filter that names its column cuts its days there too, or the list and the card disagree about the rows near midnight. `Timezone::dayBounds()` gives a local day's start and end in UTC:
+`column()` names the date column the filter narrows. It is optional, and null by default. When it names one, a dashboard card dated by that column opens this list with the filter set to the card's days (see [Open records](../organizing/widgets.md#open-records)). The card counts days in the user's time zone, so a filter that names its column cuts its days there too, or the list and the card disagree about the rows near midnight. `Timezone::dayBounds()` gives a local day's start and end in the app's time zone, the zone the column holds:
 
 ```php
 use Lathe\Filters\DateFilter;

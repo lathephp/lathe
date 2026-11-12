@@ -40,7 +40,7 @@ it('puts a UTC moment on the local calendar day', function (string $zone, string
     ['America/New_York', '2026-03-08'],
 ]);
 
-it('gives the UTC bounds of a local day, a short one on the spring-forward day', function () {
+it('gives the moments that bound a local day, a short one on the spring-forward day', function () {
     [$start, $end] = app(Timezone::class)->dayBounds('2026-03-08', 'America/New_York');
 
     expect($start->toIso8601ZuluString())->toBe('2026-03-08T05:00:00Z')
@@ -50,6 +50,14 @@ it('gives the UTC bounds of a local day, a short one on the spring-forward day',
 
     expect($start->toIso8601ZuluString())->toBe('2026-03-08T10:00:00Z')
         ->and($end->toIso8601ZuluString())->toBe('2026-03-09T10:00:00Z');
+});
+
+it('gives a local day\'s bounds as the app zone wall time a datetime column holds', function () {
+    appTimezone('Asia/Dhaka');
+
+    [$start, $end] = app(Timezone::class)->dayBounds('2026-11-11', 'UTC');
+
+    expect([$start->format('Y-m-d H:i:s'), $end->format('Y-m-d H:i:s')])->toBe(['2026-11-11 06:00:00', '2026-11-12 06:00:00']);
 });
 
 it('buckets dates by day and by month in SQL', function () {
