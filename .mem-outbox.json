@@ -2,28 +2,28 @@
   "machine": "cloud-vm",
   "writes": [
     {
-      "base": "01M77Z1ZNN1D89C63N98846CB8",
-      "body": "# plan: m38-scoped-writes\n\n- [x] t1 Look up import keys through the Resource's edit scope and relationship cells through the related relatable scope, held by check-patterns\n- [x] t2 Refuse readonly, hidden and invalid pivot values on the form, attach and update pivot, and 404 detach and update pivot outside the related scope\n- [x] t3 Answer 403 from relation pickers and relation-filter options without the related Resource's viewAny or canSee, keep the saved-record lookup, and seed support@lathephp.com\n- [x] t4 Answer 422 for an action morphTo key its picker would not offer  [after: t3]\n- [x] t5 Hide the permission plugin's role and permission fields from a user who fails viewAny on Role or Permission\n",
-      "id": "01M77Z57KZ6R1WC5Y90X1C1WKC",
-      "path": "projects/01M4T1WADSK9655DJEZ17PGMYC/plan.md"
+      "base": null,
+      "body": "+++\ncreated = \"2026-11-12T13:56:36.122882499Z\"\nid = \"01M780QJSB7CXKEDNQS4H30789\"\nkind = \"idea\"\nmachine = \"cloud-vm\"\nmodified = \"2026-11-12T13:56:36.122882499Z\"\nproject = \"lathe\"\ntitle = \"an ImportAction declared without forResource() matches keys in the canonical Resource's edit scop…\"\n+++\n\nan ImportAction declared without forResource() matches keys in the canonical Resource's edit scope, not the Resource the user imported from; ImportSteps could set it (m38 review)\n",
+      "id": "01M780QJSB9CTR2GF72H7387ZT",
+      "path": "projects/01M4T1WADSK9655DJEZ17PGMYC/items/01M780QJSB7CXKEDNQS4H30789.md"
     },
     {
       "base": null,
-      "body": "+++\ncreated = \"2026-11-12T13:29:06.48258938Z\"\nid = \"01M77Z57SPS80K66RKE1R6QVNC\"\nkind = \"log\"\nmachine = \"cloud-vm\"\nmodified = \"2026-11-12T13:29:06.48258938Z\"\nproject = \"lathe\"\ntitle = \"t3 landed: pickers and relation-filter options answer 403 without the related Resource's canSee a…\"\n+++\n\nt3 landed: pickers and relation-filter options answer 403 without the related Resource's canSee and viewAny, current= decided by view; support@lathephp.com seeded (create/view/update orders, no customer list)\n",
-      "id": "01M77Z57SPTTH5TF2ZCZWYNRKZ",
-      "path": "projects/01M4T1WADSK9655DJEZ17PGMYC/items/01M77Z57SPS80K66RKE1R6QVNC.md"
+      "body": "+++\ncreated = \"2026-11-12T13:56:36.314112503Z\"\nid = \"01M780QJYGTJTZXC4SHJXZ2FZJ\"\nkind = \"idea\"\nmachine = \"cloud-vm\"\nmodified = \"2026-11-12T13:56:36.314112503Z\"\nproject = \"lathe\"\ntitle = \"RoleSelectField's viewAny check has no test (m38 review)\"\n+++\n\nRoleSelectField's viewAny check has no test (m38 review)\n",
+      "id": "01M780QJYGN04Q82Q4J68ZD6C0",
+      "path": "projects/01M4T1WADSK9655DJEZ17PGMYC/items/01M780QJYGTJTZXC4SHJXZ2FZJ.md"
     },
     {
       "base": null,
-      "body": "+++\ncreated = \"2026-11-12T13:29:06.662713388Z\"\nid = \"01M77Z57YQ714HMQ49XTQ9FT5F\"\nkind = \"idea\"\nmachine = \"cloud-vm\"\nmodified = \"2026-11-12T13:29:06.662713388Z\"\nproject = \"lathe\"\ntitle = \"relation filters' inline options() and labels() (core RelationFilter and the workbench OrderCusto…\"\n+++\n\nrelation filters' inline options() and labels() (core RelationFilter and the workbench OrderCustomer) still list related records to a user without viewAny (m38 t3 follow-up)\n",
-      "id": "01M77Z57YQG7T2KS6A396DS9AD",
-      "path": "projects/01M4T1WADSK9655DJEZ17PGMYC/items/01M77Z57YQ714HMQ49XTQ9FT5F.md"
+      "body": "+++\ncreated = \"2026-11-12T13:56:36.488773945Z\"\nid = \"01M780QK3P8E9VY2APTC3ST26K\"\nkind = \"idea\"\nmachine = \"cloud-vm\"\nmodified = \"2026-11-12T13:56:36.488773945Z\"\nproject = \"lathe\"\ntitle = \"the permission fields' viewAny check is their canSee callback, so an app's own ->canSee() on the …\"\n+++\n\nthe permission fields' viewAny check is their canSee callback, so an app's own ->canSee() on the field replaces it and the field writes roles again (m38 review)\n",
+      "id": "01M780QK3PK7JQJ79PJQZ2PH12",
+      "path": "projects/01M4T1WADSK9655DJEZ17PGMYC/items/01M780QK3P8E9VY2APTC3ST26K.md"
     },
     {
       "base": null,
-      "body": "+++\ncreated = \"2026-11-12T13:29:06.826984219Z\"\nid = \"01M77Z584764AFQY5FE20ZBM14\"\nkind = \"idea\"\nmachine = \"cloud-vm\"\nmodified = \"2026-11-12T13:29:06.826984219Z\"\nproject = \"lathe\"\ntitle = \"workbench support@lathephp.com is not among UserPolicy's protected demo accounts; add it if the l…\"\n+++\n\nworkbench support@lathephp.com is not among UserPolicy's protected demo accounts; add it if the live demo prints its sign-in (m38 t3 follow-up)\n",
-      "id": "01M77Z5847W4X6D842BAZ5VYBC",
-      "path": "projects/01M4T1WADSK9655DJEZ17PGMYC/items/01M77Z584764AFQY5FE20ZBM14.md"
+      "body": "+++\ncreated = \"2026-11-12T13:56:36.642260666Z\"\nid = \"01M780QK8B6DFJC3A61S7W2P94\"\nkind = \"log\"\nmachine = \"cloud-vm\"\nmodified = \"2026-11-12T13:56:36.642260666Z\"\nproject = \"lathe\"\ntitle = \"review fixes landed: f00c11a3 TagField preload needs viewAny (the one [blocks]); 1a95477a detach/…\"\n+++\n\nreview fixes landed: f00c11a3 TagField preload needs viewAny (the one [blocks]); 1a95477a detach/update pivot read the related Resource's relatable scope only; bd5acf6c and 6f8ee6f6 plain 403 line in picker and filter bar; docs; three [later] filed as ideas\n",
+      "id": "01M780QK8B2V6A9ZJS4HS66GEJ",
+      "path": "projects/01M4T1WADSK9655DJEZ17PGMYC/items/01M780QK8B6DFJC3A61S7W2P94.md"
     }
   ]
 }
