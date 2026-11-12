@@ -507,3 +507,22 @@ it('prunes an import older than prune_after_hours with its rows and files', func
         ->and(Storage::disk('local')->exists($recent->file_name))->toBeTrue()
         ->and(Storage::disk('local')->exists((string) $recent->error_file))->toBeTrue();
 });
+
+it('matches an upsert key as the database compares it: without case on MySQL and MariaDB, with case elsewhere', function () {
+    $ann = Customer::query()->forceCreate(['name' => 'Ann', 'email' => 'ann@example.com']);
+    $before = Customer::count();
+    $import = uploadedImport("Name,Email\nAnn Again,Ann@Example.com\nAnn Twice,ANN@example.com\n", [0 => 'name', 1 => 'email'], Customer::class);
+
+    ImportAction::make()->withModel(Customer::class)
+        ->withColumns(ImportColumn::make('name'), ImportColumn::make('email'))
+        ->upsertBy('email')
+        ->start($import, 'import', adminContext());
+
+    $foldsCase = in_array(DB::connection()->getDriverName(), ['mysql', 'mariadb'], true);
+
+    expect(importCounts($import))->toBe($foldsCase
+        ? ['created_rows' => 0, 'updated_rows' => 2, 'skipped_rows' => 0, 'failed_rows' => 0]
+        : ['created_rows' => 2, 'updated_rows' => 0, 'skipped_rows' => 0, 'failed_rows' => 0])
+        ->and(Customer::count())->toBe($foldsCase ? $before : $before + 2)
+        ->and($ann->fresh()?->name)->toBe($foldsCase ? 'Ann Twice' : 'Ann');
+});

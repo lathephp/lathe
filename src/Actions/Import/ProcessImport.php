@@ -61,6 +61,13 @@ class ProcessImport implements ShouldQueue
      */
     protected ?LatheRequest $request = null;
 
+    /**
+     * Whether the import model's database compares keys without case, read once.
+     *
+     * @internal
+     */
+    protected ?bool $foldsCase = null;
+
     public function __construct(public Import $import, public ImportAction $action, public JobContext $context)
     {
         $this->onConnection($action->connection);
@@ -661,9 +668,16 @@ class ProcessImport implements ShouldQueue
         return array_values($values);
     }
 
+    /**
+     * The text a key matches by, compared as the import model's database compares it: the
+     * default collations of MySQL and MariaDB ignore case, SQLite and PostgreSQL do not.
+     */
     protected function keyString(mixed $value): string
     {
-        return is_scalar($value) || $value instanceof \Stringable ? (string) $value : (json_encode($value) ?: '');
+        $key = is_scalar($value) || $value instanceof \Stringable ? (string) $value : (json_encode($value) ?: '');
+        $this->foldsCase ??= in_array($this->newModel()->getConnection()->getDriverName(), ['mysql', 'mariadb'], true);
+
+        return $this->foldsCase ? mb_strtolower($key) : $key;
     }
 
     /**
