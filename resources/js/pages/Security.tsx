@@ -289,13 +289,21 @@ function TwoFactorCard({ state }: { state: TwoFactorState }) {
 /** Password and two-factor settings for the signed-in user. */
 export default function Security({ features, twoFactor }: SecurityProps) {
   const { __ } = useTranslation();
+  // The server refuses the cards' routes while impersonating, so the page says so instead of offering them.
+  const impersonating = usePage<SharedProps>().props.impersonating !== null;
 
   return (
     <div className="mx-auto w-full max-w-3xl space-y-6 p-6">
       <Head title={__('Security')} />
       <PageHeader title={__('Security')} />
-      {features.updatePasswords && <PasswordCard />}
-      {features.twoFactorAuthentication && <TwoFactorCard state={twoFactor} />}
+      {impersonating ? (
+        <p className="text-sm text-muted-foreground">{__('Security settings are not available while impersonating.')}</p>
+      ) : (
+        <>
+          {features.updatePasswords && <PasswordCard />}
+          {features.twoFactorAuthentication && <TwoFactorCard state={twoFactor} />}
+        </>
+      )}
     </div>
   );
 }

@@ -7,13 +7,14 @@ All notable changes to Lathe are listed here. The format follows [Keep a Changel
 ### Changed
 
 - [api] One English string is new, for an app that translates the panel; none was renamed or removed: `Security settings are not available while impersonating.`, the answer of the password and two-factor routes while an admin impersonates someone.
-- While an admin impersonates someone, the password change and every two-factor route of the Security page (turning two-factor on, confirming it, turning it off, its QR code, secret key and recovery codes) answer 403, so an impersonation never reads or changes the target's account security. Starting and stopping an impersonation forget the password confirmation, so the next action that asks for the password asks again, as the target and then as the admin.
+- While an admin impersonates someone, the password change and every two-factor route of the Security page (turning two-factor on, confirming it, turning it off, its QR code, secret key and recovery codes) answer 403, so an impersonation never reads or changes the target's account security, and the Security page says so in place of its cards. Starting and stopping an impersonation forget the password confirmation, so the next action that asks for the password asks again, as the target and then as the admin.
 - A form's unsent draft keeps no password field, and a reload restores the other fields with the password empty. The drafts and the palette's recent searches a browser keeps belong to the user who made them: signing out, signing in as someone else, and starting or stopping an impersonation clear them, across a reload too.
 - Confirming the password and changing it on the Security page take 5 tries a minute per user, as the two-factor challenge does; the 6th answers 429.
 
 ### Fixed
 
 - An admin who impersonates a user who may not open the panel can press Stop Impersonating on the page that answers 403, and is back as themselves on the page the impersonation started from; the stop answered 403 too. That user signed in on their own still gets 403 everywhere in the panel.
+- The impersonation bar wraps its sentence on a narrow screen, so a phone reads the impersonated user's name in full; it was cut to "You are currently impersonatin…" at 390 px.
 - A link in rich text whose target is `_BLANK` or any other case of `_blank` gets `rel="noopener noreferrer"`, as a lowercase `_blank` did.
 
 ## [1.0.0-beta.12] - 2026-11-10

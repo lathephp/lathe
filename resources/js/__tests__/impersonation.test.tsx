@@ -1,4 +1,5 @@
 import { router } from '@inertiajs/react';
+import { queryClient } from '@lathephp/core';
 import { fireEvent, screen, waitFor } from '@testing-library/react';
 import { afterEach, beforeAll, describe, expect, it, vi } from 'vitest';
 import { renderPage } from './support';
@@ -69,6 +70,33 @@ describe('the impersonation banner', () => {
       expect(visit).toHaveBeenCalledWith('/lathe/resources/users');
     });
     expect(impersonateCalls(fetch).map(([, init]) => init.method)).toEqual(['DELETE']);
+  });
+
+  it('clears the drafts, recent searches and query cache as it stops, even when the redirect is the page it is on', async () => {
+    vi.spyOn(globalThis, 'fetch').mockResolvedValue(json({ redirect: '/lathe' }));
+    const visit = vi.spyOn(router, 'visit').mockImplementation(() => undefined);
+    renderPage('Dashboard', dashboard, { shared: { impersonating: { name: 'Editor User' } } });
+    window.sessionStorage.setItem('lathe-draft:/lathe/resources/users/new', JSON.stringify({ name: 'Typed as the editor' }));
+    window.localStorage.setItem('lathe-recent-searches', JSON.stringify([{ url: '/resources/customers/12', title: 'Ann Taylor' }]));
+    queryClient.setQueryData(['widgets', 'sales'], 42);
+
+    fireEvent.click(await screen.findByRole('button', { name: 'Stop Impersonating' }));
+
+    await waitFor(() => {
+      expect(visit).toHaveBeenCalledWith('/lathe');
+    });
+    expect(window.sessionStorage.getItem('lathe-draft:/lathe/resources/users/new')).toBeNull();
+    expect(window.localStorage.getItem('lathe-recent-searches')).toBeNull();
+    expect(queryClient.getQueryData(['widgets', 'sales'])).toBeUndefined();
+  });
+
+  it('names the user in full on a phone, on as many lines as it takes', async () => {
+    renderPage('Dashboard', dashboard, { shared: { impersonating: { name: 'Editor User' } } });
+
+    const text = (await screen.findByRole('status')).querySelector('span');
+
+    // jsdom lays nothing out, so the test pins that the sentence may wrap instead of being cut.
+    expect(text?.className.split(' ')).not.toContain('truncate');
   });
 
   it('is absent when no impersonation runs', async () => {

@@ -24,6 +24,14 @@ describe('security page', () => {
     );
   });
 
+  it('says why while impersonating, and offers neither the password nor the two-factor card', () => {
+    renderPage('Security', { features: { updatePasswords: true, twoFactorAuthentication: true }, twoFactor: 'off' }, { url: '/lathe/security', shared: { impersonating: { name: 'Editor User' } } });
+
+    expect(screen.getByText('Security settings are not available while impersonating.')).toBeTruthy();
+    expect(screen.queryByLabelText('Current password')).toBeNull();
+    expect(screen.queryByRole('button', { name: 'Enable' })).toBeNull();
+  });
+
   it('shows no password card without the feature', () => {
     renderPage('Security', { features: { updatePasswords: false, twoFactorAuthentication: true }, twoFactor: 'off' }, { url: '/lathe/security' });
 

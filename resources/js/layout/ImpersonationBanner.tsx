@@ -12,10 +12,11 @@ export function ImpersonationBanner({ name, basePath }: { name: string; basePath
     <div
       data-lathe-impersonation
       role="status"
-      className="flex h-10 items-center gap-2.5 bg-warning-subtle px-4 text-[13px] leading-[18px] text-warning-subtle-foreground"
+      className="flex min-h-10 items-center gap-2.5 bg-warning-subtle px-4 py-1 text-[13px] leading-[18px] text-warning-subtle-foreground"
     >
       <Eye aria-hidden="true" className="size-4 shrink-0" />
-      <span className="truncate">{__('You are currently impersonating :name.', { name })}</span>
+      {/* It wraps rather than cuts, so a phone still reads whom the admin acts as. */}
+      <span className="min-w-0">{__('You are currently impersonating :name.', { name })}</span>
       <button
         type="button"
         disabled={busy}
