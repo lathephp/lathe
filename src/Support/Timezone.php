@@ -4,11 +4,14 @@ namespace Lathe\Support;
 
 use Carbon\CarbonImmutable;
 use Carbon\CarbonInterface;
+use DateTimeInterface;
 use Illuminate\Http\Request;
 use Lathe\LatheManager;
 
 /**
- * Converts UTC moments for display in the user's timezone. Storage and JSON stay UTC.
+ * The two zones a moment meets. The database holds a datetime as wall time in the app's zone,
+ * as forms and Laravel's own timestamps write it; the user reads it, and cuts days, in theirs.
+ * JSON carries moments as UTC.
  */
 class Timezone
 {
@@ -25,6 +28,24 @@ class Timezone
         $timezone = $this->lathe->resolveUserTimezone($request) ?? config('app.timezone');
 
         return is_string($timezone) ? $timezone : 'UTC';
+    }
+
+    /**
+     * The zone a datetime column's text is wall time in: the app's.
+     */
+    public function storage(): string
+    {
+        $timezone = config('app.timezone');
+
+        return is_string($timezone) ? $timezone : 'UTC';
+    }
+
+    /**
+     * A moment as the text a datetime column holds, to compare the column with.
+     */
+    public function stored(DateTimeInterface $moment): string
+    {
+        return CarbonImmutable::instance($moment)->setTimezone($this->storage())->format('Y-m-d H:i:s');
     }
 
     /**

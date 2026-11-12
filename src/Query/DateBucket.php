@@ -3,6 +3,7 @@
 namespace Lathe\Query;
 
 use Carbon\CarbonInterface;
+use DateTimeImmutable;
 use DateTimeZone;
 use Illuminate\Database\Connection;
 use Lathe\Widgets\TrendUnit;
@@ -35,14 +36,17 @@ class DateBucket
     }
 
     /**
-     * The label of the bucket a UTC column falls in on the zone's calendar, written as TrendUnit::key()
+     * The label of the bucket a column falls in on the zone's calendar, written as TrendUnit::key()
      * writes it, except that a minute or hour label is the local clock time without its offset.
-     * The zone's offsets come from PHP, so each driver only adds seconds and cuts a string.
+     * The column holds wall time in the storage zone. The zones' offsets come from PHP, so each
+     * driver only adds seconds and cuts a string.
      */
-    public static function zoned(Connection $connection, string $column, TrendUnit $unit, string $timezone, CarbonInterface $from, CarbonInterface $to): string
+    public static function zoned(Connection $connection, string $column, TrendUnit $unit, string $timezone, CarbonInterface $from, CarbonInterface $to, string $storage = 'UTC'): string
     {
         $driver = $connection->getDriverName();
-        $local = self::local($driver, $connection->getQueryGrammar()->wrap($column), self::offset($connection, $column, $timezone, $from, $to));
+        $zone = self::offset($connection, $column, $timezone, $from, $to, $storage);
+        $stored = self::offset($connection, $column, $storage, $from, $to, $storage);
+        $local = self::local($driver, $connection->getQueryGrammar()->wrap($column), $stored === '0' ? $zone : "({$zone} - {$stored})");
 
         return match ($driver) {
             'pgsql' => match ($unit) {
@@ -76,11 +80,12 @@ class DateBucket
     }
 
     /**
-     * The zone's UTC offset in seconds for each row of a UTC column, as a SQL integer expression.
-     * It changes where the zone changes its clock between the two moments, a daylight saving change.
+     * The zone's UTC offset in seconds for each row of a column holding wall time in the storage
+     * zone, as a SQL integer expression. It changes where the zone changes its clock between the
+     * two moments, a daylight saving change, each change written as the storage zone's wall time.
      * The moments are written into the SQL, not bound, so a GROUP BY on it matches the SELECT.
      */
-    public static function offset(Connection $connection, string $column, string $timezone, CarbonInterface $from, CarbonInterface $to): string
+    public static function offset(Connection $connection, string $column, string $timezone, CarbonInterface $from, CarbonInterface $to, string $storage = 'UTC'): string
     {
         $transitions = (new DateTimeZone($timezone))->getTransitions($from->getTimestamp(), $to->getTimestamp());
         $first = (int) ($transitions[0]['offset'] ?? 0);
@@ -91,10 +96,12 @@ class DateBucket
         }
 
         $wrapped = $connection->getQueryGrammar()->wrap($column);
+        $stored = new DateTimeZone($storage);
         $cases = '';
 
         foreach (array_reverse($transitions) as $transition) {
-            $cases .= " WHEN {$wrapped} >= '".gmdate('Y-m-d H:i:s', $transition['ts'])."' THEN ".(int) $transition['offset'];
+            $wall = $transition['ts'] + $stored->getOffset(new DateTimeImmutable('@'.$transition['ts']));
+            $cases .= " WHEN {$wrapped} >= '".gmdate('Y-m-d H:i:s', $wall)."' THEN ".(int) $transition['offset'];
         }
 
         return "(CASE{$cases} ELSE {$first} END)";

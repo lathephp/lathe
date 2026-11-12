@@ -10,6 +10,18 @@ use Pest\Expectation;
 pest()->extend(TestCase::class)->in('Feature', 'Unit');
 
 /**
+ * Run the test as an app on the zone. Laravel sets PHP's default zone from app.timezone at boot,
+ * and Eloquent reads a datetime column in it, so the test moves both and puts them back after.
+ */
+function appTimezone(string $zone): void
+{
+    $before = date_default_timezone_get();
+    config(['app.timezone' => $zone]);
+    date_default_timezone_set($zone);
+    test()->beforeApplicationDestroyed(fn () => date_default_timezone_set($before));
+}
+
+/**
  * Register the panel routes again after a test changes lathe.path or lathe.domain.
  */
 function reloadLatheRoutes(): void

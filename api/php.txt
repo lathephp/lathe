@@ -3255,8 +3255,8 @@ Lathe\Query\CountStrategy::string $name
 Lathe\Query\CountStrategy::string $value
 Lathe\Query\DateBucket::day(Illuminate\Database\Connection $connection, string $column): string  [static]
 Lathe\Query\DateBucket::month(Illuminate\Database\Connection $connection, string $column): string  [static]
-Lathe\Query\DateBucket::offset(Illuminate\Database\Connection $connection, string $column, string $timezone, Carbon\CarbonInterface $from, Carbon\CarbonInterface $to): string  [static]
-Lathe\Query\DateBucket::zoned(Illuminate\Database\Connection $connection, string $column, Lathe\Widgets\TrendUnit $unit, string $timezone, Carbon\CarbonInterface $from, Carbon\CarbonInterface $to): string  [static]
+Lathe\Query\DateBucket::offset(Illuminate\Database\Connection $connection, string $column, string $timezone, Carbon\CarbonInterface $from, Carbon\CarbonInterface $to, string $storage = 'UTC'): string  [static]
+Lathe\Query\DateBucket::zoned(Illuminate\Database\Connection $connection, string $column, Lathe\Widgets\TrendUnit $unit, string $timezone, Carbon\CarbonInterface $from, Carbon\CarbonInterface $to, string $storage = 'UTC'): string  [static]
 Lathe\Query\PivotVia::Illuminate\Database\Eloquent\Model $parent
 Lathe\Query\PivotVia::Illuminate\Database\Eloquent\Relations\BelongsToMany $relation
 Lathe\Query\PivotVia::Lathe\Field\Relations\BelongsToManyField $field
@@ -3843,6 +3843,8 @@ Lathe\Support\Timezone::__construct(Lathe\LatheManager $lathe)
 Lathe\Support\Timezone::dayBounds(string $day, string $timezone): array
 Lathe\Support\Timezone::forRequest(Illuminate\Http\Request $request): string
 Lathe\Support\Timezone::localDay(Carbon\CarbonInterface $moment, string $timezone): string
+Lathe\Support\Timezone::storage(): string
+Lathe\Support\Timezone::stored(DateTimeInterface $moment): string
 Lathe\Support\TranslationManager::REQUEST_BAG
 Lathe\Support\TranslationManager::__construct(string $path)
 Lathe\Support\TranslationManager::all(?string $locale = NULL): array
@@ -4133,12 +4135,12 @@ Lathe\Widgets\AggregateQuery::qualifiedDateColumn(): string  [protected]
 Lathe\Widgets\AggregateQuery::query(callable $callback): static
 Lathe\Widgets\AggregateQuery::scoped(): Illuminate\Database\Query\Builder  [protected]
 Lathe\Widgets\AggregateQuery::sql(string $sql): Illuminate\Contracts\Database\Query\Expression  [protected]
+Lathe\Widgets\AggregateQuery::stored(DateTimeInterface $moment): string  [protected]
 Lathe\Widgets\AggregateQuery::string $function  [protected]
 Lathe\Widgets\AggregateQuery::sum(Illuminate\Contracts\Database\Query\Expression|string $column): static
 Lathe\Widgets\AggregateQuery::tables(): array
 Lathe\Widgets\AggregateQuery::timezone(string $timezone): static
 Lathe\Widgets\AggregateQuery::trend(): Lathe\Widgets\Results\TrendResult
-Lathe\Widgets\AggregateQuery::utc(DateTimeInterface $moment): string  [protected]
 Lathe\Widgets\AggregateQuery::value(): Lathe\Widgets\Results\ValueResult
 Lathe\Widgets\AggregateQuery::valueBetween(DateTimeInterface $start, DateTimeInterface $end, ?DateTimeInterface $previousStart = NULL, ?DateTimeInterface $previousEnd = NULL): Lathe\Widgets\Results\ValueResult
 Lathe\Widgets\AggregateQuery::wrapped(Illuminate\Contracts\Database\Query\Expression|string $column): string  [protected]

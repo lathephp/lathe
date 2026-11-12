@@ -279,8 +279,8 @@ class AggregateQuery
         $column = $this->qualifiedDateColumn();
 
         return new ValueResult(
-            $this->aggregate($this->scoped()->where($column, '>=', $this->utc($start))->where($column, '<=', $this->utc($now))),
-            $this->aggregate($this->scoped()->where($column, '>=', $this->utc($before))->where($column, '<', $this->utc($start))),
+            $this->aggregate($this->scoped()->where($column, '>=', $this->stored($start))->where($column, '<=', $this->stored($now))),
+            $this->aggregate($this->scoped()->where($column, '>=', $this->stored($before))->where($column, '<', $this->stored($start))),
         );
     }
 
@@ -300,8 +300,8 @@ class AggregateQuery
         $this->window($start, $unit->shift($today, 1));
 
         return new ValueResult(
-            $this->aggregate($this->scoped()->where($column, '>=', $this->utc($start))->where($column, '<', $this->utc($unit->shift($today, 1)))),
-            $this->aggregate($this->scoped()->where($column, '>=', $this->utc($before))->where($column, '<', $this->utc($start))),
+            $this->aggregate($this->scoped()->where($column, '>=', $this->stored($start))->where($column, '<', $this->stored($unit->shift($today, 1)))),
+            $this->aggregate($this->scoped()->where($column, '>=', $this->stored($before))->where($column, '<', $this->stored($start))),
         );
     }
 
@@ -340,11 +340,11 @@ class AggregateQuery
     {
         $column = $this->qualifiedDateColumn();
         $previous = $previousStart !== null && $previousEnd !== null
-            ? $this->aggregate($this->scoped()->whereBetween($column, [$this->utc($previousStart), $this->utc($previousEnd)]))
+            ? $this->aggregate($this->scoped()->whereBetween($column, [$this->stored($previousStart), $this->stored($previousEnd)]))
             : null;
 
         return new ValueResult(
-            $this->aggregate($this->scoped()->whereBetween($column, [$this->utc($start), $this->utc($end)])),
+            $this->aggregate($this->scoped()->whereBetween($column, [$this->stored($start), $this->stored($end)])),
             $previous,
         );
     }
@@ -361,9 +361,10 @@ class AggregateQuery
         $end = $unit->shift($unit->startOf($now), 1);
         $column = $this->qualifiedDateColumn();
         $connection = $this->builder->getModel()->getConnection();
-        $bucket = DateBucket::zoned($connection, $column, $unit, $zone, $first, $end);
+        $storage = app(Timezone::class)->storage();
+        $bucket = DateBucket::zoned($connection, $column, $unit, $zone, $first, $end, $storage);
         $clockTime = $unit === TrendUnit::Minute || $unit === TrendUnit::Hour;
-        $offset = $clockTime ? DateBucket::offset($connection, $column, $zone, $first, $end) : null;
+        $offset = $clockTime ? DateBucket::offset($connection, $column, $zone, $first, $end, $storage) : null;
 
         if (! $clockTime) {
             $this->window($first, $end);
@@ -371,8 +372,8 @@ class AggregateQuery
 
         $query = $this->scoped()
             ->addSelect($this->sql("{$bucket} as bucket_label"), $this->sql($this->aggregateSql().' as aggregate_value'))
-            ->where($column, '>=', $this->utc($first))
-            ->where($column, '<', $this->utc($end))
+            ->where($column, '>=', $this->stored($first))
+            ->where($column, '<', $this->stored($end))
             ->groupBy($this->sql($bucket));
 
         if ($offset !== null) {
@@ -574,10 +575,10 @@ class AggregateQuery
     }
 
     /**
-     * A moment as the UTC text the database holds.
+     * A moment as the text the database holds.
      */
-    protected function utc(DateTimeInterface $moment): string
+    protected function stored(DateTimeInterface $moment): string
     {
-        return CarbonImmutable::instance($moment)->utc()->format('Y-m-d H:i:s');
+        return app(Timezone::class)->stored($moment);
     }
 }
