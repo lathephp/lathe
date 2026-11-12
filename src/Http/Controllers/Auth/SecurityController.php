@@ -33,7 +33,7 @@ class SecurityController
 
     public function updatePassword(Request $request): Response
     {
-        return $this->callFortify($request, PasswordController::class, 'update');
+        return $this->callFortifyThrottled($request, 'update-password', PasswordController::class, 'update');
     }
 
     /**

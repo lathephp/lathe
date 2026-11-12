@@ -22,7 +22,7 @@ class ConfirmablePasswordController
 
     public function store(Request $request): Response
     {
-        return $this->callFortify($request, FortifyConfirmablePasswordController::class, 'store');
+        return $this->callFortifyThrottled($request, 'confirm-password', FortifyConfirmablePasswordController::class, 'store');
     }
 
     public function status(Request $request): Response

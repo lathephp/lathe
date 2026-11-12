@@ -114,3 +114,21 @@ it('answers 404 on every confirm route once authentication routes are off', func
     $this->postJson('/lathe/confirm-password', ['password' => 'password'])->assertNotFound();
     $this->getJson('/lathe/confirmed-password-status')->assertNotFound();
 });
+
+it('answers the 6th try in a minute with 429, the right password too, and counts each user apart', function () {
+    $this->actingAs($this->admin);
+
+    foreach (range(1, 5) as $attempt) {
+        $this->postJson('/lathe/confirm-password', ['password' => 'wrong'])->assertUnprocessable();
+    }
+
+    $this->postJson('/lathe/confirm-password', ['password' => 'password'])->assertStatus(429)->assertHeader('Retry-After');
+    $this->getJson('/lathe/confirmed-password-status')->assertJson(['confirmed' => false]);
+
+    $this->actingAs(User::factory()->create(['email' => 'editor@lathephp.com']));
+    $this->postJson('/lathe/confirm-password', ['password' => 'password'])->assertCreated();
+
+    $this->travel(61)->seconds();
+    $this->actingAs($this->admin);
+    $this->postJson('/lathe/confirm-password', ['password' => 'password'])->assertCreated();
+});

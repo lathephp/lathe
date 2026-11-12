@@ -46,7 +46,7 @@ class HtmlSanitizer
 
         $clean = (self::$sanitizer ??= self::build())->sanitize($html);
 
-        return str_contains($clean, '_blank') ? self::secureNewTabLinks($clean) : $clean;
+        return stripos($clean, '_blank') !== false ? self::secureNewTabLinks($clean) : $clean;
     }
 
     private static function build(): SymfonySanitizer
@@ -74,15 +74,18 @@ class HtmlSanitizer
     }
 
     /**
-     * A link that opens a new tab gets rel="noopener noreferrer" whatever rel it came with.
-     * Symfony cannot add one attribute because of another, so this runs on its clean output.
+     * A link that opens a new tab gets rel="noopener noreferrer" whatever rel it came with. A browser
+     * reads "_BLANK" as "_blank", so the target matches in any case. Symfony cannot add one
+     * attribute because of another, so this runs on its clean output.
      */
     private static function secureNewTabLinks(string $clean): string
     {
         $document = HTMLDocument::createFromString('<body>'.$clean, LIBXML_NOERROR);
 
-        foreach ($document->querySelectorAll('a[target="_blank"]') as $link) {
-            $link->setAttribute('rel', 'noopener noreferrer');
+        foreach ($document->querySelectorAll('a[target]') as $link) {
+            if (strcasecmp((string) $link->getAttribute('target'), '_blank') === 0) {
+                $link->setAttribute('rel', 'noopener noreferrer');
+            }
         }
 
         $body = $document->body;

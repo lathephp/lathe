@@ -50,6 +50,11 @@ it('adds rel to a link that opens a new tab', function () {
         ->toBe('<a href="https://example.com" target="_blank" rel="noopener noreferrer">x</a>');
 });
 
+it('adds rel to a new-tab link whatever the case of its target, as a browser reads it', function (string $target) {
+    expect(HtmlSanitizer::clean('<a href="https://example.com" target="'.$target.'" rel="opener">x</a>'))
+        ->toBe('<a href="https://example.com" target="'.$target.'" rel="noopener noreferrer">x</a>');
+})->with(['_BLANK', '_Blank']);
+
 it('leaves a link without a target alone', function () {
     expect(HtmlSanitizer::clean('<a href="https://example.com" rel="nofollow">x</a>'))
         ->toBe('<a href="https://example.com" rel="nofollow">x</a>');

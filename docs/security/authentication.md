@@ -115,7 +115,7 @@ A user with confirmed two-factor lands on `/lathe/two-factor-challenge` after th
 
 ## Password confirmation
 
-Some requests need a recent password check. When one does, the panel opens a dialog that asks for the password, then repeats the request. The same form exists as a page at `/lathe/confirm-password`. A confirmation stays valid for the time in your `auth.password_timeout` setting, three hours by default.
+Some requests need a recent password check. When one does, the panel opens a dialog that asks for the password, then repeats the request. The same form exists as a page at `/lathe/confirm-password`. A confirmation stays valid for the time in your `auth.password_timeout` setting, three hours by default. The confirmation allows five tries a minute for each user, and so does the password change on the Security page.
 
 ## The Security page
 

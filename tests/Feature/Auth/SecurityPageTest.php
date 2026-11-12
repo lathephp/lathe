@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Hash;
 use Inertia\ServiceProvider as InertiaServiceProvider;
 use Inertia\Testing\AssertableInertia;
 use Laravel\Fortify\Features;
@@ -80,6 +81,25 @@ it('refuses a wrong current password, a short one and a mismatch', function (arr
     'too short' => [['password' => 'short', 'password_confirmation' => 'short'], 'password'],
     'not confirmed' => [['password_confirmation' => 'something-else-2026'], 'password'],
 ]);
+
+it('answers the 6th password change in a minute with 429, the right current password too, and counts each user apart', function () {
+    $change = fn (string $current) => $this->putJson('/lathe/user-security/password', [
+        'current_password' => $current,
+        'password' => 'new-password-2026',
+        'password_confirmation' => 'new-password-2026',
+    ]);
+    $this->actingAs($this->admin);
+
+    foreach (range(1, 5) as $attempt) {
+        $change('not-it')->assertStatus(422);
+    }
+
+    $change('password')->assertStatus(429)->assertHeader('Retry-After');
+    expect(Hash::check('password', $this->admin->refresh()->password))->toBeTrue();
+
+    $this->actingAs(User::factory()->create(['email' => 'editor@lathephp.com']));
+    $change('password')->assertSuccessful();
+});
 
 it('has no password route without updatePasswords', function () {
     securityWithFeatures([Features::twoFactorAuthentication()]);

@@ -69,6 +69,16 @@ Lathe checks the saved page before it uses it. A relative path or a URL on your 
 
 If the user who started the session no longer exists, a stop clears the impersonation and does not sign anyone in.
 
+The stop works even when the target may not open the panel: every other page answers 403 for them, and that page still shows the bar and its "Stop Impersonating" button.
+
+## What an impersonation cannot do
+
+While you impersonate someone, their password and two-factor settings stay closed. The password change and every two-factor route of the Security page, including the QR code, the secret key and the recovery codes, answer 403 with "Security settings are not available while impersonating."
+
+Starting and stopping an impersonation forget the password confirmation. The first action that asks for the password after a start asks for the target's, and after the stop it asks for yours again.
+
+The form drafts and recent searches the browser keeps are cleared when the impersonation starts and when it stops, so neither of you sees what the other typed or opened.
+
 ## Events and the audit log
 
 Two events fire, both from `Lathe\Events`: `ImpersonationStarted` and `ImpersonationStopped`. Each carries the `impersonator`, the `impersonated` user and the `redirectTo` path. Listen for them to notify someone or write your own log:

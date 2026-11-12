@@ -3,9 +3,12 @@
 namespace Lathe\Http\Controllers\Auth;
 
 use Illuminate\Container\Container;
+use Illuminate\Http\Exceptions\ThrottleRequestsException;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Router;
+use Illuminate\Support\Facades\RateLimiter;
 use Lathe\Auth\FortifyConfig;
+use Lathe\Lathe;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
@@ -30,5 +33,28 @@ trait CallsFortify
 
             return Router::toResponse($request, $container->call($action));
         });
+    }
+
+    /**
+     * callFortify() for a request that checks the signed-in user's password: 5 tries a minute per
+     * user, as the two-factor challenge takes, and the 6th answers 429.
+     *
+     * @internal
+     *
+     * @param  class-string  $controller
+     */
+    protected function callFortifyThrottled(Request $request, string $name, string $controller, string $method): Response
+    {
+        $user = $request->user(Lathe::fortify()->guard());
+        $id = $user?->getAuthIdentifier();
+        $key = "lathe.{$name}|".(is_scalar($id) ? $id : $request->ip());
+
+        if (RateLimiter::tooManyAttempts($key, 5)) {
+            throw new ThrottleRequestsException(headers: ['Retry-After' => RateLimiter::availableIn($key)]);
+        }
+
+        RateLimiter::hit($key, 60);
+
+        return $this->callFortify($request, $controller, $method);
     }
 }
