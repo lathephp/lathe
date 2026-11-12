@@ -42,7 +42,7 @@ The modal asks for a **Filename** and a **Type** (CSV or Excel). By default the 
 
 Rows come from the same query as the table. In "select all matching" mode the export respects the search, filters, tab and trashed scope, and the Resource's `indexQuery()`. A user never exports a row the table hides. With ticked rows, only those rows are exported. An empty selection answers 422.
 
-Cells are plain text, so a value that starts with `=` never runs as a spreadsheet formula. Dates use `Y-m-d H:i:s` in the user's time zone, and booleans read Yes or No. An XLSX file holds at most 1,048,575 data rows. A larger export must use CSV.
+Cells are plain text, so a value that starts with `=` never runs as a spreadsheet formula. A datetime uses `Y-m-d H:i:s` in the user's time zone, a column the model casts to `date` reads `Y-m-d` as stored, so no time zone moves its day, and booleans read Yes or No. An XLSX file holds at most 1,048,575 data rows. A larger export must use CSV.
 
 ### Choose the columns
 

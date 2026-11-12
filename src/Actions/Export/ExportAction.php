@@ -15,6 +15,7 @@ use Lathe\Actions\ActionFieldValidator;
 use Lathe\Actions\ActionResult;
 use Lathe\Auth\ResourceAuthorization;
 use Lathe\Field\CurrencyField;
+use Lathe\Field\DateField;
 use Lathe\Field\Field;
 use Lathe\Http\Payloads\IndexPayload;
 use Lathe\Http\Requests\LatheRequest;
@@ -296,8 +297,8 @@ class ExportAction extends Action
     }
 
     /**
-     * The index columns of one row: a date in the actor's timezone, money as a decimal
-     * string, anything else as the index shows it.
+     * The index columns of one row: a datetime in the actor's timezone, a date-only column as
+     * its calendar day, money as a decimal string, anything else as the index shows it.
      *
      * @param  list<Field>  $columns
      * @return list<string>
@@ -308,7 +309,11 @@ class ExportAction extends Action
             $attribute = $field->attribute();
 
             if ($attribute !== '' && $this->isDate($model, $attribute)) {
-                return $this->cell($model->getAttribute($attribute), $timezone);
+                $value = $model->getAttribute($attribute);
+
+                return DateField::castsToDay($model, $attribute) && $value instanceof DateTimeInterface
+                    ? $value->format('Y-m-d')
+                    : $this->cell($value, $timezone);
             }
 
             $cell = $field->cell($model);
