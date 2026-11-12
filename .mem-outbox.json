@@ -2,16 +2,22 @@
   "machine": "cloud-vm",
   "writes": [
     {
-      "base": "01M78EB0F2XYSRW3ZPWRNB68HX",
-      "body": "# plan: m40-dates\n\n- [x] t1 Count a record in a value widget and a trend on the day and hour the app stored it, whatever the app's and the user's zones, with a UTC app's SQL unchanged\n- [ ] t2 Cut a day group's subtotal, a date filter and a card's Open records link on the same stored days as the dashboard  [after: t1]\n- [ ] t3 Store an imported datetime in the app's zone and an imported date-only cell as its calendar day\n- [ ] t4 Export a date-only column as its calendar day, so export then import leaves dates unchanged  [after: t3]\n- [ ] t5 Give the workbench Products a date-only Released column its import reads, read BENCH_APP_TIMEZONE, and correct the docs on what a date time field stores  [after: t1, t2, t3, t4]\n",
-      "id": "01M78F2S0CQ729H655QABE73ED",
+      "base": null,
+      "body": "+++\nby = \"agent\"\ncreated = \"2026-11-12T18:10:20.557984481Z\"\nid = \"01M78F86CPXZX3QTJVG4BNZC07\"\nkind = \"ruling\"\nmachine = \"cloud-vm\"\nmodified = \"2026-11-12T18:10:20.557984481Z\"\nproject = \"lathe\"\ntitle = \"m40 t2: behaviour 2's reproduction (the group heading under Nov 12) does not reproduce on a faith…\"\n+++\n\nm40 t2: behaviour 2's reproduction (the group heading under Nov 12) does not reproduce on a faithful Dhaka app: Group::keyFor reads the model's Carbon, which Eloquent parses in PHP's default zone, the app's. Only a test that sets config without date_default_timezone_set sees Nov 12. The red lines were the subtotal and the Placed filter (dayBounds in UTC); tests use the appTimezone() helper in tests/Pest.php, which moves both.\n",
+      "id": "01M78F86CQ4KY8RVR89EZV6J22",
+      "path": "projects/01M4T1WADSK9655DJEZ17PGMYC/items/01M78F86CPXZX3QTJVG4BNZC07.md"
+    },
+    {
+      "base": "01M78F2S0CQ729H655QABE73ED",
+      "body": "# plan: m40-dates\n\n- [x] t1 Count a record in a value widget and a trend on the day and hour the app stored it, whatever the app's and the user's zones, with a UTC app's SQL unchanged\n- [x] t2 Cut a day group's subtotal, a date filter and a card's Open records link on the same stored days as the dashboard  [after: t1]\n- [ ] t3 Store an imported datetime in the app's zone and an imported date-only cell as its calendar day\n- [ ] t4 Export a date-only column as its calendar day, so export then import leaves dates unchanged  [after: t3]\n- [ ] t5 Give the workbench Products a date-only Released column its import reads, read BENCH_APP_TIMEZONE, and correct the docs on what a date time field stores  [after: t1, t2, t3, t4]\n",
+      "id": "01M78F86KJY5F9QE22PVP1EAAM",
       "path": "projects/01M4T1WADSK9655DJEZ17PGMYC/plan.md"
     },
     {
       "base": null,
-      "body": "+++\ncreated = \"2026-11-12T18:07:23.194665208Z\"\nid = \"01M78F2S4X1DDQSBMB282S91BT\"\nkind = \"log\"\nmachine = \"cloud-vm\"\nmodified = \"2026-11-12T18:07:23.194665208Z\"\nproject = \"lathe\"\ntitle = \"t1 landed: widgets and trends read datetime columns as app-timezone wall time (Timezone::storage/…\"\n+++\n\nt1 landed: widgets and trends read datetime columns as app-timezone wall time (Timezone::storage/stored, DateBucket $storage)\n",
-      "id": "01M78F2S4Y5AZBMZFFK4VPJRD3",
-      "path": "projects/01M4T1WADSK9655DJEZ17PGMYC/items/01M78F2S4X1DDQSBMB282S91BT.md"
+      "body": "+++\ncreated = \"2026-11-12T18:10:20.950937902Z\"\nid = \"01M78F86QSTQ4W2NEF1GYC9R9S\"\nkind = \"log\"\nmachine = \"cloud-vm\"\nmodified = \"2026-11-12T18:10:20.950937902Z\"\nproject = \"lathe\"\ntitle = \"t2 landed: dayBounds gives storage-zone bounds; group subtotals, OrderPlaced and card links agree…\"\n+++\n\nt2 landed: dayBounds gives storage-zone bounds; group subtotals, OrderPlaced and card links agree on a Dhaka app\n",
+      "id": "01M78F86QSRAFNKA6148A47NZB",
+      "path": "projects/01M4T1WADSK9655DJEZ17PGMYC/items/01M78F86QSTQ4W2NEF1GYC9R9S.md"
     }
   ]
 }
