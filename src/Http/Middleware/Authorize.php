@@ -8,7 +8,8 @@ use Lathe\Lathe;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
- * Refuses a signed-in user who fails Lathe::check() with 403.
+ * Refuses a signed-in user who fails Lathe::check() with 403. The one way through is stopping an
+ * impersonation: an admin who impersonates someone the panel refuses can still get back.
  */
 class Authorize
 {
@@ -17,7 +18,7 @@ class Authorize
      */
     public function handle(Request $request, Closure $next): Response
     {
-        if (Lathe::check($request)) {
+        if (Lathe::check($request) || $this->stopsImpersonating($request)) {
             return $next($request);
         }
 
@@ -26,5 +27,11 @@ class Authorize
         }
 
         abort(403);
+    }
+
+    private function stopsImpersonating(Request $request): bool
+    {
+        return $request->routeIs('lathe.api.impersonate.destroy')
+            && Lathe::impersonator()->impersonating($request);
     }
 }

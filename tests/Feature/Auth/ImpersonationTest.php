@@ -175,6 +175,41 @@ it('stops on a second POST and on DELETE, back to the admin', function (string $
     }
 })->with(['second POST' => 'post', 'DELETE' => 'delete']);
 
+it('stops impersonating a user who may not open the panel, back to the page it started from', function () {
+    $this->actingAs($this->admin);
+    $guest = User::where('email', 'guest@lathephp.com')->firstOrFail();
+    startImpersonating($guest->id, headers: ['Referer' => '/lathe/resources/users'])->assertOk();
+
+    $this->get('/lathe')->assertForbidden()->assertInertia(fn (AssertableInertia $page) => $page
+        ->component('Error', false)
+        ->where('shell', true)
+        ->where('impersonating.name', 'Guest User'));
+
+    $this->deleteJson('/lathe/api/impersonate')->assertOk()->assertExactJson(['redirect' => '/lathe/resources/users']);
+
+    $this->get('/lathe')->assertOk()->assertInertia(fn (AssertableInertia $page) => $page->where('auth.user.name', 'Admin User'));
+    expect(ActionEvent::orderBy('id')->pluck('type')->all())->toBe([ActionEventType::ImpersonationStarted, ActionEventType::ImpersonationStopped]);
+});
+
+it('keeps every other panel route closed to an impersonated user who may not open the panel', function () {
+    $this->actingAs($this->admin);
+    $guest = User::where('email', 'guest@lathephp.com')->firstOrFail();
+    startImpersonating($guest->id)->assertOk();
+
+    $this->getJson('/lathe/api/resources/orders')->assertForbidden();
+    $this->getJson('/lathe/api/impersonate')->assertForbidden();
+    startImpersonating($this->editor->id)->assertForbidden();
+    expect(session('lathe_impersonated_by'))->toBe($this->admin->id);
+});
+
+it('refuses the stop route to a user who may not open the panel and is not impersonated', function () {
+    $this->actingAs(User::where('email', 'guest@lathephp.com')->firstOrFail());
+
+    $this->deleteJson('/lathe/api/impersonate')->assertForbidden();
+    $this->getJson('/lathe/api/impersonate')->assertForbidden();
+    $this->get('/lathe')->assertForbidden();
+});
+
 it('signs the admin back in remembered when they were remembered', function (bool $remembered) {
     $this->actingAs($this->admin);
     startImpersonating($this->editor->id)->assertOk();
