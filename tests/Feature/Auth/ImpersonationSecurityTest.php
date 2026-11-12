@@ -92,3 +92,18 @@ it('keeps the admin\'s own Security routes as they were when nobody is impersona
     $this->putJson('/lathe/user-security/password', ['current_password' => 'password', 'password' => 'n3w-Passw0rd!', 'password_confirmation' => 'n3w-Passw0rd!'])
         ->assertSuccessful();
 });
+
+it('counts an impersonating admin\'s password tries apart from the target\'s own', function () {
+    $this->actingAs($this->admin);
+    startImpersonatingEditor();
+
+    foreach (range(1, 5) as $attempt) {
+        $this->postJson('/lathe/confirm-password', ['password' => 'wrong'])->assertUnprocessable();
+    }
+
+    $this->postJson('/lathe/confirm-password', ['password' => 'wrong'])->assertStatus(429);
+
+    $this->deleteJson('/lathe/api/impersonate')->assertOk();
+    $this->actingAs($this->editor);
+    $this->postJson('/lathe/confirm-password', ['password' => 'password'])->assertCreated();
+});

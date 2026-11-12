@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use Illuminate\Routing\Router;
 use Illuminate\Support\Facades\RateLimiter;
 use Lathe\Auth\FortifyConfig;
+use Lathe\Auth\Impersonation;
 use Lathe\Lathe;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -37,7 +38,8 @@ trait CallsFortify
 
     /**
      * callFortify() for a request that checks the signed-in user's password: 5 tries a minute per
-     * user, as the two-factor challenge takes, and the 6th answers 429.
+     * user, as the two-factor challenge takes, and the 6th answers 429. An impersonating admin's
+     * tries count apart, so they never lock the target out.
      *
      * @internal
      *
@@ -47,7 +49,8 @@ trait CallsFortify
     {
         $user = $request->user(Lathe::fortify()->guard());
         $id = $user?->getAuthIdentifier();
-        $key = "lathe.{$name}|".(is_scalar($id) ? $id : $request->ip());
+        $by = $request->hasSession() ? $request->session()->get(Impersonation::IMPERSONATED_BY) : null;
+        $key = "lathe.{$name}|".(is_scalar($id) ? $id : $request->ip()).(is_scalar($by) ? "|by:{$by}" : '');
 
         if (RateLimiter::tooManyAttempts($key, 5)) {
             throw new ThrottleRequestsException(headers: ['Retry-After' => RateLimiter::availableIn($key)]);

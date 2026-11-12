@@ -8,6 +8,7 @@ import { FormFields } from '../../records/FormFields';
 import { ReauthModal } from '../../records/ReauthModal';
 import { useLeaveGuard } from '../../records/useLeaveGuard';
 import { useRecordForm, type SubmitIntent } from '../../records/useRecordForm';
+import { userKey } from '../../lib/session';
 import { PageHeader } from '../../layout/PageHeader';
 import type { SharedProps } from '../../types';
 
@@ -20,7 +21,7 @@ export default function Form({ resource, mode, id, title, form, submitLabel }: F
   const summaryRef = useRef<HTMLDivElement>(null);
   // A create opened from a relation panel: `orders/12/items` names the parent and the relation.
   const via = mode === 'create' ? new URLSearchParams(page.url.split('?')[1] ?? '').get('via') : null;
-  const record = useRecordForm({ resource, mode, id, form, via, user: auth.user?.email ?? null }, (redirect) => {
+  const record = useRecordForm({ resource, mode, id, form, via, user: userKey(auth.user) }, (redirect) => {
     // Under a via the save goes back to the parent record, on the tab whose panel lists the new row.
     if (via === null) {
       router.visit(`${basePath}/resources/${redirect}`);

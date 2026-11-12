@@ -40,7 +40,7 @@ const field = (key: string, label: string, component: string) => ({
 
 const user = (email: string | null) => ({ auth: { user: email === null ? null : { name: email, email } } });
 
-function renderUserForm(email = 'admin@lathephp.com') {
+function renderUserForm(email: string | null = 'admin@lathephp.com', name = email ?? '') {
   return renderPage(
     'Resources/Form',
     {
@@ -55,7 +55,8 @@ function renderUserForm(email = 'admin@lathephp.com') {
       },
       submitLabel: 'Create User',
     },
-    { shared: sharedProps({ auth: { user: { name: email, email } } }) },
+    // An app that signs in by username sends a user with no email, which the type does not name.
+    { shared: sharedProps({ auth: { user: { name, email: email as string } } }) },
   );
 }
 
@@ -130,6 +131,23 @@ describe('a form draft', () => {
     renderUserForm('editor@lathephp.com');
 
     expect(screen.getByLabelText<HTMLInputElement>(/^Name/).value).toBe('');
+    expect(draftKeys()).toEqual([]);
+  });
+
+  it('keeps them for a signed-in user who has no email, as an app that signs in by username', () => {
+    const noEmail = { auth: { user: { name: 'rubel', email: null } } };
+    followUser(noEmail);
+    const first = renderUserForm(null, 'rubel');
+    typeNameAndPassword();
+    first.unmount();
+    window.localStorage.setItem(recentsKey, JSON.stringify([recent]));
+
+    followUser(noEmail);
+
+    expect(draftKeys()).toHaveLength(1);
+    expect(window.localStorage.getItem(recentsKey)).toBe(JSON.stringify([recent]));
+
+    followUser(user(null));
     expect(draftKeys()).toEqual([]);
   });
 

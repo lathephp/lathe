@@ -13,7 +13,7 @@ let owner: string | null | undefined;
  * The form drafts and recent searches kept in the browser go the same way, across reloads too.
  */
 export function followUser(props: Record<string, unknown>): void {
-  const email = (props.auth as SharedProps['auth'] | undefined)?.user?.email ?? null;
+  const email = userKey((props.auth as SharedProps['auth'] | undefined)?.user);
 
   claimDrafts(email);
   claimRecentSearches(email);
@@ -23,4 +23,30 @@ export function followUser(props: Record<string, unknown>): void {
   }
 
   owner = email;
+}
+
+/**
+ * Who the browser storage belongs to: the user's email, or their name when the app signs in by
+ * username and sends no email; null only when nobody is signed in.
+ */
+export function userKey(user: SharedProps['auth']['user'] | undefined): string | null {
+  if (user === null || user === undefined) {
+    return null;
+  }
+
+  // The server sends whatever the user model holds, so either may be missing.
+  const { email, name } = user as { email?: string | null; name?: string | null };
+
+  return email ?? name ?? '';
+}
+
+/**
+ * Clears what the browser keeps for the user who is leaving, when an impersonation starts or stops.
+ * A visit back to the same URL replaces the page and fires no navigate, so this cannot wait for one.
+ */
+export function forgetUser(): void {
+  claimDrafts(null);
+  claimRecentSearches(null);
+  queryClient.clear();
+  owner = null;
 }
