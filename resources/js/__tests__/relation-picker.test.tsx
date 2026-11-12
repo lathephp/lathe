@@ -255,6 +255,19 @@ describe('belongsTo relation picker', () => {
     expect(__panel.toasts.get()).toHaveLength(toasts);
   });
 
+  it('says plainly when the user may not list the records, with no toast', async () => {
+    const toasts = __panel.toasts.get().length;
+    server(reply({ message: 'This action is unauthorized.' }, 403));
+    renderField();
+
+    fireEvent.click(screen.getByRole('button', { name: /Customer/ }));
+    await flush();
+
+    expect(screen.queryAllByRole('option')).toEqual([]);
+    expect(screen.getByRole('alert').textContent).toBe('You may not list these records.');
+    expect(__panel.toasts.get()).toHaveLength(toasts);
+  });
+
   it('shows With trashed only when the field allows it, and adds with_trashed=1', async () => {
     server();
     const { unmount } = renderField();

@@ -58,7 +58,8 @@ export function useAssociatableEndpoint(field: FieldSchema, record?: LookupRecor
 /**
  * The options of a relation field, one server page at a time. Opening asks at once, a typed
  * term waits the field's debounce (500 ms by default). A failure clears the options: a refused
- * term (422) returns the server's message, any other failure toasts with Retry.
+ * term (422) returns the server's message, a refusal (403) says the user may not list the records,
+ * and any other failure toasts with Retry.
  */
 export function useAssociatable(field: FieldSchema, { open, term, withTrashed, type, record, endpoint: given }: Options) {
   const { __ } = useTranslation();
@@ -108,7 +109,13 @@ export function useAssociatable(field: FieldSchema, { open, term, withTrashed, t
         }
 
         // Options from an earlier term must not stay pickable under the new one.
-        const message = error instanceof ApiError && error.status === 422 ? (error.data as { message?: unknown } | null)?.message : undefined;
+        // A user who may not list the related records gets a plain answer; a retry cannot help.
+        const message =
+          error instanceof ApiError && error.status === 403
+            ? __('You may not list these records.')
+            : error instanceof ApiError && error.status === 422
+              ? (error.data as { message?: unknown } | null)?.message
+              : undefined;
         setResult({ items: [], hasMore: false, loaded: false, error: typeof message === 'string' ? message : null });
 
         if (typeof message !== 'string') {
