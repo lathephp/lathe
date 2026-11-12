@@ -27,6 +27,9 @@ class Impersonation implements ImpersonatesUsers
 
     public const string GUARD = 'lathe_impersonated_guard';
 
+    /** Laravel's session key for the last password confirmation, forgotten at the start and the stop. */
+    private const string PASSWORD_CONFIRMED_AT = 'auth.password_confirmed_at';
+
     public function impersonate(Request $request, StatefulGuard $guard, Authenticatable $user): bool
     {
         $panelGuard = Lathe::fortify()->guard();
@@ -51,6 +54,8 @@ class Impersonation implements ImpersonatesUsers
         }
 
         $guard->login($user);
+        // The admin's confirmation would otherwise stand for the target's password.
+        $session->forget(self::PASSWORD_CONFIRMED_AT);
 
         event(new ImpersonationStarted($impersonator, $user, $this->redirectAfterStartingImpersonation($request)));
 
@@ -64,6 +69,8 @@ class Impersonation implements ImpersonatesUsers
         }
 
         $session = $request->session();
+        // A confirmation made while impersonating is the target's, never the admin's.
+        $session->forget(self::PASSWORD_CONFIRMED_AT);
         $secondGuard = $session->get(self::GUARD);
         $secondGuard = is_string($secondGuard) ? $secondGuard : null;
         $impersonated = ($secondGuard !== null ? Auth::guard($secondGuard) : $guard)->user();

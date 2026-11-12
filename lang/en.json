@@ -390,6 +390,7 @@
     "Searching…": "Searching…",
     "Search…": "Search…",
     "Security": "Security",
+    "Security settings are not available while impersonating.": "Security settings are not available while impersonating.",
     "Select": "Select",
     "Select :title": "Select :title",
     "Select all": "Select all",

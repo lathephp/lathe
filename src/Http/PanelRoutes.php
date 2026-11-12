@@ -69,6 +69,7 @@ use Lathe\Http\Middleware\Authenticate;
 use Lathe\Http\Middleware\AuthorizePlugin;
 use Lathe\Http\Middleware\EnsureJson;
 use Lathe\Http\Middleware\HandleInertiaRequests;
+use Lathe\Http\Middleware\RefuseWhileImpersonating;
 use Lathe\Lathe;
 use Lathe\Plugins\PluginRegistry;
 use Lathe\Support\ConfigStore;
@@ -144,13 +145,13 @@ class PanelRoutes
             $router->get('security', [SecurityController::class, 'show'])->name('lathe.security');
 
             if ($this->fortify->featureEnabled('updatePasswords')) {
-                $router->put('user-security/password', [SecurityController::class, 'updatePassword'])->name('lathe.user-password.update');
+                $router->put('user-security/password', [SecurityController::class, 'updatePassword'])->middleware(RefuseWhileImpersonating::class)->name('lathe.user-password.update');
             }
 
             if ($this->fortify->featureEnabled('twoFactorAuthentication')) {
                 $twoFactor = TwoFactorAuthenticationController::class;
-                // With confirmPassword (not confirm) each answers 423 until the password is confirmed.
-                $router->middleware($this->fortify->twoFactorOption('confirmPassword') ? [RequirePassword::using('lathe.password.confirm')] : [])
+                // While impersonating each answers 403; with confirmPassword (not confirm) each answers 423 until the password is confirmed.
+                $router->middleware([RefuseWhileImpersonating::class, ...($this->fortify->twoFactorOption('confirmPassword') ? [RequirePassword::using('lathe.password.confirm')] : [])])
                     ->group(function (Router $router) use ($twoFactor) {
                         $router->post('user/two-factor-authentication', [$twoFactor, 'store'])->name('lathe.two-factor.enable');
                         $router->post('user/confirmed-two-factor-authentication', [$twoFactor, 'confirm'])->name('lathe.two-factor.confirm');
