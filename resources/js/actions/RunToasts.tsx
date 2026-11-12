@@ -222,7 +222,7 @@ export function RunToasts() {
     if (status?.status === 'completed' && status.failed_rows > 0) {
       return {
         message: __(':imported of :total :resource imported', {
-          imported: formatNumber(status.total_rows - status.failed_rows),
+          imported: formatNumber(status.created_rows + status.updated_rows),
           total: formatNumber(status.total_rows),
           resource: (status.resource_label ?? __('Rows')).toLocaleLowerCase(),
         }),

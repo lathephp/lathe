@@ -183,6 +183,31 @@ describe('run toasts', () => {
     expect(within(stack()).getByText('2,388 of 2,400 products imported')).toBeTruthy();
   });
 
+  it('counts neither the skipped nor the failed rows of a finished import as imported', async () => {
+    vi.spyOn(globalThis, 'fetch').mockResolvedValueOnce(
+      json({
+        status: 'completed',
+        mode: 'import',
+        total_rows: 10,
+        processed_rows: 10,
+        created_rows: 5,
+        updated_rows: 2,
+        skipped_rows: 2,
+        failed_rows: 1,
+        errors_url: '/lathe/api/imports/8/download-errors?signature=x',
+        resource_label: 'Products',
+      }),
+    );
+    renderRuns();
+
+    act(() => {
+      window.dispatchEvent(new CustomEvent('lathe:import-started', { detail: { id: 8 } }));
+    });
+    await poll();
+
+    expect(await within(stack()).findByText('7 of 10 products imported')).toBeTruthy();
+  });
+
   it('closes a finished bulk action without failures after 5 seconds', async () => {
     vi.spyOn(globalThis, 'fetch').mockResolvedValueOnce(json({ status: 'finished', total: 3, processed: 3, failed: 0, skipped: 0 }));
     renderRuns();
