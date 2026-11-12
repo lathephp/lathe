@@ -213,8 +213,15 @@ class BelongsToManyField extends RelationField implements FilterableField
             $rules[$this->attribute][] = $this->relatedIdsRule($request, $this->owner, $model);
         }
 
+        // Each pivot row the form posts meets its fields' rules; a tag sent with no row keeps its values.
         if ($request !== null && $request->exists($this->attribute)) {
+            $posted = $request->input($this->attribute.'_pivot');
+
             foreach (TagField::ids($request->input($this->attribute)) as $id) {
+                if (! is_array($posted) || ! is_array($posted[$id] ?? null)) {
+                    continue;
+                }
+
                 foreach ($this->writablePivotFields($request) as $field) {
                     foreach ($field->getRules($context, $request) as $key => $fieldRules) {
                         $rules[$this->attribute.'_pivot.'.$id.'.'.$key] = $fieldRules;

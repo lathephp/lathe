@@ -123,6 +123,15 @@ it('saves a form position inside the pivot field rules', function () {
     expect(pivotPosition(5))->toBe(7);
 });
 
+it('keeps the stored pivot values of tags the form posts no pivot row for', function () {
+    $this->putJson('/lathe/api/resources/pivot-write-products/1', [
+        'name' => 'Renamed',
+        'tags' => [5, 7],
+    ])->assertOk();
+
+    expect([pivotPosition(5), pivotPosition(7)])->toBe([1, 2]);
+});
+
 it('keeps a readonly pivot value on the form, attach and update pivot', function () {
     $this->putJson('/lathe/api/resources/pivot-readonly-products/1', [
         'name' => 'Renamed',
