@@ -73,16 +73,8 @@ class ExecuteAction implements ShouldQueue
 
             $before = $batchId === null ? [] : $models->mapWithKeys(fn (Model $model) => [ActionEvent::keyOf($model) => $model->getAttributes()])->all();
 
-            try {
-                $dispatcher->runQueuedChunk($action, new ActionFields($this->fields), $models, $batchId);
-            } catch (Throwable $e) {
-                // A retry runs the chunk again, so only the last attempt counts its rows.
-                if ($this->attempts() >= ($this->tries ?? 1)) {
-                    BulkRun::addCounts($this->bulkRunId, $models->count(), $models->count());
-                }
-
-                throw $e;
-            }
+            // A throw reaches the worker, which retries the chunk or, after its last attempt, calls failed().
+            $dispatcher->runQueuedChunk($action, new ActionFields($this->fields), $models, $batchId);
 
             if ($batchId !== null) {
                 app(ActionEventRecorder::class)->forActionChanges($batchId, $models, $before, $this->resource);
@@ -92,5 +84,14 @@ class ExecuteAction implements ShouldQueue
         } finally {
             app()->forgetInstance(LatheRequest::class);
         }
+    }
+
+    /**
+     * The queue gave up on the chunk: its last attempt threw, timed out or lost its worker,
+     * whatever the action's $tries or the worker's --tries. Only now do its rows count as failed.
+     */
+    public function failed(?Throwable $exception): void
+    {
+        BulkRun::addCounts($this->bulkRunId, count($this->keys), count($this->keys));
     }
 }

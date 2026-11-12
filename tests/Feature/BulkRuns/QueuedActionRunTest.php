@@ -46,6 +46,9 @@ class QueuedCalls
 
     public static bool $throwAll = false;
 
+    /** Attempts that throw before the chunk passes. */
+    public static int $throwTimes = 0;
+
     /** @var list<array<string, mixed>> */
     public static array $context = [];
 }
@@ -96,6 +99,12 @@ class QueuedShip extends Action
 
         foreach ($models as $order) {
             $order->update(['status' => 'shipped']);
+        }
+
+        if (QueuedCalls::$throwTimes > 0) {
+            QueuedCalls::$throwTimes--;
+
+            throw new RuntimeException('Chunk on hold, attempt '.QueuedCalls::$throwTimes.'.');
         }
 
         if (QueuedCalls::$throwAll || $models->contains(fn (Model $model) => in_array($model->getKey(), QueuedCalls::$throwOn, true))) {
@@ -175,10 +184,10 @@ function seedOrders(int $count): void
  * Runs the queued jobs on the database queue: all of them, or the next $jobs. The worker's
  * --memory matches the test process, which coverage runs push past the default 128 MB.
  */
-function drainQueue(?int $jobs = null): void
+function drainQueue(?int $jobs = null, int $tries = 1): void
 {
     if ($jobs === null) {
-        test()->artisan('queue:work', ['connection' => 'database', '--stop-when-empty' => true, '--sleep' => 0, '--memory' => 2048])->assertSuccessful();
+        test()->artisan('queue:work', ['connection' => 'database', '--stop-when-empty' => true, '--sleep' => 0, '--memory' => 2048, '--tries' => $tries])->assertSuccessful();
 
         return;
     }
@@ -215,6 +224,7 @@ beforeEach(function () {
     QueuedCalls::$log = [];
     QueuedCalls::$throwOn = [];
     QueuedCalls::$throwAll = false;
+    QueuedCalls::$throwTimes = 0;
     QueuedCalls::$context = [];
     Lathe::registerResources(QueuedOrders::class, SmallQueuedOrders::class);
 });
@@ -501,4 +511,37 @@ it('fires ActionExecuted once per chunk of a queued run', function () {
     drainQueue();
 
     Event::assertDispatchedTimes(ActionExecuted::class, 6);
+});
+
+it('counts a chunk that fails once and then passes on a worker with three tries once, as finished', function () {
+    seedOrders(501);
+    signInAdmin();
+    config(['queue.default' => 'database']);
+    QueuedCalls::$actions = [new QueuedAlways];
+    QueuedCalls::$throwTimes = 1;
+
+    $id = $this->postJson('/lathe/api/resources/queued-orders/action', queuedBody(['mode' => 'ids', 'ids' => range(1, 200)]))->json('bulk_run.id');
+    drainQueue(tries: 3);
+
+    $this->getJson("/lathe/api/bulk-runs/{$id}")
+        ->assertExactJson(['status' => 'finished', 'total' => 200, 'processed' => 200, 'failed' => 0, 'skipped' => 0]);
+    expect(ActionEvent::where('status', 'finished')->count())->toBe(200)
+        ->and(ActionEvent::where('status', '!=', 'finished')->count())->toBe(0)
+        ->and(ActionEvent::whereNotNull('exception')->count())->toBe(0);
+});
+
+it('counts a chunk that fails all three tries once, with its events failed on the last message', function () {
+    seedOrders(501);
+    signInAdmin();
+    config(['queue.default' => 'database']);
+    QueuedCalls::$actions = [new QueuedAlways];
+    QueuedCalls::$throwTimes = 3;
+
+    $id = $this->postJson('/lathe/api/resources/queued-orders/action', queuedBody(['mode' => 'ids', 'ids' => range(1, 200)]))->json('bulk_run.id');
+    drainQueue(tries: 3);
+
+    $this->getJson("/lathe/api/bulk-runs/{$id}")
+        ->assertExactJson(['status' => 'failed', 'total' => 200, 'processed' => 200, 'failed' => 200, 'skipped' => 0]);
+    expect(ActionEvent::where('status', 'failed')->where('exception', 'like', '%Chunk on hold, attempt 0.%')->count())->toBe(200)
+        ->and(QueuedCalls::$throwTimes)->toBe(0);
 });

@@ -232,9 +232,10 @@ class ActionDispatcher
     {
         $first = $models->firstOrFail();
 
+        // A retry finds the events the attempt before it marked failed.
         if ($batchId !== null) {
-            $this->chunkEvents($batchId, $models)->where('status', ActionEventStatus::Waiting->value)
-                ->update(['status' => ActionEventStatus::Running->value, 'updated_at' => now()]);
+            $this->chunkEvents($batchId, $models)->whereIn('status', [ActionEventStatus::Waiting->value, ActionEventStatus::Failed->value])
+                ->update(['status' => ActionEventStatus::Running->value, 'exception' => null, 'updated_at' => now()]);
         }
 
         $handler = ActionMethodResolver::handlerFor($action, $first::class);

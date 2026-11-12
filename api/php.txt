@@ -548,6 +548,7 @@ Lathe\Actions\Jobs\ExecuteAction::__construct(string $bulkRunId, Lathe\Support\J
 Lathe\Actions\Jobs\ExecuteAction::array $fields
 Lathe\Actions\Jobs\ExecuteAction::array $keys
 Lathe\Actions\Jobs\ExecuteAction::array $selection
+Lathe\Actions\Jobs\ExecuteAction::failed(?Throwable $exception): void
 Lathe\Actions\Jobs\ExecuteAction::handle(Lathe\Actions\ActionDispatcher $dispatcher): void
 Lathe\Actions\Jobs\ExecuteAction::string $action
 Lathe\Actions\Jobs\ExecuteAction::string $bulkRunId
