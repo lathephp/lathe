@@ -164,6 +164,18 @@ describe('filter bar suggestions', () => {
     expect(visit).not.toHaveBeenCalled();
   });
 
+  it('says plainly when the user may not list the customers customer:ann searches', async () => {
+    vi.spyOn(globalThis, 'fetch').mockResolvedValue(new Response(JSON.stringify({ message: 'This action is unauthorized.' }), { status: 403 }));
+    renderOrders();
+    await clickBar();
+
+    await type('customer:ann');
+    await advance(500);
+
+    expect(screen.queryAllByRole('option')).toEqual([]);
+    expect(document.querySelector('.lathe-bar-help')?.textContent).toBe('You may not list these records.');
+  });
+
   it('lists the customers the server finds for customer:ann and filters by the chosen one\'s id', async () => {
     const fetch = vi
       .spyOn(globalThis, 'fetch')

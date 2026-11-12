@@ -1,4 +1,4 @@
-import { request, useLathe, useTranslation } from '@lathephp/core';
+import { ApiError, request, useLathe, useTranslation } from '@lathephp/core';
 import {
   Combobox,
   ComboboxChip,
@@ -39,17 +39,17 @@ export function listPlace(bar: DOMRect, field: DOMRect, rtl: boolean): DOMRect {
 
 const isSuggestion = (item: FilterChip | Suggestion): item is Suggestion => 'text' in item || 'chip' in item;
 
-/** A filter's options matching the term, from the endpoint under `base`. */
-async function lookup(base: string, filter: IndexFilter, term: string): Promise<LookupResult[]> {
+/** A filter's options matching the term, from the endpoint under `base`; null when the user may not list them. */
+async function lookup(base: string, filter: IndexFilter, term: string): Promise<LookupResult[] | null> {
   const query = new URLSearchParams({ q: term, page: '1' }).toString();
 
   try {
     const found = await request<{ options: LookupResult[] }>(`${base}/filters/${encodeURIComponent(filter.key)}/options?${query}`);
 
     return found?.options ?? [];
-  } catch {
+  } catch (error) {
     // A failed search finds no match, which the chip shows in red.
-    return [];
+    return error instanceof ApiError && error.status === 403 ? null : [];
   }
 }
 
@@ -87,7 +87,7 @@ export function FilterBarEditor({ host, label, urlChips, leave, onChips, text, f
   const [open, setOpen] = useState(pressed);
   const [asked, setAsked] = useState(opens);
   // The relation options the last search found, kept while the next one loads.
-  const [found, setFound] = useState<{ key: string; options: LookupResult[] } | null>(null);
+  const [found, setFound] = useState<{ key: string; options: LookupResult[]; refused: boolean } | null>(null);
   const input = useRef<HTMLInputElement>(null);
   const anchor = useComboboxAnchor();
   const highlighted = useRef<FilterChip | Suggestion | undefined>(undefined);
@@ -102,7 +102,8 @@ export function FilterBarEditor({ host, label, urlChips, leave, onChips, text, f
       : searching !== undefined && found?.key === searching.filter.key
         ? found.options.map((option) => ({ label: option.label, chip: chipFromResults(searching.filter, option.label, [option], __) }))
         : [];
-  const help = 'help' in suggested ? suggested.help : undefined;
+  const refused = searching !== undefined && found?.key === searching.filter.key && found.refused;
+  const help = 'help' in suggested ? suggested.help : refused ? __('You may not list these records.') : undefined;
   // The list draws only when it has something to show, and only a drawn list takes Enter.
   const shown = open && (items.length > 0 || help !== undefined);
   const searchFilter = searching?.filter;
@@ -117,7 +118,7 @@ export function FilterBarEditor({ host, label, urlChips, leave, onChips, text, f
     const timer = setTimeout(() => {
       void lookup(base, searchFilter, searchTerm).then((options) => {
         if (current) {
-          setFound({ key: searchFilter.key, options });
+          setFound({ key: searchFilter.key, options: options ?? [], refused: options === null });
         }
       });
     }, searchMs);
@@ -181,7 +182,7 @@ export function FilterBarEditor({ host, label, urlChips, leave, onChips, text, f
       tokens.map(async (token) => {
         const parsed = parseToken(token, filters?.available ?? [], { softDeletes: resource.softDeletes }, __);
 
-        return 'chip' in parsed ? parsed.chip : chipFromResults(parsed.lookup.filter, parsed.lookup.term, await lookup(base, parsed.lookup.filter, parsed.lookup.term), __);
+        return 'chip' in parsed ? parsed.chip : chipFromResults(parsed.lookup.filter, parsed.lookup.term, (await lookup(base, parsed.lookup.filter, parsed.lookup.term)) ?? [], __);
       }),
     );
     // A new chip replaces the one its filter had, a red one too.
