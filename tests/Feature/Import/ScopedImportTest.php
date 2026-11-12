@@ -150,7 +150,7 @@ it('never updates a row outside the edit scope, in a dry run or a real one', fun
     expect($counts['updated_rows'])->toBe(1)
         ->and($counts['created_rows'] + $counts['failed_rows'])->toBe(1)
         ->and(Product::where('sku', 'HIDDEN-1')->value('name'))->toBe('Hidden one')
-        ->and(Product::where('sku', 'SKU-00001')->value('name'))->toBe($mode === 'import' ? 'Inside' : Product::where('sku', 'SKU-00001')->value('name'));
+        ->and(Product::where('sku', 'SKU-00001')->value('name') === 'Inside')->toBe($mode === 'import');
 })->with(['dry_run', 'import']);
 
 it('does not count a key held only outside the edit scope as skipped', function () {

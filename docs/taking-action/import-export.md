@@ -238,7 +238,7 @@ ImportAction::make()
 ->skipDuplicates('email')
 ```
 
-Lathe looks up the keys of one chunk at a time, so a large table does not slow the import down. Rows save through the model, and the model's `$fillable` decides which attributes a row may set. The Resource's own create hooks do not run.
+Lathe looks up the keys of one chunk at a time, so a large table does not slow the import down. It matches them only among the rows the Resource's `editQuery()` lets the user edit, so a key held by a row outside that scope counts as new: the row is created, or fails if the column is unique. A `relationship()` column matches only the records the related Resource's `relatableQuery()` offers. Rows save through the model, and the model's `$fillable` decides which attributes a row may set. The Resource's own create hooks do not run.
 
 ### Hooks
 
