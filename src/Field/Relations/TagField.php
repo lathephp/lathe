@@ -5,6 +5,7 @@ namespace Lathe\Field\Relations;
 use Closure;
 use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 use Illuminate\Database\Eloquent\Model;
+use Lathe\Auth\ResourceAuthorization;
 use Lathe\Field\Evaluator;
 use Lathe\Field\FieldContext;
 use Lathe\Http\Requests\LatheRequest;
@@ -158,7 +159,15 @@ class TagField extends RelationField
             return [...$json, 'preload' => false];
         }
 
-        $query = (new Associatable($request, $this->owner, $this))->query();
+        $associatable = new Associatable($request, $this->owner, $this);
+        $related = $associatable->relatedResource();
+        $authorization = app(ResourceAuthorization::class);
+        $query = $associatable->query();
+
+        // The options are a list of the related records, so they need what the picker's search needs.
+        if ($related === null || ! $authorization->canSee($request, $related) || ! $authorization->allows($request->user(), $related, 'viewAny')) {
+            return [...$json, 'preload' => false];
+        }
 
         if ($query === null || $query->holdsMoreThan(self::PRELOAD_LIMIT)) {
             return [...$json, 'preload' => false];

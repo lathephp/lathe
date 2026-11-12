@@ -73,6 +73,16 @@ it('sends the tags as picker items and preloads the 50 tags', function () {
         ->and($field['withPreview'])->toBeTrue();
 });
 
+it('preloads no tags for a user who may not list them', function () {
+    Gate::policy(Tag::class, TagsUnlisted::class);
+    $post = Post::orderBy('id')->firstOrFail();
+
+    $field = collect($this->getJson("/lathe/api/resources/posts/{$post->id}/update-fields")->assertOk()->json('fields'))->firstWhere('key', 'tags');
+
+    expect($field['preload'])->toBeFalse()
+        ->and($field)->not->toHaveKey('options');
+});
+
 it('uses the search picker for a table over 100 rows', function () {
     $field = Field::tag('Buyers', 'customer', Customer::class)->preload()->ownedBy(OrderResource::class);
 
@@ -143,3 +153,12 @@ it('fires the attach and detach events of a tag sync and leaves the tags alone w
 
     expect($post->tags()->orderBy('tags.id')->pluck('tags.id')->all())->toBe([2, 3]);
 });
+
+/** A Tag policy that lets no one list tags. */
+class TagsUnlisted
+{
+    public function viewAny(): bool
+    {
+        return false;
+    }
+}
