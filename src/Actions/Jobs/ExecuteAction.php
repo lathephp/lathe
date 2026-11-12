@@ -15,6 +15,7 @@ use Lathe\Actions\ActionFields;
 use Lathe\Actions\BulkRun;
 use Lathe\Http\Requests\LatheRequest;
 use Lathe\Query\SelectionResolver;
+use Lathe\Support\IsolatesJobContext;
 use Lathe\Support\JobContext;
 use Throwable;
 
@@ -24,7 +25,7 @@ use Throwable;
  */
 class ExecuteAction implements ShouldQueue
 {
-    use Batchable, InteractsWithQueue, Queueable;
+    use Batchable, InteractsWithQueue, IsolatesJobContext, Queueable;
 
     /** Seconds the job may run; the action's $timeout. */
     public ?int $timeout = null;

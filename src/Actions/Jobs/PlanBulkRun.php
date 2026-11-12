@@ -21,6 +21,7 @@ use Lathe\Lathe;
 use Lathe\Query\Selection;
 use Lathe\Query\SelectionResolver;
 use Lathe\Resources\Resource;
+use Lathe\Support\IsolatesJobContext;
 use Lathe\Support\JobContext;
 use RuntimeException;
 use Throwable;
@@ -32,7 +33,7 @@ use Throwable;
  */
 class PlanBulkRun implements ShouldQueue
 {
-    use Batchable, InteractsWithQueue, Queueable;
+    use Batchable, InteractsWithQueue, IsolatesJobContext, Queueable;
 
     /** One attempt, whatever the worker's --tries: a retry would queue the chunks it added again. */
     public int $tries = 1;

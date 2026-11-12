@@ -23,6 +23,7 @@ use Lathe\Query\QueryContext;
 use Lathe\Query\ResourceQuery;
 use Lathe\Resources\Resource;
 use Lathe\Support\ConfigStore;
+use Lathe\Support\IsolatesJobContext;
 use Lathe\Support\JobContext;
 use Lathe\Widgets\WidgetCache;
 use LogicException;
@@ -41,7 +42,7 @@ use Throwable;
  */
 class ProcessImport implements ShouldQueue
 {
-    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+    use Dispatchable, InteractsWithQueue, IsolatesJobContext, Queueable, SerializesModels;
 
     public ?int $tries = null;
 
@@ -155,9 +156,11 @@ class ProcessImport implements ShouldQueue
             return;
         }
 
-        $this->context->restore();
-        $import->update(['status' => 'failed', 'exception' => $exception?->getMessage() ?? Lathe::__('The import stopped before it finished.')]);
-        $this->notify($import);
+        $this->context->isolate(function () use ($import, $exception): void {
+            $this->context->restore();
+            $import->update(['status' => 'failed', 'exception' => $exception?->getMessage() ?? Lathe::__('The import stopped before it finished.')]);
+            $this->notify($import);
+        });
     }
 
     protected function run(Import $import): void

@@ -2,6 +2,7 @@
 
 namespace Lathe\Support;
 
+use Closure;
 use Illuminate\Contracts\Auth\UserProvider;
 use Illuminate\Support\Facades\Auth;
 use Lathe\Auth\FortifyConfig;
@@ -62,5 +63,36 @@ class JobContext
 
         app()->setLocale($this->locale);
         Lathe::restoreCapturedJobContext($this->extra);
+    }
+
+    /**
+     * Runs the callback, then puts back what restore() changes: the user on the guard, the
+     * default guard and the locale, also when the callback throws. A worker runs its next job,
+     * and the sync queue the rest of its request, as they were before.
+     *
+     * @template TResult
+     *
+     * @param  Closure(): TResult  $callback
+     * @return TResult
+     */
+    public function isolate(Closure $callback): mixed
+    {
+        $guard = Auth::guard($this->guard);
+        $user = $guard->hasUser() ? $guard->user() : null;
+        $default = Auth::getDefaultDriver();
+        $locale = app()->getLocale();
+
+        try {
+            return $callback();
+        } finally {
+            if ($user !== null) {
+                $guard->setUser($user);
+            } elseif (method_exists($guard, 'forgetUser')) {
+                $guard->forgetUser();
+            }
+
+            Auth::shouldUse($default);
+            app()->setLocale($locale);
+        }
     }
 }

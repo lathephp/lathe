@@ -15,6 +15,7 @@ use Lathe\Http\Requests\LatheRequest;
 use Lathe\Lathe;
 use Lathe\Query\Selection;
 use Lathe\Resources\Resource;
+use Lathe\Support\IsolatesJobContext;
 use Lathe\Support\JobContext;
 use RuntimeException;
 use Throwable;
@@ -26,7 +27,7 @@ use Throwable;
  */
 class ProcessExport implements ShouldQueue
 {
-    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+    use Dispatchable, InteractsWithQueue, IsolatesJobContext, Queueable, SerializesModels;
 
     public ?int $tries = null;
 
@@ -73,9 +74,11 @@ class ProcessExport implements ShouldQueue
      */
     public function failed(Throwable $e): void
     {
-        $this->context->restore();
-        $this->export->markFailed($e);
-        $this->notify(new ExportReady($this->export->refresh()));
+        $this->context->isolate(function () use ($e): void {
+            $this->context->restore();
+            $this->export->markFailed($e);
+            $this->notify(new ExportReady($this->export->refresh()));
+        });
     }
 
     /**

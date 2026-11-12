@@ -2,6 +2,7 @@
 
 use Illuminate\Database\Events\QueryExecuted;
 use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
@@ -19,6 +20,7 @@ use Lathe\Auth\ResourceAuthorization;
 use Lathe\Support\JobContext;
 use Lathe\Tests\Fixtures\Models\UlidThing;
 use Lathe\Tests\Fixtures\Models\UuidThing;
+use RuntimeException;
 use Workbench\App\Lathe\Actions\ImportProducts;
 use Workbench\App\Lathe\Resources\Product as ProductResource;
 use Workbench\App\Models\Customer;
@@ -525,4 +527,28 @@ it('matches an upsert key as the database compares it: without case on MySQL and
         : ['created_rows' => 2, 'updated_rows' => 0, 'skipped_rows' => 0, 'failed_rows' => 0])
         ->and(Customer::count())->toBe($foldsCase ? $before : $before + 2)
         ->and($ann->fresh()?->name)->toBe($foldsCase ? 'Ann Twice' : 'Ann');
+});
+
+it('puts back the request\'s user and locale after an import that ran on the sync queue and threw', function () {
+    $editor = User::where('email', 'editor@lathephp.com')->firstOrFail();
+    $this->actingAs($this->admin);
+    app()->setLocale('en');
+    $import = uploadedImport(fixtureCsv('products.csv'), [0 => 'name', 1 => 'sku', 2 => 'price']);
+    $seen = [];
+
+    Import::updating(function (Import $import) use (&$seen) {
+        if ($import->last_processed_row > 0 && $import->status === 'processing') {
+            $seen[] = [Auth::id(), app()->getLocale()];
+
+            throw new RuntimeException('The disk went away.');
+        }
+    });
+
+    expect(fn () => ImportProducts::make()->start($import, 'import', new JobContext($editor->id, 'web', 'ar', 'UTC')))
+        ->toThrow(RuntimeException::class, 'The disk went away.');
+
+    expect($seen)->toBe([[$editor->id, 'ar']])
+        ->and($import->fresh()?->status)->toBe('failed')
+        ->and(Auth::id())->toBe($this->admin->id)
+        ->and(app()->getLocale())->toBe('en');
 });

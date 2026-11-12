@@ -11,6 +11,7 @@ use Lathe\Actions\BulkRun;
 use Lathe\Http\Requests\LatheRequest;
 use Lathe\Query\SelectionResolver;
 use Lathe\Resources\RecordDeleter;
+use Lathe\Support\IsolatesJobContext;
 use Lathe\Support\JobContext;
 use Throwable;
 
@@ -20,7 +21,7 @@ use Throwable;
  */
 class DeleteChunk implements ShouldQueue
 {
-    use Batchable, InteractsWithQueue, Queueable;
+    use Batchable, InteractsWithQueue, IsolatesJobContext, Queueable;
 
     /** One attempt, whatever the worker's --tries: a retry would write the rows it already wrote again. */
     public int $tries = 1;

@@ -610,3 +610,28 @@ it('gives the planner and the delete chunk one attempt, and counts a delete chun
         ->and((new PlanBulkRun($run->id, $context, QueuedOrders::class, ['mode' => 'all']))->tries)->toBe(1)
         ->and($run->fresh()?->only('processed', 'failed'))->toBe(['processed' => 3, 'failed' => 3]);
 });
+
+it('puts back the worker\'s user, default guard and locale once the run\'s jobs end or throw', function (bool $throws) {
+    seedOrders(10);
+    config(['auth.guards.staff' => ['driver' => 'session', 'provider' => 'users'], 'lathe.guard' => 'staff', 'queue.default' => 'database']);
+    $admin = User::where('email', 'admin@lathephp.com')->firstOrFail();
+    $this->actingAs($admin, 'staff');
+    QueuedCalls::$actions = [new QueuedAlways];
+    QueuedCalls::$throwAll = $throws;
+    app()->setLocale('ar');
+
+    $this->postJson('/lathe/api/resources/queued-orders/action', queuedBody(['mode' => 'ids', 'ids' => [1, 2, 3]]))->assertOk();
+
+    // The worker starts as no one, on the app's default guard and in the app's locale.
+    Auth::forgetGuards();
+    config(['auth.defaults.guard' => 'web']);
+    app()->setLocale('en');
+    drainQueue();
+
+    expect(QueuedCalls::$context)->toBe([['user' => $admin->id, 'locale' => 'ar']])
+        ->and(Auth::guard('staff')->hasUser())->toBeFalse()
+        ->and(Auth::getDefaultDriver())->toBe('web')
+        ->and(Auth::guard('web')->hasUser())->toBeFalse()
+        ->and(app()->getLocale())->toBe('en')
+        ->and(BulkRun::sole()->status)->toBe($throws ? 'failed' : 'finished');
+})->with(['ends' => false, 'throws' => true]);
