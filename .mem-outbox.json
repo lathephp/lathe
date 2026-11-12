@@ -2,22 +2,28 @@
   "machine": "cloud-vm",
   "writes": [
     {
-      "base": "01M77YHNHMSFPMMAG3TF13MKZ3",
-      "body": "# plan: m38-scoped-writes\n\n- [x] t1 Look up import keys through the Resource's edit scope and relationship cells through the related relatable scope, held by check-patterns\n- [x] t2 Refuse readonly, hidden and invalid pivot values on the form, attach and update pivot, and 404 detach and update pivot outside the related scope\n- [ ] t3 Answer 403 from relation pickers and relation-filter options without the related Resource's viewAny or canSee, keep the saved-record lookup, and seed support@lathephp.com\n- [x] t4 Answer 422 for an action morphTo key its picker would not offer  [after: t3]\n- [x] t5 Hide the permission plugin's role and permission fields from a user who fails viewAny on Role or Permission\n",
-      "id": "01M77Z1ZNN1D89C63N98846CB8",
+      "base": "01M77Z1ZNN1D89C63N98846CB8",
+      "body": "# plan: m38-scoped-writes\n\n- [x] t1 Look up import keys through the Resource's edit scope and relationship cells through the related relatable scope, held by check-patterns\n- [x] t2 Refuse readonly, hidden and invalid pivot values on the form, attach and update pivot, and 404 detach and update pivot outside the related scope\n- [x] t3 Answer 403 from relation pickers and relation-filter options without the related Resource's viewAny or canSee, keep the saved-record lookup, and seed support@lathephp.com\n- [x] t4 Answer 422 for an action morphTo key its picker would not offer  [after: t3]\n- [x] t5 Hide the permission plugin's role and permission fields from a user who fails viewAny on Role or Permission\n",
+      "id": "01M77Z57KZ6R1WC5Y90X1C1WKC",
       "path": "projects/01M4T1WADSK9655DJEZ17PGMYC/plan.md"
     },
     {
       "base": null,
-      "body": "+++\ncreated = \"2026-11-12T13:27:20.034805192Z\"\nid = \"01M77Z1ZVGXA053FDJPMBN4BA5\"\nkind = \"log\"\nmachine = \"cloud-vm\"\nmodified = \"2026-11-12T13:27:20.034805192Z\"\nproject = \"lathe\"\ntitle = \"t2 landed: pivot writes drop readonly, hidden and computed fields, the form runs pivot rules on e…\"\n+++\n\nt2 landed: pivot writes drop readonly, hidden and computed fields, the form runs pivot rules on each posted row (tags_pivot.<id>.<attr>), detach and update pivot answer 404 outside the attach picker's relatable scope\n",
-      "id": "01M77Z1ZVH2G83T0B96A672CYW",
-      "path": "projects/01M4T1WADSK9655DJEZ17PGMYC/items/01M77Z1ZVGXA053FDJPMBN4BA5.md"
+      "body": "+++\ncreated = \"2026-11-12T13:29:06.48258938Z\"\nid = \"01M77Z57SPS80K66RKE1R6QVNC\"\nkind = \"log\"\nmachine = \"cloud-vm\"\nmodified = \"2026-11-12T13:29:06.48258938Z\"\nproject = \"lathe\"\ntitle = \"t3 landed: pickers and relation-filter options answer 403 without the related Resource's canSee a…\"\n+++\n\nt3 landed: pickers and relation-filter options answer 403 without the related Resource's canSee and viewAny, current= decided by view; support@lathephp.com seeded (create/view/update orders, no customer list)\n",
+      "id": "01M77Z57SPTTH5TF2ZCZWYNRKZ",
+      "path": "projects/01M4T1WADSK9655DJEZ17PGMYC/items/01M77Z57SPS80K66RKE1R6QVNC.md"
     },
     {
       "base": null,
-      "body": "+++\nby = \"agent\"\ncreated = \"2026-11-12T13:27:20.227425363Z\"\nid = \"01M77Z200TSAA9M9YF4H8WGDC6\"\nkind = \"ruling\"\nmachine = \"cloud-vm\"\nmodified = \"2026-11-12T13:27:20.227425363Z\"\nproject = \"lathe\"\ntitle = \"m38 t2: a form's pivot rules run only for the rows it posts under {attr}_pivot.<id>; a tag sent w…\"\n+++\n\nm38 t2: a form's pivot rules run only for the rows it posts under {attr}_pivot.<id>; a tag sent with no row keeps its stored pivot values (sync writes only given columns), so a required pivot field does not refuse a form that posts ids alone. No client sends _pivot today.\n",
-      "id": "01M77Z200VN2WT1RK9GJQ2HY29",
-      "path": "projects/01M4T1WADSK9655DJEZ17PGMYC/items/01M77Z200TSAA9M9YF4H8WGDC6.md"
+      "body": "+++\ncreated = \"2026-11-12T13:29:06.662713388Z\"\nid = \"01M77Z57YQ714HMQ49XTQ9FT5F\"\nkind = \"idea\"\nmachine = \"cloud-vm\"\nmodified = \"2026-11-12T13:29:06.662713388Z\"\nproject = \"lathe\"\ntitle = \"relation filters' inline options() and labels() (core RelationFilter and the workbench OrderCusto…\"\n+++\n\nrelation filters' inline options() and labels() (core RelationFilter and the workbench OrderCustomer) still list related records to a user without viewAny (m38 t3 follow-up)\n",
+      "id": "01M77Z57YQG7T2KS6A396DS9AD",
+      "path": "projects/01M4T1WADSK9655DJEZ17PGMYC/items/01M77Z57YQ714HMQ49XTQ9FT5F.md"
+    },
+    {
+      "base": null,
+      "body": "+++\ncreated = \"2026-11-12T13:29:06.826984219Z\"\nid = \"01M77Z584764AFQY5FE20ZBM14\"\nkind = \"idea\"\nmachine = \"cloud-vm\"\nmodified = \"2026-11-12T13:29:06.826984219Z\"\nproject = \"lathe\"\ntitle = \"workbench support@lathephp.com is not among UserPolicy's protected demo accounts; add it if the l…\"\n+++\n\nworkbench support@lathephp.com is not among UserPolicy's protected demo accounts; add it if the live demo prints its sign-in (m38 t3 follow-up)\n",
+      "id": "01M77Z5847W4X6D842BAZ5VYBC",
+      "path": "projects/01M4T1WADSK9655DJEZ17PGMYC/items/01M77Z584764AFQY5FE20ZBM14.md"
     }
   ]
 }
