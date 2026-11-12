@@ -2,16 +2,16 @@
   "machine": "cloud-vm",
   "writes": [
     {
-      "base": "01M77Y5M9YCE6M2V1TN8XX2K16",
-      "body": "# plan: m38-scoped-writes\n\n- [x] t1 Look up import keys through the Resource's edit scope and relationship cells through the related relatable scope, held by check-patterns\n- [ ] t2 Refuse readonly, hidden and invalid pivot values on the form, attach and update pivot, and 404 detach and update pivot outside the related scope\n- [ ] t3 Answer 403 from relation pickers and relation-filter options without the related Resource's viewAny or canSee, keep the saved-record lookup, and seed support@lathephp.com\n- [x] t4 Answer 422 for an action morphTo key its picker would not offer  [after: t3]\n- [ ] t5 Hide the permission plugin's role and permission fields from a user who fails viewAny on Role or Permission\n",
-      "id": "01M77YFDP2JDFFQ1AHXR3WN5QG",
+      "base": "01M77YFDP2JDFFQ1AHXR3WN5QG",
+      "body": "# plan: m38-scoped-writes\n\n- [x] t1 Look up import keys through the Resource's edit scope and relationship cells through the related relatable scope, held by check-patterns\n- [ ] t2 Refuse readonly, hidden and invalid pivot values on the form, attach and update pivot, and 404 detach and update pivot outside the related scope\n- [ ] t3 Answer 403 from relation pickers and relation-filter options without the related Resource's viewAny or canSee, keep the saved-record lookup, and seed support@lathephp.com\n- [x] t4 Answer 422 for an action morphTo key its picker would not offer  [after: t3]\n- [x] t5 Hide the permission plugin's role and permission fields from a user who fails viewAny on Role or Permission\n",
+      "id": "01M77YHNHMSFPMMAG3TF13MKZ3",
       "path": "projects/01M4T1WADSK9655DJEZ17PGMYC/plan.md"
     },
     {
       "base": null,
-      "body": "+++\ncreated = \"2026-11-12T13:17:11.801973863Z\"\nid = \"01M77YFDX1217GEC3438SHS5EJ\"\nkind = \"log\"\nmachine = \"cloud-vm\"\nmodified = \"2026-11-12T13:17:11.801973863Z\"\nproject = \"lathe\"\ntitle = \"t4 landed: an action morphTo key outside its picker answers 422\"\n+++\n\nt4 landed: an action morphTo key outside its picker answers 422\n",
-      "id": "01M77YFDX2KGGS3YMDKEBJQJ4F",
-      "path": "projects/01M4T1WADSK9655DJEZ17PGMYC/items/01M77YFDX1217GEC3438SHS5EJ.md"
+      "body": "+++\ncreated = \"2026-11-12T13:18:25.388232034Z\"\nid = \"01M77YHNRRQA2EKPHM1YRH00GK\"\nkind = \"log\"\nmachine = \"cloud-vm\"\nmodified = \"2026-11-12T13:18:25.388232034Z\"\nproject = \"lathe\"\ntitle = \"t5 landed: the permission plugin's role and permission fields ask viewAny on the plugin's Role/Pe…\"\n+++\n\nt5 landed: the permission plugin's role and permission fields ask viewAny on the plugin's Role/Permission Resource through canSee\n",
+      "id": "01M77YHNRSRY5RT43VJ6AH55VP",
+      "path": "projects/01M4T1WADSK9655DJEZ17PGMYC/items/01M77YHNRRQA2EKPHM1YRH00GK.md"
     }
   ]
 }
