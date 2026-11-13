@@ -1,6 +1,7 @@
 import { act, fireEvent, screen, waitFor, within } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import type { FieldSchema, FormFieldData } from '../fields/types';
+import { __panel } from '@lathephp/core';
 import { renderPage } from './support';
 
 afterEach(() => {
@@ -175,5 +176,55 @@ describe('the form layout', () => {
     expect(screen.getByText('Name', { selector: 'label' }).parentElement?.className).toContain('lg:col-span-2');
     expect(screen.getByText('Country', { selector: 'label' }).parentElement?.className).not.toContain('lg:col-span-2');
     expect(screen.getByText('Name', { selector: 'label' }).parentElement?.parentElement?.className).toContain('lg:grid-cols-2');
+  });
+
+  it('retries a failed save with the values the form holds when Retry is clicked', async () => {
+    const fetch = vi
+      .spyOn(globalThis, 'fetch')
+      .mockResolvedValueOnce(new Response(JSON.stringify({ message: 'boom' }), { status: 500 }))
+      .mockResolvedValueOnce(json({ id: 7, redirect: 'customers/7', updatedAt: '2026-10-14T10:00:00.000Z' }))
+      .mockResolvedValueOnce(json({ fields: formFields(), layout: [panel(['name', 'country'])], updatedAt: '2026-10-14T10:00:00.000Z' }));
+    renderForm('update');
+
+    fireEvent.change(screen.getByLabelText('Name'), { target: { value: 'Bea' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Update & Continue Editing' }));
+    await waitFor(() => {
+      expect(__panel.toasts.get()[0]?.action?.label).toBe('Retry');
+    });
+    fireEvent.change(screen.getByLabelText('Name'), { target: { value: 'Cleo' } });
+    act(() => {
+      __panel.toasts.get()[0]?.action?.onClick();
+    });
+
+    await waitFor(() => {
+      expect(fetch).toHaveBeenCalledTimes(2);
+    });
+    expect(JSON.parse(fetch.mock.calls[1]?.[1]?.body as string)).toMatchObject({ name: 'Cleo' });
+  });
+
+  it('says the record was updated when only the refresh after Update & Continue Editing failed, and saves again with no conflict', async () => {
+    const fetch = vi
+      .spyOn(globalThis, 'fetch')
+      .mockResolvedValueOnce(json({ id: 7, redirect: 'customers/7', updatedAt: '2026-10-14T10:00:00.000Z' }))
+      .mockResolvedValueOnce(new Response(JSON.stringify({ message: 'boom' }), { status: 500 }))
+      .mockResolvedValueOnce(json({ id: 7, redirect: 'customers/7', updatedAt: '2026-10-14T10:05:00.000Z' }))
+      .mockResolvedValueOnce(json({ fields: formFields(), layout: [panel(['name', 'country'])], updatedAt: '2026-10-14T10:05:00.000Z' }));
+    renderForm('update');
+
+    fireEvent.change(screen.getByLabelText('Name'), { target: { value: 'Bea' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Update & Continue Editing' }));
+
+    await waitFor(() => {
+      expect(__panel.toasts.get().map((toast) => toast.message)).toContain('Customer updated.');
+    });
+    expect(__panel.toasts.get().map((toast) => toast.message)).not.toContain('Something went wrong. Please try again.');
+
+    fireEvent.change(screen.getByLabelText('Name'), { target: { value: 'Cleo' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Update & Continue Editing' }));
+    await waitFor(() => {
+      expect(fetch).toHaveBeenCalledTimes(3);
+    });
+    // The second save sends the token the first one got back, so it meets no conflict of its own making.
+    expect(JSON.parse(fetch.mock.calls[2]?.[1]?.body as string)).toMatchObject({ name: 'Cleo', _updated_at: '2026-10-14T10:00:00.000Z' });
   });
 });

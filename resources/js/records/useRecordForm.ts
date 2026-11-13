@@ -1,5 +1,5 @@
 import { ApiError, request, toast, useLathe, useTranslation } from '@lathephp/core';
-import { useCallback, useMemo, useRef, useState } from 'react';
+import { useCallback, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { draftIdOf } from '../fields/rich/drafts';
 import { asFile } from '../fields/upload/file';
 import type { FormUploads } from '../fields/upload/uploads';
@@ -11,6 +11,8 @@ export type SubmitIntent = 'default' | 'another' | 'continue';
 interface WriteResult {
   id: string | number;
   redirect: string;
+  /** The record's new token, which an update answers with. */
+  updatedAt?: string | null;
 }
 
 /** The starting values of a form: each field's value, keyed by attribute. */
@@ -220,11 +222,16 @@ export function useRecordForm(
           setValues(initialValues(form.fields));
           toast.success(__(':resource created.', { resource: resource.singularLabel }));
         } else if (intent === 'continue' && updating) {
-          const fresh = await request<FormPayload>(`${base}/${String(id)}/update-fields`, { toastOnError: false });
+          // The save passed whatever the refresh does: without fresh fields the form keeps the values
+          // it saved and the token the save answered, so the next save meets no conflict of its own.
+          const fresh = await request<FormPayload>(`${base}/${String(id)}/update-fields`, { toastOnError: false }).catch(() => null);
 
           if (fresh !== null) {
             setPayload(fresh);
             setValues(initialValues(fresh.fields));
+          } else if (result?.updatedAt !== undefined) {
+            const token = result.updatedAt;
+            setPayload((current) => ({ ...current, updatedAt: token }));
           }
 
           toast.success(__(':resource updated.', { resource: resource.singularLabel }));
@@ -244,8 +251,9 @@ export function useRecordForm(
           toast.error(__('Something went wrong. Please try again.'), {
             action: {
               label: __('Retry'),
+              // The render that failed is gone by the click: its values and token may be stale.
               onClick: () => {
-                void submit(intent);
+                void latestSubmit.current(intent);
               },
             },
           });
@@ -254,6 +262,12 @@ export function useRecordForm(
         setBusy(false);
       }
   }
+
+  // Read when a toast's Retry is clicked, so it sends what the form holds then.
+  const latestSubmit = useRef(submit);
+  useLayoutEffect(() => {
+    latestSubmit.current = submit;
+  });
 
   return {
     payload,
