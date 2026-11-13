@@ -109,11 +109,37 @@ class GuardedCustomerOrders extends Resource
     }
 }
 
+class ListedCustomers extends Resource
+{
+    protected function configure(ResourceDefinition $definition): ResourceDefinition
+    {
+        return $definition->model(Customer::class)->title('name')->canonical(false)->allowAll();
+    }
+
+    public function fields(LatheRequest $request): array
+    {
+        return [Field::text('Name')];
+    }
+}
+
+class ListedCustomerOrders extends Resource
+{
+    protected function configure(ResourceDefinition $definition): ResourceDefinition
+    {
+        return $definition->model(Order::class)->title('number')->canonical(false)->allowAll();
+    }
+
+    public function fields(LatheRequest $request): array
+    {
+        return [Field::text('Number'), Field::belongsTo('Customer', 'customer', ListedCustomers::class)->filterable()];
+    }
+}
+
 beforeEach(function () {
     $this->artisan('migrate')->assertSuccessful();
     $this->seed(DemoSeeder::class);
     Gate::define('viewLathe', fn () => true);
-    Lathe::registerResources(HiddenCustomers::class, GuardedCustomers::class, HiddenCustomerOrders::class, GuardedCustomerOrders::class);
+    Lathe::registerResources(HiddenCustomers::class, GuardedCustomers::class, ListedCustomers::class, HiddenCustomerOrders::class, GuardedCustomerOrders::class, ListedCustomerOrders::class);
     $this->actingAs(User::where('email', 'admin@lathephp.com')->firstOrFail());
     $this->order = Order::query()->orderBy('id')->firstOrFail();
     $this->customer = Customer::query()->findOrFail($this->order->customer_id);
@@ -148,4 +174,22 @@ it('answers the saved value only when the user may view that one record', functi
         ->assertJsonPath('items.0.display', $this->customer->name)
         ->assertJsonPath('has_more', false);
     $this->getJson($uri.$other->id)->assertForbidden();
+});
+
+it('lists no relation filter options inline to a user who may not list the related records', function (string $resource) {
+    config()->set('lathe.limits.filter_remote_threshold', 100000);
+
+    $filter = collect($this->getJson("/lathe/api/resources/{$resource}/filters")->assertOk()->json('filters'))->firstWhere('key', 'field_customer');
+
+    expect($filter)->toMatchArray(['remote' => true, 'options' => null]);
+    $this->getJson("/lathe/api/resources/{$resource}/filters/field_customer/options?q=&page=1")->assertForbidden();
+})->with(['canSee hides the Resource' => 'hidden-customer-orders', 'viewAny fails' => 'guarded-customer-orders']);
+
+it('still lists a small related table inline to a user who may list it', function () {
+    config()->set('lathe.limits.filter_remote_threshold', 100000);
+
+    $filter = collect($this->getJson('/lathe/api/resources/listed-customer-orders/filters')->assertOk()->json('filters'))->firstWhere('key', 'field_customer');
+
+    expect($filter['remote'])->toBeFalse()
+        ->and($filter['options'])->not->toBeEmpty();
 });

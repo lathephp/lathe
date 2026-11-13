@@ -70,11 +70,7 @@ class RelationFilter extends Filter
             return parent::searchOptions($request, $term, $page, $perPage);
         }
 
-        // Listing the related records needs canSee and viewAny on their Resource, as a relation picker does.
-        $related = $this->field->relatedResource();
-        $authorization = app(ResourceAuthorization::class);
-
-        abort_unless($related !== null && $authorization->canSee($request, $related) && $authorization->allows($request->user(), $related, 'viewAny'), 403);
+        abort_unless($this->mayList($request), 403);
 
         // The picker reads q and page from the request and pages by $perPage.
         $models = $query->options($perPage);
@@ -108,6 +104,8 @@ class RelationFilter extends Filter
 
     /**
      * Remote once the related table holds more rows than the threshold, counted without loading them.
+     * A user who may not list the related records gets the remote picker too, whose search refuses them,
+     * so the definition never carries the records inline.
      */
     public function isRemote(LatheRequest $request, int $threshold): bool
     {
@@ -117,11 +115,22 @@ class RelationFilter extends Filter
 
         $query = $this->relatedQuery($request);
 
-        if ($query === null) {
+        if ($query === null || ! $this->mayList($request)) {
             return true;
         }
 
         return $query->holdsMoreThan($threshold);
+    }
+
+    /**
+     * Listing the related records needs canSee and viewAny on their Resource, as a relation picker does.
+     */
+    protected function mayList(LatheRequest $request): bool
+    {
+        $related = $this->field->relatedResource();
+        $authorization = app(ResourceAuthorization::class);
+
+        return $related !== null && $authorization->canSee($request, $related) && $authorization->allows($request->user(), $related, 'viewAny');
     }
 
     protected function acceptsRemoteValue(string $value): bool
