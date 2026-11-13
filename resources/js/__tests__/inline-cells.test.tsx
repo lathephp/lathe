@@ -104,6 +104,19 @@ describe('inline cells', () => {
     expect(bodies(fetch)[1]?._updated_at).toBe('2026-10-14T09:00:02.000Z');
   });
 
+  it('keeps a text cell open with its text on an Enter that confirms an IME composition', async () => {
+    const fetch = vi.spyOn(globalThis, 'fetch').mockResolvedValue(reply(200, { field: 'name', fields: { name: { value: 'Ann Lee', display: 'Ann Lee' } }, updatedAt: '2026-10-14T09:00:02.000Z' }));
+    renderRows();
+
+    await editCell('Name');
+    const input = await screen.findByRole<HTMLInputElement>('textbox', { name: 'Name' });
+    fireEvent.change(input, { target: { value: 'Ann Le' } });
+    fireEvent.keyDown(input, { key: 'Enter', isComposing: true });
+
+    expect(screen.getByRole<HTMLInputElement>('textbox', { name: 'Name' }).value).toBe('Ann Le');
+    expect(fetch).not.toHaveBeenCalled();
+  });
+
   it('brings a refused select back closed with its old value, and Escape leaves that value', async () => {
     vi.spyOn(globalThis, 'fetch').mockResolvedValueOnce(reply(422, { message: 'Refused.', errors: { status: ['Support may not cancel an order.'] } }));
     renderRows();

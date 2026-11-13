@@ -15,3 +15,11 @@ export function onShowKeys(listener: () => void): () => void {
     listeners.delete(listener);
   };
 }
+
+/**
+ * Whether a key press belongs to an IME composition: the Enter that confirms the text, or an arrow
+ * that moves through its candidates, is the IME's and the page must not act on it.
+ */
+export function composing(event: { nativeEvent: KeyboardEvent } | KeyboardEvent): boolean {
+  return ('nativeEvent' in event ? event.nativeEvent : event).isComposing;
+}

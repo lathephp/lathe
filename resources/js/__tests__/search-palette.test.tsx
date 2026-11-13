@@ -351,6 +351,16 @@ describe('keyboard', () => {
     expect(onClose).toHaveBeenCalledTimes(1);
   });
 
+  it('opens nothing on an Enter that confirms an IME composition', async () => {
+    const visit = vi.spyOn(router, 'visit').mockImplementation(() => undefined);
+    const { onClose } = await ready();
+
+    fireEvent.keyDown(box(), { key: 'Enter', isComposing: true });
+
+    expect(visit).not.toHaveBeenCalled();
+    expect(onClose).not.toHaveBeenCalled();
+  });
+
   it('opens the row it moved to', async () => {
     const visit = vi.spyOn(router, 'visit').mockImplementation(() => undefined);
 

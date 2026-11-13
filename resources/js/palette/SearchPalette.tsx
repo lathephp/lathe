@@ -4,6 +4,7 @@ import { Button } from '@lathephp/ui';
 import { ArrowDown, ArrowUp, CornerDownLeft, History, Search, X } from 'lucide-react';
 import { useEffect, useId, useRef, useState, type KeyboardEvent } from 'react';
 import { cn } from '../lib/cn';
+import { composing } from '../lib/keys';
 import { initials, type SearchResponse, type SearchResult } from './results';
 import { useRecentSearches } from './useRecentSearches';
 
@@ -123,6 +124,11 @@ export function SearchPalette({ basePath, debounce, onClose }: Props) {
 
   function onKeyDown(event: KeyboardEvent) {
     const onInput = event.target === input.current;
+
+    // A key inside an IME composition is the IME's: Enter confirms the text, Escape cancels it.
+    if (composing(event)) {
+      return;
+    }
 
     if (event.key === 'Escape' || (event.key.toLowerCase() === 'k' && (event.ctrlKey || event.metaKey))) {
       // The shortcut dispatcher is paused while the palette is open, so it closes itself on mod+k.

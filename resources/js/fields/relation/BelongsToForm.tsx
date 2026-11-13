@@ -3,6 +3,7 @@ import { Button } from '@lathephp/ui';
 import { Plus } from 'lucide-react';
 import { lazy, Suspense, useEffect, useRef, useState } from 'react';
 import { Select } from '../../components/ui/Select';
+import { composing } from '../../lib/keys';
 import { inputClass } from '../choice/options';
 import type { FormFieldProps } from '../registry';
 import { isBelongsToValue } from './BelongsToField';
@@ -160,6 +161,11 @@ export function RelationPicker({
               setActive(-1);
             }}
             onKeyDown={(event) => {
+              // A key inside an IME composition is the IME's: its arrows move through candidates, its Enter confirms the text.
+              if (composing(event)) {
+                return;
+              }
+
               if (event.key === 'ArrowDown') {
                 event.preventDefault();
                 setActive(Math.min(active + 1, last));

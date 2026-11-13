@@ -11,6 +11,7 @@ import {
 } from '@lathephp/ui/combobox';
 import { Search } from 'lucide-react';
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { composing } from '../lib/keys';
 import { type BarHost, chipName } from './FilterBar';
 import { chipFromResults, type FilterChip, type LookupResult, parseToken, splitInput, suggest, type Suggestion, toUrlState } from './filterTokens';
 import type { IndexFilter } from './types';
@@ -285,6 +286,13 @@ export function FilterBarEditor({ host, label, urlChips, leave, onChips, text, f
           aria-label={label}
           aria-keyshortcuts={host.shortcut ? '/' : undefined}
           onKeyDown={(event) => {
+            // A key inside an IME composition is the IME's: no pick, no chip.
+            if (composing(event)) {
+              event.preventBaseUIHandler();
+
+              return;
+            }
+
             // Enter on a highlighted item is Base UI's pick; otherwise it parses the whole text.
             if (event.key === 'Enter' && !(shown && highlighted.current !== undefined)) {
               event.preventDefault();

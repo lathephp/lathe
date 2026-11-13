@@ -36,6 +36,7 @@ All notable changes to Lathe are listed here. The format follows [Keep a Changel
 - An admin who impersonates a user who may not open the panel can press Stop Impersonating on the page that answers 403, and is back as themselves on the page the impersonation started from; the stop answered 403 too. That user signed in on their own still gets 403 everywhere in the panel.
 - The impersonation bar wraps its sentence on a narrow screen, so a phone reads the impersonated user's name in full; it was cut to "You are currently impersonatin…" at 390 px.
 - A link in rich text whose target is `_BLANK` or any other case of `_blank` gets `rel="noopener noreferrer"`, as a lowercase `_blank` did.
+- An Enter that confirms an IME composition, as Japanese, Chinese or Korean typing sends, confirms the text and does nothing else: an inline text cell stays open with its text, where it saved the half-typed value, and the filter bar adds no chip, the search palette opens no result and a belongsTo picker picks no option. An Enter outside a composition acts as before.
 
 ## [1.0.0-beta.12] - 2026-11-10
 

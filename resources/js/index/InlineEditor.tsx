@@ -3,6 +3,7 @@ import { SelectMenu } from '../components/ui/SelectMenu';
 import { SelectBadge, styled } from '../fields/choice/SelectFields';
 import type { Cell, FieldSchema } from '../fields/types';
 import { stringValue } from '../fields/registry';
+import { composing } from '../lib/keys';
 import { isBelongsToValue } from '../fields/relation/BelongsToField';
 import { BelongsToForm, MorphToForm } from '../fields/relation/lazy';
 import { isMorphToValue } from '../fields/relation/MorphToField';
@@ -192,7 +193,8 @@ export function InlineEditor({ uriKey, rowId, column, cell, describedBy, invalid
         setText(event.target.value);
       }}
       onKeyDown={(event) => {
-        if (event.key === 'Enter' || event.key === 'Tab' || event.key === 'Escape') {
+        // An Enter or an Escape inside an IME composition confirms or cancels the composed text, not the edit.
+        if (!composing(event) && (event.key === 'Enter' || event.key === 'Tab' || event.key === 'Escape')) {
           event.preventDefault();
           finish(event.key !== 'Escape', event.key === 'Tab');
         }

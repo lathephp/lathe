@@ -129,6 +129,24 @@ describe('filter bar', () => {
     expect(visitData(visit)).toEqual({ filter: { status: 'pending' } });
   });
 
+  it('adds no chip on an Enter that confirms an IME composition, and adds it on the next Enter', async () => {
+    const visit = mockVisit();
+    renderOrders();
+    const input = await focusBar();
+
+    fireEvent.change(input, { target: { value: 'status:pending' } });
+    fireEvent.keyDown(input, { key: 'Enter', isComposing: true });
+    await advance(300);
+
+    expect(within(bar()).queryByText('Status: Pending')).toBeNull();
+    expect(visit).not.toHaveBeenCalled();
+
+    fireEvent.keyDown(input, { key: 'Enter' });
+    await advance(0);
+
+    expect(within(bar()).getByText('Status: Pending')).toBeTruthy();
+  });
+
   it('turns status:pending into a chip and visits once, 300 ms later', async () => {
     const visit = mockVisit();
     renderOrders();

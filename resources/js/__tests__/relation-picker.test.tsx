@@ -174,6 +174,20 @@ describe('belongsTo relation picker', () => {
     expect(onChange).toHaveBeenCalledWith({ value: 4, display: 'Anna Park' });
   });
 
+  it('picks nothing on an Enter that confirms an IME composition', async () => {
+    server();
+    const onChange = vi.fn();
+    renderField(schema(), onChange);
+
+    fireEvent.click(screen.getByRole('button', { name: /Customer/ }));
+    await flush();
+    fireEvent.keyDown(screen.getByRole('searchbox'), { key: 'ArrowDown' });
+    fireEvent.keyDown(screen.getByRole('searchbox'), { key: 'Enter', isComposing: true });
+
+    expect(onChange).not.toHaveBeenCalled();
+    expect(screen.getByRole('listbox')).toBeTruthy();
+  });
+
   it('closes on Escape', async () => {
     server();
     renderField();
