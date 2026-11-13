@@ -41,6 +41,7 @@ All notable changes to Lathe are listed here. The format follows [Keep a Changel
 - An action whose form holds a file and whose route asks for a recent password confirmation opens the password dialog, and a right password runs it once with the chosen file; it answered 423 and the modal stayed open with nothing said. Cancelling the dialog leaves the modal open with its file, and a 419 or 401 opens the sign-in dialog, as for an action without a file.
 - A form holds its Save while a file, image or audio field uploads: the Save buttons are disabled and the primary one reads "Uploading…" until the upload ends, and an Enter in a text field does not submit meanwhile, so a save always carries the file chosen; pressing Save at 40% saved the record without it, and nothing said so. A failed upload enables Save again and shows the field's error. The create sheet of a belongsTo field does the same.
 - A file field holds the last file picked: picking a second file while the first still uploads stops the first, where whichever upload ended last took the field. Two images pasted into a rich text editor one after the other each show their own image, under one draft, where the second could take the first's URL or replace it.
+- A lens keeps every inline edit of a row: after a second cell of the same row saved, the first one showed its old value again, in the row and in the preview panel.
 
 ## [1.0.0-beta.12] - 2026-11-10
 

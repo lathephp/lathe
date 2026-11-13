@@ -490,10 +490,16 @@ export function ResourceTable({ resource, table, state, loading, selection, sort
                                     cell={cell}
                                     token={fresh === undefined ? row.updatedAt : fresh.updatedAt}
                                     onRow={(cells, updatedAt) => {
-                                      // A save answers with the Resource's cells; a lens computes its own, so it takes the edited one only.
+                                      // A save answers with the Resource's cells; a lens computes its own, so it takes the edited one only,
+                                      // over the cells it shows now, so an earlier edit of the row stays.
                                       const taken = lens == null ? cells : { [column.key]: cells[column.key] ?? cell };
-                                      setSaved((current) => ({ ...current, [String(row.id)]: { over: row, cells: { ...row.cells, ...taken }, updatedAt } }));
-                                      preview?.saved?.({ ...row, cells: { ...row.cells, ...taken } });
+                                      const shown = (current: typeof saved) => {
+                                        const before = current[String(row.id)];
+
+                                        return before !== undefined && sameRow(before.over, row) ? before.cells : row.cells;
+                                      };
+                                      setSaved((current) => ({ ...current, [String(row.id)]: { over: row, cells: { ...shown(current), ...taken }, updatedAt } }));
+                                      preview?.saved?.({ ...row, cells: { ...shown(saved), ...taken } });
                                     }}
                                   />
                                 ) : (
