@@ -124,6 +124,8 @@ class RelationFilter extends Filter
 
     /**
      * Listing the related records needs canSee and viewAny on their Resource, as a relation picker does.
+     *
+     * @internal
      */
     protected function mayList(LatheRequest $request): bool
     {

@@ -181,7 +181,8 @@ it('lists no relation filter options inline to a user who may not list the relat
 
     $filter = collect($this->getJson("/lathe/api/resources/{$resource}/filters")->assertOk()->json('filters'))->firstWhere('key', 'field_customer');
 
-    expect($filter)->toMatchArray(['remote' => true, 'options' => null]);
+    expect($filter['remote'])->toBeTrue()
+        ->and($filter['options'])->toBeNull();
     $this->getJson("/lathe/api/resources/{$resource}/filters/field_customer/options?q=&page=1")->assertForbidden();
 })->with(['canSee hides the Resource' => 'hidden-customer-orders', 'viewAny fails' => 'guarded-customer-orders']);
 
