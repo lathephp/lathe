@@ -30,6 +30,8 @@ check 'typescript suppression' '@ts-(ignore|nocheck)\b'
 check 'final class' '^\s*final\s+(abstract\s+)?class\b'
 check 'product name' "Laravel[ ]Lathe"
 check 'strict types declaration' 'declare\s*\(\s*strict_types'
+# The client code quotes imports with single quotes; a double-quoted one is a whole-file reformat.
+check 'double-quoted import' '(^|\s)from\s+"[^"]*";?\s*$|^\s*import\s+"'
 
 # Model queries open only inside ResourceQuery; Resource::query() itself is defined in Resource,
 # and AggregateQuery opens the one query of a widget number.

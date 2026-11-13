@@ -44,6 +44,10 @@ it('fails on each banned pattern', function (string $path, string $content) {
     'ts-nocheck' => ['packages/ui/src/b.ts', "// @ts-nocheck\nconst b = 1;\n"],
     'product name with the framework' => ['src/Support/Name.php', "<?php\n// Laravel "."Lathe\n"],
     'final class' => ['src/Resources/Locked.php', "<?php\nfinal class Locked {}\n"],
+    'double-quoted import' => ['resources/js/lib/save.ts', "import { request } from \"@lathephp/core\";\n"],
+    'double-quoted import closing a multi-line import' => ['packages/core/src/c.tsx', "import {\n  useState,\n} from \"react\";\n"],
+    'double-quoted side-effect import' => ['resources/js/app.ts', "import \"./bootstrap\";\n"],
+    'double-quoted re-export' => ['packages/ui/src/index.ts', "export { Button } from \"./button\";\n"],
 ]);
 
 it('fails on a banned pattern in a file git does not track yet', function () {
