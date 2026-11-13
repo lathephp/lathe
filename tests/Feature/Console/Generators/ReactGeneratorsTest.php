@@ -97,7 +97,9 @@ it('writes a field with --custom and a React component under the same key', func
 });
 
 it('writes a filter with --custom and a React component', function () {
-    $this->artisan('lathe:filter', ['name' => 'Rating', '--custom' => true])->assertExitCode(0);
+    $this->artisan('lathe:filter', ['name' => 'Rating', '--custom' => true])
+        ->expectsOutputToContain('The --custom option is deprecated: the filter bar shows this filter as a text key, not with its component.')
+        ->assertExitCode(0);
 
     $code = $this->generated('app/Lathe/Filters/Rating.php');
 
@@ -105,6 +107,12 @@ it('writes a filter with --custom and a React component', function () {
         ->and($code)->toContain('class Rating extends Filter')->toContain("return 'rating-filter';")
         ->and($this->generated('resources/js/lathe/filters/Rating.tsx'))->toContain("filter('rating-filter', Rating);")
         ->and($this->generated('resources/js/lathe/boot.ts'))->toContain("import './filters/Rating';");
+});
+
+it('writes a filter without --custom and says nothing of a deprecation', function () {
+    $this->artisan('lathe:filter', ['name' => 'Status'])
+        ->doesntExpectOutputToContain('deprecated')
+        ->assertExitCode(0);
 });
 
 it('writes a page class and its React component', function () {

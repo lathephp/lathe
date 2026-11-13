@@ -12,7 +12,7 @@ class MakeFilterCommand extends GeneratorCommand
     /** @var list<string> */
     protected const array TYPES = ['select', 'boolean', 'date', 'range'];
 
-    protected $signature = 'lathe:filter {name? : The class name} {--type=select : select, boolean, date or range} {--custom : Write a filter class with a React component} {--force : Overwrite an existing class}';
+    protected $signature = 'lathe:filter {name? : The class name} {--type=select : select, boolean, date or range} {--custom : Deprecated: write a filter class with a React component, which the filter bar does not draw} {--force : Overwrite an existing class}';
 
     protected $description = 'Create a Lathe filter';
 
@@ -26,7 +26,13 @@ class MakeFilterCommand extends GeneratorCommand
             return self::FAILURE;
         }
 
-        return parent::handle($files);
+        $result = parent::handle($files);
+
+        if ($result === self::SUCCESS && $this->option('custom')) {
+            $this->components->warn('The --custom option is deprecated: the filter bar shows this filter as a text key, not with its component.');
+        }
+
+        return $result;
     }
 
     protected function stub(): string

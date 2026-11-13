@@ -27,7 +27,7 @@ Each generator writes from a stub. `lathe:stubs` publishes the stubs to `stubs/l
 |---|---|
 | `lathe:resource <name>` | A Resource in `app/Lathe/Resources` and its policy. Options: `--plugin`, `--force`. |
 | `lathe:action <name>` | An action. Options: `--plugin`, `--force`. |
-| `lathe:filter <name>` | A filter. `--type` is `select` (default), `boolean`, `date` or `range`; `--custom` also writes a React component. |
+| `lathe:filter <name>` | A filter. `--type` is `select` (default), `boolean`, `date` or `range`; `--custom`, deprecated, also writes a React component, which the filter bar does not draw: it shows the filter as a text key. |
 | `lathe:lens <name>` | A lens. Options: `--plugin`, `--force`. |
 | `lathe:widget <name>` | A widget. `--type` is `value` (default), `trend`, `partition`, `progress`, `table`, `custom`, `bar`, `pie`, `radar`, `radial` or `help`. |
 | `lathe:field <name>` | A field class. `--extends` names the field type to extend (default `field`); `--custom` also writes a React component. |
