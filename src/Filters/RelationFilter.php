@@ -93,8 +93,16 @@ class RelationFilter extends Filter
         }
 
         $labels = [];
+        $listable = $this->mayList($request);
+        $related = $this->field->relatedResource();
+        $authorization = app(ResourceAuthorization::class);
 
         foreach ($query->scoped()->whereKey($values)->get() as $model) {
+            // A user who may not list the related records reads only the one they may view, as a picker's saved value.
+            if (! $listable && ($related === null || ! $authorization->allows($request->user(), $related, 'view', $model))) {
+                continue;
+            }
+
             $key = $model->getKey();
             $labels[is_scalar($key) ? (string) $key : ''] = $this->field->displayFor($model);
         }

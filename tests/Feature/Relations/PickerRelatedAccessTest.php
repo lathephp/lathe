@@ -194,3 +194,11 @@ it('still lists a small related table inline to a user who may list it', functio
     expect($filter['remote'])->toBeFalse()
         ->and($filter['options'])->not->toBeEmpty();
 });
+
+it('names in a filter chip only a related record the user may view, when they may not list them', function () {
+    $other = Customer::query()->whereKeyNot($this->customer->id)->orderBy('id')->firstOrFail();
+    $labels = fn (int $id) => $this->getJson("/lathe/api/resources/guarded-customer-orders?filter[field_customer]={$id}")->assertOk()->json('filters.labels.field_customer');
+
+    expect($labels($this->customer->id))->toBe([(string) $this->customer->id => $this->customer->name])
+        ->and($labels($other->id))->toBe([]);
+});
