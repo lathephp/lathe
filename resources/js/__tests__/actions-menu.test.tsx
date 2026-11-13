@@ -3,6 +3,7 @@ import { __panel, actionModal, type ActionModalProps } from '@lathephp/core';
 import { fireEvent, screen, waitFor, within } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import type { ActionMeta } from '../actions/types';
+import { registerField } from '../fields/registry';
 import { renderPage } from './support';
 
 // A run reloads the rows through Inertia; no test here may send that request for real.
@@ -705,5 +706,99 @@ describe('the action modal', () => {
     fireEvent.click(within(await openMenu()).getByRole('menuitem', { name: 'Download Report' }));
 
     expect(__panel.toasts.get().map((toast) => toast.message)).toContain('Preparing file');
+  });
+});
+
+describe('an action with a file field behind a password check', () => {
+  // A field whose value is the chosen File itself, so the run posts multipart.
+  registerField('probe-file-field', {
+    index: () => null,
+    detail: () => null,
+    form: ({ value, onChange }) => (
+      <button
+        type="button"
+        onClick={() => {
+          onChange(new File(['sku,stock'], 'stock.csv', { type: 'text/csv' }));
+        }}
+      >
+        {value instanceof File ? `Chosen ${value.name}` : 'Choose stock file'}
+      </button>
+    ),
+  });
+  const form = { fields: [{ key: 'sheet', attribute: 'sheet', label: 'Sheet', component: 'probe-file-field', value: null, stacked: false, compact: false, help: null, required: true }], confirmText: null };
+  const ran = { result: { message: 'Stock updated.', level: 'success', effect: null }, permitted: 1, skipped: 0, failed: 0, errors: [] };
+
+  /** The bodies the action route was sent, each read back as the file it carried. */
+  function actionPosts(fetch: { mock: { calls: unknown[][] } }): (string | undefined)[] {
+    return fetch.mock.calls
+      .filter((call) => call[0] === '/lathe/api/resources/orders/action')
+      .map((call) => {
+        const body = (call[1] as RequestInit | undefined)?.body;
+        const file = body instanceof FormData ? body.get('fields[sheet]') : null;
+
+        return file instanceof File ? file.name : undefined;
+      });
+  }
+
+  async function openAndRun() {
+    renderOrders([meta('update-stock', 'Update Stock')], rows(1, ['update-stock']));
+    tick(1);
+    fireEvent.click(within(await openMenu()).getByRole('menuitem', { name: 'Update Stock' }));
+    const dialog = await screen.findByRole('dialog', { name: 'Update Stock' });
+    fireEvent.click(await within(dialog).findByRole('button', { name: 'Choose stock file' }));
+    fireEvent.click(within(dialog).getByRole('button', { name: 'Run Action' }));
+
+    return dialog;
+  }
+
+  it('asks for the password, then runs the action once more with the chosen file', async () => {
+    const fetch = vi
+      .spyOn(globalThis, 'fetch')
+      .mockResolvedValueOnce(json(form))
+      .mockResolvedValueOnce(json({ message: 'Password confirmation required.' }, 423))
+      .mockResolvedValueOnce(json('', 201))
+      .mockResolvedValueOnce(json(ran));
+    await openAndRun();
+
+    fireEvent.change(await screen.findByLabelText('Password'), { target: { value: 'secret' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Confirm' }));
+
+    await waitFor(() => {
+      expect(__panel.toasts.get().map((toast) => toast.message)).toEqual(['Stock updated.']);
+    });
+    expect(fetch.mock.calls.map((call) => call[0])).toEqual([
+      '/lathe/api/resources/orders/actions/update-stock/form?count=1&resourceId=1',
+      '/lathe/api/resources/orders/action',
+      '/lathe/confirm-password',
+      '/lathe/api/resources/orders/action',
+    ]);
+    expect(actionPosts(fetch)).toEqual(['stock.csv', 'stock.csv']);
+  });
+
+  it('keeps the action open with its file when the password check is cancelled', async () => {
+    const fetch = vi
+      .spyOn(globalThis, 'fetch')
+      .mockResolvedValueOnce(json(form))
+      .mockResolvedValueOnce(json({ message: 'Password confirmation required.' }, 423));
+    const dialog = await openAndRun();
+
+    await screen.findByLabelText('Password');
+    fireEvent.click(screen.getByRole('button', { name: 'Cancel' }));
+
+    await waitFor(() => {
+      expect(screen.queryByLabelText('Password')).toBeNull();
+    });
+    expect(within(dialog).getByRole('button', { name: 'Chosen stock.csv' })).toBeTruthy();
+    expect(dialog.isConnected).toBe(true);
+    expect(actionPosts(fetch)).toEqual(['stock.csv']);
+  });
+
+  it.each([419, 401])('opens the sign-in dialog on a %i', async (status) => {
+    vi.spyOn(globalThis, 'fetch')
+      .mockResolvedValueOnce(json(form))
+      .mockResolvedValueOnce(json({ message: 'Unauthenticated.' }, status));
+    await openAndRun();
+
+    expect(await screen.findByLabelText('Email')).toBeTruthy();
   });
 });

@@ -1,5 +1,4 @@
-import { ApiError, csrfHeaders, request } from '@lathephp/core';
-import { flushResourceOf } from '../lib/instant';
+import { ApiError, request } from '@lathephp/core';
 import { clearUndo } from '../index/undo';
 import type { SelectionDescriptor } from '../index/useRowSelection';
 import type { ActionRun } from './types';
@@ -8,24 +7,8 @@ function hasFile(fields: Record<string, unknown>): boolean {
   return Object.values(fields).some((value) => value instanceof File);
 }
 
-/**
- * Runs an action on a selection. A form holding a file posts multipart, with the selection
- * as a JSON string and each field under fields[...]; every other run posts JSON.
- */
-export async function runAction(url: string, action: string, selection: SelectionDescriptor, fields: Record<string, unknown>): Promise<ActionRun> {
-  // Ctrl+Z after an action must not undo an older edit of the records it changed.
-  clearUndo();
-
-  if (!hasFile(fields)) {
-    const run = await request<ActionRun>(url, { method: 'POST', body: { action, selection, fields }, toastOnError: false });
-
-    if (run === null) {
-      throw new ApiError(204, null, 'The action answered nothing.');
-    }
-
-    return run;
-  }
-
+/** The multipart body of a form holding a file: the selection as a JSON string and each field under fields[...]. */
+function multipart(action: string, selection: SelectionDescriptor, fields: Record<string, unknown>): FormData {
   const form = new FormData();
   form.append('action', action);
   form.append('selection', JSON.stringify(selection));
@@ -38,22 +21,23 @@ export async function runAction(url: string, action: string, selection: Selectio
     }
   }
 
-  let response: Response;
+  return form;
+}
 
-  try {
-    response = await fetch(url, { method: 'POST', headers: { Accept: 'application/json', ...csrfHeaders() }, body: form, credentials: 'same-origin' });
-  } catch (error) {
-    throw new ApiError(0, null, error instanceof Error ? error.message : 'Network error');
+/**
+ * Runs an action on a selection. A form holding a file posts multipart, every other run posts
+ * JSON; both go through the shared request, so a password check asks and sends the same body, file and all, again.
+ */
+export async function runAction(url: string, action: string, selection: SelectionDescriptor, fields: Record<string, unknown>): Promise<ActionRun> {
+  // Ctrl+Z after an action must not undo an older edit of the records it changed.
+  clearUndo();
+
+  const body = hasFile(fields) ? multipart(action, selection, fields) : { action, selection, fields };
+  const run = await request<ActionRun>(url, { method: 'POST', body, toastOnError: false });
+
+  if (run === null) {
+    throw new ApiError(204, null, 'The action answered nothing.');
   }
 
-  const data: unknown = await response.json().catch(() => null);
-
-  if (!response.ok) {
-    throw new ApiError(response.status, data);
-  }
-
-  // This fetch skips request(), so it drops the resource's prefetched pages itself.
-  flushResourceOf(url);
-
-  return data as ActionRun;
+  return run;
 }

@@ -15,6 +15,7 @@ export class ApiError extends Error {
 
 export interface RequestOptions {
   method?: string;
+  /** Sent as JSON; a FormData goes as it is, multipart, and goes again whole after a password check. */
   body?: unknown;
   headers?: Record<string, string>;
   signal?: AbortSignal;
@@ -64,7 +65,7 @@ export function csrfHeaders(): Record<string, string> {
 }
 
 /**
- * The panel's HTTP client: sends the CSRF token, asks for JSON, answers null for a 204,
+ * The panel's HTTP client: sends the CSRF token, asks for JSON, posts a FormData as multipart, answers null for a 204,
  * and turns every failure, a malformed body included, into an ApiError.
  */
 export async function request<T = unknown>(input: string, options: RequestOptions = {}): Promise<T | null> {
@@ -79,9 +80,11 @@ export async function request<T = unknown>(input: string, options: RequestOption
     headers['X-XSRF-TOKEN'] = token;
   }
 
-  let body: string | undefined;
+  let body: string | FormData | undefined;
 
-  if (options.body !== undefined) {
+  if (options.body instanceof FormData) {
+    body = options.body;
+  } else if (options.body !== undefined) {
     headers['Content-Type'] = 'application/json';
     body = JSON.stringify(options.body);
   }
