@@ -313,15 +313,14 @@ The page size comes from the related Resource's `pickerResults()` setting, 25 by
 
 ### Create from the form
 
-`creatable()` adds a button that opens the related create form in a modal. The new record is selected when the user saves it. `modalSize()` takes `sm`, `md`, `lg`, `xl`, `2xl`, `3xl`, `4xl`, `5xl`, `6xl` or `7xl`:
+`creatable()` offers `Create user "Hanna Vos"` at the foot of the picker's search results. Choosing it opens the related create form in a 480 px side sheet from the right, with the typed text in the related Resource's title field, and the new record is selected when the user saves it:
 
 ```php
 Field::belongsTo('Author', 'author', User::class)
-    ->creatable()
-    ->modalSize('xl'),
+    ->creatable(),
 ```
 
-The user needs the `create` ability on the related Resource and the `add` ability on the parent. A modal cannot open another creation modal.
+The user needs the `create` ability on the related Resource and the `add` ability on the parent. A create sheet cannot open another one. `modalSize()` is deprecated and sizes nothing: the sheet is always 480 px wide.
 
 ### Limit the choices
 

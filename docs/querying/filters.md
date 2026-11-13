@@ -19,7 +19,7 @@ php artisan lathe:filter UserType
 php artisan lathe:filter PriceRange --type=range
 ```
 
-`--type` is `select` (the default), `boolean`, `date` or `range`. `--custom` writes a filter that draws its own React component (see [Custom components](#custom-components)).
+`--type` is `select` (the default), `boolean`, `date` or `range`. `--custom` is deprecated: it writes a filter with its own React component, which the filter bar does not draw (see [Custom components](#custom-components)).
 
 Every filter extends `Lathe\Filters\Filter` or one of its subclasses and implements `apply()`:
 
@@ -282,11 +282,9 @@ public function filters(LatheRequest $request): array
 
 ## Where and when a filter applies
 
-On a Resource index and its lenses, the filter bar applies a filter when its chip is made, 300 ms after the last change. `immediate()` and `placement()` belong to the filter panel of a relation table. There the user presses Apply, unless the filter is `immediate()`, which applies each change at once. `placement()` chooses where the control shows: `toolbar`, `panel` (the default) or `inline`.
+On a Resource index, its lenses and a relation list on a record page, the filter bar applies a filter when its chip is made, 300 ms after the last change.
 
-```php
-(new UserType)->immediate()->placement('toolbar')
-```
+`immediate()` and `placement()` are deprecated and change nothing in the filter bar. Only `@lathephp/core`'s deprecated `FilterMenu` reads `immediate()`, and nothing reads `placement()`. Both still return the filter, so a Resource that calls them keeps working through 1.x.
 
 ## Large option lists
 
@@ -372,7 +370,9 @@ Lathe checks every value before `apply()` runs. An unknown key, a hidden filter 
 
 ## Custom components
 
-`--custom` writes a filter class and a React component:
+A filter with its own React component is deprecated, with `lathe:filter --custom`, `filter()` and `FilterMenu` of `@lathephp/core`. They keep working through 1.x, but the filter bar does not draw the component: it shows such a filter as a text key, where the user types the key and any text, as `sentiment:happy`, and the chip reads "Sentiment: happy". Only a custom page that renders `FilterMenu` still draws the component. For a new filter, extend a select, boolean, date or range filter instead.
+
+`--custom` writes a filter class and a React component, and says the option is deprecated:
 
 ```bash
 php artisan lathe:filter Sentiment --custom
@@ -410,4 +410,4 @@ The component receives the filter definition and the current `value`. It calls `
 
 ## What you see
 
-Click the filter bar above the index table and a list of the Resource's filters opens. Choose Status, then a value, and a chip reads "Status: Paid". The table shows only the matching rows and the address bar carries the choice, for example `?filter[status]=paid`. Reload the page and the same chip and rows return. A relation table keeps a filter panel with one control per filter, such as a dropdown, checkboxes, a date range or a minimum and maximum.
+Click the filter bar above the index table and a list of the Resource's filters opens. Choose Status, then a value, and a chip reads "Status: Paid". The table shows only the matching rows and the address bar carries the choice, for example `?filter[status]=paid`. Reload the page and the same chip and rows return. A relation list on a record page has the same filter bar, and keeps its chips until the page reloads.

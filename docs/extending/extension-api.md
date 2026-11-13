@@ -24,7 +24,7 @@ Each call binds a key to a React component. The key must match the key the PHP c
 | Call | Registers | The key matches |
 |---|---|---|
 | `field(key, renderers)` | A custom field | The field's `$component` |
-| `filter(key, component)` | A custom filter | The filter's `component()` |
+| `filter(key, component)` | A custom filter, deprecated: only `FilterMenu` draws it, and the filter bar shows the filter as a text key | The filter's `component()` |
 | `widget(key, component)` | A custom widget | The widget's component key |
 | `plugin(uriKey, component)` | A plugin page at `/lathe/plugins/{uriKey}` | The plugin's `uriKey()` |
 | `page(uriKey, component)` | A page at `/lathe/pages/{uriKey}` | The page's `uriKey()` |
@@ -253,6 +253,8 @@ Format values for the user's locale with `formatNumber`, `formatCurrency`, `form
 ## Components
 
 The panel's own building blocks are exported, so a custom page looks like the rest of the panel: `AppLayout`, `ResourceTable`, `FilterMenu`, `ActionDropdown`, `DetailFieldPanel`, `DetailHeader`, `WidgetGrid`, `WidgetCard` and `Excerpt`.
+
+`FilterMenu` is deprecated and stays in 1.x: it is the filter panel the lists had before the filter bar, and it still draws a component registered with `filter()`. The panel's own lists use the filter bar, which shows such a filter as a text key.
 
 ## UI kit
 
