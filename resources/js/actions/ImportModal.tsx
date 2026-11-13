@@ -201,7 +201,8 @@ export function ImportModal({ base, action, selection, onClose }: ImportModalPro
     setReport(null);
     const run = await step({ import_step: 'dry_run', import_id: detected.import_id, column_map: map });
 
-    if (run?.import_run !== undefined) {
+    // A dialog closed while the dry run was being started polls nothing.
+    if (run?.import_run !== undefined && open.current) {
       setBusy(true);
       clearStall();
       // The 10 s run from here, so the window before the first poll answers counts too.

@@ -42,7 +42,7 @@ interface Call {
 }
 
 /** The import endpoints: the chunked upload, the three steps of POST /action and the status poll. */
-function server(poll?: () => Promise<Response>) {
+function server(poll?: () => Promise<Response>, dryRun?: () => Promise<Response>) {
   const calls: Call[] = [];
   let polls = 0;
 
@@ -112,6 +112,10 @@ function server(poll?: () => Promise<Response>) {
       );
     }
 
+    if (step === 'dry_run' && dryRun !== undefined) {
+      return dryRun();
+    }
+
     const text = step === 'dry_run' ? 'Validation started.' : 'Import started.';
 
     return Promise.resolve(json({ result: message(text), permitted: 0, skipped: 0, failed: 0, errors: [], import_run: { id: 7 } }));
@@ -161,6 +165,25 @@ describe("the import dialog's status poll", () => {
     });
 
     expect(polls()).toBe(1);
+  });
+
+  it('sends no poll once the dialog closed while the dry run was being started', async () => {
+    let answer: (response: Response) => void = () => undefined;
+    const { calls } = server(undefined, () => new Promise<Response>((resolve) => (answer = resolve)));
+    const view = render(<ImportModal base="/lathe/api/resources/products" action={action} selection={selection} onClose={() => undefined} />);
+    pickFile(screen.getByLabelText('File'), new File(['Name,SKU,Price\n'], 'products.csv', { type: 'text/csv' }));
+    fireEvent.click(await screen.findByRole('button', { name: 'Continue' }));
+    vi.useFakeTimers({ toFake: ['setTimeout', 'setInterval', 'clearTimeout', 'clearInterval'] });
+    fireEvent.click(screen.getByRole('button', { name: 'Check 2,400 rows' }));
+    await flush();
+
+    view.unmount();
+    answer(json({ result: message('Validation started.'), permitted: 0, skipped: 0, failed: 0, errors: [], import_run: { id: 7 } }));
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(IMPORT_POLL_MS * 5);
+    });
+
+    expect(calls.filter((call) => call.url === '/lathe/api/imports/7')).toEqual([]);
   });
 
   it.each([404, 401, 403])('stops on a %i and says why', async (status) => {
