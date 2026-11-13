@@ -1,6 +1,7 @@
 import { __panel, ApiError, csrfHeaders, request, toast, useLathe, useTranslation } from '@lathephp/core';
-import { useState, useSyncExternalStore } from 'react';
+import { useContext, useEffect, useRef, useState, useSyncExternalStore } from 'react';
 import type { FormFieldData } from '../types';
+import { FormUploadsContext } from './uploads';
 
 const MB = 1024 * 1024;
 
@@ -155,6 +156,34 @@ export function useChunkedUpload(
   const [name, setName] = useState<string | null>(null);
   const limit = numberOr(field.maxSize, 10);
   const tooLarge = __('File exceeds the :size MB limit', { size: limit });
+  const form = useContext(FormUploadsContext);
+  // The ends of this field's running uploads: a field that unmounts mid-upload, such as a removed
+  // repeater row, must not leave its form's Save held.
+  const ends = useRef(new Set<() => void>());
+
+  useEffect(() => {
+    const running = ends.current;
+
+    return () => {
+      running.forEach((end) => {
+        end();
+      });
+      running.clear();
+    };
+  }, []);
+
+  /** Runs one upload with the form counting it, from the pick until it ends, either way. */
+  async function tracked(work: () => Promise<void>): Promise<void> {
+    const end = form?.begin() ?? (() => undefined);
+    ends.current.add(end);
+
+    try {
+      await work();
+    } finally {
+      ends.current.delete(end);
+      end();
+    }
+  }
 
   async function begin(file: File, blob: Blob): Promise<{ id: string; chunkSize: number; received: number[] }> {
     const saved = readSaved(attribute, file);
@@ -225,7 +254,7 @@ export function useChunkedUpload(
           action: {
             label: __('Retry'),
             onClick: () => {
-              void send(file, blob);
+              void tracked(() => send(file, blob));
             },
           },
         });
@@ -253,15 +282,17 @@ export function useChunkedUpload(
       return;
     }
 
-    const blob = await downsize(file, field.maxWidth);
+    await tracked(async () => {
+      const blob = await downsize(file, field.maxWidth);
 
-    if (blob.size > limit * MB) {
-      setError(tooLarge);
+      if (blob.size > limit * MB) {
+        setError(tooLarge);
 
-      return;
-    }
+        return;
+      }
 
-    await send(file, blob);
+      await send(file, blob);
+    });
   }
 
   return { progress, error, name, choose };

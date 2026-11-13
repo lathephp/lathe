@@ -39,6 +39,7 @@ All notable changes to Lathe are listed here. The format follows [Keep a Changel
 - A link in rich text whose target is `_BLANK` or any other case of `_blank` gets `rel="noopener noreferrer"`, as a lowercase `_blank` did.
 - An Enter that confirms an IME composition, as Japanese, Chinese or Korean typing sends, confirms the text and does nothing else: an inline text cell stays open with its text, where it saved the half-typed value, and the filter bar adds no chip, the search palette opens no result and a belongsTo picker picks no option. An Enter outside a composition acts as before.
 - An action whose form holds a file and whose route asks for a recent password confirmation opens the password dialog, and a right password runs it once with the chosen file; it answered 423 and the modal stayed open with nothing said. Cancelling the dialog leaves the modal open with its file, and a 419 or 401 opens the sign-in dialog, as for an action without a file.
+- A form holds its Save while a file, image or audio field uploads: the Save buttons are disabled and the primary one reads "Uploading…" until the upload ends, and an Enter in a text field does not submit meanwhile, so a save always carries the file chosen; pressing Save at 40% saved the record without it, and nothing said so. A failed upload enables Save again and shows the field's error. The create sheet of a belongsTo field does the same.
 
 ## [1.0.0-beta.12] - 2026-11-10
 

@@ -135,8 +135,8 @@ function CreateForm({ uriKey, singularLabel, submitLabel, form, onSaved, onCance
         <button type="button" className="lathe-button lathe-button-outline lathe-button-size-default" onClick={onCancel}>
           {__('Cancel')}
         </button>
-        <button type="submit" disabled={record.busy || saved} className="lathe-button lathe-button-default lathe-button-size-default">
-          {submitLabel}
+        <button type="submit" disabled={record.busy || record.uploading || saved} className="lathe-button lathe-button-default lathe-button-size-default">
+          {record.uploading ? __('Uploading…') : submitLabel}
         </button>
       </div>
     </form>

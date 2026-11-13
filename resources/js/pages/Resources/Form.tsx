@@ -88,7 +88,7 @@ export default function Form({ resource, mode, id, title, form, submitLabel }: F
             </Link>
             <button
               type="button"
-              disabled={record.busy}
+              disabled={record.busy || record.uploading}
               className="lathe-button lathe-button-outline lathe-button-size-default"
               onClick={() => {
                 submit(updating ? 'continue' : 'another');
@@ -96,8 +96,8 @@ export default function Form({ resource, mode, id, title, form, submitLabel }: F
             >
               {updating ? __('Update & Continue Editing') : __('Create and add another')}
             </button>
-            <button type="submit" disabled={record.busy} className="lathe-button lathe-button-default lathe-button-size-default">
-              {submitLabel}
+            <button type="submit" disabled={record.busy || record.uploading} className="lathe-button lathe-button-default lathe-button-size-default">
+              {record.uploading ? __('Uploading…') : submitLabel}
             </button>
           </div>
         </div>

@@ -337,6 +337,71 @@ describe('file fields on submit', () => {
     return calls.find((call) => call.url === '/lathe/api/resources/users/7')?.body as Record<string, unknown>;
   }
 
+  function renderWithName() {
+    return renderPage('Resources/Form', {
+      resource,
+      mode: 'update',
+      id: 7,
+      title: 'Ann',
+      breadcrumbs: [],
+      form: {
+        fields: [{ ...schema(), value: null }, { ...schema({ key: 'name', attribute: 'name', label: 'Name', component: 'text-field' }), value: 'Ann' }],
+        layout: [{ type: 'panel', attribute: 'details', name: 'Details', fields: ['avatar', 'name'], toolbar: true, collapsible: false, collapsed: false, hideHeading: false, headingInCard: false, help: null, limit: null, columns: null, columnSpan: null, borderless: false }],
+        updatedAt: '2026-10-14T09:00:00.000Z',
+      },
+      submitLabel: 'Update User',
+    });
+  }
+
+  it('disables Save, reading Uploading…, until the upload ends, refuses an Enter meanwhile, then saves the file', async () => {
+    let release: (response: Response) => void = () => undefined;
+    const { calls } = server({ chunk: () => new Promise<Response>((resolve) => (release = resolve)) });
+    vi.spyOn(router, 'visit').mockImplementation(() => undefined);
+    renderWithName();
+
+    choose(sized(10));
+
+    const uploading = await screen.findByRole<HTMLButtonElement>('button', { name: 'Uploading…' });
+    expect(uploading.disabled).toBe(true);
+    expect(screen.getByRole<HTMLButtonElement>('button', { name: 'Update & Continue Editing' }).disabled).toBe(true);
+    await waitFor(() => {
+      expect(calls.some((call) => call.url.includes('/chunks/'))).toBe(true);
+    });
+
+    // An Enter in a text field submits its form.
+    fireEvent.submit(screen.getByLabelText(/Name/).closest('form') as HTMLFormElement);
+    await act(async () => {
+      await Promise.resolve();
+    });
+    expect(submitted(calls)).toBeUndefined();
+
+    release(new Response(null, { status: 204 }));
+    const save = await screen.findByRole<HTMLButtonElement>('button', { name: 'Update User' });
+    await waitFor(() => {
+      expect(save.disabled).toBe(false);
+    });
+    fireEvent.click(save);
+
+    await waitFor(() => {
+      expect(submitted(calls)).toMatchObject({ avatar: '01UPLOAD', name: 'Ann' });
+    });
+  });
+
+  it('enables Save again and shows the field\'s error when the upload fails', async () => {
+    let refuse: (response: Response) => void = () => undefined;
+    vi.spyOn(globalThis, 'fetch').mockImplementation(() => new Promise<Response>((resolve) => (refuse = resolve)));
+    renderWithName();
+
+    choose(sized(10));
+    expect((await screen.findByRole<HTMLButtonElement>('button', { name: 'Uploading…' })).disabled).toBe(true);
+    refuse(new Response(JSON.stringify({ message: 'x', errors: { mime: ['The file is not an image.'] } }), { status: 422 }));
+
+    expect((await screen.findByRole('alert')).textContent).toBe('The file is not an image.');
+    const save = await screen.findByRole<HTMLButtonElement>('button', { name: 'Update User' });
+    expect(save.disabled).toBe(false);
+    expect(screen.getByRole<HTMLButtonElement>('button', { name: 'Update & Continue Editing' }).disabled).toBe(false);
+  });
+
   it('sends the removed flag when a stored file is removed', async () => {
     const { calls } = server();
     vi.spyOn(router, 'visit').mockImplementation(() => undefined);
@@ -348,6 +413,38 @@ describe('file fields on submit', () => {
     await waitFor(() => {
       expect(submitted(calls)).toEqual({ avatar: null, avatar_removed: 1, _updated_at: '2026-10-14T09:00:00.000Z' });
     });
+  });
+});
+
+describe('an upload a form counts', () => {
+  it('ends when its field unmounts mid-upload, so the form never stays held', async () => {
+    const { FormUploadsContext } = await import('../fields/upload/uploads');
+    server({ chunk: () => new Promise<Response>(() => undefined) });
+    let running = 0;
+    const uploads = {
+      begin: () => {
+        running += 1;
+
+        return () => {
+          running -= 1;
+        };
+      },
+    };
+    const view = render(
+      <FormUploadsContext value={uploads}>
+        <label htmlFor="avatar">Avatar</label>
+        <FormField field={{ ...schema(), value: null }} value={null} onChange={() => undefined} id="avatar" describedBy={undefined} invalid={false} disabled={false} />
+      </FormUploadsContext>,
+    );
+
+    choose(sized(10));
+    await waitFor(() => {
+      expect(running).toBe(1);
+    });
+
+    view.unmount();
+
+    expect(running).toBe(0);
   });
 });
 

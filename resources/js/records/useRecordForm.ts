@@ -1,7 +1,8 @@
 import { ApiError, request, toast, useLathe, useTranslation } from '@lathephp/core';
-import { useCallback, useRef, useState } from 'react';
+import { useCallback, useMemo, useRef, useState } from 'react';
 import { draftIdOf } from '../fields/rich/drafts';
 import { asFile } from '../fields/upload/file';
+import type { FormUploads } from '../fields/upload/uploads';
 import { persistable, readDraft, useFormDraft } from './useFormDraft';
 import type { FormFieldData, FormPayload, FormProps } from '../fields/types';
 
@@ -135,6 +136,27 @@ export function useRecordForm(
   /** Counts the saves a 422 refused, so the page moves the user to the errors once per save. */
   const [failures, setFailures] = useState(0);
   const [busy, setBusy] = useState(false);
+  // The file uploads still running: the save waits for them, so it carries every file chosen.
+  const [uploading, setUploading] = useState(0);
+  const running = useRef(0);
+  const uploads = useMemo<FormUploads>(
+    () => ({
+      begin: () => {
+        let ended = false;
+        running.current += 1;
+        setUploading(running.current);
+
+        return () => {
+          if (!ended) {
+            ended = true;
+            running.current -= 1;
+            setUploading(running.current);
+          }
+        };
+      },
+    }),
+    [],
+  );
   /** The submit a 401 or 419 interrupted, replayed once the user signs in again. */
   const [reauth, setReauth] = useState<SubmitIntent | null>(null);
   /** A 409: someone saved the record since this form loaded. */
@@ -176,6 +198,11 @@ export function useRecordForm(
   };
 
   async function submit(intent: SubmitIntent = 'default', token: string | null | undefined = payload.updatedAt): Promise<void> {
+      // An Enter in a text field submits too; a save sent now would leave the running upload's file out.
+      if (running.current > 0) {
+        return;
+      }
+
       setBusy(true);
       setErrors({});
 
@@ -235,6 +262,10 @@ export function useRecordForm(
     errors,
     failures,
     busy,
+    /** Whether a file is still uploading; Save waits for it. */
+    uploading: uploading > 0,
+    /** What the form's file fields count their uploads with. */
+    uploads,
     dirty,
     /** The dirty flag as of now, for a handler that runs before the next render. */
     isDirty,
