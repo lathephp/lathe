@@ -74,6 +74,23 @@ describe('selecting rows from the grid', () => {
     expect(bar()).toBe('5 selected');
   });
 
+  it('keeps the all-matching selection when a Shift+click range ticks rows after one was unticked', async () => {
+    renderPage('Resources/Index', { ...orders(6), count: { value: 40, exact: true, capped: false, estimated: false } }, { url: '/lathe/resources/orders' });
+    await waitFor(() => {
+      expect(screen.getByRole('grid').hasAttribute('data-grid-ready')).toBe(true);
+    });
+    const box = (name: string) => screen.getByRole<HTMLInputElement>('checkbox', { name: `Select ${name}` });
+
+    fireEvent.click(box('ORD-1'));
+    fireEvent.click(screen.getByRole('button', { name: 'Select all 40' }));
+    fireEvent.click(box('ORD-2'));
+    fireEvent.click(box('ORD-3'));
+    fireEvent.click(box('ORD-5'), { shiftKey: true });
+
+    expect(bar()).toBe('All 40 selected');
+    expect(['ORD-1', 'ORD-2', 'ORD-3', 'ORD-4', 'ORD-5', 'ORD-6'].map((name) => box(name).checked)).toEqual([true, false, true, true, true, true]);
+  });
+
   it('clears the selection with Escape on the grid', async () => {
     renderPage('Resources/Index', orders(6), { url: '/lathe/resources/orders' });
     focusCell('Number 2');

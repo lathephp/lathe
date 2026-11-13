@@ -68,6 +68,19 @@ export function useRowSelection() {
     setSelected(next);
   }
 
+  /** Ticks the rows given and leaves the rest as they are, also while every matching row is selected. */
+  function select(ids: Row['id'][]) {
+    if (exclusions !== null) {
+      const next = new Set(exclusions);
+      ids.forEach((id) => next.delete(id));
+      setExclusions(next);
+
+      return;
+    }
+
+    setSelected(new Set([...selected, ...ids]));
+  }
+
   /** Selects every row the index state matches, on every page. */
   function selectAllMatching() {
     setExclusions(new Set());
@@ -94,5 +107,5 @@ export function useRowSelection() {
     };
   }
 
-  return { selected, all, exclusions, isSelected, toggle, toggleAll, selectAllMatching, clear, descriptor };
+  return { selected, all, exclusions, isSelected, toggle, toggleAll, select, selectAllMatching, clear, descriptor };
 }

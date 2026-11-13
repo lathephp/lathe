@@ -5,7 +5,7 @@ import type { RowSelection } from '../index/useRowSelection';
 import type { Grid, GridSelection } from './grid';
 
 /** Only the calls the grid makes, so a plugin can hand in its own selection. */
-export type GridRowSelection = Pick<RowSelection, 'isSelected' | 'toggle' | 'toggleAll'> & Partial<Pick<RowSelection, 'clear'>>;
+export type GridRowSelection = Pick<RowSelection, 'isSelected' | 'toggle' | 'toggleAll'> & Partial<Pick<RowSelection, 'clear' | 'select'>>;
 
 /** The preview of the cursor's row, by row id: Space opens or closes it, and it follows the cursor. */
 export interface GridPreview {
@@ -33,11 +33,16 @@ export function useGrid(table: RefObject<HTMLTableElement | null>, rows: readonl
     const to = rows.findIndex((row) => row.id === id);
 
     if (range && from !== -1) {
-      // Ticks the unticked rows of the range; toggleAll would untick a range already all ticked.
+      // Ticks the unticked rows of the range; toggleAll would untick a range already all ticked,
+      // and clear a selection of every matching row, so a selection that can tick rows does.
       const ids = rows.slice(Math.min(from, to), Math.max(from, to) + 1).map((row) => row.id).filter((each) => !rowSelection.isSelected(each));
 
       if (ids.length > 0) {
-        rowSelection.toggleAll(ids);
+        if (rowSelection.select === undefined) {
+          rowSelection.toggleAll(ids);
+        } else {
+          rowSelection.select(ids);
+        }
       }
     } else if (id !== undefined) {
       anchor.current = id;

@@ -43,6 +43,7 @@ All notable changes to Lathe are listed here. The format follows [Keep a Changel
 - A file field holds the last file picked: picking a second file while the first still uploads stops the first, where whichever upload ended last took the field. Two images pasted into a rich text editor one after the other each show their own image, under one draft, where the second could take the first's URL or replace it.
 - A lens keeps every inline edit of a row: after a second cell of the same row saved, the first one showed its old value again, in the row and in the preview panel.
 - Two inline edits in one row, the second made before the first one's reply, both save: a record's inline saves, in a list, a lens or a relation table, now go one after another, and each sends the token the save before it got back, where the second sent the row's old token and opened the conflict dialog against the user's own save. Each one's Undo still restores its own cell, and another user's save in between still opens the conflict dialog.
+- With every matching row selected and some unticked, a Shift+click range ticks the rows of the range and keeps every matching row selected, where it cleared the whole selection.
 
 ## [1.0.0-beta.12] - 2026-11-10
 
