@@ -1,7 +1,7 @@
 import { ApiError, formatNumber, request, toast, useLathe, useTranslation } from '@lathephp/core';
 import { Button } from '@lathephp/ui';
 import { Check, File as FileIcon } from 'lucide-react';
-import { useEffect, useId, useRef, useState } from 'react';
+import { useId, useLayoutEffect, useRef, useState } from 'react';
 import { Modal, ModalClose, modalSurface } from '../components/Modal';
 import { FilePicker } from '../components/ui/FilePicker';
 import { Select } from '../components/ui/Select';
@@ -81,9 +81,15 @@ export function ImportModal({ base, action, selection, onClose }: ImportModalPro
   const [stalled, setStalled] = useState(false);
   const poll = useRef<ReturnType<typeof setTimeout> | null>(null);
   const stall = useRef<ReturnType<typeof setTimeout> | null>(null);
+  // A poll still out when the dialog closes answers into nothing and arms no next one.
+  const open = useRef(true);
 
-  useEffect(
-    () => () => {
+  useLayoutEffect(() => {
+    open.current = true;
+
+    return () => {
+      open.current = false;
+
       if (poll.current !== null) {
         clearTimeout(poll.current);
       }
@@ -91,9 +97,8 @@ export function ImportModal({ base, action, selection, onClose }: ImportModalPro
       if (stall.current !== null) {
         clearTimeout(stall.current);
       }
-    },
-    [],
-  );
+    };
+  }, []);
 
   function clearStall() {
     if (stall.current !== null) {
@@ -153,6 +158,10 @@ export function ImportModal({ base, action, selection, onClose }: ImportModalPro
     poll.current = setTimeout(() => {
       request<ImportStatus>(`${apiPath}/imports/${String(id)}`, { toastOnError: false })
         .then((status) => {
+          if (!open.current) {
+            return;
+          }
+
           if (status !== null && status.status !== 'uploaded' && status.status !== 'queued') {
             clearStall();
           }
@@ -164,7 +173,21 @@ export function ImportModal({ base, action, selection, onClose }: ImportModalPro
             follow(id);
           }
         })
-        .catch(() => {
+        .catch((failure: unknown) => {
+          if (!open.current) {
+            return;
+          }
+
+          // A gone import, or a user signed out or refused, will not answer otherwise: stop and say so.
+          // Any other failure may pass, so the poll goes on.
+          if (failure instanceof ApiError && [401, 403, 404].includes(failure.status)) {
+            clearStall();
+            setBusy(false);
+            setError((failure.data as { message?: string } | null)?.message ?? __('Something went wrong. Please try again.'));
+
+            return;
+          }
+
           follow(id);
         });
     }, IMPORT_POLL_MS);

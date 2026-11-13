@@ -42,7 +42,7 @@ interface Call {
 }
 
 /** The import endpoints: the chunked upload, the three steps of POST /action and the status poll. */
-function server() {
+function server(poll?: () => Promise<Response>) {
   const calls: Call[] = [];
   let polls = 0;
 
@@ -62,6 +62,10 @@ function server() {
 
     if (url === '/lathe/api/uploads/01UPLOAD/complete') {
       return Promise.resolve(json({ upload_id: '01UPLOAD', name: 'products.csv', size: 98 }));
+    }
+
+    if (url === '/lathe/api/imports/7' && poll !== undefined) {
+      return poll();
     }
 
     if (url === '/lathe/api/imports/7') {
@@ -125,6 +129,51 @@ async function flush() {
 afterEach(() => {
   vi.useRealTimers();
   vi.restoreAllMocks();
+});
+
+describe("the import dialog's status poll", () => {
+  /** Opens the dialog and runs a dry run up to its first poll. */
+  async function checking(poll: () => Promise<Response>) {
+    const { calls } = server(poll);
+    const view = render(<ImportModal base="/lathe/api/resources/products" action={action} selection={selection} onClose={() => undefined} />);
+    pickFile(screen.getByLabelText('File'), new File(['Name,SKU,Price\n'], 'products.csv', { type: 'text/csv' }));
+    fireEvent.click(await screen.findByRole('button', { name: 'Continue' }));
+    vi.useFakeTimers({ toFake: ['setTimeout', 'setInterval', 'clearTimeout', 'clearInterval'] });
+    fireEvent.click(screen.getByRole('button', { name: 'Check 2,400 rows' }));
+    await flush();
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(IMPORT_POLL_MS);
+    });
+    const polls = () => calls.filter((call) => call.url === '/lathe/api/imports/7').length;
+    expect(polls()).toBe(1);
+
+    return { view, polls };
+  }
+
+  it('sends no further request once the dialog closed while a poll was out', async () => {
+    let answer: (response: Response) => void = () => undefined;
+    const { view, polls } = await checking(() => new Promise<Response>((resolve) => (answer = resolve)));
+
+    view.unmount();
+    answer(json({ id: 7, mode: 'dry_run', ...counts, status: 'processing' }));
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(IMPORT_POLL_MS * 5);
+    });
+
+    expect(polls()).toBe(1);
+  });
+
+  it.each([404, 401, 403])('stops on a %i and says why', async (status) => {
+    const { polls } = await checking(() => Promise.resolve(json({ message: 'This import is not yours.' }, status)));
+
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(IMPORT_POLL_MS * 5);
+    });
+
+    expect(polls()).toBe(1);
+    expect(screen.getByRole('alert').textContent).toBe('This import is not yours.');
+    expect(screen.getByRole<HTMLButtonElement>('button', { name: 'Check 2,400 rows' }).disabled).toBe(false);
+  });
 });
 
 describe('import modal', () => {
