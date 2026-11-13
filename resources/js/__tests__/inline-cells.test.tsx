@@ -192,6 +192,104 @@ describe('inline cells', () => {
     expect(cellOf('Status').textContent).toBe('pending');
   });
 
+  it('saves three cells of a row in turn, each sending the token the one before got back', async () => {
+    const answers: ((response: Response) => void)[] = [];
+    const fetch = vi.spyOn(globalThis, 'fetch').mockImplementation(() => new Promise<Response>((resolve) => answers.push(resolve)));
+    renderRows();
+
+    await editCell('Active');
+    await editCell('VIP');
+    await editCell('Status');
+    await pick('shipped');
+    // The second and third wait for the first's reply.
+    await waitFor(() => {
+      expect(fetch).toHaveBeenCalledTimes(1);
+    });
+
+    answers[0]?.(reply(200, { fields: { active: { value: true, display: 'Yes' } }, updatedAt: '2026-10-14T09:00:01.000Z' }));
+    await waitFor(() => {
+      expect(fetch).toHaveBeenCalledTimes(2);
+    });
+    answers[1]?.(reply(200, { fields: { vip: { value: true, display: 'Yes' } }, updatedAt: '2026-10-14T09:00:02.000Z' }));
+    await waitFor(() => {
+      expect(fetch).toHaveBeenCalledTimes(3);
+    });
+    answers[2]?.(reply(200, { fields: { status: { value: 'shipped', display: 'shipped' } }, updatedAt: '2026-10-14T09:00:03.000Z' }));
+
+    await waitFor(() => {
+      expect(screen.queryByText('Saving…')).toBeNull();
+    });
+    expect(bodies(fetch).map((body) => body._updated_at)).toEqual(['2026-10-14T09:00:00.000Z', '2026-10-14T09:00:01.000Z', '2026-10-14T09:00:02.000Z']);
+    expect(screen.queryByText('This record has changed')).toBeNull();
+    expect(cellOf('Status').textContent).toBe('shipped');
+  });
+
+  it('undoes each of two queued edits back to its own cell\'s old value', async () => {
+    __panel.toasts.set([]);
+    const answers: ((response: Response) => void)[] = [];
+    const fetch = vi.spyOn(globalThis, 'fetch').mockImplementation(() => new Promise<Response>((resolve) => answers.push(resolve)));
+    renderRows();
+
+    await editCell('Active');
+    await editCell('VIP');
+    await waitFor(() => {
+      expect(fetch).toHaveBeenCalledTimes(1);
+    });
+    answers[0]?.(reply(200, { fields: { active: { value: true, display: 'Yes' } }, updatedAt: '2026-10-14T09:00:01.000Z' }));
+    await waitFor(() => {
+      expect(fetch).toHaveBeenCalledTimes(2);
+    });
+    answers[1]?.(reply(200, { fields: { vip: { value: true, display: 'Yes' } }, updatedAt: '2026-10-14T09:00:02.000Z' }));
+    await waitFor(() => {
+      expect(__panel.toasts.get().filter((toast) => toast.action?.label === 'Undo')).toHaveLength(2);
+    });
+    const [activeToast, vipToast] = __panel.toasts.get().filter((toast) => toast.action?.label === 'Undo');
+
+    act(() => {
+      activeToast?.action?.onClick();
+    });
+    await waitFor(() => {
+      expect(fetch).toHaveBeenCalledTimes(3);
+    });
+    answers[2]?.(reply(200, { fields: { active: { value: false, display: 'No' } }, updatedAt: '2026-10-14T09:00:03.000Z' }));
+    await waitFor(() => {
+      expect(screen.queryByText('Saving…')).toBeNull();
+    });
+    act(() => {
+      vipToast?.action?.onClick();
+    });
+    await waitFor(() => {
+      expect(fetch).toHaveBeenCalledTimes(4);
+    });
+    answers[3]?.(reply(200, { fields: { vip: { value: false, display: 'No' } }, updatedAt: '2026-10-14T09:00:04.000Z' }));
+
+    await waitFor(() => {
+      expect(screen.queryByText('Saving…')).toBeNull();
+    });
+    expect(fetch.mock.calls.map((call) => call[0])).toEqual([
+      '/lathe/api/resources/orders/12/field/active',
+      '/lathe/api/resources/orders/12/field/vip',
+      '/lathe/api/resources/orders/12/field/active',
+      '/lathe/api/resources/orders/12/field/vip',
+    ]);
+    expect(bodies(fetch).slice(2)).toEqual([
+      { value: false, _updated_at: '2026-10-14T09:00:02.000Z' },
+      { value: false, _updated_at: '2026-10-14T09:00:03.000Z' },
+    ]);
+  });
+
+  it('still opens the conflict dialog when someone else saved the row between two edits', async () => {
+    vi.spyOn(globalThis, 'fetch')
+      .mockResolvedValueOnce(reply(200, { fields: { active: { value: true, display: 'Yes' } }, updatedAt: '2026-10-14T09:00:01.000Z' }))
+      .mockResolvedValueOnce(reply(409, { error: 'conflict', message: 'Changed.', updatedAt: '2026-10-14T09:00:09.000Z', fields: { vip: { value: true, display: 'Yes' } } }));
+    renderRows();
+
+    await editCell('Active');
+    await editCell('VIP');
+
+    expect(await screen.findByText('This record has changed')).toBeTruthy();
+  });
+
   it('refreshes the row from a 409 and sends its new token next time', async () => {
     const fetch = vi
       .spyOn(globalThis, 'fetch')

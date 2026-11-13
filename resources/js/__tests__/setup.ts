@@ -6,6 +6,7 @@ import { preloadChoiceForms } from '../fields/choice/lazy';
 import { preloadDateFields } from '../fields/date/lazy';
 import { preloadRelationForms } from '../fields/relation/lazy';
 import { preloadRepeaterFields } from '../fields/repeater/lazy';
+import { forgetSaves } from '../index/inlineSave';
 import { IndexFooter, preloadTabDialogs, TableSummaryRow } from '../index/lazy';
 import { TokenInput } from '../fields/number/lazy';
 import { SlugInput } from '../fields/slug/lazy';
@@ -32,6 +33,8 @@ if (typeof Range !== 'undefined' && typeof Range.prototype.getClientRects !== 'f
 // Vitest globals are off, so Testing Library cannot register its own cleanup.
 afterEach(async () => {
   cleanup();
+  // A save a test left unanswered would hold its record's next saves in the tests after it.
+  forgetSaves();
   __panel.toasts.set([]);
   __panel.sharedProps.set({});
   __panel.setTranslator(null);

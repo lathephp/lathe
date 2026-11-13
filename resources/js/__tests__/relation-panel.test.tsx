@@ -3,7 +3,7 @@ import { queryClient } from '@lathephp/core';
 import { act, fireEvent, screen, waitFor, within } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import type { LayoutBlock, PanelBlock, TabGroupBlock } from '../fields/types';
-import { choose, indexTable, renderPage } from './support';
+import { choose, editCell, indexTable, pick, renderPage } from './support';
 
 afterEach(() => {
   queryClient.clear();
@@ -339,6 +339,54 @@ describe('relation panel', () => {
     renderDetail([relationBlock({ resource: 'orders' })]);
 
     expect(await screen.findByRole('gridcell', { name: 'Status: Pending. Change status' })).toBeTruthy();
+  });
+
+  it('saves two inline cells of one related row in turn, the second with the token the first got back', async () => {
+    const { columns: orderColumns, rows: orderRows } = indexTable('orders');
+    const columns = orderColumns.map((column) => (column.key === 'number' ? { ...column, inline: true } : 'meter' in column ? { ...column, meter: null } : column));
+    const [row] = orderRows;
+    const patches: { url: string; body: Record<string, unknown> }[] = [];
+    const answers: ((response: Response) => void)[] = [];
+    vi.spyOn(globalThis, 'fetch').mockImplementation((input, init) => {
+      const url = typeof input === 'string' ? input : '';
+
+      if (init?.method === 'PATCH') {
+        patches.push({ url, body: JSON.parse(init.body as string) as Record<string, unknown> });
+
+        return new Promise<Response>((resolve) => answers.push(resolve));
+      }
+
+      const body = url.includes('/relate-authorization')
+        ? {}
+        : url.includes('/filters')
+          ? { filters: [] }
+          : { columns, sortKeys: [], rows: [{ ...row, related_id: row?.id }], count: null, page: 1, perPage: 25, perPageOptions: [25], hasMore: false, searchable: false };
+
+      return Promise.resolve(new Response(JSON.stringify(body), { status: 200 }));
+    });
+    renderDetail([relationBlock({ resource: 'orders' })]);
+    await screen.findByRole('gridcell', { name: /^Status: / });
+
+    await editCell('Number');
+    const input = await screen.findByRole<HTMLInputElement>('textbox', { name: 'Number' });
+    fireEvent.change(input, { target: { value: 'ORD-7' } });
+    fireEvent.keyDown(input, { key: 'Enter' });
+    await editCell('Status');
+    await pick('Pending');
+    await waitFor(() => {
+      expect(patches).toHaveLength(1);
+    });
+
+    answers[0]?.(new Response(JSON.stringify({ fields: { number: { value: 'ORD-7', display: 'ORD-7' } }, updatedAt: '2026-01-15T09:30:01.000Z' })));
+    await waitFor(() => {
+      expect(patches).toHaveLength(2);
+    });
+    answers[1]?.(new Response(JSON.stringify({ fields: { status: { value: 'pending', display: 'Pending' } }, updatedAt: '2026-01-15T09:30:02.000Z' })));
+
+    expect(patches.map((patch) => [patch.url, patch.body._updated_at])).toEqual([
+      [`/lathe/api/resources/orders/${String(row?.id)}/field/number`, row?.updatedAt],
+      [`/lathe/api/resources/orders/${String(row?.id)}/field/status`, '2026-01-15T09:30:01.000Z'],
+    ]);
   });
 
   it('says why the server refused a search, and still searches after Reset', async () => {

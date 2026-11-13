@@ -42,6 +42,7 @@ All notable changes to Lathe are listed here. The format follows [Keep a Changel
 - A form holds its Save while a file, image or audio field uploads: the Save buttons are disabled and the primary one reads "Uploading…" until the upload ends, and an Enter in a text field does not submit meanwhile, so a save always carries the file chosen; pressing Save at 40% saved the record without it, and nothing said so. A failed upload enables Save again and shows the field's error. The create sheet of a belongsTo field does the same.
 - A file field holds the last file picked: picking a second file while the first still uploads stops the first, where whichever upload ended last took the field. Two images pasted into a rich text editor one after the other each show their own image, under one draft, where the second could take the first's URL or replace it.
 - A lens keeps every inline edit of a row: after a second cell of the same row saved, the first one showed its old value again, in the row and in the preview panel.
+- Two inline edits in one row, the second made before the first one's reply, both save: a record's inline saves, in a list, a lens or a relation table, now go one after another, and each sends the token the save before it got back, where the second sent the row's old token and opened the conflict dialog against the user's own save. Each one's Undo still restores its own cell, and another user's save in between still opens the conflict dialog.
 
 ## [1.0.0-beta.12] - 2026-11-10
 
