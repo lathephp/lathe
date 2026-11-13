@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Gate;
 use Inertia\Testing\AssertableInertia;
+use Lathe\Http\Middleware\HandleInertiaRequests;
 use Lathe\Lathe;
 use Workbench\App\Models\User;
 
@@ -96,4 +97,14 @@ it('renders the dashboard at the key main', function () {
         ->where('dashboard.uriKey', 'main')
         ->where('dashboard.name', 'Sales')
         ->where('widgets', fn ($widgets) => in_array('orders', array_column($widgets->all(), 'uriKey'), true)));
+});
+
+it('sends the flash on a partial reload too, so the browser drops the one it showed before', function () {
+    $version = (string) app(HandleInertiaRequests::class)->version(request());
+    $partial = ['X-Inertia' => 'true', 'X-Inertia-Version' => $version, 'X-Inertia-Partial-Component' => 'Resources/Index', 'X-Inertia-Partial-Data' => 'table'];
+
+    $props = $this->actingAs($this->admin)->get('/lathe/resources/orders', $partial)->assertOk()->json('props');
+
+    expect($props)->toHaveKey('table')
+        ->and($props['flash'] ?? 'missing')->toBe(['success' => null, 'error' => null]);
 });

@@ -4,6 +4,7 @@ namespace Lathe\Http\Middleware;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
+use Inertia\Inertia;
 use Inertia\Middleware;
 use Lathe\Lathe;
 use Lathe\Menu\Menu;
@@ -50,10 +51,11 @@ class HandleInertiaRequests extends Middleware
                 ? ['name' => $user->getAttribute('name')]
                 : null,
             'authPaths' => Lathe::authPaths(),
-            'flash' => [
+            // On a partial reload too: without it the browser keeps the page's flash and shows it again.
+            'flash' => Inertia::always([
                 'success' => $request->hasSession() ? $request->session()->get('success') : null,
                 'error' => $request->hasSession() ? $request->session()->get('error') : null,
-            ],
+            ]),
             // Read by the page root for `dir`; Lathe::enableRTL() decides.
             'rtl' => Lathe::isRTL($request),
             'latheVersion' => Lathe::version(),

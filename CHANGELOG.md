@@ -47,6 +47,7 @@ All notable changes to Lathe are listed here. The format follows [Keep a Changel
 - A dependent field keeps the options and value of the newest change it depends on: when the server answered the lookup for an older value last, such as Country set to FR and then to DE, State took FR's options. A failed lookup's Retry asks with the values the form holds when it is clicked.
 - Retry on a failed save's toast sends the values the form holds when it is clicked, where it sent the values of the moment the save failed. After Update & Continue Editing whose save passed and whose reload of the form failed, the toast says the record was updated and the form keeps the saved values and the new token, where it said the save failed and its Retry opened the conflict dialog against that same save.
 - The import dialog stops asking for its import's status once it closes, where a poll still out when it closed went on every 2 seconds; and while it is open, a 404, 401 or 403 from that poll stops it and shows the answer's message, where it asked again forever.
+- A flash message toasts once: a partial reload of the same page, such as a poll or a table reload after an action, showed the last visit's flash again, because the server left the `flash` prop out of a partial answer and the browser kept the old one. The panel now sends `flash` on every answer, partial ones too.
 
 ## [1.0.0-beta.12] - 2026-11-10
 
