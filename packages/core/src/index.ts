@@ -24,6 +24,7 @@ import { setTranslator, translatorFor } from './translation';
 /** The plugin API version this package provides. */
 export const apiVersion = '1.0.0';
 
+// eslint-disable-next-line @typescript-eslint/no-deprecated -- filter() is deprecated and still exported through 1.x
 export { actionModal, booting, field, filter, page, plugin, renderHook, resourcePlugin, widget } from './registry';
 export type {
   ActionModalProps,
@@ -70,6 +71,7 @@ export {
   DetailFieldPanel,
   DetailHeader,
   Excerpt,
+  // eslint-disable-next-line @typescript-eslint/no-deprecated -- FilterMenu is deprecated and still exported through 1.x
   FilterMenu,
   ResourceTable,
   WidgetCard,

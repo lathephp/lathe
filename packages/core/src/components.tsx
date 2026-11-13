@@ -106,6 +106,11 @@ function proxy<K extends keyof PanelComponents>(name: K): ComponentType<PanelCom
 /** The panel shell, for a custom page that draws its own layout. */
 export const AppLayout = proxy('AppLayout');
 export const ResourceTable = proxy('ResourceTable');
+/**
+ * The filter panel the list had before its filter bar, which draws a component registered with filter().
+ *
+ * @deprecated The panel's lists use the filter bar, which shows a filter with its own component as a text key; FilterMenu stays in 1.x.
+ */
 export const FilterMenu = proxy('FilterMenu');
 /** The action menu of one record. */
 export const ActionDropdown = proxy('ActionDropdown');

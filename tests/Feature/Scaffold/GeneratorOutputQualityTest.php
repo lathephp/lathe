@@ -173,6 +173,9 @@ it('passes ESLint on the rendered TSX', function () {
         '  ...config,',
         '  { files: ["**/*.tsx"], languageOptions: { parserOptions: { projectService: false, project: ["./tsconfig.json"], tsconfigRootDir: '.json_encode($base).' } } },',
         '  { files: ["resources/js/**/*.tsx"], rules: { "lathe/no-untranslated-literal": "off" } },',
+        // lathe:filter --custom is deprecated, and so is the filter() its component calls: that
+        // call is flagged on purpose, which deprecated.test.ts in @lathephp/core pins.
+        '  { files: ["resources/js/lathe/filters/*.tsx"], rules: { "@typescript-eslint/no-deprecated": "off" } },',
         '];',
         '',
     ]));

@@ -1,4 +1,4 @@
-import { filter, type FilterProps } from '@lathephp/core';
+import { __panel, filter, FilterMenu, type FilterProps } from '@lathephp/core';
 import { fireEvent, render, screen } from '@testing-library/react';
 import { expect, it, vi } from 'vitest';
 import { FilterPanel } from '../index/FilterPanel';
@@ -22,6 +22,7 @@ function Tiers({ filter: definition, onChange }: FilterProps) {
   );
 }
 
+// eslint-disable-next-line @typescript-eslint/no-deprecated -- the deprecated filter() still registers
 filter('price-tier', Tiers);
 
 const tier: AvailableFilter = {
@@ -45,4 +46,15 @@ it('draws a filter a plugin registers with core and applies its value', () => {
   fireEvent.click(screen.getByRole('button', { name: 'Premium' }));
 
   expect(visit).toHaveBeenCalledWith({ filter: { 'price-tier': 'premium' } });
+});
+
+it('draws it through the deprecated FilterMenu of @lathephp/core, as a plugin page does', async () => {
+  __panel.registerComponents({ FilterMenu: FilterPanel });
+  const visit = vi.fn();
+  // eslint-disable-next-line @typescript-eslint/no-deprecated -- the deprecated FilterMenu still draws a registered filter
+  render(<FilterMenu resource="products" endpoint="/lathe/api/resources/products/filters" available={[tier]} softDeletes={false} state={{}} visit={visit} />);
+
+  fireEvent.click(await screen.findByRole('button', { name: 'Budget' }));
+
+  expect(visit).toHaveBeenCalledWith({ filter: { 'price-tier': 'budget' } });
 });

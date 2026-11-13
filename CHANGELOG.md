@@ -25,6 +25,7 @@ All notable changes to Lathe are listed here. The format follows [Keep a Changel
 
 - [api] `Filter::placement()` and `Filter::immediate()` are deprecated and stay in 1.x: each still returns the filter and still sets the `placement` or `immediate` key of its JSON, but the filter bar reads neither. Only `@lathephp/core`'s deprecated `FilterMenu` reads `immediate()`, and nothing reads `placement()`.
 - [api] `lathe:filter --custom` is deprecated and stays in 1.x: it still writes the filter class and its React component, and then says the option is deprecated, since the filter bar shows such a filter as a text key, not with its component.
+- [api] `FilterMenu` and `filter()` of `@lathephp/core` are deprecated and stay in 1.x: a custom page that renders `FilterMenu` still draws a component registered with `filter()`, as in 1.0.0-beta.12, while the filter bar of a Resource's list, a lens and a relation list shows such a filter as a text key. Both carry `@deprecated` in their types, so an editor strikes them through and `@typescript-eslint/no-deprecated` names each call. `lathe:doctor` still checks that a filter's component key is registered.
 
 ### Fixed
 

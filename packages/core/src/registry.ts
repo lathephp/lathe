@@ -134,7 +134,11 @@ export function fieldComponent(key: string): FieldRenderers | undefined {
   return fields.get(key);
 }
 
-/** Register the component that draws a filter's component key. The last registration wins. */
+/**
+ * Register the component that draws a filter's component key. The last registration wins.
+ *
+ * @deprecated Only the deprecated FilterMenu draws it; the filter bar shows such a filter as a text key. It stays in 1.x.
+ */
 export function filter(key: string, component: ComponentOrLazy<FilterProps>): void {
   filters.set(key, component);
 }

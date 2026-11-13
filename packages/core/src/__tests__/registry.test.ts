@@ -39,7 +39,9 @@ describe('registration', () => {
   });
 
   it('keeps the last component registered for a filter key', () => {
+    // eslint-disable-next-line @typescript-eslint/no-deprecated -- the deprecated filter() still registers
     filter('color-filter', FirstFilter);
+    // eslint-disable-next-line @typescript-eslint/no-deprecated -- the deprecated filter() still registers
     filter('color-filter', SecondFilter);
 
     expect(__panel.filterComponent('color-filter')).toBe(SecondFilter);
