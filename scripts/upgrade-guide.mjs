@@ -1,5 +1,6 @@
-// Writes docs/getting-started/upgrade.md from the CHANGELOG: the newest release's entries marked
-// [api], then its other entries under "### Changed", each with the indented lines under it.
+// Writes docs/getting-started/upgrade.md from the CHANGELOG: a section for every release, newest
+// first, with its entries marked [api], then its other entries under "### Changed", each with the
+// indented lines under it.
 // Usage: node scripts/upgrade-guide.mjs [--changelog CHANGELOG.md] [--output docs/getting-started/upgrade.md]
 import { readFileSync, writeFileSync } from 'node:fs';
 import process from 'node:process';
@@ -42,22 +43,32 @@ for (const line of changelog.split('\n')) {
 }
 const list = (entries) => entries.map((lines) => lines.join('\n').trimEnd()).join('\n');
 const releases = sections.filter((section) => section.version !== 'Unreleased');
-const [current, previous] = releases;
+
+// Each release with an entry to tell, against the release just below it; the oldest is the first
+// release, so nothing came before it.
+const changes = releases
+  .map((release, index) => ({ ...release, previous: releases[index + 1]?.version }))
+  .filter((release) => release.previous && (release.api.length > 0 || release.behaviour.length > 0))
+  .map((release) =>
+    [
+      `## From ${release.previous} to ${release.version}`,
+      ...(release.api.length > 0 ? ['', '### API changes', '', list(release.api)] : []),
+      ...(release.behaviour.length > 0 ? ['', '### Behaviour changes', '', list(release.behaviour)] : []),
+    ].join('\n'),
+  );
 
 let body;
-if (!current) {
+if (releases.length === 0) {
   body = 'There is no release yet.';
-} else if (!previous) {
-  body = `${current.version} is the first release of Lathe, so there are no API changes to upgrade across.`;
-} else if (current.api.length === 0 && current.behaviour.length === 0) {
-  body = `${current.version} changes no public API since ${previous.version}. Run \`composer update lathe/lathe\` and you are done.`;
+} else if (releases.length === 1) {
+  body = `${releases[0].version} is the first release of Lathe, so there are no API changes to upgrade across.`;
+} else if (changes.length === 0) {
+  body = `No release since ${releases.at(-1).version} changes the public API. Run \`composer update lathe/lathe\` and you are done.`;
 } else {
   body = [
-    `These changes happen between ${previous.version} and ${current.version}. Check each API change against your code before you update, and tell your users about the behaviour changes.`,
+    'It covers every release, newest first: each section holds the changes between a release and the one before it. Going up several releases, read each section from the release you run to the newest. Check each API change against your code before you update, and tell your users about the behaviour changes.',
     '',
-    `## From ${previous.version} to ${current.version}`,
-    ...(current.api.length > 0 ? ['', '### API changes', '', list(current.api)] : []),
-    ...(current.behaviour.length > 0 ? ['', '### Behaviour changes', '', list(current.behaviour)] : []),
+    changes.join('\n\n'),
   ].join('\n');
 }
 
@@ -65,7 +76,7 @@ writeFileSync(
   output,
   `---
 title: Upgrade guide
-description: The API and behaviour changes between two Lathe releases, taken from the changelog.
+description: The API and behaviour changes of every Lathe release since the one before it, taken from the changelog.
 order: 8
 ---
 

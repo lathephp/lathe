@@ -89,9 +89,93 @@ it('lists the changes of the newest release under Changed as behaviour changes, 
         ->not->toContain('A fix with no API change');
 })->group('frontend');
 
+it('gives every release with entries a section, newest first, against the release below it', function () {
+    $page = upgradeGuide(<<<'MD'
+        # Changelog
+
+        ## [Unreleased]
+
+        ## [1.3.0] - 2026-12-20
+
+        ### Changed
+
+        - Rows are 40 px tall.
+
+        ## [1.2.0] - 2026-12-10
+
+        ### Fixed
+
+        - A fix with no API change.
+
+        ## [1.1.0] - 2026-12-01
+
+        - [api] `Field::help()` takes a closure.
+
+        ## [1.0.0] - 2026-11-20
+
+        - [api] Everything.
+        MD);
+
+    expect($page)->toContain(
+        "## From 1.2.0 to 1.3.0\n\n### Behaviour changes\n\n- Rows are 40 px tall.\n\n## From 1.0.0 to 1.1.0\n\n### API changes\n\n- `Field::help()` takes a closure.\n",
+        'It covers every release, newest first',
+    )
+        ->not->toContain('to 1.2.0')
+        ->not->toContain('From 1.1.0')
+        ->not->toContain('Everything');
+})->group('frontend');
+
+it('says no release changed anything when none has an entry to tell', function () {
+    expect(upgradeGuide("# Changelog\n\n## [Unreleased]\n\n## [1.1.0] - 2026-12-01\n\n- A fix.\n\n## [1.0.0] - 2026-11-20\n"))
+        ->toContain('No release since 1.0.0 changes the public API.')
+        ->not->toContain('## From');
+})->group('frontend');
+
+it('lists each release\'s entries under its own section, none lost or doubled', function () {
+    $root = dirname(__DIR__, 3);
+    $guide = File::get("{$root}/docs/getting-started/upgrade.md");
+    $releases = array_slice(preg_split('/^## \[/m', File::get("{$root}/CHANGELOG.md")) ?: [], 1);
+    $versions = array_map(fn (string $release) => strtok($release, ']'), $releases);
+    $bullets = fn (string $text) => preg_match_all('/^- /m', $text);
+
+    $told = 0;
+    foreach ($releases as $index => $release) {
+        $version = $versions[$index];
+        $api = preg_match_all('/^- \[api\] /m', $release);
+        $changed = $bullets(preg_replace('/^- \[api\] .*$/m', '', explode("\n### ", explode("\n### Changed\n", $release, 2)[1] ?? '', 2)[0]) ?? '');
+        $heading = '## From '.($versions[$index + 1] ?? '').' to '.$version."\n";
+
+        if ($version === 'Unreleased' || ! isset($versions[$index + 1]) || $api + $changed === 0) {
+            expect($guide)->not->toContain(' to '.$version."\n");
+
+            continue;
+        }
+
+        $section = explode("\n## ", explode($heading, $guide, 2)[1] ?? '', 2)[0];
+        [$apiPart, $behaviourPart] = explode('### Behaviour changes', $section, 2) + ['', ''];
+        expect($guide)->toContain($heading)
+            ->and($bullets($apiPart))->toBe($api, "API changes of {$version}")
+            ->and($bullets($behaviourPart))->toBe($changed, "Behaviour changes of {$version}");
+        $told++;
+    }
+
+    expect($told)->toBeGreaterThanOrEqual(9)
+        ->and(substr_count($guide, "\n## From "))->toBe($told);
+})->group('frontend');
+
+it('tells a 1.0.0-beta.2 app the 28 API changes of 1.0.0-beta.3', function () {
+    $guide = File::get(dirname(__DIR__, 3).'/docs/getting-started/upgrade.md');
+    $section = explode("\n## ", explode("## From 1.0.0-beta.2 to 1.0.0-beta.3\n", $guide, 2)[1] ?? '', 2)[0];
+    $api = explode('### Behaviour changes', $section, 2)[0];
+
+    expect(preg_match_all('/^- /m', $api))->toBe(28)
+        ->and($guide)->toContain('It covers every release, newest first')
+        ->and(strpos($guide, '## From 1.0.0-beta.11 to 1.0.0-beta.12'))->toBeLessThan(strpos($guide, '## From 1.0.0-beta.2 to 1.0.0-beta.3'));
+})->group('frontend');
+
 it('tells a 1.0.0-beta.11 app every API and behaviour change in 1.0.0-beta.12', function () {
     $guide = File::get(dirname(__DIR__, 3).'/docs/getting-started/upgrade.md');
-    $section = explode('## What you see', explode('## From 1.0.0-beta.11 to 1.0.0-beta.12', $guide, 2)[1] ?? '', 2)[0];
+    $section = explode("\n## ", explode('## From 1.0.0-beta.11 to 1.0.0-beta.12', $guide, 2)[1] ?? '', 2)[0];
     [$api, $behaviour] = explode('### Behaviour changes', $section, 2) + ['', ''];
 
     expect($api)->toContain('No public API changed since 1.0.0-beta.11', '`token`', '`kind`', '`Filters`')
