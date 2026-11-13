@@ -390,7 +390,7 @@ it('opens with 1.0.0-beta.13 and tells a 1.0.0-beta.12 app each change that can 
     expect($heading[0] ?? null)->toBe('## From 1.0.0-beta.12 to 1.0.0-beta.13')
         ->and($section)->toContain(
             'answer 403 to a user who fails `viewAny` on the related Resource',
-            'The permission plugin\'s role and permission fields show only to a user who passes `viewAny`',
+            'the permission plugin\'s role and permission fields show only to a user who passes `viewAny`',
             'pivot values meet their fields\' rules',
             'the password change and every two-factor route of the Security page',
             'as wall time in the app\'s time zone',
@@ -412,8 +412,10 @@ it('names every place a user meets the pickers and role fields changed in 1.0.0-
 
     expect($entry('answer 403 to a user who fails `viewAny` on the related Resource'))
         ->toContain('on a create or edit form, in an action\'s form and in a relation list\'s Attach dialog')
+        ->toContain('a belongsTo or morphTo cell that edits inline on a Resource\'s list, a lens and a relation list')
+        ->toContain('never lists the related records inline')
         ->toContain('the filter bar of a Resource\'s list, a lens and a relation list')
         ->toContain('give them `viewAny` on the related Resource')
-        ->and($entry('The permission plugin\'s role and permission fields'))
-        ->toContain('`RoleSelectField`', '`RoleMultiSelectField`', '`PermissionMultiSelectField`', 'answers their picker with 403');
+        ->and($entry('the permission plugin\'s role and permission fields'))
+        ->toContain('`lathe/permission` 1.0.0-beta.13', '`RoleSelectField`', '`RoleMultiSelectField`', '`PermissionMultiSelectField`', 'answers their picker with 403');
 })->group('frontend');

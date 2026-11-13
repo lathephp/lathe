@@ -1,5 +1,5 @@
 /// <reference types="node" />
-import { readFileSync } from 'node:fs';
+import { readdirSync, readFileSync } from 'node:fs';
 import { expect, it } from 'vitest';
 
 function read(path: string): unknown {
@@ -36,8 +36,11 @@ it('names the GitHub repository in each npm package, which npm checks against th
 it('gives the three npm packages one React peer range, as @lathephp/ui declares it', () => {
   const peers = (folder: string) => (read(`../../../${folder}/package.json`) as { peerDependencies?: Record<string, string> }).peerDependencies ?? {};
   const ui = peers('ui').react;
-  const declared = ['core', 'ui', 'vite-plugin'].flatMap((folder) => [peers(folder).react, peers(folder)['react-dom']].filter((range) => range !== undefined));
+  const folders = readdirSync(new URL('../../..', import.meta.url), { withFileTypes: true }).filter((entry) => entry.isDirectory()).map((entry) => entry.name);
+  const declared = folders.flatMap((folder) => [peers(folder).react, peers(folder)['react-dom']].filter((range) => range !== undefined));
 
+  expect(folders).toEqual(expect.arrayContaining(['core', 'ui', 'vite-plugin']));
   expect(ui).toBe('^19.3.0');
+  expect(peers('core').react).toBe(ui);
   expect(declared).toEqual(declared.map(() => ui));
 });

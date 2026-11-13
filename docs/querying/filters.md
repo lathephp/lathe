@@ -370,7 +370,7 @@ Lathe checks every value before `apply()` runs. An unknown key, a hidden filter 
 
 ## Custom components
 
-A filter with its own React component is deprecated, with `lathe:filter --custom`, `filter()` and `FilterMenu` of `@lathephp/core`. They keep working through 1.x, but the filter bar does not draw the component: it shows such a filter as a text key, where the user types the key and any text, as `sentiment:happy`, and the chip reads "Sentiment: happy". Only a custom page that renders `FilterMenu` still draws the component. For a new filter, extend a select, boolean, date or range filter instead.
+A filter with its own React component is deprecated, with `lathe:filter --custom`, `filter()` and `FilterMenu` of `@lathephp/core`. They keep working through 1.x, but the filter bar does not draw the component: it shows such a filter as a text key, where the user types its key and a value, as `sentiment:happy`, and the chip reads "Sentiment: happy"; a value its `options()` does not list is refused. Only a custom page that renders `FilterMenu` still draws the component. For a new filter, extend a select, boolean, date or range filter instead.
 
 `--custom` writes a filter class and a React component, and says the option is deprecated:
 
