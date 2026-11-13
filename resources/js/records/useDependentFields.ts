@@ -43,10 +43,15 @@ export function useDependentFields({ uriKey, mode, id, fields, values, dirty, ap
   const { apiPath } = useLathe();
   const [patches, setPatches] = useState<Record<string, FieldPatchData>>({});
   const previous = useRef(values);
-  const latest = useRef({ fields, dirty, apply });
+  const latest = useRef({ fields, dirty, apply, values });
+  // Lookups are numbered as they leave, and each field remembers the newest one that asked about it
+  // or changed it, a field a change led on to included: a reply that answers late, for an older
+  // value, changes only the fields no newer lookup has.
+  const sent = useRef(0);
+  const asked = useRef(new Map<string, number>());
 
   useLayoutEffect(() => {
-    latest.current = { fields, dirty, apply };
+    latest.current = { fields, dirty, apply, values };
   });
 
   useLayoutEffect(() => {
@@ -62,21 +67,28 @@ export function useDependentFields({ uriKey, mode, id, fields, values, dirty, ap
       return undefined;
     }
 
+    // A Retry asks with the values the form holds when it is clicked.
     function lookup() {
       const byKey = new Map(latest.current.fields.map((field) => [field.key, field.attribute]));
+      const number = ++sent.current;
+      targets.forEach((key) => asked.current.set(key, number));
+      const current = (key: string) => (asked.current.get(key) ?? 0) <= number;
 
       request<LookupReply>(`${apiPath}/resources/${uriKey}/field-dependencies`, {
         method: 'POST',
         toastOnError: false,
-        body: { fields: targets, context: mode === 'update' ? 'update' : 'create', values, dirty: [...latest.current.dirty], id: mode === 'update' ? id : null },
+        body: { fields: targets, context: mode === 'update' ? 'update' : 'create', values: latest.current.values, dirty: [...latest.current.dirty], id: mode === 'update' ? id : null },
       }).then(
         (reply) => {
           if (reply === null) {
             return;
           }
 
-          setPatches((current) => ({ ...current, ...reply.patches }));
-          latest.current.apply(Object.fromEntries(Object.entries(reply.changed).map(([key, value]) => [byKey.get(key) ?? key, value])));
+          const patched = Object.entries(reply.patches).filter(([key]) => current(key));
+          const changed = Object.entries(reply.changed).filter(([key]) => current(key));
+          patched.forEach(([key]) => asked.current.set(key, number));
+          setPatches((shown) => ({ ...shown, ...Object.fromEntries(patched) }));
+          latest.current.apply(Object.fromEntries(changed.map(([key, value]) => [byKey.get(key) ?? key, value])));
         },
         () => {
           toast.error(__('Something went wrong. Please try again.'), { action: { label: __('Retry'), onClick: lookup } });

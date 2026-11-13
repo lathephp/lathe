@@ -83,6 +83,35 @@ describe('dependent fields', () => {
     expect(screen.getByLabelText<HTMLInputElement>(/Code/).value).toBe('typed');
   });
 
+  it("keeps the newer value's patches when the lookup for an older one answers last", async () => {
+    vi.useFakeTimers();
+    const answers: ((response: Response) => void)[] = [];
+    vi.spyOn(globalThis, 'fetch').mockImplementation(() => new Promise<Response>((resolve) => answers.push(resolve)));
+    const lookup = (name: string) => new Response(JSON.stringify({ patches: { company_name: { visible: true, required: name === 'Beta' }, code: {} }, changed: { company_name: name } }), { status: 200 });
+    renderCustomers();
+    const settle = async (ms: number) => {
+      await act(async () => {
+        vi.advanceTimersByTime(ms);
+        await Promise.resolve();
+        await Promise.resolve();
+      });
+    };
+
+    fireEvent.change(screen.getByLabelText(/^Type/), { target: { value: 'agency' } });
+    await settle(300);
+    fireEvent.change(screen.getByLabelText(/^Type/), { target: { value: 'company' } });
+    await settle(300);
+    expect(answers).toHaveLength(2);
+
+    answers[1]?.(lookup('Beta'));
+    await settle(0);
+    answers[0]?.(lookup('Alpha'));
+    await settle(0);
+
+    expect(screen.getByLabelText<HTMLInputElement>(/Company name/).value).toBe('Beta');
+    expect(screen.getByLabelText<HTMLInputElement>(/Company name/).getAttribute('aria-required')).toBe('true');
+  });
+
   it('keeps every field as it was and toasts with Retry when the lookup fails', async () => {
     vi.useFakeTimers();
     vi.spyOn(globalThis, 'fetch').mockResolvedValue(new Response(JSON.stringify({ message: 'boom' }), { status: 500 }));
