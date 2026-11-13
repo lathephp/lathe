@@ -1,4 +1,5 @@
 import { fireEvent, screen, waitFor } from '@testing-library/react';
+import { firstCell, panel, press, urlOf } from './preview-support';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { cellOf, editCell, indexTable, pick, renderPage } from './support';
 
@@ -10,7 +11,7 @@ const definition = { debounce: 0.5, paginationType: 'links', clickAction: 'detai
 
 // The workbench's Pending Orders lens has one inline column, Status; here its Number edits in place too.
 function renderLens() {
-  const table = indexTable('orders');
+  const table = Object.assign(indexTable('orders'), { phoneCard: { title: 'number', badge: 'status', meta: null, value: null } });
   table.rows.splice(1);
   table.columns.forEach((column) => {
     if (column.key === 'number') {
@@ -61,5 +62,45 @@ describe('inline edits on a lens', () => {
 
     expect(cellOf('Status').textContent).toContain('Pending');
     expect(cellOf('Number').textContent).toContain('ORD-7');
+  });
+
+  it('shows both edits of a row in the preview panel header', async () => {
+    let saves = 0;
+    vi.spyOn(globalThis, 'fetch').mockImplementation((input) => {
+      const url = urlOf(input);
+
+      if (url.includes('/field/')) {
+        saves++;
+
+        return Promise.resolve(
+          saves === 1 ? reply({ number: { value: 'ORD-7', display: 'ORD-7' } }, '2026-01-15T09:30:01.000Z') : reply({ status: { value: 'pending', display: 'Pending' } }, '2026-01-15T09:30:02.000Z'),
+        );
+      }
+
+      return Promise.resolve(new Response(null, { status: 204 }));
+    });
+    renderLens();
+    firstCell().focus();
+    await press(' ');
+    await waitFor(() => {
+      expect(panel()).not.toBeNull();
+    });
+
+    await editCell('Number');
+    const input = await screen.findByRole<HTMLInputElement>('textbox', { name: 'Number' });
+    fireEvent.change(input, { target: { value: 'ORD-7' } });
+    fireEvent.keyDown(input, { key: 'Enter' });
+    await waitFor(() => {
+      expect(screen.queryByText('Saving…')).toBeNull();
+    });
+    await editCell('Status');
+    await pick('Pending');
+    await waitFor(() => {
+      expect(screen.queryByText('Saving…')).toBeNull();
+    });
+
+    const header = panel().querySelector('header')?.textContent ?? '';
+    expect(header).toContain('ORD-7');
+    expect(header).toContain('Pending');
   });
 });
