@@ -145,6 +145,46 @@ describe('chunked uploader', () => {
     expect(screen.getByRole('progressbar').getAttribute('aria-valuenow')).toBe('100');
   });
 
+  it('keeps the last file picked when the earlier upload ends after it', async () => {
+    let releaseFirst: (response: Response) => void = () => undefined;
+    vi.spyOn(globalThis, 'fetch').mockImplementation((input, init) => {
+      const url = typeof input === 'string' ? input : input instanceof URL ? input.href : input.url;
+      const body = typeof init?.body === 'string' ? (JSON.parse(init.body) as { name?: string }) : {};
+
+      if (url.includes('/uploads/01A/chunks/')) {
+        return new Promise<Response>((resolve) => (releaseFirst = resolve));
+      }
+
+      if (url.includes('/chunks/')) {
+        return Promise.resolve(new Response(null, { status: 204 }));
+      }
+
+      if (url.endsWith('/complete')) {
+        return Promise.resolve(new Response('{}'));
+      }
+
+      return Promise.resolve(new Response(JSON.stringify({ upload_id: body.name === 'a.png' ? '01A' : '01B', chunk_size: MB }), { status: 201 }));
+    });
+    const onChange = vi.fn();
+    renderField(schema(), onChange);
+
+    choose(sized(10, 'a.png'));
+    await waitFor(() => {
+      expect(screen.getByRole('progressbar', { name: 'a.png' })).toBeTruthy();
+    });
+    choose(sized(10, 'b.png'));
+    await waitFor(() => {
+      expect(onChange).toHaveBeenCalledWith('01B');
+    });
+    releaseFirst(new Response(null, { status: 204 }));
+    await act(async () => {
+      await new Promise((resolve) => setTimeout(resolve, 10));
+    });
+
+    expect(onChange.mock.calls).toEqual([['01B']]);
+    expect(screen.getByRole('progressbar', { name: 'b.png' }).getAttribute('aria-valuenow')).toBe('100');
+  });
+
   it('refuses a 12 MB file on a 5 MB field before any request', async () => {
     const { fetch } = server();
     renderField();

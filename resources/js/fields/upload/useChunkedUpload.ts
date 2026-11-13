@@ -97,7 +97,13 @@ async function downsize(file: File, maxWidth: unknown): Promise<Blob> {
   }
 }
 
-async function putChunk(url: string, body: Blob): Promise<void> {
+/** One upload as it runs: whether it still counts, as a newer pick replaces an older one, and the signal that stops its requests. */
+interface Run {
+  live: () => boolean;
+  signal: AbortSignal;
+}
+
+async function putChunk(url: string, body: Blob, signal: AbortSignal): Promise<void> {
   for (let attempt = 0; ; attempt++) {
     let status = 0;
 
@@ -107,6 +113,7 @@ async function putChunk(url: string, body: Blob): Promise<void> {
         headers: { Accept: 'application/json', 'Content-Type': 'application/octet-stream', ...csrfHeaders() },
         body,
         credentials: 'same-origin',
+        signal,
       });
 
       if (response.ok) {
@@ -118,7 +125,8 @@ async function putChunk(url: string, body: Blob): Promise<void> {
       // A network failure is retried like a server error.
     }
 
-    if (status === 413 || attempt === RETRIES) {
+    // A replaced upload stops at once, with no retry.
+    if (status === 413 || attempt === RETRIES || signal.aborted) {
       throw new ApiError(status, null);
     }
 
@@ -173,24 +181,24 @@ export function useChunkedUpload(
   }, []);
 
   /** Runs one upload with the form counting it, from the pick until it ends, either way. */
-  async function tracked(work: () => Promise<void>): Promise<void> {
+  async function tracked<T>(work: () => Promise<T>): Promise<T> {
     const end = form?.begin() ?? (() => undefined);
     ends.current.add(end);
 
     try {
-      await work();
+      return await work();
     } finally {
       ends.current.delete(end);
       end();
     }
   }
 
-  async function begin(file: File, blob: Blob): Promise<{ id: string; chunkSize: number; received: number[] }> {
+  async function begin(file: File, blob: Blob, run: Run): Promise<{ id: string; chunkSize: number; received: number[] }> {
     const saved = readSaved(attribute, file);
 
     if (saved !== null) {
       try {
-        const status = await request<{ size: number; received: number[] }>(`${apiPath}/uploads/${saved.upload_id}`, { toastOnError: false });
+        const status = await request<{ size: number; received: number[] }>(`${apiPath}/uploads/${saved.upload_id}`, { toastOnError: false, signal: run.signal });
 
         if (status !== null && status.size === blob.size) {
           return { id: saved.upload_id, chunkSize: saved.chunk_size, received: status.received };
@@ -205,10 +213,11 @@ export function useChunkedUpload(
     const started = await request<{ upload_id: string; chunk_size: number }>(`${apiPath}/resources/${resource}/uploads/${attribute}`, {
       method: 'POST',
       toastOnError: false,
+      signal: run.signal,
       body: { name: file.name, size: blob.size, mime: blob.type || file.type, ...(id === undefined || id === null ? {} : { resource_id: id }), ...startBody() },
     });
 
-    if (started === null) {
+    if (started === null || !run.live()) {
       throw new ApiError(0, null);
     }
 
@@ -217,9 +226,13 @@ export function useChunkedUpload(
     return { id: started.upload_id, chunkSize: started.chunk_size, received: [] };
   }
 
-  async function send(file: File, blob: Blob): Promise<void> {
+  /**
+   * Sends the file and answers its upload id, or null when it failed or a newer pick replaced it.
+   * A replaced upload touches nothing: no progress, no error, and not the newer one's resume entry.
+   */
+  async function send(file: File, blob: Blob, run: Run, retry?: () => void): Promise<string | null> {
     try {
-      const { id, chunkSize, received } = await begin(file, blob);
+      const { id, chunkSize, received } = await begin(file, blob, run);
       const total = Math.max(1, Math.ceil(blob.size / chunkSize));
       const sizeOf = (index: number) => Math.min(chunkSize, blob.size - index * chunkSize);
       // The bar stops at 99 until the server has assembled the file and the form holds its id.
@@ -232,16 +245,31 @@ export function useChunkedUpload(
           continue;
         }
 
-        await putChunk(`${apiPath}/uploads/${id}/chunks/${String(index)}`, blob.slice(index * chunkSize, (index + 1) * chunkSize));
+        await putChunk(`${apiPath}/uploads/${id}/chunks/${String(index)}`, blob.slice(index * chunkSize, (index + 1) * chunkSize), run.signal);
+
+        if (!run.live()) {
+          return null;
+        }
+
         sent += sizeOf(index);
         setProgress(percent(sent));
       }
 
-      await request(`${apiPath}/uploads/${id}/complete`, { method: 'POST', toastOnError: false });
+      await request(`${apiPath}/uploads/${id}/complete`, { method: 'POST', toastOnError: false, signal: run.signal });
+
+      if (!run.live()) {
+        return null;
+      }
+
       writeSaved(null, attribute);
       setProgress(100);
-      onUploaded(id);
+
+      return id;
     } catch (failure) {
+      if (!run.live()) {
+        return null;
+      }
+
       setProgress(null);
 
       if (failure instanceof ApiError && failure.status === 413) {
@@ -250,22 +278,15 @@ export function useChunkedUpload(
         writeSaved(null, attribute);
         setError(firstError(failure.data) ?? __('The upload failed.'));
       } else {
-        toast.error(__('The upload failed.'), {
-          action: {
-            label: __('Retry'),
-            onClick: () => {
-              void tracked(() => send(file, blob));
-            },
-          },
-        });
+        toast.error(__('The upload failed.'), retry === undefined ? {} : { action: { label: __('Retry'), onClick: retry } });
       }
+
+      return null;
     }
   }
 
-  async function choose(file: File): Promise<void> {
-    setError(null);
-    setProgress(null);
-    setName(file.name);
+  /** Whether the file may upload; one over the limit or of a type the field refuses shows why. */
+  function allowed(file: File): boolean {
     const types = Array.isArray(field.acceptedTypes) ? field.acceptedTypes.filter((type): type is string => typeof type === 'string') : [];
     // A file over the limit says so whatever its type, unless the browser shrinks it below.
     const shrinks = typeof field.maxWidth === 'number' && RESIZABLE.has(file.type);
@@ -273,27 +294,86 @@ export function useChunkedUpload(
     if (!shrinks && file.size > limit * MB) {
       setError(tooLarge);
 
-      return;
+      return false;
     }
 
     if (!accepts(types, file.name, file.type)) {
       setError(__('The file type is not one of: :types.', { types: types.join(', ') }));
 
-      return;
+      return false;
     }
 
-    await tracked(async () => {
-      const blob = await downsize(file, field.maxWidth);
+    return true;
+  }
 
-      if (blob.size > limit * MB) {
-        setError(tooLarge);
+  /** Shrinks the image the field asks to, then sends it; answers the upload id or null. */
+  async function upload(file: File, run: Run, retry?: (blob: Blob) => void): Promise<string | null> {
+    const blob = await downsize(file, field.maxWidth);
 
-        return;
-      }
+    if (!run.live()) {
+      return null;
+    }
 
-      await send(file, blob);
+    if (blob.size > limit * MB) {
+      setError(tooLarge);
+
+      return null;
+    }
+
+    return send(file, blob, run, retry === undefined ? undefined : () => {
+      retry(blob);
     });
   }
 
-  return { progress, error, name, choose };
+  // The field's pick being uploaded; a new pick stops it and takes its place.
+  const latest = useRef<AbortController | null>(null);
+
+  function replace(): Run {
+    latest.current?.abort();
+    const controller = new AbortController();
+    latest.current = controller;
+
+    return { live: () => latest.current === controller, signal: controller.signal };
+  }
+
+  /** Sends the field's file again from a failed upload's Retry, as the field's newest pick. */
+  async function resend(file: File, blob: Blob): Promise<void> {
+    const run = replace();
+    const id = await tracked(() => send(file, blob, run, () => void resend(file, blob)));
+
+    if (id !== null && run.live()) {
+      onUploaded(id);
+    }
+  }
+
+  /** The field's pick: it replaces an upload still running, so the field holds the last file chosen. */
+  async function choose(file: File): Promise<void> {
+    const run = replace();
+    setError(null);
+    setProgress(null);
+    setName(file.name);
+
+    if (!allowed(file)) {
+      return;
+    }
+
+    const id = await tracked(() => upload(file, run, (blob) => void resend(file, blob)));
+
+    if (id !== null && run.live()) {
+      onUploaded(id);
+    }
+  }
+
+  /** An upload of its own beside any others, as for each image pasted into an editor: answers its upload id, or null. */
+  async function add(file: File): Promise<string | null> {
+    setError(null);
+
+    if (!allowed(file)) {
+      return null;
+    }
+
+    return tracked(() => upload(file, { live: () => true, signal: new AbortController().signal }));
+  }
+
+  return { progress, error, name, choose, add };
 }

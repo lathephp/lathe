@@ -1,7 +1,8 @@
 import { __panel, request, useLathe } from '@lathephp/core';
-import { useEffect, useRef, useSyncExternalStore } from 'react';
+import { useContext, useEffect, useRef, useSyncExternalStore } from 'react';
 import type { FormFieldData } from '../types';
 import { useChunkedUpload } from '../upload/useChunkedUpload';
+import { FormUploadsContext } from '../upload/uploads';
 import { forgetDraftId, setDraftId } from './drafts';
 
 /**
@@ -15,11 +16,13 @@ export function useEditorUploads(field: FormFieldData) {
   const resource = (page.resource as { uriKey?: string } | undefined)?.uriKey ?? '';
   const recordId = page.mode === 'update' && (typeof page.id === 'string' || typeof page.id === 'number') ? String(page.id) : null;
   const draft = useRef<string | null>(null);
-  const waiting = useRef<((uploadId: string | null) => void) | null>(null);
+  // One draft id for the editor, asked once even for two images pasted before it came back.
+  const asking = useRef<Promise<string> | null>(null);
+  const form = useContext(FormUploadsContext);
   const upload = useChunkedUpload(
     field,
     field.attribute,
-    (uploadId) => waiting.current?.(uploadId),
+    () => undefined,
     () => ({ draft_id: draft.current }),
   );
   const base = `${apiPath}/resources/${resource}/field-attachment/${encodeURIComponent(field.attribute)}`;
@@ -29,44 +32,51 @@ export function useEditorUploads(field: FormFieldData) {
     forgetDraftId(resource, field.attribute);
   }, [resource, field.attribute]);
 
-  async function draftId(): Promise<string> {
-    if (draft.current === null) {
-      const result = await request<{ draft_id: string }>(`${base}/draft-id${recordId === null ? '' : `?resource_id=${encodeURIComponent(recordId)}`}`);
+  function draftId(): Promise<string> {
+    asking.current ??= request<{ draft_id: string }>(`${base}/draft-id${recordId === null ? '' : `?resource_id=${encodeURIComponent(recordId)}`}`).then(
+      (result) => {
+        if (result === null) {
+          throw new Error('No draft id.');
+        }
 
-      if (result === null) {
-        throw new Error('No draft id.');
-      }
+        draft.current = result.draft_id;
+        setDraftId(resource, field.attribute, result.draft_id);
 
-      draft.current = result.draft_id;
-      setDraftId(resource, field.attribute, result.draft_id);
-    }
+        return result.draft_id;
+      },
+      (failure: unknown) => {
+        // A later image asks again.
+        asking.current = null;
+        throw failure;
+      },
+    );
 
-    return draft.current;
+    return asking.current;
   }
 
+  /** Each image is an upload of its own, so two pasted one after the other each get their own URL. */
   async function uploadImage(file: File): Promise<string> {
-    await draftId();
+    // The form holds its Save until the image is attached, not only uploaded.
+    const end = form?.begin() ?? (() => undefined);
 
-    // choose() reports the upload id through onUploaded and settles once the upload ends either way.
-    const uploadId = await new Promise<string | null>((resolve) => {
-      waiting.current = resolve;
-      void upload.choose(file).then(() => {
-        resolve(null);
-      });
-    });
-    waiting.current = null;
+    try {
+      await draftId();
+      const uploadId = await upload.add(file);
 
-    if (uploadId === null) {
-      throw new Error('The upload failed.');
+      if (uploadId === null) {
+        throw new Error('The upload failed.');
+      }
+
+      const attached = await request<{ url: string }>(base, { method: 'POST', body: { upload_id: uploadId, ...(recordId === null ? {} : { resource_id: recordId }) } });
+
+      if (attached === null) {
+        throw new Error('The upload failed.');
+      }
+
+      return attached.url;
+    } finally {
+      end();
     }
-
-    const attached = await request<{ url: string }>(base, { method: 'POST', body: { upload_id: uploadId, ...(recordId === null ? {} : { resource_id: recordId }) } });
-
-    if (attached === null) {
-      throw new Error('The upload failed.');
-    }
-
-    return attached.url;
   }
 
   return { uploadImage, error: upload.error };

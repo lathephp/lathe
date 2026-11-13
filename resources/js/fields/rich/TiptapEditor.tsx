@@ -1,6 +1,7 @@
 import { useTranslation } from '@lathephp/core';
 import Image from '@tiptap/extension-image';
 import { EditorContent, useEditor } from '@tiptap/react';
+import { NodeSelection } from '@tiptap/pm/state';
 import type { EditorView } from '@tiptap/pm/view';
 import StarterKit from '@tiptap/starter-kit';
 import { Bold, Italic, List, Minus, type LucideIcon } from 'lucide-react';
@@ -23,7 +24,8 @@ function imagesOf(files: FileList | undefined): File[] {
 }
 
 /**
- * Upload each image and insert it at the selection once its URL is back. A failed upload
+ * Upload each image and insert it at the selection once its URL is back. An image that came back
+ * first is left selected; one coming back after it goes beside it, not over it. A failed upload
  * inserts nothing; the uploader has already shown why.
  */
 async function insertImages(view: EditorView, files: File[], uploadImage: (file: File) => Promise<string>): Promise<void> {
@@ -33,7 +35,8 @@ async function insertImages(view: EditorView, files: File[], uploadImage: (file:
       const node = view.state.schema.nodes.image?.create({ src, alt: file.name });
 
       if (node !== undefined) {
-        view.dispatch(view.state.tr.replaceSelectionWith(node));
+        const { selection, tr } = view.state;
+        view.dispatch(selection instanceof NodeSelection ? tr.insert(selection.to, node) : tr.replaceSelectionWith(node));
       }
     } catch {
       // Nothing to insert.
