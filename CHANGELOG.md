@@ -21,6 +21,10 @@ All notable changes to Lathe are listed here. The format follows [Keep a Changel
 - A form's unsent draft keeps no password field, and a reload restores the other fields with the password empty. The drafts and the palette's recent searches a browser keeps belong to the user who made them: signing out, signing in as someone else, and starting or stopping an impersonation clear them, across a reload too.
 - Confirming the password and changing it on the Security page take 5 tries a minute per user, as the two-factor challenge does; the 6th answers 429.
 
+### Deprecated
+
+- [api] `Filter::placement()` and `Filter::immediate()` are deprecated and stay in 1.x: each still returns the filter and still sets the `placement` or `immediate` key of its JSON, but the filter bar reads neither. Only `@lathephp/core`'s deprecated `FilterMenu` reads `immediate()`, and nothing reads `placement()`.
+
 ### Fixed
 
 - A queued action run counts each row once, whatever the worker's `--tries`: a chunk that failed once and then passed on a worker with `--tries=3` counted its 200 rows twice and as failed, and its action events stayed Failed. A chunk's rows now count as failed only after its last attempt, and a retry moves its events back to Running. A chunk whose last attempt timed out or lost its worker marks its events Failed.

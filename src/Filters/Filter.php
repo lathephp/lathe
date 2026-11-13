@@ -134,6 +134,8 @@ abstract class Filter
 
     /**
      * Apply each change at once instead of on Apply.
+     *
+     * @deprecated Only @lathephp/core's deprecated FilterMenu reads it; the filter bar applies each chip at once and shows a custom component's filter as a text key.
      */
     public function immediate(bool $immediate = true): static
     {
@@ -144,6 +146,8 @@ abstract class Filter
 
     /**
      * Where the filter shows: toolbar, panel or inline.
+     *
+     * @deprecated Nothing reads it; every filter shows in the filter bar, and a custom component's filter as a text key.
      */
     public function placement(string $slot): static
     {

@@ -289,3 +289,14 @@ it('lists Status with four inline options and Customer as a remote picker', func
             ],
         ]);
 });
+
+it('keeps the deprecated placement() and immediate() working, marked @deprecated', function (string $method, mixed $argument, string $getter) {
+    $filter = new FilterTestTag;
+
+    expect($filter->{$method}($argument))->toBe($filter)
+        ->and($filter->{$getter}())->toBe($argument)
+        ->and((string) (new ReflectionMethod(Filter::class, $method))->getDocComment())->toContain('@deprecated', 'text key');
+})->with([
+    'placement' => ['placement', 'toolbar', 'getPlacement'],
+    'immediate' => ['immediate', true, 'isImmediate'],
+]);
