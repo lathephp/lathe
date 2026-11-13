@@ -1,0 +1,11 @@
+{
+  "machine": "cloud-vm",
+  "writes": [
+    {
+      "base": null,
+      "body": "+++\ncreated = \"2026-11-13T02:38:28.602677454Z\"\nid = \"01M79CAKW0N29470JZXK8ZBQJ4\"\nkind = \"handoff\"\nmachine = \"cloud-vm\"\nmodified = \"2026-11-13T02:38:28.602677454Z\"\nproject = \"lathe\"\ntitle = \"Next: m43-beta13. m42-forms-cells landed on main. Numbers: about 2 h wall clock (00:42 to 02:40 U…\"\n+++\n\nNext: m43-beta13. m42-forms-cells landed on main. Numbers: about 2 h wall clock (00:42 to 02:40 UTC); 11 tasks, all solo, built test-first; full suite at 52c01d7d PHP 3637 passed, JS 1598 passed; review 2 [blocks] fixed (f7e56def import poll after a close during the dry-run POST, 02be55d5 lens preview header test), a whole-file reformat undone (52c01d7d), 3 [later] filed as ideas (#D8NWC3AR stale upload Retry, #FMCCT78B pasted image Retry, #JY8HBMK9 Safari keyCode 229), 1 dropped; walk at ee61495a steps 1, 3, 4, 5 and forged writes pass, step 2's finding #13X16REN closed as by spec (banner count ignores exclusions, idea #ENKVWDRT), step 6 skipped; re-walk at 52c01d7d of the import close in flight and the upload pass. Not reachable in the workbench, unit tests only: two inline cells of one record (t5/t6, one inline field per record) and a file action behind a password check (t2). Taste ideas #PF55ABA7 (single-chunk bar at 0%), #JH5RAE6S (403 traces). Lessons: whole-file reformat (Check, unenforced: lint double-quoted imports), prop identity vs Inertia::always.\n",
+      "id": "01M79CAKW1X95MEBS7R9AADYMQ",
+      "path": "projects/01M4T1WADSK9655DJEZ17PGMYC/items/01M79CAKW0N29470JZXK8ZBQJ4.md"
+    }
+  ]
+}
