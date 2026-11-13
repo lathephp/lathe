@@ -34,16 +34,10 @@ it('names the GitHub repository in each npm package, which npm checks against th
 });
 
 it('gives the three npm packages one React peer range, as @lathephp/ui declares it', () => {
-  const peers = Object.fromEntries(
-    ['core', 'ui', 'vite-plugin'].map((folder) => {
-      const json = read(`../../../${folder}/package.json`) as { peerDependencies?: Record<string, string> };
-      const peer = json.peerDependencies ?? {};
+  const peers = (folder: string) => (read(`../../../${folder}/package.json`) as { peerDependencies?: Record<string, string> }).peerDependencies ?? {};
+  const ui = peers('ui').react;
+  const declared = ['core', 'ui', 'vite-plugin'].flatMap((folder) => [peers(folder).react, peers(folder)['react-dom']].filter((range) => range !== undefined));
 
-      return [folder, { react: peer.react, 'react-dom': peer['react-dom'] }];
-    }),
-  );
-  const declared = Object.values(peers).flatMap((peer) => Object.values(peer).filter((range) => range !== undefined));
-
-  expect(peers.ui.react).toBe('^19.3.0');
-  expect(declared).toEqual(declared.map(() => peers.ui.react));
+  expect(ui).toBe('^19.3.0');
+  expect(declared).toEqual(declared.map(() => ui));
 });
