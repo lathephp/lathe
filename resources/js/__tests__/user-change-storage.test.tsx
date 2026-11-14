@@ -91,6 +91,38 @@ describe('a form draft', () => {
     expect(screen.getByLabelText<HTMLInputElement>(/^Password/).value).toBe('');
   });
 
+  it('keeps no token field, a secret like a password', async () => {
+    followUser(user('admin@lathephp.com'));
+    renderPage(
+      'Resources/Form',
+      {
+        resource: { uriKey: 'users', label: 'Users', singularLabel: 'User', abilities: { create: true } },
+        mode: 'create',
+        id: null,
+        title: 'Create User',
+        breadcrumbs: [],
+        form: {
+          fields: [field('name', 'Name', 'text-field'), field('api_key', 'API key', 'token-field')],
+          layout: [{ type: 'panel', attribute: 'details', name: 'Details', fields: ['name', 'api_key'], toolbar: true, collapsible: false, collapsed: false, hideHeading: false, headingInCard: false, help: null, limit: null, columns: null, columnSpan: null, borderless: false }],
+        },
+        submitLabel: 'Create User',
+      },
+      { shared: sharedProps({ auth: { user: { name: 'admin@lathephp.com', email: 'admin@lathephp.com' } } }) },
+    );
+    const key = await screen.findByLabelText(/^API key/);
+
+    vi.useFakeTimers();
+    fireEvent.change(screen.getByLabelText(/^Name/), { target: { value: 'Rubel' } });
+    fireEvent.change(key, { target: { value: 'sk-live-4821' } });
+    act(() => {
+      vi.advanceTimersByTime(1000);
+    });
+    vi.useRealTimers();
+
+    expect(draftKeys()).toHaveLength(1);
+    expect(Object.values(window.sessionStorage).some((value) => String(value).includes('sk-live-4821'))).toBe(false);
+  });
+
   it('is gone once the signed-in user signs out, so the next user opens the form clean', () => {
     followUser(user('admin@lathephp.com'));
     const first = renderUserForm();

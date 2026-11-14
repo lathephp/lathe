@@ -3,10 +3,10 @@ import { useEffect, useRef, useState } from 'react';
 import type { FormFieldData } from '../fields/types';
 import { claimStorage, removeKeys } from '../lib/owner';
 
-/** Components a draft never holds: a file, and a password, which must never sit in the browser. */
-const UNKEPT_COMPONENTS = new Set(['file-field', 'image-field', 'audio-field', 'avatar-field', 'password-field']);
+/** Components a draft never holds: a file, and a password or token, secrets which must never sit in the browser. */
+const UNKEPT_COMPONENTS = new Set(['file-field', 'image-field', 'audio-field', 'avatar-field', 'password-field', 'token-field']);
 
-/** The attributes a draft keeps: every field but the file and password ones. */
+/** The attributes a draft keeps: every field but the file and secret ones. */
 export function persistable(fields: FormFieldData[]): string[] {
   return fields.filter((field) => !UNKEPT_COMPONENTS.has(field.component)).map((field) => field.attribute);
 }
