@@ -5,12 +5,14 @@
 # `composer audit --locked` or `pnpm audit --prod --audit-level=high` fails; both checks run
 # before the release branch exists, and each prints a line when it passes. From a clean, green main it then: creates release/<version>;
 # sets every package.json version; dates the CHANGELOG section; regenerates the upgrade guide;
-# builds dist/ twice, refuses the cut when the two builds differ (a line says when they match), and force-adds dist/; writes THIRD-PARTY-LICENSES.md; commits; and tags the
+# builds dist/ twice, refuses the cut when the two builds differ (a line says when they match), and force-adds dist/; writes THIRD-PARTY-LICENSES.md;
+# refuses the cut when bash scripts/release-smoke.sh cannot install it in a clean app; commits; and tags the
 # commit v<version>. main never gets dist/.
 # Run `pnpm install --frozen-lockfile` and `composer install` first: the build and the licence
 # list need them. LATHE_RELEASE_AUDIT replaces both audits, LATHE_RELEASE_BUILD replaces the build
-# command and LATHE_RELEASE_LICENSES_JSON feeds the licence list from a file instead of pnpm (all
-# for the script's own test); a cut names each one that is set.
+# command, LATHE_RELEASE_LICENSES_JSON feeds the licence list from a file instead of pnpm and
+# LATHE_RELEASE_SMOKE_COMMAND replaces the smoke install (all for the script's own test); a cut
+# names each one that is set.
 set -euo pipefail
 
 version=${1:?usage: release.sh <version>}
@@ -93,6 +95,15 @@ if [[ -n ${LATHE_RELEASE_LICENSES_JSON:-} ]]; then
     node scripts/third-party-licenses.mjs --input "$LATHE_RELEASE_LICENSES_JSON"
 else
     node scripts/third-party-licenses.mjs
+fi
+
+# The release workflow smokes the tag only after it is pushed, and Packagist keeps a pushed tag.
+if [[ -n ${LATHE_RELEASE_SMOKE_COMMAND:-} ]]; then
+    (eval "$LATHE_RELEASE_SMOKE_COMMAND") >&2 || fail "the smoke install failed: $LATHE_RELEASE_SMOKE_COMMAND"
+    echo "release: the smoke install passed: $LATHE_RELEASE_SMOKE_COMMAND"
+else
+    bash scripts/release-smoke.sh >&2 || fail "the smoke install failed: bash scripts/release-smoke.sh"
+    echo "release: bash scripts/release-smoke.sh passed"
 fi
 
 git add package.json packages/*/package.json CHANGELOG.md docs/getting-started/upgrade.md THIRD-PARTY-LICENSES.md

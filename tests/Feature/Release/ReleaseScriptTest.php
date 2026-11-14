@@ -31,7 +31,7 @@ function releaseRepo(): string
 function runRelease(string $repo, string $version = '1.0.0-beta.1'): ProcessResult
 {
     return Process::path($repo)
-        ->env(['LATHE_RELEASE_AUDIT' => 'true', 'LATHE_RELEASE_BUILD' => 'mkdir -p dist && echo built > dist/app.js', 'LATHE_RELEASE_LICENSES_JSON' => "{$repo}/licenses.json"])
+        ->env(['LATHE_RELEASE_AUDIT' => 'true', 'LATHE_RELEASE_BUILD' => 'mkdir -p dist && echo built > dist/app.js', 'LATHE_RELEASE_LICENSES_JSON' => "{$repo}/licenses.json", 'LATHE_RELEASE_SMOKE_COMMAND' => 'true'])
         ->run(['bash', 'scripts/release.sh', $version]);
 }
 
@@ -46,6 +46,7 @@ it('cuts the release branch and tag with the build, and pushes nothing', functio
         ->and($result->output())->toContain('release: the audit passed: true')
         ->and($result->output())->toContain('release: LATHE_RELEASE_BUILD stands in for pnpm build')
         ->and($result->output())->toContain('release: LATHE_RELEASE_LICENSES_JSON stands in for the licence list from pnpm')
+        ->and($result->output())->toContain('release: the smoke install passed: true')
         ->and($git('git rev-parse v1.0.0-beta.1^{commit}'))->toBe($git('git rev-parse release/1.0.0-beta.1'))
         ->and($git('git show v1.0.0-beta.1:dist/app.js'))->toBe('built')
         ->and($git('git ls-tree main dist'))->toBe('')
@@ -114,7 +115,7 @@ it('refuses a cut whose audit fails, before the release branch exists', function
     $git = fn (string $command) => trim(Process::path($repo)->run($command)->output());
 
     $result = Process::path($repo)
-        ->env(['LATHE_RELEASE_AUDIT' => 'echo advisory >&2; exit 1', 'LATHE_RELEASE_BUILD' => 'mkdir -p dist && echo built > dist/app.js', 'LATHE_RELEASE_LICENSES_JSON' => "{$repo}/licenses.json"])
+        ->env(['LATHE_RELEASE_AUDIT' => 'echo advisory >&2; exit 1', 'LATHE_RELEASE_BUILD' => 'mkdir -p dist && echo built > dist/app.js', 'LATHE_RELEASE_LICENSES_JSON' => "{$repo}/licenses.json", 'LATHE_RELEASE_SMOKE_COMMAND' => 'true'])
         ->run(['bash', 'scripts/release.sh', '1.0.0-beta.1']);
 
     expect($result->exitCode())->toBe(1)
@@ -122,6 +123,27 @@ it('refuses a cut whose audit fails, before the release branch exists', function
         ->and($git('git branch --show-current'))->toBe('main')
         ->and($git('git branch --list "release/*"'))->toBe('')
         ->and($git('git tag --list'))->toBe('');
+
+    File::deleteDirectory($repo);
+    File::deleteDirectory("{$repo}-origin.git");
+})->group('frontend');
+
+// The release workflow smokes the tag only after it is pushed, and Packagist keeps a pushed tag.
+it('refuses a cut whose smoke install fails, leaving main as it was and no tag', function () {
+    $repo = releaseRepo();
+    $git = fn (string $command) => trim(Process::path($repo)->run($command)->output());
+
+    $result = Process::path($repo)
+        ->env(['LATHE_RELEASE_AUDIT' => 'true', 'LATHE_RELEASE_BUILD' => 'mkdir -p dist && echo built > dist/app.js', 'LATHE_RELEASE_LICENSES_JSON' => "{$repo}/licenses.json", 'LATHE_RELEASE_SMOKE_COMMAND' => 'test -f dist/app.js && echo could not pin >&2 && exit 1'])
+        ->run(['bash', 'scripts/release.sh', '1.0.0-beta.1']);
+
+    expect($result->exitCode())->toBe(1)
+        ->and($result->errorOutput())->toContain('could not pin')
+        ->and($result->errorOutput())->toMatch('/^release: the smoke install failed/m')
+        ->and($git('git tag --list'))->toBe('')
+        ->and($git('git branch --show-current'))->toBe('main')
+        ->and($git('git branch --list "release/*"'))->toBe('')
+        ->and($git('git status --porcelain'))->toBe('');
 
     File::deleteDirectory($repo);
     File::deleteDirectory("{$repo}-origin.git");
@@ -139,7 +161,7 @@ it('runs composer audit --locked and then pnpm audit --prod --audit-level=high w
     }
 
     $result = Process::path($repo)
-        ->env(['PATH' => $bin.PATH_SEPARATOR.getenv('PATH'), 'LATHE_RELEASE_BUILD' => 'mkdir -p dist && echo built > dist/app.js', 'LATHE_RELEASE_LICENSES_JSON' => "{$repo}/licenses.json"])
+        ->env(['PATH' => $bin.PATH_SEPARATOR.getenv('PATH'), 'LATHE_RELEASE_BUILD' => 'mkdir -p dist && echo built > dist/app.js', 'LATHE_RELEASE_LICENSES_JSON' => "{$repo}/licenses.json", 'LATHE_RELEASE_SMOKE_COMMAND' => 'true'])
         ->run(['bash', 'scripts/release.sh', '1.0.0-beta.1']);
     $calls = File::get("{$repo}-calls.log");
 
@@ -165,7 +187,7 @@ it('refuses a cut whose two builds of dist differ, leaving main as it was, and c
     $repo = releaseRepo();
     $git = fn (string $command) => trim(Process::path($repo)->run($command)->output());
     $build = fn (string $command) => Process::path($repo)
-        ->env(['LATHE_RELEASE_AUDIT' => 'true', 'LATHE_RELEASE_BUILD' => $command, 'LATHE_RELEASE_LICENSES_JSON' => "{$repo}/licenses.json"])
+        ->env(['LATHE_RELEASE_AUDIT' => 'true', 'LATHE_RELEASE_BUILD' => $command, 'LATHE_RELEASE_LICENSES_JSON' => "{$repo}/licenses.json", 'LATHE_RELEASE_SMOKE_COMMAND' => 'true'])
         ->run(['bash', 'scripts/release.sh', '1.0.0-beta.1']);
     $main = fn () => [File::get("{$repo}/package.json"), File::get("{$repo}/packages/core/package.json"), File::get("{$repo}/CHANGELOG.md")];
     $before = $main();
@@ -196,7 +218,7 @@ it('refuses a cut whose two builds of dist differ, leaving main as it was, and c
 it('compares the files two builds write, not what the build prints, and refuses a build that fails', function () {
     $repo = releaseRepo();
     $build = fn (string $command) => Process::path($repo)
-        ->env(['LATHE_RELEASE_AUDIT' => 'true', 'LATHE_RELEASE_BUILD' => $command, 'LATHE_RELEASE_LICENSES_JSON' => "{$repo}/licenses.json"])
+        ->env(['LATHE_RELEASE_AUDIT' => 'true', 'LATHE_RELEASE_BUILD' => $command, 'LATHE_RELEASE_LICENSES_JSON' => "{$repo}/licenses.json", 'LATHE_RELEASE_SMOKE_COMMAND' => 'true'])
         ->run(['bash', 'scripts/release.sh', '1.0.0-beta.1']);
 
     $failed = $build('mkdir -p dist && echo same > dist/app.js && false');
@@ -218,5 +240,6 @@ it('names both of its refusals in its header comment', function () {
 
     expect($header)->toContain('entries under ## [Unreleased]')
         ->and($header)->toContain('composer audit --locked')
-        ->and($header)->toContain('pnpm audit --prod --audit-level=high');
+        ->and($header)->toContain('pnpm audit --prod --audit-level=high')
+        ->and($header)->toContain('scripts/release-smoke.sh');
 });
