@@ -362,7 +362,7 @@ it('names every place a user meets the filter bar and the inline cell changed in
         );
 })->group('frontend');
 
-it('names in the 1.0.0-beta.13 section every English string added or removed since 1.0.0-beta.12', function () {
+it('names in the 1.0.0-beta.14 section every English string added or removed since 1.0.0-beta.12', function () {
     $root = dirname(__DIR__, 3);
     $keys = fn (string $json) => array_map('strval', array_keys((array) json_decode($json, true)));
     $at = fn (string $tag) => Process::path($root)->run(['git', 'show', "{$tag}:lang/en.json"]);
@@ -371,10 +371,10 @@ it('names in the 1.0.0-beta.13 section every English string added or removed sin
         test()->markTestSkipped('This clone has no 1.0.0-beta.12 tag to compare with.');
     }
 
-    $released = $at('v1.0.0-beta.13');
+    $released = $at('v1.0.0-beta.14');
     $before = $keys($at('v1.0.0-beta.12')->output());
     $after = $keys($released->successful() ? $released->output() : File::get("{$root}/lang/en.json"));
-    $section = explode('## [1.0.0-beta.12]', explode('## [1.0.0-beta.13]', File::get("{$root}/CHANGELOG.md"), 2)[1] ?? '', 2)[0];
+    $section = explode('## [1.0.0-beta.12]', explode('## [1.0.0-beta.14]', File::get("{$root}/CHANGELOG.md"), 2)[1] ?? '', 2)[0];
     preg_match_all('/`([^`]+)`/u', (string) preg_replace('/^ *```.*?^ *```$/ms', '', $section), $named);
     $changed = [...array_diff($before, $after), ...array_diff($after, $before)];
 
@@ -382,12 +382,12 @@ it('names in the 1.0.0-beta.13 section every English string added or removed sin
         ->and(array_values(array_diff($changed, $named[1])))->toBe([]);
 })->group('frontend');
 
-it('opens with 1.0.0-beta.13 and tells a 1.0.0-beta.12 app each change that can break it', function () {
+it('opens with 1.0.0-beta.14 and tells a 1.0.0-beta.12 app each change that can break it', function () {
     $guide = File::get(dirname(__DIR__, 3).'/docs/getting-started/upgrade.md');
-    $section = explode("\n## ", explode("## From 1.0.0-beta.12 to 1.0.0-beta.13\n", $guide, 2)[1] ?? '', 2)[0];
+    $section = explode("\n## ", explode("## From 1.0.0-beta.12 to 1.0.0-beta.14\n", $guide, 2)[1] ?? '', 2)[0];
     preg_match('/^## From .*$/m', $guide, $heading);
 
-    expect($heading[0] ?? null)->toBe('## From 1.0.0-beta.12 to 1.0.0-beta.13')
+    expect($heading[0] ?? null)->toBe('## From 1.0.0-beta.12 to 1.0.0-beta.14')
         ->and($section)->toContain(
             'answer 403 to a user who fails `viewAny` on the related Resource',
             'the permission plugin\'s role and permission fields show only to a user who passes `viewAny`',
@@ -406,8 +406,8 @@ it('opens with 1.0.0-beta.13 and tells a 1.0.0-beta.12 app each change that can 
         );
 })->group('frontend');
 
-it('names every place a user meets the pickers and role fields changed in 1.0.0-beta.13', function () {
-    $section = explode('## [1.0.0-beta.12]', explode('## [1.0.0-beta.13]', File::get(dirname(__DIR__, 3).'/CHANGELOG.md'), 2)[1] ?? '', 2)[0];
+it('names every place a user meets the pickers and role fields changed in 1.0.0-beta.14', function () {
+    $section = explode('## [1.0.0-beta.12]', explode('## [1.0.0-beta.14]', File::get(dirname(__DIR__, 3).'/CHANGELOG.md'), 2)[1] ?? '', 2)[0];
     $entry = fn (string $start) => (string) collect(explode("\n", $section))->first(fn (string $line) => str_contains($line, $start));
 
     expect($entry('answer 403 to a user who fails `viewAny` on the related Resource'))

@@ -10,7 +10,7 @@ This page is generated from the [changelog](changelog.md). Its API changes are t
 
 It covers every release, newest first: each section holds the changes between a release and the one before it. Going up several releases, read each section from the release you run to the newest. Check each API change against your code before you update, and tell your users about the behaviour changes.
 
-## From 1.0.0-beta.12 to 1.0.0-beta.13
+## From 1.0.0-beta.12 to 1.0.0-beta.14
 
 ### API changes
 
