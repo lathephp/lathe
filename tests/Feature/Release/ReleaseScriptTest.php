@@ -128,6 +128,23 @@ it('refuses a cut whose audit fails, before the release branch exists', function
     File::deleteDirectory("{$repo}-origin.git");
 })->group('frontend');
 
+it('runs scripts/release-smoke.sh on the built dist/ when no smoke command is set', function () {
+    $repo = releaseRepo();
+    File::put("{$repo}/scripts/release-smoke.sh", "test -f dist/app.js && echo smoked > \"\$0.ran\"\n");
+    Process::path($repo)->run('git add -A && git commit -qm "Smoke stub"')->throw();
+
+    $result = Process::path($repo)
+        ->env(['LATHE_RELEASE_AUDIT' => 'true', 'LATHE_RELEASE_BUILD' => 'mkdir -p dist && echo built > dist/app.js', 'LATHE_RELEASE_LICENSES_JSON' => "{$repo}/licenses.json"])
+        ->run(['bash', 'scripts/release.sh', '1.0.0-beta.1']);
+
+    expect($result->exitCode())->toBe(0, $result->errorOutput())
+        ->and($result->output())->toContain('release: bash scripts/release-smoke.sh passed')
+        ->and(File::get("{$repo}/scripts/release-smoke.sh.ran"))->toBe("smoked\n");
+
+    File::deleteDirectory($repo);
+    File::deleteDirectory("{$repo}-origin.git");
+})->group('frontend');
+
 // The release workflow smokes the tag only after it is pushed, and Packagist keeps a pushed tag.
 it('refuses a cut whose smoke install fails, leaving main as it was and no tag', function () {
     $repo = releaseRepo();
