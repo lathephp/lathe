@@ -1,0 +1,1 @@
+import{t as e}from"./useRecentSearches-j8vy8hw8.js";import{t}from"./useFormDraft-iv3s5gdf.js";import{queryClient as n}from"@lathephp/core";var r;function i(i){let o=a(i.auth?.user);t(o),e(o),r!=null&&o!==r&&n.clear(),r=o}function a(e){if(e==null)return null;let{email:t,name:n}=e;return t??n??``}function o(){t(null),e(null),n.clear(),r=null}export{o as n,a as r,i as t};

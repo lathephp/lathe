@@ -4,7 +4,7 @@ All notable changes to Lathe are listed here. The format follows [Keep a Changel
 
 ## [Unreleased]
 
-## [1.0.0-beta.14] - Unreleased
+## [1.0.0-beta.14] - 2026-11-14
 
 1.0.0-beta.13 was tagged from this code on 2026-11-14 but reached Packagist only: its release run stopped when the clean-app install check could not pin Laravel 13.35.0, which Composer refuses under a security advisory fixed in 13.40.0, so its npm packages and GitHub release were never published. 1.0.0-beta.14 ships the same code; upgrade from 1.0.0-beta.12 or 1.0.0-beta.13 to it. `lathe/permission` stays at 1.0.0-beta.13, released beside it.
 

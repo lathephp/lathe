@@ -1,0 +1,1 @@
+import{S as e,x as t}from"./_lathe-vendor_react-oaj751s7.js";import{n}from"./useRenderElement-bk1c6ojq.js";e();var r=t(function(e,t){let{className:r,render:i,orientation:a=`horizontal`,style:o,...s}=e;return n(`div`,e,{state:{orientation:a},ref:t,props:[{role:`separator`,"aria-orientation":a},s]})});export{r as t};
