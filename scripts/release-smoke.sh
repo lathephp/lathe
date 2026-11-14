@@ -2,7 +2,7 @@
 # Installs the packed release into a clean Laravel app, the way a reader of the README does.
 #   bash scripts/release-smoke.sh [workdir]
 # It packs the package with `composer archive` (dist/ must be built) and each npm package with
-# `pnpm pack`, creates a Laravel 13.35.0 app, requires lathe/lathe:^1.0@beta from the local
+# `pnpm pack`, creates a Laravel 13.40.0 app, requires lathe/lathe:^1.0@beta from the local
 # archive, runs lathe:install and lathe:doctor, asks /lathe/login for a 200, checks every built
 # asset the manifest names reached the app, then signs in and opens the Users list.
 # The version is the newest CHANGELOG release heading, so a dry run on main smokes the
@@ -17,7 +17,7 @@ if [[ -z $work ]]; then
     owned=$work
     trap 'rm -rf "$owned"' EXIT
 fi
-laravel=13.35.0
+laravel=13.40.0
 port=${LATHE_SMOKE_PORT:-8977}
 version=$(grep -m1 -oP '^## \[\K[0-9][^\]]*(?=\])' "$repo/CHANGELOG.md")
 
