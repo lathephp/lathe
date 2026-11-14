@@ -1,0 +1,1 @@
+import{c as e}from"react/compiler-runtime";import{jsx as t}from"react/jsx-runtime";function n(n){let r=e(3),{html:i,className:a}=n,o;return r[0]!==a||r[1]!==i?(o=t(`div`,{className:a,dangerouslySetInnerHTML:i}),r[0]=a,r[1]=i,r[2]=o):o=r[2],o}export{n as t};

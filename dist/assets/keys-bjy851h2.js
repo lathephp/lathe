@@ -1,0 +1,1 @@
+var e=new Set;function t(){e.forEach(e=>{e()})}function n(t){return e.add(t),()=>{e.delete(t)}}function r(e){return(`nativeEvent`in e?e.nativeEvent:e).isComposing}export{n,t as r,r as t};

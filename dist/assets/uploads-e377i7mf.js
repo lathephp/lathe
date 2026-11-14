@@ -1,0 +1,1 @@
+import{createContext as e}from"react";var t=e(null);export{t};
