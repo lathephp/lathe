@@ -60,7 +60,7 @@ function tick(...ids: number[]) {
 async function items(): Promise<string[]> {
   fireEvent.click(await screen.findByRole('button', { name: 'Delete' }));
 
-  return within(screen.getByRole('menu', { name: 'Delete' }))
+  return within(await screen.findByRole('menu', { name: 'Delete' }))
     .getAllByRole('menuitem')
     .map((item) => item.textContent);
 }
@@ -79,7 +79,10 @@ describe('the delete menu', () => {
     tick(1);
     expect(await items()).toEqual(['Delete Selected', 'Force Delete Selected']);
 
-    fireEvent.click(screen.getByRole('button', { name: 'Delete' }));
+    fireEvent.keyDown(screen.getByRole('menu', { name: 'Delete' }), { key: 'Escape' });
+    await waitFor(() => {
+      expect(screen.queryByRole('menu', { name: 'Delete' })).toBeNull();
+    });
     tick(2);
     expect(await items()).toEqual(['Delete Selected', 'Force Delete Selected', 'Restore Selected']);
   });
@@ -97,9 +100,9 @@ describe('the delete menu', () => {
     renderPosts([{ id: 1 }, { id: 2 }, { id: 3 }]);
     tick(1, 3);
     fireEvent.click(await screen.findByRole('button', { name: 'Delete' }));
-    fireEvent.click(screen.getByRole('menuitem', { name: 'Delete Selected' }));
+    fireEvent.click(await screen.findByRole('menuitem', { name: 'Delete Selected' }));
 
-    const dialog = screen.getByRole('alertdialog', { name: 'Delete 2 resource(s)?' });
+    const dialog = await screen.findByRole('alertdialog', { name: 'Delete 2 resource(s)?' });
     fireEvent.click(within(dialog).getByRole('button', { name: 'Delete Selected' }));
 
     await waitFor(() => {
@@ -118,28 +121,36 @@ describe('the delete menu', () => {
     const trigger = await screen.findByRole('button', { name: 'Delete' });
     trigger.focus();
     fireEvent.click(trigger);
-    const item = screen.getByRole('menuitem', { name: 'Delete Selected' });
+    const item = await screen.findByRole('menuitem', { name: 'Delete Selected' });
     item.focus();
     fireEvent.click(item);
-    const dialog = screen.getByRole('alertdialog', { name: 'Delete 1 resource(s)?' });
+    const dialog = await screen.findByRole('alertdialog', { name: 'Delete 1 resource(s)?' });
 
-    expect(dialog.contains(document.activeElement)).toBe(true);
+    await waitFor(() => {
+      expect(document.activeElement).toBe(within(dialog).getByRole('button', { name: 'Keep 1 resource(s)' }));
+    });
 
     fireEvent.keyDown(document.activeElement ?? document.body, { key: 'Escape' });
 
-    expect(screen.queryByRole('alertdialog')).toBeNull();
-    expect(document.activeElement).toBe(screen.getByRole('button', { name: 'Delete' }));
+    await waitFor(() => {
+      expect(screen.queryByRole('alertdialog')).toBeNull();
+    });
+    await waitFor(() => {
+      expect(document.activeElement).toBe(screen.getByRole('button', { name: 'Delete' }));
+    });
   });
 
   it('names the safe button for what it keeps, focuses it and confirms with the solid destructive button', async () => {
     renderPosts([{ id: 1 }, { id: 2 }]);
     tick(1, 2);
     fireEvent.click(await screen.findByRole('button', { name: 'Delete' }));
-    fireEvent.click(screen.getByRole('menuitem', { name: 'Delete Selected' }));
-    const dialog = screen.getByRole('alertdialog', { name: 'Delete 2 resource(s)?' });
+    fireEvent.click(await screen.findByRole('menuitem', { name: 'Delete Selected' }));
+    const dialog = await screen.findByRole('alertdialog', { name: 'Delete 2 resource(s)?' });
 
     expect(within(dialog).getAllByRole('button').map((button) => button.textContent)).toEqual(['Keep 2 resource(s)', 'Delete Selected']);
-    expect(document.activeElement).toBe(within(dialog).getByRole('button', { name: 'Keep 2 resource(s)' }));
+    await waitFor(() => {
+      expect(document.activeElement).toBe(within(dialog).getByRole('button', { name: 'Keep 2 resource(s)' }));
+    });
     expect(within(dialog).getByRole('button', { name: 'Delete Selected' }).className).toContain('cn-button-variant-destructive-solid');
   });
 
@@ -148,12 +159,67 @@ describe('the delete menu', () => {
     renderPosts([{ id: 1, trashed: true }]);
     tick(1);
     fireEvent.click(await screen.findByRole('button', { name: 'Delete' }));
-    fireEvent.click(screen.getByRole('menuitem', { name: 'Restore Selected' }));
-    fireEvent.click(within(screen.getByRole('alertdialog')).getByRole('button', { name: 'Restore Selected' }));
+    fireEvent.click(await screen.findByRole('menuitem', { name: 'Restore Selected' }));
+    fireEvent.click(within(await screen.findByRole('alertdialog')).getByRole('button', { name: 'Restore Selected' }));
 
     await waitFor(() => {
       expect(__panel.toasts.get()[0]?.message).toBe('Operation failed. Please try again.');
     });
     expect(__panel.toasts.get()[0]?.action?.label).toBe('Retry');
+  });
+
+  describe('from the keyboard', () => {
+    async function opened() {
+      renderPosts([{ id: 1 }, { id: 2, trashed: true }]);
+      tick(1, 2);
+      const trigger = await screen.findByRole('button', { name: 'Delete' });
+      trigger.focus();
+      fireEvent.click(trigger);
+      const menu = await screen.findByRole('menu', { name: 'Delete' });
+
+      return { trigger, menu, item: (name: string) => within(menu).getByRole('menuitem', { name }) };
+    }
+
+    it('is the kit menu, with the kit item on each operation', async () => {
+      const { menu } = await opened();
+
+      expect(menu.getAttribute('data-slot')).toBe('dropdown-menu-content');
+      expect(within(menu).getAllByRole('menuitem').map((item) => item.getAttribute('data-slot'))).toEqual(['dropdown-menu-item', 'dropdown-menu-item', 'dropdown-menu-item']);
+    });
+
+    it('moves down from the first item with ArrowDown and to the last with End', async () => {
+      const { item } = await opened();
+      item('Delete Selected').focus();
+
+      fireEvent.keyDown(item('Delete Selected'), { key: 'ArrowDown' });
+      await waitFor(() => {
+        expect(document.activeElement).toBe(item('Force Delete Selected'));
+      });
+
+      fireEvent.keyDown(item('Force Delete Selected'), { key: 'End' });
+      await waitFor(() => {
+        expect(document.activeElement).toBe(item('Restore Selected'));
+      });
+    });
+
+    it('closes on Escape and gives the focus back to Delete', async () => {
+      const { trigger, item } = await opened();
+      item('Force Delete Selected').focus();
+
+      fireEvent.keyDown(item('Force Delete Selected'), { key: 'Escape' });
+
+      await waitFor(() => {
+        expect(screen.queryByRole('menu', { name: 'Delete' })).toBeNull();
+      });
+      await waitFor(() => {
+        expect(document.activeElement).toBe(trigger);
+      });
+    });
+
+    it('draws its menu on the body, outside the content', async () => {
+      const { menu } = await opened();
+
+      expect(menu.closest('#content')).toBeNull();
+    });
   });
 });

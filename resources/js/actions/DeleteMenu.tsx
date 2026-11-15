@@ -1,5 +1,5 @@
 import { request, toast, useLathe, useTranslation } from '@lathephp/core';
-import { Button } from '@lathephp/ui';
+import { Button, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@lathephp/ui';
 import { ChevronDown } from 'lucide-react';
 import { useId, useRef, useState } from 'react';
 import { Modal, ModalFooter, ModalHeader, ModalTitle } from '../components/Modal';
@@ -28,17 +28,12 @@ interface BatchResult {
   bulk_run?: { id: string; total: number };
 }
 
-const itemClass =
-  'flex w-full items-center rounded-md px-2 py-1.5 text-start text-sm outline-none hover:bg-muted focus-visible:ring-2 focus-visible:ring-ring';
-
 /** Delete, force delete and restore over the selection, each after a confirm naming the count. */
 export function DeleteMenu({ uriKey, lens, softDeletes, selection, rows, total, state }: DeleteMenuProps) {
   const { __ } = useTranslation();
   const { apiPath } = useLathe();
-  const menuId = useId();
   const titleId = useId();
-  const [open, setOpen] = useState(false);
-  const trigger = useRef<HTMLButtonElement>(null);
+  const chosen = useRef<BatchOperation | null>(null);
   const [confirming, setConfirming] = useState<BatchOperation | null>(null);
   const operations = batchOperations(softDeletes, selection, rows);
   const count = selection.all ? (total ?? 0) : selection.selected.size;
@@ -106,52 +101,39 @@ export function DeleteMenu({ uriKey, lens, softDeletes, selection, rows, total, 
   }
 
   return (
-    <div className="relative">
-      <Button
-        ref={trigger}
-        variant="outline"
-        size="sm"
-        aria-haspopup="menu"
-        aria-expanded={open}
-        aria-controls={open ? menuId : undefined}
-        onClick={() => {
-          setOpen(!open);
+    <>
+      {/* The confirm opens once the menu has closed and the focus is back on the button, so the confirm's opener is the button, not the item that is going away. */}
+      <DropdownMenu
+        onOpenChangeComplete={(opened) => {
+          if (!opened && chosen.current !== null) {
+            const operation = chosen.current;
+            chosen.current = null;
+            // The menu returns the focus to the button in a microtask after it unmounts; a timeout lets that land first.
+            setTimeout(() => {
+              setConfirming(operation);
+            }, 0);
+          }
         }}
       >
-        {__('Delete')}
-        <ChevronDown aria-hidden="true" className="size-4" />
-      </Button>
-      {open && (
-        <div
-          id={menuId}
-          role="menu"
-          aria-label={__('Delete')}
-          tabIndex={-1}
-          className="absolute end-0 top-full z-20 mt-1 w-56 rounded-lg border border-border bg-background p-1 shadow-lg"
-          onKeyDown={(event) => {
-            if (event.key === 'Escape') {
-              trigger.current?.focus();
-              setOpen(false);
-            }
-          }}
-        >
+        <DropdownMenuTrigger render={<Button variant="outline" size="sm" />}>
+          {__('Delete')}
+          <ChevronDown aria-hidden="true" className="size-4" />
+        </DropdownMenuTrigger>
+        {/* On the body, above the sidebar; it ends at the button's end edge and moves in to stay 8 px inside the window. */}
+        <DropdownMenuContent align="end" collisionPadding={8} aria-label={__('Delete')} className="w-56">
           {operations.map((operation) => (
-            <button
+            <DropdownMenuItem
               key={operation}
-              type="button"
-              role="menuitem"
-              className={operation === 'restore' ? itemClass : `${itemClass} text-destructive`}
+              variant={operation === 'restore' ? 'default' : 'destructive'}
               onClick={() => {
-                trigger.current?.focus();
-                setOpen(false);
-                setConfirming(operation);
+                chosen.current = operation;
               }}
             >
               {labels[operation]}
-            </button>
+            </DropdownMenuItem>
           ))}
-        </div>
-      )}
+        </DropdownMenuContent>
+      </DropdownMenu>
       {confirming !== null && (
         <Modal
           role="alertdialog"
@@ -184,6 +166,6 @@ export function DeleteMenu({ uriKey, lens, softDeletes, selection, rows, total, 
           </ModalFooter>
         </Modal>
       )}
-    </div>
+    </>
   );
 }
