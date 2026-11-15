@@ -120,6 +120,17 @@ describe('Calendar', () => {
 
     expect((select.mock.calls[0]?.[0] as Date).toDateString()).toBe(new Date(2026, 1, 14).toDateString());
   });
+
+  it('turns its month arrows round under right to left once, by its own rotation', () => {
+    render(<Calendar mode="single" defaultMonth={new Date(2026, 1, 1)} />);
+
+    const arrows = [screen.getByRole('button', { name: /previous month/i }), screen.getByRole('button', { name: /next month/i })];
+
+    for (const arrow of arrows) {
+      expect(arrow.querySelector('svg')?.getAttribute('class')).not.toContain('cn-rtl-flip');
+    }
+    expect(screen.getByRole('grid').closest('.cn-calendar')?.className).toContain('rtl:**:[.rdp-button\\_next>svg]:rotate-180');
+  });
 });
 
 describe('CodeEditor', () => {

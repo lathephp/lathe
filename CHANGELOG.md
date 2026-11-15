@@ -26,6 +26,7 @@ All notable changes to Lathe are listed here. The format follows [Keep a Changel
 - The `@lathephp/ui` package ships only the modules of the kit: its build empties `dist` first and no longer writes the declarations of its tests, so the package held 7 `dist/__tests__` files and leftovers of old builds such as `dist/sonner.js` and `dist/Badge.d.ts`.
 - A disabled kit `Checkbox` or `RadioGroupItem` of `@lathephp/ui` is dimmed with a not-allowed cursor in every style, where 7 of the 8 styles drew it like an enabled one, and an indeterminate `Checkbox` shows its minus on the style's checked fill in vega, lyra, maia, mira, luma, rhea and sera, where it drew an empty box.
 - Under right to left, the kit parts of `@lathephp/ui` sit on the leading side in all 8 styles: a dialog's and a sheet's close button, a menu item's check mark, inset and shortcut, the select and combobox indicators, the accordion's chevron and the input group's addons, where each stayed on the physical right or left. The corners of a button group, a toggle group and a calendar's selected range follow the direction too.
+- Under right to left, a breadcrumb's separator, the pagination's Previous and Next chevrons, a submenu's chevron and the sidebar trigger's icon point the other way: the `cn-rtl-flip` class they carry had no rule. The calendar's month arrows keep their own turn and are not turned twice.
 
 ## [1.0.0-beta.15] - 2026-11-15
 

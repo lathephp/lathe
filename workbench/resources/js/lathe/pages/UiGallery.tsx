@@ -33,8 +33,10 @@ import {
   DialogTitle,
   DialogTrigger,
   DropdownMenu,
+  DropdownMenuCheckboxItem,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
   Input,
   Kbd,
@@ -220,6 +222,8 @@ export default function UiGallery() {
             <DropdownMenuContent>
               <DropdownMenuItem>{__('Refund')}</DropdownMenuItem>
               <DropdownMenuItem variant="destructive">{__('Delete')}</DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuCheckboxItem defaultChecked>{__('Notify the customer')}</DropdownMenuCheckboxItem>
             </DropdownMenuContent>
           </DropdownMenu>
         </Demo>

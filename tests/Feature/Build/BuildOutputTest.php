@@ -176,6 +176,15 @@ function buildOutputPanelCss(): string
     return buildOutputFile(buildOutputManifest()['resources/js/app.tsx']['css'][0] ?? '');
 }
 
+// The kit marks a chevron or a panel icon that points along the line with cn-rtl-flip.
+it('turns a cn-rtl-flip icon round under right to left', function () {
+    preg_match_all('/(?:^|[{}])\s*(\.cn-rtl-flip[^{}]*)\{([^{}]*)\}/m', buildOutputPanelCss(), $rules, PREG_SET_ORDER);
+
+    $flips = array_filter($rules, fn (array $rule) => str_contains($rule[1], 'rtl') && str_contains($rule[2], 'rotate'));
+
+    expect($flips)->not->toBeEmpty();
+});
+
 it("keeps no look rule of the panel's own button variants and sizes", function () {
     expect(buildOutputPanelCss())->not->toMatch('/\.lathe-button-(default|outline|ghost|destructive|size-)/');
 });

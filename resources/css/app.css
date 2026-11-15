@@ -346,6 +346,14 @@
   }
 }
 
+/* An icon that points along the line, such as a breadcrumb or pagination chevron, turns round
+   under right to left. The calendar's month arrows turn by their own rotation instead. */
+@layer components {
+  .cn-rtl-flip {
+    @apply rtl:rotate-180;
+  }
+}
+
 /* The panel's first-paint Button (components/ui/Button.tsx): the kit Button's structure. Its look
    is the style's cn-button rules, so its first-load script carries only the class names. */
 @layer components {
