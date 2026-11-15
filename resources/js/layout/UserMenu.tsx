@@ -6,7 +6,7 @@ import { NavIcon } from '../components/NavIcon';
 import { cn } from '../lib/cn';
 import { showKeys } from '../lib/keys';
 import type { NavigationItem } from '../types';
-import { menuClass, menuItemClass as rowClass, useMenuKeys } from '../lib/menuKeys';
+import { menuClasses, useMenuKeys } from '../lib/menuKeys';
 
 const AppearanceSwitcher = lazy(() => import('./AppearanceSwitcher').then((module) => ({ default: module.AppearanceSwitcher })));
 
@@ -55,7 +55,7 @@ export function UserMenu({ user, items, logoutPath, collapsed }: UserMenuProps) 
           tabIndex={-1}
           data-open=""
           data-side="top"
-          className={`${menuClass} absolute inset-x-2 bottom-full z-10 flex flex-col`}
+          className={`${menuClasses.content} absolute inset-x-2 bottom-full z-10 flex flex-col`}
         >
           <div role="none" className="lathe-user border-b border-border pb-3">
             {avatar}
@@ -70,7 +70,7 @@ export function UserMenu({ user, items, logoutPath, collapsed }: UserMenuProps) 
               href={item.href}
               role="menuitem"
               data-variant="default"
-              className={rowClass}
+              className={menuClasses.item}
               onClick={() => {
                 setOpen(false);
               }}
@@ -83,7 +83,7 @@ export function UserMenu({ user, items, logoutPath, collapsed }: UserMenuProps) 
             type="button"
             role="menuitem"
             data-variant="default"
-            className={rowClass}
+            className={menuClasses.item}
             onClick={() => {
               setOpen(false);
               showKeys();
@@ -101,7 +101,7 @@ export function UserMenu({ user, items, logoutPath, collapsed }: UserMenuProps) 
             type="button"
             role="menuitem"
             data-variant="default"
-            className={rowClass}
+            className={menuClasses.item}
             onClick={() => {
               router.post(logoutPath);
             }}

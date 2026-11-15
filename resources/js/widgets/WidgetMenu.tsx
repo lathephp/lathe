@@ -1,7 +1,7 @@
 import { Link } from '@inertiajs/react';
 import { useTranslation } from '@lathephp/core';
 import { useId, useRef, useState } from 'react';
-import { menuClass, menuItemClass as itemClass, useMenuKeys } from '../lib/menuKeys';
+import { menuClasses, useMenuKeys } from '../lib/menuKeys';
 
 interface WidgetMenuProps {
   name: string;
@@ -50,13 +50,13 @@ export function WidgetMenu({ name, onRefresh, link, csv }: WidgetMenuProps) {
           tabIndex={-1}
           data-open=""
           data-side="bottom"
-          className={`${menuClass} absolute end-0 top-full z-10 mt-1 w-52`}
+          className={`${menuClasses.content} absolute end-0 top-full z-10 mt-1 w-52`}
         >
           <button
             type="button"
             role="menuitem"
             data-variant="default"
-            className={itemClass}
+            className={menuClasses.item}
             onClick={() => {
               setOpen(false);
               onRefresh();
@@ -65,7 +65,7 @@ export function WidgetMenu({ name, onRefresh, link, csv }: WidgetMenuProps) {
             {__('Refresh')}
           </button>
           {link !== null && (
-            <Link role="menuitem" data-variant="default" href={link} className={itemClass}>
+            <Link role="menuitem" data-variant="default" href={link} className={menuClasses.item}>
               {__('Open records')}
             </Link>
           )}
@@ -75,7 +75,7 @@ export function WidgetMenu({ name, onRefresh, link, csv }: WidgetMenuProps) {
               data-variant="default"
               href={csv}
               download
-              className={itemClass}
+              className={menuClasses.item}
               onClick={() => {
                 setOpen(false);
               }}

@@ -196,6 +196,16 @@ describe('a dashboard widget menu', () => {
     expect(reached).not.toHaveBeenCalled();
   });
 
+  // The kit's items light up on focus, and a kit menu focuses the item under the pointer.
+  it('focuses the item the pointer moves onto, so it lights up as a kit item does', async () => {
+    renderDashboard([descriptor('orders-per-day', { csv: true })], { 'orders-per-day': [value('orders-per-day', 12, '/lathe/resources/orders')] });
+    const [, open] = within(await openMenu('orders-per-day', 'Orders per day')).getAllByRole('menuitem');
+
+    fireEvent.pointerMove(open as HTMLElement);
+
+    expect(document.activeElement).toBe(open);
+  });
+
   it('closes on a press outside it', async () => {
     renderDashboard([descriptor('orders')], { orders: [value('orders', 12)] });
     await openMenu('orders', 'Orders');

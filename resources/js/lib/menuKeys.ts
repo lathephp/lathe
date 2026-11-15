@@ -1,9 +1,11 @@
 import { type RefObject, useEffectEvent, useLayoutEffect } from 'react';
 
-// The kit's DropdownMenuContent and DropdownMenuItem classes, without the ones that read Base UI's variables.
-export const menuClass = 'cn-dropdown-menu-content cn-dropdown-menu-content-logical cn-menu-target cn-menu-translucent overflow-hidden outline-none';
-export const menuItemClass =
-  'cn-dropdown-menu-item group/dropdown-menu-item relative flex w-full cursor-default items-center outline-hidden select-none [&_svg]:pointer-events-none [&_svg]:shrink-0';
+// The kit's DropdownMenuContent and DropdownMenuItem classes, without the ones that read Base UI's
+// variables. One object, so the build keeps one copy here instead of inlining the strings in each menu's chunk.
+export const menuClasses = {
+  content: 'cn-dropdown-menu-content cn-dropdown-menu-content-logical cn-menu-target cn-menu-translucent overflow-hidden outline-none',
+  item: 'cn-dropdown-menu-item group/dropdown-menu-item relative flex w-full cursor-default items-center outline-hidden select-none [&_svg]:pointer-events-none [&_svg]:shrink-0',
+};
 
 const items = (root: HTMLElement | null): HTMLElement[] => [...(root?.querySelectorAll<HTMLElement>('[role="menuitem"]') ?? [])];
 
@@ -11,11 +13,14 @@ const items = (root: HTMLElement | null): HTMLElement[] => [...(root?.querySelec
  * The behaviour of a first-paint menu, on the element around its trigger and its list. The trigger
  * is the `[aria-haspopup="menu"]` button inside it. The first item takes focus when the menu opens.
  * The arrow keys wrap, Home and End go to the ends, and a typed letter goes to the next item that
- * starts with it (letters typed within 500 ms add up). Escape closes the menu and focuses the
- * trigger, and so does a press outside the element. The keys it uses stop at the menu, so a page
- * shortcut never sees them.
+ * starts with it (letters typed within 500 ms add up). The item under the pointer takes the focus,
+ * so it lights up as a kit item does. Escape closes the menu and focuses the trigger; a press
+ * outside the element closes it. The keys it uses stop at the menu, so a page shortcut never sees them.
  */
 export function useMenuKeys(root: RefObject<HTMLElement | null>, open: boolean, close: () => void): void {
+  // On first paint in the shell and the index, where the compiler's cache would only add bytes.
+  'use no memo';
+
   const press = useEffectEvent((event: KeyboardEvent, typed: { text: string; at: number }) => {
     const { key } = event;
     const list = items(root.current);
@@ -47,6 +52,9 @@ export function useMenuKeys(root: RefObject<HTMLElement | null>, open: boolean, 
     event.stopPropagation();
     to?.focus();
   });
+  const hover = (event: PointerEvent) => {
+    (event.target instanceof Element ? event.target.closest<HTMLElement>('[role="menuitem"]') : null)?.focus();
+  };
   const outside = useEffectEvent((event: PointerEvent) => {
     if (!(event.target instanceof Node) || root.current?.contains(event.target) !== true) {
       close();
@@ -75,10 +83,12 @@ export function useMenuKeys(root: RefObject<HTMLElement | null>, open: boolean, 
     };
     items(element)[0]?.focus();
     element.addEventListener('keydown', onKeyDown);
+    element.addEventListener('pointermove', hover);
     document.addEventListener('pointerdown', outside);
 
     return () => {
       element.removeEventListener('keydown', onKeyDown);
+      element.removeEventListener('pointermove', hover);
       document.removeEventListener('pointerdown', outside);
     };
   }, [open, root]);

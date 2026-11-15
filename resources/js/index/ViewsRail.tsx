@@ -6,7 +6,7 @@ import { Button } from '../components/ui/Button';
 import { NavIcon } from '../components/NavIcon';
 import { Badge, toneVariants } from '../components/ui/Badge';
 import { cn } from '../lib/cn';
-import { menuClass, menuItemClass, useMenuKeys } from '../lib/menuKeys';
+import { menuClasses, useMenuKeys } from '../lib/menuKeys';
 import { DeleteTabDialog, RenameTabDialog, SaveTabDialog } from './lazy';
 import type { BadgeType, IndexProps, SavedTab, TabCount } from './types';
 import type { SharedProps } from '../types';
@@ -97,7 +97,7 @@ function ViewOptionsMenu({ tab, onChoose }: { tab: SavedTab; onChoose: (kind: 'r
           tabIndex={-1}
           data-open=""
           data-side="bottom"
-          className={`${menuClass} absolute end-0 top-full z-10 mt-1 w-36`}
+          className={`${menuClasses.content} absolute end-0 top-full z-10 mt-1 w-36`}
         >
           {(['rename', 'delete'] as const).map((kind) => (
             <button
@@ -105,7 +105,7 @@ function ViewOptionsMenu({ tab, onChoose }: { tab: SavedTab; onChoose: (kind: 'r
               type="button"
               role="menuitem"
               data-variant={kind === 'delete' ? 'destructive' : 'default'}
-              className={menuItemClass}
+              className={menuClasses.item}
               onClick={() => {
                 setOpen(false);
                 onChoose(kind);
