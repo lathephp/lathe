@@ -3,6 +3,7 @@ import { ChevronDown } from 'lucide-react';
 import { Fragment, lazy, Suspense, useState, type ReactNode } from 'react';
 import { Card } from '../components/ui/Card';
 import { SafeHtml } from '../components/SafeHtml';
+import { tabKeys, tabsList, tabsRoot, tabsTrigger } from '../components/TabStrip';
 import type { DetailFieldData, LayoutBlock, PanelBlock, RelationFieldSchema, TabData, TabGroupBlock } from '../fields/types';
 import { cn } from '../lib/cn';
 import { SingularRelationPanel } from './SingularRelationPanel';
@@ -243,14 +244,21 @@ function TabGroup({ group, ...props }: RecordLayoutProps & { group: TabGroupBloc
     window.history.replaceState(window.history.state, '', url);
   }
 
+  const keys = tabKeys(select, group.vertical);
+
   return (
-    <section aria-label={group.label ?? undefined} className={cn('space-y-3', group.vertical && 'md:flex md:gap-6 md:space-y-0')}>
+    <section
+      aria-label={group.label ?? undefined}
+      data-orientation={group.vertical ? 'vertical' : 'horizontal'}
+      className={cn(tabsRoot, 'space-y-3', group.vertical && 'md:flex md:gap-6 md:space-y-0')}
+    >
       {/* The strip scrolls in its own box, so a phone never scrolls the page sideways; its line is an
           inset shadow, since a scrolling box would clip a tab's underline drawn over a border. */}
       <div
         role="tablist"
+        data-variant="line"
         aria-orientation={group.vertical ? 'vertical' : 'horizontal'}
-        className={cn('flex gap-1 overflow-x-auto', group.vertical ? 'md:flex-col md:overflow-visible' : 'shadow-[inset_0_-1px_0_var(--color-border)]')}
+        className={cn(tabsList, 'h-auto overflow-x-auto pb-[5px]', group.vertical ? 'md:overflow-visible' : 'shadow-[inset_0_-1px_0_var(--color-border)]')}
       >
         {group.tabs.map((tab, index) => (
           <button
@@ -258,12 +266,12 @@ function TabGroup({ group, ...props }: RecordLayoutProps & { group: TabGroupBloc
             id={`tab-${group.attribute}-${tab.attribute}`}
             type="button"
             role="tab"
+            tabIndex={index === active ? 0 : -1}
             aria-selected={index === active}
             aria-controls={`tabpanel-${group.attribute}-${tab.attribute}`}
-            className={cn(
-              'flex shrink-0 items-center gap-2 border-b-2 px-3 py-2 text-sm whitespace-nowrap',
-              index === active ? 'border-primary font-medium' : 'border-transparent text-muted-foreground',
-            )}
+            data-active={index === active || undefined}
+            className={tabsTrigger}
+            onKeyDown={keys}
             onClick={() => {
               select(index);
             }}

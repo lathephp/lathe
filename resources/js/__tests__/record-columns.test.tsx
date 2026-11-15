@@ -302,7 +302,7 @@ describe('relation tab keys', () => {
   });
 
   it('keeps the first-paint strip off the kit package', () => {
-    for (const file of ['components/TabStrip.tsx', 'records/RecordColumns.tsx']) {
+    for (const file of ['components/TabStrip.tsx', 'records/RecordColumns.tsx', 'records/RecordLayout.tsx']) {
       expect(readFileSync(`resources/js/${file}`, 'utf8')).not.toContain('@lathephp/ui');
     }
   });

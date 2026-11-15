@@ -6,10 +6,10 @@ import type { KeyboardEvent } from 'react';
 export const tabsRoot = 'cn-tabs group/tabs';
 
 export const tabsList =
-  'cn-tabs-list cn-tabs-list-variant-line group/tabs-list inline-flex w-fit items-center justify-center gap-1 bg-transparent text-muted-foreground group-data-vertical/tabs:h-fit group-data-vertical/tabs:flex-col';
+  'cn-tabs-list cn-tabs-list-variant-line group/tabs-list flex items-center gap-1 bg-transparent text-muted-foreground group-data-vertical/tabs:h-fit group-data-vertical/tabs:flex-col';
 
 export const tabsTrigger =
-  'cn-tabs-trigger relative inline-flex h-[calc(100%-1px)] items-center justify-center whitespace-nowrap text-foreground/60 group-data-vertical/tabs:w-full group-data-vertical/tabs:justify-start hover:text-foreground data-active:text-foreground after:absolute after:bg-foreground after:opacity-0 after:transition-opacity group-data-horizontal/tabs:after:inset-x-0 group-data-horizontal/tabs:after:bottom-[-5px] group-data-horizontal/tabs:after:h-0.5 group-data-vertical/tabs:after:inset-y-0 group-data-vertical/tabs:after:-end-1 group-data-vertical/tabs:after:w-0.5 data-active:after:opacity-100';
+  'cn-tabs-trigger relative inline-flex h-[calc(100%-1px)] shrink-0 items-center justify-center whitespace-nowrap text-foreground/60 group-data-vertical/tabs:w-full group-data-vertical/tabs:justify-start hover:text-foreground data-active:text-foreground after:absolute after:bg-foreground after:opacity-0 after:transition-opacity group-data-horizontal/tabs:after:inset-x-0 group-data-horizontal/tabs:after:bottom-[-5px] group-data-horizontal/tabs:after:h-0.5 group-data-vertical/tabs:after:inset-y-0 group-data-vertical/tabs:after:-end-1 group-data-vertical/tabs:after:w-0.5 data-active:after:opacity-100';
 
 /**
  * A tab's key handler, as Base UI Tabs moves: the arrows along the list (swapped under rtl)

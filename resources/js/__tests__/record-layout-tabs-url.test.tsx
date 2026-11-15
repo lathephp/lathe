@@ -123,3 +123,47 @@ describe('tabs', () => {
     expect(new URL(window.location.href).searchParams.get('tab_more')).toBe('items');
   });
 });
+
+describe('tab keys', () => {
+  afterEach(() => {
+    document.dir = '';
+  });
+
+  it('draws the group as kit tabs with one tab stop, and ArrowRight writes the query key as a click does', () => {
+    renderDetail([tabs('main', 'tab', ['order', 'billing'])], ['order', 'billing']);
+
+    const order = screen.getByRole('tab', { name: 'Order' });
+    expect(order.className).toContain('cn-tabs-trigger');
+    expect(order.closest('[role="tablist"]')?.className).toContain('cn-tabs-list');
+    expect(order.tabIndex).toBe(0);
+    expect(screen.getByRole('tab', { name: 'Billing' }).tabIndex).toBe(-1);
+
+    order.focus();
+    fireEvent.keyDown(order, { key: 'ArrowRight' });
+
+    const billing = screen.getByRole('tab', { name: 'Billing' });
+    expect(billing.getAttribute('aria-selected')).toBe('true');
+    expect(document.activeElement).toBe(billing);
+    expect(new URL(window.location.href).searchParams.get('tab')).toBe('billing');
+  });
+
+  it('moves forward with ArrowLeft under rtl', () => {
+    document.dir = 'rtl';
+    // Three tabs, so that a key's direction shows: wrapping lands two tabs on the same neighbour.
+    renderDetail([tabs('main', 'tab', ['order', 'billing', 'notes'])], ['order', 'billing', 'notes']);
+
+    fireEvent.keyDown(screen.getByRole('tab', { name: 'Order' }), { key: 'ArrowLeft' });
+
+    expect(screen.getByRole('tab', { name: 'Billing' }).getAttribute('aria-selected')).toBe('true');
+    expect(new URL(window.location.href).searchParams.get('tab')).toBe('billing');
+  });
+
+  it('moves a vertical group with ArrowDown', () => {
+    renderDetail([tabs('main', 'tab', ['order', 'billing'], { vertical: true })], ['order', 'billing']);
+
+    fireEvent.keyDown(screen.getByRole('tab', { name: 'Order' }), { key: 'ArrowDown' });
+
+    expect(screen.getByRole('tab', { name: 'Billing' }).getAttribute('aria-selected')).toBe('true');
+    expect(new URL(window.location.href).searchParams.get('tab')).toBe('billing');
+  });
+});
