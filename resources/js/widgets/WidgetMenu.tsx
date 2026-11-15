@@ -1,10 +1,11 @@
 import { Link } from '@inertiajs/react';
 import { useTranslation } from '@lathephp/core';
-import { useEffect, useId, useRef, useState } from 'react';
+import { useId, useRef, useState } from 'react';
 import { useMenuKeys } from './menuKeys';
 
+// The kit's DropdownMenuItem classes, without Base UI's own.
 const itemClass =
-  'flex h-8 w-full items-center rounded-md px-2 text-start text-sm text-popover-foreground outline-none hover:bg-accent focus-visible:bg-accent';
+  'cn-dropdown-menu-item group/dropdown-menu-item relative flex w-full cursor-default items-center outline-hidden select-none [&_svg]:pointer-events-none [&_svg]:shrink-0';
 
 interface WidgetMenuProps {
   name: string;
@@ -25,25 +26,6 @@ export function WidgetMenu({ name, onRefresh, link, csv }: WidgetMenuProps) {
   useMenuKeys(root, open, () => {
     setOpen(false);
   });
-
-  // A press anywhere outside the menu closes it.
-  useEffect(() => {
-    if (!open) {
-      return;
-    }
-
-    const close = (event: PointerEvent) => {
-      if (!(event.target instanceof Node) || root.current?.contains(event.target) !== true) {
-        setOpen(false);
-      }
-    };
-
-    document.addEventListener('pointerdown', close);
-
-    return () => {
-      document.removeEventListener('pointerdown', close);
-    };
-  }, [open]);
 
   return (
     <div ref={root} className="relative -my-1 -me-1 shrink-0">
@@ -70,11 +52,14 @@ export function WidgetMenu({ name, onRefresh, link, csv }: WidgetMenuProps) {
           id={menuId}
           role="menu"
           tabIndex={-1}
-          className="absolute end-0 top-full z-10 mt-1 w-52 rounded-[12px] border border-border bg-popover p-1 shadow-md"
+          data-open=""
+          data-side="bottom"
+          className="cn-dropdown-menu-content cn-dropdown-menu-content-logical cn-menu-target cn-menu-translucent absolute end-0 top-full z-10 mt-1 w-52 overflow-hidden outline-none"
         >
           <button
             type="button"
             role="menuitem"
+            data-variant="default"
             className={itemClass}
             onClick={() => {
               setOpen(false);
@@ -84,13 +69,14 @@ export function WidgetMenu({ name, onRefresh, link, csv }: WidgetMenuProps) {
             {__('Refresh')}
           </button>
           {link !== null && (
-            <Link role="menuitem" href={link} className={itemClass}>
+            <Link role="menuitem" data-variant="default" href={link} className={itemClass}>
               {__('Open records')}
             </Link>
           )}
           {csv !== null && (
             <a
               role="menuitem"
+              data-variant="default"
               href={csv}
               download
               className={itemClass}

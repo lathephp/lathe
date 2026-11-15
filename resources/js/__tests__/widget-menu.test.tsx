@@ -1,6 +1,7 @@
 import { router } from '@inertiajs/react';
 import { queryClient } from '@lathephp/core';
 import { fireEvent, screen, waitFor, within } from '@testing-library/react';
+import { readFileSync } from 'node:fs';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import type { WidgetDescriptor } from '../widgets/types';
 import { renderPage } from './support';
@@ -147,6 +148,61 @@ describe('a dashboard widget menu', () => {
 
     expect(screen.queryByRole('menu')).toBeNull();
     expect(document.activeElement).toBe(within(card('orders-per-day')).getByRole('button', { name: 'Menu for Orders per day' }));
+  });
+
+  it('draws with the kit menu classes and no @lathephp/ui import', async () => {
+    renderDashboard([descriptor('orders-per-day', { csv: true })], { 'orders-per-day': [value('orders-per-day', 12, '/lathe/resources/orders')] });
+
+    const menu = await openMenu('orders-per-day', 'Orders per day');
+
+    expect(menu.classList.contains('cn-dropdown-menu-content')).toBe(true);
+    expect(menu.getAttribute('data-open')).toBe('');
+    expect(menu.getAttribute('data-side')).toBe('bottom');
+    within(menu)
+      .getAllByRole('menuitem')
+      .forEach((item) => {
+        expect(item.classList.contains('cn-dropdown-menu-item')).toBe(true);
+        expect(item.getAttribute('data-variant')).toBe('default');
+      });
+    expect(readFileSync('resources/js/widgets/WidgetMenu.tsx', 'utf8')).not.toContain('@lathephp/ui');
+    expect(readFileSync('resources/js/widgets/menuKeys.ts', 'utf8')).not.toContain('@lathephp/ui');
+  });
+
+  it('wraps the arrow keys and goes to the ends with Home and End', async () => {
+    renderDashboard([descriptor('orders-per-day', { csv: true })], { 'orders-per-day': [value('orders-per-day', 12, '/lathe/resources/orders')] });
+    const [refresh, , download] = within(await openMenu('orders-per-day', 'Orders per day')).getAllByRole('menuitem');
+
+    fireEvent.keyDown(document.activeElement ?? document.body, { key: 'ArrowUp' });
+    expect(document.activeElement).toBe(download);
+    fireEvent.keyDown(document.activeElement ?? document.body, { key: 'ArrowDown' });
+    expect(document.activeElement).toBe(refresh);
+    fireEvent.keyDown(document.activeElement ?? document.body, { key: 'End' });
+    expect(document.activeElement).toBe(download);
+    fireEvent.keyDown(document.activeElement ?? document.body, { key: 'Home' });
+    expect(document.activeElement).toBe(refresh);
+  });
+
+  it('focuses the item a typed letter starts and keeps the letter from the document', async () => {
+    renderDashboard([descriptor('orders-per-day', { csv: true })], { 'orders-per-day': [value('orders-per-day', 12, '/lathe/resources/orders')] });
+    const [, , download] = within(await openMenu('orders-per-day', 'Orders per day')).getAllByRole('menuitem');
+    const reached = vi.fn();
+    document.addEventListener('keydown', reached);
+
+    fireEvent.keyDown(document.activeElement ?? document.body, { key: 'd' });
+    fireEvent.keyDown(document.activeElement ?? document.body, { key: 'c' });
+    document.removeEventListener('keydown', reached);
+
+    expect(document.activeElement).toBe(download);
+    expect(reached).not.toHaveBeenCalled();
+  });
+
+  it('closes on a press outside it', async () => {
+    renderDashboard([descriptor('orders')], { orders: [value('orders', 12)] });
+    await openMenu('orders', 'Orders');
+
+    fireEvent.pointerDown(document.body);
+
+    expect(screen.queryByRole('menu')).toBeNull();
   });
 
   it('closes on Escape while its button has focus', async () => {
