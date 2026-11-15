@@ -1,7 +1,6 @@
 import { __panel, useTranslation } from '@lathephp/core';
 import { X } from 'lucide-react';
 import { Suspense, useState, useSyncExternalStore } from 'react';
-import { cn } from '../lib/cn';
 import { lazyNamed } from '../lib/lazy';
 
 // Base UI Toast loads with the first toast, off the first paint. After a deploy the old
@@ -43,15 +42,14 @@ function PlainToasts() {
   }
 
   return (
-    <section data-slot="toast-viewport" aria-label={__('Notifications')} className="fixed end-4 bottom-4 z-40 flex w-80 flex-col gap-2">
+    <section data-slot="toast-viewport" aria-label={__('Notifications')} className="fixed end-4 bottom-4 z-80 flex w-80 flex-col gap-2">
       {toasts.map((toast) => (
+        // The card ToastStack draws, with the style's cn-toast corners.
         <div
           key={toast.id}
+          data-slot="toast"
           role={toast.type === 'error' ? 'alert' : 'status'}
-          className={cn(
-            'flex items-start gap-3 rounded-lg border bg-background p-3 text-sm shadow-lg',
-            toast.type === 'error' ? 'border-destructive text-destructive' : 'border-border',
-          )}
+          className="cn-toast flex items-start gap-3 border border-border bg-popover p-4 text-sm text-popover-foreground shadow-lg"
         >
           <p className="flex-1">{toast.message}</p>
           {toast.links?.map((link) => (
