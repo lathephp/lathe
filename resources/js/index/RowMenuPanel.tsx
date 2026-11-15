@@ -2,7 +2,7 @@ import { Link, usePage } from '@inertiajs/react';
 import { request, toast, useTranslation } from '@lathephp/core';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@lathephp/ui';
 import { Copy, Ellipsis, Eye, Pencil, RotateCcw, Trash2 } from 'lucide-react';
-import { lazy, Suspense, useId, useRef, useState } from 'react';
+import { lazy, Suspense, useEffect, useId, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import type { InlineActions } from '../actions/InlineRowActions';
 import { Modal, ModalDescription, ModalFooter, ModalHeader, ModalTitle } from '../components/Modal';
@@ -54,7 +54,28 @@ export function RowMenuPanel({ uriKey, row, label, fromKeyboard }: RowMenuPanelP
   const hasInline = (row.actions?.length ?? 0) > 0;
   const titleId = useId();
   const firstFocus = useRef(fromKeyboard);
+  const [open, setOpen] = useState(true);
+  const content = useRef<HTMLDivElement>(null);
   const url = `${basePath}/api/resources/${uriKey}/${String(row.id)}`;
+
+  // The kit menu holds the wheel while it is open, but a touch scroll still moves the page, and the
+  // menu would follow its row under the sticky top bar and cover it, so a scroll outside it closes it.
+  useEffect(() => {
+    if (!open) {
+      return undefined;
+    }
+
+    const close = (event: Event) => {
+      if (!(event.target instanceof Node && content.current?.contains(event.target) === true)) {
+        setOpen(false);
+      }
+    };
+    document.addEventListener('scroll', close, true);
+
+    return () => {
+      document.removeEventListener('scroll', close, true);
+    };
+  }, [open]);
 
   const labels: Record<MenuAction, string> = {
     view: __('View'),
@@ -141,12 +162,13 @@ export function RowMenuPanel({ uriKey, row, label, fromKeyboard }: RowMenuPanelP
 
   return (
     <>
-      <DropdownMenu defaultOpen>
+      <DropdownMenu open={open} onOpenChange={setOpen}>
         <DropdownMenuTrigger render={<button type="button" tabIndex={-1} aria-label={label} className={buttonClass('ghost', 'icon-sm')} />}>
           <Ellipsis aria-hidden="true" className="size-4" />
         </DropdownMenuTrigger>
         {/* On the body, so the table card's clip cuts nothing; it opens above its button when the window ends first. */}
         <DropdownMenuContent
+          ref={content}
           align="end"
           collisionPadding={8}
           className="w-60"

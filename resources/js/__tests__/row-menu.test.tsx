@@ -156,6 +156,30 @@ describe('an open row menu', () => {
     });
   });
 
+  // A touch scroll moves the page under an open menu, which would follow its row under the
+  // sticky top bar and cover it, so a scroll closes it, as before the kit menu.
+  it('closes when the page or the card scrolls', async () => {
+    renderUsers();
+    fireEvent.click(screen.getByRole('button', { name: 'Actions for Ada' }));
+    await screen.findByRole('menu');
+
+    fireEvent.scroll(document);
+
+    await waitFor(() => {
+      expect(screen.queryByRole('menu')).toBeNull();
+    });
+  });
+
+  it('stays open when the menu itself scrolls', async () => {
+    renderUsers();
+    fireEvent.click(screen.getByRole('button', { name: 'Actions for Ada' }));
+    const menu = await screen.findByRole('menu');
+
+    fireEvent.scroll(menu);
+
+    expect(screen.queryByRole('menu')).not.toBeNull();
+  });
+
   it('stays open on a press inside it', async () => {
     renderUsers();
     fireEvent.click(screen.getByRole('button', { name: 'Actions for Ada' }));
