@@ -655,8 +655,9 @@
   }
 
   /* MARK: Form */
-  /* A phone form's selects are 44 px with 16 px text, like the panel's own inputs there. */
-  [data-lathe-form] .cn-select-trigger[data-size="default"] {
+  /* A phone form's selects and inputs are 44 px with 16 px text, a finger's target. */
+  [data-lathe-form] .cn-select-trigger[data-size="default"],
+  [data-lathe-form] .cn-input {
     @apply max-md:h-11 max-md:text-base;
   }
 
