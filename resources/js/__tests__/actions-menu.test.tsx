@@ -389,6 +389,23 @@ describe('the action modal', () => {
     expect(screen.getByRole('dialog', { name: 'Merge Tags' })).toBeTruthy();
   });
 
+  it('lines the form fields up with the title and buttons, at the dialog padding', async () => {
+    vi.spyOn(globalThis, 'fetch').mockResolvedValueOnce(
+      json({
+        fields: [{ key: 'target', attribute: 'target', label: 'Target', component: 'belongs-to-field', resource: 'tags', value: null, stacked: false, compact: false, help: null, required: true }],
+        confirmText: null,
+      }),
+    );
+    renderOrders([meta('merge-tags', 'Merge Tags', { size: 'medium' })], rows(1, ['merge-tags']));
+    tick(1);
+    fireEvent.click(within(await openMenu()).getByRole('menuitem', { name: 'Merge Tags' }));
+    const dialog = await screen.findByRole('dialog');
+    const list = (await within(dialog).findByText('Target', { selector: 'label' })).parentElement?.parentElement;
+
+    // The rows carry no sides of their own, so a negative margin would push them past the 24 px padding.
+    expect(list?.className).not.toMatch(/(^|\s)-mx-/);
+  });
+
   it('closes only the searchable Target picker on Escape in its search box', async () => {
     vi.spyOn(globalThis, 'fetch')
       .mockResolvedValueOnce(

@@ -129,8 +129,8 @@ export function ActionModal({ base, action, count, label = formatNumber(count), 
         {form !== null && form.fields.length > 0 && (
           // A relation field looks its options up through the action, which declares it.
           <AssociatableEndpoint value={(attribute) => `${base}/action/associatable?${new URLSearchParams({ action: action.uriKey, field: attribute }).toString()}`}>
-            {/* The rows bring 16 px sides; here they sit 14 px apart with the label 6 px over its control. */}
-            <div className="-mx-4 -my-[7px] flex flex-col [&>*]:gap-1.5 [&>*]:py-[7px]">
+            {/* The rows sit 14 px apart with the label 6 px over its control. */}
+            <div className="-my-[7px] flex flex-col [&>*]:gap-1.5 [&>*]:py-[7px]">
               {form.fields.map((field) => (
                 <FormRow
                   key={field.attribute}
