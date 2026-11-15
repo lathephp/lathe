@@ -1,10 +1,11 @@
 import { ApiError, request, useLathe, useTranslation } from '@lathephp/core';
 import { Suspense, useId, useState } from 'react';
 import { FieldError } from '../components/FieldError';
-import { Modal, modalFooter, modalInput } from '../components/Modal';
+import { Modal, modalFooter } from '../components/Modal';
 import { lazyNamed } from '../lib/lazy';
 import { firstErrors } from './useRecordForm';
 import { Button } from '../components/ui/Button';
+import { inputClass } from '../components/ui/input';
 
 // The OTP field loads only when an account asks for its code, which keeps it out of every page's first load.
 const TotpInput = lazyNamed(() => import('../components/TotpInput').then((module) => module.TotpInput));
@@ -95,7 +96,7 @@ export function ReauthModal({ email: initialEmail, onSignedIn, onOtherUser, onCl
                     onChange={(event) => {
                       setRecoveryCode(event.target.value);
                     }}
-                    className={modalInput}
+                    className={inputClass}
                   />
                 </>
               ) : (
@@ -135,7 +136,7 @@ export function ReauthModal({ email: initialEmail, onSignedIn, onOtherUser, onCl
                 onChange={(event) => {
                   setEmail(event.target.value);
                 }}
-                className={modalInput}
+                className={inputClass}
               />
             </div>
             <div className="flex flex-col gap-1.5">
@@ -152,7 +153,7 @@ export function ReauthModal({ email: initialEmail, onSignedIn, onOtherUser, onCl
                 onChange={(event) => {
                   setPassword(event.target.value);
                 }}
-                className={modalInput}
+                className={inputClass}
               />
               <FieldError id={`${id}-error`} message={error} />
             </div>

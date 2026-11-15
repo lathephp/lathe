@@ -4,8 +4,9 @@ import { Button } from '@lathephp/ui';
 import { useState, type SubmitEvent } from 'react';
 import { FieldError } from '../../components/FieldError';
 import { TotpInput } from '../../components/TotpInput';
-import { AuthLayout, authInputClass } from '../../layout/AuthLayout';
+import { AuthLayout } from '../../layout/AuthLayout';
 import type { SharedProps } from '../../types';
+import { inputClass } from '../../components/ui/input';
 
 interface TwoFactorChallengeProps {
   errors: Partial<Record<'code' | 'recovery_code', string>>;
@@ -44,7 +45,7 @@ export default function TwoFactorChallenge({ errors }: TwoFactorChallengeProps) 
               value={form.data.recovery_code}
               aria-invalid={errors.recovery_code === undefined ? undefined : true}
               aria-describedby={errors.recovery_code === undefined ? undefined : 'recovery_code-error'}
-              className={authInputClass}
+              className={inputClass}
               onChange={(event) => {
                 form.setData('recovery_code', event.target.value);
               }}

@@ -1,6 +1,7 @@
 import { __panel } from '@lathephp/core';
 import { createElement, type ComponentType, type ReactElement } from 'react';
 import type { Cell, DetailFieldData, FieldSchema, FormFieldData } from './types';
+import { inputClass } from '../components/ui/input';
 
 export interface IndexFieldProps {
   field: FieldSchema;
@@ -83,7 +84,7 @@ export function FormFallbackField({ field, value, onChange, id, describedBy, inv
       onChange={(event) => {
         onChange(event.target.value);
       }}
-      className="lathe-input"
+      className={inputClass}
     />
   );
 }

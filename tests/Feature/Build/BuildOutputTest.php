@@ -191,6 +191,16 @@ it('leaves the look of a panel button to the style', function () {
     }
 });
 
+it('leaves the look of a panel input to the style', function () {
+    preg_match_all('/(?:^|[{}])\s*(\.lathe-input(?![\w-])[^{}]*)\{([^{}]*)\}/m', buildOutputPanelCss(), $rules, PREG_SET_ORDER);
+
+    expect($rules)->not->toBeEmpty();
+
+    foreach ($rules as [, $selector, $body]) {
+        expect($body)->not->toMatch('/(?:^|;)\s*(border[\w-]*|height|--tw-ring-shadow)\s*:/', $selector);
+    }
+});
+
 it('emits each import map specifier as its own entry file', function () {
     $manifest = buildOutputManifest();
     $files = [];

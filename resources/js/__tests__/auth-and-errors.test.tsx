@@ -31,6 +31,13 @@ describe('login', () => {
     expect(screen.getByRole('heading', { level: 1 }).textContent).toBe('Acme');
   });
 
+  it("draws its inputs with the style's input class", () => {
+    renderLogin();
+
+    expect(screen.getByLabelText('Email').classList).toContain('cn-input');
+    expect(screen.getByLabelText('Password').classList).toContain('cn-input');
+  });
+
   it('has no forgot password link and no sidebar', () => {
     renderLogin();
 

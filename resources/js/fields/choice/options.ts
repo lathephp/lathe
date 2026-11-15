@@ -52,6 +52,3 @@ export function groupState(value: unknown): Record<string, boolean> {
 
   return Object.fromEntries(Object.entries(value).map(([key, on]) => [key, on === true]));
 }
-
-export const inputClass =
-  'lathe-input';

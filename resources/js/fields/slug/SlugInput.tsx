@@ -1,6 +1,7 @@
 import { useTranslation } from '@lathephp/core';
 import { useLayoutEffect, useRef, useState } from 'react';
 import { stringValue, type FormFieldProps } from '../registry';
+import { inputClass } from '../../components/ui/input';
 
 /** The slug of a text with the words joined by the separator, as the server's Str::slug does for plain Latin text. */
 export function slugify(text: string, separator: string): string {
@@ -13,9 +14,6 @@ export function slugify(text: string, separator: string): string {
 
   return words.join(separator);
 }
-
-const control =
-  'lathe-input';
 
 /**
  * A text input that follows the field named in `from` until the user types in it. An update
@@ -60,7 +58,7 @@ export default function SlugInput({ field, value, onChange, id, describedBy, inv
           setTyped(true);
           onChange(event.target.value);
         }}
-        className={control}
+        className={inputClass}
       />
       {locked ? (
         <button

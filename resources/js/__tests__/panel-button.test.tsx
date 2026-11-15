@@ -44,11 +44,18 @@ describe('the panel Button', () => {
 
 // Built at run time, so this file does not find itself.
 const oldClass = ['lathe', 'button', ''].join('-');
+const oldInputNames = [['modal', 'Input'].join(''), ['field', 'Class'].join('')];
 
 describe('the panel sources', () => {
   it('draw no button with the old lathe-button look classes', () => {
     const files = readdirSync('resources/js', { recursive: true, encoding: 'utf8' }).filter((file) => /\.tsx?$/.test(file) && !file.startsWith(join('components', 'ui')));
 
     expect(files.filter((file) => readFileSync(join('resources/js', file), 'utf8').includes(oldClass))).toEqual([]);
+  });
+
+  it('draw no input with the old hand-written input looks', () => {
+    const files = readdirSync('resources/js', { recursive: true, encoding: 'utf8' }).filter((file) => /\.tsx?$/.test(file));
+
+    expect(files.filter((file) => oldInputNames.some((name) => readFileSync(join('resources/js', file), 'utf8').includes(name)))).toEqual([]);
   });
 });

@@ -3,8 +3,9 @@ import { __panel, useTranslation } from '@lathephp/core';
 import { Button } from '@lathephp/ui';
 import type { SubmitEvent } from 'react';
 import { FieldError } from '../../components/FieldError';
-import { AuthLayout, authInputClass as inputClass } from '../../layout/AuthLayout';
+import { AuthLayout } from '../../layout/AuthLayout';
 import type { SharedProps } from '../../types';
+import { inputClass } from '../../components/ui/input';
 
 interface LoginProps {
   username: string;

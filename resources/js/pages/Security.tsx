@@ -4,9 +4,9 @@ import { Button, Card, CardContent, CardDescription, CardHeader, CardTitle } fro
 import { useState, type SubmitEvent } from 'react';
 import { FieldError } from '../components/FieldError';
 import { TotpInput } from '../components/TotpInput';
-import { authInputClass } from '../layout/AuthLayout';
 import { PageHeader } from '../layout/PageHeader';
 import type { SharedProps } from '../types';
+import { inputClass } from '../components/ui/input';
 
 type TwoFactorState = 'off' | 'pending' | 'on';
 
@@ -31,7 +31,7 @@ function PasswordField({ id, label, autoComplete, value, error, onChange }: { id
         value={value}
         aria-invalid={error === undefined ? undefined : true}
         aria-describedby={error === undefined ? undefined : `${id}-error`}
-        className={authInputClass}
+        className={inputClass}
         onChange={(event) => {
           onChange(event.target.value);
         }}

@@ -3,8 +3,9 @@ import { useTranslation } from '@lathephp/core';
 import { Button } from '@lathephp/ui';
 import type { SubmitEvent } from 'react';
 import { FieldError } from '../../components/FieldError';
-import { AuthLayout, authInputClass } from '../../layout/AuthLayout';
+import { AuthLayout } from '../../layout/AuthLayout';
 import type { SharedProps } from '../../types';
+import { inputClass } from '../../components/ui/input';
 
 interface ForgotPasswordProps {
   status: string | null;
@@ -43,7 +44,7 @@ export default function ForgotPassword({ status, errors }: ForgotPasswordProps) 
             value={form.data.email}
             aria-invalid={errors.email === undefined ? undefined : true}
             aria-describedby={errors.email === undefined ? undefined : 'email-error'}
-            className={authInputClass}
+            className={inputClass}
             onChange={(event) => {
               form.setData('email', event.target.value);
             }}

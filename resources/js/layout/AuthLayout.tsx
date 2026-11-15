@@ -22,6 +22,3 @@ export function AuthLayout({ title, children }: { title: string; children: React
     </main>
   );
 }
-
-export const authInputClass =
-  'h-9 w-full rounded-md border border-border bg-background px-3 text-sm outline-none focus-visible:ring-2 focus-visible:ring-ring aria-invalid:border-destructive';

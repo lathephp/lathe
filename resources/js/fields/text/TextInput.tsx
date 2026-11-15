@@ -2,6 +2,7 @@ import type { FormFieldProps } from '../registry';
 import { stringValue } from '../registry';
 import { CopyButton } from './CopyButton';
 import { stringList } from './TextValue';
+import { inputClass, textareaClass } from '../../components/ui/input';
 
 export type InputKind = 'text' | 'email' | 'url' | 'password' | 'color' | 'textarea';
 
@@ -43,7 +44,7 @@ function Control({ kind, field, value, onChange, id, describedBy, invalid, disab
           onChange={(event) => {
             edit(event.target.value);
           }}
-          className="lathe-input h-auto py-2"
+          className={textareaClass}
         />
       ) : (
         <input
@@ -55,7 +56,7 @@ function Control({ kind, field, value, onChange, id, describedBy, invalid, disab
           onChange={(event) => {
             edit(event.target.value);
           }}
-          className={kind === 'color' ? 'lathe-input w-16 cursor-pointer p-1' : 'lathe-input'}
+          className={kind === 'color' ? `${inputClass} w-16 cursor-pointer p-1` : inputClass}
         />
       )}
       {listId !== undefined && (

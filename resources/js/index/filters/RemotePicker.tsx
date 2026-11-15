@@ -2,7 +2,8 @@ import { queryKeys, request, useQuery, useTranslation } from '@lathephp/core';
 import { useEffect, useRef, useState } from 'react';
 import { Button } from '../../components/ui/Button';
 import type { FilterControlProps, FilterOption } from '../types';
-import { FilterFieldset, fieldClass } from './FilterFieldset';
+import { FilterFieldset } from './FilterFieldset';
+import { inputClass } from '../../components/ui/input';
 
 // Long enough to wait out a word being typed.
 const debounceMs = 300;
@@ -85,7 +86,7 @@ export function RemotePicker({ filter, value, onChange, endpoint, resource }: Fi
     <FilterFieldset legend={filter.name}>
       <input
         type="search"
-        className={fieldClass}
+        className={inputClass}
         value={input}
         placeholder={__('Search')}
         aria-label={__('Search :filter', { filter: filter.name })}

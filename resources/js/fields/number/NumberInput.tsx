@@ -1,5 +1,5 @@
 import { stringValue, type FormFieldProps } from '../registry';
-import { inputClass } from './inputClass';
+import { inputClass } from '../../components/ui/input';
 
 function attribute(value: unknown): string | undefined {
   return typeof value === 'number' || typeof value === 'string' ? String(value) : undefined;

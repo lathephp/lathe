@@ -46,7 +46,7 @@ function renderForm() {
     title: 'Create customer',
     breadcrumbs: [],
     form: {
-      fields: [field('name', { required: true }), field('notes')],
+      fields: [field('name', { required: true }), field('notes', { component: 'textarea-field' })],
       layout: [
         {
           type: 'panel',
@@ -103,10 +103,16 @@ describe('the form look', () => {
     expect(screen.getByText('Name', { selector: 'label' }).nextElementSibling?.textContent).not.toBe('Optional');
   });
 
-  it('draws the text inputs with the panel input class', () => {
+  it("draws the text inputs with the style's input class", () => {
     renderForm();
 
-    expect(screen.getByLabelText('Name').className).toBe('lathe-input');
+    expect(screen.getByLabelText('Name').classList).toContain('cn-input');
+  });
+
+  it("draws a textarea with the style's textarea class", () => {
+    renderForm();
+
+    expect(screen.getByLabelText('Notes').classList).toContain('cn-textarea');
   });
 
   it('draws Cancel as ghost, the second save as outline and the main one as the primary button', () => {

@@ -1,5 +1,6 @@
 import { useTranslation } from '@lathephp/core';
 import { stringValue, type DetailFieldProps, type FormFieldProps } from '../registry';
+import { inputClass } from '../../components/ui/input';
 
 type Row = { key: string; value: string };
 
@@ -21,9 +22,6 @@ function text(field: { [option: string]: unknown }, name: string, fallback: stri
 
   return typeof given === 'string' ? given : fallback;
 }
-
-const control =
-  'lathe-input';
 
 function NoValue({ text: message }: { text: string }) {
   return <span className="text-muted-foreground">{message}</span>;
@@ -93,7 +91,7 @@ export default function KeyValueForm({ field, value, onChange, id, describedBy, 
                     onChange={(event) => {
                       edit(index, { key: event.target.value });
                     }}
-                    className={control}
+                    className={inputClass}
                   />
                 </td>
                 <td className="pb-2 pe-2">
@@ -106,7 +104,7 @@ export default function KeyValueForm({ field, value, onChange, id, describedBy, 
                     onChange={(event) => {
                       edit(index, { value: event.target.value });
                     }}
-                    className={control}
+                    className={inputClass}
                   />
                 </td>
                 <td className="pb-2">

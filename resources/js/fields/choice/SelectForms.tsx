@@ -4,7 +4,8 @@ import { Suspense, useState, type ComponentType } from 'react';
 import { Select } from '../../components/ui/Select';
 import { lazyNamed } from '../../lib/lazy';
 import { stringValue, type FormFieldProps } from '../registry';
-import { filterOptions, inputClass, labelOf, optionsOf, stringsOf, type Option } from './options';
+import { filterOptions, labelOf, optionsOf, stringsOf, type Option } from './options';
+import { inputClass } from '../../components/ui/input';
 
 /** The options a remote field found on the server, and the search that asks for them. */
 export interface RemoteSource {

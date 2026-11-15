@@ -1,6 +1,7 @@
 import { useTranslation } from '@lathephp/core';
 import type { FilterControlProps } from '../types';
-import { FilterFieldset, fieldClass } from './FilterFieldset';
+import { FilterFieldset } from './FilterFieldset';
+import { inputClass } from '../../components/ui/input';
 
 /** Stored and shown values differ by the filter's scale; the URL keeps the stored one. */
 function shown(stored: string | undefined, scale: number): string {
@@ -25,7 +26,7 @@ export function RangeFilter({ filter, value, onChange }: FilterControlProps) {
           <input
             key={side}
             type="number"
-            className={fieldClass}
+            className={inputClass}
             aria-label={labels[side]}
             placeholder={labels[side]}
             step={scale === 1 ? undefined : 1 / scale}

@@ -3,8 +3,9 @@ import { useTranslation } from '@lathephp/core';
 import { Button } from '@lathephp/ui';
 import type { SubmitEvent } from 'react';
 import { FieldError } from '../../components/FieldError';
-import { AuthLayout, authInputClass } from '../../layout/AuthLayout';
+import { AuthLayout } from '../../layout/AuthLayout';
 import type { SharedProps } from '../../types';
+import { inputClass } from '../../components/ui/input';
 
 interface ConfirmPasswordProps {
   errors: Partial<Record<'password', string>>;
@@ -38,7 +39,7 @@ export default function ConfirmPassword({ errors }: ConfirmPasswordProps) {
             value={form.data.password}
             aria-invalid={errors.password === undefined ? undefined : true}
             aria-describedby={errors.password === undefined ? undefined : 'password-error'}
-            className={authInputClass}
+            className={inputClass}
             onChange={(event) => {
               form.setData('password', event.target.value);
             }}

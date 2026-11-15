@@ -2,7 +2,8 @@ import { useTranslation } from '@lathephp/core';
 import { Suspense } from 'react';
 import { DateText } from '../../fields/date/lazy';
 import type { FilterControlProps } from '../types';
-import { FilterFieldset, fieldClass } from './FilterFieldset';
+import { FilterFieldset } from './FilterFieldset';
+import { inputClass } from '../../components/ui/input';
 
 /** `filter[placed][from]=2026-01-01`; either side may stay empty. */
 export function DateFilter({ filter, value, onChange }: FilterControlProps) {
@@ -17,7 +18,7 @@ export function DateFilter({ filter, value, onChange }: FilterControlProps) {
           <Suspense key={side} fallback={<div className="h-9 flex-1" aria-hidden="true" />}>
             <DateText
               time={false}
-              className={fieldClass}
+              className={inputClass}
               label={labels[side]}
               value={sides[side] ?? ''}
               onChange={(day) => {

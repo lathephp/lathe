@@ -2,7 +2,7 @@ import { toast, useTranslation } from '@lathephp/core';
 import { Copy, Eye, EyeOff } from 'lucide-react';
 import { useState } from 'react';
 import { stringValue, type FormFieldProps } from '../registry';
-import { inputClass } from './inputClass';
+import { inputClass } from '../../components/ui/input';
 
 const buttonClass =
   'inline-flex size-9 shrink-0 items-center justify-center rounded-md border border-input bg-background text-muted-foreground outline-none hover:bg-muted focus-visible:ring-2 focus-visible:ring-ring disabled:opacity-60';

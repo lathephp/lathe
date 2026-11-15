@@ -2,8 +2,8 @@ import { useTranslation } from '@lathephp/core';
 import { Calendar } from '@lathephp/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@lathephp/ui/popover';
 import { useState, type ReactElement } from 'react';
-import { inputClass } from '../number/inputClass';
 import { pad } from './parse';
+import { inputClass } from '../../components/ui/input';
 
 interface DatePickerProps {
   open: boolean;

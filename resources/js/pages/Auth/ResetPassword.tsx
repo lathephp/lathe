@@ -3,8 +3,9 @@ import { useTranslation } from '@lathephp/core';
 import { Button } from '@lathephp/ui';
 import type { SubmitEvent } from 'react';
 import { FieldError } from '../../components/FieldError';
-import { AuthLayout, authInputClass } from '../../layout/AuthLayout';
+import { AuthLayout } from '../../layout/AuthLayout';
 import type { SharedProps } from '../../types';
+import { inputClass } from '../../components/ui/input';
 
 interface ResetPasswordProps {
   token: string;
@@ -42,7 +43,7 @@ export default function ResetPassword({ token, email, errors }: ResetPasswordPro
             value={form.data.email}
             aria-invalid={errors.email === undefined ? undefined : true}
             aria-describedby={errors.email === undefined ? undefined : 'email-error'}
-            className={`${authInputClass} bg-muted`}
+            className={`${inputClass} bg-muted`}
           />
           <FieldError id="email-error" message={errors.email} />
           {/* An expired or used link: the way out is a new one. */}
@@ -65,7 +66,7 @@ export default function ResetPassword({ token, email, errors }: ResetPasswordPro
             value={form.data.password}
             aria-invalid={errors.password === undefined ? undefined : true}
             aria-describedby={errors.password === undefined ? undefined : 'password-error'}
-            className={authInputClass}
+            className={inputClass}
             onChange={(event) => {
               form.setData('password', event.target.value);
             }}
@@ -83,7 +84,7 @@ export default function ResetPassword({ token, email, errors }: ResetPasswordPro
             autoComplete="new-password"
             required
             value={form.data.password_confirmation}
-            className={authInputClass}
+            className={inputClass}
             onChange={(event) => {
               form.setData('password_confirmation', event.target.value);
             }}

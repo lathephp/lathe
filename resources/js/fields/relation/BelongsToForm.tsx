@@ -4,10 +4,10 @@ import { Plus } from 'lucide-react';
 import { lazy, Suspense, useEffect, useRef, useState } from 'react';
 import { Select } from '../../components/ui/Select';
 import { composing } from '../../lib/keys';
-import { inputClass } from '../choice/options';
 import type { FormFieldProps } from '../registry';
 import { isBelongsToValue } from './BelongsToField';
 import { useAssociatable, type AssociatableItem, type LookupRecord } from './useAssociatable';
+import { inputClass } from '../../components/ui/input';
 
 // The related create form loads only when a create is chosen, so no list page carries it.
 const CreateRelationSheet = lazy(() => import('./CreateRelationSheet').then((module) => ({ default: module.CreateRelationSheet })));
