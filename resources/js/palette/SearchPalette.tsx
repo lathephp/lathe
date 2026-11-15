@@ -109,6 +109,8 @@ export function SearchPalette({ basePath, debounce, onClose }: Props) {
   const refused = query.error instanceof ApiError && query.error.status === 422 ? ((query.error.data as { message?: string } | null)?.message ?? null) : null;
   const groups = searching && !loading ? (query.data?.groups ?? []) : [];
   const options = searching ? groups.flatMap((group) => group.results) : recents;
+  // With no term and no recent search there is nothing under the field, so a desktop shows the field alone.
+  const empty = !searching && recents.length === 0;
   const current = Math.min(active, options.length - 1);
   const optionId = (index: number) => `${listId}-${String(index)}`;
 
@@ -224,7 +226,7 @@ export function SearchPalette({ basePath, debounce, onClose }: Props) {
         className="relative flex max-h-[70vh] w-full max-w-[640px] flex-col overflow-hidden rounded-xl border border-border bg-popover text-popover-foreground shadow-lg max-md:h-dvh max-md:max-h-none max-md:max-w-none max-md:rounded-none max-md:border-0 max-md:bg-background"
         onKeyDown={onKeyDown}
       >
-        <div className="flex h-[52px] shrink-0 items-center gap-2.5 border-b border-border px-4 max-md:h-auto max-md:gap-2 max-md:py-2 max-md:ps-4 max-md:pe-2">
+        <div className={cn('flex h-[52px] shrink-0 items-center gap-2.5 border-b border-border px-4 max-md:h-auto max-md:gap-2 max-md:py-2 max-md:ps-4 max-md:pe-2', empty && 'md:border-b-0')}>
           {/* On a phone the field sits in a 44 px muted well. */}
           <div className="flex min-w-0 flex-1 items-center gap-2.5 max-md:h-11 max-md:gap-2 max-md:rounded-[10px] max-md:bg-muted max-md:px-3">
             <Search aria-hidden="true" strokeWidth={1.75} className="size-[18px] shrink-0 text-muted-foreground" />
@@ -255,7 +257,7 @@ export function SearchPalette({ basePath, debounce, onClose }: Props) {
           </button>
         </div>
         {/* Focusable, so a keyboard user can scroll a long result list. */}
-        <div className="overflow-y-auto pb-2 outline-none max-md:flex-1" role="region" tabIndex={0} aria-label={__('Search results')}>
+        <div className={cn('overflow-y-auto pb-2 outline-none max-md:flex-1', empty && 'md:hidden')} role="region" tabIndex={0} aria-label={__('Search results')}>
           {!searching && recents.length > 0 && (
             <div className={cn(head, 'flex items-center justify-between')}>
               <span>{__('Recent searches')}</span>

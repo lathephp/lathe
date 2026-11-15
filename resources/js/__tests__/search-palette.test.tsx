@@ -178,6 +178,21 @@ describe('states', () => {
     expect(document.querySelectorAll('[data-skeleton]')).toHaveLength(3);
   });
 
+  it('draws no rule or empty strip under the field until it has something to list', async () => {
+    answer({ groups: [], skipped: [] });
+    renderPalette();
+    const row = screen.getByRole('combobox').closest('.border-b');
+    const region = screen.getByRole('region', { name: 'Search results' });
+
+    expect(row?.className).toContain('md:border-b-0');
+    expect(region.className).toContain('md:hidden');
+
+    await typeTerm('warrne');
+
+    expect(row?.className).not.toContain('md:border-b-0');
+    expect(region.className).not.toContain('md:hidden');
+  });
+
   it('says what it did not find', async () => {
     answer({ groups: [], skipped: [] });
     renderPalette();
