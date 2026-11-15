@@ -1,4 +1,4 @@
-import { Badge, isBadgeTone, type BadgeTone } from '../../components/ui/Badge';
+import { Badge, isBadgeTone, toneVariants, type BadgeTone } from '../../components/ui/Badge';
 import { cn } from '../../lib/cn';
 import type { FieldSchema } from '../types';
 import { stringValue, type DetailFieldProps, type IndexFieldProps } from '../registry';
@@ -63,7 +63,7 @@ export function SelectBadge({ field, value }: { field: FieldSchema; value: unkno
   }
 
   return (
-    <Badge tone={tone} dot>
+    <Badge variant={toneVariants[tone]} dot>
       {text}
       <BadgeChevron />
     </Badge>

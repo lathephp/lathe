@@ -108,7 +108,7 @@ describe('the inline cell row', () => {
     const cell = await screen.findByRole('gridcell', { name: 'Status: Shipped. Change status' });
 
     expect(cell.querySelectorAll('[data-inline-chevron]')).toHaveLength(1);
-    expect(cell.querySelector('[data-lathe-badge-tone] [data-inline-chevron]')).not.toBeNull();
+    expect(cell.querySelector('[data-slot="badge"] [data-inline-chevron]')).not.toBeNull();
   });
 });
 
@@ -117,7 +117,7 @@ describe('the inline cell chevron', () => {
     renderRows('orders');
 
     const cell = await screen.findByRole('gridcell', { name: 'Status: Shipped. Change status' });
-    const chevron = cell.querySelector('[data-lathe-badge-tone] svg[aria-hidden="true"]');
+    const chevron = cell.querySelector('[data-slot="badge"] svg[aria-hidden="true"]');
 
     expect(chevron).not.toBeNull();
     expect(chevron?.closest('[data-inline-chevron]')).not.toBeNull();

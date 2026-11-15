@@ -273,3 +273,14 @@ it('changes the entry hash when one source character changes', function () {
 
     expect($after)->not->toBe($before);
 });
+
+// The style's cn-badge sits in the base layer, so a height, radius or colour of the panel's own would beat it.
+it('leaves the look of a panel badge to the style', function () {
+    preg_match_all('/(?:^|[{}])\s*([^{}]*(?:lathe-badge|lathe-nav-badge|lathe-tab-count)[^{}]*)\{([^{}]*)\}/m', buildOutputPanelCss(), $rules, PREG_SET_ORDER);
+
+    expect($rules)->not->toBeEmpty();
+
+    foreach ($rules as [, $selector, $body]) {
+        expect($body)->not->toMatch('/(?:^|;)\s*(border-radius|height|background-color)\s*:/', $selector);
+    }
+});

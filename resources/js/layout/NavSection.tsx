@@ -2,6 +2,7 @@ import { Link, usePage } from '@inertiajs/react';
 import { ChevronDown } from 'lucide-react';
 import { useId, useState } from 'react';
 import { NavIcon } from '../components/NavIcon';
+import { Badge, toneVariants } from '../components/ui/Badge';
 import { cn } from '../lib/cn';
 import { instantProps } from '../lib/instant';
 import { preloadPage } from '../lib/pages';
@@ -106,9 +107,9 @@ function NavItem({ item, context }: { item: NavLink; context: NavContext }) {
       <NavIcon name={item.icon} />
       <span className={cn('truncate', context.collapsed && 'md:sr-only')}>{item.label}</span>
       {badge !== undefined && (
-        <span data-badge-type={badge.type} className={cn('lathe-nav-badge', context.collapsed && 'md:sr-only')}>
+        <Badge variant={toneVariants[badge.type] ?? 'secondary'} className={cn('lathe-nav-badge', context.collapsed && 'md:sr-only')}>
           {badge.value}
-        </span>
+        </Badge>
       )}
     </>
   );

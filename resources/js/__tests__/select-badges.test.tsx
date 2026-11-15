@@ -39,7 +39,7 @@ const status = {
 } as FieldSchema;
 
 function badge(container: HTMLElement) {
-  return container.querySelector<HTMLElement>('[data-lathe-badge-tone]');
+  return container.querySelector<HTMLElement>('[data-slot="badge"]');
 }
 
 describe('select badges', () => {
@@ -47,9 +47,9 @@ describe('select badges', () => {
     const paid = render(<IndexField field={status} cell={{ value: 'paid', display: 'paid' }} />).container;
     const cancelled = render(<IndexField field={status} cell={{ value: 'cancelled', display: 'cancelled' }} />).container;
 
-    expect([badge(paid)?.textContent, badge(paid)?.dataset.latheBadgeTone]).toEqual(['Paid', 'success']);
-    expect([badge(cancelled)?.textContent, badge(cancelled)?.dataset.latheBadgeTone]).toEqual(['Cancelled', 'neutral']);
-    expect(badge(paid)?.className).toContain('bg-success-subtle');
+    expect([badge(paid)?.textContent, badge(cancelled)?.textContent]).toEqual(['Paid', 'Cancelled']);
+    expect(badge(paid)?.className).toContain('cn-badge-variant-success');
+    expect(badge(cancelled)?.className).toContain('cn-badge-variant-secondary');
   });
 
   it('marks each status with a dot in its solid colour', () => {

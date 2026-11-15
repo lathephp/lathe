@@ -150,8 +150,11 @@ describe('views rail', () => {
     renderOrders({ tabCounts: { pending: { count: capped }, 'saved:7': { count: capped } } });
     const pill = (name: string) => rail().querySelector(`[data-tab="${name}"] .lathe-tab-count`);
 
-    expect(pill('pending')?.getAttribute('data-badge-type')).toBe('warning');
-    expect(pill('saved:7')?.getAttribute('data-badge-type')).toBe('success');
+    expect(pill('pending')?.getAttribute('data-slot')).toBe('badge');
+    expect(pill('pending')?.className).toContain('cn-badge');
+    expect(pill('pending')?.className).toContain('cn-badge-variant-warning');
+    expect(pill('saved:7')?.getAttribute('data-slot')).toBe('badge');
+    expect(pill('saved:7')?.className).toContain('cn-badge-variant-success');
     expect(rail().querySelector('[data-tab="all"]')?.className).toBe('lathe-tab');
   });
 

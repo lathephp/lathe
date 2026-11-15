@@ -52,7 +52,7 @@ describe('status meter', () => {
     const { container } = render(<IndexField field={status} cell={{ value: 'paid', display: 'paid' }} />);
 
     expect(meter(container)).toEqual({ ticks: 3, on: 2, tone: 'info', text: 'Paid' });
-    expect(container.querySelector('[data-lathe-badge-tone]')).toBeNull();
+    expect(container.querySelector('[data-slot="badge"]')).toBeNull();
     expect([...container.querySelectorAll('[data-lathe-meter-tick]')].map((tick) => tick.className.includes('opacity-[0.22]'))).toEqual([false, false, true]);
   });
 
@@ -87,7 +87,7 @@ describe('status meter', () => {
     const { container } = render(<IndexField field={{ ...status, meter: null }} cell={{ value: 'paid', display: 'paid' }} />);
 
     expect(container.querySelector('[data-lathe-meter]')).toBeNull();
-    expect(container.querySelector('[data-lathe-badge-tone]')?.textContent).toBe('Paid');
+    expect(container.querySelector('[data-slot="badge"]')?.textContent).toBe('Paid');
   });
 
   it.each([

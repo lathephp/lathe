@@ -4,6 +4,7 @@ import { Bookmark, ChevronDown, Ellipsis, GripVertical } from 'lucide-react';
 import { Suspense, useEffect, useId, useRef, useState, type KeyboardEvent, type ReactNode } from 'react';
 import { Button } from '../components/ui/Button';
 import { NavIcon } from '../components/NavIcon';
+import { Badge, toneVariants } from '../components/ui/Badge';
 import { cn } from '../lib/cn';
 import { DeleteTabDialog, RenameTabDialog, SaveTabDialog } from './lazy';
 import type { BadgeType, IndexProps, SavedTab, TabCount } from './types';
@@ -48,9 +49,8 @@ function TabBadge({ text, type, deferred = false, pending = false }: { text: str
   }
 
   return (
-    <span
-      // The tone's colours live in app.css by data-badge-type.
-      data-badge-type={type ?? undefined}
+    <Badge
+      variant={toneVariants[type ?? ''] ?? 'secondary'}
       className={cn(
         'lathe-tab-count',
         // A count keeps at least its placeholder's width, so the views beside it do not move.
@@ -58,7 +58,7 @@ function TabBadge({ text, type, deferred = false, pending = false }: { text: str
       )}
     >
       {text}
-    </span>
+    </Badge>
   );
 }
 

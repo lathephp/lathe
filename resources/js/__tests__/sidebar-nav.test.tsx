@@ -105,7 +105,9 @@ describe('sidebar badges and tooltips', () => {
     const nav = show('/lathe', { navigationBadges: { '/lathe/resources/orders': { value: '4', type: 'warning' } } });
     const badge = nav.getByText('4');
 
-    expect(badge.dataset.badgeType).toBe('warning');
+    expect(badge.dataset.slot).toBe('badge');
+    expect(badge.className).toContain('cn-badge');
+    expect(badge.className).toContain('cn-badge-variant-warning');
     expect(badge.className).toContain('lathe-nav-badge');
   });
 
@@ -113,7 +115,7 @@ describe('sidebar badges and tooltips', () => {
     const nav = show('/lathe');
     const customers = nav.getByRole('link', { name: /^Customers/ });
 
-    expect(nav.getByText('New').dataset.badgeType).toBe('success');
+    expect(nav.getByText('New').className).toContain('cn-badge-variant-success');
     expect(nav.queryByRole('tooltip')).toBeNull();
 
     fireEvent.mouseEnter(customers.parentElement as HTMLElement);

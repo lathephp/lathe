@@ -41,7 +41,7 @@ function rows(second: string) {
 
 const table = (second: string) => ({ columns, rows: rows(second), rowKey: 'id', sortKeys: [] });
 const saved = (value: string, updatedAt: string) => new Response(JSON.stringify({ field: 'status', fields: { status: { value, display: value } }, updatedAt }), { status: 200 });
-const badge = () => cellOf('Status', 1).querySelector('[data-lathe-badge-tone]')?.textContent;
+const badge = () => cellOf('Status', 1).querySelector('[data-slot="badge"]')?.textContent;
 
 it("shows a row's current value after Back from its record page, with the cell cursor where it was", async () => {
   const requests = fakeInertiaServer();

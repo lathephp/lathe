@@ -568,24 +568,13 @@
     @apply absolute -start-2 top-2 h-4 w-[3px] rounded-e-[3px] bg-brand content-[''] max-md:top-3 max-md:h-5;
   }
 
+  /* The structure every style's cn-badge shares; the look comes from the style. */
+  .lathe-badge {
+    @apply inline-flex w-fit shrink-0 items-center justify-center overflow-hidden whitespace-nowrap;
+  }
+
   .lathe-nav-badge {
-    @apply ms-auto inline-flex h-5 items-center rounded-sm bg-muted px-1.5 text-xs font-medium text-muted-foreground tabular-nums;
-  }
-
-  .lathe-nav-item[aria-current="page"] > .lathe-nav-badge {
-    @apply bg-card font-semibold text-sidebar-accent-foreground;
-  }
-
-  .lathe-nav-badge[data-badge-type="success"] {
-    @apply bg-success-subtle text-success-subtle-foreground;
-  }
-
-  .lathe-nav-badge[data-badge-type="warning"] {
-    @apply bg-warning-subtle text-warning-subtle-foreground;
-  }
-
-  .lathe-nav-badge[data-badge-type="destructive"] {
-    @apply bg-destructive-subtle text-destructive-subtle-foreground;
+    @apply ms-auto tabular-nums;
   }
 
   .lathe-avatar {
@@ -765,27 +754,7 @@
   }
 
   .lathe-tab-count {
-    @apply inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-muted px-1.5 text-[11px] font-semibold text-muted-foreground tabular-nums;
-  }
-
-  [aria-current="page"] > .lathe-tab-count:not([data-badge-type]) {
-    @apply bg-card;
-  }
-
-  .lathe-tab-count[data-badge-type="info"] {
-    @apply bg-info-subtle text-info-subtle-foreground;
-  }
-
-  .lathe-tab-count[data-badge-type="success"] {
-    @apply bg-success-subtle text-success-subtle-foreground;
-  }
-
-  .lathe-tab-count[data-badge-type="warning"] {
-    @apply bg-warning-subtle text-warning-subtle-foreground;
-  }
-
-  .lathe-tab-count[data-badge-type="danger"] {
-    @apply bg-destructive-subtle text-destructive-subtle-foreground;
+    @apply tabular-nums;
   }
 
   /* Save view sits under the views, 4 px below a rule. */

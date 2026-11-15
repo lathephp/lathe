@@ -1,5 +1,5 @@
 import { createElement } from 'react';
-import { Badge, type BadgeTone } from '../../components/ui/Badge';
+import { Badge, type BadgeVariant } from '../../components/ui/Badge';
 import { cn } from '../../lib/cn';
 import type { DetailFieldProps, IndexFieldProps } from '../registry';
 import type { FieldSchema } from '../types';
@@ -15,7 +15,7 @@ function text(value: unknown): string {
   return typeof value === 'string' ? value : '';
 }
 
-const badgeTones: Record<string, BadgeTone> = { info: 'info', success: 'success', warning: 'warning', danger: 'danger', failed: 'danger', loading: 'neutral' };
+const badgeVariants: Record<string, BadgeVariant> = { info: 'info', success: 'success', warning: 'warning', danger: 'destructive', failed: 'destructive', loading: 'secondary' };
 
 // A status draws its own icon; a badge draws one only when the server sent it.
 const statusIcons: Record<string, string> = { loading: 'loader-circle', failed: 'circle-x', success: 'circle-check' };
@@ -28,7 +28,7 @@ function BadgeView({ label, type, icon, status }: { label: string; type: string;
 
   return (
     <span data-lathe-badge-type={type} className="inline-flex">
-      <Badge tone={badgeTones[type] ?? 'neutral'}>
+      <Badge variant={badgeVariants[type] ?? 'secondary'}>
         {name !== '' && createElement(iconNamed(name), { 'aria-hidden': true, className: cn('size-3.5', type === 'loading' && 'animate-spin') })}
         {label}
       </Badge>
