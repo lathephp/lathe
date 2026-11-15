@@ -38,7 +38,7 @@ describe('the detail action menu', () => {
 
     fireEvent.click(await screen.findByRole('button', { name: 'Actions' }));
     const menu = screen.getByRole('menu', { name: 'Actions' });
-    expect(within(menu).getByRole<HTMLButtonElement>('menuitem', { name: 'Cancel Order' }).disabled).toBe(true);
+    expect(within(menu).getByRole('menuitem', { name: 'Cancel Order' }).getAttribute('aria-disabled')).toBe('true');
 
     fireEvent.click(within(menu).getByRole('menuitem', { name: 'Mark Shipped' }));
 
@@ -69,69 +69,82 @@ describe('the detail action menu beside the sidebar', () => {
   });
 });
 
-describe('the detail action menu at the edge of the content', () => {
+describe('the detail action menu from the keyboard', () => {
   function order() {
     renderPage('Resources/Detail', {
       resource: { uriKey: 'orders', label: 'Orders', singularLabel: 'Order', abilities: { create: false } },
       record: { id: 12, title: 'ORD-12', subtitle: '', avatar: null, fields: [], layout: [], abilities: { view: true }, trashed: false },
       breadcrumbs: [],
-      actions: { actions: [meta('mark-shipped', 'Mark Shipped', { authorizedToRun: true })], pivotActions: [], counts: {} },
+      actions: {
+        actions: [meta('mark-shipped', 'Mark Shipped', { authorizedToRun: true }), meta('hold-order', 'Hold Order', { authorizedToRun: true }), meta('delete-order', 'Delete', { destructive: true, authorizedToRun: true })],
+        pivotActions: [],
+        counts: {},
+      },
     });
   }
 
-  // jsdom does no layout, so the rects are what a 390 px phone drew: the menu, ending at its button's
-  // end edge (217), began 39 px off the screen.
-  function drawn(menuLeft: number, menuRight: number) {
-    vi.spyOn(HTMLElement.prototype, 'getBoundingClientRect').mockImplementation(function (this: HTMLElement) {
-      const [left, right] = this.getAttribute('role') === 'menu' ? [menuLeft, menuRight] : this.id === 'content' ? [0, 390] : [0, 0];
+  async function opened() {
+    order();
+    const trigger = await screen.findByRole('button', { name: 'Actions' });
+    trigger.focus();
+    fireEvent.click(trigger);
+    const menu = await screen.findByRole('menu', { name: 'Actions' });
 
-      return { left, right, top: 0, bottom: 0, x: left, y: 0, width: right - left, height: 0, toJSON: () => ({}) };
-    });
+    return { trigger, menu, item: (name: string) => within(menu).getByRole('menuitem', { name }) };
   }
 
-  it('opens from its button\'s start edge when, ending at the button\'s end edge, it would run out of the content', async () => {
-    order();
-    drawn(-39, 217);
+  it('is the kit menu, with the kit item on each action', async () => {
+    const { menu } = await opened();
 
-    fireEvent.click(await screen.findByRole('button', { name: 'Actions' }));
-
-    expect(screen.getByRole('menu', { name: 'Actions' }).className).toMatch(/(?:^|\s)start-0(?:\s|$)/);
-    expect(screen.getByRole('menu', { name: 'Actions' }).className).not.toMatch(/(?:^|\s)end-0(?:\s|$)/);
+    expect(menu.getAttribute('data-slot')).toBe('dropdown-menu-content');
+    expect(within(menu).getAllByRole('menuitem').map((item) => item.getAttribute('data-slot'))).toEqual(['dropdown-menu-item', 'dropdown-menu-item', 'dropdown-menu-item']);
   });
 
-  it('ends at its button\'s end edge when it fits there', async () => {
-    order();
-    drawn(120, 376);
+  // Once Tab had put the focus on the first item, ArrowDown did not move it.
+  it('moves down from the first item with ArrowDown and to the last with End', async () => {
+    const { item } = await opened();
+    item('Mark Shipped').focus();
 
-    fireEvent.click(await screen.findByRole('button', { name: 'Actions' }));
+    fireEvent.keyDown(item('Mark Shipped'), { key: 'ArrowDown' });
+    await waitFor(() => {
+      expect(document.activeElement).toBe(item('Hold Order'));
+    });
 
-    expect(screen.getByRole('menu', { name: 'Actions' }).className).toMatch(/(?:^|\s)end-0(?:\s|$)/);
+    fireEvent.keyDown(item('Hold Order'), { key: 'End' });
+    await waitFor(() => {
+      expect(document.activeElement).toBe(item('Delete'));
+    });
   });
 
-  it('closes when the window changes width, since its side was chosen for the old one, and not for a new height', async () => {
-    order();
-    fireEvent.click(await screen.findByRole('button', { name: 'Actions' }));
-    const width = window.innerWidth;
+  it('focuses the item whose name starts with the letter typed', async () => {
+    const { item } = await opened();
+    item('Mark Shipped').focus();
 
-    vi.spyOn(window, 'innerHeight', 'get').mockReturnValue(window.innerHeight - 80);
-    fireEvent(window, new Event('resize'));
-    expect(screen.getByRole('menu', { name: 'Actions' })).toBeTruthy();
+    fireEvent.keyDown(item('Mark Shipped'), { key: 'd' });
 
-    vi.spyOn(window, 'innerWidth', 'get').mockReturnValue(width - 400);
-    fireEvent(window, new Event('resize'));
-    expect(screen.queryByRole('menu', { name: 'Actions' })).toBeNull();
+    await waitFor(() => {
+      expect(document.activeElement).toBe(item('Delete'));
+    });
   });
 
-  it('closes on Escape while the focus is still on Actions', async () => {
-    order();
-    const actions = await screen.findByRole('button', { name: 'Actions' });
+  it('closes on Escape and gives the focus back to Actions', async () => {
+    const { trigger, item } = await opened();
+    item('Hold Order').focus();
 
-    fireEvent.click(actions);
-    actions.focus();
-    fireEvent.keyDown(actions, { key: 'Escape' });
+    fireEvent.keyDown(item('Hold Order'), { key: 'Escape' });
 
-    expect(screen.queryByRole('menu', { name: 'Actions' })).toBeNull();
-    expect(document.activeElement).toBe(actions);
+    await waitFor(() => {
+      expect(screen.queryByRole('menu', { name: 'Actions' })).toBeNull();
+    });
+    expect(document.activeElement).toBe(trigger);
+  });
+
+  // A menu inside the content stacked under the sidebar. On the body, it stacks above it.
+  it('draws its menu on the body, outside the content', async () => {
+    const { menu } = await opened();
+
+    expect(menu.closest('#content')).toBeNull();
+    expect(menu.closest('[data-lathe-sidebar]')).toBeNull();
   });
 });
 
