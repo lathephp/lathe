@@ -382,12 +382,17 @@ it('names in the 1.0.0-beta.14 section every English string added or removed sin
         ->and(array_values(array_diff($changed, $named[1])))->toBe([]);
 })->group('frontend');
 
-it('opens with 1.0.0-beta.14 and tells a 1.0.0-beta.12 app each change that can break it', function () {
+it('opens with 1.0.0-beta.15 and its toast changes, then tells a 1.0.0-beta.12 app each change of 1.0.0-beta.14 that can break it', function () {
     $guide = File::get(dirname(__DIR__, 3).'/docs/getting-started/upgrade.md');
+    $newest = explode("\n## ", explode("## From 1.0.0-beta.14 to 1.0.0-beta.15\n", $guide, 2)[1] ?? '', 2)[0];
     $section = explode("\n## ", explode("## From 1.0.0-beta.12 to 1.0.0-beta.14\n", $guide, 2)[1] ?? '', 2)[0];
     preg_match('/^## From .*$/m', $guide, $heading);
 
-    expect($heading[0] ?? null)->toBe('## From 1.0.0-beta.12 to 1.0.0-beta.14')
+    expect($heading[0] ?? null)->toBe('## From 1.0.0-beta.14 to 1.0.0-beta.15')
+        ->and($newest)->toContain(
+            'wraps it in `ToastContent`',
+            'Toasts stack like shadcn\'s Base UI toast',
+        )
         ->and($section)->toContain(
             'answer 403 to a user who fails `viewAny` on the related Resource',
             'the permission plugin\'s role and permission fields show only to a user who passes `viewAny`',

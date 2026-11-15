@@ -10,6 +10,17 @@ This page is generated from the [changelog](changelog.md). Its API changes are t
 
 It covers every release, newest first: each section holds the changes between a release and the one before it. Going up several releases, read each section from the release you run to the newest. Check each API change against your code before you update, and tell your users about the behaviour changes.
 
+## From 1.0.0-beta.14 to 1.0.0-beta.15
+
+### API changes
+
+- `@lathephp/ui/toast` draws a toast like shadcn's Base UI toast: `Toast` is the card, with the style's `cn-toast` corners and no padding of its own, the new `ToastContent` is its 16 px padded row, the new `ToastTitle` shows a toast's `title` in medium weight, and `ToastDescription` shows its `description` in the muted colour. A plugin that put `ToastDescription` straight inside `Toast` wraps it in `ToastContent` and, for the main line, uses `ToastTitle` with the toast's `title`.
+- Toasts stack like shadcn's Base UI toast: the newest is in front and up to two older ones peek 12 px above it, each 10% smaller with its content hidden, until a hover, a tap or the keyboard focus fans the stack out 12 px apart. A toast swipes away, except a running task's, which has no Dismiss either, and the stack spans a phone's width 16 px from each side. The "N more" count under the stack is gone; a fourth toast waits behind the three as before. `ToastViewport` and `Toast` of `@lathephp/ui/toast` carry the stack, so a plugin's own toasts stack the same way.
+
+### Behaviour changes
+
+- The panel's toasts take the style's corners, 16 px padding and a 16 px outline icon for their kind, red only for an error. The message is the title and a toast's body sits under it in the muted colour, and Undo and the close button are the kit's outline and ghost buttons.
+
 ## From 1.0.0-beta.12 to 1.0.0-beta.14
 
 ### API changes
