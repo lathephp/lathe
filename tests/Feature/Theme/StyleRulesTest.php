@@ -27,3 +27,37 @@ it('fills an indeterminate checkbox as it fills a checked one', function (string
 it('dims a disabled nova checkbox and radio to its own 70 percent over the kit default', function (string $class) {
     expect(styleRule('nova', $class))->toContain('data-disabled:opacity-70!');
 })->with(['cn-checkbox', 'cn-radio-group-item']);
+
+it('holds the focus ring of each kit part in its style rule', function (string $style, string $class) {
+    $rings = array_filter(styleRule($style, $class), fn (string $utility) => preg_match('/^(?:dark:)?(?:focus-visible|group-data-\[focused=true\]\/day):(?:[\w-]+:)*(?:ring-|border-(?:[a-z]-)?ring)/', $utility) === 1);
+
+    expect($rings)->not->toBeEmpty();
+})->with(STYLE_RULES_STYLES)->with(['cn-toggle', 'cn-badge', 'cn-item', 'cn-tabs-trigger', 'cn-scroll-area-viewport', 'cn-calendar-day-button', 'cn-input-otp-slot']);
+
+// Base UI never sets data-active on an OTP slot, so a ring keyed to it never showed.
+// Sera draws its slot as an underline, whose focus look is the bottom border.
+it('keys the OTP slot ring to the focus and to an invalid value', function (string $style) {
+    $rule = implode(' ', styleRule($style, 'cn-input-otp-slot'));
+
+    expect($rule)->not->toContain('data-[active=true]')
+        ->toMatch('/(^| )focus-visible:(ring-|border-(b-)?ring)/')
+        ->toMatch('/(^| )(focus-visible:)?aria-invalid:/');
+})->with(STYLE_RULES_STYLES);
+
+// Nova rings a control you press with a gap in its focus colour.
+it('rings a nova control you press with the offset focus ring', function (string $class) {
+    $rule = styleRule('nova', $class);
+
+    expect($rule)->toContain('focus-visible:ring-2', 'focus-visible:ring-focus', 'focus-visible:ring-offset-2', 'focus-visible:ring-offset-background')
+        ->and(array_values(preg_grep('/^focus-visible:(ring-(\d|\[)|ring-ring|border-ring)/', $rule) ?: []))->toBe(['focus-visible:ring-2']);
+})->with(['cn-button', 'cn-toggle', 'cn-toggle-group-item', 'cn-checkbox', 'cn-radio-group-item', 'cn-switch', 'cn-slider-thumb', 'cn-calendar-day-button', 'cn-badge', 'cn-tabs-trigger', 'cn-accordion-trigger']);
+
+// Nova rings a field you type in with its border and a 1 px ring in the ring colour.
+it('rings a nova field you type in with its border', function (string $class) {
+    $rule = implode(' ', styleRule('nova', $class));
+
+    expect($rule)->toMatch('/(^| )(focus-visible|has-\[\[data-slot=input-group-control\]:focus-visible\]):border-ring( |$)/')
+        ->toMatch('/(^| )(focus-visible|has-\[\[data-slot=input-group-control\]:focus-visible\]):ring-1( |$)/')
+        ->toMatch('/(^| )(focus-visible|has-\[\[data-slot=input-group-control\]:focus-visible\]):ring-ring( |$)/')
+        ->not->toMatch('/focus-visible\]?:ring-(3|2|\[)/');
+})->with(['cn-input', 'cn-textarea', 'cn-select-trigger', 'cn-input-otp-slot', 'cn-input-group']);

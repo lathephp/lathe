@@ -92,7 +92,7 @@
 
   /* MARK: Badge */
   .cn-badge {
-    @apply h-5 gap-1 rounded-none border border-transparent px-2 py-0.5 text-xs font-medium transition-all has-data-[icon=inline-end]:pe-1.5 has-data-[icon=inline-start]:ps-1.5 [&>svg]:size-3!;
+    @apply h-5 gap-1 rounded-none border border-transparent px-2 py-0.5 text-xs font-medium transition-all has-data-[icon=inline-end]:pe-1.5 has-data-[icon=inline-start]:ps-1.5 [&>svg]:size-3! focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50;
   }
 
   .cn-badge-variant-default {
@@ -229,6 +229,10 @@
 
   .cn-calendar-caption-label {
     @apply h-6 rounded-none pe-1 ps-1.5;
+  }
+
+  .cn-calendar-day-button {
+    @apply group-data-[focused=true]/day:border-ring group-data-[focused=true]/day:ring-[3px] group-data-[focused=true]/day:ring-ring/50;
   }
 
   /* MARK: Card */
@@ -630,7 +634,7 @@
   }
 
   .cn-input-otp-slot {
-    @apply dark:bg-input/30 border-input data-[active=true]:border-ring data-[active=true]:ring-ring/50 data-[active=true]:aria-invalid:ring-destructive/20 dark:data-[active=true]:aria-invalid:ring-destructive/40 aria-invalid:border-destructive data-[active=true]:aria-invalid:border-destructive size-8 border-y border-e text-xs transition-all outline-none first:rounded-none first:border-s last:rounded-none data-[active=true]:ring-1;
+    @apply dark:bg-input/30 border-input focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:aria-invalid:ring-destructive/20 dark:focus-visible:aria-invalid:ring-destructive/40 aria-invalid:border-destructive focus-visible:aria-invalid:border-destructive size-8 border-y border-e text-xs transition-all outline-none first:rounded-none first:border-s last:rounded-none focus-visible:ring-1;
   }
 
   .cn-input-otp-caret-line {
@@ -643,7 +647,7 @@
 
   /* MARK: Item */
   .cn-item {
-    @apply [a]:hover:bg-muted rounded-none border text-xs;
+    @apply [a]:hover:bg-muted rounded-none border text-xs focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50;
   }
 
   .cn-item-variant-default {
@@ -927,6 +931,10 @@
   /* MARK: Scroll Area */
   .cn-scroll-area-scrollbar {
     @apply data-horizontal:h-2.5 data-horizontal:flex-col data-horizontal:border-t data-horizontal:border-t-transparent data-vertical:h-full data-vertical:w-2.5 data-vertical:border-s data-vertical:border-s-transparent;
+  }
+
+  .cn-scroll-area-viewport {
+    @apply focus-visible:ring-[3px] focus-visible:ring-ring/50 focus-visible:outline-1;
   }
 
   .cn-scroll-area-thumb {
@@ -1225,7 +1233,7 @@
   }
 
   .cn-tabs-trigger {
-    @apply gap-1.5 rounded-none border border-transparent px-1.5 py-0.5 text-xs font-medium group-data-vertical/tabs:py-[calc(--spacing(1.25))] [&_svg:not([class*='size-'])]:size-4 has-data-[icon=inline-end]:pe-1 has-data-[icon=inline-start]:ps-1;
+    @apply gap-1.5 rounded-none border border-transparent px-1.5 py-0.5 text-xs font-medium group-data-vertical/tabs:py-[calc(--spacing(1.25))] [&_svg:not([class*='size-'])]:size-4 has-data-[icon=inline-end]:pe-1 has-data-[icon=inline-start]:ps-1 focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 focus-visible:outline-1 focus-visible:outline-ring;
   }
 
   .cn-tabs-content {
@@ -1239,7 +1247,7 @@
 
   /* MARK: Toggle */
   .cn-toggle {
-    @apply hover:text-foreground aria-pressed:bg-muted focus-visible:border-ring focus-visible:ring-ring/50 aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive data-[state=on]:bg-muted gap-1 rounded-none text-xs font-medium transition-all [&_svg:not([class*='size-'])]:size-4;
+    @apply hover:text-foreground aria-pressed:bg-muted focus-visible:border-ring focus-visible:ring-ring/50 aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive data-[state=on]:bg-muted gap-1 rounded-none text-xs font-medium transition-all [&_svg:not([class*='size-'])]:size-4 focus-visible:ring-[3px];
   }
 
   .cn-toggle-variant-default {

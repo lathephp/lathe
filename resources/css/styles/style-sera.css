@@ -89,7 +89,7 @@
 
   /* MARK: Badge */
   .cn-badge {
-    @apply gap-1.5 rounded-none border-0 bg-transparent px-0 py-0 text-[0.625rem] font-semibold uppercase tracking-widest transition-colors has-data-[icon=inline-end]:pe-0 has-data-[icon=inline-start]:ps-0 [&>svg]:size-3!;
+    @apply gap-1.5 rounded-none border-0 bg-transparent px-0 py-0 text-[0.625rem] font-semibold uppercase tracking-widest transition-colors has-data-[icon=inline-end]:pe-0 has-data-[icon=inline-start]:ps-0 [&>svg]:size-3! focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50;
   }
 
   .cn-badge-variant-default {
@@ -234,6 +234,10 @@
 
   .cn-calendar-caption-label {
     @apply h-8 pe-2 ps-3 text-xs font-semibold uppercase tracking-wide;
+  }
+
+  .cn-calendar-day-button {
+    @apply group-data-[focused=true]/day:border-ring group-data-[focused=true]/day:ring-[3px] group-data-[focused=true]/day:ring-ring/50;
   }
 
   .cn-calendar-caption {
@@ -643,7 +647,7 @@
   }
 
   .cn-input-otp-slot {
-    @apply border-transparent border-b-input bg-transparent data-[active=true]:border-b-ring aria-invalid:border-b-destructive dark:aria-invalid:border-b-destructive/50 size-10 border text-sm transition-[color,border-color] outline-none first:rounded-none last:rounded-none;
+    @apply border-transparent border-b-input bg-transparent focus-visible:border-b-ring aria-invalid:border-b-destructive dark:aria-invalid:border-b-destructive/50 size-10 border text-sm transition-[color,border-color] outline-none first:rounded-none last:rounded-none;
   }
 
   .cn-input-otp-caret-line {
@@ -656,7 +660,7 @@
 
   /* MARK: Item */
   .cn-item {
-    @apply [a]:hover:bg-muted rounded-none border text-sm;
+    @apply [a]:hover:bg-muted rounded-none border text-sm focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50;
   }
 
   .cn-item-variant-default {
@@ -945,6 +949,10 @@
   /* MARK: Scroll Area */
   .cn-scroll-area-scrollbar {
     @apply data-horizontal:h-2.5 data-horizontal:flex-col data-horizontal:border-t data-horizontal:border-t-transparent data-vertical:h-full data-vertical:w-2.5 data-vertical:border-s data-vertical:border-s-transparent;
+  }
+
+  .cn-scroll-area-viewport {
+    @apply focus-visible:ring-[3px] focus-visible:ring-ring/50 focus-visible:outline-1;
   }
 
   .cn-scroll-area-thumb {
@@ -1243,7 +1251,7 @@
   }
 
   .cn-tabs-trigger {
-    @apply gap-2 border border-transparent px-4 py-1.5 text-xs font-semibold group-data-vertical/tabs:px-4 group-data-vertical/tabs:py-2 [&_svg:not([class*='size-'])]:size-3.5 has-data-[icon=inline-end]:pe-2.5 has-data-[icon=inline-start]:ps-2.5 uppercase tracking-wider;
+    @apply gap-2 border border-transparent px-4 py-1.5 text-xs font-semibold group-data-vertical/tabs:px-4 group-data-vertical/tabs:py-2 [&_svg:not([class*='size-'])]:size-3.5 has-data-[icon=inline-end]:pe-2.5 has-data-[icon=inline-start]:ps-2.5 uppercase tracking-wider focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 focus-visible:outline-1 focus-visible:outline-ring;
   }
 
   .cn-tabs-content {
@@ -1257,7 +1265,7 @@
 
   /* MARK: Toggle */
   .cn-toggle {
-    @apply hover:text-foreground aria-pressed:bg-muted focus-visible:border-ring focus-visible:ring-ring/30 aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive gap-1.5 rounded-none text-xs font-semibold uppercase tracking-widest transition-colors [&_svg:not([class*='size-'])]:size-3.5;
+    @apply hover:text-foreground aria-pressed:bg-muted focus-visible:border-ring focus-visible:ring-ring/30 aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive gap-1.5 rounded-none text-xs font-semibold uppercase tracking-widest transition-colors [&_svg:not([class*='size-'])]:size-3.5 focus-visible:ring-[3px];
   }
 
   .cn-toggle-variant-default {

@@ -25,7 +25,7 @@ function OTPFieldSlot({ className, ...props }: OTPFieldPrimitive.Input.Props) {
     <OTPFieldPrimitive.Input
       data-slot="otp-field-slot"
       className={cn(
-        'cn-input-otp-slot relative bg-transparent text-center focus:z-10 focus:border-ring focus:ring-3 focus:ring-ring/50 disabled:cursor-not-allowed',
+        'cn-input-otp-slot relative bg-transparent text-center focus:z-10 disabled:cursor-not-allowed',
         className,
       )}
       {...props}
