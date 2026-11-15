@@ -1,5 +1,6 @@
 import { queryClient } from '@lathephp/core';
 import { fireEvent, screen, within } from '@testing-library/react';
+import { readFileSync } from 'node:fs';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import type { LayoutBlock, PanelBlock } from '../fields/types';
 import { renderPage } from './support';
@@ -249,5 +250,69 @@ describe('record columns', () => {
     renderOrder({ items: 1 }, { history: false });
 
     expect(screen.queryByRole('heading', { name: 'History' })).toBeNull();
+  });
+});
+
+describe('relation tab keys', () => {
+  // Three tabs, so that a key's direction shows: wrapping lands two tabs on the same neighbour.
+  function renderTwo() {
+    const notes = { ...actionEvents, key: 'notes', attribute: 'notes', label: 'Notes', relationship: 'notes' };
+
+    renderOrder(
+      { items: 1 },
+      {
+        fields: [...orderFields, actionEvents, notes],
+        layout: [...orderLayout, { type: 'relation-field', key: 'actions', field: actionEvents } as LayoutBlock, { type: 'relation-field', key: 'notes', field: notes } as LayoutBlock],
+      },
+    );
+  }
+
+  afterEach(() => {
+    document.dir = '';
+  });
+
+  it('draws the strip with the kit tab classes', () => {
+    renderTwo();
+
+    const first = screen.getByRole('tab', { name: 'Items 1' });
+    expect(first.className).toContain('cn-tabs-trigger');
+    expect(first.closest('[role="tablist"]')?.className).toContain('cn-tabs-list');
+  });
+
+  it('gives tabindex 0 to the selected tab only', () => {
+    renderTwo();
+
+    expect(screen.getByRole('tab', { name: 'Items 1' }).tabIndex).toBe(0);
+    expect(screen.getByRole('tab', { name: 'Action Events' }).tabIndex).toBe(-1);
+  });
+
+  it('moves with ArrowRight and Home, selecting and focusing', () => {
+    renderTwo();
+
+    const first = screen.getByRole('tab', { name: 'Items 1' });
+    first.focus();
+    fireEvent.keyDown(first, { key: 'ArrowRight' });
+    const second = screen.getByRole('tab', { name: 'Action Events' });
+    expect(second.getAttribute('aria-selected')).toBe('true');
+    expect(document.activeElement).toBe(second);
+
+    fireEvent.keyDown(second, { key: 'Home' });
+    expect(first.getAttribute('aria-selected')).toBe('true');
+    expect(document.activeElement).toBe(first);
+  });
+
+  it('keeps the first-paint strip off the kit package', () => {
+    for (const file of ['components/TabStrip.tsx', 'records/RecordColumns.tsx']) {
+      expect(readFileSync(`resources/js/${file}`, 'utf8')).not.toContain('@lathephp/ui');
+    }
+  });
+
+  it('moves forward with ArrowLeft under rtl', () => {
+    document.dir = 'rtl';
+    renderTwo();
+
+    fireEvent.keyDown(screen.getByRole('tab', { name: 'Items 1' }), { key: 'ArrowLeft' });
+
+    expect(screen.getByRole('tab', { name: 'Action Events' }).getAttribute('aria-selected')).toBe('true');
   });
 });

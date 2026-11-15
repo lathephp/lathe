@@ -3,6 +3,7 @@ import { lazy, Suspense, useId, useRef, useState, type ReactNode } from 'react';
 import { Card } from '../components/ui/Card';
 import { DetailField } from '../fields/registry';
 import type { DetailFieldData, DetailRecord, LayoutBlock, RelationFieldSchema } from '../fields/types';
+import { tabKeys, tabsList, tabsRoot, tabsTrigger } from '../components/TabStrip';
 import { cn } from '../lib/cn';
 import { RecordLayout } from './RecordLayout';
 
@@ -216,7 +217,7 @@ function initialTab(tabs: RelationFieldSchema[]): number {
 }
 
 /**
- * The main card: a row of pill tabs with their counts, the open panel's buttons at its end, then
+ * The main card: a row of line tabs with their counts, the open panel's buttons at its end, then
  * the open panel's table.
  */
 function RelationTabs({ parent, tabs, counts, active, opened, onSelect }: { parent: Parent; tabs: RelationFieldSchema[]; counts: Record<string, number>; active: number; opened: ReadonlySet<number>; onSelect: (index: number) => void }) {
@@ -225,11 +226,12 @@ function RelationTabs({ parent, tabs, counts, active, opened, onSelect }: { pare
   const [actions, setActions] = useState<HTMLDivElement | null>(null);
   // Counts the open panels loaded since the page did, over the page's own.
   const [loaded, setLoaded] = useState<Record<string, number>>({});
+  const keys = tabKeys(onSelect, false);
 
   return (
     <Card className="gap-0 overflow-hidden py-0 text-base">
-      <div className="flex items-center gap-2 border-b border-border px-4 pt-2.5 pb-2">
-        <div role="tablist" aria-orientation="horizontal" className="flex min-w-0 flex-wrap gap-1">
+      <div data-orientation="horizontal" className={cn(tabsRoot, 'flex items-center border-b border-border px-4 pt-2.5 pb-2')}>
+        <div role="tablist" data-variant="line" aria-orientation="horizontal" className={cn(tabsList, 'min-w-0')}>
           {tabs.map((field, index) => {
             const count = field.withCount ? (loaded[field.key] ?? counts[field.key]) : undefined;
 
@@ -239,12 +241,12 @@ function RelationTabs({ parent, tabs, counts, active, opened, onSelect }: { pare
                 id={`${id}-tab-${field.key}`}
                 type="button"
                 role="tab"
+                tabIndex={index === active ? 0 : -1}
                 aria-selected={index === active}
                 aria-controls={`${id}-panel-${field.key}`}
-                className={cn(
-                  'inline-flex h-7 items-center gap-1.5 rounded-md px-2.5 text-[13px] font-medium outline-none focus-visible:ring-2 focus-visible:ring-focus',
-                  index === active ? 'bg-accent text-accent-foreground' : 'text-muted-foreground hover:text-foreground',
-                )}
+                data-active={index === active || undefined}
+                className={tabsTrigger}
+                onKeyDown={keys}
                 onClick={() => {
                   onSelect(index);
                 }}
@@ -253,7 +255,7 @@ function RelationTabs({ parent, tabs, counts, active, opened, onSelect }: { pare
                 {count === undefined ? null : (
                   <>
                     {' '}
-                    <span className={cn('inline-flex h-5 items-center rounded-full px-1.5 text-[11px] font-semibold text-muted-foreground tabular-nums', index === active ? 'bg-card' : 'bg-muted')}>
+                    <span className="inline-flex h-5 items-center rounded-full bg-muted px-1.5 text-[11px] font-semibold text-muted-foreground tabular-nums">
                       {String(count)}
                     </span>
                   </>
