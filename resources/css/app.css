@@ -369,6 +369,12 @@
     @apply size-11 text-muted-foreground md:size-8;
   }
 
+  /* The sidebar toggle's aria-expanded tells the sidebar's state, not an open menu, so it keeps
+     the ghost ground the style gives an expanded menu trigger. */
+  .lathe-topbar [aria-controls="lathe-sidebar"][aria-expanded="true"]:not(:hover, :active) {
+    @apply bg-transparent;
+  }
+
   .lathe-topbar .cn-button-size-icon > .lucide-bell {
     @apply size-[18px];
   }

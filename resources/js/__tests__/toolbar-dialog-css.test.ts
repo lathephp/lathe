@@ -53,3 +53,18 @@ describe('toolbar rules and the dialogs it opens', () => {
     expect(toolbarSelectors.filter((selector) => own.matches(selector))).toEqual([]);
   });
 });
+
+// The sidebar toggle's aria-expanded tells the sidebar's state, not an open menu.
+const topbarRules = [...css.matchAll(/^\s*(\.lathe-topbar[^{]*?)\s*\{([^}]*)\}/gm)].map((match) => ({ selector: match[1] ?? '', body: match[2] ?? '' }));
+
+describe('the top bar', () => {
+  it("keeps an open sidebar's toggle on the ghost ground", () => {
+    document.body.innerHTML = '<header class="lathe-topbar"></header>';
+    const toggle = button(buttonClass('ghost', 'icon'));
+    toggle.setAttribute('aria-controls', 'lathe-sidebar');
+    toggle.setAttribute('aria-expanded', 'true');
+    document.querySelector('.lathe-topbar')?.append(toggle);
+
+    expect(topbarRules.filter((rule) => toggle.matches(rule.selector) && rule.body.includes('bg-transparent'))).toHaveLength(1);
+  });
+});
