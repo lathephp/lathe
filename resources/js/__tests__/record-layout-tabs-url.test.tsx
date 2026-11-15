@@ -158,12 +158,21 @@ describe('tab keys', () => {
     expect(new URL(window.location.href).searchParams.get('tab')).toBe('billing');
   });
 
-  it('moves a vertical group with ArrowDown', () => {
-    renderDetail([tabs('main', 'tab', ['order', 'billing'], { vertical: true })], ['order', 'billing']);
+  it('moves a vertical group with ArrowDown and with the forward arrow', () => {
+    renderDetail([tabs('main', 'tab', ['order', 'billing', 'notes'], { vertical: true })], ['order', 'billing', 'notes']);
+
+    const tablist = screen.getByRole('tablist');
+    // A phone draws the group as a horizontal row; md: classes turn it into a column.
+    expect(tablist.getAttribute('data-orientation')).toBe('horizontal');
+    expect(tablist.getAttribute('aria-orientation')).toBe('vertical');
+    expect(tablist.className).toContain('md:flex-col');
 
     fireEvent.keyDown(screen.getByRole('tab', { name: 'Order' }), { key: 'ArrowDown' });
-
     expect(screen.getByRole('tab', { name: 'Billing' }).getAttribute('aria-selected')).toBe('true');
     expect(new URL(window.location.href).searchParams.get('tab')).toBe('billing');
+
+    fireEvent.keyDown(screen.getByRole('tab', { name: 'Billing' }), { key: 'ArrowRight' });
+    expect(screen.getByRole('tab', { name: 'Notes' }).getAttribute('aria-selected')).toBe('true');
+    expect(new URL(window.location.href).searchParams.get('tab')).toBe('notes');
   });
 });

@@ -249,7 +249,7 @@ function TabGroup({ group, ...props }: RecordLayoutProps & { group: TabGroupBloc
   return (
     <section
       aria-label={group.label ?? undefined}
-      data-orientation={group.vertical ? 'vertical' : 'horizontal'}
+      data-orientation="horizontal"
       className={cn(tabsRoot, 'space-y-3', group.vertical && 'md:flex md:gap-6 md:space-y-0')}
     >
       {/* The strip scrolls in its own box, so a phone never scrolls the page sideways; its line is an
@@ -257,8 +257,9 @@ function TabGroup({ group, ...props }: RecordLayoutProps & { group: TabGroupBloc
       <div
         role="tablist"
         data-variant="line"
+        data-orientation="horizontal"
         aria-orientation={group.vertical ? 'vertical' : 'horizontal'}
-        className={cn(tabsList, 'h-auto overflow-x-auto pb-[5px]', group.vertical ? 'md:overflow-visible' : 'shadow-[inset_0_-1px_0_var(--color-border)]')}
+        className={cn(tabsList, 'h-auto overflow-x-auto pb-[5px] shadow-[inset_0_-1px_0_var(--color-border)]', group.vertical && 'md:h-fit md:flex-col md:overflow-visible md:pb-0 md:shadow-none')}
       >
         {group.tabs.map((tab, index) => (
           <button
@@ -270,7 +271,7 @@ function TabGroup({ group, ...props }: RecordLayoutProps & { group: TabGroupBloc
             aria-selected={index === active}
             aria-controls={`tabpanel-${group.attribute}-${tab.attribute}`}
             data-active={index === active || undefined}
-            className={tabsTrigger}
+            className={cn(tabsTrigger, group.vertical && 'md:w-full md:justify-start md:after:inset-x-auto md:after:inset-y-0 md:after:-end-1 md:after:bottom-auto md:after:h-auto md:after:w-0.5')}
             onKeyDown={keys}
             onClick={() => {
               select(index);
