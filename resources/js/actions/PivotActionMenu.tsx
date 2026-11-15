@@ -1,9 +1,7 @@
 import { useLathe, useQueryClient, useTranslation } from '@lathephp/core';
-import { Button } from '@lathephp/ui';
+import { Button, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@lathephp/ui';
 import { ChevronDown } from 'lucide-react';
-import { useId, useRef, useState } from 'react';
 import type { SelectionDescriptor } from '../index/useRowSelection';
-import { cn } from '../lib/cn';
 import type { ActionMeta } from './types';
 import { useActionRunner } from './useActionRunner';
 
@@ -19,17 +17,11 @@ interface PivotActionMenuProps {
   queryKey: unknown[];
 }
 
-const itemClass =
-  'flex w-full items-start rounded-md px-2 py-1.5 text-start text-sm outline-none hover:bg-muted focus-visible:ring-2 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50';
-
 /** The pivot actions of a relation panel, run on its ticked rows through the parent's via. */
 export function PivotActionMenu({ resource, via, actions, ids, queryKey }: PivotActionMenuProps) {
   const { __ } = useTranslation();
   const { apiPath } = useLathe();
   const queryClient = useQueryClient();
-  const menuId = useId();
-  const [open, setOpen] = useState(false);
-  const trigger = useRef<HTMLButtonElement>(null);
   const runner = useActionRunner({
     base: `${apiPath}/resources/${resource}`,
     onDone: () => {
@@ -45,40 +37,28 @@ export function PivotActionMenu({ resource, via, actions, ids, queryKey }: Pivot
   }
 
   return (
-    <div className="relative">
-      <Button
-        ref={trigger}
-        variant="outline"
-        aria-haspopup="menu"
-        aria-expanded={open}
-        aria-controls={open ? menuId : undefined}
-        onClick={() => {
-          setOpen(!open);
-        }}
-      >
-        {__('Actions')}
-        <ChevronDown aria-hidden="true" className="size-4" />
-      </Button>
-      {open && (
-        <div id={menuId} role="menu" aria-label={__('Actions')} tabIndex={-1} className="absolute start-0 top-full z-20 mt-1 w-56 rounded-lg border border-border bg-background p-1 shadow-lg">
+    <>
+      <DropdownMenu>
+        <DropdownMenuTrigger render={<Button variant="outline" />}>
+          {__('Actions')}
+          <ChevronDown aria-hidden="true" className="size-4" />
+        </DropdownMenuTrigger>
+        {/* On the body, above the sidebar; it starts at the button's start edge and moves in to stay 8 px inside the window. */}
+        <DropdownMenuContent align="start" collisionPadding={8} aria-label={__('Actions')} className="w-56">
           {shown.map((action) => (
-            <button
+            <DropdownMenuItem
               key={action.uriKey}
-              type="button"
-              role="menuitem"
-              className={cn(itemClass, action.destructive && 'text-destructive')}
+              variant={action.destructive ? 'destructive' : 'default'}
               onClick={() => {
-                trigger.current?.focus();
-                setOpen(false);
                 runner.start(action, selection, ids.length);
               }}
             >
               {action.name}
-            </button>
+            </DropdownMenuItem>
           ))}
-        </div>
-      )}
+        </DropdownMenuContent>
+      </DropdownMenu>
       {runner.element}
-    </div>
+    </>
   );
 }
