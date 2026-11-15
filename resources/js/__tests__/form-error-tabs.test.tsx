@@ -39,7 +39,7 @@ describe('a failed save across form tabs', () => {
     });
     fireEvent.click(screen.getByRole('tab', { name: 'Notes' }));
     fireEvent.click(screen.getByRole('button', { name: 'Create Order' }));
-    await screen.findByRole('alert');
+    await screen.findAllByRole('alert');
 
     expect(screen.getByRole('tab', { name: /Billing/ }).getAttribute('aria-selected')).toBe('true');
 

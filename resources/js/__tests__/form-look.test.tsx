@@ -77,12 +77,24 @@ describe('the form errors look', () => {
 
     fireEvent.click(screen.getByRole('button', { name: 'Create customer' }));
 
-    const summary = await screen.findByRole('alert');
-    const error = document.getElementById('field-name-error');
+    const error = await screen.findByText('Enter a name.');
+    const summary = screen.getAllByRole('alert').find((alert) => alert !== error);
 
-    expect(summary.firstElementChild?.tagName).toBe('svg');
-    expect(error?.firstElementChild?.tagName).toBe('svg');
-    expect(error?.textContent).toBe('Enter a name.');
+    expect(summary?.firstElementChild?.tagName).toBe('svg');
+    expect(error.firstElementChild?.tagName).toBe('svg');
+    expect(error.id).toBe('field-name-error');
+  });
+
+  it("draws a field's error with the style's field error class, as an alert", async () => {
+    vi.spyOn(globalThis, 'fetch').mockResolvedValue(new Response(JSON.stringify({ message: 'Invalid', errors: { name: ['Enter a name.'] } }), { status: 422, headers: { 'Content-Type': 'application/json' } }));
+    renderForm();
+
+    fireEvent.click(screen.getByRole('button', { name: 'Create customer' }));
+
+    const error = await screen.findByText('Enter a name.');
+
+    expect(error.classList).toContain('cn-field-error');
+    expect(error.getAttribute('role')).toBe('alert');
   });
 });
 
@@ -101,6 +113,12 @@ describe('the form look', () => {
     expect(screen.getByText('Notes', { selector: 'label' }).nextElementSibling?.textContent).toBe('Optional');
     expect(screen.getByText('Name', { selector: 'label' }).textContent).toBe('Name');
     expect(screen.getByText('Name', { selector: 'label' }).nextElementSibling?.textContent).not.toBe('Optional');
+  });
+
+  it("draws a field's label with the style's label class", () => {
+    renderForm();
+
+    expect(screen.getByText('Name', { selector: 'label' }).classList).toContain('cn-label');
   });
 
   it("draws the text inputs with the style's input class", () => {

@@ -12,6 +12,7 @@ import { AlertIcon } from './ErrorSummary';
 import { RecordLayout } from './RecordLayout';
 import { useDependentFields } from './useDependentFields';
 import type { useRecordForm } from './useRecordForm';
+import { FieldError } from '../components/FieldError';
 
 interface FormFieldsProps {
   uriKey: string;
@@ -140,7 +141,7 @@ export function FormRow({ field, wide = false, reason, idPrefix, value, values, 
     >
       {field.compact ? null : (
         <>
-          <label htmlFor={id} className="font-medium">
+          <label htmlFor={id} className="cn-label">
             {field.label}
           </label>
           {/* A required field goes bare; the others say so beside the label. */}
@@ -164,12 +165,7 @@ export function FormRow({ field, wide = false, reason, idPrefix, value, values, 
             {field.help}
           </p>
         )}
-        {errorId === undefined ? null : (
-          <p id={errorId} className="flex gap-1 text-[13px] leading-[18px] text-destructive-subtle-foreground">
-            <AlertIcon className="mt-0.5 size-3.5 shrink-0" />
-            {error}
-          </p>
-        )}
+        {errorId === undefined ? null : <FieldError id={errorId} message={error} icon={<AlertIcon className="mt-0.5 size-3.5 shrink-0" />} />}
       </div>
     </div>
   );

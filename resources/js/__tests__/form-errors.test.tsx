@@ -75,7 +75,8 @@ const fields = () => [field('reference', 'Reference'), field('total_cents', 'Tot
 async function save() {
   fireEvent.click(screen.getByRole('button', { name: 'Create Order' }));
 
-  return screen.findByRole('alert');
+  // The summary leads the form; each field's own error is an alert too.
+  return (await screen.findAllByRole('alert'))[0] as HTMLElement;
 }
 
 describe('form error summary', () => {
@@ -109,7 +110,7 @@ describe('form error summary', () => {
     fireEvent.change(screen.getByLabelText(/Total/), { target: { value: '12' } });
 
     expect(screen.queryByText('Bad.')).toBeNull();
-    expect(screen.queryByRole('alert')).toBeNull();
+    expect(screen.queryAllByRole('alert')).toEqual([]);
   });
 
   it('keeps the other lines when one field is fixed', async () => {
