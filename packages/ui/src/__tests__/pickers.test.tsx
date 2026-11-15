@@ -8,6 +8,7 @@ import {
   ComboboxChip,
   ComboboxChips,
   ComboboxChipsInput,
+  ComboboxClear,
   ComboboxContent,
   ComboboxEmpty,
   ComboboxGroup,
@@ -54,6 +55,26 @@ describe('Combobox', () => {
     await waitFor(() => {
       expect(change.mock.calls.at(-1)?.[0]).toBe('Banana');
     });
+  });
+
+  it('names the clear button "Clear", or by its label', () => {
+    const { unmount } = render(
+      <Combobox items={['Apple', 'Banana']} defaultValue="Apple">
+        <ComboboxInput placeholder="Fruit" showClear />
+      </Combobox>,
+    );
+
+    expect(screen.getByRole('button', { name: 'Clear' })).toBeTruthy();
+    unmount();
+
+    render(
+      <Combobox items={['Apple', 'Banana']} defaultValue="Apple">
+        <ComboboxInput placeholder="Fruit" />
+        <ComboboxClear label="Remove all" />
+      </Combobox>,
+    );
+
+    expect(screen.getByRole('button', { name: 'Remove all' })).toBeTruthy();
   });
 
   it('shows the chosen values as chips', () => {

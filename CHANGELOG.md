@@ -19,6 +19,7 @@ All notable changes to Lathe are listed here. The format follows [Keep a Changel
 - The Rename view, Save view and Delete view dialogs open on the panel's `Modal`: they trap the focus and close on Escape as every other dialog does, take the style's dialog, input and label look, and stack their buttons on a phone. Delete's confirm is the solid destructive button, and Cancel still has the focus.
 - A lazy part of the panel, such as a menu or a dialog, no longer lists among the files it preloads the chunks its page has already loaded, so a page's first-load JavaScript is about 2 KB smaller: Orders is 198 KB gzip, where it was 200 KB.
 - A table row's View, Edit and menu buttons, the Columns button, a board card's Move button and a repeater row's tools draw as the style's small ghost icon buttons; the panel stylesheet's `lathe-row-button` look rule is gone.
+- [api] The `ComboboxClear` of `@lathephp/ui` has the accessible name "Clear", and takes a `label` prop to change it, such as `label="Remove all"`.
 
 ### Fixed
 

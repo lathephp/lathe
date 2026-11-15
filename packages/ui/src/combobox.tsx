@@ -21,10 +21,11 @@ function ComboboxTrigger({ className, children, ...props }: ComboboxPrimitive.Tr
   );
 }
 
-function ComboboxClear({ className, ...props }: ComboboxPrimitive.Clear.Props) {
+function ComboboxClear({ className, label = 'Clear', ...props }: ComboboxPrimitive.Clear.Props & { label?: string }) {
   return (
     <ComboboxPrimitive.Clear
       data-slot="combobox-clear"
+      aria-label={label}
       render={<InputGroupButton variant="ghost" size="icon-xs" />}
       className={cn('cn-combobox-clear', className)}
       {...props}
@@ -237,6 +238,7 @@ export {
   ComboboxChip,
   ComboboxChipsInput,
   ComboboxTrigger,
+  ComboboxClear,
   ComboboxValue,
   useComboboxAnchor,
 };
