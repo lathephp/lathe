@@ -1,8 +1,8 @@
 import { router } from '@inertiajs/react';
 import { request, toast, useLathe, useTranslation } from '@lathephp/core';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuRadioGroup, DropdownMenuRadioItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@lathephp/ui';
 import { type KeyboardEvent, type PointerEvent, useEffect, useId, useRef, useState, useSyncExternalStore } from 'react';
 import { Button } from '../../components/ui/Button';
-import { useMenuKeys } from '../menuKeys';
 import type { LayoutDraft, WidgetDescriptor } from '../types';
 import { addBack, hide, move, resize, sizeColumns, toPayload } from './draft';
 
@@ -27,9 +27,6 @@ function subscribe(listener: () => void) {
     listeners.delete(listener);
   };
 }
-
-const itemClass =
-  'flex min-h-8 w-full items-center gap-2 rounded-md px-2 text-start text-sm text-popover-foreground outline-none hover:bg-accent hover:text-accent-foreground focus-visible:bg-accent';
 
 interface CustomizeHeaderProps {
   uriKey: string;
@@ -253,12 +250,6 @@ export function EditCardHeader({ widget, draft, change }: EditCardHeaderProps) {
 /** The edit ⋯ menu: the five sizes, then Hide from this dashboard. */
 function SizeMenu({ widget, change }: { widget: WidgetDescriptor; change: ChangeDraft }) {
   const { __ } = useTranslation();
-  const [open, setOpen] = useState(false);
-  const menuId = useId();
-  const root = useRef<HTMLDivElement>(null);
-  useMenuKeys(root, open, () => {
-    setOpen(false);
-  });
   const sizes = [
     ['1/4', __('Small')],
     ['1/3', __('Medium')],
@@ -267,90 +258,50 @@ function SizeMenu({ widget, change }: { widget: WidgetDescriptor; change: Change
     ['full', __('Full')],
   ] as const;
 
-  // A press anywhere outside the menu closes it.
-  useEffect(() => {
-    if (!open) {
-      return;
-    }
-
-    const close = (event: globalThis.PointerEvent) => {
-      if (!(event.target instanceof Node) || root.current?.contains(event.target) !== true) {
-        setOpen(false);
-      }
-    };
-
-    document.addEventListener('pointerdown', close);
-
-    return () => {
-      document.removeEventListener('pointerdown', close);
-    };
-  }, [open]);
-
   return (
-    <div ref={root} className="relative -me-1.5 shrink-0">
-      <button
-        type="button"
-        aria-haspopup="menu"
-        aria-expanded={open}
-        aria-controls={open ? menuId : undefined}
-        aria-label={__('Menu for :title', { title: widget.name })}
-        className="grid size-[26px] place-items-center rounded-md text-muted-foreground outline-none hover:bg-muted hover:text-foreground focus-visible:ring-2 focus-visible:ring-focus"
-        onClick={() => {
-          setOpen(!open);
-        }}
-      >
-        <svg aria-hidden="true" viewBox="0 0 24 24" className="size-4 fill-current">
-          <circle cx="5" cy="12" r="1.75" />
-          <circle cx="12" cy="12" r="1.75" />
-          <circle cx="19" cy="12" r="1.75" />
-        </svg>
-      </button>
-      {open && (
-        <div
-          id={menuId}
-          role="menu"
-          tabIndex={-1}
-          className="absolute end-0 top-full z-10 mt-1 w-[220px] rounded-lg border border-border bg-popover p-1 shadow-md"
-        >
-          {sizes.map(([width, label]) => (
+    <div className="-me-1.5 shrink-0">
+      <DropdownMenu>
+        <DropdownMenuTrigger
+          render={
             <button
-              key={width}
               type="button"
-              role="menuitemradio"
-              aria-checked={widget.width === width}
-              className={itemClass}
-              onClick={() => {
-                setOpen(false);
-                change((current) => resize(current, widget.uriKey, width));
-              }}
-            >
-              <span className="grid w-4 shrink-0 place-items-center">
-                {widget.width === width && (
-                  <svg aria-hidden="true" viewBox="0 0 24 24" className="size-3.5 fill-none stroke-current stroke-[2.25]">
-                    <path d="M20 6 9 17l-5-5" strokeLinecap="round" strokeLinejoin="round" />
-                  </svg>
-                )}
-              </span>
-              {label}
-              <span aria-hidden="true" className="ms-auto text-xs text-muted-foreground">
-                {__(':n of :total', { n: sizeColumns[width] ?? 12, total: 12 })}
-              </span>
-            </button>
-          ))}
-          <div role="separator" className="my-1 h-px bg-border" />
-          <button
-            type="button"
-            role="menuitem"
-            className={itemClass}
+              aria-label={__('Menu for :title', { title: widget.name })}
+              className="grid size-[26px] place-items-center rounded-md text-muted-foreground outline-none hover:bg-muted hover:text-foreground focus-visible:ring-2 focus-visible:ring-focus"
+            />
+          }
+        >
+          <svg aria-hidden="true" viewBox="0 0 24 24" className="size-4 fill-current">
+            <circle cx="5" cy="12" r="1.75" />
+            <circle cx="12" cy="12" r="1.75" />
+            <circle cx="19" cy="12" r="1.75" />
+          </svg>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end" collisionPadding={8} className="w-[220px]">
+          <DropdownMenuRadioGroup
+            value={widget.width}
+            onValueChange={(width: string) => {
+              change((current) => resize(current, widget.uriKey, width));
+            }}
+          >
+            {sizes.map(([width, label]) => (
+              <DropdownMenuRadioItem key={width} value={width} closeOnClick>
+                {label}
+                <span aria-hidden="true" className="ms-auto text-xs text-muted-foreground">
+                  {__(':n of :total', { n: sizeColumns[width] ?? 12, total: 12 })}
+                </span>
+              </DropdownMenuRadioItem>
+            ))}
+          </DropdownMenuRadioGroup>
+          <DropdownMenuSeparator />
+          <DropdownMenuItem
             onClick={() => {
-              setOpen(false);
               change((current) => hide(current, widget.uriKey));
             }}
           >
             {__('Hide from this dashboard')}
-          </button>
-        </div>
-      )}
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
     </div>
   );
 }

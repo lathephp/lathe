@@ -83,7 +83,7 @@ describe('customize mode', () => {
     expect(['Reset to default', 'Cancel', 'Save layout'].map((name) => screen.getByRole('button', { name }).textContent)).toEqual(['Reset to default', 'Cancel', 'Save layout']);
 
     fireEvent.click(within(card('orders')).getByRole('button', { name: 'Menu for Orders' }));
-    const menu = within(card('orders')).getByRole('menu');
+    const menu = await screen.findByRole('menu');
 
     expect(within(menu).getAllByRole('menuitemradio').map((item) => [item.textContent, item.getAttribute('aria-checked')])).toEqual([
       ['Small3 of 12', 'true'],
@@ -93,13 +93,69 @@ describe('customize mode', () => {
       ['Full12 of 12', 'false'],
     ]);
     expect(within(menu).getByRole('menuitem').textContent).toBe('Hide from this dashboard');
+  });
 
-    // Escape closes the menu from any focus inside it and hands the focus back to its button.
-    const button = within(card('orders')).getByRole('button', { name: 'Menu for Orders' });
-    button.focus();
-    fireEvent.keyDown(button, { key: 'Escape' });
-    expect(within(card('orders')).queryByRole('menu')).toBeNull();
-    expect(document.activeElement).toBe(button);
+  describe('the size menu', () => {
+    async function opened() {
+      renderDashboard(true, ['orders', 'revenue']);
+      fireEvent.click(screen.getByRole('button', { name: 'Customize' }));
+      await screen.findByText('Editing layout');
+      const trigger = within(card('orders')).getByRole('button', { name: 'Menu for Orders' });
+      trigger.focus();
+      fireEvent.click(trigger);
+      const menu = await screen.findByRole('menu');
+
+      return { trigger, menu, size: (name: string) => within(menu).getByRole('menuitemradio', { name: new RegExp(`^${name}`) }) };
+    }
+
+    it('is the kit menu on the body, with the kit item on Hide', async () => {
+      const { menu } = await opened();
+
+      expect(menu.getAttribute('data-slot')).toBe('dropdown-menu-content');
+      expect(within(menu).getByRole('menuitem', { name: 'Hide from this dashboard' }).getAttribute('data-slot')).toBe('dropdown-menu-item');
+      expect(menu.closest('#content')).toBeNull();
+      expect(menu.closest('[data-lathe-widget]')).toBeNull();
+    });
+
+    it('moves down from the first size with ArrowDown and to the last item with End', async () => {
+      const { size } = await opened();
+      size('Small').focus();
+
+      fireEvent.keyDown(size('Small'), { key: 'ArrowDown' });
+      await waitFor(() => {
+        expect(document.activeElement).toBe(size('Medium'));
+      });
+
+      fireEvent.keyDown(size('Medium'), { key: 'End' });
+      await waitFor(() => {
+        expect(document.activeElement).toBe(screen.getByRole('menuitem', { name: 'Hide from this dashboard' }));
+      });
+    });
+
+    it('closes on Escape and gives the focus back to its button', async () => {
+      const { trigger, size } = await opened();
+      size('Medium').focus();
+
+      fireEvent.keyDown(size('Medium'), { key: 'Escape' });
+
+      await waitFor(() => {
+        expect(screen.queryByRole('menu')).toBeNull();
+      });
+      expect(document.activeElement).toBe(trigger);
+    });
+
+    it('resizes the card to the size chosen and closes', async () => {
+      const { size } = await opened();
+
+      fireEvent.click(size('Wide'));
+
+      await waitFor(() => {
+        expect(screen.queryByRole('menu')).toBeNull();
+      });
+      fireEvent.click(within(card('orders')).getByRole('button', { name: 'Menu for Orders' }));
+      const menu = await screen.findByRole('menu');
+      expect(within(menu).getByRole('menuitemradio', { name: /^Wide/ }).getAttribute('aria-checked')).toBe('true');
+    });
   });
 
   it('has no Customize and no Hide on a dashboard that is not customizable', async () => {
@@ -162,23 +218,6 @@ describe('customize mode', () => {
     });
   });
 
-  it("opens a card's menu above its button when the window ends below it", async () => {
-    // A 900 px window; under its button the 240 px menu would reach 1,100 px.
-    vi.stubGlobal('innerHeight', 900);
-    vi.spyOn(Element.prototype, 'getBoundingClientRect').mockImplementation(function (this: Element) {
-      const top = this.getAttribute('role') === 'menu' ? 860 : 0;
-
-      return { x: 0, y: top, left: 0, top, width: 220, height: 240, right: 220, bottom: top + 240, toJSON: () => ({}) };
-    });
-    renderDashboard(true, ['orders', 'revenue']);
-
-    fireEvent.click(screen.getByRole('button', { name: 'Customize' }));
-    await screen.findByText('Editing layout');
-    fireEvent.click(within(card('revenue')).getByRole('button', { name: 'Menu for Revenue' }));
-    const menu = within(card('revenue')).getByRole('menu');
-
-    expect([menu.style.top, menu.style.bottom]).toEqual(['auto', 'calc(100% + 4px)']);
-  });
 });
 
 describe('a dashboard whose cards are all hidden', () => {
