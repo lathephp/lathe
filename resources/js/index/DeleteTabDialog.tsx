@@ -1,5 +1,6 @@
 import { useTranslation } from '@lathephp/core';
 import { useId } from 'react';
+import { Modal, ModalFooter, ModalHeader, ModalTitle } from '../components/Modal';
 import { Button } from '../components/ui/Button';
 
 interface DeleteTabDialogProps {
@@ -14,24 +15,18 @@ export function DeleteTabDialog({ name, onDelete, onClose }: DeleteTabDialogProp
   const id = useId();
 
   return (
-    <div className="fixed inset-0 z-50 flex items-start justify-center bg-scrim p-4 pt-[15vh]">
-      <div
-        role="alertdialog"
-        aria-modal="true"
-        aria-labelledby={`${id}-delete`}
-        className="w-full max-w-sm space-y-4 rounded-lg border border-border bg-background p-4 text-foreground shadow-lg"
-      >
-        <h2 id={`${id}-delete`} className="text-base font-semibold">
-          {__('Delete :name?', { name })}
-        </h2>
-        <div className="flex justify-end gap-2">
-          {/* eslint-disable-next-line jsx-a11y/no-autofocus -- Cancel is the safe choice of a confirm. */}
-          <Button variant="outline" autoFocus onClick={onClose}>
-            {__('Cancel')}
-          </Button>
-          <Button onClick={onDelete}>{__('Delete')}</Button>
-        </div>
-      </div>
-    </div>
+    <Modal role="alertdialog" labelledBy={`${id}-delete`} onClose={onClose}>
+      <ModalHeader>
+        <ModalTitle id={`${id}-delete`}>{__('Delete :name?', { name })}</ModalTitle>
+      </ModalHeader>
+      <ModalFooter>
+        <Button variant="outline" data-autofocus onClick={onClose}>
+          {__('Cancel')}
+        </Button>
+        <Button variant="destructive-solid" onClick={onDelete}>
+          {__('Delete')}
+        </Button>
+      </ModalFooter>
+    </Modal>
   );
 }

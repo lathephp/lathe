@@ -372,6 +372,65 @@ describe('saved tab menu', () => {
   });
 });
 
+describe('the saved view dialogs', () => {
+  it('open Rename on the modal stack: Tab from the last button comes back to the name, Enter saves', async () => {
+    answer(200, { id: 7 });
+    const reload = mockReload();
+    renderOrders();
+
+    fireEvent.click(within(rail()).getByRole('button', { name: 'Options for Paid' }));
+    fireEvent.click(screen.getByRole('menuitem', { name: 'Rename' }));
+    const dialog = screen.getByRole('dialog', { name: 'Rename view' });
+    const name = within(dialog).getByLabelText<HTMLInputElement>('Name');
+
+    expect(dialog.getAttribute('aria-modal')).toBe('true');
+    expect(dialog.classList).toContain('cn-dialog-content');
+    expect(name.classList).toContain('cn-input');
+    expect(document.activeElement).toBe(name);
+
+    within(dialog).getByRole('button', { name: 'Save' }).focus();
+    fireEvent.keyDown(document.activeElement ?? document.body, { key: 'Tab' });
+
+    expect(document.activeElement).toBe(name);
+
+    fireEvent.change(name, { target: { value: 'Settled' } });
+    fireEvent.submit(name.form as HTMLFormElement);
+
+    await vi.waitFor(() => {
+      expect(reload).toHaveBeenCalledTimes(1);
+    });
+    expect(calls).toEqual([{ url: '/lathe/api/resources/orders/saved-tabs/7', method: 'PUT', body: { name: 'Settled' } }]);
+  });
+
+  it('close Save view on Escape without saving', () => {
+    answer(201, { id: 9 });
+    renderOrders();
+
+    fireEvent.click(within(rail()).getByRole('button', { name: 'Save view' }));
+    const dialog = screen.getByRole('dialog', { name: 'Save view' });
+
+    expect(dialog.getAttribute('aria-modal')).toBe('true');
+    expect(dialog.classList).toContain('cn-dialog-content');
+
+    fireEvent.keyDown(within(dialog).getByLabelText('Name'), { key: 'Escape' });
+
+    expect(screen.queryByRole('dialog', { name: 'Save view' })).toBeNull();
+    expect(calls).toEqual([]);
+  });
+
+  it('confirm a delete with the destructive button, Cancel taking the focus', () => {
+    renderOrders();
+
+    fireEvent.click(within(rail()).getByRole('button', { name: 'Options for Cancelled' }));
+    fireEvent.click(screen.getByRole('menuitem', { name: 'Delete' }));
+    const dialog = screen.getByRole('alertdialog', { name: 'Delete Cancelled?' });
+
+    expect(dialog.getAttribute('aria-modal')).toBe('true');
+    expect(document.activeElement).toBe(within(dialog).getByRole('button', { name: 'Cancel' }));
+    expect(within(dialog).getByRole('button', { name: 'Delete' }).classList).toContain('cn-button-variant-destructive-solid');
+  });
+});
+
 describe('reordering saved tabs', () => {
   it('moves a focused view down on Alt+Down, saves the order and announces it', async () => {
     answer(204);
