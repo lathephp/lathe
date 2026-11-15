@@ -19,7 +19,8 @@ const dependencies = Object.keys(pkg.dependencies).map((name) => new RegExp(`^${
 export default defineConfig({
   build: {
     lib: { entry: entries, formats: ['es'], fileName: (_format, name) => `${name}.js` },
-    emptyOutDir: false,
+    // Vite empties dist first, then tsc writes the declarations and its build info, so no old file ships.
+    emptyOutDir: true,
     rolldownOptions: {
       external: [/^react($|\/)/, /^react-dom($|\/)/, /^@lathephp\//, ...dependencies],
       output: {

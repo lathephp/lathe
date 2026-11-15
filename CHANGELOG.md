@@ -23,6 +23,7 @@ All notable changes to Lathe are listed here. The format follows [Keep a Changel
 
 ### Fixed
 
+- The `@lathephp/ui` package ships only the modules of the kit: its build empties `dist` first and no longer writes the declarations of its tests, so the package held 7 `dist/__tests__` files and leftovers of old builds such as `dist/sonner.js` and `dist/Badge.d.ts`.
 - A disabled kit `Checkbox` or `RadioGroupItem` of `@lathephp/ui` is dimmed with a not-allowed cursor in every style, where 7 of the 8 styles drew it like an enabled one, and an indeterminate `Checkbox` shows its minus on the style's checked fill in vega, lyra, maia, mira, luma, rhea and sera, where it drew an empty box.
 
 ## [1.0.0-beta.15] - 2026-11-15

@@ -116,7 +116,7 @@
     "!dist/*.tsbuildinfo"
   ],
   "scripts": {
-    "build": "vite build && tsc -b"
+    "build": "vite build && tsc -b tsconfig.build.json"
   },
   "peerDependencies": {
     "react": "^19.3.0"
