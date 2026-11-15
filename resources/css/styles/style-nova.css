@@ -1233,7 +1233,7 @@
   }
 
   .cn-switch-thumb {
-    @apply bg-card data-checked:bg-primary-foreground in-data-disabled:data-unchecked:bg-muted shadow-xs rounded-full group-data-[size=default]/switch:size-3.5 group-data-[size=sm]/switch:size-2.5 group-data-[size=default]/switch:data-checked:translate-x-3.5 group-data-[size=sm]/switch:data-checked:translate-x-2.5 data-unchecked:translate-x-0;
+    @apply bg-card data-checked:bg-primary-foreground in-data-disabled:data-unchecked:bg-muted shadow-xs rounded-full group-data-[size=default]/switch:size-3.5 group-data-[size=sm]/switch:size-2.5 group-data-[size=default]/switch:data-checked:translate-x-3.5 group-data-[size=sm]/switch:data-checked:translate-x-2.5 data-unchecked:translate-x-0 rtl:group-data-[size=default]/switch:data-checked:-translate-x-3.5 rtl:group-data-[size=sm]/switch:data-checked:-translate-x-2.5;
   }
 
   /* MARK: Table */

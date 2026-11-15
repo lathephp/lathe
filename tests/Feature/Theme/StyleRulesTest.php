@@ -96,3 +96,14 @@ it('animates a skeleton from its style, and holds it still for reduced motion', 
     expect(preg_grep('/^animate-(?!none)/', $rule))->not->toBeEmpty()
         ->and($rule)->toContain('motion-reduce:animate-none');
 })->with(STYLE_RULES_STYLES);
+
+// A switch thumb slides along the physical x axis, so under right to left it slides the other way.
+it('slides a checked switch thumb toward the leading end under right to left', function (string $style) {
+    $rule = styleRule($style, 'cn-switch-thumb');
+    $slides = preg_grep('/:translate-x-(?!0$)/', $rule) ?: [];
+
+    expect($slides)->not->toBeEmpty();
+    foreach ($slides as $slide) {
+        expect($rule)->toContain('rtl:'.preg_replace('/:translate-x-/', ':-translate-x-', $slide));
+    }
+})->with(STYLE_RULES_STYLES);
