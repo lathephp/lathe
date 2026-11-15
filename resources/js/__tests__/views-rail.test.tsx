@@ -418,6 +418,23 @@ describe('saved tab menu', () => {
     expect(calls).toEqual([{ url: '/lathe/api/resources/orders/saved-tabs/7', method: 'PUT', body: { name: 'Settled' } }]);
   });
 
+  it('gives the focus back to the options button when the dialog an item opened closes', async () => {
+    renderOrders();
+    const trigger = within(rail()).getByRole('button', { name: 'Options for Paid' });
+    fireEvent.click(trigger);
+    const rename = screen.getByRole('menuitem', { name: 'Rename' });
+    rename.focus();
+
+    fireEvent.click(rename);
+    const dialog = await screen.findByRole('dialog', { name: 'Rename view' });
+    fireEvent.keyDown(within(dialog).getByLabelText('Name'), { key: 'Escape' });
+
+    await vi.waitFor(() => {
+      expect(screen.queryByRole('dialog')).toBeNull();
+    });
+    expect(document.activeElement).toBe(trigger);
+  });
+
   it('deletes a saved tab only after the confirm', async () => {
     answer(204);
     const reload = mockReload();

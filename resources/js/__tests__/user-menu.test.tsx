@@ -94,20 +94,25 @@ describe('user menu', () => {
     expect(readFileSync('resources/js/layout/UserMenu.tsx', 'utf8')).not.toContain('@lathephp/ui');
   });
 
-  it('focuses the first item, wraps the arrow keys, skips the appearance buttons and goes to the ends', () => {
+  it('focuses the first item, wraps the arrow keys through the appearance choices and goes to the ends', async () => {
     renderPage('Dashboard', dashboard);
-    const [shortcuts, signOut] = within(openMenu()).getAllByRole('menuitem');
+    const menu = openMenu();
+    const [shortcuts, signOut] = within(menu).getAllByRole('menuitem');
+    const [light, dark, system] = await within(menu).findAllByRole('menuitemradio');
+    const press = (key: string) => {
+      fireEvent.keyDown(document.activeElement ?? document.body, { key });
+    };
 
     expect(document.activeElement).toBe(shortcuts);
-    fireEvent.keyDown(document.activeElement ?? document.body, { key: 'ArrowDown' });
+    for (const next of [light, dark, system, signOut, shortcuts]) {
+      press('ArrowDown');
+      expect(document.activeElement).toBe(next);
+    }
+    press('ArrowUp');
     expect(document.activeElement).toBe(signOut);
-    fireEvent.keyDown(document.activeElement ?? document.body, { key: 'ArrowDown' });
+    press('Home');
     expect(document.activeElement).toBe(shortcuts);
-    fireEvent.keyDown(document.activeElement ?? document.body, { key: 'ArrowUp' });
-    expect(document.activeElement).toBe(signOut);
-    fireEvent.keyDown(document.activeElement ?? document.body, { key: 'Home' });
-    expect(document.activeElement).toBe(shortcuts);
-    fireEvent.keyDown(document.activeElement ?? document.body, { key: 'End' });
+    press('End');
     expect(document.activeElement).toBe(signOut);
   });
 
@@ -117,7 +122,9 @@ describe('user menu', () => {
     const reached = vi.fn();
     document.addEventListener('keydown', reached);
 
+    // Letters typed together add up: "si" passes System for Sign out.
     fireEvent.keyDown(document.activeElement ?? document.body, { key: 's' });
+    fireEvent.keyDown(document.activeElement ?? document.body, { key: 'i' });
     document.removeEventListener('keydown', reached);
 
     expect(document.activeElement).toBe(signOut);

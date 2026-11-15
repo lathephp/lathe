@@ -7,7 +7,7 @@ export const menuClasses = {
   item: 'cn-dropdown-menu-item group/dropdown-menu-item relative flex w-full cursor-default items-center outline-hidden select-none [&_svg]:pointer-events-none [&_svg]:shrink-0',
 };
 
-const items = (root: HTMLElement | null): HTMLElement[] => [...(root?.querySelectorAll<HTMLElement>('[role="menuitem"]') ?? [])];
+const items = (root: HTMLElement | null): HTMLElement[] => [...(root?.querySelectorAll<HTMLElement>('[role^="menuitem"]') ?? [])];
 
 /**
  * The behaviour of a first-paint menu, on the element around its trigger and its list. The trigger
@@ -52,8 +52,15 @@ export function useMenuKeys(root: RefObject<HTMLElement | null>, open: boolean, 
     event.stopPropagation();
     to?.focus();
   });
+  // An item closes the menu, so the focus goes back to the trigger first, before the item's own
+  // click runs: a dialog it opens then returns the focus there. A radio item leaves the menu open.
+  const choose = useEffectEvent((event: MouseEvent) => {
+    if (event.target instanceof Element && event.target.closest('[role="menuitem"]') !== null) {
+      root.current?.querySelector<HTMLElement>('[aria-haspopup="menu"]')?.focus();
+    }
+  });
   const hover = (event: PointerEvent) => {
-    (event.target instanceof Element ? event.target.closest<HTMLElement>('[role="menuitem"]') : null)?.focus();
+    (event.target instanceof Element ? event.target.closest<HTMLElement>('[role^="menuitem"]') : null)?.focus();
   };
   const outside = useEffectEvent((event: PointerEvent) => {
     if (!(event.target instanceof Node) || root.current?.contains(event.target) !== true) {
@@ -84,11 +91,16 @@ export function useMenuKeys(root: RefObject<HTMLElement | null>, open: boolean, 
     items(element)[0]?.focus();
     element.addEventListener('keydown', onKeyDown);
     element.addEventListener('pointermove', hover);
+    const onClick = (event: MouseEvent) => {
+      choose(event);
+    };
+    element.addEventListener('click', onClick, true);
     document.addEventListener('pointerdown', outside);
 
     return () => {
       element.removeEventListener('keydown', onKeyDown);
       element.removeEventListener('pointermove', hover);
+      element.removeEventListener('click', onClick, true);
       document.removeEventListener('pointerdown', outside);
     };
   }, [open, root]);
