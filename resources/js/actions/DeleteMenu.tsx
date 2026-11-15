@@ -1,7 +1,7 @@
 import { request, toast, useLathe, useTranslation } from '@lathephp/core';
 import { Button, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@lathephp/ui';
 import { ChevronDown } from 'lucide-react';
-import { useId, useRef, useState } from 'react';
+import { useId, useState } from 'react';
 import { Modal, ModalFooter, ModalHeader, ModalTitle } from '../components/Modal';
 import type { Row } from '../index/types';
 import type { IndexUrlState } from '../index/useIndexState';
@@ -33,7 +33,6 @@ export function DeleteMenu({ uriKey, lens, softDeletes, selection, rows, total, 
   const { __ } = useTranslation();
   const { apiPath } = useLathe();
   const titleId = useId();
-  const chosen = useRef<BatchOperation | null>(null);
   const [confirming, setConfirming] = useState<BatchOperation | null>(null);
   const operations = batchOperations(softDeletes, selection, rows);
   const count = selection.all ? (total ?? 0) : selection.selected.size;
@@ -102,19 +101,7 @@ export function DeleteMenu({ uriKey, lens, softDeletes, selection, rows, total, 
 
   return (
     <>
-      {/* The confirm opens once the menu has closed and the focus is back on the button, so the confirm's opener is the button, not the item that is going away. */}
-      <DropdownMenu
-        onOpenChangeComplete={(opened) => {
-          if (!opened && chosen.current !== null) {
-            const operation = chosen.current;
-            chosen.current = null;
-            // The menu returns the focus to the button in a microtask after it unmounts; a timeout lets that land first.
-            setTimeout(() => {
-              setConfirming(operation);
-            }, 0);
-          }
-        }}
-      >
+      <DropdownMenu>
         <DropdownMenuTrigger render={<Button variant="outline" size="sm" />}>
           {__('Delete')}
           <ChevronDown aria-hidden="true" className="size-4" />
@@ -126,7 +113,7 @@ export function DeleteMenu({ uriKey, lens, softDeletes, selection, rows, total, 
               key={operation}
               variant={operation === 'restore' ? 'default' : 'destructive'}
               onClick={() => {
-                chosen.current = operation;
+                setConfirming(operation);
               }}
             >
               {labels[operation]}
