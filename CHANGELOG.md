@@ -4,6 +4,8 @@ All notable changes to Lathe are listed here. The format follows [Keep a Changel
 
 ## [Unreleased]
 
+## [1.0.0-beta.15] - Unreleased
+
 ### Changed
 
 - [api] `@lathephp/ui/toast` draws a toast like shadcn's Base UI toast: `Toast` is the card, with the style's `cn-toast` corners and no padding of its own, the new `ToastContent` is its 16 px padded row, the new `ToastTitle` shows a toast's `title` in medium weight, and `ToastDescription` shows its `description` in the muted colour. A plugin that put `ToastDescription` straight inside `Toast` wraps it in `ToastContent` and, for the main line, uses `ToastTitle` with the toast's `title`.
