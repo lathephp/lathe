@@ -167,7 +167,7 @@ function IndexPage({ resource, table, state, count, error, lens, actions, widget
       {/* One card: the toolbar row (the selection bar while rows are ticked) with the filter bar, then the table.
           Nothing clips it, so a popover from its toolbar reaches past a short table. */}
       <div className={preview.id === null ? undefined : 'lathe-index-split'}>
-        <Card data-lathe-card>
+        <Card data-lathe-card className="gap-0 overflow-visible py-0 text-base max-md:rounded-none max-md:bg-transparent max-md:shadow-none max-md:ring-0">
           <IndexToolbar
             views={views?.button}
             resource={resource}
@@ -295,7 +295,7 @@ function IndexPage({ resource, table, state, count, error, lens, actions, widget
               <div className={`h-32 ${skeletonBar}`} />
             </div>
           )}
-          <Card aria-hidden="true" data-lathe-card="" className="overflow-hidden">
+          <Card aria-hidden="true" data-lathe-card="" className="gap-0 overflow-hidden py-0 max-md:rounded-none max-md:bg-transparent max-md:shadow-none max-md:ring-0">
             <div data-lathe-toolbar="" className={toolbarRow}>
               <div className={`h-9 w-96 max-w-full ${skeletonBar}`} />
             </div>

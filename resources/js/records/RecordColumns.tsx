@@ -198,7 +198,7 @@ export function RecordColumns({ record, parent }: { record: DetailRecord; parent
 /** A card of the record page: its heading in a header row over a bottom border, then its body. */
 function FieldCard({ label, children }: { label: string; children: ReactNode }) {
   return (
-    <Card role="region" aria-label={label}>
+    <Card role="region" aria-label={label} className="gap-0 overflow-visible py-0 text-base">
       <header className="border-b border-border px-5 py-3.5">
         <h2 className="text-base font-semibold">{label}</h2>
       </header>
@@ -227,7 +227,7 @@ function RelationTabs({ parent, tabs, counts, active, opened, onSelect }: { pare
   const [loaded, setLoaded] = useState<Record<string, number>>({});
 
   return (
-    <Card className="overflow-hidden">
+    <Card className="gap-0 overflow-hidden py-0 text-base">
       <div className="flex items-center gap-2 border-b border-border px-4 pt-2.5 pb-2">
         <div role="tablist" aria-orientation="horizontal" className="flex min-w-0 flex-wrap gap-1">
           {tabs.map((field, index) => {

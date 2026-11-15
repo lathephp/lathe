@@ -189,7 +189,7 @@ function DashboardPage({ dashboard, widgets, hiddenWidgets = [] }: DashboardProp
         </Card>
       )}
       {shown.length === 0 && draft === null && hiddenWidgets.length === 0 && (
-        <Card className="space-y-3 p-12 text-center text-sm text-muted-foreground">
+        <Card className="gap-3 p-12 text-center text-sm text-muted-foreground">
           <p>{__('No widgets yet')}</p>
           <p>
             <code className="rounded bg-muted px-1.5 py-0.5 font-mono text-xs text-foreground" dir="ltr">
@@ -333,7 +333,7 @@ function DashboardSkeleton({ title }: { title: string }) {
         <PageHeader title={title} />
         <div aria-hidden="true" className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
           {[0, 1, 2, 3].map((frame) => (
-            <Card key={frame} data-skeleton-frame="" className="h-32 p-4">
+            <Card key={frame} data-skeleton-frame="" className="h-32 gap-0 p-4">
               <div className={`h-3 w-24 ${skeletonBar}`} />
               <div className={`mt-4 h-8 w-32 ${skeletonBar}`} />
             </Card>

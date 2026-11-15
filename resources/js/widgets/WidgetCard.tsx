@@ -156,8 +156,8 @@ export function WidgetCard({ widget, url, params, register, range: hostRange, me
       data-lathe-widget={widget.uriKey}
       aria-busy={refreshing || undefined}
       className={cn(
-        'relative flex flex-col',
-        editing ? 'gap-2 border-dashed border-ring px-3 pt-2.5 pb-3' : flush ? 'gap-2 pt-3 md:gap-3 md:pt-[18px]' : 'p-3 md:px-5 md:py-[18px]',
+        'relative flex flex-col overflow-visible text-base',
+        editing ? 'gap-2 border border-dashed border-ring px-3 pt-2.5 pb-3 ring-0' : flush ? 'gap-2 pt-3 pb-0 md:gap-3 md:pt-[18px]' : 'p-3 md:px-5 md:py-[18px]',
         !editing && !flush && (compact ? 'gap-1 md:gap-1.5' : 'gap-2 md:gap-3'),
         cellClass(widget),
       )}

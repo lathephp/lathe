@@ -12,7 +12,7 @@ export function IndexBanner({ message, onReset }: IndexBannerProps) {
   const { __ } = useTranslation();
 
   return (
-    <Card role="alert" className="flex flex-wrap items-center justify-between gap-3 p-4 text-sm">
+    <Card role="alert" className="flex flex-row flex-wrap items-center justify-between gap-3 p-4 text-sm">
       <p>{message}</p>
       <Button variant="outline" size="sm" onClick={onReset}>
         {__('Reset')}

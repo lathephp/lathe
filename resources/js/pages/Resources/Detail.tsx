@@ -64,7 +64,7 @@ function DetailPage({ resource, record, actions, widgets = [] }: DetailPageProps
 /** The page before its props arrive: its title, then the two columns of cards the record fills. */
 function RecordSkeleton({ title }: { title: string }) {
   const card = (
-    <Card data-skeleton-card="" aria-hidden="true" className="space-y-3 p-4">
+    <Card data-skeleton-card="" aria-hidden="true" className="gap-3 p-4">
       <div className={`h-4 w-32 ${skeletonBar}`} />
       <div className={`h-3 w-full ${skeletonBar}`} />
       <div className={`h-3 w-2/3 ${skeletonBar}`} />

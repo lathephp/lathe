@@ -30,7 +30,7 @@ export function SingularRelationPanel({ field }: { field: DetailFieldData }) {
       : null;
 
   return (
-    <Card role="region" aria-label={field.label}>
+    <Card role="region" aria-label={field.label} className="gap-0 py-0">
       <header className="border-b border-border px-5 py-3.5">
         <h2 className="text-base font-semibold">{field.label}</h2>
       </header>

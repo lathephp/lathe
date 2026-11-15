@@ -201,6 +201,18 @@ it('leaves the look of a panel input to the style', function () {
     }
 });
 
+// The style's cn-card sits in the base layer, so a card look in the components layer would beat it.
+it('leaves the look of a panel card to the style', function () {
+    preg_match_all('/(?:^|[{}])\s*([^{}]*(?:\[data-lathe-card\]|\.lathe-card(?![\w-]))[^{}]*)\{([^{}]*)\}/m', buildOutputPanelCss(), $rules, PREG_SET_ORDER);
+
+    expect($rules)->not->toBeEmpty();
+
+    foreach ($rules as [, $selector, $body]) {
+        expect($body)->not->toMatch('/(?:^|;)\s*(border-radius|box-shadow|border-color)\s*:/', $selector)
+            ->and($body)->not->toContain('!important');
+    }
+});
+
 it('emits each import map specifier as its own entry file', function () {
     $manifest = buildOutputManifest();
     $files = [];

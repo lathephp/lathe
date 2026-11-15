@@ -631,9 +631,9 @@
 /* The resource index: its table card, the tab band, the toolbar, the table and the pager. The
    looks live here, so the index's first-load script carries only the class names. */
 @layer components {
-  /* The card's 12 px radius beats the panel Card's rounded-lg utility. */
-  [data-lathe-card] {
-    @apply rounded-[12px]!;
+  /* The panel Card's flex column, the same in every style. Its look is the style's cn-card. */
+  .lathe-card {
+    @apply flex flex-col;
   }
 
   .lathe-footer {
@@ -982,11 +982,6 @@
   }
 
   @media (width < 48rem) {
-    /* The ! beats the utilities the panel Card carries. */
-    [data-lathe-card] {
-      @apply rounded-none! border-0! bg-transparent! shadow-none!;
-    }
-
     .lathe-toolbar {
       @apply flex-nowrap gap-2 border-0 p-3;
     }
