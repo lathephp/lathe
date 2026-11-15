@@ -107,7 +107,11 @@ function NavItem({ item, context }: { item: NavLink; context: NavContext }) {
       <NavIcon name={item.icon} />
       <span className={cn('truncate', context.collapsed && 'md:sr-only')}>{item.label}</span>
       {badge !== undefined && (
-        <Badge variant={toneVariants[badge.type] ?? 'secondary'} className={cn('lathe-nav-badge', context.collapsed && 'md:sr-only')}>
+        // The current page's count sits on the card ground, and an info count, the default, reads neutral.
+        <Badge
+          variant={active ? 'outline' : badge.type === 'info' ? 'secondary' : (toneVariants[badge.type] ?? 'secondary')}
+          className={cn('lathe-nav-badge', context.collapsed && 'md:sr-only')}
+        >
           {badge.value}
         </Badge>
       )}

@@ -111,6 +111,13 @@ describe('sidebar badges and tooltips', () => {
     expect(badge.className).toContain('lathe-nav-badge');
   });
 
+  it("draws an info count neutral, and the current page's count on the card ground", () => {
+    const nav = show('/lathe', { navigationBadges: { '/lathe/resources/orders': { value: '7', type: 'info' }, '/lathe/pages/pinned': { value: '3', type: 'warning' } } });
+
+    expect(nav.getByText('7').className).toContain('cn-badge-variant-secondary');
+    expect(nav.getByText('3').className).toContain('cn-badge-variant-outline');
+  });
+
   it('shows a badge tooltip on hover and on focus', () => {
     const nav = show('/lathe');
     const customers = nav.getByRole('link', { name: /^Customers/ });
