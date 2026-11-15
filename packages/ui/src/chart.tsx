@@ -1,5 +1,6 @@
 import { useLayoutEffect, useRef, useState, type ComponentProps, type ReactNode } from 'react';
 import { Legend, ResponsiveContainer, Tooltip, type LegendPayload, type TooltipPayloadEntry } from 'recharts';
+import { cn } from './lib/utils';
 
 export {
   Area,
@@ -95,6 +96,8 @@ export interface ChartTooltipContentProps {
   showTotal?: boolean;
   totalLabel?: string;
   formatValue?: (value: number) => string;
+  /** Added to the box's classes, so it can change the style's padding or width. */
+  className?: string;
 }
 
 /** The box a chart shows on hover: a header and one row per series. */
@@ -111,6 +114,7 @@ export function ChartTooltipContent({
   showTotal = false,
   totalLabel = 'Total',
   formatValue = (value) => value.toLocaleString(),
+  className,
 }: ChartTooltipContentProps) {
   if (active !== true || payload === undefined || payload.length === 0) {
     return null;
@@ -128,7 +132,7 @@ export function ChartTooltipContent({
   const total = items.reduce((sum, item) => sum + (typeof item.value === 'number' ? item.value : 0), 0);
 
   return (
-    <div className="cn-chart-tooltip grid min-w-32 items-start gap-1.5 rounded-lg border border-border bg-background px-2.5 py-1.5 text-xs shadow-xl">
+    <div className={cn('cn-chart-tooltip grid min-w-32 items-start', className)}>
       {!hideLabel && header !== undefined && header !== null && header !== '' && <div className="font-medium">{header}</div>}
       <div className="grid gap-1.5">
         {items.map((item, index) => {

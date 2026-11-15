@@ -30,6 +30,9 @@ All notable changes to Lathe are listed here. The format follows [Keep a Changel
 - Each kit part of `@lathephp/ui` takes its focus ring from the active style: a toggle, badge, tab, item, scroll area, calendar day and OTP slot wrote shadcn's 3 px ring in the component, which beat every style's own. In nova a control you press, such as a button, toggle, checkbox, radio, switch, slider thumb, calendar day, badge, tab or accordion trigger, shows the focus colour ring with a 2 px gap, and a field you type in, such as an input, textarea, select, OTP slot or input group, shows its border and a 1 px ring in the ring colour.
 - An OTP slot shows its style's focus and invalid rings: every style keyed them to a `data-active` state Base UI never sets.
 - The kit's `CodeEditor` shows its style's textarea focus ring while you type in it, where its box showed no focus at all.
+- The kit's outline sidebar menu button draws its 1 px outline, and its hover outline, in all 8 styles: the colour was wrapped in `hsl()`, which made it invalid.
+- The kit's `Skeleton` takes its animation from the style, so nova's shimmer shows instead of a pulse over it, and every style holds it still for reduced motion.
+- [api] The kit's `ChartTooltipContent` takes a `className`, and its box takes its border, corners, padding and shadow from the style's `cn-chart-tooltip`.
 
 ## [1.0.0-beta.15] - 2026-11-15
 

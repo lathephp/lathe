@@ -73,3 +73,17 @@ it('rings a box holding the focus as it rings a focused textarea', function (str
         expect($rule)->toContain(str_replace('focus-visible:', 'focus-within:', $ring));
     }
 })->with(STYLE_RULES_STYLES);
+
+// The sidebar tokens are full colours, so hsl() around one made the outline's shadow invalid.
+it('outlines a sidebar button with the sidebar border colour itself', function (string $style) {
+    $rule = implode(' ', styleRule($style, 'cn-sidebar-menu-button-variant-outline'));
+
+    expect($rule)->toContain('var(--sidebar-border)')->not->toContain('hsl(');
+})->with(STYLE_RULES_STYLES);
+
+it('animates a skeleton from its style, and holds it still for reduced motion', function (string $style) {
+    $rule = styleRule($style, 'cn-skeleton');
+
+    expect(preg_grep('/^animate-(?!none)/', $rule))->not->toBeEmpty()
+        ->and($rule)->toContain('motion-reduce:animate-none');
+})->with(STYLE_RULES_STYLES);

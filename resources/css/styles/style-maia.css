@@ -1124,7 +1124,7 @@
   }
 
   .cn-sidebar-menu-button-variant-outline {
-    @apply bg-background hover:bg-sidebar-accent hover:text-sidebar-accent-foreground shadow-[0_0_0_1px_hsl(var(--sidebar-border))] hover:shadow-[0_0_0_1px_hsl(var(--sidebar-accent))];
+    @apply bg-background hover:bg-sidebar-accent hover:text-sidebar-accent-foreground shadow-[0_0_0_1px_var(--sidebar-border)] hover:shadow-[0_0_0_1px_var(--sidebar-accent)];
   }
 
   .cn-sidebar-menu-button-size-default {
@@ -1169,7 +1169,7 @@
 
   /* MARK: Skeleton */
   .cn-skeleton {
-    @apply bg-muted rounded-xl;
+    @apply bg-muted rounded-xl animate-pulse motion-reduce:animate-none;
   }
 
   /* MARK: Slider */

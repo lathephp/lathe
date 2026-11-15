@@ -10,6 +10,7 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from '../breadcrumb';
+import { ChartTooltipContent, type ChartTooltipContentProps } from '../chart';
 import { Empty, EmptyContent, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from '../empty';
 import {
   Alert,
@@ -143,6 +144,8 @@ describe('Separator, Skeleton, Progress and ShimmerBar', () => {
 
     expect(screen.getByRole('separator', { hidden: true }).getAttribute('data-orientation')).toBe('vertical');
     expect(screen.getByTestId('skeleton').className).toContain('cn-skeleton');
+    expect(screen.getByTestId('skeleton').className).not.toContain('animate-pulse');
+    expect(screen.getByTestId('skeleton').getAttribute('data-slot')).toBe('skeleton');
     expect(screen.getByRole('progressbar').getAttribute('aria-valuenow')).toBe('40');
     expect(screen.getByText('40%').getAttribute('data-slot')).toBe('progress-value');
     expect(screen.getByTestId('shimmer').getAttribute('data-slot')).toBe('shimmer-bar');
@@ -269,5 +272,21 @@ describe('ScrollArea', () => {
     );
 
     expect(screen.getByText('Long content').closest('[data-slot="scroll-area-viewport"]')).not.toBeNull();
+  });
+});
+
+describe('ChartTooltipContent', () => {
+  const payload = [{ name: 'Orders', value: 12, color: 'red', type: undefined }] as unknown as ChartTooltipContentProps['payload'];
+
+  it('takes its box from the style, and a className from outside wins', () => {
+    const { container, rerender } = render(<ChartTooltipContent active payload={payload} label="May" />);
+    const box = () => container.firstElementChild as HTMLElement;
+
+    expect(box().className).toBe('cn-chart-tooltip grid min-w-32 items-start');
+
+    rerender(<ChartTooltipContent active payload={payload} label="May" className="p-4" />);
+
+    expect(box().className).toContain('cn-chart-tooltip');
+    expect(box().className).toContain('p-4');
   });
 });
