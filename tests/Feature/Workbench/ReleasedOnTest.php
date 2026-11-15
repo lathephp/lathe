@@ -80,3 +80,22 @@ it('serves the workbench in the style BENCH_THEME_STYLE names, and in nova witho
 
     expect($html)->toContain("<body class=\"style-{$expected}\">");
 })->with([['luma', 'luma'], [null, 'nova']]);
+
+it('serves the workbench over HTTP in the style BENCH_THEME_STYLE names', function () {
+    $port = 18000 + random_int(0, 999);
+    $server = Process::path(dirname(__DIR__, 3))->env(['BENCH_THEME_STYLE' => 'luma'])
+        ->start(['php', 'vendor/bin/testbench', 'serve', "--port={$port}"]);
+
+    try {
+        $body = '';
+
+        for ($try = 0; $try < 50 && ! str_contains($body, '<body'); $try++) {
+            usleep(200_000);
+            $body = (string) @file_get_contents("http://127.0.0.1:{$port}/lathe/login");
+        }
+    } finally {
+        $server->signal(SIGTERM);
+    }
+
+    expect($body)->toContain('<body class="style-luma">');
+});

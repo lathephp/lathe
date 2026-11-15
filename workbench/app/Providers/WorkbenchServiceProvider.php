@@ -33,8 +33,9 @@ class WorkbenchServiceProvider extends ServiceProvider
             date_default_timezone_set($zone);
         }
 
-        // BENCH_THEME_STYLE serves the workbench in another shadcn style, such as luma.
-        $style = Env::get('BENCH_THEME_STYLE');
+        // BENCH_THEME_STYLE serves the workbench in another shadcn style, such as luma. The served
+        // workbench's PHP server keeps the environment out of $_SERVER, so it is read with getenv().
+        $style = Env::get('BENCH_THEME_STYLE') ?? getenv('BENCH_THEME_STYLE');
 
         if (is_string($style) && $style !== '') {
             config(['lathe.theme.style' => $style]);
