@@ -92,7 +92,7 @@ describe('Toaster', () => {
     expect(screen.queryByText('Not saved')).toBeNull();
   });
 
-  it('folds the oldest of four toasts into "1 more" and of five into "2 more"', async () => {
+  it('keeps the newest three toasts in the stack and hides the older ones with no count', async () => {
     render(<Toaster />);
 
     act(() => {
@@ -100,25 +100,37 @@ describe('Toaster', () => {
       toast.success('Two');
       toast.success('Three');
       toast.success('Four');
+      toast.success('Five');
     });
 
-    expect(await screen.findByText('1 more')).toBeTruthy();
+    await screen.findByText('Five');
     const shown = (texts: string[]) =>
       screen
         .getAllByRole('status')
         .filter((element) => !element.hasAttribute('data-limited'))
         .map((element) => texts.find((text) => element.textContent.includes(text)))
         .sort();
-    expect(shown(['One', 'Two', 'Three', 'Four'])).toEqual(['Four', 'Three', 'Two']);
+    expect(shown(['One', 'Two', 'Three', 'Four', 'Five'])).toEqual(['Five', 'Four', 'Three']);
     expect(screen.getByText('One').closest('[data-limited]')).not.toBeNull();
+    expect(screen.queryByText(/more$/)).toBeNull();
+  });
+
+  it('stacks the older toasts behind the newest one, which alone shows its content until the stack expands', async () => {
+    render(<Toaster />);
 
     act(() => {
-      toast.success('Five');
+      toast.success('Older');
+      toast.success('Newer');
     });
 
-    expect(await screen.findByText('2 more')).toBeTruthy();
-    expect(screen.queryByText('1 more')).toBeNull();
-    expect(shown(['One', 'Two', 'Three', 'Four', 'Five'])).toEqual(['Five', 'Four', 'Three']);
+    const content = async (text: string) => (await screen.findByText(text)).closest('[data-slot="toast-content"]') as HTMLElement;
+    const card = (await screen.findByText('Newer')).closest('[data-slot="toast"]') as HTMLElement;
+
+    // Each card sits at the bottom of the viewport; Base UI's index and offset variables place it in the stack.
+    expect(card.className).toMatch(/(^|\s)absolute(\s|$)/);
+    expect(card.className).toContain('[--gap:0.75rem]');
+    expect((await content('Older')).hasAttribute('data-behind')).toBe(true);
+    expect((await content('Newer')).hasAttribute('data-behind')).toBe(false);
   });
 
   it('keeps a success toast past 5 seconds while the pointer is on the stack', async () => {

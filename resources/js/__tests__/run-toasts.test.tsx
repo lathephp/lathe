@@ -231,7 +231,7 @@ describe('run toasts', () => {
     act(() => {
       window.dispatchEvent(new CustomEvent('lathe:export-started', { detail: { id: 4 } }));
     });
-    await within(await screen.findByRole('region', { name: 'Notifications' })).findByText('Export started.');
+    const running = (await within(await screen.findByRole('region', { name: 'Notifications' })).findByText('Export started.')).closest('[data-slot="toast"]') as HTMLElement;
 
     act(() => {
       toast.success('One');
@@ -239,6 +239,8 @@ describe('run toasts', () => {
       toast.success('Three');
     });
 
-    expect(await within(stack()).findByText('1 more')).toBeTruthy();
+    // Three newer toasts fill the stack, so the running one waits behind them.
+    await within(stack()).findByText('Three');
+    expect(running.hasAttribute('data-limited')).toBe(true);
   });
 });
