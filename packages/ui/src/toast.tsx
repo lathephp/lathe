@@ -22,12 +22,13 @@ function ToastViewport({ className, ...props }: ToastPrimitive.Viewport.Props) {
   );
 }
 
+/** The card; the style's cn-toast sets its corners. */
 function Toast({ className, ...props }: ToastPrimitive.Root.Props) {
   return (
     <ToastPrimitive.Root
       data-slot="toast"
       className={cn(
-        'flex items-start gap-2.5 rounded-xl border border-border bg-popover py-3 ps-3.5 pe-3 text-sm text-popover-foreground shadow-md outline-none focus-visible:ring-2 focus-visible:ring-focus data-limited:hidden',
+        'cn-toast border border-border bg-popover text-sm text-popover-foreground shadow-lg outline-none focus-visible:ring-2 focus-visible:ring-focus data-limited:hidden',
         className,
       )}
       {...props}
@@ -35,8 +36,17 @@ function Toast({ className, ...props }: ToastPrimitive.Root.Props) {
   );
 }
 
-function ToastDescription({ className, ...props }: ToastPrimitive.Description.Props) {
-  return <ToastPrimitive.Description data-slot="toast-description" className={cn('leading-5 font-medium', className)} {...props} />;
+/** The row inside the card: the kind's icon, the text, then the action and the close button. */
+function ToastContent({ className, ...props }: ToastPrimitive.Content.Props) {
+  return <ToastPrimitive.Content data-slot="toast-content" className={cn('flex items-center gap-3 p-4', className)} {...props} />;
 }
 
-export { createToastManager, Toast, ToastDescription, ToastProvider, ToastViewport, useToastManager };
+function ToastTitle({ className, ...props }: ToastPrimitive.Title.Props) {
+  return <ToastPrimitive.Title data-slot="toast-title" className={cn('text-sm leading-5 font-medium', className)} {...props} />;
+}
+
+function ToastDescription({ className, ...props }: ToastPrimitive.Description.Props) {
+  return <ToastPrimitive.Description data-slot="toast-description" className={cn('text-sm leading-5 text-muted-foreground', className)} {...props} />;
+}
+
+export { createToastManager, Toast, ToastContent, ToastDescription, ToastProvider, ToastTitle, ToastViewport, useToastManager };

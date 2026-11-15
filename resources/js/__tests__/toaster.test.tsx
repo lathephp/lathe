@@ -24,7 +24,7 @@ describe('Toaster', () => {
     expect((await screen.findByRole('status')).textContent).toContain('Saved');
   });
 
-  it('marks each toast with its kind on a solid dot and a running task with a spinner', async () => {
+  it('marks each toast with its kind by a 16 px outline icon, red only for an error, and a running task with a spinner', async () => {
     render(<Toaster />);
 
     act(() => {
@@ -34,16 +34,37 @@ describe('Toaster', () => {
 
     const saved = (await screen.findByText('Saved')).closest('[data-slot="toast"]') as HTMLElement;
     const failed = screen.getByRole('alert');
-    expect(saved.querySelector('[data-toast-icon]')?.className).toContain('bg-success text-success-foreground');
-    expect(failed.querySelector('[data-toast-icon]')?.className).toContain('bg-destructive text-destructive-foreground');
-    // The kind shows in the dot, so an error's text keeps the foreground colour.
+    expect(saved.querySelector('[data-toast-icon]')?.getAttribute('data-icon')).toBe('circle-check');
+    expect(saved.querySelector('[data-toast-icon]')?.getAttribute('class')).toBe('size-4 shrink-0');
+    expect(failed.querySelector('[data-toast-icon]')?.getAttribute('data-icon')).toBe('octagon-x');
+    expect(failed.querySelector('[data-toast-icon]')?.getAttribute('class')).toBe('size-4 shrink-0 text-destructive');
+    // The kind shows in the icon, so an error's text keeps the foreground colour.
     expect(failed.className).not.toContain('text-destructive');
 
     act(() => {
       __panel.putToast({ type: 'info', message: 'Marking 3 orders shipped', timeout: 0, dismissible: false });
     });
     const running = (await screen.findByText('Marking 3 orders shipped')).closest('[data-slot="toast"]') as HTMLElement;
-    expect(running.querySelector('[data-toast-icon]')?.className).toContain('animate-spin');
+    expect(running.querySelector('[data-toast-icon]')?.getAttribute('data-icon')).toBe('loader-circle');
+    expect(running.querySelector('[data-toast-icon]')?.getAttribute('class')).toContain('animate-spin');
+  });
+
+  it("draws the style's toast card with the message as its title and the body under it", async () => {
+    render(<Toaster />);
+
+    act(() => {
+      __panel.putToast({ type: 'success', message: 'Featured changed to Yes.', body: 'Product 12', action: { label: 'Undo', onClick: () => undefined }, timeout: 5000 });
+    });
+
+    const card = (await screen.findByText('Featured changed to Yes.')).closest('[data-slot="toast"]') as HTMLElement;
+    // The style's cn-toast sets the corners, so the card names no radius of its own.
+    expect(card.className).toContain('cn-toast');
+    expect(card.className).not.toMatch(/(^|\s)rounded-/);
+    expect(card.querySelector('[data-slot="toast-content"]')?.className).toContain('p-4');
+    expect(card.querySelector('[data-slot="toast-title"]')?.textContent).toBe('Featured changed to Yes.');
+    expect(card.querySelector('[data-slot="toast-description"]')?.textContent).toBe('Product 12');
+    expect(within(card).getByRole('button', { name: 'Undo' }).className).toContain('cn-button-variant-outline');
+    expect(within(card).getByRole('button', { name: 'Dismiss' }).className).toContain('cn-button-variant-ghost');
   });
 
   it('keeps an error until it is dismissed and closes a success after 5 seconds', async () => {

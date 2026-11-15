@@ -1,14 +1,10 @@
 import { __panel, useTranslation, type ToastMessage } from '@lathephp/core';
-import { createToastManager, Toast, ToastDescription, ToastProvider, ToastViewport, useToastManager } from '@lathephp/ui/toast';
+import { Button, buttonVariants } from '@lathephp/ui';
+import { createToastManager, Toast, ToastContent, ToastDescription, ToastProvider, ToastTitle, ToastViewport, useToastManager } from '@lathephp/ui/toast';
 import { X } from 'lucide-react';
 import { useEffect, useState } from 'react';
-import { cn } from '../lib/cn';
 
 type Manager = ReturnType<typeof createToastManager<ToastMessage>>;
-
-// The toast's buttons and links: 28 px outlined, 13 px text.
-const buttonClass =
-  'inline-flex h-7 shrink-0 items-center rounded-md border border-border bg-card px-2.5 text-[13px] leading-[18px] font-medium text-foreground outline-none hover:bg-accent focus-visible:ring-2 focus-visible:ring-focus';
 
 // The panel store stays the list plugins read; the manager mirrors it and runs the timers.
 function mirror(manager: Manager): () => void {
@@ -36,14 +32,15 @@ function mirror(manager: Manager): () => void {
 
       // A running task's toast changes in place; Base UI restarts its timer for the new timeout.
       if (before !== undefined) {
-        manager.update(String(toast.id), { description: toast.message, timeout: toast.timeout, data: toast });
+        manager.update(String(toast.id), { title: toast.message, description: toast.body, timeout: toast.timeout, data: toast });
 
         return;
       }
 
       manager.add({
         id: String(toast.id),
-        description: toast.message,
+        title: toast.message,
+        description: toast.body,
         timeout: toast.timeout,
         data: toast,
         onClose: () => {
@@ -93,27 +90,43 @@ function MoreRow() {
   );
 }
 
-const kinds: Record<ToastMessage['type'], { tone: string; path: string }> = {
-  success: { tone: 'bg-success text-success-foreground', path: 'M20 6 9 17l-5-5' },
-  error: { tone: 'bg-destructive text-destructive-foreground', path: 'M12 7v6M12 17h.01' },
-  warning: { tone: 'bg-warning text-warning-foreground', path: 'M12 7v6M12 17h.01' },
-  info: { tone: 'bg-info text-info-foreground', path: 'M12 17v-6M12 7h.01' },
+// Lucide's outline shapes, drawn here: importing the icons would put them on every page's first load.
+const icons = {
+  'circle-check': ['M12 2a10 10 0 1 0 0 20 10 10 0 1 0 0-20', 'm16 9-5.5 5.5L8 12'],
+  info: ['M12 2a10 10 0 1 0 0 20 10 10 0 1 0 0-20', 'M12 16v-4', 'M12 8h.01'],
+  'triangle-alert': ['m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3', 'M12 9v4', 'M12 17h.01'],
+  'octagon-x': [
+    'm15 9-6 6',
+    'M2.586 16.726A2 2 0 0 1 2 15.312V8.688a2 2 0 0 1 .586-1.414l4.688-4.688A2 2 0 0 1 8.688 2h6.624a2 2 0 0 1 1.414.586l4.688 4.688A2 2 0 0 1 22 8.688v6.624a2 2 0 0 1-.586 1.414l-4.688 4.688a2 2 0 0 1-1.414.586H8.688a2 2 0 0 1-1.414-.586z',
+    'm9 9 6 6',
+  ],
+  'loader-circle': ['M21 12a9 9 0 1 1-6.219-8.56'],
 };
 
-/** The kind as a solid dot with its mark; a running task, which cannot be dismissed yet, spins. */
-function KindIcon({ message }: { message: ToastMessage }) {
-  if (message.dismissible === false) {
-    return <span data-toast-icon aria-hidden="true" className="m-0.5 size-4 shrink-0 animate-spin rounded-full border-2 border-border border-t-brand" />;
-  }
+const kinds: Record<ToastMessage['type'], keyof typeof icons> = { success: 'circle-check', error: 'octagon-x', warning: 'triangle-alert', info: 'info' };
 
-  const { tone, path } = kinds[message.type];
+/** The kind as a 16 px outline icon, red for an error; a running task, which cannot be dismissed yet, spins. */
+function KindIcon({ message }: { message: ToastMessage }) {
+  const running = message.dismissible === false;
+  const icon = running ? 'loader-circle' : kinds[message.type];
 
   return (
-    <span data-toast-icon aria-hidden="true" className={cn('mt-px inline-flex size-5 shrink-0 items-center justify-center rounded-full', tone)}>
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className="size-3">
-        <path d={path} />
-      </svg>
-    </span>
+    <svg
+      data-toast-icon
+      data-icon={icon}
+      aria-hidden="true"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={running ? 'size-4 shrink-0 animate-spin' : message.type === 'error' ? 'size-4 shrink-0 text-destructive' : 'size-4 shrink-0'}
+    >
+      {icons[icon].map((d) => (
+        <path key={d} d={d} />
+      ))}
+    </svg>
   );
 }
 
@@ -130,60 +143,64 @@ function ToastList() {
 
     return (
       <Toast key={item.id} toast={item} role={message.type === 'error' ? 'alert' : 'status'}>
-        <KindIcon message={message} />
-        {/* A running task's links and action, such as View run and Cancel, leave its toast to show the result. */}
-        <div className="flex min-w-0 flex-1 flex-col gap-0.5">
-          <ToastDescription />
-          {message.body !== undefined && <p className="text-[13px] leading-[18px] text-muted-foreground">{message.body}</p>}
-          {/* Links, such as Download failed rows, are the longer buttons, so they go under the text. */}
-          {message.links !== undefined && message.links.length > 0 ? (
-            <div className="mt-1.5 flex flex-wrap gap-1.5">
-              {message.links.map((link) => (
-                <a
-                  key={link.href}
-                  href={link.href}
-                  {...(link.newTab ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
-                  className={buttonClass}
-                  onClick={() => {
-                    if (message.dismissible !== false) {
-                      close(item.id);
-                    }
-                  }}
-                >
-                  {link.label}
-                </a>
-              ))}
-            </div>
+        <ToastContent>
+          <KindIcon message={message} />
+          {/* A running task's links and action, such as View run and Cancel, leave its toast to show the result. */}
+          <div className="flex min-w-0 flex-1 flex-col gap-1">
+            <ToastTitle />
+            <ToastDescription />
+            {/* Links, such as Download failed rows, are the longer buttons, so they go under the text. */}
+            {message.links !== undefined && message.links.length > 0 ? (
+              <div className="mt-1 flex flex-wrap gap-1.5">
+                {message.links.map((link) => (
+                  <a
+                    key={link.href}
+                    href={link.href}
+                    {...(link.newTab ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
+                    className={buttonVariants({ variant: 'outline', size: 'sm' })}
+                    onClick={() => {
+                      if (message.dismissible !== false) {
+                        close(item.id);
+                      }
+                    }}
+                  >
+                    {link.label}
+                  </a>
+                ))}
+              </div>
+            ) : null}
+          </div>
+          {/* The action, such as Undo, Retry or Cancel, is short, so it sits at the right. */}
+          {message.action !== undefined ? (
+            <Button
+              variant="outline"
+              size="sm"
+              className="shrink-0"
+              onClick={() => {
+                if (message.dismissible !== false) {
+                  close(item.id);
+                }
+                message.action?.onClick();
+              }}
+            >
+              {message.action.label}
+            </Button>
           ) : null}
-        </div>
-        {/* The action, such as Undo, Retry or Cancel, is short, so it sits at the right. */}
-        {message.action !== undefined ? (
-          <button
-            type="button"
-            className={buttonClass}
-            onClick={() => {
-              if (message.dismissible !== false) {
+          {message.dismissible === false ? null : (
+            /* A plain button: Base UI's Close hides itself from screen readers until the stack expands. */
+            <Button
+              variant="ghost"
+              size="icon-sm"
+              aria-label={__('Dismiss')}
+              className="relative shrink-0 text-muted-foreground after:absolute after:-inset-2 hover:text-foreground"
+              onClick={() => {
                 close(item.id);
-              }
-              message.action?.onClick();
-            }}
-          >
-            {message.action.label}
-          </button>
-        ) : null}
-        {message.dismissible === false ? null : (
-          /* A plain button: Base UI's Close hides itself from screen readers until the stack expands. */
-          <button
-            type="button"
-            aria-label={__('Dismiss')}
-            className="inline-flex size-6 shrink-0 items-center justify-center rounded-md text-muted-foreground outline-none hover:bg-accent hover:text-accent-foreground focus-visible:ring-2 focus-visible:ring-focus"
-            onClick={() => {
-              close(item.id);
-            }}
-          >
-            <X aria-hidden="true" className="size-3.5" />
-          </button>
-        )}
+              }}
+            >
+              <X aria-hidden="true" />
+            </Button>
+          )}
+        </ToastContent>
       </Toast>
     );
   });

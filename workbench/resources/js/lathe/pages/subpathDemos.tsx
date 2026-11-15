@@ -380,7 +380,7 @@ export const subpathDemos: [string, LazyExoticComponent<ComponentType>][] = [
   [
     'toast',
     demo(async () => {
-      const { Toast, ToastDescription, ToastProvider, ToastViewport, createToastManager, useToastManager } = await import('@lathephp/ui/toast');
+      const { Toast, ToastContent, ToastProvider, ToastTitle, ToastViewport, createToastManager, useToastManager } = await import('@lathephp/ui/toast');
       const manager = createToastManager();
 
       function Toasts() {
@@ -388,7 +388,9 @@ export const subpathDemos: [string, LazyExoticComponent<ComponentType>][] = [
 
         return toasts.map((item) => (
           <Toast key={item.id} toast={item}>
-            <ToastDescription />
+            <ToastContent>
+              <ToastTitle />
+            </ToastContent>
           </Toast>
         ));
       }
@@ -401,7 +403,7 @@ export const subpathDemos: [string, LazyExoticComponent<ComponentType>][] = [
             <Button
               variant="outline"
               onClick={() => {
-                manager.add({ description: __('Order saved') });
+                manager.add({ title: __('Order saved') });
               }}
             >
               {__('Show toast')}
