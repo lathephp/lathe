@@ -194,6 +194,14 @@ export default function UiGallery() {
             <Checkbox defaultChecked />
             {__('Paid')}
           </Label>
+          <Label className="gap-2">
+            <Checkbox indeterminate />
+            {__('Some paid')}
+          </Label>
+          <Label className="gap-2">
+            <Checkbox disabled />
+            {__('Refunded')}
+          </Label>
         </Demo>
         <Demo name="dialog">
           <Dialog>
@@ -246,6 +254,10 @@ export default function UiGallery() {
             <Label className="gap-2">
               <RadioGroupItem value="l" />
               {__('Large')}
+            </Label>
+            <Label className="gap-2">
+              <RadioGroupItem value="xl" disabled />
+              {__('Extra large')}
             </Label>
           </RadioGroup>
         </Demo>

@@ -20,6 +20,10 @@ All notable changes to Lathe are listed here. The format follows [Keep a Changel
 - A lazy part of the panel, such as a menu or a dialog, no longer lists among the files it preloads the chunks its page has already loaded, so a page's first-load JavaScript is about 2 KB smaller: Orders is 198 KB gzip, where it was 200 KB.
 - A table row's View, Edit and menu buttons, the Columns button, a board card's Move button and a repeater row's tools draw as the style's small ghost icon buttons; the panel stylesheet's `lathe-row-button` look rule is gone.
 
+### Fixed
+
+- A disabled kit `Checkbox` or `RadioGroupItem` of `@lathephp/ui` is dimmed with a not-allowed cursor in every style, where 7 of the 8 styles drew it like an enabled one, and an indeterminate `Checkbox` shows its minus on the style's checked fill in vega, lyra, maia, mira, luma, rhea and sera, where it drew an empty box.
+
 ## [1.0.0-beta.15] - 2026-11-15
 
 ### Changed

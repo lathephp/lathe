@@ -86,6 +86,25 @@ describe('Checkbox, Switch and RadioGroup', () => {
     expect(notify.getAttribute('data-size')).toBe('sm');
   });
 
+  it('dim a disabled checkbox and radio through data-disabled, since Base UI draws each as a span', () => {
+    render(
+      <>
+        <Checkbox aria-label="Paid" disabled />
+        <RadioGroup aria-label="Size" defaultValue="s">
+          <RadioGroupItem value="s" aria-label="Small" disabled />
+        </RadioGroup>
+      </>,
+    );
+
+    for (const control of [screen.getByRole('checkbox', { name: 'Paid' }), screen.getByRole('radio', { name: 'Small' })]) {
+      expect(control.tagName).toBe('SPAN');
+      expect(control.hasAttribute('data-disabled')).toBe(true);
+      expect(control.className).toContain('data-disabled:opacity-50');
+      expect(control.className).toContain('data-disabled:cursor-not-allowed');
+      expect(control.className).not.toMatch(/(^| )disabled:/);
+    }
+  });
+
   it('moves the radio choice with the arrow keys', async () => {
     render(
       <RadioGroup aria-label="Size" defaultValue="s">
