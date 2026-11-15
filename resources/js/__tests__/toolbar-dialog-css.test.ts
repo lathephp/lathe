@@ -45,6 +45,14 @@ describe('toolbar rules and the dialogs it opens', () => {
     expect(toolbarSelectors.filter((selector) => menu.matches(selector))).toEqual([expect.stringContaining(':not(.lathe-button)')]);
   });
 
+  it("leave the kit's small buttons alone while rows are ticked", () => {
+    document.body.innerHTML = '<div class="lathe-toolbar" data-selecting=""><div></div></div>';
+    const kit = button('cn-button cn-button-variant-outline cn-button-size-sm');
+    document.querySelector('.lathe-toolbar > div')?.append(kit);
+
+    expect(toolbarSelectors.filter((selector) => kit.matches(selector))).toEqual([]);
+  });
+
   it("leave the panel button's own look to the style", () => {
     document.body.innerHTML = '<div class="lathe-toolbar"><div></div></div>';
     const own = button(buttonClass('outline', 'default'));
@@ -75,5 +83,34 @@ describe('the top bar', () => {
     document.querySelector('.lathe-topbar')?.append(create);
 
     expect(topbarRules.filter((rule) => create.matches(rule.selector))).toEqual([]);
+  });
+});
+
+// The save bar on a phone: 44 px buttons, Cancel on a card ground, the second save hidden and the main one filling the row.
+const footerRules = [...css.matchAll(/^\s*(\.lathe-form-footer \.[^{]*?)\s*\{([^}]*)\}/gm)].map((match) => ({ selector: match[1] ?? '', body: match[2] ?? '' }));
+
+describe('the form footer hooks', () => {
+  it.each([
+    ['ghost', 'max-md:bg-card'],
+    ['outline', 'max-md:hidden'],
+    ['default', 'max-md:flex-1'],
+  ] as const)('reach the %s button', (variant, utility) => {
+    document.body.innerHTML = '<div class="lathe-form-footer"><div></div></div>';
+    const own = button(buttonClass(variant));
+    document.querySelector('.lathe-form-footer > div')?.append(own);
+    const reaching = footerRules.filter((rule) => own.matches(rule.selector));
+
+    expect(reaching.some((rule) => rule.body.includes('max-md:h-11'))).toBe(true);
+    expect(reaching.some((rule) => rule.body.includes(utility))).toBe(true);
+  });
+});
+
+describe('the top bar hooks', () => {
+  it('reach its ghost icon buttons, 44 px on a phone', () => {
+    document.body.innerHTML = '<header class="lathe-topbar"></header>';
+    const bell = button(buttonClass('ghost', 'icon'));
+    document.querySelector('.lathe-topbar')?.append(bell);
+
+    expect(topbarRules.some((rule) => bell.matches(rule.selector) && rule.body.includes('size-11'))).toBe(true);
   });
 });

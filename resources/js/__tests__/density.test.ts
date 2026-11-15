@@ -24,7 +24,7 @@ describe('panel control density', () => {
     expect(panel).not.toContain('34px');
   });
 
-  it("draws the default panel button with nova's 32 px default size", () => {
+  it("draws the default panel button at the style's default size, 32 px in nova", () => {
     expect(buttonClass().split(' ')).toContain('cn-button-size-default');
   });
 });

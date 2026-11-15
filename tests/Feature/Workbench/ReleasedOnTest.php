@@ -82,7 +82,10 @@ it('serves the workbench in the style BENCH_THEME_STYLE names, and in nova witho
 })->with([['luma', 'luma'], [null, 'nova']]);
 
 it('serves the workbench over HTTP in the style BENCH_THEME_STYLE names', function () {
-    $port = 18000 + random_int(0, 999);
+    // A port the system hands out free.
+    $probe = stream_socket_server('tcp://127.0.0.1:0');
+    $port = (int) substr((string) strrchr((string) stream_socket_get_name($probe, false), ':'), 1);
+    fclose($probe);
     $server = Process::path(dirname(__DIR__, 3))->env(['BENCH_THEME_STYLE' => 'luma'])
         ->start(['php', 'vendor/bin/testbench', 'serve', "--port={$port}"]);
 

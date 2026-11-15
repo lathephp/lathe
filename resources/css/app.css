@@ -787,7 +787,7 @@
 
   /* The toolbar's ghost buttons: 30 px, 13 px text, a muted 14 px icon. A dialog an action opens
      renders inside the toolbar, so these rules stop at its edge and its buttons keep their own paint. */
-  .lathe-toolbar .cn-button-size-sm:not(:where([role="dialog"], [role="alertdialog"]) *) {
+  .lathe-toolbar .lathe-button.cn-button-size-sm:not(:where([role="dialog"], [role="alertdialog"]) *) {
     @apply h-[30px] gap-1.5 px-2.5;
   }
 
