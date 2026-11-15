@@ -7,7 +7,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import '../index/inlineSave';
 import { clearUndo } from '../index/undo';
 import { order, orders } from './board-support';
-import { urlOf } from './preview-support';
+import { panel, urlOf } from './preview-support';
 import { renderPage } from './support';
 
 // Moving Orders' cards between status columns: by Shift+Left/Right, the Move to menu and a drag.
@@ -228,12 +228,14 @@ describe('the Move to menu', () => {
     await openBoard();
 
     fireEvent.click(within(card(79194426)).getByRole('button', { name: 'Move ORD-79194426' }));
-    const menu = screen.getByRole('menu', { name: 'Move to' });
+    const menu = await screen.findByRole('menu', { name: 'Move to' });
 
     expect(within(menu).getAllByRole('menuitem').map((item) => item.textContent)).toEqual(['Paid', 'Shipped', 'Cancelled']);
 
     fireEvent.click(within(menu).getByRole('menuitem', { name: 'Shipped' }));
 
+    // The click is the menu's, so the card under it opens no preview.
+    expect(panel()).toBeNull();
     await waitFor(() => {
       expect(ids('Shipped')).toEqual(['79194426', '79194410']);
     });
@@ -242,6 +244,55 @@ describe('the Move to menu', () => {
     });
     expect(patches).toEqual([{ path, body: { value: 'shipped', _updated_at: token } }]);
     expect(headers()).toEqual(['Pending2,423', 'Paid2,552', 'Shipped2,565', 'Cancelled2,460']);
+  });
+
+  describe('as the kit menu', () => {
+    async function opened() {
+      moveServer([]);
+      await openBoard();
+      const trigger = within(card(79194426)).getByRole('button', { name: 'Move ORD-79194426' });
+      trigger.focus();
+      fireEvent.click(trigger);
+      const menu = await screen.findByRole('menu', { name: 'Move to' });
+
+      return { trigger, menu, item: (name: string) => within(menu).getByRole('menuitem', { name }) };
+    }
+
+    it('is the kit menu on the body, with the kit item on each column', async () => {
+      const { menu } = await opened();
+
+      expect(menu.getAttribute('data-slot')).toBe('dropdown-menu-content');
+      expect(within(menu).getAllByRole('menuitem').map((item) => item.getAttribute('data-slot'))).toEqual(['dropdown-menu-item', 'dropdown-menu-item', 'dropdown-menu-item']);
+      expect(menu.closest('[data-lathe-board]')).toBeNull();
+    });
+
+    it('moves down with ArrowDown and to the last column with End, and the board keeps its focus', async () => {
+      const { item } = await opened();
+      item('Paid').focus();
+
+      fireEvent.keyDown(item('Paid'), { key: 'ArrowDown' });
+      await waitFor(() => {
+        expect(document.activeElement).toBe(item('Shipped'));
+      });
+
+      fireEvent.keyDown(item('Shipped'), { key: 'End' });
+      await waitFor(() => {
+        expect(document.activeElement).toBe(item('Cancelled'));
+      });
+      expect(document.activeElement?.closest('[data-board-card]')).toBeNull();
+    });
+
+    it('closes on Escape and gives the focus back to the Move button', async () => {
+      const { trigger, item } = await opened();
+      item('Shipped').focus();
+
+      fireEvent.keyDown(item('Shipped'), { key: 'Escape' });
+
+      await waitFor(() => {
+        expect(screen.queryByRole('menu')).toBeNull();
+      });
+      expect(document.activeElement).toBe(trigger);
+    });
   });
 });
 
