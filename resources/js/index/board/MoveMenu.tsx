@@ -1,6 +1,7 @@
 import { useTranslation } from '@lathephp/core';
 import { ArrowRightLeft } from 'lucide-react';
 import { useEffect, useId, useRef, useState } from 'react';
+import { buttonClass } from '../../components/ui/Button';
 
 // The keys the Board takes on a card: the arrows move between cards and Space opens the preview.
 const boardKeys = new Set(['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', ' ']);
@@ -56,7 +57,7 @@ export function MoveMenu({ title, columns, onMove }: MoveMenuProps) {
         aria-expanded={open}
         aria-controls={open ? menuId : undefined}
         aria-label={__('Move :title', { title })}
-        className="lathe-row-button size-6"
+        className={buttonClass('ghost', 'icon-xs')}
         onClick={() => {
           setOpen(!open);
         }}

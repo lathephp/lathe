@@ -936,11 +936,6 @@
     @apply fill-foreground;
   }
 
-  /* View, Edit, Preview, the row menu and the Columns button: 28 px, muted, in the row's last cell. */
-  .lathe-row-button {
-    @apply grid size-7 place-items-center rounded-[6px] text-muted-foreground outline-none hover:bg-muted hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring aria-expanded:bg-muted aria-expanded:text-foreground;
-  }
-
   /* The phone index: no card frame, the tabs and the toolbar flush under the top bar, as the
      mobile board draws them. The main's padding (12 px on a phone) is taken back here. */
   .lathe-index {

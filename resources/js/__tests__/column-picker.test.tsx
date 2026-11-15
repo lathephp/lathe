@@ -3,6 +3,7 @@ import { fireEvent, screen, waitFor, within } from '@testing-library/react';
 import { afterEach, beforeAll, describe, expect, it, vi } from 'vitest';
 import { ColumnPicker } from '../index/lazy';
 import { renderPage } from './support';
+import { buttonClass } from '../components/ui/Button';
 
 // The picker loads on its first open; loaded once, it draws on the click itself.
 beforeAll(async () => {
@@ -124,6 +125,12 @@ describe('column picker', () => {
 
     expect(headers().map((cell) => cell.textContent)).toEqual(['', 'Number', 'Customer', 'Status', 'Total', 'Placed', 'Actions']);
     expect(within(headers().at(-1) as HTMLElement).getByRole('button', { name: 'Columns' })).toBeTruthy();
+  });
+
+  it("draws the Columns button as the style's small ghost icon button", () => {
+    renderOrders();
+
+    expect([...screen.getByRole('button', { name: 'Columns' }).classList]).toEqual(expect.arrayContaining(buttonClass('ghost', 'icon-sm').split(' ')));
   });
 
   it('saves a hidden column, then a pinned one, and reloads the table each time', async () => {

@@ -8,7 +8,7 @@ import { DetailField, FormField, stringValue, type DetailFieldProps, type FormFi
 import type { FieldSchema } from '../types';
 import { RepeaterErrorsContext, RepeaterPathContext } from './errors';
 import { RepeaterFailuresContext } from './failures';
-import { Button } from '../../components/ui/Button';
+import { Button, buttonClass } from '../../components/ui/Button';
 
 interface Block {
   key: string;
@@ -233,7 +233,7 @@ export function RepeaterForm({ field, value, onChange, id, describedBy, disabled
 
   const full = cfg.max !== null && rows.length >= cfg.max;
   const addButton = 'inline-flex h-8 items-center gap-1 rounded-md border border-input px-3 text-sm disabled:opacity-60';
-  const iconButton = 'inline-flex size-7 items-center justify-center rounded-md text-muted-foreground hover:bg-muted disabled:opacity-40';
+  const iconButton = buttonClass('ghost', 'icon-sm');
 
   return (
     <div id={id} role="group" aria-describedby={describedBy} className="space-y-2">

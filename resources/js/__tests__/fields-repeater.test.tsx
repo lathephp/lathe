@@ -170,6 +170,15 @@ describe('repeater-field', () => {
     ]);
   });
 
+  it("draws a row's tools as the style's small ghost icon buttons", () => {
+    const view = renderRepeater(repeater({ confirmRemoval: true }), two);
+    const ghost = buttonClass('ghost', 'icon-sm').split(' ');
+
+    for (const name of ['Move up', 'Move down', 'Remove']) {
+      expect([...within(view.rows()[0] as HTMLElement).getByRole('button', { name }).classList]).toEqual(expect.arrayContaining(ghost));
+    }
+  });
+
   it('asks before removing a row, and Escape keeps the row', () => {
     const view = renderRepeater(repeater({ confirmRemoval: true }), two);
 

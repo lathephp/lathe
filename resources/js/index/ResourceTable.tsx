@@ -17,6 +17,7 @@ import { ColumnPicker, TableSummaryRow } from './lazy';
 import { hasRowMenu, RowMenu } from './RowMenu';
 import { TableSummaryPlaceholder } from './TableSummaryPlaceholder';
 import type { Column, ColumnPin, IndexProps, Row } from './types';
+import { buttonClass } from '../components/ui/Button';
 
 // A row's height at each table density; a loading row takes the same.
 /** A cell's value as it reads on screen: a select with options says its option's label, as its badge shows it. */
@@ -48,7 +49,7 @@ const startEdge = 'shadow-[6px_0_8px_-6px_rgb(0_0_0/0.2)] rtl:shadow-[-6px_0_8px
 const endEdge = 'shadow-[-6px_0_8px_-6px_rgb(0_0_0/0.2)] rtl:shadow-[6px_0_8px_-6px_rgb(0_0_0/0.2)]';
 
 // View and Edit sit in the DOM at rest so the cell keeps its width; the row's hover or focus shows them.
-const rowLink = 'lathe-row-button opacity-0 group-hover:opacity-100 group-focus-within:opacity-100';
+const rowLink = `${buttonClass('ghost', 'icon-sm')} opacity-0 group-hover:opacity-100 group-focus-within:opacity-100`;
 
 // The cell cursor: the focused cell, outlined inside its edges.
 const cursorCell = 'focus:outline-2 focus:-outline-offset-2 focus:outline-ring';
@@ -587,7 +588,7 @@ function ColumnsButton({ uriKey, table }: { uriKey: string; table: IndexProps['t
         aria-label={__('Columns')}
         aria-haspopup="dialog"
         aria-expanded={open}
-        className="lathe-row-button"
+        className={buttonClass('ghost', 'icon-sm')}
         onPointerEnter={() => {
           void ColumnPicker.preload();
         }}

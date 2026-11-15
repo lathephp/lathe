@@ -4,6 +4,7 @@ import { fireEvent, screen, waitFor, within } from '@testing-library/react';
 import { afterEach, beforeAll, describe, expect, it, vi } from 'vitest';
 import type { SharedProps } from '../types';
 import { renderPage } from './support';
+import { buttonClass } from '../components/ui/Button';
 import { RowMenuPanel } from '../index/lazy';
 
 // The row menu loads its list on the first open; loaded once, it draws on the click itself.
@@ -270,6 +271,17 @@ describe('row hover actions', () => {
     expect(menuItems('ORD-00001')).toEqual(['View', 'Edit', 'Impersonate', 'Delete']);
     const delet = screen.getByRole('menuitem', { name: 'Delete' });
     expect(delet.previousElementSibling?.getAttribute('role')).toBe('separator');
+  });
+});
+
+describe('row tools', () => {
+  it("draw View, Edit and the row menu as the style's small ghost icon buttons", () => {
+    renderOrders({ rows: [row(1, { view: true, update: true, delete: true })] });
+    const ghost = buttonClass('ghost', 'icon-sm').split(' ');
+
+    for (const name of ['View ORD-00001', 'Edit ORD-00001', 'Actions for ORD-00001']) {
+      expect([...screen.getByLabelText(name).classList]).toEqual(expect.arrayContaining(ghost));
+    }
   });
 });
 

@@ -3,6 +3,7 @@ import { Ellipsis } from 'lucide-react';
 import { Suspense, useId, useRef, useState } from 'react';
 import { RowMenuPanel } from './lazy';
 import type { Row } from './types';
+import { buttonClass } from '../components/ui/Button';
 
 export type MenuAction = 'view' | 'edit' | 'replicate' | 'delete' | 'restore' | 'forceDelete';
 export type WriteAction = Exclude<MenuAction, 'view' | 'edit' | 'replicate'>;
@@ -38,7 +39,7 @@ export function RowMenu({ uriKey, row }: { uriKey: string; row: Row }) {
         aria-expanded={open}
         aria-controls={open ? menuId : undefined}
         aria-label={__('Actions for :title', { title: row.title })}
-        className="lathe-row-button"
+        className={buttonClass('ghost', 'icon-sm')}
         onPointerEnter={() => {
           void RowMenuPanel.preload();
         }}
