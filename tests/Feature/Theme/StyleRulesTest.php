@@ -7,7 +7,7 @@ function styleRule(string $style, string $class): array
 {
     $css = (string) file_get_contents(dirname(__DIR__, 3)."/resources/css/styles/style-{$style}.css");
 
-    if (preg_match('/^\s*\.'.preg_quote($class, '/').' \{\s*@apply ([^;]+);/m', $css, $match) !== 1) {
+    if (preg_match('/^\s*\.'.preg_quote($class, '/').' \{\s*@apply ([^;}]+)/m', $css, $match) !== 1) {
         return [];
     }
 
