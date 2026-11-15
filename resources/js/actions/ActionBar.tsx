@@ -1,13 +1,11 @@
 import { formatNumber, useLathe, useTranslation } from '@lathephp/core';
-import { Button } from '@lathephp/ui';
+import { Button, DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@lathephp/ui';
 import { ChevronDown } from 'lucide-react';
-import { Fragment, useEffect, useId, useRef, useState } from 'react';
+import { Fragment } from 'react';
 import { NavIcon } from '../components/NavIcon';
 import type { Count, Row } from '../index/types';
 import type { IndexUrlState } from '../index/useIndexState';
 import type { RowSelection } from '../index/useRowSelection';
-import { cn } from '../lib/cn';
-import { useMenuKeys } from '../widgets/menuKeys';
 import type { ActionList, ActionMeta } from './types';
 import { useActionRunner } from './useActionRunner';
 import { reloadIndexRows } from '../lib/instant';
@@ -24,9 +22,6 @@ interface ActionBarProps {
   state: IndexUrlState;
 }
 
-const itemClass =
-  'flex w-full items-start gap-2 rounded-md px-2 py-1.5 text-start text-sm outline-none hover:bg-muted focus-visible:ring-2 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50';
-
 /**
  * The pinned action buttons and the Actions menu of an index: standalone actions first,
  * then the rest by group, destructive ones last below a separator.
@@ -34,33 +29,6 @@ const itemClass =
 export function ActionBar({ uriKey, lens, list, selection, rows, total, state }: ActionBarProps) {
   const { __ } = useTranslation();
   const { apiPath } = useLathe();
-  const menuId = useId();
-  const [open, setOpen] = useState(false);
-  const trigger = useRef<HTMLButtonElement>(null);
-  const root = useRef<HTMLDivElement>(null);
-  useMenuKeys(root, open, () => {
-    setOpen(false);
-  });
-
-  // A press anywhere outside the menu closes it and hands the focus back to Actions.
-  useEffect(() => {
-    if (!open) {
-      return;
-    }
-
-    const close = (event: PointerEvent) => {
-      if (!(event.target instanceof Node) || root.current?.contains(event.target) !== true) {
-        trigger.current?.focus();
-        setOpen(false);
-      }
-    };
-
-    document.addEventListener('pointerdown', close);
-
-    return () => {
-      document.removeEventListener('pointerdown', close);
-    };
-  }, [open]);
   const base = lens === null ? `${apiPath}/resources/${uriKey}` : `${apiPath}/resources/${uriKey}/lenses/${lens}`;
   const ticked = selection.all ? (total?.value ?? Number.POSITIVE_INFINITY) : selection.selected.size;
   const tickedRows = rows.filter((row) => selection.isSelected(row.id));
@@ -101,12 +69,6 @@ export function ActionBar({ uriKey, lens, list, selection, rows, total, state }:
   }
 
   function choose(action: ActionMeta) {
-    // From the menu, the focus goes back to Actions, so the dialog the action opens returns it there.
-    if (open) {
-      trigger.current?.focus();
-    }
-
-    setOpen(false);
     // A capped count confirms as 10,000+, as the footer shows it. Importing the footer's countText
     // here would split it out of the page's chunk and cost the first load a file.
     runner.start(action, selection.descriptor(state, lens), Number.isFinite(ticked) ? ticked : 0, selection.all && total?.capped === true ? `${formatNumber(total.value)}+` : undefined);
@@ -116,6 +78,20 @@ export function ActionBar({ uriKey, lens, list, selection, rows, total, state }:
   const destructiveFrom = shown.findIndex((action) => action.destructive && !action.standalone);
   // An item with no icon keeps an icon's width when others have one, so the labels line up.
   const iconGap = shown.some((action) => action.icon !== null);
+  // A group heading sits over each run of same-group actions; standalone and destructive ones take none.
+  const headingOf = (action: ActionMeta) => (!action.standalone && !action.destructive ? action.group : null);
+  const runs = shown.reduce<ActionMeta[][]>((acc, action) => {
+    const last = acc.at(-1);
+    const group = headingOf(action);
+
+    if (last?.[0] !== undefined && group !== null && headingOf(last[0]) === group) {
+      last.push(action);
+    } else {
+      acc.push([action]);
+    }
+
+    return acc;
+  }, []);
 
   return (
     <div className="flex flex-wrap items-center gap-2">
@@ -132,62 +108,49 @@ export function ActionBar({ uriKey, lens, list, selection, rows, total, state }:
           {action.name}
         </Button>
       ))}
-      <div ref={root} className="relative">
-        <Button
-          ref={trigger}
-          variant="outline"
-          size="sm"
-          aria-haspopup="menu"
-          aria-expanded={open}
-          aria-controls={open ? menuId : undefined}
-          onClick={() => {
-            setOpen(!open);
-          }}
-        >
+      <DropdownMenu>
+        <DropdownMenuTrigger render={<Button variant="outline" size="sm" />}>
           {__('Actions')}
           <ChevronDown aria-hidden="true" className="size-4" />
-        </Button>
-        {open && (
-          <div
-            id={menuId}
-            role="menu"
-            aria-label={__('Actions')}
-            tabIndex={-1}
-            className="absolute end-0 top-full z-30 mt-1 w-72 rounded-lg border border-border bg-background p-1 shadow-lg"
-          >
-            {shown.map((action, index) => {
-              const previous = shown[index - 1];
-              const heading = !action.standalone && !action.destructive && action.group !== null && previous?.group !== action.group ? action.group : null;
+        </DropdownMenuTrigger>
+        {/* On the body, above the sidebar; it ends at the button's end edge and moves in to stay 8 px inside the window. */}
+        <DropdownMenuContent align="end" collisionPadding={8} aria-label={__('Actions')} className="w-72">
+          {runs.map((run) => {
+            const heading = headingOf(run[0] as ActionMeta);
+            const items = run.map((action) => (
+              <DropdownMenuItem
+                key={action.uriKey}
+                variant={action.destructive ? 'destructive' : 'default'}
+                disabled={!enabled(action)}
+                className="items-start gap-2"
+                onClick={() => {
+                  choose(action);
+                }}
+              >
+                {action.icon !== null ? <NavIcon name={action.icon} /> : iconGap && <span aria-hidden="true" className="size-4 shrink-0" />}
+                <span className="min-w-0">
+                  <span className="block">{action.name}</span>
+                  {action.description !== null && <span className="block text-xs text-muted-foreground">{action.description}</span>}
+                </span>
+              </DropdownMenuItem>
+            ));
 
-              return (
-                <Fragment key={action.uriKey}>
-                  {index === destructiveFrom && index > 0 && <div role="separator" className="my-1 border-t border-border" />}
-                  {heading !== null && (
-                    <div role="presentation" className="px-2 pt-2 pb-1 text-xs font-medium text-muted-foreground">
-                      {heading}
-                    </div>
-                  )}
-                  <button
-                    type="button"
-                    role="menuitem"
-                    disabled={!enabled(action)}
-                    className={cn(itemClass, action.destructive && 'text-destructive')}
-                    onClick={() => {
-                      choose(action);
-                    }}
-                  >
-                    {action.icon !== null ? <NavIcon name={action.icon} /> : iconGap && <span aria-hidden="true" className="size-4 shrink-0" />}
-                    <span className="min-w-0">
-                      <span className="block">{action.name}</span>
-                      {action.description !== null && <span className="block text-xs text-muted-foreground">{action.description}</span>}
-                    </span>
-                  </button>
-                </Fragment>
-              );
-            })}
-          </div>
-        )}
-      </div>
+            return (
+              <Fragment key={run[0]?.uriKey}>
+                {run[0] === shown[destructiveFrom] && destructiveFrom > 0 && <DropdownMenuSeparator />}
+                {heading === null ? (
+                  items
+                ) : (
+                  <DropdownMenuGroup>
+                    <DropdownMenuLabel>{heading}</DropdownMenuLabel>
+                    {items}
+                  </DropdownMenuGroup>
+                )}
+              </Fragment>
+            );
+          })}
+        </DropdownMenuContent>
+      </DropdownMenu>
       {runner.element}
     </div>
   );

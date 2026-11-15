@@ -91,7 +91,7 @@ function tick(...ids: number[]) {
 async function openMenu() {
   fireEvent.click(await screen.findByRole('button', { name: 'Actions' }));
 
-  return screen.getByRole('menu', { name: 'Actions' });
+  return screen.findByRole('menu', { name: 'Actions' });
 }
 
 const json = (body: unknown, status = 200) => new Response(JSON.stringify(body), { status });
@@ -113,16 +113,82 @@ describe('the actions menu', () => {
     expect(within(menu).getAllByRole('separator')).toHaveLength(1);
   });
 
-  it('stacks the open menu above the sticky end column of the table header', async () => {
+  it('is the kit menu, with the kit item on each action', async () => {
+    renderOrders();
+    tick(1, 2, 3);
+    const menu = await openMenu();
+
+    expect(menu.getAttribute('data-slot')).toBe('dropdown-menu-content');
+    expect(within(menu).getAllByRole('menuitem').map((item) => item.getAttribute('data-slot'))).toEqual(Array.from({ length: 5 }, () => 'dropdown-menu-item'));
+  });
+
+  it('moves down from the first item with ArrowDown and to the last with End', async () => {
+    renderOrders();
+    tick(1, 2, 3);
+    const menu = await openMenu();
+    const item = (name: string) => within(menu).getByRole('menuitem', { name });
+    item('Send Report').focus();
+
+    fireEvent.keyDown(item('Send Report'), { key: 'ArrowDown' });
+    await waitFor(() => {
+      expect(document.activeElement).toBe(within(menu).getAllByRole('menuitem')[1]);
+    });
+
+    fireEvent.keyDown(document.activeElement ?? menu, { key: 'End' });
+    await waitFor(() => {
+      expect(document.activeElement).toBe(item('Cancel Order'));
+    });
+  });
+
+  it('closes on Escape and gives the focus back to Actions', async () => {
+    renderOrders();
+    tick(1);
+    const menu = await openMenu();
+    const trigger = screen.getByRole('button', { name: 'Actions' });
+    within(menu).getByRole('menuitem', { name: 'Send Report' }).focus();
+
+    fireEvent.keyDown(document.activeElement ?? menu, { key: 'Escape' });
+
+    await waitFor(() => {
+      expect(screen.queryByRole('menu', { name: 'Actions' })).toBeNull();
+    });
+    await waitFor(() => {
+      expect(document.activeElement).toBe(trigger);
+    });
+  });
+
+  it('shows a grouped action under its group heading and the destructive ones after a separator', async () => {
+    renderOrders();
+    tick(1, 2, 3);
+    const menu = await openMenu();
+    const group = within(menu).getByRole('group', { name: 'Fulfilment' });
+
+    expect(within(group).getAllByRole('menuitem').map((item) => item.textContent)).toEqual(['Mark Shipped', 'Hold order']);
+    const separator = within(menu).getByRole('separator');
+    const cancel = within(menu).getByRole('menuitem', { name: 'Cancel Order' });
+    expect(separator.compareDocumentPosition(cancel) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(group.compareDocumentPosition(separator) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+  });
+
+  it('draws its menu on the body, outside the content', async () => {
+    renderOrders();
+    tick(1);
+    const menu = await openMenu();
+
+    expect(menu.closest('#content')).toBeNull();
+  });
+
+  // The sticky end column of the table header stacks above the content, so the menu must sit outside it and on a z-50 layer.
+  it('keeps the open menu out of the sticky header column and on a z-50 positioner', async () => {
     renderOrders();
     tick(1);
     const menu = await openMenu();
     const [header] = screen.getAllByRole('rowgroup');
     const endCell = within(header as HTMLElement).getAllByRole('columnheader').at(-1);
-    const z = (element: Element | undefined) => Number(/(?:^|\s)z-(\d+)(?:\s|$)/.exec(element?.className ?? '')?.[1] ?? 0);
 
     expect(endCell?.className).toContain('sticky');
-    expect(z(menu)).toBeGreaterThan(z(endCell));
+    expect(endCell?.contains(menu)).toBe(false);
+    expect(menu.parentElement?.className).toMatch(/(?:^|\s)z-50(?:\s|$)/);
   });
 
   it('holds an icon-wide gap before an item with no icon when another item has one', async () => {
@@ -154,18 +220,24 @@ describe('the actions menu', () => {
   it('lists only the standalone action with nothing ticked, every action once a row is, and enables a sole one at exactly one', async () => {
     renderOrders();
     let menu = await openMenu();
-    const disabled = () => within(menu).getAllByRole<HTMLButtonElement>('menuitem').filter((item) => item.disabled).map((item) => item.textContent);
+    const disabled = () => within(menu).getAllByRole('menuitem').filter((item) => item.getAttribute('aria-disabled') === 'true').map((item) => item.textContent);
+    const close = async () => {
+      fireEvent.click(screen.getByRole('button', { name: 'Actions' }));
+      await waitFor(() => {
+        expect(screen.queryByRole('menu', { name: 'Actions' })).toBeNull();
+      });
+    };
 
     expect(within(menu).getAllByRole('menuitem').map((item) => item.textContent)).toEqual(['Send Report']);
     expect(disabled()).toEqual([]);
 
-    fireEvent.click(screen.getByRole('button', { name: 'Actions' }));
+    await close();
     tick(1);
     menu = await openMenu();
     expect(within(menu).getAllByRole('menuitem')).toHaveLength(5);
     expect(disabled()).toEqual([]);
 
-    fireEvent.click(screen.getByRole('button', { name: 'Actions' }));
+    await close();
     tick(2);
     menu = await openMenu();
     expect(disabled()).toEqual(['Hold order']);
@@ -176,7 +248,7 @@ describe('the actions menu', () => {
     tick(1, 2);
     const menu = await openMenu();
 
-    expect(within(menu).getByRole<HTMLButtonElement>('menuitem', { name: 'Cancel Order' }).disabled).toBe(true);
+    expect(within(menu).getByRole('menuitem', { name: 'Cancel Order' }).getAttribute('aria-disabled')).toBe('true');
   });
 
   it('closes on Escape pressed on its button and keeps the focus there', async () => {
@@ -198,8 +270,12 @@ describe('the actions menu', () => {
 
     fireEvent.pointerDown(document.body);
 
-    expect(screen.queryByRole('menu', { name: 'Actions' })).toBeNull();
-    expect(document.activeElement).toBe(screen.getByRole('button', { name: 'Actions' }));
+    await waitFor(() => {
+      expect(screen.queryByRole('menu', { name: 'Actions' })).toBeNull();
+    });
+    await waitFor(() => {
+      expect(document.activeElement).toBe(screen.getByRole('button', { name: 'Actions' }));
+    });
   });
 
   it('shows no Actions button until a row is ticked when no action is standalone', async () => {
@@ -334,7 +410,10 @@ describe('the action modal', () => {
     const trigger = await screen.findByRole('button', { name: 'Actions' });
     trigger.focus();
     fireEvent.click(trigger);
-    fireEvent.click(within(screen.getByRole('menu', { name: 'Actions' })).getByRole('menuitem', { name: 'Mark shipped' }));
+    const item = within(await screen.findByRole('menu', { name: 'Actions' })).getByRole('menuitem', { name: 'Mark shipped' });
+    // A click on a button focuses it in a browser, so the item holds the focus as the menu closes.
+    item.focus();
+    fireEvent.click(item);
     await screen.findByRole('dialog');
 
     fireEvent.keyDown(document.activeElement ?? document.body, { key: 'Escape' });
@@ -342,7 +421,9 @@ describe('the action modal', () => {
     await waitFor(() => {
       expect(screen.queryByRole('dialog')).toBeNull();
     });
-    expect(document.activeElement).toBe(screen.getByRole('button', { name: 'Actions' }));
+    await waitFor(() => {
+      expect(document.activeElement).toBe(screen.getByRole('button', { name: 'Actions' }));
+    });
   });
 
   it('stays open on Escape and a scrim click while the action runs', async () => {
