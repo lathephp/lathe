@@ -92,6 +92,41 @@ describe('Toaster', () => {
     expect(screen.queryByText('Not saved')).toBeNull();
   });
 
+  it('keeps a running task on screen through a swipe and Escape, where a finished toast swipes away', async () => {
+    render(<Toaster />);
+
+    act(() => {
+      __panel.putToast({ type: 'info', message: 'Marking 3 orders shipped', timeout: 0, dismissible: false });
+      toast.success('Saved');
+    });
+
+    const swipe = async (text: string) => {
+      const card = (await screen.findByText(text)).closest('[data-slot="toast"]') as HTMLElement;
+      const pointer = { pointerId: 1, pointerType: 'mouse', button: 0, buttons: 1, isPrimary: true };
+
+      await act(async () => {
+        fireEvent.pointerDown(card, { ...pointer, clientX: 10, clientY: 10 });
+        for (let step = 1; step <= 10; step++) {
+          fireEvent.pointerMove(card, { ...pointer, clientX: 10 + step * 30, clientY: 10 });
+        }
+        fireEvent.pointerUp(card, { ...pointer, clientX: 310, clientY: 10, buttons: 0 });
+        await new Promise((resolve) => setTimeout(resolve, 600));
+      });
+    };
+
+    await swipe('Saved');
+    expect(screen.queryByText('Saved')).toBeNull();
+
+    await swipe('Marking 3 orders shipped');
+    fireEvent.keyDown(screen.getByText('Marking 3 orders shipped'), { key: 'Escape' });
+    await act(async () => {
+      await new Promise((resolve) => setTimeout(resolve, 600));
+    });
+
+    expect(screen.getByText('Marking 3 orders shipped')).toBeTruthy();
+    expect(__panel.toasts.get().map((item) => item.message)).toEqual(['Marking 3 orders shipped']);
+  });
+
   it('keeps the newest three toasts in the stack and hides the older ones with no count', async () => {
     render(<Toaster />);
 

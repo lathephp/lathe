@@ -124,7 +124,8 @@ function ToastList() {
     }
 
     return (
-      <Toast key={item.id} toast={item} role={message.type === 'error' ? 'alert' : 'status'}>
+      // A running task cannot be dismissed, so it does not swipe away either.
+      <Toast key={item.id} toast={item} role={message.type === 'error' ? 'alert' : 'status'} swipeDirection={message.dismissible === false ? [] : undefined}>
         <ToastContent>
           <KindIcon message={message} />
           {/* A running task's links and action, such as View run and Cancel, leave its toast to show the result. */}
