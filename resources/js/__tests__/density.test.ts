@@ -1,6 +1,7 @@
 /// <reference types="node" />
 import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
+import { buttonClass } from '../components/ui/Button';
 
 // Read from disk: Vitest turns a stylesheet import into an empty string.
 const nova = readFileSync('resources/css/styles/style-nova.css', 'utf8');
@@ -23,7 +24,7 @@ describe('panel control density', () => {
     expect(panel).not.toContain('34px');
   });
 
-  it('makes the default panel button 32 px tall', () => {
-    expect(panel).toMatch(/\.lathe-button-size-default\s*\{\s*@apply h-8 /);
+  it("draws the default panel button with nova's 32 px default size", () => {
+    expect(buttonClass().split(' ')).toContain('cn-button-size-default');
   });
 });

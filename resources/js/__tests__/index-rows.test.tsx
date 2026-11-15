@@ -380,7 +380,7 @@ describe('row menu', () => {
     fireEvent.click(screen.getByRole('menuitem', { name: 'Delete' }));
 
     expect(screen.getByRole('alertdialog').closest('table')).toBeNull();
-    expect(within(screen.getByRole('alertdialog')).getByRole('button', { name: 'Delete' }).className).toContain('lathe-button-size-default');
+    expect(within(screen.getByRole('alertdialog')).getByRole('button', { name: 'Delete' }).className).toContain('cn-button-size-default');
   });
 
   it('sends nothing when the confirm is cancelled', () => {

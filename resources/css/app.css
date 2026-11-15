@@ -346,45 +346,11 @@
   }
 }
 
-/* The panel's first-paint Button (components/ui/Button.tsx): the kit's nova button looks, kept
-   here so its first-load script carries only the class names. They sit below the utilities, so
-   a className on the button still wins. */
+/* The panel's first-paint Button (components/ui/Button.tsx): the kit Button's structure. Its look
+   is the style's cn-button rules, so its first-load script carries only the class names. */
 @layer components {
   .lathe-button {
-    @apply inline-flex shrink-0 items-center justify-center rounded-md border border-transparent font-medium whitespace-nowrap outline-none focus-visible:ring-2 focus-visible:ring-focus focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:pointer-events-none disabled:opacity-50;
-  }
-
-  .lathe-button-default {
-    @apply bg-primary text-primary-foreground shadow-xs hover:brightness-92 active:shadow-[inset_0_1px_2px_#0000003d] active:brightness-85;
-  }
-
-  .lathe-button-outline {
-    @apply border-border bg-card shadow-xs hover:bg-accent hover:text-accent-foreground active:bg-muted active:shadow-[inset_0_1px_2px_#0000001f];
-  }
-
-  .lathe-button-ghost {
-    @apply hover:bg-accent hover:text-accent-foreground active:bg-muted;
-  }
-
-  /* Delete and cancel: outlined by default, solid only in a confirm dialog. */
-  .lathe-button-destructive {
-    @apply border-border bg-card text-destructive-subtle-foreground shadow-xs hover:bg-destructive-subtle active:bg-destructive-subtle active:shadow-[inset_0_1px_2px_#0000001f];
-  }
-
-  .lathe-button-destructive-solid {
-    @apply bg-destructive text-destructive-foreground shadow-xs hover:brightness-92 active:shadow-[inset_0_1px_2px_#0000003d] active:brightness-85;
-  }
-
-  .lathe-button-size-default {
-    @apply h-8 gap-1.5 px-3 text-sm leading-5;
-  }
-
-  .lathe-button-size-sm {
-    @apply h-7 gap-1 px-2.5 text-[13px] leading-[18px];
-  }
-
-  .lathe-button-size-icon {
-    @apply size-8;
+    @apply inline-flex shrink-0 items-center justify-center whitespace-nowrap transition-all outline-none select-none disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0;
   }
 }
 
@@ -399,11 +365,11 @@
   }
 
   /* The collapse button and the bell: 32 px and muted, 44 px touch targets on a phone. */
-  .lathe-topbar .lathe-button-size-icon {
-    @apply size-11 rounded-md text-muted-foreground md:size-8;
+  .lathe-topbar .cn-button-size-icon {
+    @apply size-11 text-muted-foreground md:size-8;
   }
 
-  .lathe-topbar .lathe-button-size-icon > .lucide-bell {
+  .lathe-topbar .cn-button-size-icon > .lucide-bell {
     @apply size-[18px];
   }
 
@@ -846,12 +812,12 @@
 
   /* The toolbar's ghost buttons: 30 px, 13 px text, a muted 14 px icon. A dialog an action opens
      renders inside the toolbar, so these rules stop at its edge and its buttons keep their own paint. */
-  .lathe-toolbar .lathe-button-size-sm:not(:where([role="dialog"], [role="alertdialog"]) *) {
-    @apply h-[30px] gap-1.5 rounded-md px-2.5;
+  .lathe-toolbar .cn-button-size-sm:not(:where([role="dialog"], [role="alertdialog"]) *) {
+    @apply h-[30px] gap-1.5 px-2.5;
   }
 
   /* The Actions menu's kit button reads as a ghost too, until rows are ticked. */
-  .lathe-toolbar:not([data-selecting]) .cn-button:not(:where([role="dialog"], [role="alertdialog"]) *) {
+  .lathe-toolbar:not([data-selecting]) .cn-button:not(.lathe-button):not(:where([role="dialog"], [role="alertdialog"]) *) {
     @apply h-[30px] border-transparent bg-transparent px-2.5 text-[13px] shadow-none hover:bg-accent aria-expanded:bg-accent;
   }
 
@@ -1150,15 +1116,15 @@
     @apply max-md:h-11 max-md:px-4 max-md:text-[15px];
   }
 
-  .lathe-form-footer .lathe-button-ghost {
+  .lathe-form-footer .cn-button-variant-ghost {
     @apply max-md:border-border max-md:bg-card;
   }
 
-  .lathe-form-footer .lathe-button-outline {
+  .lathe-form-footer .cn-button-variant-outline {
     @apply max-md:hidden;
   }
 
-  .lathe-form-footer .lathe-button-default {
+  .lathe-form-footer .cn-button-variant-default {
     @apply max-md:flex-1 max-md:font-semibold;
   }
 }

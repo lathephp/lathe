@@ -1,0 +1,40 @@
+import { render, screen } from '@testing-library/react';
+import { describe, expect, it } from 'vitest';
+import { Button, buttonClass, type ButtonSize, type ButtonVariant } from '../components/ui/Button';
+
+const variants: ButtonVariant[] = ['default', 'outline', 'secondary', 'ghost', 'destructive', 'destructive-solid', 'link'];
+const sizes: ButtonSize[] = ['default', 'xs', 'sm', 'lg', 'icon', 'icon-xs', 'icon-sm', 'icon-lg'];
+
+// The look comes from the active style's cn-button rules in the style stylesheet.
+describe('the panel Button', () => {
+  it('draws an outline small button with the style classes', () => {
+    render(
+      <Button variant="outline" size="sm">
+        Filter
+      </Button>,
+    );
+
+    expect([...screen.getByRole('button', { name: 'Filter' }).classList]).toEqual(expect.arrayContaining(['cn-button', 'cn-button-variant-outline', 'cn-button-size-sm']));
+  });
+
+  it.each(variants.flatMap((variant) => sizes.map((size) => [variant, size] as const)))('draws variant %s at size %s', (variant, size) => {
+    render(
+      <Button variant={variant} size={size}>
+        Go
+      </Button>,
+    );
+
+    expect(screen.getByRole('button', { name: 'Go' }).classList).toContain(`cn-button-variant-${variant}`);
+    expect(screen.getByRole('button', { name: 'Go' }).classList).toContain(`cn-button-size-${size}`);
+  });
+
+  it('gives a link the same classes', () => {
+    expect(buttonClass('ghost', 'sm').split(' ')).toEqual(expect.arrayContaining(['cn-button', 'cn-button-variant-ghost', 'cn-button-size-sm']));
+  });
+
+  it("lets a caller's className follow the style classes", () => {
+    render(<Button className="w-full">Go</Button>);
+
+    expect(screen.getByRole('button', { name: 'Go' }).className).toMatch(/cn-button-size-default w-full$/);
+  });
+});

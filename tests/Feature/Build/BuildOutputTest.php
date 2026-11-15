@@ -171,6 +171,26 @@ it('keeps a class used only inside the ui package in the stylesheet', function (
         ->and(substr_count(buildOutputFile($css[0]), 'lathe-probe-class'))->toBe(1);
 });
 
+function buildOutputPanelCss(): string
+{
+    return buildOutputFile(buildOutputManifest()['resources/js/app.tsx']['css'][0] ?? '');
+}
+
+it("keeps no look rule of the panel's own button variants and sizes", function () {
+    expect(buildOutputPanelCss())->not->toMatch('/\.lathe-button-(default|outline|ghost|destructive|size-)/');
+});
+
+// The style's cn-button sits in the base layer, so any look in the components layer would beat it.
+it('leaves the look of a panel button to the style', function () {
+    preg_match_all('/(?:^|[{}])\s*(\.lathe-button(?![\w-])[^{}]*)\{([^{}]*)\}/m', buildOutputPanelCss(), $rules, PREG_SET_ORDER);
+
+    expect($rules)->not->toBeEmpty();
+
+    foreach ($rules as [, $selector, $body]) {
+        expect($body)->not->toMatch('/(?:^|;)\s*(border-radius|box-shadow|height|padding[\w-]*|background-color|--tw-ring-shadow)\s*:/', $selector);
+    }
+});
+
 it('emits each import map specifier as its own entry file', function () {
     $manifest = buildOutputManifest();
     $files = [];

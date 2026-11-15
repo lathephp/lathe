@@ -1,15 +1,16 @@
 /// <reference types="node" />
 import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
+import { buttonClass } from '../components/ui/Button';
 
 // Read from disk: Vitest turns a stylesheet import into an empty string.
 const css = readFileSync('resources/css/app.css', 'utf8');
 // A selector list splits at its top-level commas only, not those inside :where() or :not().
 const toolbarSelectors = [...css.matchAll(/^\s*(\.lathe-toolbar[^{]*?)\s*\{/gm)].flatMap((match) => (match[1] ?? '').split(/,(?![^(]*\))/));
 
-function button(): HTMLButtonElement {
+function button(className = buttonClass('ghost', 'sm')): HTMLButtonElement {
   const element = document.createElement('button');
-  element.className = 'cn-button cn-button-variant-default lathe-button lathe-button-size-sm';
+  element.className = className;
   element.append(document.createElementNS('http://www.w3.org/2000/svg', 'svg'));
 
   return element;
@@ -37,8 +38,18 @@ describe('toolbar rules and the dialogs it opens', () => {
   it("still dress the toolbar's own buttons", () => {
     document.body.innerHTML = '<div class="lathe-toolbar"><div></div></div>';
     const own = button();
+    const menu = button('cn-button cn-button-variant-default cn-button-size-default');
+    document.querySelector('.lathe-toolbar > div')?.append(own, menu);
+
+    expect(toolbarSelectors.filter((selector) => own.matches(selector))).toEqual([expect.stringContaining('.cn-button-size-sm')]);
+    expect(toolbarSelectors.filter((selector) => menu.matches(selector))).toEqual([expect.stringContaining(':not(.lathe-button)')]);
+  });
+
+  it("leave the panel button's own look to the style", () => {
+    document.body.innerHTML = '<div class="lathe-toolbar"><div></div></div>';
+    const own = button(buttonClass('outline', 'default'));
     document.querySelector('.lathe-toolbar > div')?.append(own);
 
-    expect(toolbarSelectors.filter((selector) => own.matches(selector)).length).toBeGreaterThanOrEqual(2);
+    expect(toolbarSelectors.filter((selector) => own.matches(selector))).toEqual([]);
   });
 });
