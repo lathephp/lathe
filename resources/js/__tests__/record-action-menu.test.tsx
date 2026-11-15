@@ -148,6 +148,52 @@ describe('the detail action menu from the keyboard', () => {
   });
 });
 
+describe('the detail action menu beside the open sidebar', () => {
+  // The walk at 768 px: the content starts at 256 and the menu, 256 wide and ending at its button's
+  // end edge (496), began at 240, over the sidebar's edge. It moves into the content instead.
+  it('stays wholly inside the content, 8 px in from its edge', async () => {
+    const menuBox = (element: Element) => element.getAttribute('role') === 'menu' || element.querySelector(':scope > [role=menu]') !== null;
+    vi.spyOn(Element.prototype, 'getBoundingClientRect').mockImplementation(function (this: Element) {
+      const [left, top, width, height] = menuBox(this)
+        ? [0, 0, 256, 120]
+        : this.id === 'content'
+          ? [256, 0, 512, 900]
+          : this.textContent === 'Actions' && this.tagName === 'BUTTON'
+            ? [420, 100, 76, 28]
+            : [0, 0, 768, 900];
+
+      return { x: left, y: top, left, top, width, height, right: left + width, bottom: top + height, toJSON: () => ({}) };
+    });
+    vi.spyOn(HTMLElement.prototype, 'offsetWidth', 'get').mockImplementation(function (this: HTMLElement) {
+      return menuBox(this) ? 256 : 0;
+    });
+    vi.spyOn(HTMLElement.prototype, 'offsetHeight', 'get').mockImplementation(function (this: HTMLElement) {
+      return menuBox(this) ? 120 : 0;
+    });
+    // A boundary element is measured by its inner box.
+    vi.spyOn(Element.prototype, 'clientWidth', 'get').mockImplementation(function (this: Element) {
+      return this === document.documentElement ? 768 : this.id === 'content' ? 512 : 0;
+    });
+    vi.spyOn(Element.prototype, 'clientHeight', 'get').mockImplementation(function (this: Element) {
+      return this === document.documentElement || this.id === 'content' ? 900 : 0;
+    });
+    renderPage('Resources/Detail', {
+      resource: { uriKey: 'orders', label: 'Orders', singularLabel: 'Order', abilities: { create: false } },
+      record: { id: 12, title: 'ORD-12', subtitle: '', avatar: null, fields: [], layout: [], abilities: { view: true }, trashed: false },
+      breadcrumbs: [],
+      actions: { actions: [meta('mark-shipped', 'Mark Shipped', { authorizedToRun: true })], pivotActions: [], counts: {} },
+    });
+
+    fireEvent.click(await screen.findByRole('button', { name: 'Actions' }));
+    const positioner = (await screen.findByRole('menu', { name: 'Actions' })).parentElement as HTMLElement;
+
+    await waitFor(() => {
+      // The positioner places the menu with a translate from the page's top start corner.
+      expect(Number.parseFloat(/translate\(([-\d.]+)px/.exec(positioner.style.transform)?.[1] ?? 'NaN')).toBeGreaterThanOrEqual(264);
+    });
+  });
+});
+
 describe('the detail action menu and its dialog', () => {
   it('gives the focus back to Actions when the dialog an item opened closes', async () => {
     vi.spyOn(globalThis, 'fetch').mockResolvedValueOnce(json({ fields: [], confirmText: 'Cancel order ORD-12?' }));
