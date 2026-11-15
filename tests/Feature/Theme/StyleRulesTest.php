@@ -45,12 +45,21 @@ it('keys the OTP slot ring to the focus and to an invalid value', function (stri
 })->with(STYLE_RULES_STYLES);
 
 // Nova rings a control you press with a gap in its focus colour.
-it('rings a nova control you press with the offset focus ring', function (string $class) {
+it('rings a nova control you press with the offset focus ring', function (string $class, string $on = 'focus-visible') {
     $rule = styleRule('nova', $class);
 
-    expect($rule)->toContain('focus-visible:ring-2', 'focus-visible:ring-focus', 'focus-visible:ring-offset-2', 'focus-visible:ring-offset-background')
-        ->and(array_values(preg_grep('/^focus-visible:(ring-(\d|\[)|ring-ring|border-ring)/', $rule) ?: []))->toBe(['focus-visible:ring-2']);
-})->with(['cn-button', 'cn-toggle', 'cn-toggle-group-item', 'cn-checkbox', 'cn-radio-group-item', 'cn-switch', 'cn-slider-thumb', 'cn-calendar-day-button', 'cn-badge', 'cn-tabs-trigger', 'cn-accordion-trigger']);
+    expect($rule)->toContain("{$on}:ring-2", "{$on}:ring-focus", "{$on}:ring-offset-2", "{$on}:ring-offset-background")
+        ->and(array_values(preg_grep("/^{$on}:(ring-(\\d|\\[)|ring-ring|border-ring)/", $rule) ?: []))->toBe(["{$on}:ring-2"]);
+})->with(['cn-button', 'cn-toggle', 'cn-toggle-group-item', 'cn-checkbox', 'cn-radio-group-item', 'cn-switch', ['cn-slider-thumb', 'has-focus-visible'], 'cn-calendar-day-button', 'cn-badge', 'cn-tabs-trigger', 'cn-accordion-trigger']);
+
+// Base UI moves the focus to a range input inside the slider thumb, so the thumb itself
+// never matches focus-visible; it rings while the input inside it has the focus.
+it('rings a slider thumb while the input inside it has the focus', function (string $style) {
+    $rule = styleRule($style, 'cn-slider-thumb');
+
+    expect(preg_grep('/^focus-visible:/', $rule))->toBe([])
+        ->and(preg_grep('/^has-focus-visible:ring-/', $rule))->not->toBeEmpty();
+})->with(STYLE_RULES_STYLES);
 
 // Nova rings a field you type in with its border and a 1 px ring in the ring colour.
 it('rings a nova field you type in with its border', function (string $class) {
