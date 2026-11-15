@@ -128,7 +128,7 @@ export function InlineCell({ uriKey, rowId, column, cell, token, onRow }: Inline
   }
 
   return (
-    <div ref={root} data-inline-cell="" className={editing ? 'relative' : 'relative inline-flex max-w-full items-center'}>
+    <div ref={root} data-inline-cell="" aria-busy={busy || undefined} className={editing ? 'relative' : 'relative inline-flex max-w-full items-center'}>
       {editing ? (
         <Suspense fallback={<TableCell column={column} cell={shown} />}>
           <InlineEditor
@@ -145,12 +145,13 @@ export function InlineCell({ uriKey, rowId, column, cell, token, onRow }: Inline
           />
         </Suspense>
       ) : (
-        <InlineChevronContext.Provider value>
+        <InlineChevronContext.Provider value={busy ? 'saving' : 'idle'}>
           <TableCell column={column} cell={shown} />
           {styled(column) ? null : <InlineChevron className="ms-1 inline-flex" />}
         </InlineChevronContext.Provider>
       )}
-      {busy ? <span className="ms-2 text-xs text-muted-foreground">{__('Saving…')}</span> : null}
+      {/* Out of the layout: words beside the value widened the column and shifted the table. */}
+      {busy ? <span className="sr-only">{__('Saving…')}</span> : null}
       {/* On the page, not in the cell: a sticky cell would hold the dialog in its own box. */}
       {conflict === null
         ? null

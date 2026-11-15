@@ -1187,3 +1187,14 @@ td:hover [data-inline-chevron] {
 td:focus [data-inline-chevron] {
   opacity: 1;
 }
+
+/* A save's spinner takes the chevron's place at once and shows past 300 ms, so a quick save draws nothing. */
+[data-inline-saving] {
+  animation: inline-saving-show 0s 300ms both;
+}
+
+@keyframes inline-saving-show {
+  from {
+    visibility: hidden;
+  }
+}

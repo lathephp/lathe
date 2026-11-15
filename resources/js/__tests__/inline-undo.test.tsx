@@ -42,7 +42,7 @@ function bodies(fetch: { mock: { calls: unknown[][] } }): Record<string, unknown
 }
 
 describe('undoing an inline edit', () => {
-  it('shows Saving… while the save is pending', async () => {
+  it("spins in the chevron's own slot while a save runs, so the cell keeps its width", async () => {
     let finish: (response: Response) => void = () => undefined;
     vi.spyOn(globalThis, 'fetch').mockReturnValue(new Promise<Response>((resolve) => (finish = resolve)));
     renderOrder();
@@ -50,7 +50,13 @@ describe('undoing an inline edit', () => {
     await editCell('Status');
     await pick('shipped');
 
-    expect(await screen.findByText('Saving…')).toBeTruthy();
+    // Screen readers hear the save; the eye sees the spinner, which CSS holds back for 300 ms.
+    const saving = await screen.findByText('Saving…');
+    const cell = saving.closest('[data-inline-cell]') as HTMLElement;
+    expect(saving.className).toBe('sr-only');
+    expect(cell.getAttribute('aria-busy')).toBe('true');
+    expect(cell.querySelector('[data-inline-saving]')).not.toBeNull();
+    expect(cell.querySelector('[data-inline-chevron]')).toBeNull();
 
     act(() => {
       finish(saved('shipped', '2026-10-14T09:00:02.000Z'));
@@ -58,6 +64,9 @@ describe('undoing an inline edit', () => {
     await waitFor(() => {
       expect(screen.queryByText('Saving…')).toBeNull();
     });
+    expect(cell.querySelector('[data-inline-saving]')).toBeNull();
+    expect(cell.querySelector('[data-inline-chevron]')).not.toBeNull();
+    expect(cell.hasAttribute('aria-busy')).toBe(false);
   });
 
   it('offers Undo in the toast, and Undo saves the old value with the token the first save returned', async () => {
