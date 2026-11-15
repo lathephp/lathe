@@ -279,6 +279,13 @@ describe('relation tab keys', () => {
     expect(first.closest('[role="tablist"]')?.className).toContain('cn-tabs-list');
   });
 
+  it('wraps the tabs onto another row, a row gap clear of the underline', () => {
+    renderTwo();
+
+    const classes = screen.getByRole('tablist').className.split(' ');
+    expect(classes).toEqual(expect.arrayContaining(['flex-wrap', 'h-auto', 'gap-y-2']));
+  });
+
   it('gives tabindex 0 to the selected tab only', () => {
     renderTwo();
 

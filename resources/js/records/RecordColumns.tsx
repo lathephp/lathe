@@ -231,7 +231,7 @@ function RelationTabs({ parent, tabs, counts, active, opened, onSelect }: { pare
   return (
     <Card className="gap-0 overflow-hidden py-0 text-base">
       <div data-orientation="horizontal" className={cn(tabsRoot, 'flex items-center border-b border-border px-4 pt-2.5 pb-2')}>
-        <div role="tablist" data-variant="line" aria-orientation="horizontal" className={cn(tabsList, 'min-w-0')}>
+        <div role="tablist" data-variant="line" aria-orientation="horizontal" className={cn(tabsList, 'h-auto min-w-0 flex-wrap gap-y-2')}>
           {tabs.map((field, index) => {
             const count = field.withCount ? (loaded[field.key] ?? counts[field.key]) : undefined;
 
