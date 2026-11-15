@@ -6,5 +6,5 @@
     "types": ["vite/client"]
   },
   "include": ["resources/js"],
-  "references": [{ "path": "./packages/core" }, { "path": "./packages/ui" }]
+  "references": [{ "path": "./packages/core" }, { "path": "./packages/ui/tsconfig.build.json" }]
 }
