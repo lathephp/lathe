@@ -52,14 +52,16 @@ export function KeysSheet({ onClose }: { onClose: () => void }) {
       </ModalHeader>
       {groups.map((group) => (
         <section key={group.name} className="grid gap-2">
-          <h3 className="text-sm font-semibold">{group.name}</h3>
+          {/* The style's dialog title at 14 px, so a group stays under the sheet's own title. */}
+          <h3 className="cn-dialog-title text-sm">{group.name}</h3>
           <dl className="grid gap-1.5 text-sm">
             {group.rows.map(([keys, does]) => (
               <div key={does} className="flex items-baseline justify-between gap-4">
                 <dt className="text-muted-foreground">{does}</dt>
                 <dd className="flex flex-wrap justify-end gap-1">
                   {keys.map((key) => (
-                    <kbd key={key} className="rounded border border-border bg-muted px-1.5 py-0.5 font-mono text-xs">
+                    // The kit Kbd's classes: the look is the style's cn-kbd rule.
+                    <kbd key={key} className="cn-kbd pointer-events-none inline-flex items-center justify-center select-none">
                       {key}
                     </kbd>
                   ))}

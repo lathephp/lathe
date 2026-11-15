@@ -28,6 +28,23 @@ describe('keyboard shortcuts sheet', () => {
     expect((await screen.findByRole('dialog', { name: 'Keyboard shortcuts' })).textContent).toContain('Preview the row beside the list');
   });
 
+  it("draws each key with the style's kbd look and each group heading as a dialog title", async () => {
+    renderPage('Dashboard', dashboard);
+
+    act(() => {
+      showKeys();
+    });
+
+    const dialog = await screen.findByRole('dialog', { name: 'Keyboard shortcuts' });
+    const keys = [...dialog.querySelectorAll('kbd')];
+    expect(keys.length).toBeGreaterThan(10);
+    expect(keys.filter((key) => !key.classList.contains('cn-kbd'))).toEqual([]);
+    expect(within(dialog).getByText('Space').classList.contains('cn-kbd')).toBe(true);
+    const headings = within(dialog).getAllByRole('heading', { level: 3 });
+    expect(headings.map((heading) => heading.textContent)).toEqual(groups);
+    expect(headings.filter((heading) => !heading.classList.contains('cn-dialog-title'))).toEqual([]);
+  });
+
   it('opens on showKeys and closes on Escape', async () => {
     renderPage('Dashboard', dashboard);
 
