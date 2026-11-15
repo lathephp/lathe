@@ -22,6 +22,7 @@ import { phone, usePreview } from '../../index/usePreview';
 import type { IndexSkeletonHint, SharedProps } from '../../types';
 import type { WidgetDescriptor } from '../../widgets/types';
 import { PageHeader } from '../../layout/PageHeader';
+import { buttonClass } from '../../components/ui/Button';
 
 // The menus load after the rows, so the action code stays out of the index's first load.
 const ActionBar = lazy(() => import('../../actions/ActionBar').then((module) => ({ default: module.ActionBar })));
@@ -139,7 +140,7 @@ function IndexPage({ resource, table, state, count, error, lens, actions, widget
           <>
             <RenderHook position="index:header-actions" resource={resource.uriKey} className="flex gap-2" />
             {createHref !== null && (
-              <Link href={createHref} aria-keyshortcuts="c" className="lathe-button lathe-button-default lathe-button-size-default ps-2.5 max-md:hidden">
+              <Link href={createHref} aria-keyshortcuts="c" className={`${buttonClass()} ps-2.5 max-md:hidden`}>
                 <Plus aria-hidden="true" className="size-4" />
                 {createLabel}
               </Link>
@@ -148,7 +149,7 @@ function IndexPage({ resource, table, state, count, error, lens, actions, widget
         }
         phoneAction={
           createHref !== null && (
-            <Link href={createHref} aria-label={createLabel} className="lathe-button lathe-button-default lathe-page-bar-action">
+            <Link href={createHref} aria-label={createLabel} className={`${buttonClass('default', 'icon')} lathe-page-bar-action`}>
               <Plus aria-hidden="true" className="size-4" />
             </Link>
           )

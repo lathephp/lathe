@@ -3,6 +3,7 @@ import { useTranslation } from '@lathephp/core';
 import { Card } from '../components/ui/Card';
 import type { DetailFieldData } from '../fields/types';
 import type { SharedProps } from '../types';
+import { buttonClass } from '../components/ui/Button';
 
 interface RelatedRecord {
   id: string | number;
@@ -38,10 +39,7 @@ export function SingularRelationPanel({ field }: { field: DetailFieldData }) {
           <>
             <span className="text-muted-foreground">{__('No :resource yet', { resource: label })}</span>
             {field.canAdd === true && createHref !== null ? (
-              <Link
-                href={createHref}
-                className="lathe-button lathe-button-default lathe-button-size-default"
-              >
+              <Link href={createHref} className={buttonClass()}>
                 {__('Create :resource', { resource: label })}
               </Link>
             ) : null}

@@ -2,6 +2,7 @@ import { router } from '@inertiajs/react';
 import { useTranslation } from '@lathephp/core';
 import { RefreshCw } from 'lucide-react';
 import { useEffect, useState } from 'react';
+import { Button } from '../components/ui/Button';
 
 function storageKey(uriKey: string): string {
   return `lathe-polling:${uriKey}`;
@@ -70,15 +71,16 @@ export function PollingToggle({ on, onToggle }: { on: boolean; onToggle: () => v
   const { __ } = useTranslation();
 
   return (
-    <button
-      type="button"
+    <Button
       role="switch"
       aria-checked={on}
-      className="lathe-button lathe-button-ghost lathe-button-size-sm lathe-polling"
+      variant="ghost"
+      size="sm"
+      className="lathe-polling"
       onClick={onToggle}
     >
       <RefreshCw aria-hidden="true" className="size-3.5" />
       {__('Auto refresh')}
-    </button>
+    </Button>
   );
 }

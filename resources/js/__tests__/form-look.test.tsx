@@ -2,6 +2,7 @@ import { fireEvent, screen, within } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import type { FieldSchema, FormFieldData } from '../fields/types';
 import { renderPage } from './support';
+import { buttonClass } from '../components/ui/Button';
 
 afterEach(() => {
   vi.restoreAllMocks();
@@ -111,8 +112,8 @@ describe('the form look', () => {
   it('draws Cancel as ghost, the second save as outline and the main one as the primary button', () => {
     renderForm();
 
-    expect(screen.getByRole('link', { name: 'Cancel' }).className).toBe('lathe-button lathe-button-ghost lathe-button-size-default');
-    expect(screen.getByRole('button', { name: 'Create and add another' }).className).toBe('lathe-button lathe-button-outline lathe-button-size-default');
-    expect(screen.getByRole('button', { name: 'Create customer' }).className).toBe('lathe-button lathe-button-default lathe-button-size-default');
+    expect(screen.getByRole('link', { name: 'Cancel' }).className).toBe(buttonClass('ghost'));
+    expect(screen.getByRole('button', { name: 'Create and add another' }).className).toContain(buttonClass('outline'));
+    expect(screen.getByRole('button', { name: 'Create customer' }).className).toContain(buttonClass());
   });
 });

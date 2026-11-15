@@ -7,6 +7,7 @@ import { FormFields } from '../../records/FormFields';
 import { useRecordForm } from '../../records/useRecordForm';
 import type { FieldSchema, FormPayload } from '../types';
 import { useAssociatableEndpoint, type AssociatableItem, type LookupRecord } from './useAssociatable';
+import { Button } from '../../components/ui/Button';
 
 interface CreateRelationSheetProps {
   field: FieldSchema;
@@ -132,12 +133,12 @@ function CreateForm({ uriKey, singularLabel, submitLabel, form, onSaved, onCance
         <FormFields uriKey={uriKey} mode="create" id={null} record={record} idPrefix={`inline-${uriKey}`} bare />
       </div>
       <div className="flex justify-end gap-2 border-t border-border px-6 py-4">
-        <button type="button" className="lathe-button lathe-button-outline lathe-button-size-default" onClick={onCancel}>
+        <Button variant="outline" onClick={onCancel}>
           {__('Cancel')}
-        </button>
-        <button type="submit" disabled={record.busy || record.uploading || saved} className="lathe-button lathe-button-default lathe-button-size-default">
+        </Button>
+        <Button type="submit" disabled={record.busy || record.uploading || saved}>
           {record.uploading ? __('Uploading…') : submitLabel}
-        </button>
+        </Button>
       </div>
     </form>
   );

@@ -8,6 +8,7 @@ import { DetailField, FormField, stringValue, type DetailFieldProps, type FormFi
 import type { FieldSchema } from '../types';
 import { RepeaterErrorsContext, RepeaterPathContext } from './errors';
 import { RepeaterFailuresContext } from './failures';
+import { Button } from '../../components/ui/Button';
 
 interface Block {
   key: string;
@@ -425,25 +426,23 @@ export function RepeaterForm({ field, value, onChange, id, describedBy, disabled
             {__('Remove this row?')}
           </h2>
           <div className="flex justify-end gap-2">
-            <button
-              type="button"
+            <Button
               onClick={() => {
                 setPending(null);
               }}
-              className="lathe-button lathe-button-outline lathe-button-size-default"
+              variant="outline"
             >
               {__('Cancel')}
-            </button>
-            <button
-              type="button"
+            </Button>
+            <Button
               onClick={() => {
                 removeAt(pending);
                 setPending(null);
               }}
-              className="lathe-button lathe-button-size-default bg-destructive text-destructive-foreground shadow-xs hover:brightness-92"
+              variant="destructive-solid"
             >
               {__('Remove')}
-            </button>
+            </Button>
           </div>
         </Modal>
       )}

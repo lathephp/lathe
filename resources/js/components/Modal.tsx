@@ -32,13 +32,6 @@ export const modalFooter = 'flex justify-end gap-2 max-md:flex-col-reverse max-m
 export const modalInput =
   'h-8 w-full rounded-lg border border-input bg-background px-2.5 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-primary-subtle aria-[invalid]:border-destructive';
 
-/**
- * The panel Button's classes, for the dialogs that open from a first-load page: a component import
- * would add its chunk to every lazy import's preload list there.
- */
-export const outlineButton = 'lathe-button lathe-button-outline lathe-button-size-default';
-export const primaryButton = 'lathe-button lathe-button-default lathe-button-size-default';
-
 /** The X at the top end. It comes after the content, so the focus still opens on the first field. */
 export function ModalClose({ onClick }: { onClick: () => void }) {
   const { __ } = useTranslation();

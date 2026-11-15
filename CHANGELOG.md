@@ -7,6 +7,7 @@ All notable changes to Lathe are listed here. The format follows [Keep a Changel
 ### Changed
 
 - [api] The panel's first-paint `Button` takes every variant and size of the kit `Button` of `@lathephp/ui`: the variants `default`, `outline`, `secondary`, `ghost`, `destructive`, `destructive-solid` and `link`, and the sizes `default`, `xs`, `sm`, `lg`, `icon`, `icon-xs`, `icon-sm` and `icon-lg`. It draws with the active style's `cn-button`, `cn-button-variant-<variant>` and `cn-button-size-<size>` classes, so a panel served in luma has pill buttons and one in lyra square ones, and the new `buttonClass(variant, size)` gives a link the same classes. The panel stylesheet's `lathe-button-default`, `lathe-button-outline`, `lathe-button-ghost`, `lathe-button-destructive`, `lathe-button-destructive-solid` and `lathe-button-size-*` look rules are gone, and `lathe-button` keeps only the button's layout; a page that used those classes uses `cn-button-variant-<variant>` and `cn-button-size-<size>` with `cn-button`.
+- Every button and button-like link of the panel draws with the panel `Button` or `buttonClass()`, so it takes the active style's look: the record page's Delete and Force Delete are the `destructive` variant, the confirm of a delete, a repeater's Remove and a destructive action's run button are `destructive-solid`, and a conflict's Override is `destructive`. The `outlineButton` and `primaryButton` class strings of the panel's `Modal` module are gone.
 
 ## [1.0.0-beta.15] - 2026-11-15
 

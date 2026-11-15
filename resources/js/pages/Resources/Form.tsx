@@ -11,6 +11,7 @@ import { useRecordForm, type SubmitIntent } from '../../records/useRecordForm';
 import { userKey } from '../../lib/session';
 import { PageHeader } from '../../layout/PageHeader';
 import type { SharedProps } from '../../types';
+import { Button, buttonClass } from '../../components/ui/Button';
 
 /** The create and edit form of a Resource. */
 export default function Form({ resource, mode, id, title, form, submitLabel }: FormProps) {
@@ -79,26 +80,25 @@ export default function Form({ resource, mode, id, title, form, submitLabel }: F
               </span>
             ) : null}
             {record.draft.restored ? (
-              <button type="button" className="lathe-button lathe-button-ghost lathe-button-size-default" onClick={record.draft.discard}>
+              <Button variant="ghost" onClick={record.draft.discard}>
                 {__('Discard draft')}
-              </button>
+              </Button>
             ) : null}
-            <Link href={cancelHref} className="lathe-button lathe-button-ghost lathe-button-size-default">
+            <Link href={cancelHref} className={buttonClass('ghost')}>
               {__('Cancel')}
             </Link>
-            <button
-              type="button"
+            <Button
               disabled={record.busy || record.uploading}
-              className="lathe-button lathe-button-outline lathe-button-size-default"
+              variant="outline"
               onClick={() => {
                 submit(updating ? 'continue' : 'another');
               }}
             >
               {updating ? __('Update & Continue Editing') : __('Create and add another')}
-            </button>
-            <button type="submit" disabled={record.busy || record.uploading} className="lathe-button lathe-button-default lathe-button-size-default">
+            </Button>
+            <Button type="submit" disabled={record.busy || record.uploading}>
               {record.uploading ? __('Uploading…') : submitLabel}
-            </button>
+            </Button>
           </div>
         </div>
       </form>

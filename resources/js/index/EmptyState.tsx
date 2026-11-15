@@ -1,7 +1,7 @@
 import { Link } from '@inertiajs/react';
 import { useTranslation } from '@lathephp/core';
 import { Inbox, SearchX } from 'lucide-react';
-import { Button } from '../components/ui/Button';
+import { Button, buttonClass } from '../components/ui/Button';
 
 interface EmptyStateProps {
   label: string;
@@ -18,7 +18,7 @@ export function EmptyState({ label, filtered, createHref, onClear }: EmptyStateP
 
   const create =
     createHref === null ? null : (
-      <Link href={createHref} className="lathe-button lathe-button-default lathe-button-size-sm">
+      <Link href={createHref} className={buttonClass('default', 'sm')}>
         {__('Create')}
       </Link>
     );

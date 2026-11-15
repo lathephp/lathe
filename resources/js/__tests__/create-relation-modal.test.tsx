@@ -5,6 +5,7 @@ import { registerRelationFields } from '../fields/builtin/relation';
 import { registerTextFields } from '../fields/builtin/text';
 import { FormField } from '../fields/registry';
 import type { FieldSchema } from '../fields/types';
+import { buttonClass } from '../components/ui/Button';
 
 registerRelationFields();
 registerTextFields();
@@ -129,8 +130,8 @@ describe('inline create from a belongsTo field', () => {
     expect(dialog.className).toContain('max-w-[480px]');
     expect(screen.getByLabelText('Email')).toBeDefined();
     expect(within(dialog).getByRole('heading', { level: 2, name: 'Create customer' })).toBeDefined();
-    expect(within(dialog).getByRole('button', { name: 'Cancel' }).className).toBe('lathe-button lathe-button-outline lathe-button-size-default');
-    expect(within(dialog).getByRole('button', { name: 'Create customer' }).className).toBe('lathe-button lathe-button-default lathe-button-size-default');
+    expect(within(dialog).getByRole('button', { name: 'Cancel' }).className).toContain(buttonClass('outline'));
+    expect(within(dialog).getByRole('button', { name: 'Create customer' }).className).toContain(buttonClass());
     expect(calls(fetch)).toEqual(['GET /lathe/api/resources/customers/creation-fields']);
   });
 

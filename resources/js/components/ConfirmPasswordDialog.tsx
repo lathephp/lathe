@@ -1,7 +1,8 @@
 import { ApiError, request, useLathe, useTranslation } from '@lathephp/core';
 import { useEffect, useId, useRef, useState } from 'react';
 import { FieldError } from './FieldError';
-import { Modal, ModalClose, modalFooter, modalInput, outlineButton, primaryButton } from './Modal';
+import { Modal, ModalClose, modalFooter, modalInput } from './Modal';
+import { Button } from './ui/Button';
 
 /** The confirm password form over the page: onDone(true) once confirmed, onDone(false) on Escape or Cancel. */
 export function ConfirmPasswordDialog({ onDone }: { onDone: (confirmed: boolean) => void }) {
@@ -83,18 +84,17 @@ export function ConfirmPasswordForm({ titleId, onDone }: { titleId: string; onDo
         <FieldError id={`${id}-error`} message={error} />
       </div>
       <div className={modalFooter}>
-        <button
-          type="button"
-          className={outlineButton}
+        <Button
+          variant="outline"
           onClick={() => {
             onDone(false);
           }}
         >
           {__('Cancel')}
-        </button>
-        <button type="submit" disabled={busy} className={primaryButton}>
+        </Button>
+        <Button type="submit" disabled={busy}>
           {__('Confirm')}
-        </button>
+        </Button>
       </div>
       <ModalClose
         onClick={() => {

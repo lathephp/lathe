@@ -3,6 +3,7 @@ import { ApiError, request, toast, useLathe, useTranslation } from '@lathephp/co
 import { useId, useState } from 'react';
 import { Modal } from '../components/Modal';
 import type { DetailRecord } from '../fields/types';
+import { Button } from '../components/ui/Button';
 
 type Action = 'delete' | 'restore' | 'forceDelete';
 
@@ -58,10 +59,9 @@ export function RecordActions({ uriKey, record }: RecordActionsProps) {
   return (
     <>
       {!trashed && abilities.impersonate === true ? (
-        <button
-          type="button"
+        <Button
           disabled={busy}
-          className="lathe-button lathe-button-outline lathe-button-size-default"
+          variant="outline"
           onClick={() => {
             setBusy(true);
             startImpersonating(basePath, uriKey, record.id).catch(() => {
@@ -70,43 +70,40 @@ export function RecordActions({ uriKey, record }: RecordActionsProps) {
           }}
         >
           {__('Impersonate')}
-        </button>
+        </Button>
       ) : null}
       {!trashed && abilities.delete ? (
-        <button
-          type="button"
+        <Button
           disabled={busy}
-          className="lathe-button lathe-button-outline lathe-button-size-default text-destructive"
+          variant="destructive"
           onClick={() => {
             setConfirming('delete');
           }}
         >
           {__('Delete')}
-        </button>
+        </Button>
       ) : null}
       {trashed && abilities.restore ? (
-        <button
-          type="button"
+        <Button
           disabled={busy}
-          className="lathe-button lathe-button-outline lathe-button-size-default"
+          variant="outline"
           onClick={() => {
             void run('restore');
           }}
         >
           {__('Restore')}
-        </button>
+        </Button>
       ) : null}
       {trashed && abilities.forceDelete ? (
-        <button
-          type="button"
+        <Button
           disabled={busy}
-          className="lathe-button lathe-button-outline lathe-button-size-default text-destructive"
+          variant="destructive"
           onClick={() => {
             setConfirming('forceDelete');
           }}
         >
           {__('Force Delete')}
-        </button>
+        </Button>
       ) : null}
       {confirming === null ? null : (
         <Modal
@@ -122,24 +119,22 @@ export function RecordActions({ uriKey, record }: RecordActionsProps) {
             {confirming === 'delete' ? __('This cannot be undone from here.') : __('This cannot be undone.')}
           </p>
           <div className="flex justify-end gap-2">
-            <button
-              type="button"
-              className="lathe-button lathe-button-outline lathe-button-size-default"
+            <Button
+              variant="outline"
               onClick={() => {
                 setConfirming(null);
               }}
             >
               {__('Cancel')}
-            </button>
-            <button
-              type="button"
-              className="lathe-button lathe-button-size-default bg-destructive text-destructive-foreground shadow-xs hover:brightness-92"
+            </Button>
+            <Button
+              variant="destructive-solid"
               onClick={() => {
                 void run(confirming);
               }}
             >
               {confirming === 'delete' ? __('Delete') : __('Force Delete')}
-            </button>
+            </Button>
           </div>
         </Modal>
       )}

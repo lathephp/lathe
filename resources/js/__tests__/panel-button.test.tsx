@@ -1,3 +1,6 @@
+/// <reference types="node" />
+import { readdirSync, readFileSync } from 'node:fs';
+import { join } from 'node:path';
 import { render, screen } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
 import { Button, buttonClass, type ButtonSize, type ButtonVariant } from '../components/ui/Button';
@@ -36,5 +39,16 @@ describe('the panel Button', () => {
     render(<Button className="w-full">Go</Button>);
 
     expect(screen.getByRole('button', { name: 'Go' }).className).toMatch(/cn-button-size-default w-full$/);
+  });
+});
+
+// Built at run time, so this file does not find itself.
+const oldClass = ['lathe', 'button', ''].join('-');
+
+describe('the panel sources', () => {
+  it('draw no button with the old lathe-button look classes', () => {
+    const files = readdirSync('resources/js', { recursive: true, encoding: 'utf8' }).filter((file) => /\.tsx?$/.test(file) && !file.startsWith(join('components', 'ui')));
+
+    expect(files.filter((file) => readFileSync(join('resources/js', file), 'utf8').includes(oldClass))).toEqual([]);
   });
 });

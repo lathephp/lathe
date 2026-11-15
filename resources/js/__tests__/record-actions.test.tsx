@@ -2,6 +2,7 @@ import { router } from '@inertiajs/react';
 import { fireEvent, screen, waitFor, within } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { renderPage } from './support';
+import { buttonClass } from '../components/ui/Button';
 
 afterEach(() => {
   vi.restoreAllMocks();
@@ -35,10 +36,9 @@ describe('detail actions', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Delete' }));
     const dialog = screen.getByRole('dialog');
     const confirm = within(dialog).getByRole('button', { name: 'Delete' });
-    expect(confirm.className).toContain('bg-destructive');
-    expect(confirm.className).toContain('lathe-button-size-default');
-    expect(within(dialog).getByRole('button', { name: 'Cancel' }).className).toBe('lathe-button lathe-button-outline lathe-button-size-default');
-    expect(screen.getAllByRole('button', { name: 'Delete', hidden: true })[0]?.className).toContain('lathe-button-outline');
+    expect(confirm.className).toContain(buttonClass('destructive-solid'));
+    expect(within(dialog).getByRole('button', { name: 'Cancel' }).className).toContain(buttonClass('outline'));
+    expect(screen.getAllByRole('button', { name: 'Delete', hidden: true })[0]?.className).toContain(buttonClass('destructive'));
     fireEvent.click(confirm);
 
     await waitFor(() => {

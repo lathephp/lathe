@@ -1,9 +1,10 @@
 import { ApiError, request, useLathe, useTranslation } from '@lathephp/core';
 import { Suspense, useId, useState } from 'react';
 import { FieldError } from '../components/FieldError';
-import { Modal, modalFooter, modalInput, outlineButton, primaryButton } from '../components/Modal';
+import { Modal, modalFooter, modalInput } from '../components/Modal';
 import { lazyNamed } from '../lib/lazy';
 import { firstErrors } from './useRecordForm';
+import { Button } from '../components/ui/Button';
 
 // The OTP field loads only when an account asks for its code, which keeps it out of every page's first load.
 const TotpInput = lazyNamed(() => import('../components/TotpInput').then((module) => module.TotpInput));
@@ -158,12 +159,12 @@ export function ReauthModal({ email: initialEmail, onSignedIn, onOtherUser, onCl
           </>
         )}
         <div className={modalFooter}>
-          <button type="button" className={outlineButton} onClick={onClose}>
+          <Button variant="outline" onClick={onClose}>
             {__('Cancel')}
-          </button>
-          <button type="submit" disabled={busy} className={primaryButton}>
+          </Button>
+          <Button type="submit" disabled={busy}>
             {__('Sign in')}
-          </button>
+          </Button>
         </div>
       </form>
     </Modal>

@@ -440,7 +440,7 @@
 
   /* The phone's icon-only primary sits last in the top bar, after the bell. */
   .lathe-page-bar-action {
-    @apply order-last mx-1 size-9 rounded-md shadow-none;
+    @apply order-last mx-1 size-9 shadow-none;
   }
 
   /* From md up the buttons wrap to a row below the title when the header is too narrow for both;

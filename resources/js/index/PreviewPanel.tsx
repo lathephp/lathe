@@ -7,6 +7,7 @@ import type { DetailFieldData } from '../fields/types';
 import { TableCell } from '../table/cells';
 import type { IndexProps, Row } from './types';
 import { restMs } from './usePreview';
+import { Button, buttonClass } from '../components/ui/Button';
 
 const RecordActionMenu = lazy(() => import('../actions/RecordActionMenu').then((module) => ({ default: module.RecordActionMenu })));
 
@@ -151,12 +152,12 @@ export function PreviewPanel({ resource, table, id, row, onClose }: PreviewPanel
           {cell(card?.badge)}
         </div>
         <div className="flex shrink-0 items-center gap-1">
-          <Link href={recordPath} className="lathe-button lathe-button-outline lathe-button-size-sm">
+          <Link href={recordPath} className={buttonClass('outline', 'sm')}>
             {__('Open full page')}
           </Link>
-          <button type="button" className="lathe-button lathe-button-ghost lathe-button-size-sm" onClick={onClose}>
+          <Button variant="ghost" size="sm" onClick={onClose}>
             {__('Close')}
-          </button>
+          </Button>
         </div>
       </header>
       {failed === 404 ? (
@@ -178,7 +179,7 @@ export function PreviewPanel({ resource, table, id, row, onClose }: PreviewPanel
               </Suspense>
             )}
             {data.abilities.update === true && (
-              <Link href={`${recordPath}/edit`} className="lathe-button lathe-button-default lathe-button-size-sm">
+              <Link href={`${recordPath}/edit`} className={buttonClass('default', 'sm')}>
                 {__('Edit')}
               </Link>
             )}

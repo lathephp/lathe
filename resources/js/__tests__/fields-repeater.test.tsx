@@ -4,6 +4,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import { FormField, registries, type FormFieldProps } from '../fields/registry';
 import { RepeaterErrorsContext } from '../fields/repeater/errors';
 import type { DetailFieldData, FieldSchema } from '../fields/types';
+import { buttonClass } from '../components/ui/Button';
 
 function sub(attribute: string, label: string, extra: Record<string, unknown> = {}): FieldSchema {
   return schema('text-field', { key: attribute, attribute, label, ...extra });
@@ -181,8 +182,8 @@ describe('repeater-field', () => {
     expect(view.onChange).not.toHaveBeenCalled();
 
     fireEvent.click(within(view.rows()[0] as HTMLElement).getByRole('button', { name: 'Remove' }));
-    expect(within(screen.getByRole('dialog')).getByRole('button', { name: 'Cancel' }).className).toBe('lathe-button lathe-button-outline lathe-button-size-default');
-    expect(within(screen.getByRole('dialog')).getByRole('button', { name: 'Remove' }).className).toContain('lathe-button-size-default bg-destructive');
+    expect(within(screen.getByRole('dialog')).getByRole('button', { name: 'Cancel' }).className).toContain(buttonClass('outline'));
+    expect(within(screen.getByRole('dialog')).getByRole('button', { name: 'Remove' }).className).toContain(buttonClass('destructive-solid'));
     fireEvent.click(within(screen.getByRole('dialog')).getByRole('button', { name: 'Remove' }));
 
     expect(view.rows()).toHaveLength(1);

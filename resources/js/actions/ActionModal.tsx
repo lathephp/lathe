@@ -1,12 +1,13 @@
 import { ApiError, formatNumber, request, toast, useTranslation } from '@lathephp/core';
 import { useEffect, useId, useState } from 'react';
-import { Modal, ModalClose, modalFooter, modalPanel, outlineButton, primaryButton } from '../components/Modal';
+import { Modal, ModalClose, modalFooter, modalPanel } from '../components/Modal';
 import { AssociatableEndpoint } from '../fields/relation/useAssociatable';
 import type { FormFieldData } from '../fields/types';
 import { cn } from '../lib/cn';
 import { FormRow } from '../records/FormFields';
 import { firstErrors, initialValues } from '../records/useRecordForm';
 import type { ActionMeta } from './types';
+import { Button } from '../components/ui/Button';
 
 interface ActionForm {
   fields: FormFieldData[];
@@ -150,13 +151,13 @@ export function ActionModal({ base, action, count, label = formatNumber(count), 
           </AssociatableEndpoint>
         )}
         <div className={modalFooter}>
-          <button type="button" className={outlineButton} onClick={onClose}>
+          <Button variant="outline" onClick={onClose}>
             {action.cancelButtonText}
-          </button>
+          </Button>
           {/* A destructive action confirms with the solid destructive button. */}
-          <button type="submit" disabled={busy || form === null} className={cn(primaryButton, action.destructive && 'bg-destructive text-destructive-foreground')}>
+          <Button type="submit" variant={action.destructive ? 'destructive-solid' : 'default'} disabled={busy || form === null}>
             {busy && action.asBlob ? __('Preparing file') : action.confirmButtonText}
-          </button>
+          </Button>
         </div>
       </form>
       {form !== null && form.fields.length > 0 && <ModalClose onClick={onClose} />}

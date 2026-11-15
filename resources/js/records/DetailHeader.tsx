@@ -7,6 +7,7 @@ import type { DetailProps } from '../fields/types';
 import { PageHeader } from '../layout/PageHeader';
 import type { SharedProps } from '../types';
 import { RecordActions } from './RecordActions';
+import { buttonClass } from '../components/ui/Button';
 
 // The action menu loads after the record, so a page without actions never fetches it.
 const RecordActionMenu = lazy(() => import('../actions/RecordActionMenu').then((module) => ({ default: module.RecordActionMenu })));
@@ -44,12 +45,12 @@ export function DetailHeader({ resource, record, actions }: Pick<DetailProps, 'r
           )}
           <RecordActions uriKey={resource.uriKey} record={record} />
           {!record.trashed && abilities.replicate ? (
-            <Link href={`${recordPath}/replicate`} className="lathe-button lathe-button-outline lathe-button-size-default">
+            <Link href={`${recordPath}/replicate`} className={buttonClass('outline')}>
               {__('Replicate')}
             </Link>
           ) : null}
           {!record.trashed && abilities.update ? (
-            <Link href={`${recordPath}/edit`} aria-keyshortcuts="e" className="lathe-button lathe-button-default lathe-button-size-default ps-2.5">
+            <Link href={`${recordPath}/edit`} aria-keyshortcuts="e" className={`${buttonClass()} ps-2.5`}>
               <Pencil aria-hidden="true" className="size-4" />
               {__('Edit')}
             </Link>
