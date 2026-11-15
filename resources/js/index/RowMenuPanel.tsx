@@ -1,10 +1,12 @@
 import { Link, usePage } from '@inertiajs/react';
 import { request, toast, useTranslation } from '@lathephp/core';
-import { Copy, Eye, Pencil, RotateCcw, Trash2 } from 'lucide-react';
-import { lazy, type RefObject, Suspense, useEffect, useEffectEvent, useId, useLayoutEffect, useRef, useState } from 'react';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@lathephp/ui';
+import { Copy, Ellipsis, Eye, Pencil, RotateCcw, Trash2 } from 'lucide-react';
+import { lazy, Suspense, useId, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
+import type { InlineActions } from '../actions/InlineRowActions';
 import { Modal, ModalDescription, ModalFooter, ModalHeader, ModalTitle } from '../components/Modal';
-import { Button } from '../components/ui/Button';
+import { Button, buttonClass } from '../components/ui/Button';
 import { reloadIndexRows } from '../lib/instant';
 import type { SharedProps } from '../types';
 import { type MenuAction, menuActions, type WriteAction } from './RowMenu';
@@ -27,81 +29,32 @@ function isLink(action: MenuAction): action is LinkAction {
 const startImpersonating = (basePath: string, resource: string, resourceId: string | number) =>
   import('../layout/impersonate').then((module) => module.impersonate(basePath, { resource, resourceId }));
 
-const itemClass =
-  'flex h-8 w-full items-center gap-2 rounded-md px-2 text-start text-sm outline-none hover:bg-accent focus-visible:ring-2 focus-visible:ring-ring [&>svg]:size-4 [&>svg]:text-muted-foreground';
-
 // Each record entry leads with its icon; Delete's takes the destructive colour with its text.
 const icons = { view: Eye, edit: Pencil, replicate: Copy, delete: Trash2, restore: RotateCcw, forceDelete: Trash2 };
 
 interface RowMenuPanelProps {
   uriKey: string;
   row: Row;
-  open: boolean;
-  menuId: string;
-  trigger: RefObject<HTMLButtonElement | null>;
-  onClose: () => void;
+  /** The button's accessible name. */
+  label: string;
+  /** Whether the first open came from the keyboard, which puts the focus on the first entry, as the kit menu's own button does. */
+  fromKeyboard: boolean;
 }
 
-/** The row menu's list, its delete confirmation and the row's inline actions, loaded on the menu's first open. */
-export function RowMenuPanel({ uriKey, row, open, menuId, trigger, onClose }: RowMenuPanelProps) {
+/**
+ * The row menu, its delete confirmation and the row's inline actions, loaded on the menu's first
+ * open. It takes the place of the row's first-paint button and opens at once, so the click that
+ * loaded it needs no second one.
+ */
+export function RowMenuPanel({ uriKey, row, label, fromKeyboard }: RowMenuPanelProps) {
   const { __ } = useTranslation();
   const { basePath } = usePage<SharedProps>().props;
   const [confirming, setConfirming] = useState<'delete' | 'forceDelete' | null>(null);
-  const [menu, setMenu] = useState<HTMLElement | null>(null);
-  const inline = (row.actions?.length ?? 0) > 0;
+  const [inline, setInline] = useState<InlineActions | null>(null);
+  const hasInline = (row.actions?.length ?? 0) > 0;
   const titleId = useId();
+  const firstFocus = useRef(fromKeyboard);
   const url = `${basePath}/api/resources/${uriKey}/${String(row.id)}`;
-  const panel = useRef<HTMLDivElement>(null);
-
-  // The table card clips what overflows it, so the menu is fixed to the window (out of the row's
-  // flow from its first render, so it never moves the button it is measured from), under its
-  // button, or above it when the window ends first. It then takes the focus to its first entry,
-  // so Escape and Tab work inside it.
-  useLayoutEffect(() => {
-    const menu = panel.current;
-    const button = trigger.current?.getBoundingClientRect();
-
-    if (!open || menu === null || button === undefined) {
-      return;
-    }
-
-    const { width, height } = menu.getBoundingClientRect();
-    // Pinned by its bottom edge when above, so the row's inline actions, which load later, grow it upward.
-    const above = button.bottom + 4 + height > window.innerHeight;
-
-    Object.assign(menu.style, {
-      [above ? 'bottom' : 'top']: `${String(above ? window.innerHeight - button.top + 4 : button.bottom + 4)}px`,
-      left: `${String(document.dir === 'rtl' ? button.left : button.right - width)}px`,
-    });
-    menu.querySelector<HTMLElement>('[role=menuitem]')?.focus();
-  }, [open, trigger]);
-
-  // Fixed to the window, the open menu would float away from its row on a scroll, so a scroll
-  // closes it, as a press outside it and its button does.
-  const dismiss = useEffectEvent((event: Event) => {
-    const target = event.target instanceof Node ? event.target : null;
-
-    if (event.type === 'scroll' || (!panel.current?.contains(target) && !trigger.current?.contains(target))) {
-      onClose();
-    }
-  });
-
-  useEffect(() => {
-    if (!open) {
-      return;
-    }
-
-    const listener = (event: Event) => {
-      dismiss(event);
-    };
-    document.addEventListener('pointerdown', listener, true);
-    document.addEventListener('scroll', listener, true);
-
-    return () => {
-      document.removeEventListener('pointerdown', listener, true);
-      document.removeEventListener('scroll', listener, true);
-    };
-  }, [open]);
 
   const labels: Record<MenuAction, string> = {
     view: __('View'),
@@ -149,8 +102,6 @@ export function RowMenuPanel({ uriKey, row, open, menuId, trigger, onClose }: Ro
   }
 
   function choose(action: WriteAction) {
-    onClose();
-
     if (action === 'restore') {
       void run(action);
     } else {
@@ -164,65 +115,75 @@ export function RowMenuPanel({ uriKey, row, open, menuId, trigger, onClose }: Ro
 
   function entry(action: MenuAction) {
     const Icon = icons[action];
-
-    return isLink(action) ? (
-      <Link key={action} role="menuitem" href={`${basePath}/resources/${uriKey}/${String(row.id)}${links[action]}`} className={itemClass}>
+    const content = (
+      <>
         <Icon aria-hidden="true" />
         {labels[action]}
-      </Link>
+      </>
+    );
+
+    return isLink(action) ? (
+      <DropdownMenuItem key={action} render={<Link href={`${basePath}/resources/${uriKey}/${String(row.id)}${links[action]}`} />}>
+        {content}
+      </DropdownMenuItem>
     ) : (
-      <button
+      <DropdownMenuItem
         key={action}
-        type="button"
-        role="menuitem"
-        className={action === 'restore' ? itemClass : `${itemClass} text-destructive [&>svg]:text-current`}
+        variant={action === 'restore' ? 'default' : 'destructive'}
         onClick={() => {
           choose(action);
         }}
       >
-        <Icon aria-hidden="true" />
-        {labels[action]}
-      </button>
+        {content}
+      </DropdownMenuItem>
     );
   }
 
   return (
     <>
-      {open && (
-        <div
-          ref={panel}
-          id={menuId}
-          role="menu"
-          tabIndex={-1}
-          className="fixed z-10 w-60 rounded-[12px] border border-border bg-popover p-1 text-popover-foreground shadow-md"
-          onKeyDown={(event) => {
-            if (event.key === 'Escape') {
-              onClose();
+      <DropdownMenu defaultOpen>
+        <DropdownMenuTrigger render={<button type="button" tabIndex={-1} aria-label={label} className={buttonClass('ghost', 'icon-sm')} />}>
+          <Ellipsis aria-hidden="true" className="size-4" />
+        </DropdownMenuTrigger>
+        {/* On the body, so the table card's clip cuts nothing; it opens above its button when the window ends first. */}
+        <DropdownMenuContent
+          align="end"
+          collisionPadding={8}
+          className="w-60"
+          onFocus={(event) => {
+            // The menu takes the focus as it opens; opened from the keyboard, it hands it to its first entry, once.
+            if (firstFocus.current && event.target === event.currentTarget) {
+              firstFocus.current = false;
+              event.currentTarget.querySelector<HTMLElement>('[role=menuitem]')?.focus();
             }
           }}
         >
           {safe.map((action) => entry(action))}
           {row.abilities.impersonate === true && (
-            <button
-              type="button"
-              role="menuitem"
-              className={itemClass}
+            <DropdownMenuItem
               onClick={() => {
-                onClose();
                 startImpersonating(basePath, uriKey, row.id).catch(() => undefined);
               }}
             >
               {__('Impersonate')}
-            </button>
+            </DropdownMenuItem>
           )}
-          {/* The row's inline actions portal in here, so Delete stays the menu's last entry. */}
-          <div ref={setMenu} role="none" />
-          {destructive.length > 0 && (safe.length > 0 || inline || row.abilities.impersonate === true) && (
-            <div role="separator" className="-mx-1 my-1 h-px bg-border" />
-          )}
+          {/* The row's inline actions come before Delete, so Delete stays the menu's last entry. */}
+          {inline?.actions.map((action) => (
+            <DropdownMenuItem
+              key={action.uriKey}
+              variant={action.destructive ? 'destructive' : 'default'}
+              onClick={() => {
+                inline.run(action);
+              }}
+            >
+              {action.name}
+            </DropdownMenuItem>
+          ))}
+          {destructive.length > 0 && (safe.length > 0 || hasInline || row.abilities.impersonate === true) && <DropdownMenuSeparator />}
           {destructive.map((action) => entry(action))}
-        </div>
-      )}
+        </DropdownMenuContent>
+      </DropdownMenu>
       {/* On the body, so its scrim covers the top bar: the row menu's sticky cell is a stacking context. */}
       {confirming !== null &&
         createPortal(
@@ -260,17 +221,9 @@ export function RowMenuPanel({ uriKey, row, open, menuId, trigger, onClose }: Ro
         </Modal>,
           document.body,
         )}
-      {inline && (
+      {hasInline && (
         <Suspense fallback={null}>
-          <InlineRowActions
-            uriKey={uriKey}
-            row={row}
-            menu={open ? menu : null}
-            itemClass={itemClass}
-            onChoose={() => {
-              onClose();
-            }}
-          />
+          <InlineRowActions uriKey={uriKey} row={row} onLoad={setInline} />
         </Suspense>
       )}
     </>

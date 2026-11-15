@@ -328,13 +328,18 @@ describe('row menu', () => {
     renderOrders({ rows: [row(12, { view: true, delete: true })] });
     const trigger = screen.getByRole('button', { name: 'Actions for ORD-00012' });
 
-    fireEvent.click(trigger);
+    // A click from Enter: the kit menu takes the first-paint button's place and opens on its first entry.
+    fireEvent.click(trigger, { detail: 0 });
     const first = await screen.findByRole('menuitem', { name: 'View' });
-    expect(document.activeElement).toBe(first);
+    await waitFor(() => {
+      expect(document.activeElement).toBe(first);
+    });
 
     fireEvent.keyDown(first, { key: 'Escape' });
-    expect(screen.queryByRole('menu')).toBeNull();
-    expect(document.activeElement).toBe(trigger);
+    await waitFor(() => {
+      expect(screen.queryByRole('menu')).toBeNull();
+    });
+    expect(document.activeElement).toBe(screen.getByRole('button', { name: 'Actions for ORD-00012' }));
   });
 
   it('has no menu for a row the user may do nothing with', () => {

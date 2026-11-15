@@ -1,19 +1,22 @@
 import { request, useLathe } from '@lathephp/core';
-import { useEffect, useState } from 'react';
-import { createPortal } from 'react-dom';
+import { useEffect, useEffectEvent } from 'react';
 import type { Row } from '../index/types';
 import { recordSelection } from './selection';
 import type { ActionList, ActionMeta } from './types';
 import { useActionRunner } from './useActionRunner';
 import { reloadIndexRows } from '../lib/instant';
 
+/** The row's inline actions, with what runs one; the row menu draws them as its items. */
+export interface InlineActions {
+  actions: ActionMeta[];
+  run: (action: ActionMeta) => void;
+}
+
 interface InlineRowActionsProps {
   uriKey: string;
   row: Row;
-  /** The open row menu the items go into; null while it is closed. */
-  menu: HTMLElement | null;
-  itemClass: string;
-  onChoose: () => void;
+  /** Called with the actions once they load, so the row menu can list them. */
+  onLoad: (inline: InlineActions) => void;
 }
 
 /**
@@ -21,14 +24,24 @@ interface InlineRowActionsProps {
  * opens; the component stays mounted beside the menu after, so a modal it opened outlives
  * the menu.
  */
-export function InlineRowActions({ uriKey, row, menu, itemClass, onChoose }: InlineRowActionsProps) {
+export function InlineRowActions({ uriKey, row, onLoad }: InlineRowActionsProps) {
   const { apiPath } = useLathe();
-  const [actions, setActions] = useState<ActionMeta[]>([]);
   const runner = useActionRunner({
     base: `${apiPath}/resources/${uriKey}`,
     onDone: () => {
       reloadIndexRows();
     },
+  });
+  const start = useEffectEvent((action: ActionMeta) => {
+    runner.start(action, recordSelection(row.id), 1);
+  });
+  const loaded = useEffectEvent((actions: ActionMeta[]) => {
+    onLoad({
+      actions: actions.filter((action) => row.actions?.includes(action.uriKey) === true),
+      run: (action) => {
+        start(action);
+      },
+    });
   });
 
   useEffect(() => {
@@ -37,7 +50,7 @@ export function InlineRowActions({ uriKey, row, menu, itemClass, onChoose }: Inl
     request<ActionList>(`${apiPath}/resources/${uriKey}/actions?display=table-row`)
       .then((list) => {
         if (live) {
-          setActions(list?.actions ?? []);
+          loaded(list?.actions ?? []);
         }
       })
       .catch(() => undefined);
@@ -47,29 +60,5 @@ export function InlineRowActions({ uriKey, row, menu, itemClass, onChoose }: Inl
     };
   }, [apiPath, uriKey]);
 
-  return (
-    <>
-      {menu !== null &&
-        createPortal(
-          actions
-            .filter((action) => row.actions?.includes(action.uriKey) === true)
-            .map((action) => (
-              <button
-                key={action.uriKey}
-                type="button"
-                role="menuitem"
-                className={action.destructive ? `${itemClass} text-destructive` : itemClass}
-                onClick={() => {
-                  onChoose();
-                  runner.start(action, recordSelection(row.id), 1);
-                }}
-              >
-                {action.name}
-              </button>
-            )),
-          menu,
-        )}
-      {runner.element}
-    </>
-  );
+  return runner.element;
 }
