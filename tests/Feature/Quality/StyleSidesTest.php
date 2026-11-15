@@ -23,24 +23,43 @@ function styleSidesBase(string $utility): string
     return substr($utility, $cut + 1);
 }
 
+/** Whether a utility names a physical side; a sheet's or drawer's own side, and a centred inset, are physical on purpose, since their slides move along the physical x axis. */
+function styleSidesPhysical(string $utility): bool
+{
+    $base = rtrim(styleSidesBase($utility), '!');
+    $keyedToSide = preg_match('/data-\[(side|vaul-drawer-direction)=(left|right)\]|data-side-(left|right)/', $utility) === 1;
+
+    return preg_match('/^-?([mp][lr]-|left-|right-|text-(left|right)$|rounded-(l|r|tl|tr|bl|br)(-|$)|border-[lr](-|$))/', $base) === 1
+        && ! $keyedToSide && $base !== 'left-1/2';
+}
+
 // A style that names a physical side draws the close button, a check mark or an inset
 // on the wrong side under right to left; the logical start and end follow the direction.
 it('names only logical sides in the style files', function () {
     $root = dirname(__DIR__, 3);
-    $physical = '/^-?([mp][lr]-|left-|right-|text-(left|right)$|rounded-(l|r|tl|tr|bl|br)(-|$)|border-[lr](-|$))/';
     $found = [];
 
     foreach (Finder::create()->files()->in("{$root}/resources/css/styles")->name('style-*.css') as $file) {
         preg_match_all('/@apply ([^;}]+)/', $file->getContents(), $rules);
 
         foreach (preg_split('/\s+/', implode(' ', $rules[1])) ?: [] as $utility) {
-            $base = rtrim(styleSidesBase($utility), '!');
+            if (styleSidesPhysical($utility)) {
+                $found[] = $file->getFilename().': '.$utility;
+            }
+        }
+    }
 
-            // A sheet's or drawer's own side, and a centred inset, are physical on purpose:
-            // their slide-in animations move along the physical x axis.
-            $keyedToSide = preg_match('/data-\[(side|vaul-drawer-direction)=(left|right)\]|data-side-(left|right)/', $utility) === 1;
+    expect(array_values(array_unique($found)))->toBe([]);
+});
 
-            if (preg_match($physical, $base) === 1 && ! $keyedToSide && $base !== 'left-1/2') {
+// The same holds for the classes a kit component writes itself, which no style can undo.
+it('names only logical sides in the kit components', function () {
+    $root = dirname(__DIR__, 3);
+    $found = [];
+
+    foreach (Finder::create()->files()->in("{$root}/packages/ui/src")->name('*.tsx')->notPath('#(^|/)__tests__/#') as $file) {
+        foreach (preg_split('/[\s\'"`]+/', $file->getContents()) ?: [] as $utility) {
+            if (styleSidesPhysical($utility)) {
                 $found[] = $file->getFilename().': '.$utility;
             }
         }
