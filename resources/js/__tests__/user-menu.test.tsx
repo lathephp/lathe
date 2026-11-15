@@ -1,6 +1,7 @@
 import { router } from '@inertiajs/react';
 import type { SafeHtml } from '@lathephp/core';
 import { fireEvent, screen, within } from '@testing-library/react';
+import { readFileSync } from 'node:fs';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { renderPage } from './support';
 
@@ -75,6 +76,60 @@ describe('user menu', () => {
       ),
     ).toEqual(['Profile', 'Security', 'Keyboard shortcuts', 'slot', 'Sign out']);
     expect(menu.textContent.startsWith('ALAda Lovelaceada@example.com')).toBe(true);
+  });
+
+  it('draws with the kit menu classes and no @lathephp/ui import', () => {
+    renderPage('Dashboard', dashboard);
+    const menu = openMenu();
+
+    expect(menu.classList.contains('cn-dropdown-menu-content')).toBe(true);
+    expect(menu.getAttribute('data-open')).toBe('');
+    expect(menu.getAttribute('data-side')).toBe('top');
+    within(menu)
+      .getAllByRole('menuitem')
+      .forEach((item) => {
+        expect(item.classList.contains('cn-dropdown-menu-item')).toBe(true);
+        expect(item.getAttribute('data-variant')).toBe('default');
+      });
+    expect(readFileSync('resources/js/layout/UserMenu.tsx', 'utf8')).not.toContain('@lathephp/ui');
+  });
+
+  it('focuses the first item, wraps the arrow keys, skips the appearance buttons and goes to the ends', () => {
+    renderPage('Dashboard', dashboard);
+    const [shortcuts, signOut] = within(openMenu()).getAllByRole('menuitem');
+
+    expect(document.activeElement).toBe(shortcuts);
+    fireEvent.keyDown(document.activeElement ?? document.body, { key: 'ArrowDown' });
+    expect(document.activeElement).toBe(signOut);
+    fireEvent.keyDown(document.activeElement ?? document.body, { key: 'ArrowDown' });
+    expect(document.activeElement).toBe(shortcuts);
+    fireEvent.keyDown(document.activeElement ?? document.body, { key: 'ArrowUp' });
+    expect(document.activeElement).toBe(signOut);
+    fireEvent.keyDown(document.activeElement ?? document.body, { key: 'Home' });
+    expect(document.activeElement).toBe(shortcuts);
+    fireEvent.keyDown(document.activeElement ?? document.body, { key: 'End' });
+    expect(document.activeElement).toBe(signOut);
+  });
+
+  it('focuses the item a typed letter starts and keeps the letter from the document', () => {
+    renderPage('Dashboard', dashboard);
+    const [, signOut] = within(openMenu()).getAllByRole('menuitem');
+    const reached = vi.fn();
+    document.addEventListener('keydown', reached);
+
+    fireEvent.keyDown(document.activeElement ?? document.body, { key: 's' });
+    document.removeEventListener('keydown', reached);
+
+    expect(document.activeElement).toBe(signOut);
+    expect(reached).not.toHaveBeenCalled();
+  });
+
+  it('claims Escape, so the phone menu around it stays open', () => {
+    renderPage('Dashboard', dashboard);
+    openMenu();
+
+    expect(fireEvent.keyDown(document.activeElement ?? document.body, { key: 'Escape' })).toBe(false);
+    expect(document.activeElement).toBe(within(screen.getByRole('complementary')).getByRole('button', { name: /Ada Lovelace/ }));
   });
 
   it('signs out with a POST to the panel path', () => {

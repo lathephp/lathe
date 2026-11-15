@@ -1,5 +1,10 @@
 import { type RefObject, useEffectEvent, useLayoutEffect } from 'react';
 
+// The kit's DropdownMenuContent and DropdownMenuItem classes, without the ones that read Base UI's variables.
+export const menuClass = 'cn-dropdown-menu-content cn-dropdown-menu-content-logical cn-menu-target cn-menu-translucent overflow-hidden outline-none';
+export const menuItemClass =
+  'cn-dropdown-menu-item group/dropdown-menu-item relative flex w-full cursor-default items-center outline-hidden select-none [&_svg]:pointer-events-none [&_svg]:shrink-0';
+
 const items = (root: HTMLElement | null): HTMLElement[] => [...(root?.querySelectorAll<HTMLElement>('[role="menuitem"]') ?? [])];
 
 /**

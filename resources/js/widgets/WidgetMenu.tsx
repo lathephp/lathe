@@ -1,11 +1,7 @@
 import { Link } from '@inertiajs/react';
 import { useTranslation } from '@lathephp/core';
 import { useId, useRef, useState } from 'react';
-import { useMenuKeys } from './menuKeys';
-
-// The kit's DropdownMenuItem classes, without Base UI's own.
-const itemClass =
-  'cn-dropdown-menu-item group/dropdown-menu-item relative flex w-full cursor-default items-center outline-hidden select-none [&_svg]:pointer-events-none [&_svg]:shrink-0';
+import { menuClass, menuItemClass as itemClass, useMenuKeys } from '../lib/menuKeys';
 
 interface WidgetMenuProps {
   name: string;
@@ -54,7 +50,7 @@ export function WidgetMenu({ name, onRefresh, link, csv }: WidgetMenuProps) {
           tabIndex={-1}
           data-open=""
           data-side="bottom"
-          className="cn-dropdown-menu-content cn-dropdown-menu-content-logical cn-menu-target cn-menu-translucent absolute end-0 top-full z-10 mt-1 w-52 overflow-hidden outline-none"
+          className={`${menuClass} absolute end-0 top-full z-10 mt-1 w-52`}
         >
           <button
             type="button"

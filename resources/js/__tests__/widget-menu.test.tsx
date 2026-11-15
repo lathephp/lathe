@@ -165,7 +165,7 @@ describe('a dashboard widget menu', () => {
         expect(item.getAttribute('data-variant')).toBe('default');
       });
     expect(readFileSync('resources/js/widgets/WidgetMenu.tsx', 'utf8')).not.toContain('@lathephp/ui');
-    expect(readFileSync('resources/js/widgets/menuKeys.ts', 'utf8')).not.toContain('@lathephp/ui');
+    expect(readFileSync('resources/js/lib/menuKeys.ts', 'utf8')).not.toContain('@lathephp/ui');
   });
 
   it('wraps the arrow keys and goes to the ends with Home and End', async () => {

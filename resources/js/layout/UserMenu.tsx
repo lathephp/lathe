@@ -1,11 +1,12 @@
 import { Link, router } from '@inertiajs/react';
 import { useTranslation } from '@lathephp/core';
 import { ChevronsUpDown, LogOut } from 'lucide-react';
-import { lazy, Suspense, useEffect, useRef, useState } from 'react';
+import { lazy, Suspense, useRef, useState } from 'react';
 import { NavIcon } from '../components/NavIcon';
 import { cn } from '../lib/cn';
 import { showKeys } from '../lib/keys';
 import type { NavigationItem } from '../types';
+import { menuClass, menuItemClass as rowClass, useMenuKeys } from '../lib/menuKeys';
 
 const AppearanceSwitcher = lazy(() => import('./AppearanceSwitcher').then((module) => ({ default: module.AppearanceSwitcher })));
 
@@ -15,8 +16,6 @@ interface UserMenuProps {
   logoutPath: string;
   collapsed: boolean;
 }
-
-const rowClass = 'lathe-menu-row';
 
 function initials(name: string): string {
   return name
@@ -35,40 +34,16 @@ export function UserMenu({ user, items, logoutPath, collapsed }: UserMenuProps) 
   const { __ } = useTranslation();
   const [open, setOpen] = useState(false);
   const root = useRef<HTMLDivElement>(null);
-  const trigger = useRef<HTMLButtonElement>(null);
   const avatar = (
     <span aria-hidden="true" className="lathe-avatar">
       {initials(user.name)}
     </span>
   );
 
-  useEffect(() => {
-    if (!open) {
-      return undefined;
-    }
-
-    const onPointerDown = (event: PointerEvent) => {
-      if (event.target instanceof Node && root.current?.contains(event.target) !== true) {
-        setOpen(false);
-      }
-    };
-    // Escape closes the menu wherever the focus is, the trigger included, and hands it back there.
-    // It listens in the capture phase and claims the key, so the phone menu around it stays open.
-    const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') {
-        event.preventDefault();
-        setOpen(false);
-        trigger.current?.focus();
-      }
-    };
-    document.addEventListener('pointerdown', onPointerDown);
-    document.addEventListener('keydown', onKeyDown, true);
-
-    return () => {
-      document.removeEventListener('pointerdown', onPointerDown);
-      document.removeEventListener('keydown', onKeyDown, true);
-    };
-  }, [open]);
+  // Escape inside the menu is claimed there, so the phone menu around it stays open.
+  useMenuKeys(root, open, () => {
+    setOpen(false);
+  });
 
   return (
     <div ref={root} className="relative">
@@ -78,9 +53,11 @@ export function UserMenu({ user, items, logoutPath, collapsed }: UserMenuProps) 
           role="menu"
           aria-label={__('User menu')}
           tabIndex={-1}
-          className="lathe-user-menu"
+          data-open=""
+          data-side="top"
+          className={`${menuClass} absolute inset-x-2 bottom-full z-10 flex flex-col`}
         >
-          <div role="none" className="lathe-user">
+          <div role="none" className="lathe-user border-b border-border pb-3">
             {avatar}
             <span className="grid min-w-0">
               <span className="truncate font-semibold">{user.name}</span>
@@ -92,6 +69,7 @@ export function UserMenu({ user, items, logoutPath, collapsed }: UserMenuProps) 
               key={item.href}
               href={item.href}
               role="menuitem"
+              data-variant="default"
               className={rowClass}
               onClick={() => {
                 setOpen(false);
@@ -104,6 +82,7 @@ export function UserMenu({ user, items, logoutPath, collapsed }: UserMenuProps) 
           <button
             type="button"
             role="menuitem"
+            data-variant="default"
             className={rowClass}
             onClick={() => {
               setOpen(false);
@@ -121,6 +100,7 @@ export function UserMenu({ user, items, logoutPath, collapsed }: UserMenuProps) 
           <button
             type="button"
             role="menuitem"
+            data-variant="default"
             className={rowClass}
             onClick={() => {
               router.post(logoutPath);
@@ -132,7 +112,6 @@ export function UserMenu({ user, items, logoutPath, collapsed }: UserMenuProps) 
         </div>
       )}
       <button
-        ref={trigger}
         type="button"
         aria-haspopup="menu"
         aria-expanded={open}

@@ -613,22 +613,6 @@
     @apply md:m-1 md:w-10 md:p-1;
   }
 
-  .lathe-user-menu {
-    @apply absolute inset-x-2 bottom-full z-10 flex flex-col rounded-xl border border-border bg-popover p-1 text-popover-foreground shadow-md;
-  }
-
-  .lathe-user-menu > .lathe-user {
-    @apply border-b border-border pb-3;
-  }
-
-  .lathe-menu-row {
-    @apply flex h-8 w-full items-center gap-2 rounded-sm px-2 text-sm outline-none hover:bg-accent focus-visible:ring-2 focus-visible:ring-focus;
-  }
-
-  .lathe-menu-row > svg {
-    @apply size-4 text-muted-foreground;
-  }
-
   .lathe-appearance {
     @apply my-1 flex flex-col gap-1.5 border-y border-border px-2 py-2.5 text-xs text-muted-foreground;
   }
