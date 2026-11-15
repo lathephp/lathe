@@ -129,7 +129,11 @@ describe('Calendar', () => {
     for (const arrow of arrows) {
       expect(arrow.querySelector('svg')?.getAttribute('class')).not.toContain('cn-rtl-flip');
     }
-    expect(screen.getByRole('grid').closest('.cn-calendar')?.className).toContain('rtl:**:[.rdp-button\\_next>svg]:rotate-180');
+    const turns = (screen.getByRole('grid').closest('.cn-calendar')?.className ?? '').split(' ').filter((name) => name.includes('rotate'));
+    expect(turns.sort()).toEqual([
+      'rtl:**:[.rdp-button\\_next>svg]:rotate-180',
+      'rtl:**:[.rdp-button\\_previous>svg]:rotate-180',
+    ]);
   });
 });
 

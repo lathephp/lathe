@@ -3,8 +3,8 @@
 use Symfony\Component\Finder\Finder;
 
 // A stylesheet rule keyed to a panel hook the source no longer writes styles nothing,
-// and no other test notices: m44 dropped data-lathe-badge-tone while style-nova.css
-// still selected it, and every inline status cell lost its badge.
+// and no other test notices: once the Badge dropped data-lathe-badge-tone while
+// style-nova.css still selected it, and every inline status cell lost its badge.
 it('names only lathe hooks the panel source writes in its stylesheets', function () {
     $root = dirname(__DIR__, 3);
 
