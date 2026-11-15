@@ -4,21 +4,21 @@
     "boot-DcmDdjyh.css"
   ],
   "components": {
-    "widget": [
-      "workbench-clock"
-    ],
-    "page": [
-      "ui-gallery",
-      "system-status"
-    ],
-    "plugin": [
-      "insights"
+    "field": [
+      "workbench-star-rating"
     ],
     "filter": [
       "workbench-price-tier"
     ],
-    "field": [
-      "workbench-star-rating"
+    "page": [
+      "system-status",
+      "ui-gallery"
+    ],
+    "plugin": [
+      "insights"
+    ],
+    "widget": [
+      "workbench-clock"
     ]
   }
 }

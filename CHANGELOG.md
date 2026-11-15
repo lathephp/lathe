@@ -7,6 +7,7 @@ All notable changes to Lathe are listed here. The format follows [Keep a Changel
 ### Fixed
 
 - A form's unsent draft keeps no token field, as it keeps no password: a value typed into `Field::token()`, such as an API key, no longer sits in the browser's session storage.
+- `@lathephp/vite-plugin` writes the components of an app's extensions `manifest.json` and of a plugin's `lathe-plugin.json` with their kinds and keys in alphabetical order, so a rebuild of the same code writes the same file. Each build listed them in the order Vite happened to transform the modules, so a committed manifest changed on every build.
 
 ## [1.0.0-beta.14] - 2026-11-14
 

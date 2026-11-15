@@ -107,8 +107,24 @@ it('builds the app boot file into hashed modules and an extensions manifest', fu
         ->and($files[0])->toMatch('/^boot-[\w-]{8}\.js$/')
         ->and($files[1])->toBe('manifest.json')
         ->and($files[2])->toMatch('/^reports-[\w-]{8}\.js$/')
-        ->and($manifest)->toBe(['entry' => $files[0], 'styles' => [], 'components' => ['widget' => ['clock'], 'page' => ['reports']]])
+        ->and($manifest)->toBe(['entry' => $files[0], 'styles' => [], 'components' => ['page' => ['reports'], 'widget' => ['clock']]])
         ->and((string) file_get_contents("{$out}/{$files[0]}"))->toMatch('/from\s*"@lathephp\/core"/');
+
+    File::deleteDirectory($dir);
+});
+
+it('writes the extensions manifest with its kinds and keys in alphabetical order', function () {
+    $dir = extensionFixture([
+        'resources/js/lathe/boot.ts' => "import { page, widget } from '@lathephp/core';\nwidget('zeta', () => null);\npage('reports', () => null);\nwidget('alpha', () => null);\n",
+    ]);
+
+    $process = runExtensionScript($dir, ' await vite.build({ configFile: false, root, logLevel: "silent", plugins: [lathe({ mode: "app", autoDiscover: false })] });');
+
+    expect($process->getExitCode())->toBe(0, $process->getErrorOutput());
+
+    $manifest = json_decode((string) file_get_contents("{$dir}/public/vendor/lathe/extensions/manifest.json"), true);
+
+    expect($manifest['components'])->toBe(['page' => ['reports'], 'widget' => ['alpha', 'zeta']]);
 
     File::deleteDirectory($dir);
 });

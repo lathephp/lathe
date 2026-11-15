@@ -306,6 +306,14 @@ export function lathe(options: PluginModeOptions | AppModeOptions): Plugin {
           }
         }
 
+        // Vite transforms modules in parallel, so registrations arrive in a different order each build.
+        // Sorting them lets a rebuild write the same file.
+        components = Object.fromEntries(
+          Object.keys(components)
+            .sort()
+            .map((kind) => [kind, (components[kind] ?? []).sort()]),
+        );
+
         this.emitFile(
           options.mode === 'plugin'
             ? {
