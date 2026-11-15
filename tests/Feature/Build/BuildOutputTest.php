@@ -213,6 +213,58 @@ it('leaves the look of a panel card to the style', function () {
     }
 });
 
+/**
+ * The files each chunk loads before it runs: its static imports, and the app entry's, since
+ * every lazy import runs after the app has loaded.
+ *
+ * @return array<string, list<string>> by chunk file
+ */
+function buildOutputLoadedBefore(): array
+{
+    $manifest = buildOutputManifest();
+    $byKey = array_map(fn (array $chunk) => $chunk['file'], $manifest);
+    $closure = function (string $key, array &$seen) use (&$closure, $manifest, $byKey): void {
+        if (isset($seen[$byKey[$key] ?? $key]) || ! isset($manifest[$key])) {
+            return;
+        }
+
+        $seen[$byKey[$key]] = true;
+
+        foreach ($manifest[$key]['imports'] ?? [] as $import) {
+            $closure($import, $seen);
+        }
+    };
+    $app = [];
+    $closure('resources/js/app.tsx', $app);
+    $loaded = [];
+
+    foreach (array_keys($manifest) as $key) {
+        $seen = $app;
+        $closure($key, $seen);
+        $loaded[$byKey[$key]] = array_keys($seen);
+    }
+
+    return $loaded;
+}
+
+// A lazy import's preload list is first-load JavaScript; a chunk already loaded needs no preload.
+it('preloads no chunk a lazy import finds already loaded', function () {
+    $checked = 0;
+
+    foreach (buildOutputLoadedBefore() as $file => $loaded) {
+        if (! str_ends_with($file, '.js') || ! preg_match('/\.f=\[([^\]]*)\]/', buildOutputFile($file), $list)) {
+            continue;
+        }
+
+        $listed = array_map(fn (string $name) => 'assets/'.ltrim(trim($name, '"'), './'), array_filter(explode(',', $list[1])));
+        // The chunk a lazy import loads is listed first, and is never one already loaded.
+        expect(array_values(array_intersect($listed, array_diff($loaded, [$file]))))->toBe([], $file);
+        $checked++;
+    }
+
+    expect($checked)->toBeGreaterThan(5);
+});
+
 it('emits each import map specifier as its own entry file', function () {
     $manifest = buildOutputManifest();
     $files = [];

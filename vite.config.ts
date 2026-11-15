@@ -108,18 +108,60 @@ function importMapEntries(): Plugin {
   };
 }
 
+/**
+ * The files each chunk has loaded before its code runs: its static imports, and the app entry's,
+ * since every lazy import runs after the app has loaded. Filled as the bundle is written.
+ */
+const loadedBefore = new Map<string, Set<string>>();
+
+function staticClosures(): Plugin {
+  return {
+    name: 'lathe-static-closures',
+    enforce: 'pre',
+    generateBundle: {
+      order: 'pre',
+      handler(_options, bundle) {
+        const closure = (file: string, seen: Set<string>): Set<string> => {
+          const chunk = bundle[file];
+
+          if (!seen.has(file) && chunk?.type === 'chunk') {
+            seen.add(file);
+            chunk.imports.forEach((imported) => closure(imported, seen));
+          }
+
+          return seen;
+        };
+        const app = Object.values(bundle).find((chunk) => chunk.type === 'chunk' && chunk.isEntry && chunk.name === 'app');
+        const entry = app === undefined ? new Set<string>() : closure(app.fileName, new Set());
+
+        loadedBefore.clear();
+
+        for (const file of Object.keys(bundle)) {
+          loadedBefore.set(file, closure(file, new Set(entry)));
+        }
+      },
+    },
+  };
+}
+
 export default defineConfig({
   // Relative URLs, because PHP serves the build under a path that holds its hash.
   base: './',
-  plugins: [importMapEntries(), tailwindcss(), react(), babel({ presets: [reactCompilerPreset()] })],
+  plugins: [importMapEntries(), staticClosures(), tailwindcss(), react(), babel({ presets: [reactCompilerPreset()] })],
   build: {
     outDir: 'dist',
     emptyOutDir: true,
     manifest: 'manifest.json',
     modulePreload: {
-      // The icon set loads after first paint and fetches its own icons; listing them in the
-      // first-load NavIcon chunk would cost the 200 KB budget for nothing.
-      resolveDependencies: (url, deps) => (url.includes('icon-set') ? deps.filter((dep) => dep.includes('icon-set')) : deps),
+      // A lazy import preloads only what is not loaded yet: the chunks its host imports, and the
+      // app entry's, ran before it. The icon set loads after first paint and fetches its own
+      // icons. Each listed file is first-load JavaScript of the host, so both save the budget.
+      resolveDependencies: (url, deps, { hostId }) => {
+        const loaded = loadedBefore.get(hostId);
+        const needed = loaded === undefined ? deps : deps.filter((dep) => dep === url || !loaded.has(dep));
+
+        return url.includes('icon-set') ? needed.filter((dep) => dep.includes('icon-set')) : needed;
+      },
     },
     rolldownOptions: {
       input: {
