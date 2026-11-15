@@ -1320,7 +1320,7 @@
 
   /* MARK: Textarea */
   .cn-textarea {
-    @apply border-input bg-card text-foreground shadow-xs hover:border-muted-foreground focus-visible:border-ring focus-visible:shadow-none focus-visible:ring-1 focus-visible:ring-ring aria-invalid:border-destructive aria-invalid:shadow-none aria-invalid:ring-0 disabled:border-border disabled:bg-muted disabled:text-muted-foreground disabled:shadow-none disabled:opacity-100 [&[readonly]]:border-dashed [&[readonly]]:bg-muted [&[readonly]]:shadow-none rounded-md border transition-colors px-2.5 py-2 text-base leading-5 md:text-sm;
+    @apply border-input bg-card text-foreground shadow-xs hover:border-muted-foreground focus-visible:border-ring focus-visible:shadow-none focus-visible:ring-1 focus-visible:ring-ring aria-invalid:border-destructive aria-invalid:shadow-none aria-invalid:ring-0 disabled:border-border disabled:bg-muted disabled:text-muted-foreground disabled:shadow-none disabled:opacity-100 [&[readonly]]:border-dashed [&[readonly]]:bg-muted [&[readonly]]:shadow-none rounded-md border transition-colors px-2.5 py-2 text-base leading-5 md:text-sm focus-within:border-ring focus-within:shadow-none focus-within:ring-1 focus-within:ring-ring;
   }
 
   /* MARK: Toggle */

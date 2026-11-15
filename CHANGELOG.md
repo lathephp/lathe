@@ -29,6 +29,7 @@ All notable changes to Lathe are listed here. The format follows [Keep a Changel
 - Under right to left, a breadcrumb's separator, the pagination's Previous and Next chevrons, a submenu's chevron and the sidebar trigger's icon point the other way: the `cn-rtl-flip` class they carry had no rule. The calendar's month arrows keep their own turn and are not turned twice.
 - Each kit part of `@lathephp/ui` takes its focus ring from the active style: a toggle, badge, tab, item, scroll area, calendar day and OTP slot wrote shadcn's 3 px ring in the component, which beat every style's own. In nova a control you press, such as a button, toggle, checkbox, radio, switch, slider thumb, calendar day, badge, tab or accordion trigger, shows the focus colour ring with a 2 px gap, and a field you type in, such as an input, textarea, select, OTP slot or input group, shows its border and a 1 px ring in the ring colour.
 - An OTP slot shows its style's focus and invalid rings: every style keyed them to a `data-active` state Base UI never sets.
+- The kit's `CodeEditor` shows its style's textarea focus ring while you type in it, where its box showed no focus at all.
 
 ## [1.0.0-beta.15] - 2026-11-15
 

@@ -61,3 +61,15 @@ it('rings a nova field you type in with its border', function (string $class) {
         ->toMatch('/(^| )(focus-visible|has-\[\[data-slot=input-group-control\]:focus-visible\]):ring-ring( |$)/')
         ->not->toMatch('/focus-visible\]?:ring-(3|2|\[)/');
 })->with(['cn-input', 'cn-textarea', 'cn-select-trigger', 'cn-input-otp-slot', 'cn-input-group']);
+
+// The CodeEditor draws its box with cn-textarea, but the focus sits in CodeMirror's content
+// inside it, so the box shows the textarea's ring through focus-within.
+it('rings a box holding the focus as it rings a focused textarea', function (string $style) {
+    $rule = styleRule($style, 'cn-textarea');
+    $rings = preg_grep('/^focus-visible:/', $rule) ?: [];
+
+    expect($rings)->not->toBeEmpty();
+    foreach ($rings as $ring) {
+        expect($rule)->toContain(str_replace('focus-visible:', 'focus-within:', $ring));
+    }
+})->with(STYLE_RULES_STYLES);
