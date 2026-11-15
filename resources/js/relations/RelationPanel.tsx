@@ -14,7 +14,7 @@ import { alignClass, direction, inlineName, nextSort } from '../index/ResourceTa
 import type { IndexFilter } from '../index/types';
 import { applyChanges, type IndexUrlState } from '../index/useIndexState';
 import { useRowSelection } from '../index/useRowSelection';
-import { Modal } from '../components/Modal';
+import { Modal, ModalFooter, ModalHeader, ModalTitle } from '../components/Modal';
 import { Select } from '../components/ui/Select';
 import { cn } from '../lib/cn';
 import { TableCell } from '../table/cells';
@@ -493,10 +493,10 @@ function PanelBody({ parent, field, bodyId, onToggle, tab }: RelationPanelProps 
             setDetaching(null);
           }}
         >
-          <h2 id={detachTitleId} className="text-base font-semibold">
-            {__('Detach :title?', { title: detaching.title })}
-          </h2>
-          <div className="flex justify-end gap-2">
+          <ModalHeader>
+            <ModalTitle id={detachTitleId}>{__('Detach :title?', { title: detaching.title })}</ModalTitle>
+          </ModalHeader>
+          <ModalFooter>
             <Button
               variant="outline"
               onClick={() => {
@@ -513,7 +513,7 @@ function PanelBody({ parent, field, bodyId, onToggle, tab }: RelationPanelProps 
             >
               {__('Detach')}
             </Button>
-          </div>
+          </ModalFooter>
         </Modal>
       )}
     </>

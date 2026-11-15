@@ -2,7 +2,7 @@ import { ApiError, formatNumber, request, toast, useLathe, useTranslation } from
 import { Button } from '@lathephp/ui';
 import { Check, File as FileIcon } from 'lucide-react';
 import { useId, useLayoutEffect, useRef, useState } from 'react';
-import { Modal, ModalClose, modalSurface } from '../components/Modal';
+import { Modal, ModalClose, ModalFooter, ModalHeader, ModalTitle } from '../components/Modal';
 import { FilePicker } from '../components/ui/FilePicker';
 import { Select } from '../components/ui/Select';
 import type { SelectionDescriptor } from '../index/useRowSelection';
@@ -232,11 +232,12 @@ export function ImportModal({ base, action, selection, onClose }: ImportModalPro
   const current = detected === null ? 0 : !mapped ? 1 : report?.status === 'completed' ? 3 : 2;
 
   return (
-    <Modal labelledBy={titleId} onClose={onClose} className={`${modalSurface} max-w-[720px] overflow-y-auto`}>
+    // The steps lay out their own padding and a footer bar edge to edge, so the sheet drops its padding and grabber.
+    <Modal labelledBy={titleId} onClose={onClose} className="max-w-[720px] gap-0 overflow-y-auto p-0 max-md:before:hidden">
       <div className="flex flex-col gap-4 px-6 pt-5 max-md:px-4">
-        <h2 id={titleId} className="text-base leading-[22px] font-semibold">
-          {action.name}
-        </h2>
+        <ModalHeader>
+          <ModalTitle id={titleId}>{action.name}</ModalTitle>
+        </ModalHeader>
         {/* The number in each dot is CSS content, so a step reads as its name alone. */}
         <ol aria-label={__('Steps')} className="flex items-center gap-3 max-md:flex-wrap max-md:gap-x-4 max-md:gap-y-2">
           {steps.map((label, index) => (
@@ -408,7 +409,7 @@ export function ImportModal({ base, action, selection, onClose }: ImportModalPro
       )}
 
       {/* Back sits at the start; Cancel and the step's primary at the end. */}
-      <div className="mt-6 flex flex-wrap items-center gap-2 border-t border-border px-6 py-5 max-md:px-4">
+      <ModalFooter className="mt-6 flex-wrap border-t border-border px-6 py-5 max-md:px-4">
         {detected !== null && mapped && (
           <Button
             type="button"
@@ -422,7 +423,8 @@ export function ImportModal({ base, action, selection, onClose }: ImportModalPro
             {__('Back')}
           </Button>
         )}
-        <Button type="button" variant="outline" className="ms-auto" onClick={onClose}>
+        {/* Only beside the others: an auto margin in the phone's stack would stop the stretch. */}
+        <Button type="button" variant="outline" className="md:ms-auto" onClick={onClose}>
           {action.cancelButtonText}
         </Button>
         {detected !== null && !mapped && (
@@ -448,7 +450,7 @@ export function ImportModal({ base, action, selection, onClose }: ImportModalPro
             )}
           </>
         )}
-      </div>
+      </ModalFooter>
       <ModalClose onClick={onClose} />
     </Modal>
   );

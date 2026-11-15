@@ -1,7 +1,7 @@
 import { toast, useTranslation } from '@lathephp/core';
 import { Button } from '@lathephp/ui';
 import { useId, useState } from 'react';
-import { Modal } from '../components/Modal';
+import { Modal, ModalFooter, ModalHeader, ModalTitle } from '../components/Modal';
 import type { RelationFieldSchema } from '../fields/types';
 import { initialValues } from '../records/useRecordForm';
 import { PivotFields, usePivotFields, writeErrors } from './AttachRelationModal';
@@ -44,9 +44,9 @@ export function UpdatePivotModal({ parent, field, row, onClose }: UpdatePivotMod
 
   return (
     <Modal labelledBy={titleId} onClose={onClose}>
-      <h2 id={titleId} className="text-base font-semibold">
-        {__('Edit pivot of :title', { title: row.title })}
-      </h2>
+      <ModalHeader>
+        <ModalTitle id={titleId}>{__('Edit pivot of :title', { title: row.title })}</ModalTitle>
+      </ModalHeader>
       <PivotFields
         fields={fields}
         values={values}
@@ -55,7 +55,7 @@ export function UpdatePivotModal({ parent, field, row, onClose }: UpdatePivotMod
           setTyped((current) => ({ ...current, [attribute]: value }));
         }}
       />
-      <div className="flex justify-end gap-2">
+      <ModalFooter>
         <Button variant="ghost" onClick={onClose}>
           {__('Cancel')}
         </Button>
@@ -67,7 +67,7 @@ export function UpdatePivotModal({ parent, field, row, onClose }: UpdatePivotMod
         >
           {__('Update')}
         </Button>
-      </div>
+      </ModalFooter>
     </Modal>
   );
 }

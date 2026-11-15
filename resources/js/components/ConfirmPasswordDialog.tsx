@@ -1,7 +1,7 @@
 import { ApiError, request, useLathe, useTranslation } from '@lathephp/core';
 import { useEffect, useId, useRef, useState } from 'react';
 import { FieldError } from './FieldError';
-import { Modal, ModalClose, modalFooter } from './Modal';
+import { Modal, ModalClose, ModalDescription, ModalFooter, ModalHeader, ModalTitle } from './Modal';
 import { Button } from './ui/Button';
 import { inputClass } from './ui/input';
 
@@ -61,10 +61,10 @@ export function ConfirmPasswordForm({ titleId, onDone }: { titleId: string; onDo
         void confirm();
       }}
     >
-      <h2 id={titleId} className="-mb-3.5 text-base font-semibold">
-        {__('Confirm your password')}
-      </h2>
-      <p className="text-sm text-muted-foreground">{__('For your security, please confirm your password to continue.')}</p>
+      <ModalHeader>
+        <ModalTitle id={titleId}>{__('Confirm your password')}</ModalTitle>
+        <ModalDescription>{__('For your security, please confirm your password to continue.')}</ModalDescription>
+      </ModalHeader>
       <div className="flex flex-col gap-1.5">
         <label htmlFor={`${id}-password`} className="text-sm font-medium">
           {__('Password')}
@@ -84,7 +84,7 @@ export function ConfirmPasswordForm({ titleId, onDone }: { titleId: string; onDo
         />
         <FieldError id={`${id}-error`} message={error} />
       </div>
-      <div className={modalFooter}>
+      <ModalFooter>
         <Button
           variant="outline"
           onClick={() => {
@@ -96,7 +96,7 @@ export function ConfirmPasswordForm({ titleId, onDone }: { titleId: string; onDo
         <Button type="submit" disabled={busy}>
           {__('Confirm')}
         </Button>
-      </div>
+      </ModalFooter>
       <ModalClose
         onClick={() => {
           onDone(false);

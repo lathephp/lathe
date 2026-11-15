@@ -1,6 +1,6 @@
 import { __panel, toast, useTranslation } from '@lathephp/core';
 import { createElement, Suspense, useEffect, useId } from 'react';
-import { Modal } from '../components/Modal';
+import { Modal, ModalTitle } from '../components/Modal';
 
 interface ResponseModalProps {
   component: string;
@@ -27,9 +27,9 @@ export function ResponseModal({ component, data, onClose }: ResponseModalProps) 
 
   return (
     <Modal labelledBy={id} onClose={onClose}>
-      <h2 id={id} className="sr-only">
+      <ModalTitle id={id} className="sr-only">
         {component}
-      </h2>
+      </ModalTitle>
       <Suspense fallback={null}>
         {createElement(registered, { data, close: onClose })}
       </Suspense>

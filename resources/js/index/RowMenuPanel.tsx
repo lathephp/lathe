@@ -3,7 +3,7 @@ import { request, toast, useTranslation } from '@lathephp/core';
 import { Copy, Eye, Pencil, RotateCcw, Trash2 } from 'lucide-react';
 import { lazy, type RefObject, Suspense, useEffect, useEffectEvent, useId, useLayoutEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
-import { Modal, modalFooter } from '../components/Modal';
+import { Modal, ModalDescription, ModalFooter, ModalHeader, ModalTitle } from '../components/Modal';
 import { Button } from '../components/ui/Button';
 import { reloadIndexRows } from '../lib/instant';
 import type { SharedProps } from '../types';
@@ -233,11 +233,13 @@ export function RowMenuPanel({ uriKey, row, open, menuId, trigger, onClose }: Ro
             setConfirming(null);
           }}
         >
-          <h2 id={titleId} className="text-base font-semibold whitespace-normal">
-            {confirming === 'delete' ? __('Delete :title?', { title: row.title }) : __('Force delete :title?', { title: row.title })}
-          </h2>
-          {confirming === 'forceDelete' && <p className="text-sm whitespace-normal text-muted-foreground">{__('This cannot be undone.')}</p>}
-          <div className={modalFooter}>
+          <ModalHeader>
+            <ModalTitle id={titleId} className="whitespace-normal">
+              {confirming === 'delete' ? __('Delete :title?', { title: row.title }) : __('Force delete :title?', { title: row.title })}
+            </ModalTitle>
+            {confirming === 'forceDelete' && <ModalDescription className="whitespace-normal">{__('This cannot be undone.')}</ModalDescription>}
+          </ModalHeader>
+          <ModalFooter>
             <Button
               variant="outline"
               onClick={() => {
@@ -254,7 +256,7 @@ export function RowMenuPanel({ uriKey, row, open, menuId, trigger, onClose }: Ro
             >
               {labels[confirming]}
             </Button>
-          </div>
+          </ModalFooter>
         </Modal>,
           document.body,
         )}

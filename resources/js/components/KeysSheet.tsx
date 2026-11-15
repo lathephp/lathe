@@ -1,6 +1,6 @@
 import { useTranslation } from '@lathephp/core';
 import { useId } from 'react';
-import { Modal, ModalClose, modalPanel } from './Modal';
+import { Modal, ModalClose, ModalHeader, ModalTitle } from './Modal';
 
 /** The list's keys, grouped. */
 export function KeysSheet({ onClose }: { onClose: () => void }) {
@@ -46,10 +46,10 @@ export function KeysSheet({ onClose }: { onClose: () => void }) {
   ];
 
   return (
-    <Modal labelledBy={`${id}-title`} onClose={onClose} className={`${modalPanel} max-w-[520px]`}>
-      <h2 id={`${id}-title`} className="text-base font-semibold">
-        {__('Keyboard shortcuts')}
-      </h2>
+    <Modal labelledBy={`${id}-title`} onClose={onClose} className="max-w-[520px]">
+      <ModalHeader>
+        <ModalTitle id={`${id}-title`}>{__('Keyboard shortcuts')}</ModalTitle>
+      </ModalHeader>
       {groups.map((group) => (
         <section key={group.name} className="grid gap-2">
           <h3 className="text-sm font-semibold">{group.name}</h3>

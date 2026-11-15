@@ -1,7 +1,7 @@
 import { router } from '@inertiajs/react';
 import { ApiError, request, toast, useLathe, useTranslation } from '@lathephp/core';
 import { useId, useState } from 'react';
-import { Modal } from '../components/Modal';
+import { Modal, ModalDescription, ModalFooter, ModalHeader, ModalTitle } from '../components/Modal';
 import type { DetailRecord } from '../fields/types';
 import { Button } from '../components/ui/Button';
 
@@ -112,13 +112,13 @@ export function RecordActions({ uriKey, record }: RecordActionsProps) {
             setConfirming(null);
           }}
         >
-          <h2 id={titleId} className="text-base font-semibold">
-            {confirming === 'delete' ? __('Delete :title?', { title: record.title }) : __('Delete :title for good?', { title: record.title })}
-          </h2>
-          <p className="text-sm text-muted-foreground">
-            {confirming === 'delete' ? __('This cannot be undone from here.') : __('This cannot be undone.')}
-          </p>
-          <div className="flex justify-end gap-2">
+          <ModalHeader>
+            <ModalTitle id={titleId}>
+              {confirming === 'delete' ? __('Delete :title?', { title: record.title }) : __('Delete :title for good?', { title: record.title })}
+            </ModalTitle>
+            <ModalDescription>{confirming === 'delete' ? __('This cannot be undone from here.') : __('This cannot be undone.')}</ModalDescription>
+          </ModalHeader>
+          <ModalFooter>
             <Button
               variant="outline"
               onClick={() => {
@@ -135,7 +135,7 @@ export function RecordActions({ uriKey, record }: RecordActionsProps) {
             >
               {confirming === 'delete' ? __('Delete') : __('Force Delete')}
             </Button>
-          </div>
+          </ModalFooter>
         </Modal>
       )}
     </>

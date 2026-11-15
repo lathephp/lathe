@@ -595,17 +595,16 @@ describe('the action modal', () => {
     fireEvent.click(within(await openMenu()).getByRole('menuitem', { name: 'Cancel order' }));
     const dialog = await screen.findByRole('dialog', { name: 'Cancel order ORD-00001?' });
 
-    // Below md the overlay pins the panel to the bottom edge at full width.
+    // Below md the overlay pins the panel to the bottom edge, and app.css's [data-lathe-modal] phone
+    // rule makes it full width with a square bottom edge (modal-parts.test.tsx reads that rule).
     expect(dialog.parentElement?.className).toContain('max-md:items-end');
-    expect(dialog.className).toContain('max-md:max-w-none');
-    expect(dialog.className).toContain('max-md:rounded-b-none');
+    expect(dialog.hasAttribute('data-lathe-modal')).toBe(true);
     const keep = within(dialog).getByRole('button', { name: 'Keep order' });
     const cancel = within(dialog).getByRole('button', { name: 'Cancel order' });
-    // Keep order comes first in the markup and the column reverses, so Cancel order sits on top.
-    expect(keep.parentElement?.className).toContain('max-md:flex-col-reverse');
+    // Keep order comes first in the markup and the footer's phone rule reverses the column, so Cancel order sits on top.
+    expect(keep.parentElement?.classList.contains('cn-dialog-footer')).toBe(true);
     expect(keep.compareDocumentPosition(cancel) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
-    // The footer sizes every button in it.
-    expect(keep.parentElement?.className).toContain('max-md:[&>*]:h-11');
+    // The footer rule sizes every button in it 44 px tall.
     expect(cancel.parentElement).toBe(keep.parentElement);
   });
 

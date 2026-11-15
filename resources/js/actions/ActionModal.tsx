@@ -1,9 +1,8 @@
 import { ApiError, formatNumber, request, toast, useTranslation } from '@lathephp/core';
 import { useEffect, useId, useState } from 'react';
-import { Modal, ModalClose, modalFooter, modalPanel } from '../components/Modal';
+import { Modal, ModalClose, ModalFooter, ModalHeader, ModalTitle } from '../components/Modal';
 import { AssociatableEndpoint } from '../fields/relation/useAssociatable';
 import type { FormFieldData } from '../fields/types';
-import { cn } from '../lib/cn';
 import { FormRow } from '../records/FormFields';
 import { firstErrors, initialValues } from '../records/useRecordForm';
 import type { ActionMeta } from './types';
@@ -105,11 +104,8 @@ export function ActionModal({ base, action, count, label = formatNumber(count), 
       labelledBy={titleId}
       onClose={onClose}
       locked={busy}
-      className={cn(
-        // The overlay scrolls a tall form, so a picker's list can hang below the dialog unclipped.
-        modalPanel,
-        action.style === 'fullscreen' ? 'h-[85vh] max-w-none overflow-y-auto' : (sizes[action.size] ?? sizes.medium),
-      )}
+      // The overlay scrolls a tall form, so a picker's list can hang below the dialog unclipped.
+      className={action.style === 'fullscreen' ? 'h-[85vh] max-w-none overflow-y-auto' : (sizes[action.size] ?? sizes.medium)}
     >
       <form
         className="contents"
@@ -119,9 +115,9 @@ export function ActionModal({ base, action, count, label = formatNumber(count), 
         }}
       >
         {/* A confirm asks its question as the title; a form without one is titled by the action. */}
-        <h2 id={titleId} className="text-base font-semibold">
-          {text ?? action.name}
-        </h2>
+        <ModalHeader>
+          <ModalTitle id={titleId}>{text ?? action.name}</ModalTitle>
+        </ModalHeader>
         {errors.selection !== undefined && (
           <p role="alert" className="text-sm text-destructive">
             {errors.selection}
@@ -150,7 +146,7 @@ export function ActionModal({ base, action, count, label = formatNumber(count), 
             </div>
           </AssociatableEndpoint>
         )}
-        <div className={modalFooter}>
+        <ModalFooter>
           <Button variant="outline" onClick={onClose}>
             {action.cancelButtonText}
           </Button>
@@ -158,7 +154,7 @@ export function ActionModal({ base, action, count, label = formatNumber(count), 
           <Button type="submit" variant={action.destructive ? 'destructive-solid' : 'default'} disabled={busy || form === null}>
             {busy && action.asBlob ? __('Preparing file') : action.confirmButtonText}
           </Button>
-        </div>
+        </ModalFooter>
       </form>
       {form !== null && form.fields.length > 0 && <ModalClose onClick={onClose} />}
     </Modal>

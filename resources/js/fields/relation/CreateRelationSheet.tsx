@@ -2,7 +2,7 @@ import { request, toast, useLathe, useTranslation } from '@lathephp/core';
 import { X } from 'lucide-react';
 import { useEffect, useId, useState } from 'react';
 import { createPortal } from 'react-dom';
-import { Modal } from '../../components/Modal';
+import { Modal, ModalFooter, ModalTitle } from '../../components/Modal';
 import { FormFields } from '../../records/FormFields';
 import { useRecordForm } from '../../records/useRecordForm';
 import type { FieldSchema, FormPayload } from '../types';
@@ -76,12 +76,12 @@ export function CreateRelationSheet({ field, record, text, onCreated, onClose }:
     <Modal
       labelledBy={titleId}
       onClose={onClose}
-      className="fixed inset-y-0 right-0 flex h-full w-full max-w-[480px] animate-in flex-col rounded-s-2xl border-s border-border bg-popover text-popover-foreground shadow-lg duration-200 slide-in-from-right"
+      // A sheet along the right edge: the header, body and footer lay out their own padding, and its
+      // inner corners and edges are square. On a phone it fills the screen with no grabber.
+      className="fixed inset-y-0 right-0 flex h-full w-full max-w-[480px] animate-in flex-col gap-0 p-0 duration-200 slide-in-from-right max-md:before:hidden md:rounded-e-none md:border-y-0 md:border-e-0"
     >
       <div className="flex items-start gap-3 border-b border-border px-6 py-5">
-        <h2 id={titleId} className="text-base leading-[22px] font-semibold">
-          {title}
-        </h2>
+        <ModalTitle id={titleId}>{title}</ModalTitle>
         <button
           type="button"
           aria-label={__('Close')}
@@ -132,14 +132,14 @@ function CreateForm({ uriKey, singularLabel, submitLabel, form, onSaved, onCance
       <div className="min-h-0 flex-1 overflow-y-auto p-6">
         <FormFields uriKey={uriKey} mode="create" id={null} record={record} idPrefix={`inline-${uriKey}`} bare />
       </div>
-      <div className="flex justify-end gap-2 border-t border-border px-6 py-4">
+      <ModalFooter className="border-t border-border px-6 py-4">
         <Button variant="outline" onClick={onCancel}>
           {__('Cancel')}
         </Button>
         <Button type="submit" disabled={record.busy || record.uploading || saved}>
           {record.uploading ? __('Uploading…') : submitLabel}
         </Button>
-      </div>
+      </ModalFooter>
     </form>
   );
 }

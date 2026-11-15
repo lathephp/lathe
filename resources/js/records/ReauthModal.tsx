@@ -1,7 +1,7 @@
 import { ApiError, request, useLathe, useTranslation } from '@lathephp/core';
 import { Suspense, useId, useState } from 'react';
 import { FieldError } from '../components/FieldError';
-import { Modal, modalFooter } from '../components/Modal';
+import { Modal, ModalDescription, ModalFooter, ModalHeader, ModalTitle } from '../components/Modal';
 import { lazyNamed } from '../lib/lazy';
 import { firstErrors } from './useRecordForm';
 import { Button } from '../components/ui/Button';
@@ -73,12 +73,14 @@ export function ReauthModal({ email: initialEmail, onSignedIn, onOtherUser, onCl
           void signIn();
         }}
       >
-        <h2 id={`${id}-title`} className="text-base font-semibold">
-          {__('Your session has expired')}
-        </h2>
+        <ModalHeader>
+          <ModalTitle id={`${id}-title`}>{__('Your session has expired')}</ModalTitle>
+          <ModalDescription>
+            {codeStep ? (recovery ? __('Enter one of your recovery codes.') : __('Enter the 6-digit code from your authenticator app.')) : __('Sign in again to save your changes.')}
+          </ModalDescription>
+        </ModalHeader>
         {codeStep ? (
           <>
-            <p className="text-sm text-muted-foreground">{recovery ? __('Enter one of your recovery codes.') : __('Enter the 6-digit code from your authenticator app.')}</p>
             <div className="flex flex-col gap-1.5">
               {recovery ? (
                 <>
@@ -123,7 +125,6 @@ export function ReauthModal({ email: initialEmail, onSignedIn, onOtherUser, onCl
           </>
         ) : (
           <>
-            <p className="text-sm text-muted-foreground">{__('Sign in again to save your changes.')}</p>
             <div className="flex flex-col gap-1.5">
               <label htmlFor={`${id}-email`} className="text-sm font-medium">
                 {__('Email')}
@@ -159,14 +160,14 @@ export function ReauthModal({ email: initialEmail, onSignedIn, onOtherUser, onCl
             </div>
           </>
         )}
-        <div className={modalFooter}>
+        <ModalFooter>
           <Button variant="outline" onClick={onClose}>
             {__('Cancel')}
           </Button>
           <Button type="submit" disabled={busy}>
             {__('Sign in')}
           </Button>
-        </div>
+        </ModalFooter>
       </form>
     </Modal>
   );

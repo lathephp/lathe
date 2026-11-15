@@ -1100,6 +1100,44 @@
   }
 }
 
+/* The panel Modal (components/Modal.tsx): the layout every style shares. Its look is the style's
+   cn-dialog-* rules. A flex column over the style's grid, so a wide child never widens the dialog
+   and an absolute close button takes no gap. */
+@layer components {
+  [data-lathe-modal] {
+    @apply relative flex w-full flex-col;
+  }
+
+  /* On a phone every modal is a bottom sheet: as wide as the screen, on its bottom edge, with a
+     grabber. The top corners keep the style's radius. */
+  @media (width < 48rem) {
+    [data-lathe-modal] {
+      @apply max-w-none! rounded-b-none border-x-0 border-b-0 px-4 pt-2 pb-6;
+    }
+
+    [data-lathe-modal]::before {
+      @apply mx-auto -mb-1 h-1 w-9 shrink-0 rounded-full bg-border content-[''];
+    }
+
+    [data-lathe-modal] h2.cn-dialog-title {
+      @apply text-[17px] leading-6;
+    }
+
+    [data-lathe-modal] .cn-dialog-description {
+      @apply text-[15px] leading-[22px];
+    }
+
+    /* The buttons stack 44 px tall, the primary (last in the markup) on top. */
+    [data-lathe-modal] .cn-dialog-footer {
+      @apply flex-col-reverse;
+    }
+
+    [data-lathe-modal] .cn-dialog-footer > * {
+      @apply h-11 text-base;
+    }
+  }
+}
+
 /* Toasts rise over the save bar (65 px, 77 px on a phone), so an error toast never covers Create
    or Update. Outside the layers, so it wins over the viewport's bottom-4. */
 body:has(.lathe-form-footer) [data-slot='toast-viewport'] {

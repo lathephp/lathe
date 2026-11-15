@@ -2,7 +2,7 @@ import { ApiError, request, toast, useQuery, useTranslation } from '@lathephp/co
 import { Button } from '@lathephp/ui';
 import { useId, useState } from 'react';
 import { FieldError } from '../components/FieldError';
-import { Modal } from '../components/Modal';
+import { Modal, ModalFooter, ModalHeader, ModalTitle } from '../components/Modal';
 import { RelationPicker } from '../fields/relation/BelongsToForm';
 import type { BelongsToValue } from '../fields/relation/BelongsToField';
 import { FormField } from '../fields/registry';
@@ -116,9 +116,9 @@ export function AttachRelationModal({ parent, field, onClose }: AttachRelationMo
 
   return (
     <Modal labelledBy={titleId} onClose={onClose}>
-      <h2 id={titleId} className="text-base font-semibold">
-        {__('Attach :resource', { resource: field.singularLabel })}
-      </h2>
+      <ModalHeader>
+        <ModalTitle id={titleId}>{__('Attach :resource', { resource: field.singularLabel })}</ModalTitle>
+      </ModalHeader>
       <div className="space-y-1 text-sm">
         <label htmlFor={pickerId} className="font-medium">
           {field.singularLabel}
@@ -147,7 +147,7 @@ export function AttachRelationModal({ parent, field, onClose }: AttachRelationMo
           setTyped((current) => ({ ...current, [attribute]: value }));
         }}
       />
-      <div className="flex flex-wrap justify-end gap-2">
+      <ModalFooter className="flex-wrap">
         <Button variant="ghost" onClick={onClose}>
           {__('Cancel')}
         </Button>
@@ -168,7 +168,7 @@ export function AttachRelationModal({ parent, field, onClose }: AttachRelationMo
         >
           {__('Attach')}
         </Button>
-      </div>
+      </ModalFooter>
     </Modal>
   );
 }

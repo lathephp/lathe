@@ -2,7 +2,7 @@ import { useTranslation } from '@lathephp/core';
 import { ChevronDown, ChevronRight, ChevronUp, Copy, GripVertical, Plus, Trash2 } from 'lucide-react';
 import { useContext, useEffect, useId, useRef, useState, type DragEvent } from 'react';
 import { FieldError } from '../../components/FieldError';
-import { Modal } from '../../components/Modal';
+import { Modal, ModalFooter, ModalHeader, ModalTitle } from '../../components/Modal';
 import { cn } from '../../lib/cn';
 import { DetailField, FormField, stringValue, type DetailFieldProps, type FormFieldProps } from '../registry';
 import type { FieldSchema } from '../types';
@@ -422,10 +422,10 @@ export function RepeaterForm({ field, value, onChange, id, describedBy, disabled
             setPending(null);
           }}
         >
-          <h2 id={confirmTitle} className="text-base font-semibold">
-            {__('Remove this row?')}
-          </h2>
-          <div className="flex justify-end gap-2">
+          <ModalHeader>
+            <ModalTitle id={confirmTitle}>{__('Remove this row?')}</ModalTitle>
+          </ModalHeader>
+          <ModalFooter>
             <Button
               onClick={() => {
                 setPending(null);
@@ -443,7 +443,7 @@ export function RepeaterForm({ field, value, onChange, id, describedBy, disabled
             >
               {__('Remove')}
             </Button>
-          </div>
+          </ModalFooter>
         </Modal>
       )}
     </div>

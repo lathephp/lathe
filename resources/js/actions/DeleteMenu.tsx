@@ -2,7 +2,7 @@ import { request, toast, useLathe, useTranslation } from '@lathephp/core';
 import { Button } from '@lathephp/ui';
 import { ChevronDown } from 'lucide-react';
 import { useId, useRef, useState } from 'react';
-import { Modal, modalFooter } from '../components/Modal';
+import { Modal, ModalFooter, ModalHeader, ModalTitle } from '../components/Modal';
 import type { Row } from '../index/types';
 import type { IndexUrlState } from '../index/useIndexState';
 import { clearUndo } from '../index/undo';
@@ -160,10 +160,10 @@ export function DeleteMenu({ uriKey, lens, softDeletes, selection, rows, total, 
             setConfirming(null);
           }}
         >
-          <h2 id={titleId} className="text-base font-semibold">
-            {questions[confirming]}
-          </h2>
-          <div className={modalFooter}>
+          <ModalHeader>
+            <ModalTitle id={titleId}>{questions[confirming]}</ModalTitle>
+          </ModalHeader>
+          <ModalFooter>
             {/* Before a delete the safe button says what it keeps; it comes first, so it holds the focus. */}
             <Button
               variant="outline"
@@ -181,7 +181,7 @@ export function DeleteMenu({ uriKey, lens, softDeletes, selection, rows, total, 
             >
               {labels[confirming]}
             </Button>
-          </div>
+          </ModalFooter>
         </Modal>
       )}
     </div>
