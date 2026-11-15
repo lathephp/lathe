@@ -1,0 +1,1 @@
+export{t as Pagination}from"./Pagination-kovc7rco.js";

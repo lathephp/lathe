@@ -1,0 +1,1 @@
+var e=`lathe-input`;export{e as t};

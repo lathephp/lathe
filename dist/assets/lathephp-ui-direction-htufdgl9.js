@@ -1,0 +1,1 @@
+import{B as e,S as t}from"./_lathe-vendor_react-oaj751s7.js";import{n}from"./jsx-runtime-hyjpmf76.js";import{n as r,t as i}from"./DirectionContext-ftyji7wz.js";t();var a=function(t){let{direction:r=`ltr`}=t,a=e(()=>({direction:r}),[r]);return n(i.Provider,{value:a,children:t.children})};export{a as DirectionProvider,r as useDirection};
