@@ -32,6 +32,13 @@ class WorkbenchServiceProvider extends ServiceProvider
             config(['app.timezone' => $zone]);
             date_default_timezone_set($zone);
         }
+
+        // BENCH_THEME_STYLE serves the workbench in another shadcn style, such as luma.
+        $style = Env::get('BENCH_THEME_STYLE');
+
+        if (is_string($style) && $style !== '') {
+            config(['lathe.theme.style' => $style]);
+        }
     }
 
     /**

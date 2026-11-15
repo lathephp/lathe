@@ -67,3 +67,16 @@ it('serves the workbench on the zone BENCH_APP_TIMEZONE names', function () {
 
     expect($shown->output())->toContain('Asia/Dhaka');
 });
+
+it('serves the workbench in the style BENCH_THEME_STYLE names, and in nova without it', function (?string $style, string $expected) {
+    putenv($style === null ? 'BENCH_THEME_STYLE' : "BENCH_THEME_STYLE={$style}");
+
+    try {
+        (new WorkbenchServiceProvider(app()))->register();
+        $html = (string) $this->actingAs($this->admin)->get('/lathe')->getContent();
+    } finally {
+        putenv('BENCH_THEME_STYLE');
+    }
+
+    expect($html)->toContain("<body class=\"style-{$expected}\">");
+})->with([['luma', 'luma'], [null, 'nova']]);
