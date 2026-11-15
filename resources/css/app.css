@@ -365,7 +365,7 @@
   }
 
   /* The collapse button and the bell: 32 px and muted, 44 px touch targets on a phone. */
-  .lathe-topbar .cn-button-size-icon {
+  .lathe-topbar .cn-button-variant-ghost.cn-button-size-icon {
     @apply size-11 text-muted-foreground md:size-8;
   }
 
@@ -375,7 +375,7 @@
     @apply bg-transparent;
   }
 
-  .lathe-topbar .cn-button-size-icon > .lucide-bell {
+  .lathe-topbar .cn-button-variant-ghost.cn-button-size-icon > .lucide-bell {
     @apply size-[18px];
   }
 

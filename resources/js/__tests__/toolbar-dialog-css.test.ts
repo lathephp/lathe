@@ -67,4 +67,13 @@ describe('the top bar', () => {
 
     expect(topbarRules.filter((rule) => toggle.matches(rule.selector) && rule.body.includes('bg-transparent'))).toHaveLength(1);
   });
+
+  it("leaves the phone's primary page action its own colours", () => {
+    document.body.innerHTML = '<header class="lathe-topbar"></header>';
+    const create = document.createElement('a');
+    create.className = `${buttonClass('default', 'icon')} lathe-page-bar-action`;
+    document.querySelector('.lathe-topbar')?.append(create);
+
+    expect(topbarRules.filter((rule) => create.matches(rule.selector))).toEqual([]);
+  });
 });
