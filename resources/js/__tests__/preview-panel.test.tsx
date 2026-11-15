@@ -77,7 +77,8 @@ describe('the preview panel', () => {
     expect(within(aside).getByRole('link', { name: 'Edit' }).getAttribute('href')).toBe('/lathe/resources/orders/1/edit');
 
     fireEvent.click(await within(aside).findByRole('button', { name: /Actions/ }));
-    expect(within(aside).getByRole('menuitem', { name: /Mark as shipped/ })).toBeTruthy();
+    // The menu draws on the body, outside the panel that scrolls.
+    expect(within(await screen.findByRole('menu', { name: 'Actions' })).getByRole('menuitem', { name: /Mark as shipped/ })).toBeTruthy();
   });
 });
 
