@@ -6,6 +6,7 @@ import { Button } from '../components/ui/Button';
 import { NavIcon } from '../components/NavIcon';
 import { Badge, toneVariants } from '../components/ui/Badge';
 import { cn } from '../lib/cn';
+import { menuClass, menuItemClass, useMenuKeys } from '../lib/menuKeys';
 import { DeleteTabDialog, RenameTabDialog, SaveTabDialog } from './lazy';
 import type { BadgeType, IndexProps, SavedTab, TabCount } from './types';
 import type { SharedProps } from '../types';
@@ -62,6 +63,63 @@ function TabBadge({ text, type, deferred = false, pending = false }: { text: str
   );
 }
 
+/** A saved view's ⋯ menu, with Rename and Delete. It keeps its own open state, since a hook can't run in the list's map. */
+function ViewOptionsMenu({ tab, onChoose }: { tab: SavedTab; onChoose: (kind: 'rename' | 'delete') => void }) {
+  const { __ } = useTranslation();
+  const id = useId();
+  const [open, setOpen] = useState(false);
+  const root = useRef<HTMLDivElement>(null);
+  // Escape stops at the menu, so the Views menu around it stays open.
+  useMenuKeys(root, open, () => {
+    setOpen(false);
+  });
+
+  return (
+    <div ref={root} className="contents">
+      <button
+        type="button"
+        aria-label={__('Options for :name', { name: tab.name })}
+        aria-haspopup="menu"
+        aria-expanded={open}
+        aria-controls={open ? id : undefined}
+        className="grid size-6 place-items-center rounded-md text-muted-foreground outline-none hover:bg-muted focus-visible:ring-2 focus-visible:ring-ring"
+        onClick={() => {
+          setOpen(!open);
+        }}
+      >
+        <Ellipsis aria-hidden="true" className="size-4" />
+      </button>
+      {open && (
+        <div
+          id={id}
+          role="menu"
+          aria-label={__('Options for :name', { name: tab.name })}
+          tabIndex={-1}
+          data-open=""
+          data-side="bottom"
+          className={`${menuClass} absolute end-0 top-full z-10 mt-1 w-36`}
+        >
+          {(['rename', 'delete'] as const).map((kind) => (
+            <button
+              key={kind}
+              type="button"
+              role="menuitem"
+              data-variant={kind === 'delete' ? 'destructive' : 'default'}
+              className={menuItemClass}
+              onClick={() => {
+                setOpen(false);
+                onChoose(kind);
+              }}
+            >
+              {kind === 'rename' ? __('Rename') : __('Delete')}
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
 // The current view, marked by aria-current, takes the accent ground in app.css.
 const tabClass = 'lathe-tab';
 
@@ -76,8 +134,6 @@ export function useViews({ resource, state, visit }: ViewsProps): Views | null {
   const { tabs, tabCounts, lens, lenses = [], basePath } = usePage<Pick<IndexProps, 'tabs' | 'tabCounts' | 'lens' | 'lenses'> & SharedProps>().props;
   const id = useId();
   const saved = useSavedTabs(resource.uriKey, tabs?.saved ?? [], tabs?.activeSaved ?? null, visit);
-  // Which list's ⋯ menu is open, and for which saved view.
-  const [menu, setMenu] = useState<string | null>(null);
   const [dialog, setDialog] = useState<Dialog | null>(null);
   const [dragged, setDragged] = useState<number | null>(null);
   const [announcement, setAnnouncement] = useState('');
@@ -176,8 +232,6 @@ export function useViews({ resource, state, visit }: ViewsProps): Views | null {
             </li>
           ))}
           {saved.list.map((tab, index) => {
-            const key = `${where}:${String(tab.id)}`;
-
             return (
               <li
                 key={tab.id}
@@ -232,51 +286,13 @@ export function useViews({ resource, state, visit }: ViewsProps): Views | null {
                   <span className="truncate">{tab.name}</span>
                   <TabBadge text={badgeText(tabCounts?.[`saved:${String(tab.id)}`])} type={tab.badgeType} deferred={tab.showCount} pending={tabCounts === undefined} />
                 </button>
-                <button
-                  type="button"
-                  aria-label={__('Options for :name', { name: tab.name })}
-                  aria-haspopup="menu"
-                  aria-expanded={menu === key}
-                  aria-controls={menu === key ? `${id}-menu` : undefined}
-                  className="grid size-6 place-items-center rounded-md text-muted-foreground outline-none hover:bg-muted focus-visible:ring-2 focus-visible:ring-ring"
-                  onClick={() => {
-                    setMenu(menu === key ? null : key);
+                <ViewOptionsMenu
+                  tab={tab}
+                  onChoose={(kind) => {
+                    setOpen(false);
+                    setDialog({ kind, tab });
                   }}
-                >
-                  <Ellipsis aria-hidden="true" className="size-4" />
-                </button>
-                {menu === key && (
-                  <div
-                    id={`${id}-menu`}
-                    role="menu"
-                    aria-label={__('Options for :name', { name: tab.name })}
-                    tabIndex={-1}
-                    className="absolute end-0 top-full z-10 mt-1 w-36 rounded-lg border border-border bg-background p-1 shadow-lg"
-                    onKeyDown={(event) => {
-                      if (event.key === 'Escape') {
-                        // The Views menu around it stays open.
-                        event.stopPropagation();
-                        setMenu(null);
-                      }
-                    }}
-                  >
-                    {(['rename', 'delete'] as const).map((kind) => (
-                      <button
-                        key={kind}
-                        type="button"
-                        role="menuitem"
-                        className="flex w-full rounded-md px-2 py-1.5 text-sm outline-none hover:bg-muted focus-visible:ring-2 focus-visible:ring-ring"
-                        onClick={() => {
-                          setMenu(null);
-                          setOpen(false);
-                          setDialog({ kind, tab });
-                        }}
-                      >
-                        {kind === 'rename' ? __('Rename') : __('Delete')}
-                      </button>
-                    ))}
-                  </div>
-                )}
+                />
                 {tab.stale && (
                   <span className="inline-flex basis-full items-center gap-1 ps-4 text-xs text-muted-foreground">
                     {__('View updated')}

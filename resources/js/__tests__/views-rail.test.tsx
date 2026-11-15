@@ -1,6 +1,7 @@
 import { router } from '@inertiajs/react';
 import { __panel } from '@lathephp/core';
 import { fireEvent, screen, within } from '@testing-library/react';
+import { readFileSync } from 'node:fs';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { renderPage } from './support';
 
@@ -329,6 +330,70 @@ describe('saving a view', () => {
     ]);
     expect(reload.mock.calls[0]?.[0]).toMatchObject({ only: ['tabs', 'tabCounts'] });
     expect(screen.queryByRole('dialog', { name: 'Save view' })).toBeNull();
+  });
+});
+
+describe('saved tab menu keys and look', () => {
+  function openOptions() {
+    renderOrders();
+    fireEvent.click(within(rail()).getByRole('button', { name: 'Options for Paid' }));
+
+    return screen.getByRole('menu', { name: 'Options for Paid' });
+  }
+
+  it('draws with the kit menu classes and no @lathephp/ui import', () => {
+    const menu = openOptions();
+
+    expect(menu.classList.contains('cn-dropdown-menu-content')).toBe(true);
+    expect(menu.getAttribute('data-open')).toBe('');
+    expect(menu.getAttribute('data-side')).toBe('bottom');
+    within(menu)
+      .getAllByRole('menuitem')
+      .forEach((item) => {
+        expect(item.classList.contains('cn-dropdown-menu-item')).toBe(true);
+      });
+    expect(within(menu).getByRole('menuitem', { name: 'Delete' }).getAttribute('data-variant')).toBe('destructive');
+    expect(within(menu).getByRole('menuitem', { name: 'Rename' }).getAttribute('data-variant')).toBe('default');
+    expect(readFileSync('resources/js/index/ViewsRail.tsx', 'utf8')).not.toContain('@lathephp/ui');
+  });
+
+  it('focuses the first item, wraps the arrow keys and goes to the ends', () => {
+    const [rename, remove] = within(openOptions()).getAllByRole('menuitem');
+
+    expect(document.activeElement).toBe(rename);
+    fireEvent.keyDown(document.activeElement ?? document.body, { key: 'ArrowUp' });
+    expect(document.activeElement).toBe(remove);
+    fireEvent.keyDown(document.activeElement ?? document.body, { key: 'ArrowDown' });
+    expect(document.activeElement).toBe(rename);
+    fireEvent.keyDown(document.activeElement ?? document.body, { key: 'End' });
+    expect(document.activeElement).toBe(remove);
+    fireEvent.keyDown(document.activeElement ?? document.body, { key: 'Home' });
+    expect(document.activeElement).toBe(rename);
+  });
+
+  it('focuses the item a typed letter starts and keeps the letter from the document', () => {
+    const [, remove] = within(openOptions()).getAllByRole('menuitem');
+    const reached = vi.fn();
+    document.addEventListener('keydown', reached);
+
+    fireEvent.keyDown(document.activeElement ?? document.body, { key: 'd' });
+    document.removeEventListener('keydown', reached);
+
+    expect(document.activeElement).toBe(remove);
+    expect(reached).not.toHaveBeenCalled();
+  });
+
+  it('closes on Escape back on its button, and on a press outside it', () => {
+    openOptions();
+    const trigger = within(rail()).getByRole('button', { name: 'Options for Paid' });
+
+    fireEvent.keyDown(document.activeElement ?? document.body, { key: 'Escape' });
+    expect(screen.queryByRole('menu')).toBeNull();
+    expect(document.activeElement).toBe(trigger);
+
+    fireEvent.click(trigger);
+    fireEvent.pointerDown(document.body);
+    expect(screen.queryByRole('menu')).toBeNull();
   });
 });
 
