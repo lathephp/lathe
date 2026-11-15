@@ -247,3 +247,20 @@ it('writes the hot file while the dev server runs and serves the boot file with 
 
     File::deleteDirectory($dir);
 });
+
+it('commits the workbench extensions as a fresh lathe:build writes them', function () {
+    $committed = extensionBuildRepo().'/workbench/public/vendor/lathe/extensions';
+    $dir = sys_get_temp_dir().'/lathe-workbench-extensions-'.bin2hex(random_bytes(4));
+
+    // The workbench's own config, with the output moved out of the folder it commits.
+    $process = runExtensionScript($dir, ' await vite.build({ configFile: "workbench/vite.lathe.config.ts", logLevel: "silent",'
+        .' plugins: [{ name: "out", config: () => ({ build: { outDir: root, emptyOutDir: true } }) }] });');
+
+    expect($process->getExitCode())->toBe(0, $process->getErrorOutput());
+
+    $read = fn (string $folder): array => collect(extensionFiles($folder))->mapWithKeys(fn (string $file) => [$file => (string) file_get_contents("{$folder}/{$file}")])->all();
+
+    expect($read($committed))->toBe($read($dir), 'workbench/public/vendor/lathe/extensions is out of date: run `pnpm --dir workbench lathe:build` and commit it');
+
+    File::deleteDirectory($dir);
+});
