@@ -223,6 +223,18 @@ describe('the actions menu', () => {
     expect(screen.queryByRole('button', { name: 'Actions' })).toBeNull();
   });
 
+  it("names a run's response modal by the action, not by its component", async () => {
+    actionModal('summary-modal', ({ data }: ActionModalProps) => <p>{String(data.total)} orders</p>);
+    vi.spyOn(globalThis, 'fetch').mockResolvedValueOnce(json({ result: { message: null, level: 'success', effect: { type: 'modal', component: 'summary-modal', data: { total: 3 } } }, permitted: 1, skipped: 0, failed: 0, errors: [] }));
+    renderOrders([meta('summarise-orders', 'Summarise orders', { withoutConfirmation: true })], rows(3, ['summarise-orders']));
+    tick(1);
+    fireEvent.click(within(await openMenu()).getByRole('menuitem', { name: 'Summarise orders' }));
+
+    const dialog = await screen.findByRole('dialog', { name: 'Summarise orders' });
+    expect(await within(dialog).findByText('3 orders')).toBeTruthy();
+    expect(screen.queryByRole('dialog', { name: 'summary-modal' })).toBeNull();
+  });
+
   it('renders nothing without a visible action', () => {
     renderOrders([]);
 

@@ -93,7 +93,7 @@ describe('the response modal', () => {
     }
     actionModal('hold-order', HoldOrder);
 
-    render(<ResponseModal component="hold-order" data={{ id: 12 }} onClose={vi.fn()} />);
+    render(<ResponseModal title="Hold order" component="hold-order" data={{ id: 12 }} onClose={vi.fn()} />);
 
     expect(screen.getByText('Hold order 12')).toBeTruthy();
   });
@@ -101,7 +101,7 @@ describe('the response modal', () => {
   it('toasts an unknown name and shows nothing else', () => {
     const onClose = vi.fn();
 
-    const { container } = render(<ResponseModal component="missing" data={{}} onClose={onClose} />);
+    const { container } = render(<ResponseModal title="Missing" component="missing" data={{}} onClose={onClose} />);
 
     expect(container.textContent).toBe('');
     expect(__panel.toasts.get().map((toast) => toast.message)).toEqual(['Unknown modal component']);

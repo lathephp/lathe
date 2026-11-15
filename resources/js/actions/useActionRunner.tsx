@@ -35,7 +35,7 @@ export function useActionRunner({ base, onDone }: ActionRunnerOptions): { start:
   const { __ } = useTranslation();
   const { auth } = usePage<SharedProps>().props;
   const [running, setRunning] = useState<Running | null>(null);
-  const [response, setResponse] = useState<{ component: string; data: Record<string, unknown> } | null>(null);
+  const [response, setResponse] = useState<{ title: string; component: string; data: Record<string, unknown> } | null>(null);
   const [reauth, setReauth] = useState<(() => void) | null>(null);
   const closeRunning = useCallback(() => {
     setRunning(null);
@@ -54,7 +54,7 @@ export function useActionRunner({ base, onDone }: ActionRunnerOptions): { start:
 
       applyActionResult(queued ? { ...run.result, message: null } : run.result, {
         openModal: (component, data) => {
-          setResponse({ component, data });
+          setResponse({ title: action.name, component, data });
         },
         refresh: () => undefined,
         visit: (path, options) => {
@@ -132,7 +132,7 @@ export function useActionRunner({ base, onDone }: ActionRunnerOptions): { start:
           onRun={(fields) => execute(running.action, running.selection, fields, true)}
         />
       )}
-      {response !== null && <ResponseModal component={response.component} data={response.data} onClose={closeResponse} />}
+      {response !== null && <ResponseModal title={response.title} component={response.component} data={response.data} onClose={closeResponse} />}
       {reauth !== null && (
         <ReauthModal
           email={auth.user?.email ?? ''}
