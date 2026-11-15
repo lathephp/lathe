@@ -97,7 +97,7 @@ it('serves the workbench over HTTP in the style BENCH_THEME_STYLE names', functi
             $body = (string) @file_get_contents("http://127.0.0.1:{$port}/lathe/login");
         }
     } finally {
-        $server->signal(SIGTERM);
+        $server->stop(5);
     }
 
     expect($body)->toContain('<body class="style-luma">');

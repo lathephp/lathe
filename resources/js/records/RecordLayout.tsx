@@ -158,7 +158,7 @@ function Panel({ panel, renderField, borderless, detail, bare }: RecordLayoutPro
             : cn(
                 'gap-0 divide-y divide-border overflow-visible py-0 text-base',
                 (borderless === true || panel.borderless) && 'divide-y-0',
-                detail !== true && 'max-md:divide-y-0 max-md:rounded-none max-md:border-0 max-md:bg-transparent max-md:shadow-none max-md:ring-0 max-md:[&>*]:px-0 max-md:[&>header]:pt-0 max-md:[&>header]:pb-3',
+                detail !== true && 'max-md:divide-y-0 max-md:rounded-none max-md:bg-transparent max-md:shadow-none max-md:ring-0 max-md:[&>*]:px-0 max-md:[&>header]:pt-0 max-md:[&>header]:pb-3',
               )
         }
       >
