@@ -175,6 +175,42 @@ describe('the detail action menu and its dialog', () => {
   });
 });
 
+describe('the detail action menu and its dialog, the second time', () => {
+  // The first run loads the dialog's code, so the dialog mounts later; once loaded, it mounts as the
+  // menu closes, while the item still holds the focus.
+  it('keeps the focus in the dialog and gives it back to Actions when it closes', async () => {
+    vi.spyOn(globalThis, 'fetch').mockImplementation(() => Promise.resolve(json({ fields: [], confirmText: 'Cancel order ORD-12?' })));
+    renderPage('Resources/Detail', {
+      resource: { uriKey: 'orders', label: 'Orders', singularLabel: 'Order', abilities: { create: false } },
+      record: { id: 12, title: 'ORD-12', subtitle: '', avatar: null, fields: [], layout: [], abilities: { view: true }, trashed: false },
+      breadcrumbs: [],
+      actions: { actions: [meta('cancel-order', 'Cancel order', { destructive: true, withoutConfirmation: false, cancelButtonText: 'Keep order', authorizedToRun: true })], pivotActions: [], counts: {} },
+    });
+    const trigger = await screen.findByRole('button', { name: 'Actions' });
+
+    for (let run = 1; run <= 2; run++) {
+      trigger.focus();
+      fireEvent.click(trigger);
+      const item = within(await screen.findByRole('menu', { name: 'Actions' })).getByRole('menuitem', { name: 'Cancel order' });
+      item.focus();
+      fireEvent.click(item);
+      const dialog = await screen.findByRole('dialog', { name: 'Cancel order ORD-12?' });
+      await waitFor(() => {
+        expect(dialog.contains(document.activeElement)).toBe(true);
+      });
+
+      fireEvent.keyDown(document.activeElement ?? document.body, { key: 'Escape' });
+
+      await waitFor(() => {
+        expect(screen.queryByRole('dialog')).toBeNull();
+      });
+      await waitFor(() => {
+        expect(document.activeElement).toBe(trigger);
+      });
+    }
+  });
+});
+
 describe('inline row actions', () => {
   it('puts the row\'s actions above Delete, which stays the menu\'s last entry', async () => {
     vi.spyOn(globalThis, 'fetch').mockResolvedValueOnce(json({ actions: [meta('hold-order', 'Hold order', { showOnTableRow: true })], pivotActions: [], counts: {} }));

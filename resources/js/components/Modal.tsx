@@ -19,6 +19,16 @@ const focusable = 'a[href], button:not([disabled]), input:not([disabled]), selec
 // phone's bottom sheet, are the [data-lathe-modal] rules in app.css.
 
 /** The title and its description, stacked. */
+/**
+ * Where the focus goes back to when the dialog closes: what held it as the dialog opened, or,
+ * when that was an item of a menu, which goes as the dialog opens, the button of that open menu.
+ */
+function openerOf(active: Element | null): HTMLElement | null {
+  const button = active?.closest('[role=menu]') ? document.querySelector<HTMLElement>('[aria-haspopup=menu][aria-expanded=true]') : null;
+
+  return button ?? (active instanceof HTMLElement ? active : null);
+}
+
 export function ModalHeader({ className, ...props }: ComponentProps<'div'>) {
   return <div className={cn('cn-dialog-header flex flex-col', className)} {...props} />;
 }
@@ -105,7 +115,7 @@ export function Modal({ labelledBy, onClose, children, className, locked = false
       return undefined;
     }
 
-    const opener = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    const opener = openerOf(document.activeElement);
     let pending: Promise<boolean> | undefined;
     const replaced = __panel.setPasswordConfirmer(
       () =>
