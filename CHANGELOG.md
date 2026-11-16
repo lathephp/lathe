@@ -6,6 +6,7 @@ All notable changes to Lathe are listed here. The format follows [Keep a Changel
 
 ### Fixed
 
+- The Group control of a Resource's list shows the style's focus border when the keyboard reaches it, where in sera, which marks a select's focus only with its border, it showed no focus at all.
 - The top bar's search box keeps plain case and letter spacing in every style, and its label gives way with an ellipsis before the Ctrl K hint, where in sera, whose buttons are uppercase and widely spaced, the label ran past the box and put Ctrl K under the bell.
 - On a phone, a page title's badge, such as a dashboard's Editing layout in Customize mode, takes a row of its own above the page's controls, where in maia and vega the larger buttons ran Reset to default over it.
 

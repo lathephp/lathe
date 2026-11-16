@@ -845,7 +845,7 @@
 
   /* Group is a ghost button over the select; a chosen grouping reads "Group: Status ascending". */
   .lathe-group {
-    @apply h-[30px] gap-1.5 border-0 bg-transparent px-2.5 text-[13px] font-medium text-muted-foreground shadow-none hover:bg-accent aria-expanded:bg-accent;
+    @apply h-[30px] gap-1.5 border-transparent bg-transparent px-2.5 text-[13px] font-medium text-muted-foreground shadow-none hover:bg-accent focus-visible:border-ring aria-expanded:bg-accent;
   }
 
   .lathe-group > svg {

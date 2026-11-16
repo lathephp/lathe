@@ -114,3 +114,15 @@ describe('the top bar hooks', () => {
     expect(topbarRules.some((rule) => bell.matches(rule.selector) && rule.body.includes('size-11'))).toBe(true);
   });
 });
+
+describe('the Group control', () => {
+  // A utility on .lathe-group beats every style's own select focus rule, and sera marks the focus
+  // only with the trigger's bottom border, so a border-0 here left it no focus at all.
+  it('keeps the style border width, clear at rest and in the ring colour on focus', () => {
+    const rule = /\.lathe-group \{[^}]*\}/.exec(css)?.[0] ?? '';
+
+    expect(rule).not.toMatch(/\bborder-0\b/);
+    expect(rule).toMatch(/\bborder-transparent\b/);
+    expect(rule).toMatch(/\bfocus-visible:border-ring\b/);
+  });
+});
