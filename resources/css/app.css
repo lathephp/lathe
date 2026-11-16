@@ -402,15 +402,16 @@
   }
 
   .lathe-topbar-search {
-    @apply flex size-11 items-center justify-center gap-2 rounded-md text-muted-foreground outline-none focus-visible:ring-2 focus-visible:ring-focus md:h-8 md:w-65 md:justify-start md:border md:border-border md:bg-card md:ps-2.5 md:pe-1.5 md:text-[13px] md:leading-[18px];
+    /* A search field, not a command: it keeps plain case and tracking in a style whose buttons shout. */
+    @apply flex size-11 items-center justify-center gap-2 rounded-md text-muted-foreground normal-case tracking-normal outline-none focus-visible:ring-2 focus-visible:ring-focus md:h-8 md:w-65 md:justify-start md:border md:border-border md:bg-card md:ps-2.5 md:pe-1.5 md:text-[13px] md:leading-[18px];
   }
 
   .lathe-topbar-search > span {
-    @apply flex-1 text-start max-md:hidden;
+    @apply min-w-0 flex-1 truncate text-start max-md:hidden;
   }
 
   .lathe-topbar-search > kbd {
-    @apply rounded-[4px] border border-border bg-muted px-[5px] font-mono text-[11px] leading-4 font-medium max-md:hidden;
+    @apply shrink-0 rounded-[4px] border border-border bg-muted px-[5px] font-mono text-[11px] leading-4 font-medium max-md:hidden;
   }
 
   /* Under 45rem of bar content (a 768 px window, sidebar open or collapsed) the 260 px box would run

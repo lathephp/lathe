@@ -73,4 +73,12 @@ describe('a top bar too narrow for the search box beside the trail', () => {
     expect(block('.lathe-crumbs li:last-child {')).toMatch(/min-w-0/);
     expect(block('.lathe-crumbs [aria-current="page"] {')).toMatch(/truncate/);
   });
+
+  // jsdom does no layout: sera's buttons are uppercase and widely tracked, so the search box's
+  // label ran past its 260 px and put Ctrl K under the bell.
+  it('keeps the search box in plain case, its label giving way with an ellipsis before Ctrl K', () => {
+    expect(block('.lathe-topbar-search {')).toMatch(/normal-case[^}]*tracking-normal/);
+    expect(block('.lathe-topbar-search > span {')).toMatch(/min-w-0[^}]*truncate/);
+    expect(block('.lathe-topbar-search > kbd {')).toMatch(/shrink-0/);
+  });
 });
