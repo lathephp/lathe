@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Artisan;
 use Symfony\Component\Yaml\Yaml;
 
 /**
- * The three files of the Boost skill, keyed by file name.
+ * The four files of the Boost skill, keyed by file name.
  *
  * @return array<string, string>
  */
@@ -13,14 +13,14 @@ function skillFiles(): array
     $folder = dirname(__DIR__, 3).'/resources/boost/skills/lathe-development';
     $files = [];
 
-    foreach (['SKILL.md', 'reference.md', 'custom-extensions.md'] as $name) {
+    foreach (['SKILL.md', 'reference.md', 'custom-extensions.md', 'ui.md'] as $name) {
         $files[$name] = is_file("{$folder}/{$name}") ? (string) file_get_contents("{$folder}/{$name}") : '';
     }
 
     return $files;
 }
 
-it('ships the three skill files', function () {
+it('ships the four skill files', function () {
     foreach (skillFiles() as $name => $text) {
         expect($text)->not->toBe('', "{$name} is missing or empty");
     }

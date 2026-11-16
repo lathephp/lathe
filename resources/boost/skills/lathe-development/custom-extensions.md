@@ -9,7 +9,7 @@ A custom **field**, **filter**, **widget** or **page** has a PHP class and a Rea
 3. **Every component file must be imported from `resources/js/lathe/boot.ts`.** A file that nothing imports never runs, so its key is never registered. The generators append the import for you. A file you add by hand needs one more line.
 4. **Import React and the Lathe packages by bare name** (`react`, `react/jsx-runtime`, `react-dom`, `@lathephp/core`, `@lathephp/ui`). The panel's import map serves its own copy, so a plugin runs on the panel's React and API. A bundled second copy of React breaks hooks, and the build fails with "bundles react code" to stop you.
 5. **Build after every change.** The panel loads the built module from `public/vendor/lathe/extensions`, not your source. In dev, run the Vite dev server so it loads the source and reloads.
-6. **Use `@lathephp/ui` for UI.** It holds the shadcn/ui components the panel itself uses (`Card`, `Button`, `Input`, `Select`, `Dialog`, `Tabs`, `Table` and more), so a custom component looks like the rest of the panel and follows the theme.
+6. **Use `@lathephp/ui` for UI, never hand-built controls.** It holds the shadcn/ui components the panel itself uses, so a custom component looks like the rest of the panel and follows the theme. [ui.md](ui.md) lists every export with its import path, how to compose cards, dialogs and fields, the token and styling rules, `PageHeader` and `Icon`, the lint rule and the chart.
 
 ## Lifecycle playbook (per type)
 

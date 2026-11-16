@@ -1,13 +1,13 @@
 ---
 name: lathe-development
-description: Build admin panels with Lathe, an admin panel builder for Laravel on Inertia, React and shadcn/ui. Use when working under app/Lathe/, extending a Lathe Resource, Action, Filter, Lens, Dashboard, Widget or Page class, running lathe:* artisan commands (lathe:resource, lathe:action, lathe:filter, lathe:lens, lathe:widget, lathe:dashboard, lathe:field, lathe:page, lathe:plugin), writing tests with Lathe\Testing\LatheTest, or when the user mentions a Lathe resource, field, lens, widget or panel.
+description: Build admin panels with Lathe, an admin panel builder for Laravel on Inertia, React and shadcn/ui. Use when working under app/Lathe/, extending a Lathe Resource, Action, Filter, Lens, Dashboard, Widget or Page class, running lathe:* artisan commands (lathe:resource, lathe:action, lathe:filter, lathe:lens, lathe:widget, lathe:dashboard, lathe:field, lathe:page, lathe:plugin), writing tests with Lathe\Testing\LatheTest, writing React under resources/js/lathe/ (a .tsx component, boot.ts, @lathephp/core or @lathephp/ui), or when the user mentions a Lathe resource, field, lens, widget or panel.
 ---
 
 # Lathe Development
 
 Lathe is an admin panel builder for Laravel, in the **Laravel Nova tradition**: each Eloquent model gets a **Resource** class whose `fields()` declare the index columns, the detail rows and the form inputs, and **Actions**, **Filters**, **Lenses**, **Dashboards** and **Widgets** hang off it. The Nova *concepts* carry over, the *APIs differ*. Follow this skill, not Nova habits. "Differences from Nova" lists the traps. The panel lives at `/lathe`.
 
-Everything Lathe ships is under the `Lathe\` namespace, and the request type is `Lathe\Http\Requests\LatheRequest`. **Never `use Laravel\Nova\...`.** The browser side is Inertia, React and shadcn/ui, and it is written in the `@lathephp/core` and `@lathephp/ui` packages.
+Everything Lathe ships is under the `Lathe\` namespace, and the request type is `Lathe\Http\Requests\LatheRequest`. **Never `use Laravel\Nova\...`.** The browser side is Inertia, React and shadcn/ui, and it is written in the `@lathephp/core` and `@lathephp/ui` packages; [ui.md](ui.md) holds the UI rules and every kit export.
 
 ## Where code lives: `app/Lathe/`
 
@@ -278,3 +278,4 @@ Lathe is built for tables of millions of rows, so it caps what a request does. D
 
 - Widgets (value, trend, partition, bar, pie, progress, radar, radial, table, help, custom), dashboards, actions in depth and the testing recipe are in [reference.md](reference.md).
 - **A custom field, filter, widget or page** is a PHP class, a React component, a `boot.ts` import and a **separate Vite build**. It is easy to get silently wrong without the playbook, so follow [custom-extensions.md](custom-extensions.md).
+- **Any React UI** (a field, filter, widget, page or plugin component) is built from `@lathephp/ui`, with `PageHeader` and `Icon` from `@lathephp/core`, theme tokens and the raw-UI lint rule: read [ui.md](ui.md) first. It lists every kit export with its import path.
