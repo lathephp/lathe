@@ -5,6 +5,7 @@ import {
   AccordionItem,
   AccordionTrigger,
   Alert,
+  AlertAction,
   AlertDescription,
   AlertDialog,
   AlertDialogAction,
@@ -13,30 +14,47 @@ import {
   AlertDialogDescription,
   AlertDialogFooter,
   AlertDialogHeader,
+  AlertDialogMedia,
   AlertDialogTitle,
   AlertDialogTrigger,
   AlertTitle,
   Avatar,
+  AvatarBadge,
   AvatarFallback,
+  AvatarGroup,
+  AvatarGroupCount,
+  AvatarImage,
   Badge,
   Button,
   Card,
+  CardAction,
   CardContent,
   CardDescription,
+  CardFooter,
   CardHeader,
   CardTitle,
   Checkbox,
   Dialog,
+  DialogClose,
   DialogContent,
   DialogDescription,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
   DropdownMenu,
   DropdownMenuCheckboxItem,
   DropdownMenuContent,
+  DropdownMenuGroup,
   DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuRadioGroup,
+  DropdownMenuRadioItem,
   DropdownMenuSeparator,
+  DropdownMenuShortcut,
+  DropdownMenuSub,
+  DropdownMenuSubContent,
+  DropdownMenuSubTrigger,
   DropdownMenuTrigger,
   Input,
   Kbd,
@@ -44,19 +62,29 @@ import {
   Label,
   Popover,
   PopoverContent,
+  PopoverDescription,
+  PopoverHeader,
+  PopoverTitle,
   PopoverTrigger,
   Progress,
+  ProgressLabel,
+  ProgressValue,
   RadioGroup,
   RadioGroupItem,
   Select,
   SelectContent,
+  SelectGroup,
   SelectItem,
+  SelectLabel,
+  SelectSeparator,
   SelectTrigger,
   SelectValue,
   Separator,
   Sheet,
+  SheetClose,
   SheetContent,
   SheetDescription,
+  SheetFooter,
   SheetHeader,
   SheetTitle,
   SheetTrigger,
@@ -66,7 +94,9 @@ import {
   Switch,
   Table,
   TableBody,
+  TableCaption,
   TableCell,
+  TableFooter,
   TableHead,
   TableHeader,
   TableRow,
@@ -149,6 +179,11 @@ export default function UiGallery() {
           <Alert>
             <AlertTitle>{__('Heads up')}</AlertTitle>
             <AlertDescription>{__('The import finished.')}</AlertDescription>
+            <AlertAction>
+              <Button size="sm" variant="outline">
+                {__('Undo')}
+              </Button>
+            </AlertAction>
           </Alert>
         </Demo>
         <Demo name="alert-dialog">
@@ -156,6 +191,9 @@ export default function UiGallery() {
             <AlertDialogTrigger render={<Button variant="destructive" />}>{__('Delete')}</AlertDialogTrigger>
             <AlertDialogContent>
               <AlertDialogHeader>
+                <AlertDialogMedia>
+                  <Spinner aria-label={__('Deleting')} />
+                </AlertDialogMedia>
                 <AlertDialogTitle>{__('Delete the order?')}</AlertDialogTitle>
                 <AlertDialogDescription>{__('It cannot be restored.')}</AlertDialogDescription>
               </AlertDialogHeader>
@@ -168,8 +206,19 @@ export default function UiGallery() {
         </Demo>
         <Demo name="avatar">
           <Avatar>
+            <AvatarImage src="" alt={__('Avatar')} />
             <AvatarFallback>AU</AvatarFallback>
+            <AvatarBadge />
           </Avatar>
+          <AvatarGroup>
+            <Avatar>
+              <AvatarFallback>AB</AvatarFallback>
+            </Avatar>
+            <Avatar>
+              <AvatarFallback>CD</AvatarFallback>
+            </Avatar>
+            <AvatarGroupCount>+3</AvatarGroupCount>
+          </AvatarGroup>
         </Demo>
         <Demo name="badge">
           <Badge>{__('Paid')}</Badge>
@@ -184,8 +233,16 @@ export default function UiGallery() {
             <CardHeader>
               <CardTitle>{__('Revenue')}</CardTitle>
               <CardDescription>{__('This month')}</CardDescription>
+              <CardAction>
+                <Badge variant="secondary">{__('Live')}</Badge>
+              </CardAction>
             </CardHeader>
             <CardContent>$1,200</CardContent>
+            <CardFooter>
+              <Button size="sm" variant="outline">
+                {__('Export')}
+              </Button>
+            </CardFooter>
           </Card>
         </Demo>
         <Demo name="checkbox">
@@ -210,6 +267,9 @@ export default function UiGallery() {
                 <DialogTitle>{__('Edit order')}</DialogTitle>
                 <DialogDescription>{__('Change the address.')}</DialogDescription>
               </DialogHeader>
+              <DialogFooter>
+                <DialogClose render={<Button variant="outline" />}>{__('Cancel')}</DialogClose>
+              </DialogFooter>
             </DialogContent>
           </Dialog>
         </Demo>
@@ -217,10 +277,27 @@ export default function UiGallery() {
           <DropdownMenu>
             <DropdownMenuTrigger render={<Button variant="outline" />}>{__('Actions')}</DropdownMenuTrigger>
             <DropdownMenuContent>
-              <DropdownMenuItem>{__('Refund')}</DropdownMenuItem>
-              <DropdownMenuItem variant="destructive">{__('Delete')}</DropdownMenuItem>
+              <DropdownMenuGroup>
+                <DropdownMenuLabel>{__('Order')}</DropdownMenuLabel>
+                <DropdownMenuItem>
+                  {__('Refund')}
+                  <DropdownMenuShortcut>R</DropdownMenuShortcut>
+                </DropdownMenuItem>
+                <DropdownMenuItem variant="destructive">{__('Delete')}</DropdownMenuItem>
+              </DropdownMenuGroup>
               <DropdownMenuSeparator />
               <DropdownMenuCheckboxItem defaultChecked>{__('Notify the customer')}</DropdownMenuCheckboxItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuRadioGroup defaultValue="all">
+                <DropdownMenuRadioItem value="all">{__('All orders')}</DropdownMenuRadioItem>
+                <DropdownMenuRadioItem value="paid">{__('Paid orders')}</DropdownMenuRadioItem>
+              </DropdownMenuRadioGroup>
+              <DropdownMenuSub>
+                <DropdownMenuSubTrigger>{__('Export')}</DropdownMenuSubTrigger>
+                <DropdownMenuSubContent>
+                  <DropdownMenuItem>{__('As CSV')}</DropdownMenuItem>
+                </DropdownMenuSubContent>
+              </DropdownMenuSub>
             </DropdownMenuContent>
           </DropdownMenu>
         </Demo>
@@ -240,11 +317,20 @@ export default function UiGallery() {
         <Demo name="popover">
           <Popover>
             <PopoverTrigger render={<Button variant="outline" />}>{__('Share')}</PopoverTrigger>
-            <PopoverContent>{__('Anyone with the link can view.')}</PopoverContent>
+            <PopoverContent>
+              <PopoverHeader>
+                <PopoverTitle>{__('Share')}</PopoverTitle>
+                <PopoverDescription>{__('Anyone with the link can view.')}</PopoverDescription>
+              </PopoverHeader>
+            </PopoverContent>
           </Popover>
         </Demo>
         <Demo name="progress">
           <Progress value={40} aria-label={__('Upload')} className="w-full" />
+          <Progress value={60} className="w-full">
+            <ProgressLabel>{__('Import')}</ProgressLabel>
+            <ProgressValue />
+          </Progress>
         </Demo>
         <Demo name="radio-group">
           <RadioGroup aria-label={__('Size')} defaultValue="s">
@@ -268,8 +354,13 @@ export default function UiGallery() {
               <SelectValue placeholder={__('Pick one')} />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="paid">{__('Paid')}</SelectItem>
-              <SelectItem value="refunded">{__('Refunded')}</SelectItem>
+              <SelectGroup>
+                <SelectLabel>{__('Payment')}</SelectLabel>
+                <SelectItem value="paid">{__('Paid')}</SelectItem>
+                <SelectItem value="refunded">{__('Refunded')}</SelectItem>
+              </SelectGroup>
+              <SelectSeparator />
+              <SelectItem value="draft">{__('Draft')}</SelectItem>
             </SelectContent>
           </Select>
         </Demo>
@@ -286,6 +377,9 @@ export default function UiGallery() {
                 <SheetTitle>{__('Filters')}</SheetTitle>
                 <SheetDescription>{__('Narrow the list.')}</SheetDescription>
               </SheetHeader>
+              <SheetFooter>
+                <SheetClose render={<Button variant="outline" />}>{__('Done')}</SheetClose>
+              </SheetFooter>
             </SheetContent>
           </Sheet>
         </Demo>
@@ -306,6 +400,7 @@ export default function UiGallery() {
         </Demo>
         <Demo name="table">
           <Table>
+            <TableCaption>{__('Recent orders')}</TableCaption>
             <TableHeader>
               <TableRow>
                 <TableHead>{__('Number')}</TableHead>
@@ -318,6 +413,12 @@ export default function UiGallery() {
                 <TableCell>{__('Paid')}</TableCell>
               </TableRow>
             </TableBody>
+            <TableFooter>
+              <TableRow>
+                <TableCell>{__('Total')}</TableCell>
+                <TableCell>1</TableCell>
+              </TableRow>
+            </TableFooter>
           </Table>
         </Demo>
         <Demo name="tabs">
