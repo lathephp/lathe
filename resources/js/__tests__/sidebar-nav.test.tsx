@@ -1,6 +1,6 @@
 import { fireEvent, screen, within } from '@testing-library/react';
 import { renderHook } from '@lathephp/core';
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import type { SharedProps } from '../types';
 import { renderPage } from './support';
 
@@ -135,6 +135,18 @@ describe('sidebar badges and tooltips', () => {
     fireEvent.focus(customers);
 
     expect(nav.getByRole('tooltip').textContent).toBe('Added this week');
+  });
+
+  // The nav scrolls, so a tooltip placed inside it would be cut at its edge (a 48 px rail cuts it whole).
+  it("places the tooltip fixed beside its item, out of the nav's scroll box", () => {
+    const nav = show('/lathe');
+    const item = nav.getByRole('link', { name: /^Customers/ }).parentElement as HTMLElement;
+    vi.spyOn(item, 'getBoundingClientRect').mockReturnValue(DOMRect.fromRect({ x: 8, y: 120, width: 32, height: 32 }));
+
+    fireEvent.mouseEnter(item);
+
+    const tip = nav.getByRole('tooltip');
+    expect([tip.style.position, tip.style.top, tip.style.insetInlineStart]).toEqual(['fixed', '124px', '48px']);
   });
 
   it('names a rail icon in a tooltip on keyboard focus', () => {

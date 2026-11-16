@@ -1,6 +1,6 @@
 import { Link, usePage } from '@inertiajs/react';
 import { ChevronDown } from 'lucide-react';
-import { useId, useState } from 'react';
+import { useId, useState, type SyntheticEvent } from 'react';
 import { NavIcon } from '../components/NavIcon';
 import { Badge, toneVariants } from '../components/ui/Badge';
 import { cn } from '../lib/cn';
@@ -81,17 +81,20 @@ function holdsActive(block: NavBlock, context: NavContext): boolean {
 
 function NavItem({ item, context }: { item: NavLink; context: NavContext }) {
   const { onceProps } = usePage();
-  const [tip, setTip] = useState(false);
+  // Where the tooltip shows, beside the item, or null while hidden.
+  const [tip, setTip] = useState<{ top: number; start: number } | null>(null);
   const id = useId();
   const badge = item.badge ?? context.badges[item.href];
   // The rail hides the label, so its tooltip names the link; the badge tooltip follows.
   const text = [context.collapsed && item.label, badge?.tooltip].filter(Boolean).join(' · ');
   const active = isActive(item, context);
-  const show = () => {
-    setTip(true);
+  // Fixed to the window and placed as it shows: the nav scrolls, so a tooltip inside it is cut at its edge.
+  const show = (event: SyntheticEvent<HTMLElement>) => {
+    const box = event.currentTarget.getBoundingClientRect();
+    setTip({ top: box.top + 4, start: document.dir === 'rtl' ? window.innerWidth - box.left + 8 : box.right + 8 });
   };
   const hide = () => {
-    setTip(false);
+    setTip(null);
   };
   const link = {
     href: item.href,
@@ -161,8 +164,9 @@ function NavItem({ item, context }: { item: NavLink; context: NavContext }) {
         <span
           role="tooltip"
           id={id}
-          hidden={!tip}
-          className="cn-tooltip-content absolute start-full top-1 ms-2 bg-foreground whitespace-nowrap text-background"
+          hidden={tip === null}
+          style={tip === null ? undefined : { position: 'fixed', top: `${String(tip.top)}px`, insetInlineStart: `${String(tip.start)}px` }}
+          className="cn-tooltip-content bg-foreground whitespace-nowrap text-background"
         >
           {text}
         </span>
