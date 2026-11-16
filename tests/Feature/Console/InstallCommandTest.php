@@ -59,12 +59,18 @@ function scaffoldApp(): string
 }
 
 /**
- * Commit the app's tree, so git status shows what the next command changed.
+ * Commit the app's tree, so git status shows what the next command changed. A developer's own
+ * git hooks have no say over this throwaway commit: one that refused Laravel's .gitignore left
+ * every file untracked.
  */
 function snapshotScaffold(): void
 {
     inScaffold(['git', 'add', '-A']);
-    inScaffold(['git', '-c', 'user.name=Lathe', '-c', 'user.email=test@lathephp.com', 'commit', '--quiet', '--allow-empty', '-m', 'snapshot']);
+    $commit = inScaffold(['git', '-c', 'user.name=Lathe', '-c', 'user.email=test@lathephp.com', 'commit', '--quiet', '--no-verify', '--allow-empty', '-m', 'snapshot']);
+
+    if (! $commit->isSuccessful()) {
+        throw new RuntimeException("The snapshot commit failed:\n".$commit->getErrorOutput());
+    }
 }
 
 /**
