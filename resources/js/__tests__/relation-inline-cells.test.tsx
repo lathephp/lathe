@@ -80,7 +80,11 @@ describe('relation inline cells', () => {
 
     await editCell('Customer');
     fireEvent.mouseDown(await screen.findByRole('combobox', { name: 'Customer' }));
-    fireEvent.click(await screen.findByRole('option', { name: 'Anna Park' }));
+    // A whole press, as a person's: the list draws on the body, outside the cell.
+    const option = await screen.findByRole('option', { name: 'Anna Park' });
+    fireEvent.pointerDown(option);
+    fireEvent.mouseDown(option);
+    fireEvent.click(option);
     await flush();
 
     expect(calls(fetch).filter((call) => call.method === 'PATCH')).toEqual([

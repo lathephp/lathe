@@ -158,6 +158,18 @@ describe('the Customer picker on an order edit form', () => {
     expect(onChange).toHaveBeenCalledWith({ value: 3, display: 'Ann Lee' });
   });
 
+  it('picks the first match with ArrowDown and Enter before any typing, past the chosen customer', async () => {
+    server();
+    const onChange = vi.fn();
+    renderField(schema(), onChange, { value: 4, display: 'Anna Park' });
+
+    const input = await openPicker();
+    fireEvent.keyDown(input, { key: 'ArrowDown' });
+    fireEvent.keyDown(input, { key: 'Enter' });
+
+    expect(onChange).toHaveBeenCalledWith({ value: 3, display: 'Ann Lee' });
+  });
+
   it('keeps the chosen customer while the search text is emptied', async () => {
     server();
     const onChange = vi.fn();
@@ -181,12 +193,16 @@ describe('the Customer picker on an order edit form', () => {
 
     expect(screen.queryByRole('listbox')).toBeNull();
 
-    // A second Escape, on the shut list, keeps it too.
+    // A second Escape, on the shut list, keeps it too, and reaches the page, where a dialog or an inline cell closes on it.
+    const reached = vi.fn();
+    document.addEventListener('keydown', reached);
     fireEvent.keyDown(input, { key: 'Escape' });
+    document.removeEventListener('keydown', reached);
     await flush();
 
     expect(onChange).not.toHaveBeenCalled();
     expect(input.value).toBe('Ann Lee');
+    expect(reached).toHaveBeenCalledTimes(1);
   });
 
   it('keeps the chosen value on Tab out', async () => {

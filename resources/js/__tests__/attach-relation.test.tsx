@@ -182,7 +182,11 @@ async function pick(dialog: HTMLElement, name: string, typed?: string) {
     fireEvent.change(input, { target: { value: typed } });
   }
 
-  fireEvent.click(await screen.findByRole('option', { name }));
+  // A whole press, as a person's: the dialog's outside-press check hears its pointerdown on the body.
+  const option = await screen.findByRole('option', { name });
+  fireEvent.pointerDown(option);
+  fireEvent.mouseDown(option);
+  fireEvent.click(option);
   await waitFor(() => {
     expect(screen.queryByRole('listbox')).toBeNull();
   });

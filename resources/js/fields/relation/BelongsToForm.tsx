@@ -86,6 +86,7 @@ export function RelationPicker({
       // Held here, so a page of results arriving never puts the chosen record back over the typed text.
       inputValue={term ?? chosen?.display ?? ''}
       disabled={disabled}
+      // Handed over as items, Base UI counts the matches itself, so ArrowDown starts at the first and not after the chosen record.
       items={options}
       // The server already matched the term, on any column it searches, such as an email.
       filter={null}
@@ -130,7 +131,8 @@ export function RelationPicker({
         maxLength={typeof field.searchTermChars === 'number' ? field.searchTermChars : 100}
         onKeyDown={(event) => {
           // A key inside an IME composition is the IME's: its arrows move through candidates, its Enter confirms the text.
-          if (composing(event)) {
+          // Escape at a shut list would empty the record and stop there; it goes on to the dialog or the cell instead.
+          if (composing(event) || (event.key === 'Escape' && !open)) {
             event.preventBaseUIHandler();
 
             return;
