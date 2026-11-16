@@ -164,4 +164,12 @@ enum Icon: string
     case Grid = 'grid';
     case Sparkles = 'sparkles';
     case Wrench = 'wrench';
+    case ArrowDownRight = 'arrow-down-right';
+    case ArrowUpRight = 'arrow-up-right';
+    case ChevronDown = 'chevron-down';
+    case ChevronsUpDown = 'chevrons-up-down';
+    case Ellipsis = 'ellipsis';
+    case Pencil = 'pencil';
+    case Rows = 'rows';
+    case X = 'x';
 }

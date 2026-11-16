@@ -156,6 +156,14 @@ import {
   Grid,
   Sparkles,
   Wrench,
+  ArrowDownRight,
+  ArrowUpRight,
+  ChevronDown,
+  ChevronsUpDown,
+  Ellipsis,
+  Pencil,
+  Rows,
+  X,
   type LucideIcon,
 } from 'lucide-react';
 
@@ -317,6 +325,14 @@ export const iconSet: Record<string, LucideIcon | undefined> = {
   Grid,
   Sparkles,
   Wrench,
+  ArrowDownRight,
+  ArrowUpRight,
+  ChevronDown,
+  ChevronsUpDown,
+  Ellipsis,
+  Pencil,
+  Rows,
+  X,
 };
 
 /** An icon of the set by its Lucide name, or a plain circle for a name the set does not hold. */

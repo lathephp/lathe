@@ -1120,9 +1120,11 @@ Lathe\Enums\Icon::AlertCircle
 Lathe\Enums\Icon::AlertTriangle
 Lathe\Enums\Icon::Archive
 Lathe\Enums\Icon::ArrowDown
+Lathe\Enums\Icon::ArrowDownRight
 Lathe\Enums\Icon::ArrowLeft
 Lathe\Enums\Icon::ArrowRight
 Lathe\Enums\Icon::ArrowUp
+Lathe\Enums\Icon::ArrowUpRight
 Lathe\Enums\Icon::AtSign
 Lathe\Enums\Icon::Award
 Lathe\Enums\Icon::Ban
@@ -1141,6 +1143,8 @@ Lathe\Enums\Icon::CalendarDays
 Lathe\Enums\Icon::Camera
 Lathe\Enums\Icon::Check
 Lathe\Enums\Icon::CheckCircle
+Lathe\Enums\Icon::ChevronDown
+Lathe\Enums\Icon::ChevronsUpDown
 Lathe\Enums\Icon::Circle
 Lathe\Enums\Icon::CircleDot
 Lathe\Enums\Icon::CircleX
@@ -1159,6 +1163,7 @@ Lathe\Enums\Icon::Database
 Lathe\Enums\Icon::DollarSign
 Lathe\Enums\Icon::Download
 Lathe\Enums\Icon::Edit
+Lathe\Enums\Icon::Ellipsis
 Lathe\Enums\Icon::ExternalLink
 Lathe\Enums\Icon::Eye
 Lathe\Enums\Icon::EyeOff
@@ -1214,6 +1219,7 @@ Lathe\Enums\Icon::Package
 Lathe\Enums\Icon::Palette
 Lathe\Enums\Icon::Paperclip
 Lathe\Enums\Icon::PenTool
+Lathe\Enums\Icon::Pencil
 Lathe\Enums\Icon::Percent
 Lathe\Enums\Icon::Phone
 Lathe\Enums\Icon::PieChart
@@ -1229,6 +1235,7 @@ Lathe\Enums\Icon::RefreshCw
 Lathe\Enums\Icon::Repeat
 Lathe\Enums\Icon::Rocket
 Lathe\Enums\Icon::RotateCcw
+Lathe\Enums\Icon::Rows
 Lathe\Enums\Icon::Save
 Lathe\Enums\Icon::Scan
 Lathe\Enums\Icon::ScrollText
@@ -1270,6 +1277,7 @@ Lathe\Enums\Icon::Video
 Lathe\Enums\Icon::Wallet
 Lathe\Enums\Icon::Wifi
 Lathe\Enums\Icon::Wrench
+Lathe\Enums\Icon::X
 Lathe\Enums\Icon::Zap
 Lathe\Enums\Icon::string $name
 Lathe\Enums\Icon::string $value

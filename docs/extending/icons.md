@@ -60,7 +60,7 @@ Field::badge('Status')->icons(['active' => 'check']); // field icons draw a smal
 
 ## All icons
 
-All 156 cases, in alphabetical order:
+All 164 cases, in alphabetical order:
 
 | Case | Lucide name |
 |---|---|
@@ -69,9 +69,11 @@ All 156 cases, in alphabetical order:
 | `Icon::AlertTriangle` | `alert-triangle` |
 | `Icon::Archive` | `archive` |
 | `Icon::ArrowDown` | `arrow-down` |
+| `Icon::ArrowDownRight` | `arrow-down-right` |
 | `Icon::ArrowLeft` | `arrow-left` |
 | `Icon::ArrowRight` | `arrow-right` |
 | `Icon::ArrowUp` | `arrow-up` |
+| `Icon::ArrowUpRight` | `arrow-up-right` |
 | `Icon::AtSign` | `at-sign` |
 | `Icon::Award` | `award` |
 | `Icon::Banknote` | `banknote` |
@@ -90,6 +92,8 @@ All 156 cases, in alphabetical order:
 | `Icon::Camera` | `camera` |
 | `Icon::CheckCircle` | `check-circle` |
 | `Icon::Check` | `check` |
+| `Icon::ChevronDown` | `chevron-down` |
+| `Icon::ChevronsUpDown` | `chevrons-up-down` |
 | `Icon::CircleDot` | `circle-dot` |
 | `Icon::CircleX` | `circle-x` |
 | `Icon::Circle` | `circle` |
@@ -108,6 +112,7 @@ All 156 cases, in alphabetical order:
 | `Icon::DollarSign` | `dollar-sign` |
 | `Icon::Download` | `download` |
 | `Icon::Edit` | `edit` |
+| `Icon::Ellipsis` | `ellipsis` |
 | `Icon::ExternalLink` | `external-link` |
 | `Icon::EyeOff` | `eye-off` |
 | `Icon::Eye` | `eye` |
@@ -163,6 +168,7 @@ All 156 cases, in alphabetical order:
 | `Icon::Palette` | `palette` |
 | `Icon::Paperclip` | `paperclip` |
 | `Icon::PenTool` | `pen-tool` |
+| `Icon::Pencil` | `pencil` |
 | `Icon::Percent` | `percent` |
 | `Icon::Phone` | `phone` |
 | `Icon::PieChart` | `pie-chart` |
@@ -178,6 +184,7 @@ All 156 cases, in alphabetical order:
 | `Icon::Repeat` | `repeat` |
 | `Icon::Rocket` | `rocket` |
 | `Icon::RotateCcw` | `rotate-ccw` |
+| `Icon::Rows` | `rows` |
 | `Icon::Save` | `save` |
 | `Icon::Scan` | `scan` |
 | `Icon::ScrollText` | `scroll-text` |
@@ -219,6 +226,7 @@ All 156 cases, in alphabetical order:
 | `Icon::Wallet` | `wallet` |
 | `Icon::Wifi` | `wifi` |
 | `Icon::Wrench` | `wrench` |
+| `Icon::X` | `x` |
 | `Icon::Zap` | `zap` |
 
 ## What you see
