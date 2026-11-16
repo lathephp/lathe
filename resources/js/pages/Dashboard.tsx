@@ -221,11 +221,9 @@ function RangePicker({ ranges, value, onPick }: { ranges: RangeOption[]; value: 
   const [fade, setFade] = useState({ start: false, end: false });
   const strip = useRef<HTMLDivElement>(null);
 
-  // A strip that overflows by less than the 24 px fade loses only a sliver, which a fade would make worse.
   const measure = (element: HTMLElement) => {
-    const scrolls = element.scrollWidth - element.clientWidth >= 24;
-    const start = scrolls && element.scrollLeft > 0;
-    const end = scrolls && Math.ceil(element.scrollLeft) + element.clientWidth < element.scrollWidth - 1;
+    const start = element.scrollLeft > 0;
+    const end = Math.ceil(element.scrollLeft) + element.clientWidth < element.scrollWidth - 1;
     setFade((now) => (now.start === start && now.end === end ? now : { start, end }));
   };
 
@@ -261,7 +259,7 @@ function RangePicker({ ranges, value, onPick }: { ranges: RangeOption[]; value: 
       onScroll={(event) => {
         measure(event.currentTarget);
       }}
-      className="grid auto-cols-fr grid-flow-col max-md:w-auto max-md:flex-1 max-md:overflow-x-auto max-md:[mask-image:linear-gradient(to_right,rgb(0_0_0/var(--fade-start,1)),#000_1.5rem,#000_calc(100%-1.5rem),rgb(0_0_0/var(--fade-end,1)))] max-md:data-fade-end:[--fade-end:0] max-md:data-fade-start:[--fade-start:0] md:inline-grid"
+      className="grid auto-cols-fr grid-flow-col max-md:auto-cols-[minmax(max-content,1fr)] max-md:w-auto max-md:flex-1 max-md:overflow-x-auto max-md:[mask-image:linear-gradient(to_right,rgb(0_0_0/var(--fade-start,1)),#000_1.5rem,#000_calc(100%-1.5rem),rgb(0_0_0/var(--fade-end,1)))] max-md:data-fade-end:[--fade-end:0] max-md:data-fade-start:[--fade-start:0] md:inline-grid"
     >
       {ranges.map((option) => (
         <ToggleGroupItem
