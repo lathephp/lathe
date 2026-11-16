@@ -11,6 +11,9 @@ Read this before you write any React for Lathe: a field, filter, widget, page, p
 
 ## Page titles and icons
 
+The examples translate their text with `__`, which comes from `const { __ } = useTranslation();` of `@lathephp/core`.
+
+
 - **Title a page with `PageHeader` from `@lathephp/core`:** `<PageHeader title={__('Reports')} description={__('Monthly numbers')} actions={<Button>{__('Export')}</Button>} />`. It draws the panel's page title, and on a phone it puts the title in the top bar. Never write your own `<h1>`.
 - **Draw an icon with `Icon` from `@lathephp/core`:** `<Icon name="shopping-cart" />` or `<Icon name="ShoppingCart" className="size-5" />`. It takes a Lucide name or a case of the PHP `Icon` enum, holds an empty box of its size while the icon set loads, and draws a circle for an unknown name. Never paste SVG paths.
 
@@ -50,7 +53,19 @@ export default [
 ];
 ```
 
-It reports a raw `<button>`, `<input>`, `<select>` or `<textarea>` and a raw palette colour as errors. A real exception carries `// eslint-disable-next-line lathe/no-raw-ui -- <reason>`.
+An app with no ESLint config yet needs ESLint and a TSX parser first, or every file fails to parse and the rule never runs: install `eslint` and `typescript-eslint` as dev dependencies and write the whole file as:
+
+```js
+import tseslint from 'typescript-eslint';
+import lathe from '@lathephp/vite-plugin/eslint';
+
+export default [
+  { files: ['resources/js/lathe/**/*.tsx'], languageOptions: { parser: tseslint.parser } },
+  ...lathe,
+];
+```
+
+Then run `npx eslint resources/js/lathe`. It reports a raw `<button>`, `<input>`, `<select>` or `<textarea>` and a raw palette colour as errors. A real exception carries `// eslint-disable-next-line lathe/no-raw-ui -- <reason>`.
 
 ## Charts
 
