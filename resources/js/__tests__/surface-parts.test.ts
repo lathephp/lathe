@@ -26,3 +26,11 @@ describe.each(surfaces)('%s', (path, part) => {
     expect(surface[0]).not.toMatch(/(?<![\w-])rounded(?![\w])/);
   });
 });
+
+describe('the search palette on a phone', () => {
+  it('fills the screen with no corners', () => {
+    const panel = readFileSync('resources/css/app.css', 'utf8');
+
+    expect(panel).toMatch(/@media \(width < 48rem\) \{\s*\[data-lathe-palette\] > \[role="dialog"\] \{\s*@apply rounded-none;/);
+  });
+});

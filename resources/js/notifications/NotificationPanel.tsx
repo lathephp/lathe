@@ -117,7 +117,7 @@ export function NotificationPanel({ state, onClose }: Props) {
         </button>
       </div>
       {items.length === 0 ? (
-        // The divider sits on a wrapper, since the style's empty state draws its own dashed border.
+        // The divider sits on a wrapper, since the style's empty state sets a dashed border style and corners.
         <div className="border-t border-border">
           <div className="cn-empty flex w-full min-w-0 flex-1 flex-col items-center justify-center gap-1.5 px-6 py-7 text-center text-balance">
             <p className="text-sm font-medium">{__('No notifications')}</p>
