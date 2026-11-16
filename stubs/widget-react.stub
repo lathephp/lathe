@@ -1,17 +1,8 @@
 import { widget } from '@lathephp/core';
-import { Card } from '@lathephp/ui';
 
-interface {{ class }}Props {
-  widget: { name: string };
-}
-
-function {{ class }}({ widget: card }: {{ class }}Props) {
-  return (
-    <Card className="p-6">
-      <h3 className="font-semibold leading-none tracking-tight">{card.name}</h3>
-      {/* Your custom widget content */}
-    </Card>
-  );
+// The panel draws the card and the widget's name, so this returns only the body.
+function {{ class }}() {
+  return <p className="text-sm text-muted-foreground">Your custom widget content</p>;
 }
 
 widget('{{ component }}', {{ class }});

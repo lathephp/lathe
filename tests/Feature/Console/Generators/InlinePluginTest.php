@@ -18,7 +18,7 @@ it('writes an in-app plugin class, a React page and a line in boot.ts', function
         ->toContain('MenuItem::plugin(static::class)')
         ->and($this->generated('resources/js/lathe/plugins/Insights.tsx'))
         ->toContain("import { plugin } from '@lathephp/core';")
-        ->toContain("import { Card } from '@lathephp/ui';")
+        ->toContain("import { Card, CardContent, CardHeader, CardTitle } from '@lathephp/ui';")
         ->toContain("plugin('insights', Insights);")
         ->and($this->generated('resources/js/lathe/boot.ts'))->toContain("import './plugins/Insights';\n")
         ->and(File::exists("{$this->generatorBase}/vite.lathe.config.ts"))->toBeTrue()

@@ -169,9 +169,14 @@ it('passes ESLint on the rendered TSX', function () {
     // that every panel string goes through __() is for this package's own client, not an app's.
     File::put("{$base}/eslint.config.mjs", implode("\n", [
         'import config from '.json_encode('file://'.qualityRepo().'/eslint.config.js').';',
+        'import noRawUi from '.json_encode('file://'.qualityRepo().'/packages/vite-plugin/eslint/no-raw-ui.js').';',
         '',
         'export default [',
         '  ...config,',
+        // The repo config turns lathe/no-raw-ui on only under resources/js, which the plugin
+        // package's component sits outside, so every generated file gets the rule here, under
+        // its own plugin name because the repo config already registers a different "lathe".
+        '  { files: ["**/*.tsx"], plugins: { generated: { rules: { "no-raw-ui": noRawUi } } }, rules: { "generated/no-raw-ui": "error" } },',
         '  { files: ["**/*.tsx"], languageOptions: { parserOptions: { projectService: false, project: ["./tsconfig.json"], tsconfigRootDir: '.json_encode($base).' } } },',
         '  { files: ["resources/js/**/*.tsx"], rules: { "lathe/no-untranslated-literal": "off" } },',
         // lathe:filter --custom is deprecated, and so is the filter() its component calls: that
@@ -206,4 +211,71 @@ it('pins the word check passing on the rendered files', function () {
 
     expect($patterns)->toHaveKeys(['word', 'tickets'])
         ->and($hits)->toBe([]);
+});
+
+/**
+ * The rendered .tsx files under a folder of the temp app, as path => contents.
+ *
+ * @return array<string, string>
+ */
+function renderedTsx(string $base, string $folder): array
+{
+    $files = [];
+
+    foreach (File::allFiles("{$base}/{$folder}") as $file) {
+        if ($file->getExtension() === 'tsx') {
+            $files[$file->getRelativePathname()] = $file->getContents();
+        }
+    }
+
+    return $files;
+}
+
+it('draws pages and plugins with the kit card parts and no hand-set card styles', function () {
+    $base = renderEveryStub($this);
+    $pages = renderedTsx($base, 'resources/js/lathe/pages');
+    $plugins = renderedTsx($base, 'resources/js/lathe/plugins');
+    $package = renderedTsx($base, 'lathe-components/PriceTracker/resources/js');
+
+    // The plugins folder holds both the plugin page and the resource plugin.
+    expect($plugins)->toHaveCount(2);
+
+    foreach ([$pages, $plugins, $package] as $group) {
+        expect($group)->not->toBeEmpty();
+
+        foreach ($group as $contents) {
+            expect($contents)->toContain('CardHeader')->toContain('CardTitle')->toContain('CardContent')
+                ->not->toContain('p-6')
+                ->not->toContain('font-semibold');
+        }
+    }
+
+    foreach ($pages as $contents) {
+        expect($contents)->toContain('PageHeader');
+    }
+});
+
+it('draws a custom widget as its body only, without a card of its own', function () {
+    $base = renderEveryStub($this);
+    $widgets = renderedTsx($base, 'resources/js/lathe/widgets');
+
+    expect($widgets)->not->toBeEmpty();
+
+    foreach ($widgets as $contents) {
+        expect($contents)->not->toContain('Card');
+    }
+});
+
+it('takes every component prop type from @lathephp/core and draws no raw field or button', function () {
+    $base = renderEveryStub($this);
+
+    foreach (renderedTsx($base, 'resources/js/lathe') as $contents) {
+        expect($contents)->not->toMatch('/interface\s+\w*Props/');
+    }
+
+    foreach (['fields', 'filters'] as $folder) {
+        foreach (renderedTsx($base, "resources/js/lathe/{$folder}") as $contents) {
+            expect($contents)->not->toContain('<input')->not->toContain('<button');
+        }
+    }
 });

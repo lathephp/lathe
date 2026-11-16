@@ -104,7 +104,7 @@ it('registers a placeholder page under the uri key from core and ui', function (
 
     expect($this->generated('lathe-components/PriceTracker/resources/js/plugin.tsx'))
         ->toContain("import { plugin } from '@lathephp/core';")
-        ->toContain("import { Card } from '@lathephp/ui';")
+        ->toContain("import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@lathephp/ui';")
         ->toContain("plugin('price-tracker', Page);")
         ->toContain('Price Tracker');
 });

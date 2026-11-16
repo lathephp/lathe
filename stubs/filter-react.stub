@@ -1,16 +1,12 @@
 import { filter } from '@lathephp/core';
-import { Input } from '@lathephp/ui';
+import type { FilterProps } from '@lathephp/core';
+import { Button, Input } from '@lathephp/ui';
 import { Field, FieldLabel } from '@lathephp/ui/field';
 import { useId } from 'react';
 
-interface {{ class }}Props {
-  filter: { name: string };
-  value: unknown;
-  onChange: (value: unknown) => void;
-}
-
-function {{ class }}({ filter: definition, value, onChange }: {{ class }}Props) {
+function {{ class }}({ filter: definition, value, onChange }: FilterProps) {
   const id = useId();
+  const text = typeof value === 'string' ? value : '';
 
   return (
     <Field>
@@ -18,11 +14,22 @@ function {{ class }}({ filter: definition, value, onChange }: {{ class }}Props) 
       <Input
         id={id}
         type="text"
-        value={typeof value === 'string' ? value : ''}
+        value={text}
         onChange={(event) => {
           onChange(event.target.value);
         }}
       />
+      <Button
+        type="button"
+        variant="ghost"
+        size="sm"
+        disabled={text === ''}
+        onClick={() => {
+          onChange(null);
+        }}
+      >
+        Clear
+      </Button>
     </Field>
   );
 }

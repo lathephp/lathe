@@ -1,12 +1,18 @@
-import { page } from '@lathephp/core';
-import { Card } from '@lathephp/ui';
+import { PageHeader, page } from '@lathephp/core';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@lathephp/ui';
 
 function {{ class }}() {
   return (
-    <Card className="p-6">
-      <h3 className="font-semibold leading-none tracking-tight">{{ name }}</h3>
-      {/* Your page content */}
-    </Card>
+    <>
+      <PageHeader title="{{ name }}" />
+      <Card>
+        <CardHeader>
+          <CardTitle>{{ name }}</CardTitle>
+          <CardDescription>Replace this with what the page is for.</CardDescription>
+        </CardHeader>
+        <CardContent>{/* Your page content */}</CardContent>
+      </Card>
+    </>
   );
 }
 
