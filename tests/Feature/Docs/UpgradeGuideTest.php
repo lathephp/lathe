@@ -402,6 +402,7 @@ it('opens with 1.0.0-beta.16 and the UI round a plugin meets, then tells a 1.0.0
             '`@lathephp/vite-plugin/eslint` exports the `lathe/no-raw-ui` rule',
             'A custom widget\'s component draws only its body',
             'with `<Card className="p-6">` and a hand-styled heading',
+            'The panel stylesheet\'s `lathe-empty` and `lathe-empty-title` look rules are gone',
         )
         ->and($toasts)->toContain(
             'wraps it in `ToastContent`',
