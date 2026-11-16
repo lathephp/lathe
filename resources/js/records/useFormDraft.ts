@@ -1,7 +1,7 @@
 import { toast, useTranslation } from '@lathephp/core';
 import { useEffect, useRef, useState } from 'react';
 import type { FormFieldData } from '../fields/types';
-import { claimStorage, removeKeys } from '../lib/owner';
+import { claimDrafts, draftPrefix } from './draftOwner';
 
 /** Components a draft never holds: a file, and a password or token, secrets which must never sit in the browser. */
 const UNKEPT_COMPONENTS = new Set(['file-field', 'image-field', 'audio-field', 'avatar-field', 'password-field', 'token-field']);
@@ -11,17 +11,8 @@ export function persistable(fields: FormFieldData[]): string[] {
   return fields.filter((field) => !UNKEPT_COMPONENTS.has(field.component)).map((field) => field.attribute);
 }
 
-const prefix = 'lathe-draft:';
-
 function storageKey(): string {
-  return `${prefix}${window.location.pathname}`;
-}
-
-/** Drops this tab's drafts when the signed-in user is not the one who typed them. */
-export function claimDrafts(email: string | null): void {
-  claimStorage(() => window.sessionStorage, 'lathe-draft-owner', email, (store) => {
-    removeKeys(store, prefix);
-  });
+  return `${draftPrefix}${window.location.pathname}`;
 }
 
 /**

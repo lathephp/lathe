@@ -2,7 +2,7 @@ import { lazy, Suspense } from 'react';
 import { SafeHtml } from '../../components/SafeHtml';
 import { DetailFallbackField, registerField, type DetailFieldProps, type FormFieldProps, type IndexFieldProps } from '../registry';
 import CodeDetail from '../rich/CodeDetail';
-import KeyValueForm, { KeyValueDetail } from '../key-value/KeyValueFields';
+import { KeyValueDetail, KeyValueForm } from '../key-value/lazy';
 import { SlugInput } from '../slug/lazy';
 import { Collapsible, lineCount } from '../text/Collapsible';
 import { isSafeHtml } from '../text/TextValue';
@@ -67,8 +67,16 @@ function SlugIndex({ cell }: IndexFieldProps) {
   return cell.display;
 }
 
+function KeyValueDetailField(props: DetailFieldProps) {
+  return (
+    <Suspense fallback={null}>
+      <KeyValueDetail {...props} />
+    </Suspense>
+  );
+}
+
 /** Register the slug and key-value renderers. */
 function registerSlugAndKeyValueFields(): void {
   registerField('slug-field', { index: SlugIndex, form: deferred(SlugInput) });
-  registerField('key-value-field', { detail: KeyValueDetail, form: KeyValueForm });
+  registerField('key-value-field', { detail: KeyValueDetailField, form: deferred(KeyValueForm) });
 }

@@ -1,6 +1,6 @@
 import { queryClient } from '@lathephp/core';
 import { claimRecentSearches } from '../palette/useRecentSearches';
-import { claimDrafts } from '../records/useFormDraft';
+import { claimDrafts } from '../records/draftOwner';
 import type { SharedProps } from '../types';
 
 // The email of the user the cached queries belong to; undefined until the first page.
