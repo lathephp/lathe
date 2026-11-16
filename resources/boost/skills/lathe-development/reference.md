@@ -70,7 +70,7 @@ The arguments are `(label, relationship method, related Resource class)`. All th
 ```php
 <?php
 
-Field::belongsTo('Author', 'author', User::class)->searchable()->withSubtitles()->creatable()->modalSize('xl');
+Field::belongsTo('Author', 'author', User::class)->searchable()->withSubtitles()->creatable(); // ->modalSize() is deprecated: the create sheet is always 480 px wide
 Field::hasMany('Comments', 'comments', Comment::class)->collapsible()->perPageOptions([10, 25])->withCount();
 Field::belongsToMany('Tags', 'tags', Tag::class);
 Field::morphTo('Commentable');

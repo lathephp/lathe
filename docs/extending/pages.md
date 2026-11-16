@@ -117,16 +117,22 @@ Menu::mainMenu(function (Request $request, Menu $menu) {
 The generated component is a plain function component. It receives the page's props and registers itself with `page()` when the module loads:
 
 ```tsx
-import { page } from '@lathephp/core';
+import { PageHeader, page } from '@lathephp/core';
 import type { PageProps } from '@lathephp/core';
-import { Card } from '@lathephp/ui';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@lathephp/ui';
 
 function Reports({ pageKey, basePath, path }: PageProps) {
   return (
-    <Card className="p-6">
-      <h3 className="font-semibold leading-none tracking-tight">Reports</h3>
-      {/* Your page content */}
-    </Card>
+    <>
+      <PageHeader title="Reports" />
+      <Card>
+        <CardHeader>
+          <CardTitle>Reports</CardTitle>
+          <CardDescription>Replace this with what the page is for.</CardDescription>
+        </CardHeader>
+        <CardContent>{/* Your page content */}</CardContent>
+      </Card>
+    </>
   );
 }
 

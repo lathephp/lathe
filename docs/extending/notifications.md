@@ -8,7 +8,7 @@ order: 8
 
 Lathe has a notification center. A bell in the header lists the notifications of the signed-in user, with links and buttons, and lets the user mark them read or delete them. Notifications are stored with Laravel's [database notification channel](https://laravel.com/docs/notifications#database-notifications), so they survive a reload and reach a user who was away.
 
-A notification is not a toast. A toast is a short message in the corner of the page that disappears after four seconds. To show one from your own component, see [Extension API](extension-api.md#show-toasts).
+A notification is not a toast. A toast is a short message in the corner of the page that disappears after five seconds. To show one from your own component, see [Extension API](extension-api.md#show-toasts).
 
 ## Set up
 

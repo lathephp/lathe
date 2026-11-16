@@ -364,7 +364,7 @@ The page is a React component. It registers itself when the module loads:
 
 ```tsx
 import { plugin, request, toast, useLathe, useTranslation } from '@lathephp/core';
-import { Badge, Button, Card } from '@lathephp/ui';
+import { Badge, Button, Card, CardContent, CardHeader, CardTitle } from '@lathephp/ui';
 import { useCallback, useEffect, useState } from 'react';
 
 interface Status {
@@ -405,23 +405,27 @@ function Page() {
   }, [load]);
 
   return (
-    <Card className="p-6">
-      <h1 className="font-semibold">{__('Heartbeat')}</h1>
-      <dl>
-        <dt>{__('Application')}</dt>
-        <dd>{status?.app}</dd>
-        <dt>{__('PHP')}</dt>
-        <dd>{status?.php}</dd>
-        <dt>{__('Laravel')}</dt>
-        <dd>{status?.laravel}</dd>
-        <dt>{__('Database')}</dt>
-        <dd>
-          <Badge>{status?.database}</Badge>
-        </dd>
-        <dt>{__('Checked at')}</dt>
-        <dd>{status?.time}</dd>
-      </dl>
-      <Button onClick={() => void ping()}>{__('Ping')}</Button>
+    <Card>
+      <CardHeader>
+        <CardTitle>{__('Heartbeat')}</CardTitle>
+      </CardHeader>
+      <CardContent>
+        <dl>
+          <dt>{__('Application')}</dt>
+          <dd>{status?.app}</dd>
+          <dt>{__('PHP')}</dt>
+          <dd>{status?.php}</dd>
+          <dt>{__('Laravel')}</dt>
+          <dd>{status?.laravel}</dd>
+          <dt>{__('Database')}</dt>
+          <dd>
+            <Badge>{status?.database}</Badge>
+          </dd>
+          <dt>{__('Checked at')}</dt>
+          <dd>{status?.time}</dd>
+        </dl>
+        <Button onClick={() => void ping()}>{__('Ping')}</Button>
+      </CardContent>
     </Card>
   );
 }
@@ -530,14 +534,18 @@ A resource plugin may return `assets()` like a plugin does. Lathe loads those sc
 
 ```tsx
 import { request, resourcePlugin, useLathe } from '@lathephp/core';
-import { Card } from '@lathephp/ui';
+import { Card, CardContent } from '@lathephp/ui';
 
 function StripeInspector({ resourceName, resourceId }: { resourceName: string; resourceId: string }) {
   const { apiPath } = useLathe();
   const url = `${apiPath}/resource-plugins/stripe-inspector/charges?resource=${resourceName}&resourceId=${resourceId}`;
   // Fetch `url` with request() and draw the charges.
 
-  return <Card className="p-6">{url}</Card>;
+  return (
+    <Card>
+      <CardContent>{url}</CardContent>
+    </Card>
+  );
 }
 
 resourcePlugin('stripe-inspector', StripeInspector);

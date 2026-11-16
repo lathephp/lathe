@@ -63,9 +63,12 @@ Each writes a class with the methods you fill in.
 php artisan lathe:filter UserType
 ```
 
-By default this is a select filter. `--type` picks another: `select`, `boolean`, `date` or `range`. `--custom` writes a filter class and a React component instead:
+By default this is a select filter. `--type` picks another: `select`, `boolean`, `date` or `range`. `--custom` writes a filter class and a React component instead.
+
+Deprecated: the filter bar does not draw a custom filter component; use `Filter`, `BooleanFilter`, `DateFilter`, `RangeFilter` or `->filterable()`.
 
 ```bash
+# Deprecated: the filter bar does not draw a custom filter component
 php artisan lathe:filter PriceRange --custom
 ```
 
@@ -107,7 +110,7 @@ The first writes a Composer package to `lathe-components/PriceTracker/`. The sec
 
 ## The frontend setup
 
-The first command that writes a React component also sets up the extension build. That means `lathe:field --custom`, `lathe:filter --custom`, `lathe:widget --type=custom`, `lathe:page`, `lathe:plugin --inline` and `lathe:resource-plugin` without `--plugin`. It writes `resources/js/lathe/boot.ts`, the folders next to it and a `vite.lathe.config.ts`, and adds the three `@lathephp` packages to your `package.json`. It skips this when `boot.ts` exists. It never edits your `vite.config.ts`. [Frontend](frontend.md) explains the build.
+The first command that writes a React component also sets up the extension build. That means `lathe:field --custom`, `lathe:filter --custom` (deprecated, see [Filters](#filters)), `lathe:widget --type=custom`, `lathe:page`, `lathe:plugin --inline` and `lathe:resource-plugin` without `--plugin`. It writes `resources/js/lathe/boot.ts`, the folders next to it and a `vite.lathe.config.ts`, and adds the three `@lathephp` packages to your `package.json`. It skips this when `boot.ts` exists. It never edits your `vite.config.ts`. [Frontend](frontend.md) explains the build.
 
 ## Publish the stubs
 
@@ -129,7 +132,7 @@ To change what `lathe:resource` writes, edit `stubs/lathe/resource.stub`. Every 
 | `lens.stub` | `lathe:lens` |
 | `dashboard.stub` | `lathe:dashboard` |
 | `filter-select.stub`, `filter-boolean.stub`, `filter-date.stub`, `filter-range.stub` | `lathe:filter --type=...` |
-| `filter-custom.stub`, `filter-react.stub` | `lathe:filter --custom`: the class and the component |
+| `filter-custom.stub`, `filter-react.stub` | `lathe:filter --custom` (deprecated): the class and the component |
 | `widget-value.stub`, `widget-trend.stub`, `widget-partition.stub`, `widget-progress.stub`, `widget-table.stub`, `widget-bar.stub`, `widget-pie.stub`, `widget-radar.stub`, `widget-radial.stub`, `widget-help.stub` | `lathe:widget --type=...` |
 | `widget-custom.stub`, `widget-react.stub` | `lathe:widget --type=custom`: the class and the component |
 | `field.stub`, `field-react.stub` | `lathe:field`: the class, and the component with `--custom` |

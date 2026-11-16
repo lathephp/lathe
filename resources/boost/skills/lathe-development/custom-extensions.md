@@ -4,7 +4,7 @@ A custom **field**, **filter**, **widget** or **page** has a PHP class and a Rea
 
 ## Golden rules
 
-1. **Generate, never hand-write.** `php artisan lathe:field StarRating --custom`, `lathe:filter PriceTier --custom`, `lathe:widget Clock --type=custom`, `lathe:page Reports`. The first React component also writes `resources/js/lathe/boot.ts`, the folders, `vite.lathe.config.ts`, and adds `@lathephp/core`, `@lathephp/ui` and `@lathephp/vite-plugin` to `devDependencies`. It then tells you to run your package manager's install.
+1. **Generate, never hand-write.** `php artisan lathe:field StarRating --custom`, `lathe:widget Clock --type=custom`, `lathe:page Reports`. The first React component also writes `resources/js/lathe/boot.ts`, the folders, `vite.lathe.config.ts`, and adds `@lathephp/core`, `@lathephp/ui` and `@lathephp/vite-plugin` to `devDependencies`. It then tells you to run your package manager's install.
 2. **The component key must match on both sides.** The PHP class names it, the React file registers it with the same string. A mismatch fails silently.
 3. **Every component file must be imported from `resources/js/lathe/boot.ts`.** A file that nothing imports never runs, so its key is never registered. The generators append the import for you. A file you add by hand needs one more line.
 4. **Import React and the Lathe packages by bare name** (`react`, `react/jsx-runtime`, `react-dom`, `@lathephp/core`, `@lathephp/ui`). The panel's import map serves its own copy, so a plugin runs on the panel's React and API. A bundled second copy of React breaks hooks, and the build fails with "bundles react code" to stop you.
@@ -22,9 +22,11 @@ A custom **field**, **filter**, **widget** or **page** has a PHP class and a Rea
 
 ### Filter
 
-1. `php artisan lathe:filter PriceTier --custom` writes the class and `resources/js/lathe/filters/PriceTier.tsx`.
+Deprecated: the filter bar does not draw a custom filter component; use `Filter`, `BooleanFilter`, `DateFilter`, `RangeFilter` or `->filterable()`. Do not generate a new custom filter. The steps below are for an app that already has one.
+
+1. `php artisan lathe:filter PriceTier --custom` writes the class and `resources/js/lathe/filters/PriceTier.tsx` (deprecated).
 2. PHP: extend `Lathe\Filters\Filter`, implement `apply(LatheRequest, Builder, mixed $value)`, and return the key from `component()`.
-3. React: `filter('price-tier', Component)`. The component gets `{ filter, value, onChange }`. Call `onChange(next)` with the value `apply()` should receive. The built-in keys are `select-filter`, `multi-select-filter`, `boolean-filter`, `range-filter` and `date-filter`.
+3. React: `filter('price-tier-filter', Component)` (deprecated). The key ends in `-filter`, as the generator writes it. The component gets `{ filter, value, onChange }`. Call `onChange(next)` with the value `apply()` should receive. The built-in keys are `select-filter`, `multi-select-filter`, `boolean-filter`, `range-filter` and `date-filter`.
 4. List the filter in the resource's `filters()` as usual.
 
 ### Widget
@@ -115,6 +117,7 @@ Helpers from the same package: `useQuery` and `queryKeys` (data fetching), `requ
 // resources/js/lathe/fields/StarRating.tsx
 import { field } from '@lathephp/core';
 import type { FieldProps } from '@lathephp/core';
+import { Button } from '@lathephp/ui';
 
 function StarRating({ field: definition, value, onChange, id, describedBy, invalid, disabled }: FieldProps) {
   const current = typeof value === 'number' ? value : 0;
@@ -122,9 +125,9 @@ function StarRating({ field: definition, value, onChange, id, describedBy, inval
   return (
     <div id={id} role="group" aria-label={definition.label} aria-describedby={describedBy} aria-invalid={invalid || undefined}>
       {[1, 2, 3, 4, 5].map((star) => (
-        <button key={star} type="button" disabled={disabled} aria-pressed={star === current} onClick={() => { onChange(star); }}>
+        <Button key={star} type="button" variant="ghost" size="icon" disabled={disabled} aria-pressed={star === current} onClick={() => { onChange(star); }}>
           {star <= current ? '★' : '☆'}
-        </button>
+        </Button>
       ))}
     </div>
   );
@@ -136,15 +139,10 @@ field('star-rating', StarRating);
 ```tsx
 // resources/js/lathe/widgets/Clock.tsx
 import { widget } from '@lathephp/core';
-import { Card } from '@lathephp/ui';
 
-function Clock({ widget: card }: { widget: { name: string } }) {
-  return (
-    <Card className="p-6">
-      <h3 className="font-semibold leading-none tracking-tight">{card.name}</h3>
-      <p>{new Date().toLocaleTimeString()}</p>
-    </Card>
-  );
+// The panel draws the card and the widget's name, so this returns only the body.
+function Clock() {
+  return <p className="text-sm text-muted-foreground">{new Date().toLocaleTimeString()}</p>;
 }
 
 widget('app-clock', Clock);

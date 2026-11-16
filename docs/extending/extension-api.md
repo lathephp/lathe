@@ -39,6 +39,7 @@ A field takes an object with the renderers it needs: `form`, `index` and `detail
 import { field, filter, plugin, resourcePlugin } from '@lathephp/core';
 
 field('star-rating', { form: StarRatingForm, index: StarRatingIndex, detail: StarRatingDetail });
+// Deprecated: the filter bar does not draw a custom filter component.
 filter('price-tier-filter', PriceTier);
 plugin('insights', Insights);
 resourcePlugin('activity-timeline', ActivityTimeline);
@@ -284,4 +285,4 @@ A callback registered after the panel booted runs at once.
 
 ## What you see
 
-Components you register draw in the panel where their key is used: a field in the form, a page under the sidebar entry that links to it, a hook at its position. A toast from `toast.success()` appears in the corner for four seconds. A shortcut such as `g u` runs its handler when you press the keys in turn.
+Components you register draw in the panel where their key is used: a field in the form, a page under the sidebar entry that links to it, a hook at its position. A toast from `toast.success()` appears in the corner for five seconds. A shortcut such as `g u` runs its handler when you press the keys in turn.

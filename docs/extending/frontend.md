@@ -149,10 +149,11 @@ The component registers under the same key. A field takes a renderer for each pl
 ```tsx
 import { field } from '@lathephp/core';
 import type { DetailFieldProps, FieldProps, IndexFieldProps } from '@lathephp/core';
+import { Input } from '@lathephp/ui';
 
 function CurrencyForm({ field: definition, value, onChange, id, describedBy, invalid, disabled }: FieldProps) {
   return (
-    <input
+    <Input
       id={id}
       value={typeof value === 'string' ? value : ''}
       onChange={(event) => onChange(event.target.value)}
@@ -175,31 +176,40 @@ function CurrencyDetail({ field: shown }: DetailFieldProps) {
 field('currency', { form: CurrencyForm, index: CurrencyIndex, detail: CurrencyDetail });
 ```
 
-A form input calls `onChange(value)` with the new value and puts `id`, `describedBy`, `invalid` and `disabled` on its input. The label, help text and error message belong to the panel. A built-in field keeps its own renderers for its key.
+A form input calls `onChange(value)` with the new value and puts `id`, `aria-describedby={describedBy}`, `aria-invalid={invalid || undefined}` and `disabled` on its kit `Input`. The label, help text and error message belong to the panel. A built-in field keeps its own renderers for its key.
 
 ## Custom filters
 
 ```bash
+# Deprecated: the filter bar does not draw a custom filter component
 php artisan lathe:filter PriceRange --custom
 ```
 
 This writes `app/Lathe/Filters/PriceRange.php` and `resources/js/lathe/filters/PriceRange.tsx`. Without `--custom` the command writes a PHP-only filter of the type you give with `--type` (`select`, `boolean`, `date` or `range`).
+
+Deprecated: the filter bar does not draw a custom filter component; use `Filter`, `BooleanFilter`, `DateFilter`, `RangeFilter` or `->filterable()`. The generator and `filter()` stay for an app that already has one.
 
 A custom filter's key ends in `-filter`. The command above registers `price-range-filter`, and the PHP class returns the same key from `component()`:
 
 ```tsx
 import { filter } from '@lathephp/core';
 import type { FilterProps } from '@lathephp/core';
+import { Input } from '@lathephp/ui';
+import { Field, FieldLabel } from '@lathephp/ui/field';
+import { useId } from 'react';
 
 function PriceRange({ filter: definition, value, onChange }: FilterProps) {
+  const id = useId();
+
   return (
-    <label>
-      {definition.name}
-      <input value={typeof value === 'string' ? value : ''} onChange={(event) => onChange(event.target.value)} />
-    </label>
+    <Field>
+      <FieldLabel htmlFor={id}>{definition.name}</FieldLabel>
+      <Input id={id} value={typeof value === 'string' ? value : ''} onChange={(event) => onChange(event.target.value)} />
+    </Field>
   );
 }
 
+// Deprecated: the filter bar does not draw this component.
 filter('price-range-filter', PriceRange);
 ```
 
@@ -211,16 +221,62 @@ php artisan lathe:widget TeamActivity --type=custom
 
 This writes `app/Lathe/Widgets/TeamActivity.php`, a `CustomWidget`, and the component `resources/js/lathe/widgets/TeamActivity.tsx`. The other widget types use components the panel already has. See [Widgets](../organizing/widgets.md).
 
+The panel draws the widget's card and its name, so the component returns only the body. Never wrap it in a `Card`.
+
 ```tsx
 import { widget } from '@lathephp/core';
 import type { WidgetProps } from '@lathephp/core';
-import { Card } from '@lathephp/ui';
 
 function TeamActivity({ widget: card }: WidgetProps) {
-  return <Card className="p-6">{card.name}</Card>;
+  return <p className="text-sm text-muted-foreground">{card.name}: 12 people active today</p>;
 }
 
 widget('team-activity', TeamActivity);
+```
+
+## Styling
+
+Build a component from the kit's parts, imported from `@lathephp/ui`, and let them draw themselves. They take the panel's corners, shadows, focus rings and theme. Use utilities only for layout, such as `grid`, `gap-4`, `flex` and `items-center`. Take colours from tokens (`bg-muted`, `text-muted-foreground`, `text-destructive`), never from the palette (`bg-gray-100`, `text-red-500`). Never write the kit's `cn-*` classes, and never put `rounded-*`, `shadow-*`, `p-6` or a font weight on a kit part.
+
+The panel's stylesheet holds only the utilities the panel itself uses. For any other utility, add a CSS file next to `boot.ts` and import it there with `import './lathe.css';`:
+
+```css
+@import "tailwindcss/theme.css" layer(theme) theme(reference inline);
+@import "tailwindcss/utilities.css" layer(components) source(none);
+@import "@lathephp/core/tokens.css";
+
+@source "./";
+```
+
+`@lathephp/core/tokens.css` turns the panel's colours, radii and `chart-1` to `chart-5` into Tailwind theme values, so `bg-card` and `text-chart-2` follow the panel's theme. `@source "./"` makes Tailwind scan your components. The workbench's `resources/js/lathe/lathe.css` is this file.
+
+To catch a raw `<button>`, `<input>`, `<select>` or `<textarea>` and a palette colour, add the kit's lint rule to your `eslint.config.js`:
+
+```js
+import lathe from '@lathephp/vite-plugin/eslint';
+
+export default [
+  // ...your own config, which parses TSX
+  ...lathe,
+];
+```
+
+A real exception carries `// eslint-disable-next-line lathe/no-raw-ui -- <reason>`.
+
+## Charts
+
+The kit's chart, `@lathephp/ui/chart`, is not shadcn's. It has no `ChartConfig`, no `config` prop and no `--color-<key>` variables. Colour a series with `var(--chart-N)`. `ChartTooltipContent` takes `heading`, `valuePrefix`, `valueSuffix`, `showTotal` and `formatValue`:
+
+```tsx
+import { Bar, BarChart, ChartContainer, ChartTooltip, ChartTooltipContent, XAxis } from '@lathephp/ui/chart';
+
+<ChartContainer className="h-48 w-full">
+  <BarChart data={sales}>
+    <XAxis dataKey="month" />
+    <ChartTooltip content={<ChartTooltipContent valuePrefix="$" />} />
+    <Bar dataKey="total" fill="var(--chart-1)" radius={4} />
+  </BarChart>
+</ChartContainer>
 ```
 
 ## Pages, plugins and action modals
