@@ -180,7 +180,7 @@ describe('remote picker', () => {
       </QueryClientProvider>,
     );
 
-    const option = await screen.findByRole('button', { name: 'Anna Kowalski' });
+    const option = await screen.findByRole('option', { name: 'Anna Kowalski' });
     vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout'] });
     fireEvent.click(option);
     await act(async () => {
@@ -189,7 +189,62 @@ describe('remote picker', () => {
     vi.useRealTimers();
 
     expect(visit).toHaveBeenCalledWith({ filter: { customer: '2' } });
-    expect(screen.getByRole('button', { name: 'Anna Kowalski' }).getAttribute('aria-pressed')).toBe('true');
+    expect(screen.getByRole('option', { name: 'Anna Kowalski' }).getAttribute('aria-selected')).toBe('true');
+  });
+
+  it('is the kit combobox: an input with the combobox role and the kit list', async () => {
+    vi.spyOn(globalThis, 'fetch').mockResolvedValue(new Response(JSON.stringify({ options: [{ label: 'Anna Kowalski', value: 2 }], hasMore: false })));
+    const { container } = render(
+      <QueryClientProvider client={queryClient}>
+        <FilterPanel resource="orders" endpoint="/lathe/api/resources/orders/filters" available={[customer]} softDeletes={false} state={{}} visit={() => undefined} />
+      </QueryClientProvider>,
+    );
+
+    await screen.findByRole('option', { name: 'Anna Kowalski' });
+
+    expect(screen.getByRole('combobox', { name: 'Search Customer' }).tagName).toBe('INPUT');
+    expect(container.querySelector('[data-slot="combobox-list"]')).not.toBeNull();
+  });
+
+  it('queries once after the debounce for a typed term and adds a second pick to the first', async () => {
+    const fetch = vi.spyOn(globalThis, 'fetch').mockImplementation((input) => {
+      const term = new URL(input as string, 'http://localhost').searchParams.get('q');
+      const options = term === 'an' ? [{ label: 'Anna Kowalski', value: 2 }, { label: 'Andy Moss', value: 3 }] : [];
+
+      return Promise.resolve(new Response(JSON.stringify({ options, hasMore: false })));
+    });
+    const visit = vi.fn();
+
+    render(
+      <QueryClientProvider client={queryClient}>
+        <FilterPanel
+          resource="orders"
+          endpoint="/lathe/api/resources/orders/filters"
+          available={[{ ...customer, component: 'multi-select-filter' }]}
+          softDeletes={false}
+          state={{}}
+          visit={visit}
+        />
+      </QueryClientProvider>,
+    );
+    await vi.waitFor(() => {
+      expect(fetch).toHaveBeenCalledTimes(1);
+    });
+
+    const input = screen.getByRole('combobox', { name: 'Search Customer' });
+    fireEvent.change(input, { target: { value: 'a' } });
+    fireEvent.change(input, { target: { value: 'an' } });
+
+    fireEvent.click(await screen.findByRole('option', { name: 'Anna Kowalski' }));
+    fireEvent.click(await screen.findByRole('option', { name: 'Andy Moss' }));
+
+    expect(fetch.mock.calls.map(([url]) => url as string)).toEqual([
+      '/lathe/api/resources/orders/filters/customer/options?q=&page=1',
+      '/lathe/api/resources/orders/filters/customer/options?q=an&page=1',
+    ]);
+    await vi.waitFor(() => {
+      expect(visit).toHaveBeenLastCalledWith({ filter: { customer: ['2', '3'] } });
+    });
   });
 
   it('pages the options from the server on More and lists every label', async () => {
@@ -216,15 +271,15 @@ describe('remote picker', () => {
       </QueryClientProvider>,
     );
 
-    expect(await screen.findByRole('button', { name: 'Ann Lee' })).toBeTruthy();
+    expect(await screen.findByRole('option', { name: 'Ann Lee' })).toBeTruthy();
     expect(fetch.mock.calls.map(([input]) => input as string)).toEqual([
       '/lathe/api/resources/orders/filters/customer/options?q=&page=1',
     ]);
 
     fireEvent.click(screen.getByRole('button', { name: 'More' }));
 
-    expect(await screen.findByRole('button', { name: 'Bob Ray' })).toBeTruthy();
-    expect(screen.getByRole('button', { name: 'Ann Lee' })).toBeTruthy();
+    expect(await screen.findByRole('option', { name: 'Bob Ray' })).toBeTruthy();
+    expect(screen.getByRole('option', { name: 'Ann Lee' })).toBeTruthy();
     expect(fetch.mock.calls.map(([input]) => input as string)).toEqual([
       '/lathe/api/resources/orders/filters/customer/options?q=&page=1',
       '/lathe/api/resources/orders/filters/customer/options?q=&page=2',

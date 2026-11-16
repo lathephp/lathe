@@ -1,9 +1,9 @@
 import { queryKeys, request, useQuery, useTranslation } from '@lathephp/core';
+import { Combobox, ComboboxInput, ComboboxItem, ComboboxList } from '@lathephp/ui/combobox';
 import { useEffect, useRef, useState } from 'react';
 import { Button } from '../../components/ui/Button';
 import type { FilterControlProps, FilterOption } from '../types';
 import { FilterFieldset } from './FilterFieldset';
-import { inputClass } from '../../components/ui/input';
 
 // Long enough to wait out a word being typed.
 const debounceMs = 300;
@@ -14,19 +14,11 @@ interface OptionsPage {
   hasMore: boolean;
 }
 
-interface OptionPageProps extends Pick<FilterControlProps, 'filter' | 'endpoint' | 'resource'> {
-  term: string;
-  page: number;
-  last: boolean;
-  selected: string[];
-  onChoose: (value: string) => void;
-  onMore: () => void;
-}
+type Page = Pick<FilterControlProps, 'filter' | 'endpoint' | 'resource'> & { term: string; page: number };
 
 /** One server page of options. Each loaded page keeps its own cached query. */
-function OptionPage({ filter, endpoint, resource, term, page, last, selected, onChoose, onMore }: OptionPageProps) {
-  const { __ } = useTranslation();
-  const { data } = useQuery({
+function useOptionPage({ filter, endpoint, resource, term, page }: Page) {
+  return useQuery({
     queryKey: queryKeys.filterOptions(resource, filter.key, term, page),
     queryFn: ({ signal }) =>
       request<OptionsPage>(
@@ -34,33 +26,20 @@ function OptionPage({ filter, endpoint, resource, term, page, last, selected, on
         { signal },
       ),
   });
+}
+
+/** The options of one page. */
+function OptionPage(props: Page) {
+  const { data } = useOptionPage(props);
 
   return (
     <>
-      {data?.options.map((option) => {
+      {data?.options.map((option) => (
         // The URL and the selection hold text.
-        const value = String(option.value);
-
-        return (
-          <Button
-            key={value}
-            variant={selected.includes(value) ? 'default' : 'ghost'}
-            size="sm"
-            className="justify-start"
-            aria-pressed={selected.includes(value)}
-            onClick={() => {
-              onChoose(value);
-            }}
-          >
-            {option.label}
-          </Button>
-        );
-      })}
-      {last && data?.hasMore === true && (
-        <Button variant="outline" size="sm" onClick={onMore}>
-          {__('More')}
-        </Button>
-      )}
+        <ComboboxItem key={String(option.value)} value={{ label: option.label, value: String(option.value) }}>
+          {option.label}
+        </ComboboxItem>
+      ))}
     </>
   );
 }
@@ -74,6 +53,7 @@ export function RemotePicker({ filter, value, onChange, endpoint, resource }: Fi
   const timer = useRef<ReturnType<typeof setTimeout>>(undefined);
   const multiple = filter.component === 'multi-select-filter';
   const selected = Array.isArray(value) ? value : typeof value === 'string' && value !== '' ? [value] : [];
+  const { data: last } = useOptionPage({ filter, endpoint, resource, term, page: pages });
 
   useEffect(
     () => () => {
@@ -84,14 +64,31 @@ export function RemotePicker({ filter, value, onChange, endpoint, resource }: Fi
 
   return (
     <FilterFieldset legend={filter.name}>
-      <input
-        type="search"
-        className={inputClass}
-        value={input}
-        placeholder={__('Search')}
-        aria-label={__('Search :filter', { filter: filter.name })}
-        onChange={(event) => {
-          const next = event.target.value;
+      {/* The server matches the term, so the combobox keeps every option it is given. */}
+      <Combobox
+        multiple
+        inline
+        open
+        filter={null}
+        value={selected.map((item) => ({ label: item, value: item }))}
+        inputValue={input}
+        itemToStringLabel={(item: { label: string }) => item.label}
+        isItemEqualToValue={(item: { label: string; value: string }, chosen: { label: string; value: string }) => item.value === chosen.value}
+        onValueChange={(all: { label: string; value: string }[]) => {
+          const values = all.map((item) => item.value);
+
+          if (multiple) {
+            onChange(values);
+          } else {
+            // A second pick replaces the first; picking the chosen option again clears it.
+            onChange(values.find((item) => !selected.includes(item)) ?? '');
+          }
+        }}
+        onInputValueChange={(next, details) => {
+          if (details.reason !== 'input-change') {
+            return;
+          }
+
           setInput(next);
           clearTimeout(timer.current);
           timer.current = setTimeout(() => {
@@ -99,32 +96,25 @@ export function RemotePicker({ filter, value, onChange, endpoint, resource }: Fi
             setPages(1);
           }, debounceMs);
         }}
-      />
-      <div className="grid max-h-60 gap-1 overflow-y-auto">
-        {Array.from({ length: pages }, (_, index) => (
-          <OptionPage
-            key={index}
-            filter={filter}
-            endpoint={endpoint}
-            resource={resource}
-            term={term}
-            page={index + 1}
-            last={index + 1 === pages}
-            selected={selected}
-            onChoose={(choice) => {
-              // A second click on the chosen option clears it.
-              if (multiple) {
-                onChange(selected.includes(choice) ? selected.filter((item) => item !== choice) : [...selected, choice]);
-              } else {
-                onChange(selected.includes(choice) ? '' : choice);
-              }
-            }}
-            onMore={() => {
-              setPages(pages + 1);
-            }}
-          />
-        ))}
-      </div>
+      >
+        <ComboboxInput showTrigger={false} placeholder={__('Search')} aria-label={__('Search :filter', { filter: filter.name })} />
+        <ComboboxList className="grid max-h-60 gap-1">
+          {Array.from({ length: pages }, (_, index) => (
+            <OptionPage key={index} filter={filter} endpoint={endpoint} resource={resource} term={term} page={index + 1} />
+          ))}
+        </ComboboxList>
+      </Combobox>
+      {last?.hasMore === true && (
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => {
+            setPages(pages + 1);
+          }}
+        >
+          {__('More')}
+        </Button>
+      )}
     </FilterFieldset>
   );
 }
