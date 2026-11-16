@@ -1,4 +1,5 @@
 import { field, useTranslation, type DetailFieldProps, type FieldProps, type IndexFieldProps } from '@lathephp/core';
+import { Button } from '@lathephp/ui';
 
 const stars = [1, 2, 3, 4, 5];
 
@@ -11,7 +12,7 @@ function Stars({ value }: { value: number }) {
   return (
     <span data-star-rating className="inline-flex items-center gap-0.5">
       {stars.map((star) => (
-        <span key={star} aria-hidden="true" data-filled={star <= value || undefined} className={star <= value ? 'text-amber-400' : 'text-muted-foreground/40'}>
+        <span key={star} aria-hidden="true" data-filled={star <= value || undefined} className={star <= value ? 'text-warning' : 'text-muted-foreground'}>
           ★
         </span>
       ))}
@@ -27,9 +28,11 @@ function StarRatingForm({ field: definition, value, onChange, id, describedBy, i
   return (
     <div id={id} role="group" aria-label={definition.label} aria-describedby={describedBy} aria-invalid={invalid || undefined} data-star-rating className="flex gap-1">
       {stars.map((star) => (
-        <button
+        <Button
           key={star}
           type="button"
+          variant="ghost"
+          size="icon-sm"
           disabled={disabled}
           aria-label={__(':count stars', { count: star })}
           aria-pressed={star === current}
@@ -37,10 +40,10 @@ function StarRatingForm({ field: definition, value, onChange, id, describedBy, i
           onClick={() => {
             onChange(star);
           }}
-          className={`text-2xl leading-none ${star <= current ? 'text-amber-400' : 'text-muted-foreground/40'}`}
+          className={`text-2xl leading-none ${star <= current ? 'text-warning' : 'text-muted-foreground'}`}
         >
           ★
-        </button>
+        </Button>
       ))}
     </div>
   );

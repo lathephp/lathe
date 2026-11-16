@@ -1,24 +1,26 @@
 import { config, renderHook, type RenderHookName } from '@lathephp/core';
 import { Badge } from '@lathephp/ui';
+import type { ComponentProps } from 'react';
 
-// White text on a 700 or 800 shade keeps each badge above the 4.5:1 contrast floor.
-const positions: [RenderHookName, string][] = [
-  ['head', 'bg-sky-700'],
-  ['header:end', 'bg-emerald-700'],
-  ['sidebar:before', 'bg-violet-700'],
-  ['sidebar:after', 'bg-rose-700'],
-  ['page:before', 'bg-amber-800'],
-  ['page:after', 'bg-teal-700'],
-  ['footer:before', 'bg-indigo-700'],
-  ['index:header-actions', 'bg-fuchsia-700'],
-  ['detail:header-actions', 'bg-orange-800'],
-  ['auth:after-form', 'bg-lime-800'],
+type BadgeVariant = NonNullable<ComponentProps<typeof Badge>['variant']>;
+
+const positions: [RenderHookName, BadgeVariant][] = [
+  ['head', 'info'],
+  ['header:end', 'success'],
+  ['sidebar:before', 'warning'],
+  ['sidebar:after', 'secondary'],
+  ['page:before', 'outline'],
+  ['page:after', 'destructive'],
+  ['footer:before', 'default'],
+  ['index:header-actions', 'info'],
+  ['detail:header-actions', 'success'],
+  ['auth:after-form', 'warning'],
 ];
 
 // The two positions that know their Resource show only on Users.
 const usersOnly = new Set<RenderHookName>(['index:header-actions', 'detail:header-actions']);
 
-for (const [position, colour] of positions) {
+for (const [position, variant] of positions) {
   renderHook(
     position,
     function DemoHookBadge() {
@@ -33,7 +35,7 @@ for (const [position, colour] of positions) {
       }
 
       return (
-        <Badge data-demo-hook={position} className={`${colour} text-white`}>
+        <Badge data-demo-hook={position} variant={variant}>
           {position}
         </Badge>
       );
