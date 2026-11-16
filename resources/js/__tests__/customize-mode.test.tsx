@@ -234,6 +234,7 @@ describe('a dashboard whose cards are all hidden', () => {
     renderDashboard(true, [], ['orders', 'revenue']);
 
     expect(screen.getByText('Every widget on this dashboard is hidden. Press Customize to add them back.')).toBeTruthy();
+    expect(screen.getByText('Every widget on this dashboard is hidden. Press Customize to add them back.').closest('.cn-empty')).not.toBeNull();
     expect(screen.queryByText('No widgets yet')).toBeNull();
     expect(screen.getByRole('button', { name: 'Customize' })).toBeTruthy();
   });

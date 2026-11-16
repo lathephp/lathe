@@ -176,6 +176,7 @@ describe('states', () => {
     await typeTerm('ann');
 
     expect(document.querySelectorAll('[data-skeleton]')).toHaveLength(3);
+    expect(document.querySelectorAll('[data-slot="skeleton"].cn-skeleton')).toHaveLength(5);
   });
 
   it('draws no rule or empty strip under the field until it has something to list', async () => {
@@ -200,6 +201,7 @@ describe('states', () => {
     await typeTerm('warrne');
 
     expect(screen.getByText('No results for "warrne"')).toBeTruthy();
+    expect(screen.getByText('No results for "warrne"').closest('.cn-empty')).not.toBeNull();
     expect(screen.getByText('Check the spelling, or search one word of a name.')).toBeTruthy();
   });
 

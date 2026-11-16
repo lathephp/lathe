@@ -26,6 +26,7 @@ describe('dashboard', () => {
 
     expect(screen.getByRole('heading', { level: 1 }).textContent).toBe('Dashboard');
     expect(screen.getByText('No widgets yet')).toBeTruthy();
+    expect(screen.getByText('No widgets yet').closest('.cn-empty')).not.toBeNull();
   });
 
   it('points an empty dashboard at the widget generator and its docs', () => {

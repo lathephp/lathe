@@ -184,13 +184,17 @@ function DashboardPage({ dashboard, widgets, hiddenWidgets = [] }: DashboardProp
         </div>
       )}
       {shown.length === 0 && draft === null && hiddenWidgets.length > 0 && (
-        <Card className="p-12 text-center text-sm text-muted-foreground">
-          <p>{__('Every widget on this dashboard is hidden. Press Customize to add them back.')}</p>
-        </Card>
+        <div data-slot="empty" className={emptyClass}>
+          <p data-slot="empty-description" className="cn-empty-description">
+            {__('Every widget on this dashboard is hidden. Press Customize to add them back.')}
+          </p>
+        </div>
       )}
       {shown.length === 0 && draft === null && hiddenWidgets.length === 0 && (
-        <Card className="gap-3 p-12 text-center text-sm text-muted-foreground">
-          <p>{__('No widgets yet')}</p>
+        <div data-slot="empty" className={emptyClass}>
+          <div data-slot="empty-title" className="cn-empty-title cn-font-heading">
+            {__('No widgets yet')}
+          </div>
           <p>
             <code className="rounded bg-muted px-1.5 py-0.5 font-mono text-xs text-foreground" dir="ltr">
               {widgetCommand}
@@ -201,11 +205,14 @@ function DashboardPage({ dashboard, widgets, hiddenWidgets = [] }: DashboardProp
               {__('Read the widget docs')}
             </a>
           </p>
-        </Card>
+        </div>
       )}
     </div>
   );
 }
+
+// The kit Empty's classes, written out: the dashboard paints on first load, which the kit stays out of.
+const emptyClass = 'cn-empty flex w-full min-w-0 flex-1 flex-col items-center justify-center text-center text-balance text-sm text-muted-foreground';
 
 /** The header's segmented range control; below 768 px it takes a full-width row of its own. */
 function RangePicker({ ranges, value, onPick }: { ranges: RangeOption[]; value: string | undefined; onPick: (value: number | string) => void }) {

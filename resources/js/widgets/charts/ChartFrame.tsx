@@ -49,5 +49,5 @@ export function ChartFrame({ name, columns, rows, className, children }: ChartFr
 export function NoData() {
   const { __ } = useTranslation();
 
-  return <p className="text-sm font-medium text-muted-foreground">{__('No Data')}</p>;
+  return <p data-slot="empty-description" className="cn-empty-description text-sm font-medium text-muted-foreground">{__('No Data')}</p>;
 }

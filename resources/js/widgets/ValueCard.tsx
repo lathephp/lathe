@@ -16,7 +16,7 @@ export function ValueCard({ widget, value }: WidgetRendererProps) {
   const icon = typeof widget.icon === 'string' ? widget.icon : null;
 
   if (result === null || (number === 0 && !result.allowZeroResult)) {
-    return <p className="text-sm font-medium text-muted-foreground">{__('No Data')}</p>;
+    return <p data-slot="empty-description" className="cn-empty-description text-sm font-medium text-muted-foreground">{__('No Data')}</p>;
   }
 
   // A calculate() that returns a bare number sends no change at all.

@@ -1,6 +1,7 @@
 import { router } from '@inertiajs/react';
 import { ApiError, pauseShortcuts, queryKeys, request, resumeShortcuts, useQuery, useTranslation } from '@lathephp/core';
 import { Button } from '@lathephp/ui';
+import { Empty, EmptyDescription, EmptyHeader, EmptyTitle } from '@lathephp/ui/empty';
 import { ArrowDown, ArrowUp, CornerDownLeft, History, Search, X } from 'lucide-react';
 import { useEffect, useId, useRef, useState, type KeyboardEvent } from 'react';
 import { cn } from '../lib/cn';
@@ -274,11 +275,11 @@ export function SearchPalette({ basePath, debounce, onClose }: Props) {
               <p role="status" className="sr-only">
                 {__('Searching…')}
               </p>
-              <div data-skeleton="" className="h-3 w-[30%] animate-pulse rounded bg-skeleton" />
+              <div data-skeleton="" data-slot="skeleton" className="cn-skeleton h-3 w-[30%]" />
               {['60%', '45%'].map((width) => (
                 <div key={width} data-skeleton="" className="flex items-center gap-3">
-                  <div className="size-7 animate-pulse rounded-lg bg-skeleton" />
-                  <div className="h-3 animate-pulse rounded bg-skeleton" style={{ width }} />
+                  <div data-slot="skeleton" className="cn-skeleton size-7" />
+                  <div data-slot="skeleton" className="cn-skeleton h-3" style={{ width }} />
                 </div>
               ))}
             </div>
@@ -303,10 +304,12 @@ export function SearchPalette({ basePath, debounce, onClose }: Props) {
             </div>
           )}
           {searching && !loading && !failed && groups.length === 0 && (
-            <div className="flex flex-col gap-1 px-4 pt-5 pb-3 text-center">
-              <p className="text-sm font-medium">{__('No results for ":term"', { term: wanted })}</p>
-              <p className="text-[13px] text-muted-foreground">{__('Check the spelling, or search one word of a name.')}</p>
-            </div>
+            <Empty className="border-0 px-4 pt-5 pb-3">
+              <EmptyHeader>
+                <EmptyTitle>{__('No results for ":term"', { term: wanted })}</EmptyTitle>
+                <EmptyDescription>{__('Check the spelling, or search one word of a name.')}</EmptyDescription>
+              </EmptyHeader>
+            </Empty>
           )}
           <div id={`${listId}-list`} role="listbox" aria-label={__('Search')}>
             {searching
