@@ -17,10 +17,6 @@ const lathe = {
   },
 };
 
-// The panel files whose raw controls m47 has not moved to the kit yet; each sweep task empties its part.
-const notYetSwept = [
-];
-
 export default defineConfig([
   // A worktree under .claude carries its own copy of this config; vendor is the PHP side.
   // Stubs are templates: the scaffold quality test lints what they render to.
@@ -57,7 +53,7 @@ export default defineConfig([
     // Panel code draws its controls with the kit or the panel's copies in components/ui, and its
     // colours with theme tokens; the kit and those copies are where the raw elements live.
     files: ['resources/js/**/*.tsx'],
-    ignores: ['**/__tests__/**', 'resources/js/components/ui/**', ...notYetSwept],
+    ignores: ['**/__tests__/**', 'resources/js/components/ui/**'],
     plugins: { lathe },
     rules: { 'lathe/no-raw-ui': 'error' },
   },
