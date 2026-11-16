@@ -1,3 +1,4 @@
+import { Checkbox } from '@lathephp/ui';
 import type { FilterControlProps } from '../types';
 import { FilterFieldset } from './FilterFieldset';
 
@@ -9,11 +10,10 @@ export function MultiSelectFilter({ filter, value, onChange }: FilterControlProp
     <FilterFieldset legend={filter.name}>
       {filter.options?.map((option) => (
         <label key={option.value} className="flex items-center gap-2 text-sm">
-          <input
-            type="checkbox"
+          <Checkbox
             checked={checked.includes(option.value)}
-            onChange={(event) => {
-              onChange(event.target.checked ? [...checked, option.value] : checked.filter((item) => item !== option.value));
+            onCheckedChange={(isChecked) => {
+              onChange(isChecked ? [...checked, option.value] : checked.filter((item) => item !== option.value));
             }}
           />
           {option.label}

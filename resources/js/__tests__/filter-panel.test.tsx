@@ -150,6 +150,30 @@ describe('filter panel', () => {
   });
 });
 
+describe('multi-select filter', () => {
+  const tags: AvailableFilter = { ...status, key: 'tag', name: 'Tag', component: 'multi-select-filter', immediate: true };
+
+  it('draws the kit checkbox, and a click adds its value and a second click removes it', async () => {
+    const { visit } = renderPanel({ available: [tags] });
+    const pending = screen.getByRole('checkbox', { name: 'Pending' });
+
+    expect(pending.getAttribute('data-slot')).toBe('checkbox');
+    expect(pending.classList.contains('cn-checkbox')).toBe(true);
+
+    fireEvent.click(pending);
+    await vi.waitFor(() => {
+      expect(visit).toHaveBeenLastCalledWith({ filter: { tag: ['pending'] } });
+    });
+    expect(pending.getAttribute('aria-checked')).toBe('true');
+
+    fireEvent.click(pending);
+    await vi.waitFor(() => {
+      expect(visit).toHaveBeenLastCalledWith({ filter: { tag: [] } });
+    });
+    expect(pending.getAttribute('aria-checked')).toBe('false');
+  });
+});
+
 describe('date filter', () => {
   const placed: AvailableFilter = { ...status, key: 'placed', name: 'Placed', component: 'date-filter', options: null };
 
