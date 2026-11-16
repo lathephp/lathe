@@ -21,6 +21,7 @@ The examples translate their text with `__`, which comes from `const { __ } = us
 
 - **Card:** `<Card><CardHeader><CardTitle>…</CardTitle><CardDescription>…</CardDescription></CardHeader><CardContent>…</CardContent><CardFooter>…</CardFooter></Card>`. The parts own the padding and the title's size and weight.
 - **Dialog:** `Dialog` with `DialogTrigger`, then `DialogContent` holding `DialogHeader` (`DialogTitle`, `DialogDescription`) and `DialogFooter`. `AlertDialog` and `Sheet` follow the same shape.
+- **Command:** `CommandDialog` holds a `Command` root of its own: `<CommandDialog open={open} onOpenChange={setOpen}><Command><CommandInput /><CommandList>…</CommandList></Command></CommandDialog>`; without it the page crashes as the dialog opens. An inline `Command` scrolls its first item into view as it mounts, so put it in a dialog or popover, or near the top of the page.
 - **Form fields:** `Field` from `@lathephp/ui/field` around a `FieldLabel htmlFor={id}`, the control and a `FieldDescription` or `FieldError`; group them with `FieldGroup` or `FieldSet`. Put `aria-invalid` and `aria-describedby` on the control.
 - **Render a part as another element with Base UI's `render` prop, not `asChild`:** `<Button render={<a href="/lathe/reports" />}>{__('Open')}</Button>`.
 - **Widgets:** the panel draws a custom widget's card and its name, so the component returns only the body. Never wrap it in a `Card`.
