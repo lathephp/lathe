@@ -7,8 +7,6 @@ const palette =
 const allowed: Record<string, string> = {
   // A QR code must stay dark on white to scan, in either theme.
   'pages/Security.tsx:159': 'QR code ground',
-  // The label sits on bars filled with server-chosen or series colours, so no one token reads on all of them.
-  'widgets/charts/RadialCard.tsx:102': 'label over series fills',
 };
 
 // The tests are left out.

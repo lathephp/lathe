@@ -48,6 +48,14 @@ describe('history card', () => {
     expect(screen.queryByRole('button', { name: 'Show all' })).toBeNull();
   });
 
+  it('draws Show all as the panel link button', async () => {
+    answer([event(1, 'Created', '2026-10-17T09:00:00Z')]);
+
+    render(<HistoryCard uriKey="orders" id={12} onShowAll={() => {}} />);
+
+    expect((await screen.findByRole('button', { name: 'Show all' })).classList.contains('cn-button-variant-link')).toBe(true);
+  });
+
   it('opens the full list from Show all', async () => {
     answer([event(1, 'Created', '2026-10-17T09:00:00Z')]);
     const onShowAll = vi.fn();

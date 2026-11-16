@@ -1,7 +1,7 @@
 import { useTranslation } from '@lathephp/core';
 import type { FilterControlProps } from '../types';
 import { FilterFieldset } from './FilterFieldset';
-import { inputClass } from '../../components/ui/input';
+import { Input } from '../../components/ui/input';
 
 /** Stored and shown values differ by the filter's scale; the URL keeps the stored one. */
 function shown(stored: string | undefined, scale: number): string {
@@ -23,10 +23,9 @@ export function RangeFilter({ filter, value, onChange }: FilterControlProps) {
     <FilterFieldset legend={filter.name}>
       <div className="flex gap-2">
         {(['min', 'max'] as const).map((side) => (
-          <input
+          <Input
             key={side}
             type="number"
-            className={inputClass}
             aria-label={labels[side]}
             placeholder={labels[side]}
             step={scale === 1 ? undefined : 1 / scale}

@@ -3,7 +3,7 @@ import { RadioGroup, RadioGroupItem, Switch } from '@lathephp/ui';
 import { useId, useState } from 'react';
 import { Modal, ModalFooter, ModalHeader, ModalTitle } from '../components/Modal';
 import { Button } from '../components/ui/Button';
-import { inputClass } from '../components/ui/input';
+import { Input } from '../components/ui/input';
 import { cn } from '../lib/cn';
 
 type BadgeColour = 'success' | 'danger' | 'warning';
@@ -57,12 +57,11 @@ export function SaveTabDialog({ onSave, onClose }: SaveTabDialogProps) {
           <label htmlFor={`${id}-name`} className="cn-label">
             {__('Name')}
           </label>
-          <input
+          <Input
             id={`${id}-name`}
             required
             maxLength={100}
             value={name}
-            className={inputClass}
             onChange={(event) => {
               setName(event.target.value);
             }}

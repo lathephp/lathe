@@ -85,6 +85,15 @@ describe('plugin settings page', () => {
     expect(fetch.mock.calls[0]?.[0]).toBe('/lathe/api/plugins/hello-plugin/settings');
   });
 
+  it('draws Save as the panel button', async () => {
+    serve(json(200, { saved: true }));
+    renderSettings();
+
+    await screen.findByLabelText(/Greeting/);
+
+    expect(screen.getByRole('button', { name: 'Save' }).classList.contains('cn-button-variant-default')).toBe(true);
+  });
+
   it('saves the typed values with a PUT and toasts', async () => {
     const fetch = serve(json(200, { saved: true }));
     renderSettings();

@@ -223,6 +223,13 @@ describe('dragging a card', () => {
 });
 
 describe('the Move to menu', () => {
+  it('opens from a ghost panel button', async () => {
+    moveServer([]);
+    await openBoard();
+
+    expect(within(card(79194426)).getByRole('button', { name: 'Move ORD-79194426' }).classList.contains('cn-button-variant-ghost')).toBe(true);
+  });
+
   it('lists every other column, and Shipped moves the card there with one PATCH', async () => {
     const patches = moveServer([ok('shipped', 't1')]);
     await openBoard();

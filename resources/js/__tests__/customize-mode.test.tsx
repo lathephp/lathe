@@ -191,6 +191,15 @@ describe('customize mode', () => {
     expect(within(panel).getByText('No hidden widgets.')).toBeTruthy();
   });
 
+  it('draws the move handle and the size menu button as ghost panel buttons', async () => {
+    renderDashboard(true, ['orders', 'revenue', 'orders-by-status']);
+
+    fireEvent.click(screen.getByRole('button', { name: 'Customize' }));
+
+    expect((await screen.findByRole('button', { name: 'Move Orders' })).classList.contains('cn-button-variant-ghost')).toBe(true);
+    expect(within(card('orders')).getByRole('button', { name: 'Menu for Orders' }).classList.contains('cn-button-variant-ghost')).toBe(true);
+  });
+
   it('moves a card with the keyboard and says so', async () => {
     renderDashboard(true, ['orders', 'revenue', 'orders-by-status']);
 

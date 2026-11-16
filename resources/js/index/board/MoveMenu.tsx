@@ -1,7 +1,7 @@
 import { useTranslation } from '@lathephp/core';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuLabel, DropdownMenuTrigger } from '@lathephp/ui';
 import { ArrowRightLeft } from 'lucide-react';
-import { buttonClass } from '../../components/ui/Button';
+import { Button } from '../../components/ui/Button';
 
 // The keys the Board takes on a card: the arrows move between cards and Space opens the preview.
 const boardKeys = new Set(['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', ' ']);
@@ -32,7 +32,7 @@ export function MoveMenu({ title, columns, onMove }: MoveMenuProps) {
       }}
     >
       <DropdownMenu>
-        <DropdownMenuTrigger render={<button type="button" aria-label={__('Move :title', { title })} className={buttonClass('ghost', 'icon-xs')} />}>
+        <DropdownMenuTrigger render={<Button variant="ghost" size="icon-xs" aria-label={__('Move :title', { title })} />}>
           <ArrowRightLeft aria-hidden="true" className="size-3.5" />
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" collisionPadding={8} aria-label={__('Move to')} className="w-44">

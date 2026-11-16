@@ -1,5 +1,6 @@
 import { ApiError, request, toast, useLathe, useTranslation } from '@lathephp/core';
 import { useEffect, useState } from 'react';
+import { Button } from '../components/ui/Button';
 import type { FieldSchema, LayoutBlock } from '../fields/types';
 import { PageHeader } from '../layout/PageHeader';
 import { FormRow } from '../records/FormFields';
@@ -96,13 +97,9 @@ export default function PluginSettingsForm({ pluginKey, title }: PluginSettingsF
             }}
           />
           <div className="flex justify-end">
-            <button
-              type="submit"
-              disabled={busy}
-              className="inline-flex h-9 items-center rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground disabled:opacity-60"
-            >
+            <Button type="submit" disabled={busy}>
               {__('Save')}
-            </button>
+            </Button>
           </div>
         </form>
       )}

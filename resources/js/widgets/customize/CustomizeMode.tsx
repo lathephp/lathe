@@ -218,11 +218,12 @@ export function EditCardHeader({ widget, draft, change }: EditCardHeaderProps) {
 
   return (
     <div className="flex h-7 items-center gap-1.5">
-      <button
-        type="button"
+      <Button
+        variant="ghost"
+        size="icon-sm"
         aria-label={__('Move :name', { name })}
         className={[
-          '-ms-1 grid h-7 w-6 shrink-0 touch-none place-items-center rounded-md text-muted-foreground outline-none hover:bg-muted hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring',
+          '-ms-1 h-7 w-6 shrink-0 touch-none text-muted-foreground hover:text-foreground',
           dragging ? 'cursor-grabbing' : 'cursor-grab',
           picked ? 'bg-muted text-foreground ring-2 ring-ring' : '',
         ].join(' ')}
@@ -240,7 +241,7 @@ export function EditCardHeader({ widget, draft, change }: EditCardHeaderProps) {
           <circle cx="3" cy="13" r="1.4" />
           <circle cx="9" cy="13" r="1.4" />
         </svg>
-      </button>
+      </Button>
       <h2 className="min-w-0 flex-1 truncate text-[13px] font-medium">{name}</h2>
       <SizeMenu widget={widget} change={change} />
     </div>
@@ -263,10 +264,11 @@ function SizeMenu({ widget, change }: { widget: WidgetDescriptor; change: Change
       <DropdownMenu>
         <DropdownMenuTrigger
           render={
-            <button
-              type="button"
+            <Button
+              variant="ghost"
+              size="icon-sm"
               aria-label={__('Menu for :title', { title: widget.name })}
-              className="grid size-[26px] place-items-center rounded-md text-muted-foreground outline-none hover:bg-muted hover:text-foreground focus-visible:ring-2 focus-visible:ring-focus"
+              className="size-[26px] text-muted-foreground hover:text-foreground"
             />
           }
         >

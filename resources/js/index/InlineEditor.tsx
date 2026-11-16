@@ -1,4 +1,5 @@
 import { Suspense, useEffect, useRef, useState, type KeyboardEvent } from 'react';
+import { Input } from '../components/ui/input';
 import { SelectMenu } from '../components/ui/SelectMenu';
 import { SelectBadge, styled } from '../fields/choice/SelectFields';
 import type { Cell, FieldSchema } from '../fields/types';
@@ -180,7 +181,7 @@ export function InlineEditor({ uriKey, rowId, column, cell, describedBy, invalid
   }
 
   return (
-    <input
+    <Input
       // The edit opened from the keys or a double-click, so the input takes the focus at once.
       // eslint-disable-next-line jsx-a11y/no-autofocus
       autoFocus
@@ -202,7 +203,7 @@ export function InlineEditor({ uriKey, rowId, column, cell, describedBy, invalid
       onBlur={() => {
         finish(true);
       }}
-      className="h-8 w-full rounded-md border border-input bg-background px-2 text-sm"
+      className="h-8 w-full"
     />
   );
 }

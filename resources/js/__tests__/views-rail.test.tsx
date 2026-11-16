@@ -368,6 +368,14 @@ describe('saving a view', () => {
     expect(count.classList.contains('cn-switch')).toBe(true);
   });
 
+  it('draws the name field with the panel input', () => {
+    renderOrders();
+
+    fireEvent.click(within(rail()).getByRole('button', { name: 'Save view' }));
+
+    expect(within(screen.getByRole('dialog', { name: 'Save view' })).getByLabelText('Name').getAttribute('data-slot')).toBe('input');
+  });
+
   it('traps Tab inside the dialog, from the last control to the first and back', () => {
     renderOrders();
 

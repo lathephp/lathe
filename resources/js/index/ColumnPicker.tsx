@@ -3,6 +3,7 @@ import { request, toast, useLathe, useTranslation } from '@lathephp/core';
 import { Checkbox } from '@lathephp/ui';
 import { GripVertical, Pin } from 'lucide-react';
 import { useEffect, useRef, useState, type DragEvent, type KeyboardEvent } from 'react';
+import { Button } from '../components/ui/Button';
 import { cn } from '../lib/cn';
 import type { ColumnChoice } from './types';
 
@@ -17,8 +18,7 @@ interface ColumnPickerProps {
   onClose: () => void;
 }
 
-const iconButton =
-  'grid size-6 shrink-0 place-items-center rounded text-muted-foreground outline-none hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring';
+const iconButton = 'size-6 shrink-0 text-muted-foreground hover:text-foreground';
 
 // The saves still to reach the server, one after another.
 let queue: Promise<void> = Promise.resolve();
@@ -172,8 +172,9 @@ export function ColumnPicker({ uriKey, columns, choice, trigger, onClose }: Colu
               {locked ? (
                 <span className="size-6 shrink-0" />
               ) : (
-                <button
-                  type="button"
+                <Button
+                  variant="ghost"
+                  size="icon-xs"
                   draggable
                   aria-label={__('Reorder :name', { name: column.label })}
                   className={cn(iconButton, 'cursor-grab')}
@@ -190,7 +191,7 @@ export function ColumnPicker({ uriKey, columns, choice, trigger, onClose }: Colu
                   }}
                 >
                   <GripVertical aria-hidden="true" className="size-3.5" />
-                </button>
+                </Button>
               )}
               <label className="flex min-w-0 flex-1 items-center gap-2">
                 <Checkbox
@@ -205,8 +206,9 @@ export function ColumnPicker({ uriKey, columns, choice, trigger, onClose }: Colu
               {locked ? (
                 <span className="text-xs text-muted-foreground">{__('Pinned')}</span>
               ) : (
-                <button
-                  type="button"
+                <Button
+                  variant="ghost"
+                  size="icon-xs"
                   aria-label={__('Pin :name', { name: column.label })}
                   aria-pressed={pinned}
                   className={cn(iconButton, pinned && 'text-foreground')}
@@ -215,22 +217,22 @@ export function ColumnPicker({ uriKey, columns, choice, trigger, onClose }: Colu
                   }}
                 >
                   <Pin aria-hidden="true" className={cn('size-3.5', pinned && 'fill-current')} />
-                </button>
+                </Button>
               )}
             </li>
           );
         })}
       </ul>
       <div className="flex h-10 items-center border-t border-border px-3">
-        <button
-          type="button"
-          className="rounded-sm font-medium text-link outline-none hover:text-link-hover focus-visible:ring-2 focus-visible:ring-ring"
+        <Button
+          variant="link"
+          size="xs"
           onClick={() => {
             void save(defaults, 'DELETE');
           }}
         >
           {__('Reset to default')}
-        </button>
+        </Button>
       </div>
       <p aria-live="polite" className="sr-only">
         {announcement}

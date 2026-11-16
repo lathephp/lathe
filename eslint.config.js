@@ -33,19 +33,7 @@ const notYetSwept = [
   'resources/js/fields/rich/TiptapEditor.tsx',
   'resources/js/fields/slug/SlugInput.tsx',
   'resources/js/fields/upload/FileControl.tsx',
-  'resources/js/index/ColumnPicker.tsx',
-  'resources/js/index/InlineEditor.tsx',
-  'resources/js/index/RenameTabDialog.tsx',
-  'resources/js/index/RowMenuPanel.tsx',
-  'resources/js/index/SaveTabDialog.tsx',
-  'resources/js/index/board/Board.tsx',
-  'resources/js/index/board/MoveMenu.tsx',
-  'resources/js/index/filters/RangeFilter.tsx',
-  'resources/js/plugins/PluginSettingsForm.tsx',
-  'resources/js/records/HistoryCard.tsx',
   'resources/js/relations/RelationPanel.tsx',
-  'resources/js/widgets/charts/RadialCard.tsx',
-  'resources/js/widgets/customize/CustomizeMode.tsx',
 ];
 
 export default defineConfig([

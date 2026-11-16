@@ -1,5 +1,6 @@
 import { useTranslation } from '@lathephp/core';
 import type { KeyboardEvent } from 'react';
+import { Button } from '../../components/ui/Button';
 import { SelectBadge, styled } from '../../fields/choice/SelectFields';
 import { TableCell } from '../../table/cells';
 import { countText } from '../countText';
@@ -128,16 +129,16 @@ export function Board({ resource, table, board, preview }: BoardProps) {
               </ul>
             )}
             {column.hasMore && (
-              <button
-                type="button"
+              <Button
+                variant="ghost"
                 disabled={column.loading}
                 onClick={() => {
                   showMore(column.value);
                 }}
-                className="mx-2 mb-2 h-[30px] rounded-md text-[13px] font-medium text-muted-foreground outline-none hover:bg-accent focus-visible:ring-2 focus-visible:ring-ring disabled:opacity-50"
+                className="mx-2 mb-2 h-[30px] text-[13px] text-muted-foreground"
               >
                 {__('Show more')}
-              </button>
+              </Button>
             )}
           </section>
         );

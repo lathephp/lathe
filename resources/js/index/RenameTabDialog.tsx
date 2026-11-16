@@ -2,7 +2,7 @@ import { useTranslation } from '@lathephp/core';
 import { useId, useState } from 'react';
 import { Modal, ModalFooter, ModalHeader, ModalTitle } from '../components/Modal';
 import { Button } from '../components/ui/Button';
-import { inputClass } from '../components/ui/input';
+import { Input } from '../components/ui/input';
 
 interface RenameTabDialogProps {
   name: string;
@@ -41,12 +41,11 @@ export function RenameTabDialog({ name: current, onSave, onClose }: RenameTabDia
           <label htmlFor={`${id}-name`} className="cn-label">
             {__('Name')}
           </label>
-          <input
+          <Input
             id={`${id}-name`}
             required
             maxLength={100}
             value={name}
-            className={inputClass}
             onChange={(event) => {
               setName(event.target.value);
             }}

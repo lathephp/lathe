@@ -27,6 +27,13 @@ describe('range filter', () => {
     expect(onChange).toHaveBeenLastCalledWith({ min: '240050', max: '250025' });
   });
 
+  it('draws each side with the panel input', () => {
+    render(<RangeFilter filter={total} value={{}} onChange={vi.fn()} endpoint="" resource="orders" />);
+
+    expect(screen.getByLabelText('Min').getAttribute('data-slot')).toBe('input');
+    expect(screen.getByLabelText('Max').getAttribute('data-slot')).toBe('input');
+  });
+
   it('sends the typed value as it is without a scale', () => {
     const onChange = vi.fn();
     render(<RangeFilter filter={{ ...total, scale: 1 }} value={{}} onChange={onChange} endpoint="" resource="orders" />);

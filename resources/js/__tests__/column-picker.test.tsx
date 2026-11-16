@@ -168,6 +168,16 @@ describe('column picker', () => {
     expect(box.classList.contains('cn-checkbox')).toBe(true);
   });
 
+  it('draws the grip, pin and reset controls with the panel button', () => {
+    renderOrders();
+
+    const picker = within(openPicker());
+
+    expect([...picker.getByRole('button', { name: 'Reorder Customer' }).classList]).toEqual(expect.arrayContaining(buttonClass('ghost', 'icon-xs').split(' ')));
+    expect([...picker.getByRole('button', { name: 'Pin Customer' }).classList]).toEqual(expect.arrayContaining(buttonClass('ghost', 'icon-xs').split(' ')));
+    expect([...picker.getByRole('button', { name: 'Reset to default' }).classList]).toEqual(expect.arrayContaining(buttonClass('link', 'xs').split(' ')));
+  });
+
   it('sends a second change only once the first has saved, so they land in order', async () => {
     vi.spyOn(router, 'reload').mockImplementation(() => undefined);
     let finish: (response: Response) => void = () => undefined;

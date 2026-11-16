@@ -1,6 +1,7 @@
 import { formatDateTime, request, useLathe, useTranslation } from '@lathephp/core';
 import { Link2, Pencil, Play, Plus, RotateCcw, Trash2, Unlink, UserRound, type LucideIcon } from 'lucide-react';
 import { useEffect, useState } from 'react';
+import { Button } from '../components/ui/Button';
 import { Card } from '../components/ui/Card';
 import { cn } from '../lib/cn';
 import { skeletonBar } from '../lib/instant';
@@ -54,9 +55,9 @@ export function HistoryCard({ uriKey, id, onShowAll }: { uriKey: string; id: str
       <header className="flex items-center justify-between border-b border-border px-5 py-3.5">
         <h2 className="text-base font-semibold">{__('History')}</h2>
         {events !== null && events.length > 0 ? (
-          <button type="button" className="rounded-sm text-[13px] font-medium text-link outline-none hover:text-link-hover focus-visible:ring-2 focus-visible:ring-focus" onClick={onShowAll}>
+          <Button variant="link" size="xs" className="text-[13px]" onClick={onShowAll}>
             {__('Show all')}
-          </button>
+          </Button>
         ) : null}
       </header>
       {events === null ? (

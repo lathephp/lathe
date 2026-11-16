@@ -6,7 +6,7 @@ import { lazy, Suspense, useEffect, useId, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import type { InlineActions } from '../actions/InlineRowActions';
 import { Modal, ModalDescription, ModalFooter, ModalHeader, ModalTitle } from '../components/Modal';
-import { Button, buttonClass } from '../components/ui/Button';
+import { Button } from '../components/ui/Button';
 import { reloadIndexRows } from '../lib/instant';
 import type { SharedProps } from '../types';
 import { type MenuAction, menuActions, type WriteAction } from './RowMenu';
@@ -164,7 +164,7 @@ export function RowMenuPanel({ uriKey, row, label, fromKeyboard }: RowMenuPanelP
     <>
       <DropdownMenu open={open} onOpenChange={setOpen}>
         <DropdownMenuTrigger
-          render={<button type="button" tabIndex={-1} aria-label={label} className={buttonClass('ghost', 'icon-sm')} />}
+          render={<Button variant="ghost" size="icon-sm" tabIndex={-1} aria-label={label} />}
           // The up and down arrows on the row's button move the table's cell cursor, so they do not open the menu.
           onKeyDown={(event) => {
             if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
