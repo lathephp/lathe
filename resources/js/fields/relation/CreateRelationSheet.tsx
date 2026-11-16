@@ -82,14 +82,9 @@ export function CreateRelationSheet({ field, record, text, onCreated, onClose }:
     >
       <div className="flex items-start gap-3 border-b border-border px-6 py-5">
         <ModalTitle id={titleId}>{title}</ModalTitle>
-        <button
-          type="button"
-          aria-label={__('Close')}
-          className="ms-auto inline-flex size-[30px] shrink-0 items-center justify-center rounded-md text-muted-foreground outline-none hover:bg-accent hover:text-accent-foreground focus-visible:ring-2 focus-visible:ring-focus"
-          onClick={onClose}
-        >
+        <Button variant="ghost" size="icon-sm" aria-label={__('Close')} className="ms-auto size-[30px] shrink-0 text-muted-foreground" onClick={onClose}>
           <X aria-hidden="true" strokeWidth={1.75} className="size-4" />
-        </button>
+        </Button>
       </div>
       {form === null ? (
         <p className="p-6 text-sm text-muted-foreground">{__('Loading…')}</p>

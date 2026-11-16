@@ -1,5 +1,7 @@
 import { useTranslation } from '@lathephp/core';
+import { Toggle } from '@lathephp/ui/toggle';
 import { Suspense } from 'react';
+import { Button } from '../../components/ui/Button';
 import { cn } from '../../lib/cn';
 import type { FormFieldProps } from '../registry';
 import { isBelongsToValue } from './BelongsToField';
@@ -19,18 +21,17 @@ export function TagForm(props: FormFieldProps) {
     return (
       <div id={id} role="group" aria-describedby={describedBy} className="flex flex-wrap gap-1">
         {tagList(field.options).map((item) => (
-          <button
+          <Toggle
             key={item.value}
-            type="button"
-            aria-pressed={has(item)}
+            pressed={has(item)}
             disabled={disabled}
-            onClick={() => {
+            onPressedChange={() => {
               onChange(has(item) ? without(item) : [...chosen, item]);
             }}
-            className={cn(chip, has(item) ? 'bg-primary text-primary-foreground' : 'hover:bg-accent')}
+            className={cn(chip, 'h-auto min-w-0', has(item) ? 'bg-primary text-primary-foreground' : 'hover:bg-accent')}
           >
             {item.display}
-          </button>
+          </Toggle>
         ))}
       </div>
     );
@@ -43,8 +44,10 @@ export function TagForm(props: FormFieldProps) {
           {chosen.map((item) => (
             <li key={item.value} className={cn(chip, 'inline-flex items-center gap-1')}>
               {item.display}
-              <button
-                type="button"
+              <Button
+                variant="ghost"
+                size="icon-xs"
+                className="size-4"
                 aria-label={__('Remove :title', { title: item.display })}
                 disabled={disabled}
                 onClick={() => {
@@ -52,7 +55,7 @@ export function TagForm(props: FormFieldProps) {
                 }}
               >
                 ×
-              </button>
+              </Button>
             </li>
           ))}
         </ul>

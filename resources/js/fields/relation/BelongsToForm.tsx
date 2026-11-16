@@ -278,10 +278,10 @@ export function BelongsToForm(props: FormFieldProps & LookupProps) {
   return (
     <div className="flex items-center gap-3">
       <div className="min-w-0 flex-1">{control}</div>
-      <button
-        type="button"
+      <Button
+        variant="link"
         disabled={disabled}
-        className="inline-flex items-center gap-1 rounded-sm text-[13px] font-medium whitespace-nowrap text-link outline-none hover:text-link-hover focus-visible:ring-2 focus-visible:ring-focus disabled:opacity-50"
+        className="h-auto gap-1 p-0 text-[13px] font-medium whitespace-nowrap text-link hover:text-link-hover"
         onClick={() => {
           setCreating('');
         }}
@@ -289,7 +289,7 @@ export function BelongsToForm(props: FormFieldProps & LookupProps) {
         <Plus aria-hidden="true" className="size-3.5" />
         {/* Sentence case, as the create form's title: a capitalised word lowers its first letter, an acronym keeps its case. */}
         {__('New :resource', { resource: label.replace(/\b[A-Z](?=[a-z])/g, (letter) => letter.toLowerCase()) })}
-      </button>
+      </Button>
       {creating !== null && (
         <Suspense fallback={null}>
           <CreateRelationSheet

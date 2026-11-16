@@ -140,6 +140,7 @@ describe('select-field', () => {
   it('filters the options with the search box and keeps the selected one', async () => {
     renderForm('select-field', 'c', { searchable: true });
 
+    expect(screen.getByRole('searchbox').getAttribute('data-slot')).toBe('input');
     fireEvent.change(screen.getByRole('searchbox'), { target: { value: 'alp' } });
 
     expect(await optionLabels(screen.getByRole('combobox'))).toEqual(['—', 'Alpha', 'Gamma']);

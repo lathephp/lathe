@@ -121,7 +121,7 @@ describe('markdown-field', () => {
     const textarea = await screen.findByLabelText<HTMLTextAreaElement>(/Body/);
     fireEvent.change(textarea, { target: { value: '**bold**' } });
 
-    expect(textarea.value).toBe('**bold**');
+    expect([textarea.value, textarea.dataset.slot]).toEqual(['**bold**', 'textarea']);
   });
 
   it('frames the tabs in a toolbar row above the textarea, in one box', async () => {

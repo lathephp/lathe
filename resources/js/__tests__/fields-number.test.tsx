@@ -142,6 +142,7 @@ describe('token-field', () => {
 
     expect(input.type).toBe('password');
     expect(input.value).toBe('abcd1234efgh');
+    expect(input.dataset.slot).toBe('input');
 
     fireEvent.click(screen.getByRole('button', { name: 'Show' }));
     expect(input.type).toBe('text');

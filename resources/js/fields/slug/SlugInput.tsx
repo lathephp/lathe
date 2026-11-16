@@ -1,7 +1,8 @@
 import { useTranslation } from '@lathephp/core';
 import { useLayoutEffect, useRef, useState } from 'react';
 import { stringValue, type FormFieldProps } from '../registry';
-import { inputClass } from '../../components/ui/input';
+import { Button } from '../../components/ui/Button';
+import { Input } from '../../components/ui/input';
 
 /** The slug of a text with the words joined by the separator, as the server's Str::slug does for plain Latin text. */
 export function slugify(text: string, separator: string): string {
@@ -44,7 +45,7 @@ export default function SlugInput({ field, value, onChange, id, describedBy, inv
 
   return (
     <div className="flex items-center gap-2">
-      <input
+      <Input
         id={id}
         name={field.attribute}
         type="text"
@@ -58,18 +59,17 @@ export default function SlugInput({ field, value, onChange, id, describedBy, inv
           setTyped(true);
           onChange(event.target.value);
         }}
-        className={inputClass}
       />
       {locked ? (
-        <button
-          type="button"
-          className="h-9 shrink-0 rounded-md border border-input px-3 text-sm"
+        <Button
+          variant="outline"
+          className="shrink-0"
           onClick={() => {
             setUnlocked(true);
           }}
         >
           {__('Customize')}
-        </button>
+        </Button>
       ) : null}
     </div>
   );

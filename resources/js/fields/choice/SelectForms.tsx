@@ -1,11 +1,12 @@
 import { useTranslation } from '@lathephp/core';
 import { X } from 'lucide-react';
 import { Suspense, useState, type ComponentType } from 'react';
+import { Button } from '../../components/ui/Button';
+import { Input } from '../../components/ui/input';
 import { Select } from '../../components/ui/Select';
 import { lazyNamed } from '../../lib/lazy';
 import { stringValue, type FormFieldProps } from '../registry';
 import { filterOptions, labelOf, optionsOf, stringsOf, type Option } from './options';
-import { inputClass } from '../../components/ui/input';
 
 /** The options a remote field found on the server, and the search that asks for them. */
 export interface RemoteSource {
@@ -47,7 +48,7 @@ export function SearchBox({
   const { __ } = useTranslation();
 
   return (
-    <input
+    <Input
       type="search"
       aria-label={__('Search')}
       placeholder={__('Search')}
@@ -70,7 +71,7 @@ export function SearchBox({
           onQuery('');
         }
       }}
-      className={`${inputClass} mb-1`}
+      className="mb-1"
     />
   );
 }
@@ -162,8 +163,10 @@ export function MultiSelectForm(props: FormFieldProps & { remote?: RemoteSource 
             return (
               <li key={item} className="inline-flex items-center gap-1 rounded-md bg-muted px-2 py-0.5 text-xs">
                 {label}
-                <button
-                  type="button"
+                <Button
+                  variant="ghost"
+                  size="icon-xs"
+                  className="size-4"
                   aria-label={__('Remove :item', { item: label })}
                   disabled={disabled}
                   onClick={() => {
@@ -171,7 +174,7 @@ export function MultiSelectForm(props: FormFieldProps & { remote?: RemoteSource 
                   }}
                 >
                   <X aria-hidden className="size-3" />
-                </button>
+                </Button>
               </li>
             );
           })}

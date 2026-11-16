@@ -74,7 +74,7 @@ describe('code-field', () => {
       [null, ''],
     ] as const) {
       const textarea = await renderForm(value);
-      expect([textarea.tagName, textarea.value]).toEqual(['TEXTAREA', shown]);
+      expect([textarea.tagName, textarea.value, textarea.dataset.slot]).toEqual(['TEXTAREA', shown, 'textarea']);
       document.body.innerHTML = '';
     }
 

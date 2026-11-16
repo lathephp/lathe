@@ -5,6 +5,7 @@ import { NodeSelection } from '@tiptap/pm/state';
 import type { EditorView } from '@tiptap/pm/view';
 import StarterKit from '@tiptap/starter-kit';
 import { Bold, Italic, List, Minus, type LucideIcon } from 'lucide-react';
+import { Button } from '../../components/ui/Button';
 import { stringValue, type FormFieldProps } from '../registry';
 
 /**
@@ -53,16 +54,17 @@ interface ToolProps {
 
 function Tool({ label, icon: Icon, disabled, onClick }: ToolProps) {
   return (
-    <button
-      type="button"
+    <Button
+      variant="ghost"
+      size="icon-sm"
       aria-label={label}
       title={label}
       disabled={disabled}
-      className="inline-flex size-7 items-center justify-center rounded-[6px] text-muted-foreground outline-none hover:bg-card hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring disabled:opacity-60"
+      className="size-7 rounded-[6px] text-muted-foreground hover:bg-card hover:text-foreground"
       onClick={onClick}
     >
       <Icon aria-hidden="true" className="size-4" />
-    </button>
+    </Button>
   );
 }
 

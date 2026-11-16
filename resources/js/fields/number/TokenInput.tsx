@@ -2,10 +2,10 @@ import { toast, useTranslation } from '@lathephp/core';
 import { Copy, Eye, EyeOff } from 'lucide-react';
 import { useState } from 'react';
 import { stringValue, type FormFieldProps } from '../registry';
-import { inputClass } from '../../components/ui/input';
+import { Button } from '../../components/ui/Button';
+import { Input } from '../../components/ui/input';
 
-const buttonClass =
-  'inline-flex size-9 shrink-0 items-center justify-center rounded-md border border-input bg-background text-muted-foreground outline-none hover:bg-muted focus-visible:ring-2 focus-visible:ring-ring disabled:opacity-60';
+const buttonClass = 'shrink-0 text-muted-foreground';
 
 /** The raw token in a masked input, with a toggle to reveal it and a button to copy it. */
 export function TokenInput({ field, value, onChange, id, describedBy, invalid, disabled }: FormFieldProps) {
@@ -15,7 +15,7 @@ export function TokenInput({ field, value, onChange, id, describedBy, invalid, d
 
   return (
     <div className="flex gap-2">
-      <input
+      <Input
         id={id}
         name={field.attribute}
         type={revealed ? 'text' : 'password'}
@@ -30,10 +30,11 @@ export function TokenInput({ field, value, onChange, id, describedBy, invalid, d
         onChange={(event) => {
           onChange(event.target.value);
         }}
-        className={`${inputClass} font-mono`}
+        className="font-mono"
       />
-      <button
-        type="button"
+      <Button
+        variant="outline"
+        size="icon"
         aria-label={revealed ? __('Hide') : __('Show')}
         className={buttonClass}
         onClick={() => {
@@ -41,9 +42,10 @@ export function TokenInput({ field, value, onChange, id, describedBy, invalid, d
         }}
       >
         {revealed ? <EyeOff className="size-4" aria-hidden="true" /> : <Eye className="size-4" aria-hidden="true" />}
-      </button>
-      <button
-        type="button"
+      </Button>
+      <Button
+        variant="outline"
+        size="icon"
         aria-label={__('Copy')}
         className={buttonClass}
         onClick={() => {
@@ -54,7 +56,7 @@ export function TokenInput({ field, value, onChange, id, describedBy, invalid, d
         }}
       >
         <Copy className="size-4" aria-hidden="true" />
-      </button>
+      </Button>
     </div>
   );
 }

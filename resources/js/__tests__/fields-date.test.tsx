@@ -196,7 +196,7 @@ describe('the order form Placed field', () => {
     expect(onChange).toHaveBeenLastCalledWith('2026-10-20T10:30');
 
     const time = screen.getByLabelText<HTMLInputElement>('Time');
-    expect([time.type, time.value]).toEqual(['text', '10:30']);
+    expect([time.type, time.value, time.dataset.slot]).toEqual(['text', '10:30', 'input']);
     fireEvent.change(time, { target: { value: '23:12' } });
     fireEvent.blur(time);
     expect(onChange).toHaveBeenLastCalledWith('2026-10-15T23:12');

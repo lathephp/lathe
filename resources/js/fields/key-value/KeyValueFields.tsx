@@ -1,6 +1,7 @@
 import { useTranslation } from '@lathephp/core';
 import { stringValue, type DetailFieldProps, type FormFieldProps } from '../registry';
-import { inputClass } from '../../components/ui/input';
+import { Button } from '../../components/ui/Button';
+import { Input } from '../../components/ui/input';
 
 type Row = { key: string; value: string };
 
@@ -82,7 +83,7 @@ export default function KeyValueForm({ field, value, onChange, id, describedBy, 
             {rows.map((row, index) => (
               <tr key={index}>
                 <td className="pb-2 pe-2">
-                  <input
+                  <Input
                     type="text"
                     aria-label={`${keyLabel} ${String(index + 1)}`}
                     aria-invalid={invalid || undefined}
@@ -91,11 +92,10 @@ export default function KeyValueForm({ field, value, onChange, id, describedBy, 
                     onChange={(event) => {
                       edit(index, { key: event.target.value });
                     }}
-                    className={inputClass}
                   />
                 </td>
                 <td className="pb-2 pe-2">
-                  <input
+                  <Input
                     type="text"
                     aria-label={`${valueLabel} ${String(index + 1)}`}
                     aria-invalid={invalid || undefined}
@@ -104,22 +104,20 @@ export default function KeyValueForm({ field, value, onChange, id, describedBy, 
                     onChange={(event) => {
                       edit(index, { value: event.target.value });
                     }}
-                    className={inputClass}
                   />
                 </td>
                 <td className="pb-2">
                   {field.disableDeletingRows === true ? null : (
-                    <button
-                      type="button"
+                    <Button
+                      variant="outline"
                       aria-label={__('Remove row :number', { number: index + 1 })}
                       disabled={disabled}
-                      className="h-9 rounded-md border border-input px-3 text-sm disabled:opacity-60"
                       onClick={() => {
                         onChange(rows.filter((_, at) => at !== index));
                       }}
                     >
                       ×
-                    </button>
+                    </Button>
                   )}
                 </td>
               </tr>
@@ -128,16 +126,15 @@ export default function KeyValueForm({ field, value, onChange, id, describedBy, 
         </table>
       )}
       {field.disableAddingRows === true ? null : (
-        <button
-          type="button"
+        <Button
+          variant="outline"
           disabled={disabled}
-          className="h-9 rounded-md border border-input px-3 text-sm disabled:opacity-60"
           onClick={() => {
             onChange([...rows, { key: '', value: '' }]);
           }}
         >
           {text(field, 'actionText', __('Add row'))}
-        </button>
+        </Button>
       )}
     </div>
   );

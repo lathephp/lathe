@@ -1,4 +1,5 @@
 import { useLayoutEffect, useRef, type CSSProperties, type KeyboardEvent } from 'react';
+import { Textarea } from '../../components/ui/input';
 import { stringValue, type FormFieldProps } from '../registry';
 
 const DEFAULT_TAB_SIZE = 2;
@@ -76,7 +77,7 @@ export default function CodeEditor({ field, value, onChange, id, describedBy, in
           <div key={index}>{index + 1}</div>
         ))}
       </div>
-      <textarea
+      <Textarea
         ref={area}
         id={id}
         name={field.attribute}
@@ -97,7 +98,7 @@ export default function CodeEditor({ field, value, onChange, id, describedBy, in
         onScroll={(event) => {
           if (gutter.current) gutter.current.scrollTop = event.currentTarget.scrollTop;
         }}
-        className="min-w-0 flex-1 resize-none bg-transparent px-3 py-2 leading-6 outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring disabled:opacity-60"
+        className="w-auto flex-1 resize-none rounded-none border-0 bg-transparent px-3 py-2 leading-6 shadow-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring disabled:opacity-60"
       />
     </div>
   );

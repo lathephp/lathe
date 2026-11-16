@@ -103,6 +103,7 @@ describe('slug-field', () => {
     renderForm([title(), slugField({ showCustomizeButton: true, follow: false, locked: true }, 'hello-world')], 'update');
 
     expect(slugInput().disabled).toBe(true);
+    expect(slugInput().dataset.slot).toBe('input');
     fireEvent.click(screen.getByRole('button', { name: 'Customize' }));
 
     expect(slugInput().disabled).toBe(false);
@@ -156,6 +157,7 @@ describe('key-value-field', () => {
     renderForm([pairsField({}, { a: '1' })]);
 
     expect(screen.getByLabelText<HTMLInputElement>('Key 1').value).toBe('a');
+    expect(screen.getByLabelText('Key 1').getAttribute('data-slot')).toBe('input');
     fireEvent.click(screen.getByRole('button', { name: 'Add row' }));
     fireEvent.change(screen.getByLabelText('Key 2'), { target: { value: 'b' } });
     fireEvent.change(screen.getByLabelText('Value 2'), { target: { value: '2' } });

@@ -19,20 +19,6 @@ const lathe = {
 
 // The panel files whose raw controls m47 has not moved to the kit yet; each sweep task empties its part.
 const notYetSwept = [
-  'resources/js/fields/choice/SelectForms.tsx',
-  'resources/js/fields/date/DatePicker.tsx',
-  'resources/js/fields/date/DateText.tsx',
-  'resources/js/fields/key-value/KeyValueFields.tsx',
-  'resources/js/fields/number/TokenInput.tsx',
-  'resources/js/fields/relation/BelongsToForm.tsx',
-  'resources/js/fields/relation/CreateRelationSheet.tsx',
-  'resources/js/fields/relation/TagForm.tsx',
-  'resources/js/fields/repeater/RepeaterFields.tsx',
-  'resources/js/fields/rich/CodeEditor.tsx',
-  'resources/js/fields/rich/MarkdownEditor.tsx',
-  'resources/js/fields/rich/TiptapEditor.tsx',
-  'resources/js/fields/slug/SlugInput.tsx',
-  'resources/js/fields/upload/FileControl.tsx',
 ];
 
 export default defineConfig([

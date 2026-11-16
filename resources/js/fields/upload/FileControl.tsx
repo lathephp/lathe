@@ -1,5 +1,6 @@
 import { useTranslation } from '@lathephp/core';
 import { Suspense, useContext } from 'react';
+import { Button } from '../../components/ui/Button';
 import type { FormFieldProps } from '../registry';
 import { RepeaterPathContext } from '../repeater/errors';
 import { asFile, Uploader, type FileData } from './file';
@@ -33,15 +34,15 @@ export function FileControl({
         <div className="flex flex-wrap items-center gap-3">
           {media(file)}
           {field.deletable !== false && !disabled && (
-            <button
-              type="button"
-              className="text-sm text-destructive underline-offset-2 outline-none hover:underline focus-visible:ring-2 focus-visible:ring-ring"
+            <Button
+              variant="link"
+              className="h-auto p-0 text-sm text-destructive"
               onClick={() => {
                 onChange(null);
               }}
             >
               {__('Remove')}
-            </button>
+            </Button>
           )}
         </div>
       )}

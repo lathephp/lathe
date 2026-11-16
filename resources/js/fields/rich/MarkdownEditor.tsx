@@ -2,7 +2,9 @@ import { usePage } from '@inertiajs/react';
 import { request, useLathe, useTranslation, type SafeHtml as SafeHtmlValue } from '@lathephp/core';
 import { useRef, useState } from 'react';
 import { SafeHtml } from '../../components/SafeHtml';
+import { Button } from '../../components/ui/Button';
 import { FilePicker } from '../../components/ui/FilePicker';
+import { Textarea } from '../../components/ui/input';
 import { stringValue, type FormFieldProps } from '../registry';
 import type { FormProps } from '../types';
 
@@ -60,8 +62,8 @@ export default function MarkdownEditor({ field, value, onChange, id, describedBy
     <div className="overflow-hidden rounded-md border border-input bg-card has-aria-[invalid]:border-destructive">
       <div className="flex h-[38px] items-center gap-0.5 border-b border-border bg-muted px-1.5">
         <div role="tablist" className="flex gap-0.5">
-          <button
-            type="button"
+          <Button
+            variant="ghost"
             role="tab"
             id={`${id}-write`}
             aria-selected={tab === 'write'}
@@ -71,9 +73,9 @@ export default function MarkdownEditor({ field, value, onChange, id, describedBy
             }}
           >
             {__('Write')}
-          </button>
-          <button
-            type="button"
+          </Button>
+          <Button
+            variant="ghost"
             role="tab"
             id={`${id}-preview`}
             aria-selected={tab === 'preview'}
@@ -83,7 +85,7 @@ export default function MarkdownEditor({ field, value, onChange, id, describedBy
             }}
           >
             {__('Preview')}
-          </button>
+          </Button>
         </div>
         {uploadImage !== undefined && (
           <FilePicker
@@ -100,7 +102,7 @@ export default function MarkdownEditor({ field, value, onChange, id, describedBy
           </FilePicker>
         )}
       </div>
-      <textarea
+      <Textarea
         ref={textarea}
         id={id}
         name={field.attribute}
@@ -115,7 +117,7 @@ export default function MarkdownEditor({ field, value, onChange, id, describedBy
         onChange={(event) => {
           onChange(event.target.value);
         }}
-        className="block w-full resize-y bg-card px-3 py-2.5 font-mono text-[13px] leading-5 outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset disabled:opacity-60"
+        className="block resize-y rounded-none border-0 bg-card px-3 py-2.5 font-mono text-[13px] leading-5 shadow-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset disabled:opacity-60"
       />
       {tab === 'preview' && (
         <div role="tabpanel" aria-labelledby={`${id}-preview`} className="min-h-24 px-3 py-2.5">

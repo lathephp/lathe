@@ -162,6 +162,7 @@ describe('tag field', () => {
     fireEvent.click(screen.getByRole('button', { name: 'gift' }));
 
     expect(onChange).toHaveBeenLastCalledWith([tags[0], tags[2]]);
+    expect(screen.getByRole('button', { name: 'gift' }).getAttribute('data-slot')).toBe('toggle');
     expect(screen.getByRole('button', { name: 'gift' }).getAttribute('aria-pressed')).toBe('true');
     expect(screen.getByRole('button', { name: 'new' }).getAttribute('aria-pressed')).toBe('false');
     expect(fetch).not.toHaveBeenCalled();

@@ -3,7 +3,7 @@ import { Calendar } from '@lathephp/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@lathephp/ui/popover';
 import { useState, type ReactElement } from 'react';
 import { pad } from './parse';
-import { inputClass } from '../../components/ui/input';
+import { Input } from '../../components/ui/input';
 
 interface DatePickerProps {
   open: boolean;
@@ -60,7 +60,7 @@ export function DatePicker({ open, onOpenChange, trigger, value, time, min, max,
           }}
         />
         {time && (
-          <input
+          <Input
             type="text"
             inputMode="numeric"
             aria-label={__('Time')}
@@ -76,7 +76,7 @@ export function DatePicker({ open, onOpenChange, trigger, value, time, min, max,
                 commit();
               }
             }}
-            className={`${inputClass} mt-2`}
+            className="mt-2"
           />
         )}
       </PopoverContent>

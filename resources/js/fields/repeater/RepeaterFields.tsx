@@ -8,7 +8,7 @@ import { DetailField, FormField, stringValue, type DetailFieldProps, type FormFi
 import type { FieldSchema } from '../types';
 import { RepeaterErrorsContext, RepeaterPathContext } from './errors';
 import { RepeaterFailuresContext } from './failures';
-import { Button, buttonClass } from '../../components/ui/Button';
+import { Button } from '../../components/ui/Button';
 
 interface Block {
   key: string;
@@ -232,8 +232,6 @@ export function RepeaterForm({ field, value, onChange, id, describedBy, disabled
   }
 
   const full = cfg.max !== null && rows.length >= cfg.max;
-  const addButton = 'inline-flex h-8 items-center gap-1 rounded-md border border-input px-3 text-sm disabled:opacity-60';
-  const iconButton = buttonClass('ghost', 'icon-sm');
 
   return (
     <div id={id} role="group" aria-describedby={describedBy} className="space-y-2">
@@ -262,8 +260,9 @@ export function RepeaterForm({ field, value, onChange, id, describedBy, disabled
             >
               <div className={cn('flex items-center gap-1 border-b border-border', field.compact ? 'px-1 py-0.5' : 'px-2 py-1')}>
                 {cfg.reorderable ? (
-                  <button
-                    type="button"
+                  <Button
+                    variant="ghost"
+                    size="icon-sm"
                     draggable={!disabled}
                     disabled={disabled}
                     aria-label={__('Drag to reorder')}
@@ -273,23 +272,23 @@ export function RepeaterForm({ field, value, onChange, id, describedBy, disabled
                     onDragEnd={() => {
                       setDragging(null);
                     }}
-                    className={cn(iconButton, 'cursor-grab')}
+                    className="cursor-grab"
                   >
                     <GripVertical aria-hidden="true" className="size-4" />
-                  </button>
+                  </Button>
                 ) : null}
                 {cfg.collapsible ? (
-                  <button
-                    type="button"
+                  <Button
+                    variant="ghost"
+                    size="icon-sm"
                     aria-expanded={expanded}
                     aria-label={expanded ? __('Collapse') : __('Expand')}
                     onClick={() => {
                       setOpen({ ...open, [key]: !expanded });
                     }}
-                    className={iconButton}
                   >
                     {expanded ? <ChevronDown aria-hidden="true" className="size-4" /> : <ChevronRight aria-hidden="true" className="size-4 rtl:rotate-180" />}
-                  </button>
+                  </Button>
                 ) : null}
                 <span data-row-title className="min-w-0 flex-1 truncate text-sm font-medium">
                   {rowTitle(cfg, row, index, __)}
@@ -297,55 +296,55 @@ export function RepeaterForm({ field, value, onChange, id, describedBy, disabled
                 {block === undefined || cfg.mode !== 'repeatables' ? null : <span className="text-xs text-muted-foreground">{block.label}</span>}
                 {cfg.reorderable ? (
                   <>
-                    <button
-                      type="button"
+                    <Button
+                      variant="ghost"
+                      size="icon-sm"
                       aria-label={__('Move up')}
                       disabled={disabled || index === 0}
                       onClick={() => {
                         move(index, index - 1);
                       }}
-                      className={iconButton}
                     >
                       <ChevronUp aria-hidden="true" className="size-4" />
-                    </button>
-                    <button
-                      type="button"
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="icon-sm"
                       aria-label={__('Move down')}
                       disabled={disabled || index === rows.length - 1}
                       onClick={() => {
                         move(index, index + 1);
                       }}
-                      className={iconButton}
                     >
                       <ChevronDown aria-hidden="true" className="size-4" />
-                    </button>
+                    </Button>
                   </>
                 ) : null}
                 {cfg.cloneable ? (
-                  <button
-                    type="button"
+                  <Button
+                    variant="ghost"
+                    size="icon-sm"
                     aria-label={__('Clone')}
                     disabled={disabled || full}
                     onClick={() => {
                       cloneAt(index);
                     }}
-                    className={iconButton}
                   >
                     <Copy aria-hidden="true" className="size-4" />
-                  </button>
+                  </Button>
                 ) : null}
                 {cfg.deletable ? (
-                  <button
-                    type="button"
+                  <Button
+                    variant="ghost"
+                    size="icon-sm"
                     aria-label={__('Remove')}
                     disabled={disabled}
                     onClick={() => {
                       requestRemoval(index);
                     }}
-                    className={iconButton}
                   >
                     <Trash2 aria-hidden="true" className="size-4" />
-                  </button>
+                  </Button>
                 ) : null}
               </div>
               {expanded ? (
@@ -387,31 +386,31 @@ export function RepeaterForm({ field, value, onChange, id, describedBy, disabled
         <div className="flex flex-wrap gap-2">
           {cfg.mode === 'repeatables' ? (
             cfg.blocks.map((block) => (
-              <button
+              <Button
                 key={block.key}
-                type="button"
+                variant="outline"
+                size="sm"
                 disabled={disabled || full}
                 onClick={() => {
                   add(block);
                 }}
-                className={addButton}
               >
                 <Plus aria-hidden="true" className="size-4" />
                 {__('Add :block', { block: block.label })}
-              </button>
+              </Button>
             ))
           ) : (
-            <button
-              type="button"
+            <Button
+              variant="outline"
+              size="sm"
               disabled={disabled || full}
               onClick={() => {
                 add();
               }}
-              className={addButton}
             >
               <Plus aria-hidden="true" className="size-4" />
               {cfg.addButtonText ?? __('Add row')}
-            </button>
+            </Button>
           )}
         </div>
       ) : null}

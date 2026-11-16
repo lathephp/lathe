@@ -1,6 +1,8 @@
 import { formatDate, useTranslation } from '@lathephp/core';
 import { CalendarIcon } from 'lucide-react';
 import { Suspense, useState } from 'react';
+import { Button } from '../../components/ui/Button';
+import { Input } from '../../components/ui/input';
 import { DatePicker } from './lazy';
 import { parseDate } from './parse';
 
@@ -53,20 +55,21 @@ export function DateText({ value, time, onChange, className, label, describedBy,
   };
 
   const button = (onClick?: () => void) => (
-    <button
-      type="button"
+    <Button
+      variant="ghost"
+      size="icon-sm"
       aria-label={__('Open calendar')}
       disabled={disabled}
       onClick={onClick}
-      className="absolute inset-y-0 end-0 flex w-9 items-center justify-center rounded-e-md text-muted-foreground outline-none hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring disabled:opacity-60"
+      className="absolute inset-y-0 end-0 h-auto w-9 rounded-s-none rounded-e-md text-muted-foreground hover:text-foreground disabled:opacity-60"
     >
       <CalendarIcon className="size-4" aria-hidden />
-    </button>
+    </Button>
   );
 
   return (
     <div className="relative min-w-0 flex-1">
-      <input
+      <Input
         {...input}
         type="text"
         value={draft ?? shown}
