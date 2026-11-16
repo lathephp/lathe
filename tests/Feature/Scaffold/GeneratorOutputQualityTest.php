@@ -143,6 +143,7 @@ function tsxProject(string $base): array
             'paths' => [
                 '@lathephp/core' => [qualityRepo().'/packages/core/src/index.ts'],
                 '@lathephp/ui' => [qualityRepo().'/packages/ui/src/index.ts'],
+                '@lathephp/ui/*' => [qualityRepo().'/packages/ui/src/*.tsx'],
             ],
         ],
         'files' => $files,

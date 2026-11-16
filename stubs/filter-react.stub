@@ -1,4 +1,7 @@
 import { filter } from '@lathephp/core';
+import { Input } from '@lathephp/ui';
+import { Field, FieldLabel } from '@lathephp/ui/field';
+import { useId } from 'react';
 
 interface {{ class }}Props {
   filter: { name: string };
@@ -7,18 +10,20 @@ interface {{ class }}Props {
 }
 
 function {{ class }}({ filter: definition, value, onChange }: {{ class }}Props) {
+  const id = useId();
+
   return (
-    <label className="block space-y-1.5 text-sm">
-      <span className="text-xs font-semibold uppercase tracking-wide">{definition.name}</span>
-      <input
+    <Field>
+      <FieldLabel htmlFor={id}>{definition.name}</FieldLabel>
+      <Input
+        id={id}
         type="text"
         value={typeof value === 'string' ? value : ''}
         onChange={(event) => {
           onChange(event.target.value);
         }}
-        className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1"
       />
-    </label>
+    </Field>
   );
 }
 
