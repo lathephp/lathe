@@ -25,6 +25,7 @@ All notable changes to Lathe are listed here. The format follows [Keep a Changel
 - A record's relation tabs and its field tab groups move with the keyboard as kit `Tabs` do: only the open tab is in the Tab order, the arrow keys open the next or previous tab (the other way under right to left, and up and down in a vertical group), and Home and End open the first and last. A tab opened from the keyboard writes its query key to the URL as a click does. Both draw as the kit's line tabs with the style's `cn-tabs-list` and `cn-tabs-trigger`; a vertical group is a scrolling row below 768 px, as before.
 - [api] The kit's `DropdownMenuContent` takes a `collisionPadding`, the space it keeps from the edges of the box it stays inside, and a `collisionBoundary`, that box when it is not the window.
 - [api] The kit's `ChartTooltipContent` takes a `className`, and its box takes its border, corners, padding and shadow from the style's `cn-chart-tooltip`.
+- [api] A boolean field's switch and checkbox, and a boolean group's boxes, draw with the active style's `cn-switch` and `cn-checkbox` and carry the kit's `data-slot`, `data-checked`, `data-unchecked` and `data-indeterminate` attributes, through the panel's new first-paint `Switch` and `Checkbox` in `components/ui`, which stay out of the kit's code. The checkbox is a `role="checkbox"` button rather than a native input; a nullable boolean with no value reads as mixed.
 
 ### Fixed
 

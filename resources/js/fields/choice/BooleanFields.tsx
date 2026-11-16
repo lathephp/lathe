@@ -1,8 +1,8 @@
 import { useTranslation } from '@lathephp/core';
 import { Check, X } from 'lucide-react';
-import { useEffect, useRef } from 'react';
 import { stringValue, type DetailFieldProps, type FormFieldProps, type IndexFieldProps } from '../registry';
-import { cn } from '../../lib/cn';
+import { Checkbox } from '../../components/ui/Checkbox';
+import { Switch } from '../../components/ui/Switch';
 import { groupState, optionsOf } from './options';
 
 /** The next value of a boolean: a plain one flips, a nullable one goes null, true, false, null. */
@@ -21,55 +21,12 @@ function next(value: unknown, nullable: boolean): boolean | null {
 export function BooleanForm({ field, value, onChange, id, describedBy, invalid, disabled }: FormFieldProps) {
   const checked = value === true;
   const unset = field.nullable && (value === null || value === undefined);
-  const box = useRef<HTMLInputElement>(null);
-
-  useEffect(() => {
-    if (box.current !== null) {
-      box.current.indeterminate = unset;
-    }
-  }, [unset]);
-
   const flip = () => {
     onChange(next(value, field.nullable));
   };
+  const props = { id, checked, disabled, onCheckedChange: flip, 'aria-describedby': describedBy, 'aria-invalid': invalid || undefined };
 
-  if (field.asCheckbox === true) {
-    return (
-      <input
-        ref={box}
-        id={id}
-        name={field.attribute}
-        type="checkbox"
-        checked={checked}
-        aria-describedby={describedBy}
-        aria-invalid={invalid || undefined}
-        disabled={disabled}
-        onChange={flip}
-        className="size-4 rounded border border-input accent-primary"
-      />
-    );
-  }
-
-  return (
-    <button
-      id={id}
-      type="button"
-      role="switch"
-      aria-checked={checked}
-      aria-describedby={describedBy}
-      aria-invalid={invalid || undefined}
-      data-unset={unset || undefined}
-      disabled={disabled}
-      onClick={flip}
-      className={cn(
-        'inline-flex h-6 w-11 items-center rounded-full border border-transparent p-0.5 transition-colors focus-visible:ring-2 focus-visible:ring-ring disabled:opacity-60',
-        checked ? 'bg-primary' : 'bg-input',
-        unset && 'opacity-60',
-      )}
-    >
-      <span className={cn('block size-5 rounded-full bg-background shadow transition-transform', checked && 'translate-x-5')} />
-    </button>
-  );
+  return field.asCheckbox === true ? <Checkbox {...props} indeterminate={unset} /> : <Switch {...props} data-unset={unset || undefined} className={unset ? 'opacity-60' : undefined} />;
 }
 
 function Mark({ on, iconOnly = false }: { on: boolean; iconOnly?: boolean }) {
@@ -109,13 +66,11 @@ export function BooleanGroupForm({ field, value, onChange, id, describedBy, inva
     <fieldset id={id} aria-describedby={describedBy} aria-invalid={invalid || undefined} disabled={disabled} className="space-y-1">
       {options.map((option) => (
         <label key={option.value} className="flex items-center gap-2 text-sm">
-          <input
-            type="checkbox"
+          <Checkbox
             checked={state[option.value] === true}
-            onChange={(event) => {
-              onChange(Object.fromEntries(options.map((item) => [item.value, item.value === option.value ? event.target.checked : state[item.value] === true])));
+            onCheckedChange={(checked) => {
+              onChange(Object.fromEntries(options.map((item) => [item.value, item.value === option.value ? checked : state[item.value] === true])));
             }}
-            className="size-4 rounded border border-input accent-primary"
           />
           {option.label}
         </label>

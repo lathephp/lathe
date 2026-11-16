@@ -1,3 +1,4 @@
+import { readFileSync } from 'node:fs';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { useState } from 'react';
 import { describe, expect, it, onTestFinished, vi } from 'vitest';
@@ -283,6 +284,35 @@ describe('boolean-field', () => {
     expect(onChange).toHaveBeenCalledWith(false);
   });
 
+  it("draws the switch with the style's switch classes and state", () => {
+    const { unmount } = renderForm('boolean-field', true);
+    const on = screen.getByRole('switch');
+    expect([on.dataset.slot, on.classList.contains('cn-switch'), on.dataset.size, 'checked' in on.dataset, 'unchecked' in on.dataset]).toEqual(['switch', true, 'default', true, false]);
+    expect(on.querySelector('.cn-switch-thumb')?.hasAttribute('data-checked')).toBe(true);
+    unmount();
+
+    renderForm('boolean-field', false);
+    const off = screen.getByRole('switch');
+    expect(['checked' in off.dataset, 'unchecked' in off.dataset]).toEqual([false, true]);
+    expect(off.querySelector('.cn-switch-thumb')?.hasAttribute('data-unchecked')).toBe(true);
+  });
+
+  it("draws the checkbox with the style's checkbox classes and state, mixed while unset", () => {
+    const { unmount } = renderForm('boolean-field', true, { asCheckbox: true });
+    const box = screen.getByRole('checkbox');
+    expect([box.dataset.slot, box.classList.contains('cn-checkbox'), box.getAttribute('aria-checked'), 'checked' in box.dataset]).toEqual(['checkbox', true, 'true', true]);
+    expect(box.querySelector('[data-slot="checkbox-indicator"]')).not.toBeNull();
+    unmount();
+
+    renderForm('boolean-field', null, { asCheckbox: true, nullable: true });
+    const unset = screen.getByRole('checkbox');
+    expect([unset.getAttribute('aria-checked'), 'indeterminate' in unset.dataset, 'checked' in unset.dataset]).toEqual(['mixed', true, false]);
+  });
+
+  it('keeps the kit out of the boolean field, which every first load carries', () => {
+    expect(readFileSync('resources/js/fields/choice/BooleanFields.tsx', 'utf8')).not.toContain('@lathephp/ui');
+  });
+
   it('cycles a nullable boolean through null, true and false', () => {
     const onChange = vi.fn();
     const { unmount } = renderForm('boolean-field', null, { nullable: true }, onChange);
@@ -322,7 +352,7 @@ describe('boolean-group-field', () => {
     const onChange = vi.fn();
     renderForm('boolean-group-field', { email: true, sms: false }, group, onChange);
 
-    expect(screen.getByRole<HTMLInputElement>('checkbox', { name: 'Email' }).checked).toBe(true);
+    expect(screen.getByRole('checkbox', { name: 'Email' }).getAttribute('aria-checked')).toBe('true');
     fireEvent.click(screen.getByRole('checkbox', { name: 'SMS' }));
 
     expect(onChange).toHaveBeenCalledWith({ email: true, sms: true });
