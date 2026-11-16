@@ -76,6 +76,19 @@ export interface PanelComponents {
   };
   /** Content that clips behind a Show Content button once it passes 10 lines. */
   Excerpt: { lines: number; open?: boolean; children: ReactNode };
+  PageHeader: {
+    title: ReactNode;
+    /** The muted line under the title. */
+    description?: ReactNode;
+    /** The buttons on the right, with at most one primary. */
+    actions?: ReactNode;
+  };
+  Icon: {
+    /** A Lucide name ('shopping-cart') or a case of the PHP Icon enum ('ShoppingCart'). */
+    name: string;
+    /** The size and colour classes; size-4 when left out. */
+    className?: string;
+  };
 }
 
 type Registered = { [K in keyof PanelComponents]?: ComponentType<PanelComponents[K]> };
@@ -121,3 +134,7 @@ export const DetailHeader = proxy('DetailHeader');
 export const WidgetGrid = proxy('WidgetGrid');
 export const WidgetCard = proxy('WidgetCard');
 export const Excerpt = proxy('Excerpt');
+/** A page's title row, as the panel's own pages draw it: the title, a muted description and the actions. A phone shows the title in its top bar. */
+export const PageHeader = proxy('PageHeader');
+/** A Lucide icon by name, from the panel's icon set; an empty box of its size holds the place until the set loads, and an unknown name draws a circle. */
+export const Icon = proxy('Icon');

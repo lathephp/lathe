@@ -73,6 +73,8 @@ export {
   Excerpt,
   // eslint-disable-next-line @typescript-eslint/no-deprecated -- FilterMenu is deprecated and still exported through 1.x
   FilterMenu,
+  Icon,
+  PageHeader,
   ResourceTable,
   WidgetCard,
   WidgetGrid,

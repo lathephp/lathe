@@ -50,3 +50,10 @@ export function PageHeader({ title, badge, subtitle, actions, phoneAction }: Pag
     </div>
   );
 }
+
+/** The page header core lends to plugins as PageHeader: a description in place of the panel's subtitle node. */
+export function LentPageHeader({ title, description, actions }: { title: ReactNode; description?: ReactNode; actions?: ReactNode }) {
+  'use no memo';
+
+  return <PageHeader title={title} subtitle={description != null && <p className="lathe-page-subtitle">{description}</p>} actions={actions} />;
+}

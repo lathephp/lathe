@@ -6,6 +6,8 @@ import { createRoot } from 'react-dom/client';
 import { StaleAssetScreen } from './components/StaleAssetScreen';
 import { registerBuiltinFields } from './fields/builtin';
 import { AppLayout } from './layout/AppLayout';
+import { LentPageHeader } from './layout/PageHeader';
+import { NavIcon } from './components/NavIcon';
 import { RunToastsHost } from './actions/RunToastsHost';
 import { PasswordConfirmHost } from './components/PasswordConfirmHost';
 import { Toaster } from './components/Toaster';
@@ -41,6 +43,8 @@ __panel.registerComponents({
   WidgetGrid: lazy(() => lent().then((module) => ({ default: module.WidgetGrid }))),
   WidgetCard: lazy(() => lent().then((module) => ({ default: module.WidgetCard }))),
   Excerpt: lazy(() => lent().then((module) => ({ default: module.Excerpt }))),
+  PageHeader: LentPageHeader,
+  Icon: NavIcon,
 });
 __panel.boot();
 

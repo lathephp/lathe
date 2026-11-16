@@ -320,6 +320,6 @@ export const iconSet: Record<string, LucideIcon | undefined> = {
 };
 
 /** An icon of the set by its Lucide name, or a plain circle for a name the set does not hold. */
-export function SetIcon({ name }: { name: string }) {
-  return createElement(iconSet[name] ?? Circle, { 'aria-hidden': true, className: 'size-4 shrink-0' });
+export function SetIcon({ name, className }: { name: string; className: string }) {
+  return createElement(iconSet[name] ?? Circle, { 'aria-hidden': true, className });
 }

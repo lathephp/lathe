@@ -14,12 +14,12 @@ const SetIcon = lazyNamed(() =>
   ),
 );
 
-function CircleIcon() {
-  return createElement(Circle, { 'aria-hidden': true, className: 'size-4 shrink-0' });
+function CircleIcon({ className }: { className: string }) {
+  return createElement(Circle, { 'aria-hidden': true, className });
 }
 
-/** A navigation icon by its Lucide name; until the icon set loads, an empty box of the same size holds its place. */
-export function NavIcon({ name }: { name: string | null }) {
+/** A navigation icon by its Lucide name; until the icon set loads, an empty box of the same size holds its place. Plugins get it as core's Icon. */
+export function NavIcon({ name, className = 'size-4' }: { name: string | null; className?: string }) {
   // One element per render: the compiler's cache would only add first-load bytes.
   'use no memo';
 
@@ -27,14 +27,15 @@ export function NavIcon({ name }: { name: string | null }) {
   // Lucide's numbered names ('bar-chart-3') drop the number in the case.
   const key = name?.replace(/(^|-)(\w)/g, (_, __, letter: string) => letter.toUpperCase()).replace(/\d+$/, '') ?? '';
   const eager = name === null ? Circle : icons[key];
+  const size = `${className} shrink-0`;
 
   if (eager !== undefined) {
-    return createElement(eager, { 'aria-hidden': true, className: 'size-4 shrink-0' });
+    return createElement(eager, { 'aria-hidden': true, className: size });
   }
 
   return (
-    <Suspense fallback={<span aria-hidden="true" className="inline-block size-4 shrink-0" />}>
-      <SetIcon name={key} />
+    <Suspense fallback={<span aria-hidden="true" className={`inline-block ${size}`} />}>
+      <SetIcon name={key} className={size} />
     </Suspense>
   );
 }

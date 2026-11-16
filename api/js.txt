@@ -5,6 +5,8 @@
 @lathephp/core DetailHeader
 @lathephp/core Excerpt
 @lathephp/core FilterMenu
+@lathephp/core Icon
+@lathephp/core PageHeader
 @lathephp/core QueryClientProvider
 @lathephp/core ResourceTable
 @lathephp/core WidgetCard
