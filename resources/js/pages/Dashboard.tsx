@@ -221,9 +221,11 @@ function RangePicker({ ranges, value, onPick }: { ranges: RangeOption[]; value: 
   const [fade, setFade] = useState({ start: false, end: false });
   const strip = useRef<HTMLDivElement>(null);
 
+  // A strip that overflows by less than the 24 px fade loses only a sliver, which a fade would make worse.
   const measure = (element: HTMLElement) => {
-    const start = element.scrollLeft > 0;
-    const end = Math.ceil(element.scrollLeft) + element.clientWidth < element.scrollWidth - 1;
+    const scrolls = element.scrollWidth - element.clientWidth >= 24;
+    const start = scrolls && element.scrollLeft > 0;
+    const end = scrolls && Math.ceil(element.scrollLeft) + element.clientWidth < element.scrollWidth - 1;
     setFade((now) => (now.start === start && now.end === end ? now : { start, end }));
   };
 

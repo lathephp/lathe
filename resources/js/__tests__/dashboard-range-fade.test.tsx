@@ -68,6 +68,17 @@ describe('the dashboard range strip on a phone', () => {
     expect(group.className).toContain('data-fade-start:[--fade-start:0]');
   });
 
+  // A strip that overflows by less than the 24 px fade would hide part of a label at either end.
+  it('fades neither edge when the strip overflows by less than the fade', () => {
+    const group = strip();
+
+    scrollTo(group, 0, 266, 264);
+    expect([group.hasAttribute('data-fade-start'), group.hasAttribute('data-fade-end')]).toEqual([false, false]);
+
+    scrollTo(group, 2, 266, 264);
+    expect([group.hasAttribute('data-fade-start'), group.hasAttribute('data-fade-end')]).toEqual([false, false]);
+  });
+
   it('fades neither edge when every option fits', () => {
     const group = strip();
 
