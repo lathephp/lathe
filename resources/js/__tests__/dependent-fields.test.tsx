@@ -119,13 +119,13 @@ describe('dependent fields', () => {
 
     fireEvent.change(screen.getByLabelText(/^Type/), { target: { value: 'company' } });
     await act(async () => {
-      vi.advanceTimersByTime(300);
-      await Promise.resolve();
-      await Promise.resolve();
-      await Promise.resolve();
+      await vi.advanceTimersByTimeAsync(300);
     });
 
-    expect(__panel.toasts.get()[0]?.action?.label).toBe('Retry');
+    // The failed response's body resolves a few tasks later on a loaded machine, so wait for the toast.
+    await vi.waitFor(() => {
+      expect(__panel.toasts.get()[0]?.action?.label).toBe('Retry');
+    });
     expect(screen.getByLabelText<HTMLInputElement>(/Company name/).value).toBe('');
   });
 });
