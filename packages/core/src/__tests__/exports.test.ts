@@ -46,6 +46,8 @@ describe('the @lathephp/core exports', () => {
       'DetailHeader',
       'Excerpt',
       'FilterMenu',
+      'Icon',
+      'PageHeader',
       'QueryClientProvider',
       'ResourceTable',
       'WidgetCard',
