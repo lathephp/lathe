@@ -1,7 +1,7 @@
 import { cleanup as cleanupLiveRegion } from '@atlaskit/pragmatic-drag-and-drop-live-region';
 import { router } from '@inertiajs/react';
 import { __panel } from '@lathephp/core';
-import { act, fireEvent, screen, waitFor } from '@testing-library/react';
+import { act, fireEvent, screen, waitFor, within } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 // The Board loads the save on its first move; loading it here keeps a cold transform out of the first test's wait.
 import '../index/inlineSave';
@@ -189,6 +189,37 @@ describe('an Undo pressed straight after a move', () => {
 
     card(moving).focus();
     fireEvent.keyDown(card(moving), { key: 'ArrowRight', shiftKey: true });
+    await waitFor(() => {
+      expect(api.patches).toHaveLength(1);
+    });
+    await api.answer('t1');
+    await waitFor(() => {
+      expect(toasts()).toContain('Status changed to Paid.');
+    });
+
+    act(() => {
+      __panel.toasts.get().find((toast) => toast.action !== undefined)?.action?.onClick();
+    });
+    await waitFor(() => {
+      expect(api.patches).toHaveLength(2);
+    });
+
+    await recount();
+    await api.answer('t2');
+
+    await expectUndone(api);
+  });
+
+  it('from the toast, after a move from the Move menu by the keyboard, puts the card back', async () => {
+    const api = server();
+    await openBoard();
+
+    const button = within(card(moving)).getByRole('button', { name: /^Move / });
+    button.focus();
+    fireEvent.click(button, { detail: 0 });
+    const paid = within(await screen.findByRole('menu', { name: 'Move to' })).getByRole('menuitem', { name: 'Paid' });
+    paid.focus();
+    fireEvent.click(paid);
     await waitFor(() => {
       expect(api.patches).toHaveLength(1);
     });
