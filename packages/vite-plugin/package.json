@@ -13,10 +13,15 @@
     ".": {
       "types": "./dist/index.d.ts",
       "default": "./dist/index.js"
+    },
+    "./eslint": {
+      "types": "./eslint/index.d.ts",
+      "default": "./eslint/index.js"
     }
   },
   "files": [
     "dist",
+    "eslint",
     "!dist/*.tsbuildinfo"
   ],
   "scripts": {

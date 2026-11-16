@@ -19,7 +19,7 @@ function lintNoRawUiFixture(string $source): ProcessResult
 
     File::ensureDirectoryExists($dir);
     File::put("$dir/eslint.config.js", <<<JS
-        import rule from '$root/eslint-rules/no-raw-ui.js';
+        import rule from '$root/packages/vite-plugin/eslint/no-raw-ui.js';
         import tseslint from '$root/node_modules/typescript-eslint/dist/index.js';
 
         export default [

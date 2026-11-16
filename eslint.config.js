@@ -4,7 +4,7 @@ import jsxA11y from 'eslint-plugin-jsx-a11y';
 import reactHooks from 'eslint-plugin-react-hooks';
 import tseslint from 'typescript-eslint';
 import noMixedHistoryTests from './eslint-rules/no-mixed-history-tests.js';
-import noRawUi from './eslint-rules/no-raw-ui.js';
+import noRawUi from './packages/vite-plugin/eslint/no-raw-ui.js';
 import noRefInPassiveEffect from './eslint-rules/no-ref-in-passive-effect.js';
 import noUntranslatedLiteral from './eslint-rules/no-untranslated-literal.js';
 
