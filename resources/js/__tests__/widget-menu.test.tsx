@@ -215,6 +215,20 @@ describe('a dashboard widget menu', () => {
     expect(screen.queryByRole('menu')).toBeNull();
   });
 
+  it('lets Space press the focused item again once the typed letters have lapsed', async () => {
+    renderDashboard([descriptor('orders')], { orders: [value('orders', 12)] });
+    await openMenu('orders', 'Orders');
+    const letter = new KeyboardEvent('keydown', { key: 'r', bubbles: true, cancelable: true });
+    (document.activeElement ?? document.body).dispatchEvent(letter);
+
+    const space = new KeyboardEvent('keydown', { key: ' ', bubbles: true, cancelable: true });
+    // A second after the letter, past the 500 ms the typed letters add up in.
+    Object.defineProperty(space, 'timeStamp', { value: letter.timeStamp + 1000 });
+    (document.activeElement ?? document.body).dispatchEvent(space);
+
+    expect(space.defaultPrevented).toBe(false);
+  });
+
   it('closes on a press outside it', async () => {
     renderDashboard([descriptor('orders')], { orders: [value('orders', 12)] });
     await openMenu('orders', 'Orders');

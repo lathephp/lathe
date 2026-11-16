@@ -45,7 +45,7 @@ export function useMenuKeys(root: RefObject<HTMLElement | null>, open: boolean, 
       to = list[0];
     } else if (key === 'End') {
       to = list[list.length - 1];
-    } else if (key.length === 1 && !event.ctrlKey && !event.metaKey && !event.altKey && (key !== ' ' || typed.text !== '')) {
+    } else if (key.length === 1 && !event.ctrlKey && !event.metaKey && !event.altKey && (key !== ' ' || (typed.text !== '' && event.timeStamp - typed.at <= 500))) {
       typed.text = event.timeStamp - typed.at > 500 ? key : typed.text + key;
       typed.at = event.timeStamp;
       // One letter looks past the focused item, so repeating it steps through the matches.
