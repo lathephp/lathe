@@ -1,6 +1,7 @@
 import { useTranslation } from '@lathephp/core';
 import { CircleHelp } from 'lucide-react';
 import { useId, useState } from 'react';
+import { Button } from '../components/ui/Button';
 
 /** A help icon whose text shows on hover and focus, `width` wide (a number is pixels). */
 export function HelpTooltip({ text, width }: { text: string; width: number | string }) {
@@ -16,11 +17,12 @@ export function HelpTooltip({ text, width }: { text: string; width: number | str
 
   return (
     <span className="relative inline-flex">
-      <button
-        type="button"
+      <Button
+        variant="ghost"
+        size="icon-xs"
         aria-label={__('Help')}
         aria-describedby={id}
-        className="rounded text-muted-foreground hover:text-foreground"
+        className="size-4 text-muted-foreground hover:bg-transparent hover:text-foreground"
         onMouseEnter={show}
         onMouseLeave={hide}
         onFocus={show}
@@ -32,7 +34,7 @@ export function HelpTooltip({ text, width }: { text: string; width: number | str
         }}
       >
         <CircleHelp aria-hidden="true" className="size-3.5" />
-      </button>
+      </Button>
       <span
         role="tooltip"
         id={id}

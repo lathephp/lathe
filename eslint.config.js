@@ -19,8 +19,6 @@ const lathe = {
 
 // The panel files whose raw controls m47 has not moved to the kit yet; each sweep task empties its part.
 const notYetSwept = [
-  'resources/js/layout/NavSection.tsx',
-  'resources/js/widgets/HelpTooltip.tsx',
   'resources/js/components/ConfirmPasswordDialog.tsx',
   'resources/js/fields/choice/SelectForms.tsx',
   'resources/js/fields/date/DatePicker.tsx',

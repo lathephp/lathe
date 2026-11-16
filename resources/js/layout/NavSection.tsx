@@ -8,6 +8,7 @@ import { instantProps } from '../lib/instant';
 import { preloadPage } from '../lib/pages';
 import type { Breadcrumb } from '../fields/types';
 import type { NavigationItem } from '../types';
+import { CollapsibleTrigger } from '../components/ui/Button';
 
 export interface NavBadge {
   value: string;
@@ -181,10 +182,9 @@ export function NavSection({ block, context }: { block: NavBlock; context: NavCo
         <Heading className={cn('lathe-nav-heading', context.collapsed && 'md:sr-only')}>
           {block.href !== undefined && <Link href={block.href}>{block.label}</Link>}
           {block.collapsible === true ? (
-            <button
-              type="button"
+            <CollapsibleTrigger
+              open={open}
               aria-label={block.href === undefined ? undefined : block.label}
-              aria-expanded={open}
               onClick={() => {
                 setOpen(!open);
               }}
@@ -193,7 +193,7 @@ export function NavSection({ block, context }: { block: NavBlock; context: NavCo
               {/* A closed group says how many entries it holds. */}
               {!open && <span aria-hidden="true">{block.items.length}</span>}
               <ChevronDown aria-hidden="true" className="size-3.5" />
-            </button>
+            </CollapsibleTrigger>
           ) : (
             block.href === undefined && block.label
           )}
