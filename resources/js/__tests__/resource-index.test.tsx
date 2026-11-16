@@ -277,6 +277,8 @@ describe('orders pagination', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Next page' }));
 
     expect(document.querySelectorAll('tbody tr[data-skeleton]')).toHaveLength(25);
+    expect(document.querySelectorAll('tbody tr[data-skeleton] .cn-skeleton[data-slot="skeleton"]').length).toBeGreaterThan(0);
+    expect(document.querySelectorAll('tbody .animate-pulse')).toHaveLength(0);
 
     act(() => {
       vi.advanceTimersByTime(100);

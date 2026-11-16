@@ -147,6 +147,37 @@ describe('an instant visit from the sidebar', () => {
   });
 });
 
+// The style draws the pulse and the fill on cn-skeleton, so no placeholder carries its own.
+function expectKitSkeletons() {
+  const bars = document.querySelectorAll('.cn-skeleton');
+  expect(bars.length).toBeGreaterThan(0);
+  expect(document.querySelectorAll('.cn-skeleton:not([data-slot="skeleton"])')).toHaveLength(0);
+  expect(document.querySelectorAll('.animate-pulse')).toHaveLength(0);
+}
+
+describe('the placeholders of an instant visit', () => {
+  it('draw every bar of the index skeleton as cn-skeleton', async () => {
+    clickInSidebar('Orders');
+    await act(() => vi.advanceTimersByTimeAsync(110));
+
+    expectKitSkeletons();
+  });
+
+  it('draw every bar of the dashboard skeleton as cn-skeleton', async () => {
+    clickInSidebar('Reports');
+    await act(() => vi.advanceTimersByTimeAsync(110));
+
+    expectKitSkeletons();
+  });
+
+  it('draw every bar of the record skeleton as cn-skeleton', async () => {
+    renderPage('Resources/Detail', { title: 'ORD-00012' }, { url: '/lathe/resources/orders/12' });
+    await act(() => vi.advanceTimersByTimeAsync(110));
+
+    expectKitSkeletons();
+  });
+});
+
 describe('a record page without its record', () => {
   it('renders its title and three section cards, without an error', async () => {
     renderPage('Resources/Detail', { title: 'ORD-00012' }, { url: '/lathe/resources/orders/12' });

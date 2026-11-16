@@ -40,8 +40,8 @@ export function reloadIndexRows(): void {
 // Every write through the panel's client drops its resource's prefetched pages.
 __panel.setWriteListener(flushResourceOf);
 
-/** The fill of a skeleton bar, which pulses unless reduced motion is asked for. */
-export const skeletonBar = 'animate-pulse rounded-md bg-skeleton motion-reduce:animate-none';
+/** A skeleton bar: the style's cn-skeleton draws the fill and the pulse. Put data-slot="skeleton" beside it. */
+export const skeletonBar = 'cn-skeleton rounded-md';
 
 /**
  * Shows nothing for the first 100 ms, so an answer that comes quickly never flashes a skeleton.

@@ -145,7 +145,9 @@ describe('the dashboard grid', () => {
     await waitFor(() => {
       expect(within(card('orders')).getByText('1,234')).toBeTruthy();
     });
-    expect(within(card('revenue')).getByRole('status', { name: 'Loading' })).toBeTruthy();
+    const loading = within(card('revenue')).getByRole('status', { name: 'Loading' });
+    expect(loading.querySelectorAll('.cn-skeleton[data-slot="skeleton"]')).toHaveLength(3);
+    expect(loading.querySelectorAll('.animate-pulse')).toHaveLength(0);
   });
 
   it('shows a failed card alone, with Try again that loads the value', async () => {

@@ -61,8 +61,8 @@ export function HistoryCard({ uriKey, id, onShowAll }: { uriKey: string; id: str
       </header>
       {events === null ? (
         <div aria-busy="true" className="space-y-3 px-5 py-4">
-          <div className={`h-3 w-2/3 ${skeletonBar}`} />
-          <div className={`h-3 w-1/2 ${skeletonBar}`} />
+          <div data-slot="skeleton" className={`h-3 w-2/3 ${skeletonBar}`} />
+          <div data-slot="skeleton" className={`h-3 w-1/2 ${skeletonBar}`} />
         </div>
       ) : events.length === 0 ? (
         <p className="px-5 py-4 text-[13px] text-muted-foreground">{__('No changes yet')}</p>

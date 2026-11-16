@@ -304,8 +304,8 @@ function DashboardSkeleton({ title }: { title: string }) {
         <div aria-hidden="true" className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
           {[0, 1, 2, 3].map((frame) => (
             <Card key={frame} data-skeleton-frame="" className="h-32 gap-0 p-4">
-              <div className={`h-3 w-24 ${skeletonBar}`} />
-              <div className={`mt-4 h-8 w-32 ${skeletonBar}`} />
+              <div data-slot="skeleton" className={`h-3 w-24 ${skeletonBar}`} />
+              <div data-slot="skeleton" className={`mt-4 h-8 w-32 ${skeletonBar}`} />
             </Card>
           ))}
         </div>
