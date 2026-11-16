@@ -169,9 +169,23 @@ async function openAttach() {
   return dialog;
 }
 
-async function pick(dialog: HTMLElement, name: string) {
-  fireEvent.click(within(dialog).getByRole('button', { name: 'Tag' }));
-  fireEvent.click(await within(dialog).findByRole('option', { name }));
+function tagInput(dialog: HTMLElement): HTMLInputElement {
+  return within(dialog).getByRole<HTMLInputElement>('combobox', { name: 'Tag' });
+}
+
+/** Picks from the list, which draws on the body and hides the dialog from the accessibility tree until it shuts. */
+async function pick(dialog: HTMLElement, name: string, typed?: string) {
+  const input = tagInput(dialog);
+  fireEvent.mouseDown(input);
+
+  if (typed !== undefined) {
+    fireEvent.change(input, { target: { value: typed } });
+  }
+
+  fireEvent.click(await screen.findByRole('option', { name }));
+  await waitFor(() => {
+    expect(screen.queryByRole('listbox')).toBeNull();
+  });
 }
 
 function rowOf(name: string): HTMLElement {
@@ -231,7 +245,8 @@ describe('attaching to a pivot relation', () => {
     });
     expect(api.asked('/products/1/tags', 'POST').map((call) => call.body)).toEqual([{ related_id: 9, pivot: { position: '1' } }]);
     expect(screen.getByRole('dialog')).toBe(dialog);
-    expect(within(dialog).getByRole('button', { name: 'Tag' }).textContent).toBe('Select tag');
+    expect(tagInput(dialog).value).toBe('');
+    expect(tagInput(dialog).placeholder).toBe('Select tag');
     expect(within(dialog).getByRole('spinbutton', { name: 'Position' })).toHaveProperty('value', '');
     expect(api.asked('/pivot-fields')).toHaveLength(1);
   });
@@ -242,18 +257,18 @@ describe('attaching to a pivot relation', () => {
     await screen.findByRole('cell', { name: 'new' });
     const before = api.listed();
     const dialog = await openAttach();
-    fireEvent.click(within(dialog).getByRole('button', { name: 'Tag' }));
-    fireEvent.change(within(dialog).getByRole('searchbox'), { target: { value: 'sale' } });
-    fireEvent.click(await within(dialog).findByRole('option', { name: 'sale' }));
+    await pick(dialog, 'sale', 'sale');
     fireEvent.change(within(dialog).getByRole('spinbutton', { name: 'Position' }), { target: { value: '1' } });
     fireEvent.click(within(dialog).getByRole('button', { name: 'Attach & attach another' }));
     await waitFor(() => {
       expect(api.listed()).toBe(before + 1);
     });
 
-    fireEvent.click(within(dialog).getByRole('button', { name: 'Tag' }));
+    const input = tagInput(dialog);
+    fireEvent.mouseDown(input);
+    await screen.findByRole('listbox');
 
-    expect(within(dialog).getByRole('searchbox')).toHaveProperty('value', '');
+    expect(input.value).toBe('');
   });
 
   it('locks the picker while an attach is on its way, so the reset cannot close it under the user', async () => {
@@ -266,14 +281,14 @@ describe('attaching to a pivot relation', () => {
     fireEvent.change(within(dialog).getByRole('spinbutton', { name: 'Position' }), { target: { value: '1' } });
     fireEvent.click(within(dialog).getByRole('button', { name: 'Attach & attach another' }));
 
-    expect(within(dialog).getByRole('button', { name: 'Tag' })).toHaveProperty('disabled', true);
+    expect(tagInput(dialog).disabled).toBe(true);
 
     act(() => {
       land(new Response(JSON.stringify({ attached: true }), { status: 201 }));
     });
 
     await waitFor(() => {
-      expect(within(dialog).getByRole('button', { name: 'Tag' })).toHaveProperty('disabled', false);
+      expect(tagInput(dialog).disabled).toBe(false);
     });
   });
 

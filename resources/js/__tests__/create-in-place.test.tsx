@@ -115,9 +115,15 @@ function OrderForm({ onChange }: { onChange: (value: unknown) => void }) {
   );
 }
 
+/** The picker's input; found before the list opens, since the open list hides its label from the accessibility tree. */
+function picker() {
+  return screen.findByRole<HTMLInputElement>('combobox', { name: 'Customer' });
+}
+
 async function typeHannaVos() {
-  fireEvent.click(await screen.findByRole('button', { name: 'Customer' }));
-  fireEvent.change(screen.getByRole('searchbox', { name: 'Search' }), { target: { value: 'Hanna Vos' } });
+  const input = await picker();
+  fireEvent.mouseDown(input);
+  fireEvent.change(input, { target: { value: 'Hanna Vos' } });
 
   return screen.findByRole('option', { name: 'Create customer "Hanna Vos"' });
 }
@@ -172,7 +178,7 @@ describe('creating a related record from the picker', () => {
     });
 
     expect(onChange).toHaveBeenCalledWith({ value: 9, display: 'Hanna Vos' });
-    expect(screen.getByRole('button', { name: 'Customer' }).textContent).toBe('Hanna Vos');
+    expect((await picker()).value).toBe('Hanna Vos');
     expect(screen.getByLabelText<HTMLInputElement>('Number').value).toBe('ORD-1');
   });
 
@@ -193,9 +199,11 @@ describe('creating a related record from the picker', () => {
 
     await openSheet();
     fireEvent.keyDown(document, { key: 'Escape' });
-    fireEvent.click(screen.getByRole('button', { name: 'Customer' }));
+    const input = await picker();
+    fireEvent.mouseDown(input);
+    await screen.findByRole('listbox');
 
-    expect(screen.getByRole('searchbox', { name: 'Search' })).toHaveProperty('value', '');
+    expect(input.value).toBe('');
   });
 
   it('shows a 422 inside the sheet and leaves the order form alone', async () => {

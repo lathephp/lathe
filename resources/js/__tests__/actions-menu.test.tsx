@@ -1,6 +1,6 @@
 import { router } from '@inertiajs/react';
 import { __panel, actionModal, type ActionModalProps } from '@lathephp/core';
-import { fireEvent, screen, waitFor, within } from '@testing-library/react';
+import { act, fireEvent, screen, waitFor, within } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import type { ActionMeta } from '../actions/types';
 import { registerField } from '../fields/registry';
@@ -514,13 +514,20 @@ describe('the action modal', () => {
     tick(1);
     fireEvent.click(within(await openMenu()).getByRole('menuitem', { name: 'Merge Tags' }));
     const dialog = await screen.findByRole('dialog');
-    fireEvent.click(await within(dialog).findByRole('button', { name: 'Target' }));
-    await within(dialog).findByRole('listbox');
-    expect(document.activeElement).toBe(within(dialog).getByRole('searchbox'));
+    const input = await within(dialog).findByRole('combobox', { name: 'Target' });
+    // A press focuses the input in a browser; jsdom's mousedown does not.
+    act(() => {
+      input.focus();
+    });
+    fireEvent.mouseDown(input, { button: 0 });
+    // The list draws on the body, outside the dialog.
+    await screen.findByRole('listbox');
 
-    fireEvent.keyDown(document.activeElement ?? document.body, { key: 'Escape' });
+    fireEvent.keyDown(input, { key: 'Escape' });
 
-    expect(within(dialog).queryByRole('listbox')).toBeNull();
+    await waitFor(() => {
+      expect(screen.queryByRole('listbox')).toBeNull();
+    });
     expect(screen.getByRole('dialog', { name: 'Merge Tags' })).toBe(dialog);
   });
 
@@ -540,9 +547,9 @@ describe('the action modal', () => {
 
     fireEvent.mouseDown(await within(dialog).findByRole('combobox'), { button: 0 });
 
-    // The press loads the options, finds more than a list holds and swaps in the search picker, which opens.
-    expect(await within(dialog).findByRole('listbox')).toBeTruthy();
-    expect(document.activeElement).toBe(within(dialog).getByRole('searchbox'));
+    // The press loads the options, finds more than a list holds and swaps in the search picker, which opens on the body.
+    expect(await screen.findByRole('listbox')).toBeTruthy();
+    expect(document.activeElement).toBe(dialog.querySelector('input[role="combobox"]'));
   });
 
   it('swaps in the search picker closed when only the focus loaded too many options', async () => {
@@ -562,9 +569,12 @@ describe('the action modal', () => {
 
     fireEvent.focus(await within(dialog).findByRole('combobox'));
 
-    expect(await within(dialog).findByRole('button', { name: 'Target' })).toBeTruthy();
+    // The search picker's input takes the select's place.
+    await waitFor(() => {
+      expect(within(dialog).getByRole('combobox', { name: 'Target' }).tagName).toBe('INPUT');
+    });
     expect(fetch.mock.calls.length).toBeGreaterThan(1);
-    expect(within(dialog).queryByRole('listbox')).toBeNull();
+    expect(screen.queryByRole('listbox')).toBeNull();
   });
 
   it('keeps the focus on the field when the focus alone swaps in the search picker, and ArrowDown opens it', async () => {
@@ -583,14 +593,13 @@ describe('the action modal', () => {
 
     (await within(dialog).findByRole('combobox')).focus();
 
-    const picker = await within(dialog).findByRole('button', { name: 'Target' });
     await waitFor(() => {
-      expect(document.activeElement).toBe(picker);
+      expect(document.activeElement).toBe(dialog.querySelector('input[role="combobox"]'));
     });
 
     fireEvent.keyDown(document.activeElement ?? document.body, { key: 'ArrowDown' });
 
-    expect(await within(dialog).findByRole('listbox')).toBeTruthy();
+    expect(await screen.findByRole('listbox')).toBeTruthy();
   });
 
   it('brings the focus back into the dialog when Tab starts from outside it', async () => {

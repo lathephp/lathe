@@ -1,5 +1,5 @@
 import { __panel } from '@lathephp/core';
-import { act, fireEvent, render, screen } from '@testing-library/react';
+import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { useState } from 'react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { registerRelationFields } from '../fields/builtin/relation';
@@ -84,6 +84,20 @@ async function flush() {
   });
 }
 
+/** The record picker's search input, or null before a type is chosen. */
+function picker(): HTMLInputElement {
+  return document.getElementById('field-commentable-record') as HTMLInputElement;
+}
+
+// Base UI opens the list on the press and mounts it a frame later.
+async function openPicker() {
+  fireEvent.mouseDown(picker());
+  await waitFor(() => {
+    expect(document.querySelector('[data-slot="combobox-list"]')).not.toBeNull();
+  });
+  await flush();
+}
+
 beforeEach(() => {
   __panel.sharedProps.set({ basePath: '/lathe', resource: { uriKey: 'comments' }, mode: 'create', id: null });
 });
@@ -100,14 +114,14 @@ describe('morphTo form field', () => {
     const type = screen.getByLabelText('Commentable');
     expect(await optionLabels(type)).toEqual(['—', 'Post', 'Product']);
     expect(type.textContent).toBe('—');
-    expect(screen.queryByRole('button', { name: /Select/ })).toBeNull();
+    expect(picker()).toBeNull();
 
     await choose(screen.getByLabelText('Commentable'), 'Post');
     await flush();
     expect(fetch).not.toHaveBeenCalled();
 
-    fireEvent.click(screen.getByRole('button', { name: 'Select post' }));
-    await flush();
+    expect(picker().placeholder).toBe('Select post');
+    await openPicker();
 
     expect(urls(fetch)).toEqual(['/lathe/api/resources/comments/associatable/commentable?type=posts&q=&page=1']);
   });
@@ -118,18 +132,21 @@ describe('morphTo form field', () => {
     render(<Harness field={schema()} onChange={onChange} />);
 
     await choose(screen.getByLabelText('Commentable'), 'Post');
-    fireEvent.click(screen.getByRole('button', { name: 'Select post' }));
-    await flush();
+    await openPicker();
     fireEvent.click(screen.getByRole('option', { name: 'Hello world' }));
 
     expect(onChange).toHaveBeenLastCalledWith({ type: 'posts', id: 7, display: 'Hello world' });
-    expect(screen.getByRole('button', { name: 'Hello world' })).toBeDefined();
+    expect(picker().value).toBe('Hello world');
 
+    // The open list hid the type select from the accessibility tree; it shows again once the list is shut.
+    await waitFor(() => {
+      expect(screen.queryByRole('listbox')).toBeNull();
+    });
     await choose(screen.getByLabelText('Commentable'), 'Product');
 
     expect(onChange).toHaveBeenLastCalledWith({ type: 'products', id: null });
-    fireEvent.click(screen.getByRole('button', { name: 'Select product' }));
-    await flush();
+    expect(picker().placeholder).toBe('Select product');
+    await openPicker();
 
     expect(urls(fetch).at(-1)).toBe('/lathe/api/resources/comments/associatable/commentable?type=products&q=&page=1');
   });
@@ -140,8 +157,8 @@ describe('morphTo form field', () => {
     render(<Harness field={schema()} onChange={() => undefined} initial={{ type: 'products', id: 3, display: 'Desk lamp', href: '/lathe/resources/products/3' }} />);
 
     expect(screen.getByLabelText('Commentable').textContent).toBe('Product');
-    fireEvent.click(screen.getByRole('button', { name: 'Desk lamp' }));
-    await flush();
+    expect(picker().value).toBe('Desk lamp');
+    await openPicker();
 
     expect(urls(fetch)).toEqual(['/lathe/api/resources/comments/5/commentable/associatable?type=products&q=&page=1']);
   });
@@ -151,17 +168,16 @@ describe('morphTo form field', () => {
     render(<Harness field={schema({ defaultType: 'posts' })} onChange={() => undefined} />);
 
     expect(screen.getByLabelText('Commentable').textContent).toBe('Post');
-    expect(screen.getByRole('button', { name: 'Select post' })).toBeDefined();
+    expect(picker().placeholder).toBe('Select post');
   });
 
   it('leaves out With trashed when the field turns it off', async () => {
     server();
     render(<Harness field={schema({ withTrashed: false, defaultType: 'posts' })} onChange={() => undefined} />);
 
-    fireEvent.click(screen.getByRole('button', { name: 'Select post' }));
-    await flush();
+    await openPicker();
 
     expect(screen.getByRole('listbox')).toBeDefined();
-    expect(screen.queryByLabelText('With trashed')).toBeNull();
+    expect(screen.queryByRole('checkbox', { name: 'With trashed' })).toBeNull();
   });
 });

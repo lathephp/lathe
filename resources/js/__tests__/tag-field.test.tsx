@@ -1,6 +1,6 @@
 import { router } from '@inertiajs/react';
 import { __panel } from '@lathephp/core';
-import { act, fireEvent, render, screen } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import { useState } from 'react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { FormField, IndexField } from '../fields/registry';
@@ -73,14 +73,6 @@ function Harness({ field, onChange }: { field: FieldSchema; onChange: (value: un
       />
     </>
   );
-}
-
-async function flush() {
-  await act(async () => {
-    for (let index = 0; index < 5; index++) {
-      await Promise.resolve();
-    }
-  });
 }
 
 beforeEach(() => {
@@ -182,12 +174,12 @@ describe('tag field', () => {
 
     expect(fetch).not.toHaveBeenCalled();
 
-    fireEvent.click(screen.getByRole('button', { name: 'Tags' }));
-    await flush();
+    fireEvent.mouseDown(screen.getByRole('combobox', { name: 'Tags' }));
+    const option = await screen.findByRole('option', { name: 'new' });
 
     expect(urls(fetch)).toEqual(['/lathe/api/resources/posts/associatable/tags?q=&page=1']);
 
-    fireEvent.click(screen.getByRole('option', { name: 'new' }));
+    fireEvent.click(option);
 
     expect(onChange).toHaveBeenLastCalledWith([{ value: 6, display: 'new' }]);
   });

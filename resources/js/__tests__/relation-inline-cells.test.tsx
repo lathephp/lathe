@@ -79,9 +79,8 @@ describe('relation inline cells', () => {
     renderRows('orders', customer, { value: { value: 3, display: 'Ann Lee', href: '/lathe/resources/customers/3' }, display: 'Ann Lee' });
 
     await editCell('Customer');
-    fireEvent.click(await screen.findByRole('button', { name: 'Customer' }));
-    await flush();
-    fireEvent.click(screen.getByRole('option', { name: 'Anna Park' }));
+    fireEvent.mouseDown(await screen.findByRole('combobox', { name: 'Customer' }));
+    fireEvent.click(await screen.findByRole('option', { name: 'Anna Park' }));
     await flush();
 
     expect(calls(fetch).filter((call) => call.method === 'PATCH')).toEqual([
@@ -113,9 +112,8 @@ describe('relation inline cells', () => {
     await flush();
     expect(fetch).not.toHaveBeenCalled();
 
-    fireEvent.click(screen.getByRole('button', { name: 'Select product' }));
-    await flush();
-    fireEvent.click(screen.getByRole('option', { name: 'Desk lamp' }));
+    fireEvent.mouseDown(screen.getByPlaceholderText('Select product'));
+    fireEvent.click(await screen.findByRole('option', { name: 'Desk lamp' }));
     await flush();
 
     expect(calls(fetch)[0]?.url).toBe('/lathe/api/resources/comments/12/commentable/associatable?type=products&q=&page=1');

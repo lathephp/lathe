@@ -1,5 +1,6 @@
 import { useTranslation } from '@lathephp/core';
-import { Button } from '@lathephp/ui';
+import { Button, Checkbox } from '@lathephp/ui';
+import { Combobox, ComboboxContent, ComboboxInput, ComboboxItem, ComboboxList } from '@lathephp/ui/combobox';
 import { Plus } from 'lucide-react';
 import { lazy, Suspense, useEffect, useRef, useState } from 'react';
 import { Select } from '../../components/ui/Select';
@@ -7,7 +8,6 @@ import { composing } from '../../lib/keys';
 import type { FormFieldProps } from '../registry';
 import { isBelongsToValue } from './BelongsToField';
 import { useAssociatable, type AssociatableItem, type LookupRecord } from './useAssociatable';
-import { inputClass } from '../../components/ui/input';
 
 // The related create form loads only when a create is chosen, so no list page carries it.
 const CreateRelationSheet = lazy(() => import('./CreateRelationSheet').then((module) => ({ default: module.CreateRelationSheet })));
@@ -27,19 +27,22 @@ function WithTrashedBox({ checked, onChange }: { checked: boolean; onChange: (ch
 
   return (
     <label className="mt-1 flex items-center gap-2 text-sm">
-      <input
-        type="checkbox"
-        checked={checked}
-        onChange={(event) => {
-          onChange(event.target.checked);
-        }}
-      />
+      <Checkbox checked={checked} onCheckedChange={onChange} />
       {__('With trashed')}
     </label>
   );
 }
 
-/** A button that opens a searchable list of the related records, loaded from the server only once opened. */
+/** The typed text offered as a new record, after the matches. */
+interface CreateOption {
+  create: string;
+}
+
+type PickerOption = AssociatableItem | CreateOption;
+
+const isCreate = (option: PickerOption): option is CreateOption => 'create' in option;
+
+/** A combobox that searches the related records, loaded from the server only once opened. */
 export function RelationPicker({
   field,
   value,
@@ -57,191 +60,122 @@ export function RelationPicker({
 }: FormFieldProps & LookupProps & { endpoint?: string; onCreate?: (text: string) => void; startOpen?: boolean; takeFocus?: boolean }) {
   const { __ } = useTranslation();
   const [open, setOpen] = useState(startOpen);
-  const [term, setTerm] = useState('');
+  // The typed search, or null while the input shows the chosen record.
+  const [term, setTerm] = useState<string | null>(null);
   const [withTrashed, setWithTrashed] = useState(false);
-  const [active, setActive] = useState(-1);
-  const { items, hasMore, loaded, error, more } = useAssociatable(field, { open, term, withTrashed, type, record, endpoint });
-  const root = useRef<HTMLDivElement>(null);
-  const button = useRef<HTMLButtonElement>(null);
-  const search = useRef<HTMLInputElement>(null);
+  const { items, hasMore, loaded, error, more } = useAssociatable(field, { open, term: term ?? '', withTrashed, type, record, endpoint });
+  const input = useRef<HTMLInputElement>(null);
   const label = typeof field.singularLabel === 'string' ? field.singularLabel : field.label;
-  const typed = term.trim();
+  const typed = (term ?? '').trim();
   // A creatable field offers the typed text as a new record, after the matches.
   const creates = onCreate !== undefined && typed !== '';
-  const last = items.length - (creates ? 0 : 1);
+  const options: PickerOption[] = creates ? [...items, { create: typed }] : items;
+  const chosen = isBelongsToValue(value) ? { value: value.value, display: value.display } : null;
 
-  // Swapped in for a select that held the focus: the focus stays on the field, not on the page.
+  // Swapped in for a select: the focus stays on the field, not on the page.
   useEffect(() => {
-    if (takeFocus && !startOpen) {
-      button.current?.focus();
+    if (takeFocus) {
+      input.current?.focus();
     }
-  }, [takeFocus, startOpen]);
-
-  useEffect(() => {
-    if (!open) {
-      return undefined;
-    }
-
-    search.current?.focus();
-
-    function outside(event: MouseEvent) {
-      if (event.target instanceof Node && root.current?.contains(event.target) !== true) {
-        setOpen(false);
-      }
-    }
-
-    document.addEventListener('mousedown', outside);
-
-    return () => {
-      document.removeEventListener('mousedown', outside);
-    };
-  }, [open]);
-
-  function close() {
-    setOpen(false);
-    button.current?.focus();
-  }
-
-  function choose(item: AssociatableItem) {
-    onChange(picked(item));
-    close();
-  }
-
-  function create() {
-    close();
-    // The sheet takes the text; the next search starts empty, as after a pick.
-    setTerm('');
-    onCreate?.(typed);
-  }
+  }, [takeFocus]);
 
   return (
-    <div ref={root} className="relative">
-      {/* The form moves focus to the first [aria-invalid] control after a failed submit; a button takes no aria-required, the label marks it. */}
-      {/* eslint-disable-next-line jsx-a11y/role-supports-aria-props */}
-      <button
-        ref={button}
+    <Combobox<PickerOption>
+      open={open}
+      value={chosen}
+      // Held here, so a page of results arriving never puts the chosen record back over the typed text.
+      inputValue={term ?? chosen?.display ?? ''}
+      disabled={disabled}
+      items={options}
+      // The server already matched the term, on any column it searches, such as an email.
+      filter={null}
+      itemToStringLabel={(option: PickerOption) => (isCreate(option) ? option.create : option.display)}
+      isItemEqualToValue={(option: PickerOption, current: PickerOption) => !isCreate(option) && !isCreate(current) && String(option.value) === String(current.value)}
+      onOpenChange={(next) => {
+        setOpen(next);
+
+        // The input shows the chosen record again once shut, so the next search starts empty.
+        if (!next) {
+          setTerm(null);
+        }
+      }}
+      onInputValueChange={(next, details) => {
+        if (details.reason === 'input-change') {
+          setTerm(next);
+        }
+      }}
+      onValueChange={(option: PickerOption | null) => {
+        // Base UI clears the value when the text is emptied, as before typing a new search; the field keeps its record until a pick.
+        if (option === null) {
+          return;
+        }
+
+        if (isCreate(option)) {
+          // The sheet takes the text; the field keeps its record until the sheet saves one.
+          onCreate?.(option.create);
+        } else {
+          onChange(picked(option));
+        }
+      }}
+    >
+      <ComboboxInput
+        ref={input}
         id={id}
-        type="button"
-        aria-haspopup="listbox"
-        aria-expanded={open}
-        aria-controls={open ? `${id}-listbox` : undefined}
+        placeholder={field.placeholder ?? __('Select :title', { title: label.replace(/\b[A-Z](?=[a-z])/g, (letter) => letter.toLowerCase()) })}
         aria-describedby={describedBy}
         aria-invalid={invalid || undefined}
+        aria-required={field.required === true || undefined}
         disabled={disabled}
-        onClick={() => {
-          setActive(-1);
-          setOpen(!open);
-        }}
+        // The server refuses a longer term; 100 is limits.search_term_chars by default.
+        maxLength={typeof field.searchTermChars === 'number' ? field.searchTermChars : 100}
         onKeyDown={(event) => {
-          // As the list select it replaces: the arrows open it too.
-          if (!open && (event.key === 'ArrowDown' || event.key === 'ArrowUp')) {
+          // A key inside an IME composition is the IME's: its arrows move through candidates, its Enter confirms the text.
+          if (composing(event)) {
+            event.preventBaseUIHandler();
+
+            return;
+          }
+
+          // Enter picks the highlighted option and never submits the form.
+          if (event.key === 'Enter') {
             event.preventDefault();
-            setActive(-1);
-            setOpen(true);
           }
         }}
-        className={`${inputClass} text-start`}
-      >
-        {isBelongsToValue(value) ? value.display : <span className="text-muted-foreground">{field.placeholder ?? __('Select :title', { title: label.replace(/\b[A-Z](?=[a-z])/g, (letter) => letter.toLowerCase()) })}</span>}
-      </button>
-      {open && (
-        <div className="absolute z-20 mt-1 w-full rounded-md border border-border bg-background p-2 shadow-md">
-          <input
-            ref={search}
-            type="search"
-            aria-label={__('Search')}
-            placeholder={__('Search')}
-            aria-controls={`${id}-listbox`}
-            aria-activedescendant={active >= 0 && active <= last ? `${id}-option-${String(active)}` : undefined}
-            value={term}
-            // The server refuses a longer term; 100 is limits.search_term_chars by default.
-            maxLength={typeof field.searchTermChars === 'number' ? field.searchTermChars : 100}
-            onChange={(event) => {
-              setTerm(event.target.value);
-              setActive(-1);
-            }}
-            onKeyDown={(event) => {
-              // A key inside an IME composition is the IME's: its arrows move through candidates, its Enter confirms the text.
-              if (composing(event)) {
-                return;
-              }
-
-              if (event.key === 'ArrowDown') {
-                event.preventDefault();
-                setActive(Math.min(active + 1, last));
-              } else if (event.key === 'ArrowUp') {
-                event.preventDefault();
-                setActive(Math.max(active - 1, 0));
-              } else if (event.key === 'Enter') {
-                // Enter picks the highlighted option and never submits the form.
-                event.preventDefault();
-                const item = items[active];
-
-                if (item !== undefined) {
-                  choose(item);
-                } else if (creates && active === items.length) {
-                  create();
-                }
-              } else if (event.key === 'Escape') {
-                event.preventDefault();
-                close();
-              }
-            }}
-            className={inputClass}
-          />
-          {field.withTrashed === true && <WithTrashedBox checked={withTrashed} onChange={setWithTrashed} />}
-          <ul id={`${id}-listbox`} role="listbox" aria-label={label} className="mt-1 max-h-60 overflow-y-auto">
-            {items.map((item, index) => (
-              // Options never take focus: the search box drives them with aria-activedescendant, so the keys live there.
-              // eslint-disable-next-line jsx-a11y/click-events-have-key-events
-              <li
-                key={item.value}
-                id={`${id}-option-${String(index)}`}
-                role="option"
-                aria-selected={isBelongsToValue(value) && String(value.value) === String(item.value)}
-                onMouseDown={(event) => {
-                  // Keeps the focus in the search box until the click lands.
-                  event.preventDefault();
-                }}
-                onClick={() => {
-                  choose(item);
-                }}
-                className={`cursor-pointer rounded px-2 py-1 text-sm hover:bg-muted ${index === active ? 'bg-muted' : ''}`}
-              >
-                {item.display}
-                {item.subtitle !== undefined && <span className="block text-xs text-muted-foreground">{item.subtitle}</span>}
-              </li>
-            ))}
-            {creates && (
-              // eslint-disable-next-line jsx-a11y/click-events-have-key-events
-              <li
-                id={`${id}-option-${String(items.length)}`}
-                role="option"
-                aria-selected={false}
-                onMouseDown={(event) => {
-                  event.preventDefault();
-                }}
-                onClick={create}
-                className={`cursor-pointer rounded px-2 py-1 text-sm hover:bg-muted ${active === items.length ? 'bg-muted' : ''}`}
-              >
-                {__('Create :resource ":text"', { resource: label.toLowerCase(), text: typed })}
-              </li>
-            )}
-          </ul>
-          {error !== null && (
-            <p role="alert" className="px-2 py-1 text-sm text-destructive">
-              {error}
-            </p>
-          )}
-          {loaded && items.length === 0 && !creates && <p className="px-2 py-1 text-sm text-muted-foreground">{__('No results')}</p>}
-          {hasMore && (
-            <Button variant="outline" size="sm" className="mt-1 w-full" onClick={more}>
-              {__('More')}
-            </Button>
-          )}
-        </div>
-      )}
-    </div>
+        // The kit's chevron is a second, unnamed tab stop; a press on the input opens the list as well.
+        showTrigger={false}
+        className="w-full"
+      />
+      <ComboboxContent>
+        {field.withTrashed === true && <WithTrashedBox checked={withTrashed} onChange={setWithTrashed} />}
+        <ComboboxList aria-label={label}>
+          {(option: PickerOption) =>
+            isCreate(option) ? (
+              <ComboboxItem key="create" value={option}>
+                {__('Create :resource ":text"', { resource: label.toLowerCase(), text: option.create })}
+              </ComboboxItem>
+            ) : (
+              <ComboboxItem key={option.value} value={option}>
+                <span>
+                  {option.display}
+                  {option.subtitle !== undefined && <span className="block text-xs text-muted-foreground">{option.subtitle}</span>}
+                </span>
+              </ComboboxItem>
+            )
+          }
+        </ComboboxList>
+        {error !== null && (
+          <p role="alert" className="px-2 py-1 text-sm text-destructive">
+            {error}
+          </p>
+        )}
+        {loaded && items.length === 0 && !creates && <p className="px-2 py-1 text-sm text-muted-foreground">{__('No results')}</p>}
+        {hasMore && (
+          <Button variant="outline" size="sm" className="mt-1 w-full" onClick={more}>
+            {__('More')}
+          </Button>
+        )}
+      </ComboboxContent>
+    </Combobox>
   );
 }
 
