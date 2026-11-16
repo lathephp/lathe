@@ -52,3 +52,12 @@ describe('the loading placeholders', () => {
     expect(cornered).toEqual([]);
   });
 });
+
+// A QR code's quiet zone and a label inside a server-coloured chart bar need white in every theme.
+describe('the always-white tokens', () => {
+  it.each(['--qr-ground', '--chart-label'])('%s is white and no dark theme overrides it', (token) => {
+    const declarations = readFileSync('resources/css/app.css', 'utf8').match(new RegExp(`^\\s*${token}:[^;]*;`, 'gm'));
+
+    expect(declarations?.map((line) => line.trim())).toEqual([`${token}: #fff;`]);
+  });
+});

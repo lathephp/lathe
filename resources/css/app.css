@@ -130,6 +130,8 @@
   --skeleton: #e6eaec;
   /* A QR code's quiet zone: Fortify draws the code with no margin, and a scanner needs a light one in every theme. */
   --qr-ground: #fff;
+  /* A label drawn inside a chart's bar, whose colour the server picks: white in every theme. */
+  --chart-label: #fff;
   --scrim: #13191c52;
   --chart-other: #7b878c;
   --sidebar-hover: #f5f7f8;
@@ -325,6 +327,7 @@
   --color-destructive-subtle-foreground: var(--destructive-subtle-foreground);
   --color-skeleton: var(--skeleton);
   --color-qr-ground: var(--qr-ground);
+  --color-chart-label: var(--chart-label);
   --color-scrim: var(--scrim);
   --color-chart-other: var(--chart-other);
   --color-sidebar-hover: var(--sidebar-hover);

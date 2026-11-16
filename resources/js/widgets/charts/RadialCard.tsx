@@ -99,7 +99,7 @@ export function RadialCard({ widget, value }: WidgetRendererProps) {
         {tooltip}
         {result.showGrid && <PolarGrid gridType="circle" />}
         <RadialBar dataKey="value" background={result.showTrack}>
-          {result.showLabels && <LabelList position="insideStart" dataKey="name" className="fill-background" fontSize={11} />}
+          {result.showLabels && <LabelList position="insideStart" dataKey="name" className="fill-chart-label" fontSize={11} />}
         </RadialBar>
       </RadialBarChart>
     );
