@@ -161,8 +161,8 @@ export function AppLayout({ children }: { children: ReactNode }) {
             <div ref={setPageBar} className="contents md:hidden" />
             <div className="lathe-topbar-end">
               {searchOn && layout.header.search && (
-                <button
-                  type="button"
+                <Button
+                  variant="ghost"
                   className="lathe-topbar-search"
                   aria-label={__('Search')}
                   aria-keyshortcuts="Control+K Meta+K"
@@ -173,7 +173,7 @@ export function AppLayout({ children }: { children: ReactNode }) {
                   <Search aria-hidden="true" className="size-4" />
                   <span aria-hidden="true">{__('Search or jump to…')}</span>
                   {shortcutsEnabled() && <kbd aria-hidden="true">{/mac/i.test(navigator.platform) ? '⌘K' : 'Ctrl K'}</kbd>}
-                </button>
+                </Button>
               )}
               {notifications?.enabled === true && (
                 <Suspense fallback={null}>

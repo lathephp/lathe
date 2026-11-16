@@ -1,4 +1,6 @@
-import type { KeyboardEvent } from 'react';
+'use no memo';
+
+import type { ComponentProps, KeyboardEvent } from 'react';
 
 // The kit's Tabs, TabsList (line) and TabsTrigger classes as plain strings. The strips sit on the
 // first paint, so they cannot load the kit's Base UI components; the cn-tabs rules in the style
@@ -37,4 +39,22 @@ export function tabKeys(select: (index: number) => void, vertical: boolean) {
     select(to);
     tabs[to]?.focus();
   };
+}
+
+type TabsTriggerProps = Omit<ComponentProps<'button'>, 'type' | 'role'> & { active: boolean };
+
+/** A tab of a strip: the kit TabsTrigger's role, slot and state on a plain button, in the Tab order only while open. */
+export function TabsTrigger({ active, className, ...props }: TabsTriggerProps) {
+  return (
+    <button
+      type="button"
+      role="tab"
+      tabIndex={active ? 0 : -1}
+      aria-selected={active}
+      data-slot="tabs-trigger"
+      data-active={active || undefined}
+      className={`${tabsTrigger} ${className ?? ''}`}
+      {...props}
+    />
+  );
 }

@@ -2,6 +2,7 @@ import { __panel, useTranslation } from '@lathephp/core';
 import { X } from 'lucide-react';
 import { Suspense, useState, useSyncExternalStore } from 'react';
 import { lazyNamed } from '../lib/lazy';
+import { Button } from './ui/Button';
 
 // Base UI Toast loads with the first toast, off the first paint. After a deploy the old
 // build's chunk is gone; then the plain list draws the toasts instead.
@@ -63,27 +64,28 @@ function PlainToasts() {
             </a>
           ))}
           {toast.action !== undefined ? (
-            <button
-              type="button"
-              className="rounded-sm font-medium underline outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            <Button
+              variant="link"
+              size="xs"
+              className="px-0 text-current underline"
               onClick={() => {
                 __panel.dismissToast(toast.id);
                 toast.action?.onClick();
               }}
             >
               {toast.action.label}
-            </button>
+            </Button>
           ) : null}
-          <button
-            type="button"
+          <Button
+            variant="ghost"
+            size="icon-xs"
             aria-label={__('Dismiss')}
-            className="rounded-sm outline-none focus-visible:ring-2 focus-visible:ring-ring"
             onClick={() => {
               __panel.dismissToast(toast.id);
             }}
           >
             <X aria-hidden="true" className="size-4" />
-          </button>
+          </Button>
         </div>
       ))}
     </section>

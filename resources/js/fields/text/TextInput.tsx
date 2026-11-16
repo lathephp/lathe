@@ -2,7 +2,7 @@ import type { FormFieldProps } from '../registry';
 import { stringValue } from '../registry';
 import { CopyButton } from './CopyButton';
 import { stringList } from './TextValue';
-import { inputClass, textareaClass } from '../../components/ui/input';
+import { Input, Textarea } from '../../components/ui/input';
 
 export type InputKind = 'text' | 'email' | 'url' | 'password' | 'color' | 'textarea';
 
@@ -37,17 +37,16 @@ function Control({ kind, field, value, onChange, id, describedBy, invalid, disab
   return (
     <>
       {kind === 'textarea' ? (
-        <textarea
+        <Textarea
           {...shared}
           rows={typeof field.rows === 'number' ? field.rows : 4}
           value={value}
           onChange={(event) => {
             edit(event.target.value);
           }}
-          className={textareaClass}
         />
       ) : (
-        <input
+        <Input
           {...shared}
           type={kind}
           list={listId}
@@ -56,7 +55,7 @@ function Control({ kind, field, value, onChange, id, describedBy, invalid, disab
           onChange={(event) => {
             edit(event.target.value);
           }}
-          className={kind === 'color' ? `${inputClass} w-16 cursor-pointer p-1` : inputClass}
+          className={kind === 'color' ? 'w-16 cursor-pointer p-1' : undefined}
         />
       )}
       {listId !== undefined && (

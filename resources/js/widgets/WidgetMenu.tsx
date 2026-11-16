@@ -1,6 +1,8 @@
 import { Link } from '@inertiajs/react';
 import { useTranslation } from '@lathephp/core';
 import { useId, useRef, useState } from 'react';
+import { buttonClass } from '../components/ui/Button';
+import { DropdownMenuItem, DropdownMenuTrigger } from '../components/ui/DropdownMenu';
 import { menuClasses, useMenuKeys } from '../lib/menuKeys';
 
 interface WidgetMenuProps {
@@ -25,13 +27,11 @@ export function WidgetMenu({ name, onRefresh, link, csv }: WidgetMenuProps) {
 
   return (
     <div ref={root} className="relative -my-1 -me-1 shrink-0">
-      <button
-        type="button"
-        aria-haspopup="menu"
-        aria-expanded={open}
+      <DropdownMenuTrigger
+        open={open}
         aria-controls={open ? menuId : undefined}
         aria-label={__('Menu for :title', { title: name })}
-        className="grid size-[26px] place-items-center rounded-md text-muted-foreground outline-none hover:bg-muted hover:text-foreground focus-visible:ring-2 focus-visible:ring-focus"
+        className={`${buttonClass('ghost', 'icon-xs')} text-muted-foreground`}
         onClick={() => {
           setOpen(!open);
         }}
@@ -42,7 +42,7 @@ export function WidgetMenu({ name, onRefresh, link, csv }: WidgetMenuProps) {
           <circle cx="12" cy="12" r="1.75" />
           <circle cx="19" cy="12" r="1.75" />
         </svg>
-      </button>
+      </DropdownMenuTrigger>
       {open && (
         <div
           id={menuId}
@@ -52,18 +52,14 @@ export function WidgetMenu({ name, onRefresh, link, csv }: WidgetMenuProps) {
           data-side="bottom"
           className={`${menuClasses.content} absolute end-0 top-full z-10 mt-1 w-52`}
         >
-          <button
-            type="button"
-            role="menuitem"
-            data-variant="default"
-            className={menuClasses.item}
+          <DropdownMenuItem
             onClick={() => {
               setOpen(false);
               onRefresh();
             }}
           >
             {__('Refresh')}
-          </button>
+          </DropdownMenuItem>
           {link !== null && (
             <Link role="menuitem" data-variant="default" href={link} className={menuClasses.item}>
               {__('Open records')}

@@ -5,7 +5,7 @@ import { Modal, ModalDescription, ModalFooter, ModalHeader, ModalTitle } from '.
 import { lazyNamed } from '../lib/lazy';
 import { firstErrors } from './useRecordForm';
 import { Button } from '../components/ui/Button';
-import { inputClass } from '../components/ui/input';
+import { Input } from '../components/ui/input';
 
 // The OTP field loads only when an account asks for its code, which keeps it out of every page's first load.
 const TotpInput = lazyNamed(() => import('../components/TotpInput').then((module) => module.TotpInput));
@@ -87,7 +87,7 @@ export function ReauthModal({ email: initialEmail, onSignedIn, onOtherUser, onCl
                   <label htmlFor={`${id}-recovery`} className="text-sm font-medium">
                     {__('Recovery code')}
                   </label>
-                  <input
+                  <Input
                     id={`${id}-recovery`}
                     type="text"
                     dir="ltr"
@@ -98,7 +98,6 @@ export function ReauthModal({ email: initialEmail, onSignedIn, onOtherUser, onCl
                     onChange={(event) => {
                       setRecoveryCode(event.target.value);
                     }}
-                    className={inputClass}
                   />
                 </>
               ) : (
@@ -113,15 +112,15 @@ export function ReauthModal({ email: initialEmail, onSignedIn, onOtherUser, onCl
               )}
               <FieldError id={`${id}-code-error`} message={error} />
             </div>
-            <button
-              type="button"
-              className="self-start text-sm font-medium underline-offset-4 hover:underline"
+            <Button
+              variant="link"
+              className="self-start px-0"
               onClick={() => {
                 setRecovery(!recovery);
               }}
             >
               {recovery ? __('Use an authentication code') : __('Use a recovery code')}
-            </button>
+            </Button>
           </>
         ) : (
           <>
@@ -129,7 +128,7 @@ export function ReauthModal({ email: initialEmail, onSignedIn, onOtherUser, onCl
               <label htmlFor={`${id}-email`} className="text-sm font-medium">
                 {__('Email')}
               </label>
-              <input
+              <Input
                 id={`${id}-email`}
                 type="email"
                 autoComplete="username"
@@ -137,14 +136,13 @@ export function ReauthModal({ email: initialEmail, onSignedIn, onOtherUser, onCl
                 onChange={(event) => {
                   setEmail(event.target.value);
                 }}
-                className={inputClass}
               />
             </div>
             <div className="flex flex-col gap-1.5">
               <label htmlFor={`${id}-password`} className="text-sm font-medium">
                 {__('Password')}
               </label>
-              <input
+              <Input
                 id={`${id}-password`}
                 type="password"
                 autoComplete="current-password"
@@ -154,7 +152,6 @@ export function ReauthModal({ email: initialEmail, onSignedIn, onOtherUser, onCl
                 onChange={(event) => {
                   setPassword(event.target.value);
                 }}
-                className={inputClass}
               />
               <FieldError id={`${id}-error`} message={error} />
             </div>

@@ -3,7 +3,7 @@ import { lazy, Suspense, useId, useRef, useState, type ReactNode } from 'react';
 import { Card } from '../components/ui/Card';
 import { DetailField } from '../fields/registry';
 import type { DetailFieldData, DetailRecord, LayoutBlock, RelationFieldSchema } from '../fields/types';
-import { tabKeys, tabsList, tabsRoot, tabsTrigger } from '../components/TabStrip';
+import { tabKeys, tabsList, tabsRoot, TabsTrigger } from '../components/ui/TabStrip';
 import { cn } from '../lib/cn';
 import { RecordLayout } from './RecordLayout';
 
@@ -236,16 +236,11 @@ function RelationTabs({ parent, tabs, counts, active, opened, onSelect }: { pare
             const count = field.withCount ? (loaded[field.key] ?? counts[field.key]) : undefined;
 
             return (
-              <button
+              <TabsTrigger
                 key={field.key}
                 id={`${id}-tab-${field.key}`}
-                type="button"
-                role="tab"
-                tabIndex={index === active ? 0 : -1}
-                aria-selected={index === active}
+                active={index === active}
                 aria-controls={`${id}-panel-${field.key}`}
-                data-active={index === active || undefined}
-                className={tabsTrigger}
                 onKeyDown={keys}
                 onClick={() => {
                   onSelect(index);
@@ -260,7 +255,7 @@ function RelationTabs({ parent, tabs, counts, active, opened, onSelect }: { pare
                     </span>
                   </>
                 )}
-              </button>
+              </TabsTrigger>
             );
           })}
         </div>

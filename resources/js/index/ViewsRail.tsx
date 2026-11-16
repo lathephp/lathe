@@ -2,7 +2,8 @@ import { Link, router, usePage } from '@inertiajs/react';
 import { formatNumber, useTranslation } from '@lathephp/core';
 import { Bookmark, ChevronDown, Ellipsis, GripVertical } from 'lucide-react';
 import { Suspense, useEffect, useId, useRef, useState, type KeyboardEvent, type ReactNode } from 'react';
-import { Button } from '../components/ui/Button';
+import { Button, buttonClass } from '../components/ui/Button';
+import { DropdownMenuItem, DropdownMenuTrigger } from '../components/ui/DropdownMenu';
 import { NavIcon } from '../components/NavIcon';
 import { Badge, toneVariants } from '../components/ui/Badge';
 import { cn } from '../lib/cn';
@@ -76,19 +77,17 @@ function ViewOptionsMenu({ tab, onChoose }: { tab: SavedTab; onChoose: (kind: 'r
 
   return (
     <div ref={root} className="contents">
-      <button
-        type="button"
+      <DropdownMenuTrigger
+        open={open}
         aria-label={__('Options for :name', { name: tab.name })}
-        aria-haspopup="menu"
-        aria-expanded={open}
         aria-controls={open ? id : undefined}
-        className="grid size-6 place-items-center rounded-md text-muted-foreground outline-none hover:bg-muted focus-visible:ring-2 focus-visible:ring-ring"
+        className={`${buttonClass('ghost', 'icon-xs')} text-muted-foreground`}
         onClick={() => {
           setOpen(!open);
         }}
       >
         <Ellipsis aria-hidden="true" className="size-4" />
-      </button>
+      </DropdownMenuTrigger>
       {open && (
         <div
           id={id}
@@ -100,19 +99,16 @@ function ViewOptionsMenu({ tab, onChoose }: { tab: SavedTab; onChoose: (kind: 'r
           className={`${menuClasses.content} absolute end-0 top-full z-10 mt-1 w-36`}
         >
           {(['rename', 'delete'] as const).map((kind) => (
-            <button
+            <DropdownMenuItem
               key={kind}
-              type="button"
-              role="menuitem"
               data-variant={kind === 'delete' ? 'destructive' : 'default'}
-              className={menuClasses.item}
               onClick={() => {
                 setOpen(false);
                 onChoose(kind);
               }}
             >
               {kind === 'rename' ? __('Rename') : __('Delete')}
-            </button>
+            </DropdownMenuItem>
           ))}
         </div>
       )}
@@ -121,7 +117,8 @@ function ViewOptionsMenu({ tab, onChoose }: { tab: SavedTab; onChoose: (kind: 'r
 }
 
 // The current view, marked by aria-current, takes the accent ground in app.css.
-const tabClass = 'lathe-tab';
+// The rail's rows are ghost buttons drawn by the lathe-tab hook, their text at the start.
+const tabClass = 'lathe-tab justify-start';
 
 /**
  * The developer tabs, then the user's saved views, then the lenses, in a 220 px rail at the card's left. A
@@ -215,8 +212,8 @@ export function useViews({ resource, state, visit }: ViewsProps): Views | null {
         <ul>
           {items.map((tab, index) => (
             <li key={tab.key}>
-              <button
-                type="button"
+              <Button
+                variant="ghost"
                 data-tab={tab.key}
                 aria-current={tab.key === active ? 'page' : undefined}
                 className={tabClass}
@@ -228,7 +225,7 @@ export function useViews({ resource, state, visit }: ViewsProps): Views | null {
                 {tab.icon !== null && <NavIcon name={tab.icon} />}
                 {tab.name}
                 <TabBadge text={badgeText(tabCounts?.[tab.key], tab.badge)} type={tab.badgeType} deferred={tab.deferredBadge} pending={tabCounts === undefined} />
-              </button>
+              </Button>
             </li>
           ))}
           {saved.list.map((tab, index) => {
@@ -267,8 +264,8 @@ export function useViews({ resource, state, visit }: ViewsProps): Views | null {
                 >
                   <GripVertical className="size-3.5" />
                 </span>
-                <button
-                  type="button"
+                <Button
+                  variant="ghost"
                   data-tab={`saved:${String(tab.id)}`}
                   aria-current={tab.id === activeSaved ? 'page' : undefined}
                   aria-keyshortcuts="Alt+ArrowUp Alt+ArrowDown"
@@ -285,7 +282,7 @@ export function useViews({ resource, state, visit }: ViewsProps): Views | null {
                   {/* A long name ends in an ellipsis so the view's menu stays in the rail. */}
                   <span className="truncate">{tab.name}</span>
                   <TabBadge text={badgeText(tabCounts?.[`saved:${String(tab.id)}`])} type={tab.badgeType} deferred={tab.showCount} pending={tabCounts === undefined} />
-                </button>
+                </Button>
                 <ViewOptionsMenu
                   tab={tab}
                   onChoose={(kind) => {
@@ -334,9 +331,9 @@ export function useViews({ resource, state, visit }: ViewsProps): Views | null {
           ))}
         </ul>
         {resource.definition.savedTabs && (
-          <button
-            type="button"
-            className="lathe-tab lathe-save-view"
+          <Button
+            variant="ghost"
+            className="lathe-tab lathe-save-view justify-start"
             onClick={() => {
               if (where === 'menu') {
                 trigger.current?.focus();
@@ -348,7 +345,7 @@ export function useViews({ resource, state, visit }: ViewsProps): Views | null {
           >
             <Bookmark aria-hidden="true" className="size-3.5" />
             {__('Save view')}
-          </button>
+          </Button>
         )}
       </nav>
     );

@@ -5,6 +5,7 @@ import { cn } from '../lib/cn';
 import type { SharedProps } from '../types';
 import { NavSection, type NavBadge, type NavBlock } from './NavSection';
 import { UserMenu } from './UserMenu';
+import { Button } from '../components/ui/Button';
 
 const { RenderHook } = __panel;
 
@@ -74,14 +75,15 @@ export function Sidebar({ props, url, expanded, mobileOpen, onClose }: SidebarPr
           {versionLabel !== null && <p className="truncate text-xs text-muted-foreground">{versionLabel}</p>}
         </div>
         {mobileOpen && (
-          <button
-            type="button"
+          <Button
+            variant="ghost"
+            size="icon-lg"
             aria-label={__('Close menu')}
-            className="ms-auto grid size-11 shrink-0 place-items-center rounded-md text-muted-foreground outline-none hover:bg-sidebar-hover focus-visible:ring-2 focus-visible:ring-ring md:hidden"
+            className="ms-auto size-11 text-muted-foreground hover:bg-sidebar-hover md:hidden"
             onClick={onClose}
           >
             <X aria-hidden="true" className="size-4" />
-          </button>
+          </Button>
         )}
       </div>
       <RenderHook position="sidebar:before" />

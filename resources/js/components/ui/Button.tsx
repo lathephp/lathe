@@ -1,3 +1,5 @@
+'use no memo';
+
 import type { ComponentProps } from 'react';
 
 // The panel's own copy for first paint. The @lathephp/ui entry carries Base UI and
@@ -21,4 +23,9 @@ export function buttonClass(variant: ButtonVariant = 'default', size: ButtonSize
 export function Button({ variant, size, type = 'button', className, ...props }: ButtonProps) {
   // A caller's className comes last, so its utilities beat the style's base-layer rules.
   return <button type={type} className={`${buttonClass(variant, size)} ${className ?? ''}`} {...props} />;
+}
+
+/** The kit CollapsibleTrigger's copy: a plain button that shows or hides a panel, with the kit's slot and open state. */
+export function CollapsibleTrigger({ open, ...props }: Omit<ComponentProps<'button'>, 'type'> & { open: boolean }) {
+  return <button type="button" aria-expanded={open} data-slot="collapsible-trigger" data-panel-open={open ? '' : undefined} {...props} />;
 }

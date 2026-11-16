@@ -4,6 +4,7 @@ import { lazy, Suspense } from 'react';
 import { cn } from '../lib/cn';
 import { formatMetric } from './number';
 import type { ValueResult, WidgetRendererProps } from './types';
+import { Button } from '../components/ui/Button';
 
 const WidgetIcon = lazy(() => import('./WidgetIcon'));
 
@@ -52,10 +53,11 @@ export function ValueCard({ widget, value }: WidgetRendererProps) {
           )}
         </p>
         {result.copyable && (
-          <button
-            type="button"
+          <Button
+            variant="ghost"
+            size="icon-xs"
             aria-label={__('Copy')}
-            className="rounded p-1 text-muted-foreground hover:text-foreground"
+            className="text-muted-foreground"
             onClick={() => {
               void navigator.clipboard.writeText(full).then(() => {
                 toast.success(__('Copied to clipboard'));
@@ -63,7 +65,7 @@ export function ValueCard({ widget, value }: WidgetRendererProps) {
             }}
           >
             <Copy aria-hidden="true" className="size-3.5" />
-          </button>
+          </Button>
         )}
       </div>
       <div className="flex flex-wrap items-center gap-2 text-xs">

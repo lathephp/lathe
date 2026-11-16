@@ -156,7 +156,8 @@ describe('views rail', () => {
     expect(pill('pending')?.className).toContain('cn-badge-variant-warning');
     expect(pill('saved:7')?.getAttribute('data-slot')).toBe('badge');
     expect(pill('saved:7')?.className).toContain('cn-badge-variant-success');
-    expect(rail().querySelector('[data-tab="all"]')?.className).toBe('lathe-tab');
+    expect(rail().querySelector('[data-tab="all"]')?.classList.contains('lathe-tab')).toBe(true);
+    expect(rail().querySelector('[data-tab="all"] .lathe-tab-count')).toBeNull();
   });
 
   it('holds a placeholder badge in each counting tab until the counts arrive', () => {

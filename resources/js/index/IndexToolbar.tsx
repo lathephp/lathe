@@ -121,9 +121,9 @@ export function IndexToolbar({ resource, lens, q, visit, polling, selection, cou
               : __(':count selected', { count: selection.selected.size })}
           </span>
           {!selection.all && more && (
-            <button type="button" onClick={selection.selectAllMatching}>
+            <Button variant="link" size="xs" className="px-0" onClick={selection.selectAllMatching}>
               {total === null ? __('Select all matching rows') : __('Select all :count', { count: total })}
-            </button>
+            </Button>
           )}
         </div>
       ) : (

@@ -1,5 +1,5 @@
 import { stringValue, type FormFieldProps } from '../registry';
-import { inputClass } from '../../components/ui/input';
+import { Input } from '../../components/ui/input';
 
 function attribute(value: unknown): string | undefined {
   return typeof value === 'number' || typeof value === 'string' ? String(value) : undefined;
@@ -8,7 +8,7 @@ function attribute(value: unknown): string | undefined {
 /** The input of a number or currency field: min, max and step go to the browser as the server sent them. */
 export function NumberInput({ field, value, onChange, id, describedBy, invalid, disabled }: FormFieldProps) {
   return (
-    <input
+    <Input
       id={id}
       name={field.attribute}
       type="number"
@@ -26,7 +26,7 @@ export function NumberInput({ field, value, onChange, id, describedBy, invalid, 
       onChange={(event) => {
         onChange(event.target.value);
       }}
-      className={`${inputClass} tabular-nums`}
+      className="tabular-nums"
     />
   );
 }

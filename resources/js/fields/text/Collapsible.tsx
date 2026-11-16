@@ -1,5 +1,6 @@
 import { useTranslation } from '@lathephp/core';
 import { useId, useState, type ReactNode } from 'react';
+import { CollapsibleTrigger } from '../../components/ui/Button';
 
 /** A value with more lines than this collapses behind "Show Content". */
 export const COLLAPSE_LINES = 10;
@@ -32,9 +33,8 @@ export function Collapsible({ lines, open = false, children }: CollapsibleProps)
       <div id={id} data-collapsed={!expanded || undefined} className={expanded ? undefined : 'max-h-60 overflow-hidden'}>
         {children}
       </div>
-      <button
-        type="button"
-        aria-expanded={expanded}
+      <CollapsibleTrigger
+        open={expanded}
         aria-controls={id}
         className="mt-1 text-sm font-medium text-primary outline-none hover:underline focus-visible:ring-2 focus-visible:ring-ring"
         onClick={() => {
@@ -42,7 +42,7 @@ export function Collapsible({ lines, open = false, children }: CollapsibleProps)
         }}
       >
         {expanded ? __('Hide Content') : __('Show Content')}
-      </button>
+      </CollapsibleTrigger>
     </div>
   );
 }

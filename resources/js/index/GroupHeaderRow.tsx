@@ -1,5 +1,6 @@
 import { ChevronDown, ChevronRight } from 'lucide-react';
 import type { RowGroup } from './types';
+import { CollapsibleTrigger } from '../components/ui/Button';
 
 interface GroupHeaderRowProps {
   group: RowGroup;
@@ -18,15 +19,14 @@ export function GroupHeaderRow({ group, colSpan, collapsible, expanded, onToggle
     <tr className="h-11 border-b border-border bg-background">
       <th scope="colgroup" colSpan={colSpan} className="px-3 text-start font-medium whitespace-nowrap">
         {collapsible ? (
-          <button
-            type="button"
-            aria-expanded={expanded}
+          <CollapsibleTrigger
+            open={expanded}
             className="-mx-1 inline-flex items-center gap-1 rounded px-1 font-medium outline-none focus-visible:ring-2 focus-visible:ring-ring"
             onClick={onToggle}
           >
             <Chevron aria-hidden="true" className={expanded ? 'size-4' : 'size-4 rtl:rotate-180'} />
             {group.title}
-          </button>
+          </CollapsibleTrigger>
         ) : (
           group.title
         )}

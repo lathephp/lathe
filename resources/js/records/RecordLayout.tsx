@@ -3,10 +3,11 @@ import { ChevronDown } from 'lucide-react';
 import { Fragment, lazy, Suspense, useState, type ReactNode } from 'react';
 import { Card } from '../components/ui/Card';
 import { SafeHtml } from '../components/SafeHtml';
-import { tabKeys, tabsList, tabsRoot, tabsTrigger } from '../components/TabStrip';
+import { tabKeys, tabsList, tabsRoot, TabsTrigger } from '../components/ui/TabStrip';
 import type { DetailFieldData, LayoutBlock, PanelBlock, RelationFieldSchema, TabData, TabGroupBlock } from '../fields/types';
 import { cn } from '../lib/cn';
 import { SingularRelationPanel } from './SingularRelationPanel';
+import { Button, CollapsibleTrigger } from '../components/ui/Button';
 
 // Panels draw only on detail pages, so a form never loads the table code they share with the index.
 const RelationPanel = lazy(() => import('../relations/RelationPanel').then((module) => ({ default: module.RelationPanel })));
@@ -130,9 +131,8 @@ function Panel({ panel, renderField, borderless, detail, bare }: RecordLayoutPro
   const fieldsId = `${bodyId}-fields`;
   const Frame = bare === true ? 'div' : Card;
   const heading = panel.hideHeading ? null : panel.collapsible ? (
-    <button
-      type="button"
-      aria-expanded={open}
+    <CollapsibleTrigger
+      open={open}
       aria-controls={fieldsId}
       className="flex items-center gap-1 text-base font-semibold"
       onClick={() => {
@@ -141,7 +141,7 @@ function Panel({ panel, renderField, borderless, detail, bare }: RecordLayoutPro
     >
       <ChevronDown aria-hidden="true" className={cn('size-4 transition-transform', !open && '-rotate-90 rtl:rotate-90')} />
       {panel.name}
-    </button>
+    </CollapsibleTrigger>
   ) : (
     <h2 className="text-base font-semibold">{panel.name}</h2>
   );
@@ -180,15 +180,16 @@ function Panel({ panel, renderField, borderless, detail, bare }: RecordLayoutPro
         )}
         {limited ? (
           <div className="px-4 py-3">
-            <button
-              type="button"
-              className="text-sm font-medium text-primary hover:underline"
+            <Button
+              variant="link"
+              size="sm"
+              className="px-0"
               onClick={() => {
                 setAll(true);
               }}
             >
               {__('Show all')}
-            </button>
+            </Button>
           </div>
         ) : null}
       </Frame>
@@ -262,16 +263,12 @@ function TabGroup({ group, ...props }: RecordLayoutProps & { group: TabGroupBloc
         className={cn(tabsList, 'h-auto overflow-x-auto pb-[5px] shadow-[inset_0_-1px_0_var(--color-border)]', group.vertical && 'md:h-fit md:flex-col md:overflow-visible md:pb-0 md:shadow-none')}
       >
         {group.tabs.map((tab, index) => (
-          <button
+          <TabsTrigger
             key={tab.attribute}
             id={`tab-${group.attribute}-${tab.attribute}`}
-            type="button"
-            role="tab"
-            tabIndex={index === active ? 0 : -1}
-            aria-selected={index === active}
+            active={index === active}
             aria-controls={`tabpanel-${group.attribute}-${tab.attribute}`}
-            data-active={index === active || undefined}
-            className={cn(tabsTrigger, group.vertical && 'md:w-full md:justify-start md:after:inset-x-auto md:after:inset-y-0 md:after:-end-1 md:after:bottom-auto md:after:h-auto md:after:w-0.5')}
+            className={cn(group.vertical && 'md:w-full md:justify-start md:after:inset-x-auto md:after:inset-y-0 md:after:-end-1 md:after:bottom-auto md:after:h-auto md:after:w-0.5')}
             onKeyDown={keys}
             onClick={() => {
               select(index);
@@ -282,7 +279,7 @@ function TabGroup({ group, ...props }: RecordLayoutProps & { group: TabGroupBloc
             {hasError(tab, errorKeys) ? (
               <span role="img" aria-label={__('Has errors')} className="size-2 rounded-full bg-destructive" />
             ) : null}
-          </button>
+          </TabsTrigger>
         ))}
       </div>
       {group.tabs.map((tab, index) => (

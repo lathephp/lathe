@@ -17,7 +17,7 @@ import { ColumnPicker, TableSummaryRow } from './lazy';
 import { hasRowMenu, RowMenu } from './RowMenu';
 import { TableSummaryPlaceholder } from './TableSummaryPlaceholder';
 import type { Column, ColumnPin, IndexProps, Row } from './types';
-import { buttonClass } from '../components/ui/Button';
+import { Button, buttonClass } from '../components/ui/Button';
 
 // A row's height at each table density; a loading row takes the same.
 /** A cell's value as it reads on screen: a select with options says its option's label, as its badge shows it. */
@@ -331,6 +331,7 @@ export function ResourceTable({ resource, table, state, loading, selection, sort
         <thead>
           <tr ref={header}>
             <th scope="col" className={cn(checkboxColumn, border)}>
+              {/* eslint-disable-next-line lathe/no-raw-ui -- the table's selection boxes stay native, the shipped design of a row's tick */}
               <input
                 type="checkbox"
                 aria-label={__('Select all')}
@@ -360,9 +361,10 @@ export function ResourceTable({ resource, table, state, loading, selection, sort
                   className={cn('px-3 whitespace-nowrap', alignClass(column), pins[index]?.className, border)}
                 >
                   {sortable ? (
-                    <button
-                      type="button"
-                      className="lathe-sort"
+                    <Button
+                      variant="ghost"
+                      size="xs"
+                      className="lathe-sort h-auto"
                       onClick={(event) => {
                         onSort(nextSort(sort, column.sortKey, event.shiftKey));
                       }}
@@ -373,7 +375,7 @@ export function ResourceTable({ resource, table, state, loading, selection, sort
                         <path d="M4 1 7.5 5.5h-7z" />
                         <path d="M4 13 .5 8.5h7z" />
                       </svg>
-                    </button>
+                    </Button>
                   ) : (
                     column.label
                   )}
@@ -429,6 +431,7 @@ export function ResourceTable({ resource, table, state, loading, selection, sort
                     {!folded && (
                       <tr data-row={row.id} className={cn('group', rowClass)}>
                         <td tabIndex={stop(row, 0)} className={cn(checkboxColumn, border, cursorCell)}>
+                          {/* eslint-disable-next-line lathe/no-raw-ui -- the table's selection boxes stay native, the shipped design of a row's tick */}
                           <input
                             type="checkbox"
                             tabIndex={-1}
@@ -582,13 +585,13 @@ function ColumnsButton({ uriKey, table }: { uriKey: string; table: IndexProps['t
 
   return (
     <div className="relative flex justify-end">
-      <button
+      <Button
         ref={setTrigger}
-        type="button"
+        variant="ghost"
+        size="icon-sm"
         aria-label={__('Columns')}
         aria-haspopup="dialog"
         aria-expanded={open}
-        className={buttonClass('ghost', 'icon-sm')}
         onPointerEnter={() => {
           void ColumnPicker.preload();
         }}
@@ -597,7 +600,7 @@ function ColumnsButton({ uriKey, table }: { uriKey: string; table: IndexProps['t
         }}
       >
         <Columns3 aria-hidden="true" className="size-4" />
-      </button>
+      </Button>
       {open && (
         <Suspense fallback={null}>
           <ColumnPicker

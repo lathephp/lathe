@@ -3,7 +3,7 @@ import { Ellipsis } from 'lucide-react';
 import { Suspense, useState } from 'react';
 import { RowMenuPanel } from './lazy';
 import type { Row } from './types';
-import { buttonClass } from '../components/ui/Button';
+import { Button } from '../components/ui/Button';
 
 export type MenuAction = 'view' | 'edit' | 'replicate' | 'delete' | 'restore' | 'forceDelete';
 export type WriteAction = Exclude<MenuAction, 'view' | 'edit' | 'replicate'>;
@@ -30,13 +30,13 @@ export function RowMenu({ uriKey, row }: { uriKey: string; row: Row }) {
     void RowMenuPanel.preload();
   };
   const button = (
-    <button
-      type="button"
+    <Button
+      variant="ghost"
+      size="icon-sm"
       tabIndex={-1}
       aria-haspopup="menu"
       aria-expanded="false"
       aria-label={label}
-      className={buttonClass('ghost', 'icon-sm')}
       onPointerEnter={preload}
       onPointerDown={preload}
       // A click from Enter or Space has no presses to count.
@@ -45,7 +45,7 @@ export function RowMenu({ uriKey, row }: { uriKey: string; row: Row }) {
       }}
     >
       <Ellipsis aria-hidden="true" className="size-4" />
-    </button>
+    </Button>
   );
 
   return (

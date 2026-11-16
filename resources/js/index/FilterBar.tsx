@@ -203,8 +203,9 @@ export function FilterBar({ q = '', visit, host }: FilterBarProps) {
           {chips.map((chip) => (
             <div key={chip.key} data-slot="combobox-chip" className="cn-combobox-chip">
               <span>{chip.label}</span>
-              <button
-                type="button"
+              <Button
+                variant="ghost"
+                size="icon-xs"
                 data-slot="combobox-chip-remove"
                 className="cn-combobox-chip-remove"
                 aria-label={__('Remove :filter filter', { filter: chipName(chip, bar, __) })}
@@ -213,9 +214,10 @@ export function FilterBar({ q = '', visit, host }: FilterBarProps) {
                 }}
               >
                 <X aria-hidden="true" className="size-3" />
-              </button>
+              </Button>
             </div>
           ))}
+          {/* eslint-disable-next-line lathe/no-raw-ui -- the first-paint copy of the kit's ComboboxChipsInput, a bare input inside the chips box, which the style draws as cn-combobox-chip-input */}
           <input
             type="search"
             data-slot="combobox-chip-input"

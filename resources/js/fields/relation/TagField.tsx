@@ -1,6 +1,7 @@
 import { Suspense, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { cn } from '../../lib/cn';
+import { Button } from '../../components/ui/Button';
 import type { DetailFieldProps, IndexFieldProps } from '../registry';
 import type { FieldSchema } from '../types';
 import { isBelongsToValue } from './BelongsToField';
@@ -32,16 +33,16 @@ function TagChips({ field, value }: { field: FieldSchema; value: unknown }) {
             {preview === null ? (
               <span className={chip}>{item.display}</span>
             ) : (
-              <button
-                type="button"
+              <Button
+                variant="ghost"
                 data-tag={item.value}
-                className={cn(chip, 'hover:bg-accent')}
+                className={cn(chip, 'h-auto hover:bg-accent')}
                 onClick={() => {
                   setPreviewing(item.value);
                 }}
               >
                 {item.display}
-              </button>
+              </Button>
             )}
           </li>
         ))}

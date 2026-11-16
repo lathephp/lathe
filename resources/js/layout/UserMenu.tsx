@@ -6,6 +6,7 @@ import { NavIcon } from '../components/NavIcon';
 import { cn } from '../lib/cn';
 import { showKeys } from '../lib/keys';
 import type { NavigationItem } from '../types';
+import { DropdownMenuItem, DropdownMenuTrigger } from '../components/ui/DropdownMenu';
 import { menuClasses, useMenuKeys } from '../lib/menuKeys';
 
 const AppearanceSwitcher = lazy(() => import('./AppearanceSwitcher').then((module) => ({ default: module.AppearanceSwitcher })));
@@ -79,42 +80,32 @@ export function UserMenu({ user, items, logoutPath, collapsed }: UserMenuProps) 
               {item.label}
             </Link>
           ))}
-          <button
-            type="button"
-            role="menuitem"
-            data-variant="default"
-            className={menuClasses.item}
+          <DropdownMenuItem
             onClick={() => {
               setOpen(false);
               showKeys();
             }}
           >
             {__('Keyboard shortcuts')}
-          </button>
+          </DropdownMenuItem>
           {/* Lazy: the switcher is only needed once the menu is open. The fallback has its final height. */}
           <div data-lathe-appearance-slot>
             <Suspense fallback={<div className="h-[4.75rem]" />}>
               <AppearanceSwitcher />
             </Suspense>
           </div>
-          <button
-            type="button"
-            role="menuitem"
-            data-variant="default"
-            className={menuClasses.item}
+          <DropdownMenuItem
             onClick={() => {
               router.post(logoutPath);
             }}
           >
             <LogOut aria-hidden="true" className="size-4" />
             {__('Sign out')}
-          </button>
+          </DropdownMenuItem>
         </div>
       )}
-      <button
-        type="button"
-        aria-haspopup="menu"
-        aria-expanded={open}
+      <DropdownMenuTrigger
+        open={open}
         aria-controls={open ? 'lathe-user-menu' : undefined}
         className="lathe-user lathe-user-trigger"
         onClick={() => {
@@ -127,7 +118,7 @@ export function UserMenu({ user, items, logoutPath, collapsed }: UserMenuProps) 
           <span className="truncate text-xs text-muted-foreground max-md:text-[13px]">{user.email}</span>
         </span>
         <ChevronsUpDown aria-hidden="true" className={cn('size-4 shrink-0 text-muted-foreground', collapsed && 'md:hidden')} />
-      </button>
+      </DropdownMenuTrigger>
     </div>
   );
 }
