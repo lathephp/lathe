@@ -184,7 +184,8 @@ function PanelBody({ parent, field, bodyId, onToggle, tab }: RelationPanelProps 
   }, [total, onCount]);
 
   function change(changes: IndexUrlState) {
-    setState(applyChanges(state, changes));
+    // Onto the newest state: the filter bar sends its chips after a debounce, so a sort may come between.
+    setState((current) => applyChanges(current, changes));
   }
 
   function rowUrl(row: RelationRow): string {

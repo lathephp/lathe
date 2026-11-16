@@ -645,6 +645,24 @@ describe('a customer\'s Orders panel', () => {
     expect(Array.from(button.querySelectorAll('svg path'), (path) => path.getAttribute('d'))).toEqual(['M4 1 7.5 5.5h-7z', 'M4 13 .5 8.5h7z']);
   });
 
+  it('keeps a sort clicked while the filter bar is still sending its chip', async () => {
+    const fetch = answerOrders([statusFilter]);
+    renderCustomer();
+    await screen.findByText('ORD-00000002');
+
+    const input = await focusBar('Search orders');
+    fireEvent.change(input, { target: { value: 'status:pending' } });
+    fireEvent.keyDown(input, { key: 'Enter' });
+    expect(await screen.findByText('Status: Pending')).toBeTruthy();
+    // Inside the bar's debounce: its chip arrives after the sort.
+    fireEvent.click(screen.getByRole('button', { name: 'Number' }));
+
+    await waitFor(() => {
+      expect(orderCalls(fetch).at(-1)).toBe('/lathe/api/resources/customers/3/orders?sort=number&filter[status]=pending');
+    });
+    expect(screen.getByRole('columnheader', { name: 'Number' }).getAttribute('aria-sort')).toBe('ascending');
+  });
+
   it('sorts by Number ascending then descending, keeping its chips, with no page visit', async () => {
     const fetch = answerOrders([statusFilter]);
     const visit = vi.spyOn(router, 'visit');
