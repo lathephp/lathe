@@ -6,12 +6,21 @@ use Symfony\Component\Finder\Finder;
 // These run ESLint, so they need Node.
 pest()->group('frontend');
 
-/** @return list<string> each lathe/no-raw-ui disable comment in the source that gives no reason after "--" */
+/**
+ * @return list<string> each eslint-disable comment in the source that turns lathe/no-raw-ui off with no
+ *                      reason after "--", including one that names no rule at all and so turns every rule off
+ */
 function rawUiDisablesWithoutReason(string $source): array
 {
-    preg_match_all('/eslint-disable(?:-next-line|-line)?\s+[^\n]*?lathe\/no-raw-ui[^\n]*/', $source, $found);
+    preg_match_all('/eslint-disable(?:-next-line|-line)?(?![\w-])[^\n]*/', $source, $found);
 
-    return array_values(array_filter($found[0], fn (string $comment) => preg_match('/\s--\s+\S/', $comment) !== 1));
+    return array_values(array_filter($found[0], function (string $comment) {
+        $comment = preg_replace('/\*\/.*$/', '', $comment) ?? $comment;
+        [$rules, $reason] = array_pad(explode(' -- ', $comment, 2), 2, '');
+        $named = trim((string) preg_replace('/^eslint-disable(?:-next-line|-line)?/', '', $rules));
+
+        return ($named === '' || str_contains($named, 'lathe/no-raw-ui')) && preg_match('/\w/', $reason) !== 1;
+    }));
 }
 
 it('gives every exception to lathe/no-raw-ui under resources/js its reason', function () {
@@ -27,9 +36,18 @@ it('gives every exception to lathe/no-raw-ui under resources/js its reason', fun
     expect($missing)->toBe([]);
 });
 
-it('finds a disable with no reason and passes one with a reason', function () {
-    expect(rawUiDisablesWithoutReason("{/* eslint-disable-next-line lathe/no-raw-ui */}\n// eslint-disable-next-line lathe/no-raw-ui --\n"))->toHaveCount(2)
-        ->and(rawUiDisablesWithoutReason("{/* eslint-disable-next-line lathe/no-raw-ui -- a native tick, the shipped design */}\n"))->toBe([]);
+it('finds a disable with no reason or no rule, and passes one with a reason', function () {
+    expect(rawUiDisablesWithoutReason(implode("\n", [
+        '{/* eslint-disable-next-line lathe/no-raw-ui */}',
+        '// eslint-disable-next-line lathe/no-raw-ui --',
+        '{/* eslint-disable-next-line lathe/no-raw-ui -- */}',
+        '// eslint-disable-next-line',
+        '/* eslint-disable */',
+    ])))->toHaveCount(5)
+        ->and(rawUiDisablesWithoutReason(implode("\n", [
+            '{/* eslint-disable-next-line lathe/no-raw-ui -- a native tick, the shipped design */}',
+            '// eslint-disable-next-line jsx-a11y/no-autofocus -- another rule is not this check',
+        ])))->toBe([]);
 });
 
 // The rule is on for the panel's own code and off where the kit and the panel's copies keep their raw elements.

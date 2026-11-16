@@ -92,6 +92,21 @@ it('reports each raw colour nested in cn() and in a template literal', function 
         ->and(noRawUiCount($template))->toBe(1);
 });
 
+it('reports a raw colour on a left border, with a trailing !, and in the newer colour utilities', function () {
+    $result = lintNoRawUiFixture(<<<'TSX'
+        export const A = () => (
+          <>
+            <p className="border-l-gray-200" />
+            <p className="bg-red-500!" />
+            <p className="text-shadow-red-500" />
+            <p className="inset-ring-gray-200" />
+          </>
+        );
+        TSX);
+
+    expect(noRawUiCount($result))->toBe(4);
+});
+
 it('reports a raw colour passed to cva or clsx outside a className', function () {
     $result = lintNoRawUiFixture(<<<'TSX'
         const v = cva('border-slate-200', { variants: { a: { b: 'ring-offset-white' } } });

@@ -10,7 +10,7 @@ const ELEMENTS = new Set(['button', 'input', 'select', 'textarea']);
 const CLASS_CALLS = new Set(['cn', 'clsx', 'cva']);
 const CLASS_ATTRIBUTES = new Set(['className', 'class']);
 
-const UTILITY = 'bg|text|border(?:-[xytrbse])?|ring-offset|ring|outline|fill|stroke|from|via|to|divide|decoration|shadow|accent|caret|placeholder';
+const UTILITY = 'bg|text|text-shadow|border(?:-[xytrblse])?|ring-offset|inset-ring|ring|outline|fill|stroke|from|via|to|divide|decoration|inset-shadow|drop-shadow|shadow|accent|caret|placeholder';
 const PALETTE = 'slate|gray|zinc|neutral|stone|red|orange|amber|yellow|lime|green|emerald|teal|cyan|sky|blue|indigo|violet|purple|fuchsia|pink|rose';
 const RAW_COLOUR = new RegExp(
   `^(?:${UTILITY})-(?:(?:${PALETTE})-(?:50|[1-9]00|950)|white|black|\\[#(?:[0-9a-fA-F]{3,4}|[0-9a-fA-F]{6}|[0-9a-fA-F]{8})\\])$`,
@@ -42,7 +42,8 @@ function rawColours(text) {
     .split(/\s+/)
     .filter(Boolean)
     .filter((token) => {
-      const utility = stripVariants(token).replace(/^!/, '').replace(/\/(?:\d+|\[[^\]]*\])$/, '');
+      // The important mark sits at either end: !bg-red-500 (Tailwind 3) or bg-red-500! (Tailwind 4).
+      const utility = stripVariants(token).replace(/^!|!$/g, '').replace(/\/(?:\d+|\[[^\]]*\])$/, '');
 
       return RAW_COLOUR.test(utility);
     });
