@@ -22,7 +22,8 @@
   "files": [
     "dist",
     "eslint",
-    "!dist/*.tsbuildinfo"
+    "!dist/*.tsbuildinfo",
+    "!eslint/tsconfig.json"
   ],
   "scripts": {
     "build": "tsc -b"
