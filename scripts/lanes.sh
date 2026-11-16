@@ -1,11 +1,13 @@
 #!/usr/bin/env bash
 # Starts Lathe's own database containers for the multi-driver test lanes.
 #   lanes.sh up [mysql|mariadb|pgsql] | down [mysql|mariadb|pgsql] | env <mysql|mariadb|pgsql>
-#   lanes.sh changed <mysql|mariadb|pgsql|octane>
+#   lanes.sh changed <mysql|mariadb|pgsql|octane|scaffold>
 # With no lane name, up and down act on all three. changed runs the test files that differ
 # from origin/main, committed, uncommitted or untracked, on that lane in a database of the run's own,
 # so a milestone meets every driver before CI.
 # changed octane runs scripts/octane-lane.sh when a file under workbench/ or tests/Octane differs.
+# changed scaffold runs the scaffold group, which composer test leaves out, when a stub, a console
+# command or an ESLint config differs: those decide what the generators write and how it is linted.
 # These containers are Lathe's. Never reuse another project's database container.
 set -uo pipefail
 
@@ -137,8 +139,16 @@ case ${1:-} in
         echo "export DB_CONNECTION=$driver DB_HOST=127.0.0.1 DB_PORT=$port DB_DATABASE=$database DB_USERNAME=$user DB_PASSWORD=$password"
         ;;
     changed)
-        [[ ${2:-} == octane || ( -n ${2:-} && -n $(selected "$2") ) ]] || { echo "usage: lanes.sh changed <mysql|mariadb|pgsql|octane>" >&2; exit 2; }
+        [[ ${2:-} == octane || ${2:-} == scaffold || ( -n ${2:-} && -n $(selected "$2") ) ]] || { echo "usage: lanes.sh changed <mysql|mariadb|pgsql|octane|scaffold>" >&2; exit 2; }
         cd "$(dirname "$0")/.." || exit 1
+        if [[ $2 == scaffold ]]; then
+            paths=(stubs src/Console eslint.config.js packages/vite-plugin/eslint)
+            if [[ -z $({ git diff --name-only origin/main -- "${paths[@]}"; git ls-files --others --exclude-standard -- "${paths[@]}"; }) ]]; then
+                echo "no stub, console or ESLint file differs from origin/main"
+                exit 0
+            fi
+            exec php vendor/bin/pest --group=scaffold
+        fi
         if [[ $2 == octane ]]; then
             if [[ -z $({ git diff --name-only origin/main -- workbench tests/Octane; git ls-files --others --exclude-standard -- workbench tests/Octane; }) ]]; then
                 echo "no workbench or tests/Octane file differs from origin/main"
@@ -160,7 +170,7 @@ case ${1:-} in
         php vendor/bin/pest --exclude-group=benchmark --exclude-group=scaffold "${files[@]}"
         ;;
     *)
-        echo "usage: lanes.sh up [mysql|mariadb|pgsql] | down [mysql|mariadb|pgsql] | env <mysql|mariadb|pgsql> | changed <mysql|mariadb|pgsql|octane>" >&2
+        echo "usage: lanes.sh up [mysql|mariadb|pgsql] | down [mysql|mariadb|pgsql] | env <mysql|mariadb|pgsql> | changed <mysql|mariadb|pgsql|octane|scaffold>" >&2
         exit 2
         ;;
 esac

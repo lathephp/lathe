@@ -74,3 +74,26 @@ it('gives each changed run a database of its own and drops it after', function (
 
     File::deleteDirectory($repo);
 });
+
+it('runs the scaffold group when a stub, console, or ESLint file differs from origin/main', function () {
+    $repo = lanesRepo();
+    File::ensureDirectoryExists("{$repo}/bin");
+    File::ensureDirectoryExists("{$repo}/stubs");
+    File::put("{$repo}/bin/php", "#!/usr/bin/env bash\necho \"php \$*\"\n");
+    chmod("{$repo}/bin/php", 0755);
+    $run = fn () => Process::path($repo)->env(['PATH' => "{$repo}/bin:".getenv('PATH')])->run(['bash', 'scripts/lanes.sh', 'changed', 'scaffold']);
+
+    $quiet = $run();
+    File::put("{$repo}/resources/app.tsx", "export const a = 1\n");
+    $frontend = $run();
+    File::put("{$repo}/stubs/page-react.stub", "export {}\n");
+    $stub = $run();
+
+    expect($quiet->exitCode())->toBe(0)
+        ->and($quiet->output())->toContain('no stub, console or ESLint file differs from origin/main')
+        ->and($frontend->output())->not->toContain('--group=scaffold')
+        ->and($stub->exitCode())->toBe(0, $stub->errorOutput())
+        ->and($stub->output())->toContain('php vendor/bin/pest --group=scaffold');
+
+    File::deleteDirectory($repo);
+});
