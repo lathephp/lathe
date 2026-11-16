@@ -353,6 +353,7 @@ describe('grouping and buttons', () => {
     calls.length = 0;
     list = [{ ...(list[0] as ReturnType<typeof item>), readAt: '2026-10-14T10:01:00+00:00' }];
 
+    expect(within(screen.getByRole('dialog')).getByRole('link', { name: 'Download' }).classList.contains('cn-button-variant-outline')).toBe(true);
     fireEvent.click(within(screen.getByRole('dialog')).getByRole('link', { name: 'Download' }));
     await settle();
 

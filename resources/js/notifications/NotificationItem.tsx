@@ -3,7 +3,7 @@ import { Check, CheckCheck, Download, ExternalLink, Info, Mail, Trash2, X } from
 import type { ComponentType, MouseEvent } from 'react';
 import { cn } from '../lib/cn';
 import type { NotificationAction, NotificationData } from './useNotifications';
-import { Button } from '../components/ui/Button';
+import { Button, buttonClass } from '../components/ui/Button';
 
 type Mark = ComponentType<{ className?: string; strokeWidth?: number }>;
 
@@ -65,12 +65,7 @@ function ActionLink({ action, onUse }: { action: NotificationAction; onUse: () =
   return (
     <a
       href={action.url}
-      className={cn(
-        focus,
-        action.style === 'button'
-          ? 'inline-flex h-7 items-center rounded-md border border-border bg-card px-2.5 text-[13px] leading-[18px] font-medium text-foreground hover:bg-accent'
-          : 'rounded-sm text-[13px] font-medium text-link hover:text-link-hover',
-      )}
+      className={action.style === 'button' ? buttonClass('outline', 'sm') : cn(buttonClass('link', 'sm'), 'h-auto px-0 text-link hover:text-link-hover')}
       onClick={use}
       {...target}
     >

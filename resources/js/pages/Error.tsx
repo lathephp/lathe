@@ -1,6 +1,6 @@
 import { Head, Link, router, usePage } from '@inertiajs/react';
 import { useTranslation } from '@lathephp/core';
-import { Button } from '@lathephp/ui';
+import { Button, buttonVariants } from '@lathephp/ui';
 import type { SharedProps } from '../types';
 
 interface ErrorProps {
@@ -55,7 +55,7 @@ export default function ErrorPage({ status, message, shell }: ErrorProps) {
         )}
         <Link
           href={basePath}
-          className="inline-flex h-9 items-center rounded-md px-4 text-sm font-medium outline-none hover:bg-muted focus-visible:ring-2 focus-visible:ring-ring"
+          className={buttonVariants({ variant: 'ghost' })}
         >
           {__('Back to dashboard')}
         </Link>

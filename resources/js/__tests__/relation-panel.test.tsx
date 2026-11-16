@@ -522,6 +522,7 @@ describe('relation panel', () => {
 
     await waitFor(() => {
       expect(within(tabRow).getByRole('link', { name: 'Create' }).getAttribute('href')).toBe('/lathe/resources/order-items/new?via=orders/12/items');
+      expect(within(tabRow).getByRole('link', { name: 'Create' }).classList.contains('cn-button-variant-outline')).toBe(true);
     });
     expect(within(tabRow).queryByRole('region', { name: 'Items table' })).toBeNull();
     expect(within(card).getByRole('region', { name: 'Items table' })).toBeTruthy();

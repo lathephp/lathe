@@ -16,7 +16,7 @@ import type { IndexFilter } from '../index/types';
 import { applyChanges, type IndexUrlState } from '../index/useIndexState';
 import { useRowSelection } from '../index/useRowSelection';
 import { Modal, ModalFooter, ModalHeader, ModalTitle } from '../components/Modal';
-import { CollapsibleTrigger } from '../components/ui/Button';
+import { buttonClass, CollapsibleTrigger } from '../components/ui/Button';
 import { Select } from '../components/ui/Select';
 import { cn } from '../lib/cn';
 import { TableCell } from '../table/cells';
@@ -220,11 +220,7 @@ function PanelBody({ parent, field, bodyId, onToggle, tab }: RelationPanelProps 
   const create = (
     <Link
       href={createHref}
-      className={
-        tab === undefined
-          ? 'inline-flex h-9 items-center rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground outline-none hover:bg-primary/90 focus-visible:ring-2 focus-visible:ring-ring'
-          : 'inline-flex h-7 items-center gap-1 rounded-md border border-border bg-card px-2.5 text-[13px] font-medium outline-none hover:bg-accent focus-visible:ring-2 focus-visible:ring-focus'
-      }
+      className={tab === undefined ? buttonClass() : buttonClass('outline', 'sm')}
     >
       {tab === undefined ? null : <Plus aria-hidden="true" className="size-3.5" />}
       {__('Create')}

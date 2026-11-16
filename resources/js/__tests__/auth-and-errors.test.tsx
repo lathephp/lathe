@@ -125,6 +125,7 @@ describe('error page', () => {
     expect(screen.getByRole('complementary')).toBeTruthy();
     expect(screen.getByRole('heading', { level: 1 }).textContent).toBe('Page not found');
     expect(screen.getByRole('link', { name: 'Back to dashboard' }).getAttribute('href')).toBe('/lathe');
+    expect(screen.getByRole('link', { name: 'Back to dashboard' }).classList.contains('cn-button')).toBe(true);
   });
 
   it('shows a 404 full screen without the shell', () => {
