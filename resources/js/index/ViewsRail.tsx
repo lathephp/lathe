@@ -46,7 +46,7 @@ function badgeText(counts: TabCount | undefined, fallback: string | number | nul
 function TabBadge({ text, type, deferred = false, pending = false }: { text: string | null; type: BadgeType | null; deferred?: boolean; pending?: boolean }) {
   if (text === null) {
     return deferred && pending ? (
-      <span aria-hidden="true" data-badge-placeholder="" data-slot="skeleton" className="cn-skeleton h-5 w-12 rounded-full" />
+      <span aria-hidden="true" data-badge-placeholder="" data-slot="skeleton" className="cn-skeleton h-5 w-12" />
     ) : null;
   }
 

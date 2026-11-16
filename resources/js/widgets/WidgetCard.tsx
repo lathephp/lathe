@@ -144,9 +144,9 @@ export function WidgetCard({ widget, url, params, register, range: hostRange, me
   const loading = !error && !refreshing && (held || pending || (fetches && value === undefined));
   const skeleton = (
     <div role="status" aria-label={__('Loading')} className="flex flex-col gap-2.5">
-      <div data-slot="skeleton" className="cn-skeleton h-[26px] w-[70%] rounded-md" />
-      <div data-slot="skeleton" className="cn-skeleton h-3.5 w-1/2 rounded" />
-      <div data-slot="skeleton" className="cn-skeleton h-6 w-full rounded" />
+      <div data-slot="skeleton" className="cn-skeleton h-[26px] w-[70%]" />
+      <div data-slot="skeleton" className="cn-skeleton h-3.5 w-1/2" />
+      <div data-slot="skeleton" className="cn-skeleton h-6 w-full" />
     </div>
   );
 

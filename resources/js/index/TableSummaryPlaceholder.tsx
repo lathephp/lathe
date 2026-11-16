@@ -17,7 +17,7 @@ export function TableSummaryPlaceholder({ columns, rows, leading, trailing }: Ta
         <tr key={index} className="h-10 border-t border-border">
           <td className={leading} />
           <td colSpan={columns.length + (trailing ? 1 : 0)} className="px-3">
-            <span data-slot="skeleton" className="cn-skeleton block h-3 w-24 rounded" />
+            <span data-slot="skeleton" className="cn-skeleton block h-3 w-24" />
           </td>
         </tr>
       ))}

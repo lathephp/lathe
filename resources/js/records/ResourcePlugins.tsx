@@ -58,7 +58,7 @@ export function ResourcePlugins({ resourceName, resourceId, plugins }: ResourceP
   }, [key]);
 
   if (!ready) {
-    return <div aria-hidden="true" data-slot="skeleton" className="cn-skeleton h-32 rounded-md" />;
+    return <div aria-hidden="true" data-slot="skeleton" className="cn-skeleton h-32" />;
   }
 
   return (
@@ -67,7 +67,7 @@ export function ResourcePlugins({ resourceName, resourceId, plugins }: ResourceP
         const component = __panel.resourcePluginComponent(plugin.component);
 
         return component === undefined ? null : (
-          <Suspense key={plugin.component} fallback={<div aria-hidden="true" data-slot="skeleton" className="cn-skeleton h-32 rounded-md" />}>
+          <Suspense key={plugin.component} fallback={<div aria-hidden="true" data-slot="skeleton" className="cn-skeleton h-32" />}>
             {createElement(component, { resourceName, resourceId: String(resourceId) })}
           </Suspense>
         );

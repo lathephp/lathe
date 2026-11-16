@@ -419,7 +419,7 @@ export function ResourceTable({ resource, table, state, loading, selection, sort
                   <td className={cn(checkboxColumn, border)} />
                   {columns.map((column) => (
                     <td key={column.key} className={cn('px-3', border)}>
-                      <span data-slot="skeleton" className="cn-skeleton block h-3 rounded" />
+                      <span data-slot="skeleton" className="cn-skeleton block h-3" />
                     </td>
                   ))}
                   {withMenu && <td className={cn(border)} />}

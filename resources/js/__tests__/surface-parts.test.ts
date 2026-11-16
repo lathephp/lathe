@@ -1,5 +1,5 @@
 /// <reference types="node" />
-import { readFileSync } from 'node:fs';
+import { readdirSync, readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 
 // Each surface draws as the style's part, so the style gives it its corners and shadow, and the
@@ -32,5 +32,23 @@ describe('the search palette on a phone', () => {
     const panel = readFileSync('resources/css/app.css', 'utf8');
 
     expect(panel).toMatch(/@media \(width < 48rem\) \{\s*\[data-lathe-palette\] > \[role="dialog"\] \{\s*@apply rounded-none;/);
+  });
+});
+
+// A style sets its skeleton's corners (sera's are square), so a placeholder names no corner of its own.
+describe('the loading placeholders', () => {
+  const sources = (readdirSync('resources/js', { recursive: true }) as string[])
+    .filter((file) => /\.tsx?$/.test(file) && !file.includes('__tests__'))
+    .map((file) => [file, readFileSync(`resources/js/${file}`, 'utf8')] as const);
+
+  it('take the corners of the style', () => {
+    const cornered = sources.flatMap(([file, source]) =>
+      source
+        .split('\n')
+        .filter((line) => /cn-skeleton|skeletonBar/.test(line) && /(?<![\w-])rounded(?![\w])/.test(line))
+        .map((line) => `${file}: ${line.trim()}`),
+    );
+
+    expect(cornered).toEqual([]);
   });
 });
