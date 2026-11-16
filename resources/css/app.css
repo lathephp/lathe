@@ -128,6 +128,8 @@
   --destructive-subtle: #fde8e8;
   --destructive-subtle-foreground: #c12b2b;
   --skeleton: #e6eaec;
+  /* A QR code's quiet zone: Fortify draws the code with no margin, and a scanner needs a light one in every theme. */
+  --qr-ground: #fff;
   --scrim: #13191c52;
   --chart-other: #7b878c;
   --sidebar-hover: #f5f7f8;
@@ -322,6 +324,7 @@
   --color-destructive-subtle: var(--destructive-subtle);
   --color-destructive-subtle-foreground: var(--destructive-subtle-foreground);
   --color-skeleton: var(--skeleton);
+  --color-qr-ground: var(--qr-ground);
   --color-scrim: var(--scrim);
   --color-chart-other: var(--chart-other);
   --color-sidebar-hover: var(--sidebar-hover);

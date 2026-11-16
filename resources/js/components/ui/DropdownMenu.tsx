@@ -13,3 +13,8 @@ export function DropdownMenuTrigger({ open, ...props }: Omit<ComponentProps<'but
 export function DropdownMenuItem({ className, ...props }: Omit<ComponentProps<'button'>, 'type' | 'role'>) {
   return <button type="button" role="menuitem" data-slot="dropdown-menu-item" data-variant="default" className={`${menuClasses.item} ${className ?? ''}`} {...props} />;
 }
+
+/** A choice of a radio group inside a first-paint menu, such as the user menu's appearance. */
+export function DropdownMenuRadioItem({ checked, ...props }: Omit<ComponentProps<'button'>, 'type' | 'role'> & { checked: boolean }) {
+  return <button type="button" role="menuitemradio" aria-checked={checked} data-slot="dropdown-menu-radio-item" data-checked={checked ? '' : undefined} {...props} />;
+}

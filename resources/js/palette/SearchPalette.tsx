@@ -208,6 +208,7 @@ export function SearchPalette({ basePath, debounce, onClose }: Props) {
 
   return (
     <div data-lathe-palette className="fixed inset-0 flex items-start justify-center p-4 pt-[72px] max-md:p-0">
+      {/* eslint-disable-next-line lathe/no-raw-ui -- the scrim behind the palette, a press on which closes it, as a kit dialog's backdrop does */}
       <button
         type="button"
         tabIndex={-1}
@@ -231,6 +232,7 @@ export function SearchPalette({ basePath, debounce, onClose }: Props) {
           {/* On a phone the field sits in a 44 px muted well. */}
           <div className="flex min-w-0 flex-1 items-center gap-2.5 max-md:h-11 max-md:gap-2 max-md:rounded-[10px] max-md:bg-muted max-md:px-3">
             <Search aria-hidden="true" strokeWidth={1.75} className="size-[18px] shrink-0 text-muted-foreground" />
+            {/* eslint-disable-next-line lathe/no-raw-ui -- a bare search field inside the palette's well, as the kit's CommandInput is; the palette is not on the kit Command */}
             <input
               ref={input}
               type="text"
@@ -253,18 +255,18 @@ export function SearchPalette({ basePath, debounce, onClose }: Props) {
           <kbd aria-hidden="true" className={cn(kbd, 'max-md:hidden')}>
             {__('esc')}
           </kbd>
-          <button type="button" className="h-11 shrink-0 rounded-md px-2 text-base font-medium text-link outline-none focus-visible:ring-2 focus-visible:ring-focus md:hidden" onClick={onClose}>
+          <Button variant="ghost" className="h-11 px-2 text-base text-link md:hidden" onClick={onClose}>
             {__('Cancel')}
-          </button>
+          </Button>
         </div>
         {/* Focusable, so a keyboard user can scroll a long result list. */}
         <div className={cn('overflow-y-auto pb-2 outline-none max-md:flex-1', empty && 'md:hidden')} role="region" tabIndex={0} aria-label={__('Search results')}>
           {!searching && recents.length > 0 && (
             <div className={cn(head, 'flex items-center justify-between')}>
               <span>{__('Recent searches')}</span>
-              <button type="button" className="rounded-sm text-xs font-medium tracking-normal text-link normal-case outline-none hover:text-link-hover focus-visible:ring-2 focus-visible:ring-focus" onClick={clear}>
+              <Button variant="link" size="xs" className="h-auto px-0 text-xs tracking-normal text-link normal-case hover:text-link-hover" onClick={clear}>
                 {__('Clear')}
-              </button>
+              </Button>
             </div>
           )}
           {loading && (

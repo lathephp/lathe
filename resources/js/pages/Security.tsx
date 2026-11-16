@@ -6,7 +6,7 @@ import { FieldError } from '../components/FieldError';
 import { TotpInput } from '../components/TotpInput';
 import { PageHeader } from '../layout/PageHeader';
 import type { SharedProps } from '../types';
-import { inputClass } from '../components/ui/input';
+import { Input } from '../components/ui/input';
 
 type TwoFactorState = 'off' | 'pending' | 'on';
 
@@ -23,7 +23,7 @@ function PasswordField({ id, label, autoComplete, value, error, onChange }: { id
       <label htmlFor={id} className="text-sm font-medium">
         {label}
       </label>
-      <input
+      <Input
         id={id}
         name={id}
         type="password"
@@ -31,7 +31,6 @@ function PasswordField({ id, label, autoComplete, value, error, onChange }: { id
         value={value}
         aria-invalid={error === undefined ? undefined : true}
         aria-describedby={error === undefined ? undefined : `${id}-error`}
-        className={inputClass}
         onChange={(event) => {
           onChange(event.target.value);
         }}
@@ -156,7 +155,7 @@ function PendingTwoFactor() {
       {setup.data !== undefined && (
         <div className="space-y-2" dir="ltr">
           {/* Fortify draws this SVG from the user's own secret; it carries no user input. */}
-          <div className="inline-block rounded-md bg-white p-2" dangerouslySetInnerHTML={{ __html: setup.data.svg }} />
+          <div className="inline-block rounded-md bg-qr-ground p-2" dangerouslySetInnerHTML={{ __html: setup.data.svg }} />
           <p className="font-mono text-sm break-all">{setup.data.secretKey}</p>
         </div>
       )}

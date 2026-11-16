@@ -1,5 +1,6 @@
 import { useTheme, useTranslation, type Appearance } from '@lathephp/core';
 import { Monitor, Moon, Sun } from 'lucide-react';
+import { DropdownMenuRadioItem } from '../components/ui/DropdownMenu';
 
 const choices: [Appearance, typeof Sun][] = [
   ['light', Sun],
@@ -18,18 +19,16 @@ export function AppearanceSwitcher() {
       <span aria-hidden="true">{__('Appearance')}</span>
       <div>
         {choices.map(([choice, Icon]) => (
-          <button
+          <DropdownMenuRadioItem
             key={choice}
-            type="button"
-            role="menuitemradio"
-            aria-checked={appearance === choice}
+            checked={appearance === choice}
             onClick={() => {
               setAppearance(choice);
             }}
           >
             <Icon aria-hidden="true" className="size-3.5" />
             {labels[choice]}
-          </button>
+          </DropdownMenuRadioItem>
         ))}
       </div>
     </div>

@@ -21,12 +21,12 @@ describe('login', () => {
 
     const email = screen.getByLabelText<HTMLInputElement>('Email');
     const password = screen.getByLabelText<HTMLInputElement>('Password');
-    const remember = screen.getByLabelText<HTMLInputElement>('Remember me');
+    const remember = screen.getByRole('checkbox', { name: 'Remember me' });
 
     expect(email.type).toBe('email');
     expect(email.autocomplete).toBe('username');
     expect(password.type).toBe('password');
-    expect(remember.type).toBe('checkbox');
+    expect([remember.getAttribute('role'), remember.dataset.slot]).toEqual(['checkbox', 'checkbox']);
     expect(screen.getByRole('button', { name: 'Sign in' })).toBeTruthy();
     expect(screen.getByRole('heading', { level: 1 }).textContent).toBe('Acme');
   });
@@ -72,7 +72,7 @@ describe('login', () => {
 
     fireEvent.change(screen.getByLabelText('Email'), { target: { value: 'ada@example.com' } });
     fireEvent.change(screen.getByLabelText('Password'), { target: { value: 'secret' } });
-    fireEvent.click(screen.getByLabelText('Remember me'));
+    fireEvent.click(screen.getByRole('checkbox', { name: 'Remember me' }));
     fireEvent.click(screen.getByRole('button', { name: 'Sign in' }));
 
     expect(visit).toHaveBeenCalledOnce();

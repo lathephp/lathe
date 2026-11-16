@@ -5,7 +5,7 @@ import type { SubmitEvent } from 'react';
 import { FieldError } from '../../components/FieldError';
 import { AuthLayout } from '../../layout/AuthLayout';
 import type { SharedProps } from '../../types';
-import { inputClass } from '../../components/ui/input';
+import { Input } from '../../components/ui/input';
 
 interface ResetPasswordProps {
   token: string;
@@ -34,7 +34,7 @@ export default function ResetPassword({ token, email, errors }: ResetPasswordPro
           <label htmlFor="email" className="text-sm font-medium">
             {__('Email')}
           </label>
-          <input
+          <Input
             id="email"
             name="email"
             type="email"
@@ -43,7 +43,7 @@ export default function ResetPassword({ token, email, errors }: ResetPasswordPro
             value={form.data.email}
             aria-invalid={errors.email === undefined ? undefined : true}
             aria-describedby={errors.email === undefined ? undefined : 'email-error'}
-            className={`${inputClass} bg-muted`}
+            className="bg-muted"
           />
           <FieldError id="email-error" message={errors.email} />
           {/* An expired or used link: the way out is a new one. */}
@@ -57,7 +57,7 @@ export default function ResetPassword({ token, email, errors }: ResetPasswordPro
           <label htmlFor="password" className="text-sm font-medium">
             {__('New password')}
           </label>
-          <input
+          <Input
             id="password"
             name="password"
             type="password"
@@ -66,7 +66,6 @@ export default function ResetPassword({ token, email, errors }: ResetPasswordPro
             value={form.data.password}
             aria-invalid={errors.password === undefined ? undefined : true}
             aria-describedby={errors.password === undefined ? undefined : 'password-error'}
-            className={inputClass}
             onChange={(event) => {
               form.setData('password', event.target.value);
             }}
@@ -77,14 +76,13 @@ export default function ResetPassword({ token, email, errors }: ResetPasswordPro
           <label htmlFor="password_confirmation" className="text-sm font-medium">
             {__('Confirm password')}
           </label>
-          <input
+          <Input
             id="password_confirmation"
             name="password_confirmation"
             type="password"
             autoComplete="new-password"
             required
             value={form.data.password_confirmation}
-            className={inputClass}
             onChange={(event) => {
               form.setData('password_confirmation', event.target.value);
             }}

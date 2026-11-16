@@ -19,7 +19,6 @@ const lathe = {
 
 // The panel files whose raw controls m47 has not moved to the kit yet; each sweep task empties its part.
 const notYetSwept = [
-  'resources/js/components/ConfirmPasswordDialog.tsx',
   'resources/js/fields/choice/SelectForms.tsx',
   'resources/js/fields/date/DatePicker.tsx',
   'resources/js/fields/date/DateText.tsx',
@@ -42,17 +41,6 @@ const notYetSwept = [
   'resources/js/index/board/Board.tsx',
   'resources/js/index/board/MoveMenu.tsx',
   'resources/js/index/filters/RangeFilter.tsx',
-  'resources/js/layout/AppearanceSwitcher.tsx',
-  'resources/js/layout/ImpersonationBanner.tsx',
-  'resources/js/notifications/NotificationItem.tsx',
-  'resources/js/notifications/NotificationPanel.tsx',
-  'resources/js/pages/Auth/ConfirmPassword.tsx',
-  'resources/js/pages/Auth/ForgotPassword.tsx',
-  'resources/js/pages/Auth/Login.tsx',
-  'resources/js/pages/Auth/ResetPassword.tsx',
-  'resources/js/pages/Auth/TwoFactorChallenge.tsx',
-  'resources/js/pages/Security.tsx',
-  'resources/js/palette/SearchPalette.tsx',
   'resources/js/plugins/PluginSettingsForm.tsx',
   'resources/js/records/HistoryCard.tsx',
   'resources/js/relations/RelationPanel.tsx',

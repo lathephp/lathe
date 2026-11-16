@@ -6,7 +6,7 @@ import { FieldError } from '../../components/FieldError';
 import { TotpInput } from '../../components/TotpInput';
 import { AuthLayout } from '../../layout/AuthLayout';
 import type { SharedProps } from '../../types';
-import { inputClass } from '../../components/ui/input';
+import { Input } from '../../components/ui/input';
 
 interface TwoFactorChallengeProps {
   errors: Partial<Record<'code' | 'recovery_code', string>>;
@@ -36,7 +36,7 @@ export default function TwoFactorChallenge({ errors }: TwoFactorChallengeProps) 
             <label htmlFor="recovery_code" className="text-sm font-medium">
               {__('Recovery code')}
             </label>
-            <input
+            <Input
               id="recovery_code"
               name="recovery_code"
               type="text"
@@ -45,7 +45,6 @@ export default function TwoFactorChallenge({ errors }: TwoFactorChallengeProps) 
               value={form.data.recovery_code}
               aria-invalid={errors.recovery_code === undefined ? undefined : true}
               aria-describedby={errors.recovery_code === undefined ? undefined : 'recovery_code-error'}
-              className={inputClass}
               onChange={(event) => {
                 form.setData('recovery_code', event.target.value);
               }}

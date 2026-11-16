@@ -1,11 +1,11 @@
 import { useForm, usePage } from '@inertiajs/react';
 import { __panel, useTranslation } from '@lathephp/core';
-import { Button } from '@lathephp/ui';
+import { Button, Checkbox } from '@lathephp/ui';
 import type { SubmitEvent } from 'react';
 import { FieldError } from '../../components/FieldError';
 import { AuthLayout } from '../../layout/AuthLayout';
 import type { SharedProps } from '../../types';
-import { inputClass } from '../../components/ui/input';
+import { Input } from '../../components/ui/input';
 
 interface LoginProps {
   username: string;
@@ -44,7 +44,7 @@ export default function Login({ username, status = null, errors }: LoginProps) {
                 <label htmlFor="email" className="text-sm font-medium">
                   {byEmail ? __('Email') : __('Username')}
                 </label>
-                <input
+                <Input
                   id="email"
                   name="email"
                   type={byEmail ? 'email' : 'text'}
@@ -53,7 +53,6 @@ export default function Login({ username, status = null, errors }: LoginProps) {
                   value={form.data.email}
                   aria-invalid={errors.email === undefined ? undefined : true}
                   aria-describedby={errors.email === undefined ? undefined : 'email-error'}
-                  className={inputClass}
                   onChange={(event) => {
                     form.setData('email', event.target.value);
                   }}
@@ -64,7 +63,7 @@ export default function Login({ username, status = null, errors }: LoginProps) {
                 <label htmlFor="password" className="text-sm font-medium">
                   {__('Password')}
                 </label>
-                <input
+                <Input
                   id="password"
                   name="password"
                   type="password"
@@ -73,7 +72,6 @@ export default function Login({ username, status = null, errors }: LoginProps) {
                   value={form.data.password}
                   aria-invalid={errors.password === undefined ? undefined : true}
                   aria-describedby={errors.password === undefined ? undefined : 'password-error'}
-                  className={inputClass}
                   onChange={(event) => {
                     form.setData('password', event.target.value);
                   }}
@@ -81,14 +79,12 @@ export default function Login({ username, status = null, errors }: LoginProps) {
                 <FieldError id="password-error" message={errors.password} />
               </div>
               <div className="flex items-center gap-2">
-                <input
+                <Checkbox
                   id="remember"
                   name="remember"
-                  type="checkbox"
                   checked={form.data.remember}
-                  className="size-4 rounded border-border focus-visible:ring-2 focus-visible:ring-ring"
-                  onChange={(event) => {
-                    form.setData('remember', event.target.checked);
+                  onCheckedChange={(checked) => {
+                    form.setData('remember', checked);
                   }}
                 />
                 <label htmlFor="remember" className="text-sm">

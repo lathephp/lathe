@@ -3,6 +3,7 @@ import { Check, CheckCheck, Download, ExternalLink, Info, Mail, Trash2, X } from
 import type { ComponentType, MouseEvent } from 'react';
 import { cn } from '../lib/cn';
 import type { NotificationAction, NotificationData } from './useNotifications';
+import { Button } from '../components/ui/Button';
 
 type Mark = ComponentType<{ className?: string; strokeWidth?: number }>;
 
@@ -117,12 +118,12 @@ export function NotificationItem({ item, onRead, onUnread, onDelete }: Props) {
         </p>
       </div>
       <div className="flex shrink-0 items-start gap-0.5 opacity-0 group-focus-within:opacity-100 group-hover:opacity-100 max-md:opacity-100">
-        <button type="button" aria-label={label} title={label} className={cn(focus, 'inline-flex size-7 items-center justify-center rounded-md text-muted-foreground hover:bg-muted hover:text-foreground')} onClick={unread ? () => void onRead() : onUnread}>
+        <Button variant="ghost" size="icon-sm" aria-label={label} title={label} className="text-muted-foreground" onClick={unread ? () => void onRead() : onUnread}>
           <Toggle aria-hidden="true" className="size-[15px]" />
-        </button>
-        <button type="button" aria-label={__('Delete')} title={__('Delete')} className={cn(focus, 'inline-flex size-7 items-center justify-center rounded-md text-muted-foreground hover:bg-muted hover:text-foreground')} onClick={onDelete}>
+        </Button>
+        <Button variant="ghost" size="icon-sm" aria-label={__('Delete')} title={__('Delete')} className="text-muted-foreground" onClick={onDelete}>
           <Trash2 aria-hidden="true" className="size-[15px]" />
-        </button>
+        </Button>
       </div>
     </li>
   );

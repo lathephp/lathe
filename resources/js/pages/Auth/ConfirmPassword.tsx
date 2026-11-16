@@ -5,7 +5,7 @@ import type { SubmitEvent } from 'react';
 import { FieldError } from '../../components/FieldError';
 import { AuthLayout } from '../../layout/AuthLayout';
 import type { SharedProps } from '../../types';
-import { inputClass } from '../../components/ui/input';
+import { Input } from '../../components/ui/input';
 
 interface ConfirmPasswordProps {
   errors: Partial<Record<'password', string>>;
@@ -30,7 +30,7 @@ export default function ConfirmPassword({ errors }: ConfirmPasswordProps) {
           <label htmlFor="password" className="text-sm font-medium">
             {__('Password')}
           </label>
-          <input
+          <Input
             id="password"
             name="password"
             type="password"
@@ -39,7 +39,6 @@ export default function ConfirmPassword({ errors }: ConfirmPasswordProps) {
             value={form.data.password}
             aria-invalid={errors.password === undefined ? undefined : true}
             aria-describedby={errors.password === undefined ? undefined : 'password-error'}
-            className={inputClass}
             onChange={(event) => {
               form.setData('password', event.target.value);
             }}

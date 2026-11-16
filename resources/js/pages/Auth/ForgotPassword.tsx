@@ -5,7 +5,7 @@ import type { SubmitEvent } from 'react';
 import { FieldError } from '../../components/FieldError';
 import { AuthLayout } from '../../layout/AuthLayout';
 import type { SharedProps } from '../../types';
-import { inputClass } from '../../components/ui/input';
+import { Input } from '../../components/ui/input';
 
 interface ForgotPasswordProps {
   status: string | null;
@@ -35,7 +35,7 @@ export default function ForgotPassword({ status, errors }: ForgotPasswordProps) 
           <label htmlFor="email" className="text-sm font-medium">
             {__('Email')}
           </label>
-          <input
+          <Input
             id="email"
             name="email"
             type="email"
@@ -44,7 +44,6 @@ export default function ForgotPassword({ status, errors }: ForgotPasswordProps) 
             value={form.data.email}
             aria-invalid={errors.email === undefined ? undefined : true}
             aria-describedby={errors.email === undefined ? undefined : 'email-error'}
-            className={inputClass}
             onChange={(event) => {
               form.setData('email', event.target.value);
             }}
