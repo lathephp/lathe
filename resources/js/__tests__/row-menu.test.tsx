@@ -96,6 +96,23 @@ describe('a row menu', () => {
     expect(document.activeElement).toBe(screen.getByRole('button', { name: 'Actions for Ada' }));
   });
 
+  // The arrows on the row's button move the table's cell cursor, so a closed menu stays closed.
+  it('stays closed on an arrow key at its button once it has opened and closed', async () => {
+    renderUsers();
+    fireEvent.click(screen.getByRole('button', { name: 'Actions for Ada' }), { detail: 0 });
+    fireEvent.keyDown(await screen.findByRole('menu'), { key: 'Escape' });
+    await waitFor(() => {
+      expect(screen.queryByRole('menu')).toBeNull();
+    });
+    const button = screen.getByRole('button', { name: 'Actions for Ada' });
+
+    fireEvent.keyDown(button, { key: 'ArrowDown' });
+    fireEvent.keyDown(button, { key: 'ArrowUp' });
+
+    await new Promise((resolve) => setTimeout(resolve, 50));
+    expect(screen.queryByRole('menu')).toBeNull();
+  });
+
   it('keeps a letter typed in it from the page shortcuts', async () => {
     const visit = vi.spyOn(router, 'visit').mockImplementation(() => undefined);
     renderUsers({ create: true });

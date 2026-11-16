@@ -163,7 +163,15 @@ export function RowMenuPanel({ uriKey, row, label, fromKeyboard }: RowMenuPanelP
   return (
     <>
       <DropdownMenu open={open} onOpenChange={setOpen}>
-        <DropdownMenuTrigger render={<button type="button" tabIndex={-1} aria-label={label} className={buttonClass('ghost', 'icon-sm')} />}>
+        <DropdownMenuTrigger
+          render={<button type="button" tabIndex={-1} aria-label={label} className={buttonClass('ghost', 'icon-sm')} />}
+          // The up and down arrows on the row's button move the table's cell cursor, so they do not open the menu.
+          onKeyDown={(event) => {
+            if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
+              event.preventBaseUIHandler();
+            }
+          }}
+        >
           <Ellipsis aria-hidden="true" className="size-4" />
         </DropdownMenuTrigger>
         {/* On the body, so the table card's clip cuts nothing; it opens above its button when the window ends first. */}
