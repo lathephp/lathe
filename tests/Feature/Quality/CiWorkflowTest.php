@@ -115,6 +115,12 @@ it('runs the upstream job against the 13.x branch with an hour for the suite', f
         ->and($job['timeout-minutes'])->toBe(60);
 });
 
+it('gives the quality job an hour and a half, since composer mutate alone takes up to 55 minutes', function () {
+    // The m49 release dry run's quality job hit a 60 minute limit in composer mutate, and a tag run
+    // that stops there leaves Packagist with the tag and npm with nothing.
+    expect(ciWorkflow()['jobs']['quality']['timeout-minutes'])->toBe(90);
+});
+
 it('runs on a push to main or to a ci/ ref workflow land writes, and on no other branch', function () {
     // A milestone's cloud/<project>-<slug> pushes run nothing; land pushes the rebased sha to ci/<project>-<slug>.
     expect(ciWorkflow()['on']['push'])->toBe(['branches' => ['main', 'ci/**']]);

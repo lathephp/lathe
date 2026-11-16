@@ -199,8 +199,8 @@ jobs:
   quality:
     if: github.event_name != 'schedule'
     runs-on: ubuntu-24.04
-    # composer mutate runs the whole suite once for each of its three classes.
-    timeout-minutes: 60
+    # composer mutate runs the whole suite once for each of its three classes, 36 to 55 minutes.
+    timeout-minutes: 90
     steps:
       - uses: actions/checkout@v7
         with:
