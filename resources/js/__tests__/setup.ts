@@ -20,9 +20,10 @@ registerBuiltinFields();
 configure({ asyncUtilTimeout: 3000 });
 
 // The relation pickers, the repeater, the date picker, the file control, the index footer and the saved-view dialogs are lazy chunks; loaded up front, a test renders them at once.
+// Under a loaded machine the preload has passed Vitest's 10 s hook default, so it may take a minute.
 beforeAll(async () => {
   await Promise.all([preloadRelationForms(), preloadChoiceForms(), preloadRepeaterFields(), preloadTabDialogs(), TableSummaryRow.preload(), IndexFooter.preload(), TokenInput.preload(), SlugInput.preload(), KeyValueForm.preload(), KeyValueDetail.preload(), Uploader.preload(), LazyFileControl.preload(), preloadDateFields()]);
-});
+}, 60_000);
 
 // jsdom has no layout for ranges, and ProseMirror measures one when a Tiptap update
 // scrolls the selection into view, sometimes after its test has finished.
