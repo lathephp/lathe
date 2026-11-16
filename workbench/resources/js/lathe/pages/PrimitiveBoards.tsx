@@ -1,9 +1,10 @@
-import { useTranslation } from '@lathephp/core';
+import { Icon, useTranslation } from '@lathephp/core';
 import {
   Avatar,
   AvatarFallback,
   Badge,
   Button,
+  Card,
   Checkbox,
   Input,
   Kbd,
@@ -24,159 +25,31 @@ import {
   TabsTrigger,
   Textarea,
 } from '@lathephp/ui';
-import type { ComponentProps, ReactNode } from 'react';
+import { Combobox, ComboboxChip, ComboboxChips, ComboboxChipsInput, ComboboxValue } from '@lathephp/ui/combobox';
+import { Field, FieldDescription, FieldLabel } from '@lathephp/ui/field';
+import { InputGroup, InputGroupAddon, InputGroupButton, InputGroupInput, InputGroupText } from '@lathephp/ui/input-group';
+import type { ReactNode } from 'react';
 
 // The six primitive boards of the design, drawn with the kit's own components. A hover, a press
 // or a keyboard focus cannot be held still on a page, so those columns put the state's look on
 // with important utilities; the Rest column shows the real thing to hover, press and tab to.
 
-/** A Lucide icon (ISC) by its paths. */
-function Icon({ paths, size = 16, stroke = 1.75, ...props }: { paths: ReactNode; size?: number; stroke?: number } & ComponentProps<'svg'>) {
+// The kit's button styles an icon through a [data-icon] svg, which core's Icon does not take,
+// so the icon sits in a wrapper that carries the attribute and adds no box of its own.
+function Slot({ side, children }: { side: 'inline-start' | 'inline-end'; children: ReactNode }) {
   return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={stroke} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" {...props}>
-      {paths}
-    </svg>
+    <span data-icon={side} className="contents">
+      {children}
+    </span>
   );
 }
-
-const icons = {
-  plus: (
-    <>
-      <path d="M5 12h14" />
-      <path d="M12 5v14" />
-    </>
-  ),
-  chevronDown: <path d="m6 9 6 6 6-6" />,
-  chevronsUpDown: (
-    <>
-      <path d="m7 15 5 5 5-5" />
-      <path d="m7 9 5-5 5 5" />
-    </>
-  ),
-  pencil: (
-    <>
-      <path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z" />
-      <path d="m15 5 4 4" />
-    </>
-  ),
-  download: (
-    <>
-      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-      <path d="m7 10 5 5 5-5" />
-      <path d="M12 15V3" />
-    </>
-  ),
-  upload: (
-    <>
-      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-      <path d="m17 8-5-5-5 5" />
-      <path d="M12 3v12" />
-    </>
-  ),
-  ellipsis: (
-    <>
-      <circle cx="12" cy="12" r="1" />
-      <circle cx="19" cy="12" r="1" />
-      <circle cx="5" cy="12" r="1" />
-    </>
-  ),
-  search: (
-    <>
-      <circle cx="11" cy="11" r="8" />
-      <path d="m21 21-4.3-4.3" />
-    </>
-  ),
-  calendar: (
-    <>
-      <path d="M8 2v4" />
-      <path d="M16 2v4" />
-      <rect width="18" height="18" x="3" y="4" rx="2" />
-      <path d="M3 10h18" />
-    </>
-  ),
-  x: (
-    <>
-      <path d="M18 6 6 18" />
-      <path d="m6 6 12 12" />
-    </>
-  ),
-  alert: (
-    <>
-      <circle cx="12" cy="12" r="10" />
-      <path d="M12 8v4" />
-      <path d="M12 16h.01" />
-    </>
-  ),
-  check: <path d="M20 6 9 17l-5-5" />,
-  filter: (
-    <>
-      <path d="M3 6h18" />
-      <path d="M7 12h10" />
-      <path d="M10 18h4" />
-    </>
-  ),
-  bell: (
-    <>
-      <path d="M10.268 21a2 2 0 0 0 3.464 0" />
-      <path d="M3.262 15.326A1 1 0 0 0 4 17h16a1 1 0 0 0 .74-1.673C19.41 13.956 18 12.499 18 8A6 6 0 0 0 6 8c0 4.499-1.411 5.956-2.738 7.326" />
-    </>
-  ),
-  up: (
-    <>
-      <path d="M7 7h10v10" />
-      <path d="M7 17 17 7" />
-    </>
-  ),
-  down: (
-    <>
-      <path d="m7 7 10 10" />
-      <path d="M17 7v10H7" />
-    </>
-  ),
-  sun: (
-    <>
-      <circle cx="12" cy="12" r="4" />
-      <path d="M12 2v2" />
-      <path d="M12 20v2" />
-      <path d="m4.93 4.93 1.41 1.41" />
-      <path d="m17.66 17.66 1.41 1.41" />
-      <path d="M2 12h2" />
-      <path d="M20 12h2" />
-      <path d="m6.34 17.66-1.41 1.41" />
-      <path d="m19.07 4.93-1.41 1.41" />
-    </>
-  ),
-  moon: <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z" />,
-  monitor: (
-    <>
-      <rect width="20" height="14" x="2" y="3" rx="2" />
-      <path d="M8 21h8" />
-      <path d="M12 17v4" />
-    </>
-  ),
-  rows: (
-    <>
-      <path d="M3 5h18" />
-      <path d="M3 12h18" />
-      <path d="M3 19h18" />
-    </>
-  ),
-  grid: (
-    <>
-      <rect width="7" height="7" x="3" y="3" rx="1" />
-      <rect width="7" height="7" x="14" y="3" rx="1" />
-      <rect width="7" height="7" x="14" y="14" rx="1" />
-      <rect width="7" height="7" x="3" y="14" rx="1" />
-    </>
-  ),
-};
 
 function Board({ name, title, description, children }: { name: string; title: string; description: string; children: ReactNode }) {
   return (
     <section data-board={name} className="flex flex-col gap-8">
       <div className="flex flex-col gap-1">
         <h2 className="m-0 text-[22px] leading-7 font-[650] tracking-[-0.01em]">{title}</h2>
-        <p className="m-0 text-[13px] leading-[18px] text-muted-foreground">{description}</p>
+        <p className="m-0 text-sm text-muted-foreground">{description}</p>
       </div>
       {children}
     </section>
@@ -185,10 +58,10 @@ function Board({ name, title, description, children }: { name: string; title: st
 
 function Panel({ title, className = '', children }: { title?: string; className?: string; children: ReactNode }) {
   return (
-    <div className={`flex flex-col gap-4 rounded-[10px] border border-border bg-card p-6 shadow-sm ${className}`}>
+    <Card className={`gap-4 p-6 ${className}`}>
       {title !== undefined && <h3 className="m-0 text-sm leading-5 font-semibold">{title}</h3>}
       {children}
-    </div>
+    </Card>
   );
 }
 
@@ -211,8 +84,8 @@ function RowLabel({ title, description }: { title: string; description?: string 
 
 function ErrorText({ children, size = 'xs' }: { children: ReactNode; size?: 'xs' | 'sm' }) {
   return (
-    <span className={`flex gap-1 text-destructive-subtle-foreground ${size === 'xs' ? 'items-start text-xs leading-4' : 'items-center text-[13px] leading-[18px]'}`}>
-      <Icon paths={icons.alert} size={14} stroke={2} className={size === 'xs' ? 'mt-px flex-none' : 'flex-none'} />
+    <span className={`flex gap-1 text-destructive-subtle-foreground ${size === 'xs' ? 'items-start text-xs leading-4' : 'items-center text-sm'}`}>
+      <Icon name="alert-circle" className={size === 'xs' ? 'mt-px size-3.5 flex-none' : 'size-3.5 flex-none'} />
       {children}
     </span>
   );
@@ -300,28 +173,32 @@ function ButtonsBoard() {
             <Button>{__('Default')}</Button>
             <Button size="lg">{__('Large')}</Button>
           </div>
-          <p className="m-0 text-[13px] leading-[18px] text-muted-foreground">{__('28px in toolbars and table rows, 34px by default, 40px on sign-in and single-form pages.')}</p>
+          <p className="m-0 text-sm text-muted-foreground">{__('28px in toolbars and table rows, 34px by default, 40px on sign-in and single-form pages.')}</p>
         </Panel>
         <Panel title={__('With icons')}>
           <div className="flex flex-wrap items-center gap-2">
             <Button>
-              <Icon paths={icons.plus} data-icon="inline-start" />
+              <Slot side="inline-start">
+                <Icon name="plus" className="size-4" />
+              </Slot>
               {__('Create order')}
             </Button>
             <Button variant="outline">
               {__('Actions')}
-              <Icon paths={icons.chevronDown} data-icon="inline-end" className="text-muted-foreground" />
+              <Slot side="inline-end">
+                <Icon name="chevron-down" className="size-4 text-muted-foreground" />
+              </Slot>
             </Button>
           </div>
           <div className="flex items-center gap-1">
             <Button variant="ghost" size="icon" aria-label={__('Edit order')}>
-              <Icon paths={icons.pencil} />
+              <Icon name="pencil" className="size-4" />
             </Button>
             <Button variant="ghost" size="icon" aria-label={__('Download CSV')} className={held.ghost.hover}>
-              <Icon paths={icons.download} />
+              <Icon name="download" className="size-4" />
             </Button>
             <Button variant="ghost" size="icon" aria-label={__('More actions')}>
-              <Icon paths={icons.ellipsis} />
+              <Icon name="ellipsis" className="size-4" />
             </Button>
             <span className="ml-2 text-xs leading-4 text-muted-foreground">{__('Icon-only: ghost, muted icon, a tooltip and an aria-label')}</span>
           </div>
@@ -341,16 +218,12 @@ function ButtonsBoard() {
               <Button variant="destructive-solid">{__('Delete order')}</Button>
             </div>
           </div>
-          <p className="m-0 text-[13px] leading-[18px] text-muted-foreground">{__('Paired buttons share one height. The safe choice names what it keeps.')}</p>
+          <p className="m-0 text-sm text-muted-foreground">{__('Paired buttons share one height. The safe choice names what it keeps.')}</p>
         </Panel>
       </div>
     </Board>
   );
 }
-
-// An input group: the field's border, shadow and focus ring around add-ons and a bare input.
-const group = 'cn-input-group relative flex w-full items-center';
-const segment = 'flex h-full items-center bg-muted px-2.5 text-muted-foreground';
 
 function InputsBoard() {
   const { __ } = useTranslation();
@@ -378,11 +251,11 @@ function InputsBoard() {
       </Panel>
       <div className="grid grid-cols-2 gap-6">
         <Panel title={__('A field')} className="gap-5!">
-          <div className="flex flex-col gap-1.5">
-            <Label htmlFor="gallery-number">{__('Order number')}</Label>
+          <Field>
+            <FieldLabel htmlFor="gallery-number">{__('Order number')}</FieldLabel>
             <Input id="gallery-number" defaultValue="ORD-79194426" />
-            <span className="text-[13px] leading-[18px] text-muted-foreground">{__('Shown to the customer on every email.')}</span>
-          </div>
+            <FieldDescription>{__('Shown to the customer on every email.')}</FieldDescription>
+          </Field>
           <div className="flex flex-col gap-1.5">
             <div className="flex items-baseline gap-2">
               <Label htmlFor="gallery-notes">{__('Notes')}</Label>
@@ -393,41 +266,55 @@ function InputsBoard() {
           </div>
           <div className="flex flex-col gap-1.5">
             <Label htmlFor="gallery-total">{__('Total')}</Label>
-            <div className={group} data-slot="input-group">
-              <span className={`${segment} border-r border-border text-sm`}>$</span>
-              <input id="gallery-total" data-slot="input-group-control" aria-invalid="true" defaultValue="-12.00" className="cn-input cn-input-group-input h-full flex-1 text-right tabular-nums outline-none" />
-            </div>
+            <InputGroup>
+              <InputGroupAddon>
+                <InputGroupText>$</InputGroupText>
+              </InputGroupAddon>
+              <InputGroupInput id="gallery-total" aria-invalid="true" defaultValue="-12.00" className="text-right tabular-nums" />
+            </InputGroup>
             <ErrorText size="sm">{__('Enter a total of 0 or more')}</ErrorText>
           </div>
         </Panel>
         <Panel title={__('Add-ons, in place of browser controls')}>
-          <div className={`${group} gap-2 pr-2 pl-2.5`} data-slot="input-group">
-            <Icon paths={icons.search} className="flex-none text-muted-foreground" />
-            <input data-slot="input-group-control" aria-label={__('Search orders')} placeholder={__('Search orders')} className="cn-input cn-input-group-input h-full flex-1 px-0! outline-none" />
-            <Kbd>/</Kbd>
-          </div>
-          <div className={group} data-slot="input-group">
-            <span className={`${segment} border-r border-border text-sm`}>$</span>
-            <input data-slot="input-group-control" aria-label={__('Price')} defaultValue="1,649.89" className="cn-input cn-input-group-input h-full flex-1 text-right tabular-nums outline-none" />
-            <span className={`${segment} border-l border-border text-[13px]`}>USD</span>
-          </div>
+          <InputGroup>
+            <InputGroupAddon>
+              <Icon name="search" className="size-4 text-muted-foreground" />
+            </InputGroupAddon>
+            <InputGroupInput aria-label={__('Search orders')} placeholder={__('Search orders')} />
+            <InputGroupAddon align="inline-end">
+              <Kbd>/</Kbd>
+            </InputGroupAddon>
+          </InputGroup>
+          <InputGroup>
+            <InputGroupAddon>
+              <InputGroupText>$</InputGroupText>
+            </InputGroupAddon>
+            <InputGroupInput aria-label={__('Price')} defaultValue="1,649.89" className="text-right tabular-nums" />
+            <InputGroupAddon align="inline-end">
+              <InputGroupText>USD</InputGroupText>
+            </InputGroupAddon>
+          </InputGroup>
           <button type="button" aria-label={__('Placed on')} className="cn-input flex items-center gap-2 text-left outline-none">
-            <Icon paths={icons.calendar} className="text-muted-foreground" />
+            <Icon name="calendar" className="size-4 text-muted-foreground" />
             <span className="flex-1">Oct 17, 2026, 23:38</span>
             <span className="text-xs leading-4 text-muted-foreground">UTC</span>
           </button>
-          <div className={`${group} gap-2 pr-1 pl-2.5`} data-slot="input-group">
-            <input data-slot="input-group-control" aria-label={__('Customer name')} defaultValue="Ann Taylor" className="cn-input cn-input-group-input h-full flex-1 px-0! outline-none" />
-            <Button variant="ghost" size="icon-xs" aria-label={__('Clear')}>
-              <Icon paths={icons.x} size={14} stroke={2} />
-            </Button>
-          </div>
+          <InputGroup>
+            <InputGroupInput aria-label={__('Customer name')} defaultValue="Ann Taylor" />
+            <InputGroupAddon align="inline-end">
+              <InputGroupButton size="icon-xs" aria-label={__('Clear')}>
+                <Icon name="x" className="size-3.5" />
+              </InputGroupButton>
+            </InputGroupAddon>
+          </InputGroup>
           <div className="flex items-center gap-2.5">
             <Button variant="outline">
-              <Icon paths={icons.upload} data-icon="inline-start" />
+              <Slot side="inline-start">
+                <Icon name="upload" className="size-4" />
+              </Slot>
               {__('Choose file')}
             </Button>
-            <span className="text-[13px] leading-[18px] text-muted-foreground">cover.jpg · 412 KB</span>
+            <span className="text-sm text-muted-foreground">cover.jpg · 412 KB</span>
           </div>
         </Panel>
       </div>
@@ -516,6 +403,7 @@ function SelectsBoard() {
         <div className="flex flex-col gap-1.5">
           <Head>{__('Select, open')}</Head>
           <StatusSelect placeholder={__('Choose a status')} value="pending" className={openRing} />
+          {/* The open list held still: visual fixture, do not copy. */}
           <div role="listbox" aria-label={__('Status')} className="cn-select-content flex flex-col">
             {[...statuses, { value: 'refunded', label: 'Refunded', dot: '' }].map((status) => (
               <div
@@ -531,7 +419,7 @@ function SelectsBoard() {
                 {status.value === 'refunded' && <span className="text-xs">{__('Paid orders only')}</span>}
                 {status.value === 'pending' && (
                   <span className="cn-select-item-indicator">
-                    <Icon paths={icons.check} stroke={2} />
+                    <Icon name="check" className="size-4" />
                   </span>
                 )}
               </div>
@@ -541,11 +429,14 @@ function SelectsBoard() {
         <div className="flex flex-col gap-1.5">
           <Head>{__('Related record picker, searching')}</Head>
           <StatusSelect placeholder={__('Choose a customer')} className={openRing} />
+          {/* The open list held still: visual fixture, do not copy. A real picker is a Combobox with ComboboxContent. */}
           <div className="cn-combobox-content flex flex-col">
-            <div data-slot="input-group" className={`${group} gap-2 px-3!`}>
-              <Icon paths={icons.search} className="flex-none text-muted-foreground" />
-              <input data-slot="input-group-control" aria-label={__('Search customers')} defaultValue="Ann" className="cn-input cn-input-group-input h-full flex-1 px-0! outline-none" />
-            </div>
+            <InputGroup>
+              <InputGroupAddon>
+                <Icon name="search" className="size-4 text-muted-foreground" />
+              </InputGroupAddon>
+              <InputGroupInput aria-label={__('Search customers')} defaultValue="Ann" />
+            </InputGroup>
             <div role="listbox" aria-label={__('Customers')} className="flex flex-col p-1">
               {customers.map(([before, middle, after, second], index) => (
                 <div key={second} role="option" aria-selected={false} data-highlighted={index === 0 ? '' : undefined} className="cn-combobox-item relative flex w-full flex-col items-start! gap-0!">
@@ -561,7 +452,7 @@ function SelectsBoard() {
             <div className="flex items-center justify-between border-t border-border bg-muted px-3 py-2">
               <span className="text-xs leading-4 text-muted-foreground tabular-nums">{__('4 of 1,000 customers')}</span>
               <Button variant="link" size="sm" className="gap-1!">
-                <Icon paths={icons.plus} size={14} stroke={2} />
+                <Icon name="plus" className="size-3.5" />
                 {__('Create customer')}
               </Button>
             </div>
@@ -569,18 +460,26 @@ function SelectsBoard() {
         </div>
         <div className="flex flex-col gap-1.5">
           <Head>{__('Multi-select with chips')}</Head>
-          <div className="cn-combobox-chips border-ring! shadow-none! ring-1! ring-ring!">
-            {['sale', 'featured'].map((tag) => (
-              <span key={tag} data-slot="combobox-chip" className="cn-combobox-chip">
-                {tag}
-                <button type="button" data-slot="combobox-chip-remove" aria-label={__('Remove :tag', { tag })} className="cn-combobox-chip-remove inline-flex items-center justify-center">
-                  <Icon paths={icons.x} size={12} stroke={2} />
-                </button>
-              </span>
-            ))}
-            <span className="cn-combobox-chip text-muted-foreground!">+2</span>
-            <input aria-label={__('Add tags')} placeholder={__('Add tags')} className="min-w-[60px] flex-1 border-0 bg-transparent pl-1 text-sm outline-none placeholder:text-muted-foreground" />
-          </div>
+          <Combobox multiple defaultValue={['sale', 'featured']}>
+            <ComboboxChips className="border-ring! shadow-none! ring-1! ring-ring!">
+              <ComboboxValue>
+                {(selected: string[]) => (
+                  <>
+                    {selected.map((tag) => (
+                      <ComboboxChip key={tag} value={tag} removeLabel={__('Remove :tag', { tag })}>
+                        {tag}
+                      </ComboboxChip>
+                    ))}
+                    <ComboboxChip showRemove={false} className="text-muted-foreground!">
+                      +2
+                    </ComboboxChip>
+                    <ComboboxChipsInput aria-label={__('Add tags')} placeholder={__('Add tags')} />
+                  </>
+                )}
+              </ComboboxValue>
+            </ComboboxChips>
+          </Combobox>
+          {/* The open list held still: visual fixture, do not copy. */}
           <div role="listbox" aria-multiselectable="true" aria-label={__('Tags')} className="cn-select-content flex flex-col">
             {tags.map(([tag, count, checked], index) => (
               <div key={tag} role="option" aria-selected={checked} data-highlighted={index === 1 ? '' : undefined} className="cn-select-item relative flex w-full items-center pr-2!">
@@ -603,7 +502,7 @@ function SelectsBoard() {
             <Badge variant="warning" render={<button type="button" aria-label={__('Status: Pending. Change status')} />} className="h-6! justify-self-start pr-1!">
               <span className="size-1.5 rounded-full bg-warning" />
               {__('Pending')}
-              <Icon paths={icons.chevronDown} size={14} stroke={2} />
+              <Icon name="chevron-down" className="size-3.5" />
             </Badge>
             <span className="text-right text-sm tabular-nums">$1,649.89</span>
           </div>
@@ -611,7 +510,7 @@ function SelectsBoard() {
         <div className="flex flex-col gap-1.5">
           <Head>{__('Nothing matches')}</Head>
           <div className="cn-popover-content items-center gap-2! p-4! text-center">
-            <span className="text-[13px] leading-[18px] text-muted-foreground">{__('No customers match “Zed”')}</span>
+            <span className="text-sm text-muted-foreground">{__('No customers match “Zed”')}</span>
             <Button variant="outline" size="sm" className="shadow-none!">
               {__('Create “Zed”')}
             </Button>
@@ -641,11 +540,11 @@ function Count({ children, tone = 'muted' }: { children: ReactNode; tone?: 'mute
 
 function FilterChip({ name, value, remove }: { name: string; value: string; remove: string }) {
   return (
-    <span className="inline-flex h-[26px] items-center gap-1 rounded-full border border-border bg-card pr-0.5 pl-2.5 text-[13px] leading-[18px]">
+    <span className="inline-flex h-[26px] items-center gap-1 rounded-full border border-border bg-card pr-0.5 pl-2.5 text-sm">
       <span className="text-muted-foreground">{name}</span>
       <strong className="font-medium">{value}</strong>
       <button type="button" aria-label={remove} className="inline-flex size-[22px] items-center justify-center rounded-full text-muted-foreground hover:bg-accent">
-        <Icon paths={icons.x} size={12} stroke={2} />
+        <Icon name="x" className="size-3" />
       </button>
     </span>
   );
@@ -680,7 +579,7 @@ function BadgesBoard() {
                 <Badge variant={row.variant} className="justify-self-start">
                   {row.plain}
                 </Badge>
-                <span className="text-[13px] leading-[18px] text-muted-foreground">{row.use}</span>
+                <span className="text-sm text-muted-foreground">{row.use}</span>
               </div>
             ))}
           </div>
@@ -701,7 +600,7 @@ function BadgesBoard() {
             </div>
             <div className="flex items-center gap-4">
               <Button variant="outline" size="sm" className="gap-1.5! px-2! shadow-none!">
-                <Icon paths={icons.filter} size={14} stroke={2} />
+                <Icon name="filter" className="size-3.5" />
                 {__('Filter')}
                 <span className="inline-flex h-[18px] min-w-[18px] items-center justify-center rounded-full bg-primary px-1 text-[11px] font-semibold text-primary-foreground tabular-nums">2</span>
               </Button>
@@ -712,7 +611,7 @@ function BadgesBoard() {
                 </span>
               </span>
               <span className="relative inline-flex size-[34px] items-center justify-center text-muted-foreground" role="img" aria-label={__('Notifications, 3 unread')}>
-                <Icon paths={icons.bell} size={18} />
+                <Icon name="bell" className="size-[18px]" />
                 <span className="absolute top-1.5 right-[7px] size-2 rounded-full bg-brand shadow-[0_0_0_2px_var(--background)]" />
               </span>
             </div>
@@ -720,22 +619,22 @@ function BadgesBoard() {
           <Panel title={__('Change')} className="gap-3.5!">
             <div className="flex flex-wrap items-center gap-2.5">
               <Badge variant="success" className="gap-0.5! px-1.5! tabular-nums">
-                <Icon paths={icons.up} size={14} stroke={2} />
+                <Icon name="arrow-up-right" className="size-3.5" />
                 +8.2%
               </Badge>
               <Badge variant="destructive" className="gap-0.5! px-1.5! tabular-nums">
-                <Icon paths={icons.down} size={14} stroke={2} />
+                <Icon name="arrow-down-right" className="size-3.5" />
                 −3.1%
               </Badge>
               <Badge variant="success" className="gap-0.5! px-1.5! tabular-nums">
-                <Icon paths={icons.down} size={14} stroke={2} />
+                <Icon name="arrow-down-right" className="size-3.5" />
                 −4.0%
               </Badge>
               <Badge variant="secondary" className="px-1.5! tabular-nums">
                 0.0%
               </Badge>
             </div>
-            <p className="m-0 text-[13px] leading-[18px] text-muted-foreground">{__('Up is green and down is red, unless the widget says down is good: refunds falling 4.0% is shown in green.')}</p>
+            <p className="m-0 text-sm text-muted-foreground">{__('Up is green and down is red, unless the widget says down is good: refunds falling 4.0% is shown in green.')}</p>
           </Panel>
         </div>
       </div>
@@ -765,7 +664,7 @@ function BadgesBoard() {
               {__('Pending')}
             </Badge>
           </div>
-          <span className="text-[13px] leading-[18px] text-muted-foreground">
+          <span className="text-sm text-muted-foreground">
             {__('Placed Oct 17, 2026, 23:38 by')}{' '}
             <a href="#customer" className="text-link no-underline hover:text-link-hover">
               Dr. Russ Schmeler
@@ -791,7 +690,7 @@ function LabelledCheckbox({ title, description, checked }: { title: string; desc
       <Checkbox defaultChecked={checked} className="mt-0.5" />
       <span className="flex flex-col gap-0.5">
         <span className="text-sm leading-5 font-medium">{title}</span>
-        <span className="text-[13px] leading-[18px] text-muted-foreground">{description}</span>
+        <span className="text-sm text-muted-foreground">{description}</span>
       </span>
     </label>
   );
@@ -845,7 +744,7 @@ function ChoicesBoard() {
           <label className="flex cursor-pointer items-center justify-between gap-3">
             <span className="flex flex-col gap-0.5">
               <span className="text-sm leading-5 font-medium">{__('Email the customer when it ships')}</span>
-              <span className="text-[13px] leading-[18px] text-muted-foreground">{__('Saves as soon as you switch it.')}</span>
+              <span className="text-sm text-muted-foreground">{__('Saves as soon as you switch it.')}</span>
             </span>
             <Switch defaultChecked />
           </label>
@@ -857,7 +756,7 @@ function ChoicesBoard() {
                 <RadioGroupItem value={value} className="mt-0.5" />
                 <span className="flex flex-1 flex-col gap-0.5">
                   <span className="text-sm leading-5 font-medium">{title}</span>
-                  <span className="text-[13px] leading-[18px] text-muted-foreground">{description}</span>
+                  <span className="text-sm text-muted-foreground">{description}</span>
                 </span>
                 <span className="text-sm leading-5 tabular-nums">{price}</span>
               </label>
@@ -880,15 +779,15 @@ function ChoicesBoard() {
             <Tabs defaultValue="system">
               <TabsList aria-label={__('Theme')}>
                 <TabsTrigger value="light">
-                  <Icon paths={icons.sun} size={14} stroke={2} />
+                  <Icon name="sun" className="size-3.5" />
                   {__('Light')}
                 </TabsTrigger>
                 <TabsTrigger value="dark">
-                  <Icon paths={icons.moon} size={14} stroke={2} />
+                  <Icon name="moon" className="size-3.5" />
                   {__('Dark')}
                 </TabsTrigger>
                 <TabsTrigger value="system">
-                  <Icon paths={icons.monitor} size={14} stroke={2} />
+                  <Icon name="monitor" className="size-3.5" />
                   {__('System')}
                 </TabsTrigger>
               </TabsList>
@@ -899,10 +798,10 @@ function ChoicesBoard() {
             <Tabs defaultValue="table">
               <TabsList aria-label={__('Layout')}>
                 <TabsTrigger value="table" aria-label={__('Table')} className="w-[30px] px-0!">
-                  <Icon paths={icons.rows} size={14} stroke={2} />
+                  <Icon name="rows" className="size-3.5" />
                 </TabsTrigger>
                 <TabsTrigger value="cards" aria-label={__('Cards')} className="w-[30px] px-0!">
-                  <Icon paths={icons.grid} size={14} stroke={2} />
+                  <Icon name="grid" className="size-3.5" />
                 </TabsTrigger>
               </TabsList>
             </Tabs>
@@ -938,7 +837,7 @@ function MiniPage({ step, tone, title, rows, bar = false, note }: { step: string
             ))}
         </div>
       </div>
-      <span className="text-[13px] leading-[18px] text-muted-foreground">{note}</span>
+      <span className="text-sm text-muted-foreground">{note}</span>
     </div>
   );
 }
@@ -964,7 +863,7 @@ function FeedbackBoard() {
             [__('Counting rows'), __('Size not known yet'), null, ''],
           ].map(([label, value, progress, tone]) => (
             <div key={String(label)} className="flex flex-col gap-1.5">
-              <div className="flex justify-between text-[13px] leading-[18px]">
+              <div className="flex justify-between text-sm">
                 <span>{label}</span>
                 <span className={`tabular-nums ${tone === 'success' ? 'text-success-subtle-foreground' : 'text-muted-foreground'}`}>{value}</span>
               </div>
@@ -1011,7 +910,7 @@ function FeedbackBoard() {
               <Kbd>E</Kbd>
             </span>
             <Button variant="ghost" size="icon" aria-label={__('Edit order')} className={held.ghost.hover}>
-              <Icon paths={icons.pencil} />
+              <Icon name="pencil" className="size-4" />
             </Button>
           </div>
           <div className="flex flex-wrap items-center gap-1.5">
