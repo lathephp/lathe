@@ -2,7 +2,7 @@ import { router } from '@inertiajs/react';
 import { act, fireEvent, screen, waitFor, within } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import type { ActionMeta } from '../actions/types';
-import { renderPage } from './support';
+import { indexTable, renderPage } from './support';
 
 afterEach(() => {
   vi.restoreAllMocks();
@@ -24,7 +24,10 @@ describe('a row menu\'s inline actions', () => {
     vi.spyOn(globalThis, 'fetch').mockResolvedValueOnce(
       json({ actions: [meta('hold-order', 'Hold order'), meta('release-order', 'Release order')], pivotActions: [], counts: {} }),
     );
-    const row = (actions: string[]) => ({ id: 7, title: 'ORD-7', cells: { number: { value: 'ORD-7', display: 'ORD-7' } }, abilities: { view: true }, actions });
+    const table = indexTable('orders');
+    const first = table.rows[0] as (typeof table.rows)[number];
+    // The order's own cells, from the server's snapshot, with the actions it may run.
+    const row = (actions: string[]) => ({ ...first, title: 'ORD-7', abilities: { view: true }, actions });
     renderPage(
       'Resources/Index',
       {
@@ -32,7 +35,7 @@ describe('a row menu\'s inline actions', () => {
           uriKey: 'orders', label: 'Orders', singularLabel: 'Order', perPageOptions: [25], searchable: false, softDeletes: false, abilities: { create: false },
           definition: { debounce: 0.5, paginationType: 'links', clickAction: 'detail', polling: null, showPollingToggle: false, tableStyle: 'default', showColumnBorders: false, softDeletes: false },
         },
-        table: { columns: [{ key: 'number', label: 'Number', component: 'text', sortable: false, sortKey: 'number' }], sortKeys: [], rows: [row(['hold-order'])], rowKey: 'id' },
+        table: { ...table, sortKeys: [], rows: [row(['hold-order'])] },
         state: { page: 1, perPage: 25, hasMorePages: false, sort: '' },
       },
       { url: '/lathe/resources/orders' },
