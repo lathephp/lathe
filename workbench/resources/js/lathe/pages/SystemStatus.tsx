@@ -1,4 +1,4 @@
-import { type PageProps, useTranslation } from '@lathephp/core';
+import { PageHeader, type PageProps, useTranslation } from '@lathephp/core';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@lathephp/ui';
 
 /** A standalone page for whoever may view system status: what the panel hands a page component. */
@@ -12,7 +12,7 @@ export default function SystemStatus({ pageKey, basePath, path }: PageProps) {
 
   return (
     <section className="grid gap-6">
-      <h1 className="text-2xl font-semibold">{__('System Status')}</h1>
+      <PageHeader title={__('System Status')} />
       <Card>
         <CardHeader>
           <CardTitle>{__('Page')}</CardTitle>

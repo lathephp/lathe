@@ -1,4 +1,4 @@
-import { emit, on, toast, useShortcut, useTranslation } from '@lathephp/core';
+import { emit, on, PageHeader, toast, useShortcut, useTranslation } from '@lathephp/core';
 import {
   Accordion,
   AccordionContent,
@@ -113,10 +113,7 @@ export default function UiGallery() {
 
   return (
     <div className="grid gap-6">
-      <header>
-        <h1 className="text-2xl font-semibold">{__('UI Gallery')}</h1>
-        <p className="mt-2 text-sm text-muted-foreground">{__('Every @lathephp/ui component on one page.')}</p>
-      </header>
+      <PageHeader title={__('UI Gallery')} description={__('Every @lathephp/ui component on one page.')} />
 
       <PrimitiveBoards />
 
