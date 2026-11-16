@@ -194,6 +194,50 @@ describe('the detail action menu beside the open sidebar', () => {
   });
 });
 
+describe('the detail action menu on a phone', () => {
+  // At 390 px the Actions button ends 4 px from the window's end edge; the menu, ending there, moves in to 8 px.
+  it('keeps its end edge 8 px inside the window', async () => {
+    const menuBox = (element: Element) => element.getAttribute('role') === 'menu' || element.querySelector(':scope > [role=menu]') !== null;
+    vi.spyOn(Element.prototype, 'getBoundingClientRect').mockImplementation(function (this: Element) {
+      const [left, top, width, height] = menuBox(this)
+        ? [0, 0, 256, 120]
+        : this.id === 'content'
+          ? [0, 0, 390, 844]
+          : this.textContent === 'Actions' && this.tagName === 'BUTTON'
+            ? [310, 100, 76, 28]
+            : [0, 0, 390, 844];
+
+      return { x: left, y: top, left, top, width, height, right: left + width, bottom: top + height, toJSON: () => ({}) };
+    });
+    vi.spyOn(HTMLElement.prototype, 'offsetWidth', 'get').mockImplementation(function (this: HTMLElement) {
+      return menuBox(this) ? 256 : 0;
+    });
+    vi.spyOn(HTMLElement.prototype, 'offsetHeight', 'get').mockImplementation(function (this: HTMLElement) {
+      return menuBox(this) ? 120 : 0;
+    });
+    vi.spyOn(Element.prototype, 'clientWidth', 'get').mockImplementation(function (this: Element) {
+      return this === document.documentElement || this.id === 'content' ? 390 : 0;
+    });
+    vi.spyOn(Element.prototype, 'clientHeight', 'get').mockImplementation(function (this: Element) {
+      return this === document.documentElement || this.id === 'content' ? 844 : 0;
+    });
+    renderPage('Resources/Detail', {
+      resource: { uriKey: 'orders', label: 'Orders', singularLabel: 'Order', abilities: { create: false } },
+      record: { id: 12, title: 'ORD-12', subtitle: '', avatar: null, fields: [], layout: [], abilities: { view: true }, trashed: false },
+      breadcrumbs: [],
+      actions: { actions: [meta('mark-shipped', 'Mark Shipped', { authorizedToRun: true })], pivotActions: [], counts: {} },
+    });
+
+    fireEvent.click(await screen.findByRole('button', { name: 'Actions' }));
+    const positioner = (await screen.findByRole('menu', { name: 'Actions' })).parentElement as HTMLElement;
+
+    await waitFor(() => {
+      const start = Number.parseFloat(/translate\(([-\d.]+)px/.exec(positioner.style.transform)?.[1] ?? 'NaN');
+      expect(start + 256).toBeLessThanOrEqual(390 - 8);
+    });
+  });
+});
+
 describe('the detail action menu and its dialog', () => {
   it('gives the focus back to Actions when the dialog an item opened closes', async () => {
     vi.spyOn(globalThis, 'fetch').mockResolvedValueOnce(json({ fields: [], confirmText: 'Cancel order ORD-12?' }));
