@@ -409,6 +409,7 @@ describe('the card', () => {
     const tooltip = within(card('orders')).getByRole('tooltip');
     expect(tooltip.textContent).toBe('Paid orders only.');
     expect(tooltip.style.width).toBe('250px');
+    expect(tooltip.classList).toContain('cn-tooltip-content');
     expect(help.getAttribute('aria-describedby')).toBe(tooltip.id);
 
     fireEvent.focus(within(card('revenue')).getByRole('button', { name: 'Help' }));

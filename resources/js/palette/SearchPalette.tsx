@@ -207,7 +207,7 @@ export function SearchPalette({ basePath, debounce, onClose }: Props) {
   let offset = 0;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-start justify-center p-4 pt-[72px] max-md:p-0">
+    <div data-lathe-palette className="fixed inset-0 flex items-start justify-center p-4 pt-[72px] max-md:p-0">
       <button
         type="button"
         tabIndex={-1}
@@ -222,8 +222,9 @@ export function SearchPalette({ basePath, debounce, onClose }: Props) {
         role="dialog"
         aria-modal="true"
         aria-label={__('Search')}
-        // On a phone the palette takes the whole screen and closes with Cancel.
-        className="relative flex max-h-[70vh] w-full max-w-[640px] flex-col overflow-hidden rounded-xl border border-border bg-popover text-popover-foreground shadow-lg max-md:h-dvh max-md:max-h-none max-md:max-w-none max-md:rounded-none max-md:border-0 max-md:bg-background"
+        // The style draws the dialog; its rows run edge to edge, so the style's padding and gap give
+        // way. On a phone the palette takes the whole screen and closes with Cancel.
+        className="cn-dialog-content relative flex max-h-[70vh] w-full max-w-[640px] flex-col gap-0 overflow-hidden p-0 max-md:h-dvh max-md:max-h-none max-md:max-w-none max-md:border-0 max-md:bg-background max-md:ring-0"
         onKeyDown={onKeyDown}
       >
         <div className={cn('flex h-[52px] shrink-0 items-center gap-2.5 border-b border-border px-4 max-md:h-auto max-md:gap-2 max-md:py-2 max-md:ps-4 max-md:pe-2', empty && 'md:border-b-0')}>

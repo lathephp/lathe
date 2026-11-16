@@ -40,6 +40,18 @@ function link(index: number): HTMLElement {
   return found;
 }
 
+// The open card, found by the subtitle the peek answers with.
+async function findCard(): Promise<HTMLElement> {
+  const subtitle = await screen.findByText('ann.taylor@gmail.com', { selector: 'p' });
+  const card = subtitle.closest<HTMLElement>('[data-lathe-peek]');
+
+  if (card === null) {
+    throw new Error('No card.');
+  }
+
+  return card;
+}
+
 async function hover(element: HTMLElement) {
   fireEvent.mouseEnter(element.parentElement ?? element);
   await act(async () => {
@@ -56,14 +68,13 @@ describe('relation peek', () => {
     const first = link(0);
     const second = link(1);
     await hover(first);
-    await waitFor(() => {
-      expect(screen.getByRole('tooltip').textContent).toContain('ann.taylor@gmail.com');
-    });
+    await findCard();
     fireEvent.mouseLeave(first.parentElement ?? first);
-    await hover(second);
     await waitFor(() => {
-      expect(screen.getByRole('tooltip')).toBeTruthy();
+      expect(screen.queryByText('ann.taylor@gmail.com', { selector: 'p' })).toBeNull();
     });
+    await hover(second);
+    await findCard();
 
     const peeks = fetch.mock.calls.map(([input]) => (typeof input === 'string' ? input : '')).filter((url) => url.includes('/peek'));
     expect(peeks).toEqual(['/lathe/api/resources/customers/12/peek']);
@@ -78,14 +89,14 @@ describe('relation peek', () => {
     vi.spyOn(trigger, 'getBoundingClientRect').mockReturnValue({ top: 100, bottom: 120, left: 40, right: 140, width: 100, height: 20, x: 40, y: 100, toJSON: () => ({}) });
     await hover(link(0));
 
-    const card = await screen.findByRole('tooltip');
+    const card = await findCard();
     expect(card.parentElement).toBe(document.body);
     expect(card.style.position).toBe('fixed');
     expect(card.style.top).toBe('124px');
     expect(card.style.left).toBe('40px');
   });
 
-  it('keeps the card inside a phone-wide viewport and gives it a solid background', async () => {
+  it("keeps the card inside a phone-wide viewport and draws it as the style's popover, not a tooltip", async () => {
     vi.useFakeTimers({ shouldAdvanceTime: true });
     vi.spyOn(window, 'innerWidth', 'get').mockReturnValue(375);
     answerPeek();
@@ -95,9 +106,10 @@ describe('relation peek', () => {
     vi.spyOn(trigger, 'getBoundingClientRect').mockReturnValue({ top: 100, bottom: 120, left: 199, right: 299, width: 100, height: 20, x: 199, y: 100, toJSON: () => ({}) });
     await hover(link(0));
 
-    const card = await screen.findByRole('tooltip');
+    const card = await findCard();
     expect(card.style.left).toBe('79px');
-    expect(card.className).toContain('bg-background');
+    expect(card.classList).toContain('cn-popover-content');
+    expect(card.getAttribute('role')).not.toBe('tooltip');
   });
 
   it('opens nothing when the field does not peek', async () => {
@@ -107,7 +119,7 @@ describe('relation peek', () => {
 
     await hover(link(0));
 
-    expect(screen.queryByRole('tooltip')).toBeNull();
+    expect(screen.queryByText('ann.taylor@gmail.com', { selector: 'p' })).toBeNull();
     expect(fetch.mock.calls.filter(([input]) => typeof input === 'string' && input.includes('/peek'))).toEqual([]);
   });
 });

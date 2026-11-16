@@ -83,8 +83,10 @@ export function NotificationPanel({ state, onClose }: Props) {
       role="dialog"
       aria-label={__('Notifications')}
       tabIndex={-1}
-      // A 400 px card under the bell; on a phone it spans the screen less 8 px gutters.
-      className="fixed end-6 top-[52px] z-40 flex max-h-[calc(100dvh-68px)] w-[400px] flex-col overflow-hidden rounded-xl border border-border bg-popover text-popover-foreground shadow-md outline-none max-md:inset-x-2 max-md:w-auto"
+      data-lathe-notifications
+      // A 400 px card under the bell; on a phone it spans the screen less 8 px gutters. The style
+      // draws the popover; its rows run edge to edge, so the style's padding and gap give way.
+      className="cn-popover-content fixed end-6 top-[52px] flex max-h-[calc(100dvh-68px)] w-[400px] flex-col gap-0 overflow-hidden p-0 outline-none max-md:inset-x-2 max-md:w-auto"
     >
       <div className="flex h-12 shrink-0 items-center gap-1 ps-6 pe-2">
         <h2 className="flex-1 text-[15px] font-semibold">{__('Notifications')}</h2>
@@ -115,9 +117,12 @@ export function NotificationPanel({ state, onClose }: Props) {
         </button>
       </div>
       {items.length === 0 ? (
-        <div className="flex flex-col items-center gap-1.5 border-t border-border px-6 py-7 text-center">
-          <p className="text-sm font-medium">{__('No notifications')}</p>
-          <p className="text-[13px] leading-[18px] text-muted-foreground">{__('Exports, imports and long actions report here when they finish.')}</p>
+        // The divider sits on a wrapper, since the style's empty state draws its own dashed border.
+        <div className="border-t border-border">
+          <div className="cn-empty flex w-full min-w-0 flex-1 flex-col items-center justify-center gap-1.5 px-6 py-7 text-center text-balance">
+            <p className="text-sm font-medium">{__('No notifications')}</p>
+            <p className="text-[13px] leading-[18px] text-muted-foreground">{__('Exports, imports and long actions report here when they finish.')}</p>
+          </div>
         </div>
       ) : (
         <div className="flex-1 overflow-y-auto">

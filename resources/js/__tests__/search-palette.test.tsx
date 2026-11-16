@@ -322,6 +322,12 @@ describe('results', () => {
     expect(box().getAttribute('aria-activedescendant')).toBe(options[0]?.id);
     expect(options[0]?.getAttribute('aria-selected')).toBe('true');
   });
+
+  it("draws the palette as the style's dialog", () => {
+    renderPalette();
+
+    expect(screen.getByRole('dialog', { name: 'Search' }).classList).toContain('cn-dialog-content');
+  });
 });
 
 describe('keyboard', () => {
@@ -415,7 +421,6 @@ describe('on a phone', () => {
     expect(dialog.className).toContain('max-w-[640px]');
     expect(dialog.className).toContain('max-md:h-dvh');
     expect(dialog.className).toContain('max-md:max-w-none');
-    expect(dialog.className).toContain('max-md:rounded-none');
     const cancel = screen.getByRole('button', { name: 'Cancel' });
     expect(cancel.className).toContain('md:hidden');
 

@@ -24,9 +24,10 @@ export function PeekCard({ uriKey, id, top, left }: { uriKey: string; id: string
     return null;
   }
 
-  // The card goes to document.body, fixed, because a table cell's overflow would clip it.
+  // The card goes to document.body, fixed, because a table cell's overflow would clip it. A hover
+  // preview with links, so the style draws it as a popover, not a tooltip.
   return createPortal(
-    <div role="tooltip" style={{ position: 'fixed', top: `${String(top)}px`, left: `${String(left)}px` }} className="z-50 w-72 max-w-[calc(100vw-1rem)] rounded-md border border-border bg-background p-3 text-foreground shadow-md">
+    <div data-lathe-peek style={{ position: 'fixed', top: `${String(top)}px`, left: `${String(left)}px` }} className="cn-popover-content w-72 max-w-[calc(100vw-1rem)]">
       <div className="flex items-center gap-2">
         {typeof data.avatar?.url === 'string' ? (
           <img src={data.avatar.url} alt="" className="size-8 rounded-full object-cover" />
@@ -39,7 +40,7 @@ export function PeekCard({ uriKey, id, top, left }: { uriKey: string; id: string
         </div>
       </div>
       {data.fields.length > 0 && (
-        <dl className="mt-2 space-y-1 text-sm">
+        <dl className="space-y-1 text-sm">
           {data.fields.map((field) => (
             <div key={field.key} className="flex gap-2">
               <dt className="text-muted-foreground shrink-0">{field.label}</dt>

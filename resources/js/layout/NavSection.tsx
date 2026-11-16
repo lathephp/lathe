@@ -161,7 +161,7 @@ function NavItem({ item, context }: { item: NavLink; context: NavContext }) {
           role="tooltip"
           id={id}
           hidden={!tip}
-          className="absolute start-full top-1 z-50 ms-2 rounded-md bg-foreground px-2 py-1 text-xs whitespace-nowrap text-background"
+          className="cn-tooltip-content absolute start-full top-1 ms-2 bg-foreground whitespace-nowrap text-background"
         >
           {text}
         </span>

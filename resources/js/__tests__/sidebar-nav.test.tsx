@@ -128,6 +128,7 @@ describe('sidebar badges and tooltips', () => {
     fireEvent.mouseEnter(customers.parentElement as HTMLElement);
 
     expect(nav.getByRole('tooltip').textContent).toBe('Added this week');
+    expect(nav.getByRole('tooltip').classList).toContain('cn-tooltip-content');
     expect(customers.getAttribute('aria-describedby')).toBe(nav.getByRole('tooltip').id);
 
     fireEvent.mouseLeave(customers.parentElement as HTMLElement);

@@ -400,6 +400,14 @@ describe('grouping and buttons', () => {
 
     expect(within(screen.getByRole('dialog')).getByText('No notifications')).toBeTruthy();
     expect(within(screen.getByRole('dialog')).getByText('Exports, imports and long actions report here when they finish.')).toBeTruthy();
+    expect(within(screen.getByRole('dialog')).getByText('No notifications').closest('.cn-empty')).not.toBeNull();
+  });
+
+  it("draws the panel as the style's popover", async () => {
+    mount();
+    await openPanel();
+
+    expect(screen.getByRole('dialog', { name: 'Notifications' }).classList).toContain('cn-popover-content');
   });
 
   it('marks each unread notification with a brand dot and leaves a read one plain', async () => {

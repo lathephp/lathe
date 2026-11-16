@@ -1125,6 +1125,33 @@
   }
 }
 
+/* The layers of the surfaces the style draws as its popover, dialog and tooltip parts. The style
+   gives them their corners and shadow; the panel stacks them. */
+@layer components {
+  /* Over the page, under a modal. */
+  [data-lathe-notifications] {
+    @apply z-40;
+  }
+
+  [data-lathe-peek],
+  [data-lathe-palette],
+  .lathe-nav-section [role="tooltip"] {
+    @apply z-50;
+  }
+
+  /* Over the next widget card. */
+  .lathe-help-tip {
+    @apply z-10;
+  }
+
+  /* On a phone the palette fills the screen, so it has no corners. */
+  @media (width < 48rem) {
+    [data-lathe-palette] > [role="dialog"] {
+      @apply rounded-none;
+    }
+  }
+}
+
 /* Toasts rise over the save bar (65 px, 77 px on a phone), so an error toast never covers Create
    or Update. Outside the layers, so it wins over the viewport's bottom-4. */
 body:has(.lathe-form-footer) [data-slot='toast-viewport'] {

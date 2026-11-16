@@ -38,7 +38,7 @@ export function HelpTooltip({ text, width }: { text: string; width: number | str
         id={id}
         hidden={!open}
         style={{ width: typeof width === 'number' ? `${String(width)}px` : width }}
-        className="absolute start-0 top-full z-10 mt-1 rounded-md border border-border bg-background p-2 text-xs font-normal whitespace-pre-line text-foreground shadow-md"
+        className="lathe-help-tip cn-tooltip-content absolute start-0 top-full mt-1 bg-foreground font-normal whitespace-pre-line text-background"
       >
         {text}
       </span>
