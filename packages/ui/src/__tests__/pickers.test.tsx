@@ -138,6 +138,21 @@ describe('Calendar', () => {
 });
 
 describe('CodeEditor', () => {
+  it("gives CodeMirror's style tag the page's CSP nonce, so a nonce CSP lets it style the editor", () => {
+    const entry = document.createElement('script');
+    entry.type = 'module';
+    entry.nonce = 'n0nce';
+    document.head.append(entry);
+
+    try {
+      render(<CodeEditor value="{}" language="json" aria-label="Payload" />);
+
+      expect(Array.from(document.querySelectorAll('style')).some((style) => style.nonce === 'n0nce' || style.getAttribute('nonce') === 'n0nce')).toBe(true);
+    } finally {
+      entry.remove();
+    }
+  });
+
   it('shows the code with line numbers in the box of a text area', () => {
     const { container } = render(<CodeEditor value={'{"a": 1}\n'} language="json" aria-label="Payload" />);
 

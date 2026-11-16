@@ -31,6 +31,14 @@ const codeTheme = EditorView.theme({
   '.cm-cursor, .cm-dropCursor': { borderLeftColor: 'var(--foreground)' },
 });
 
+// The panel's CSP allows a style tag only with the server's nonce, which the panel's own entry
+// script carries; CodeMirror puts it on the style tag it injects.
+function cspNonce(): string | undefined {
+  const nonce = document.querySelector<HTMLScriptElement>('script[type="module"][nonce]')?.nonce;
+
+  return nonce === undefined || nonce === '' ? undefined : nonce;
+}
+
 const languages: Record<string, (() => Extension) | undefined> = {
   javascript: () => javascript(),
   js: () => javascript(),
@@ -78,7 +86,12 @@ function CodeEditor({
   const extensions = useMemo(() => {
     const factory = language == null ? undefined : languages[language];
     // The editable element is CodeMirror's content node, so the name goes there.
-    const named = [codeTheme, EditorView.contentAttributes.of(label === undefined ? {} : { 'aria-label': label })];
+    const nonce = cspNonce();
+    const named = [
+      codeTheme,
+      EditorView.contentAttributes.of(label === undefined ? {} : { 'aria-label': label }),
+      ...(nonce === undefined ? [] : [EditorView.cspNonce.of(nonce)]),
+    ];
 
     return factory === undefined ? named : [...named, factory()];
   }, [language, label]);
