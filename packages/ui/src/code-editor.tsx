@@ -9,6 +9,7 @@ import { xml } from '@codemirror/lang-xml';
 import { yaml } from '@codemirror/lang-yaml';
 import CodeMirror, { EditorView, type Extension } from '@uiw/react-codemirror';
 import { useMemo } from 'react';
+import { pageNonce } from './lib/csp';
 import { cn } from './lib/utils';
 
 const mono = 'ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace';
@@ -30,14 +31,6 @@ const codeTheme = EditorView.theme({
   '&.cm-focused': { outline: 'none' },
   '.cm-cursor, .cm-dropCursor': { borderLeftColor: 'var(--foreground)' },
 });
-
-// The panel's CSP allows a style tag only with the server's nonce, which the panel's own entry
-// script carries; CodeMirror puts it on the style tag it injects.
-function cspNonce(): string | undefined {
-  const nonce = document.querySelector<HTMLScriptElement>('script[type="module"][nonce]')?.nonce;
-
-  return nonce === undefined || nonce === '' ? undefined : nonce;
-}
 
 const languages: Record<string, (() => Extension) | undefined> = {
   javascript: () => javascript(),
@@ -86,7 +79,7 @@ function CodeEditor({
   const extensions = useMemo(() => {
     const factory = language == null ? undefined : languages[language];
     // The editable element is CodeMirror's content node, so the name goes there.
-    const nonce = cspNonce();
+    const nonce = pageNonce();
     const named = [
       codeTheme,
       EditorView.contentAttributes.of(label === undefined ? {} : { 'aria-label': label }),

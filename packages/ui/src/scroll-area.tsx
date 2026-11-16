@@ -1,19 +1,22 @@
 import * as React from 'react';
 import { ScrollArea as ScrollAreaPrimitive } from '@base-ui/react/scroll-area';
+import { PageNonce } from './lib/csp';
 import { cn } from './lib/utils';
 
 function ScrollArea({ className, children, ...props }: ScrollAreaPrimitive.Root.Props) {
   return (
-    <ScrollAreaPrimitive.Root data-slot="scroll-area" className={cn('cn-scroll-area relative', className)} {...props}>
-      <ScrollAreaPrimitive.Viewport
-        data-slot="scroll-area-viewport"
-        className="cn-scroll-area-viewport size-full rounded-[inherit] transition-[color,box-shadow] outline-none"
-      >
-        {children}
-      </ScrollAreaPrimitive.Viewport>
-      <ScrollBar />
-      <ScrollAreaPrimitive.Corner />
-    </ScrollAreaPrimitive.Root>
+    <PageNonce>
+      <ScrollAreaPrimitive.Root data-slot="scroll-area" className={cn('cn-scroll-area relative', className)} {...props}>
+        <ScrollAreaPrimitive.Viewport
+          data-slot="scroll-area-viewport"
+          className="cn-scroll-area-viewport size-full rounded-[inherit] transition-[color,box-shadow] outline-none"
+        >
+          {children}
+        </ScrollAreaPrimitive.Viewport>
+        <ScrollBar />
+        <ScrollAreaPrimitive.Corner />
+      </ScrollAreaPrimitive.Root>
+    </PageNonce>
   );
 }
 
