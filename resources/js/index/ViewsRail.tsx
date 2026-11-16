@@ -289,6 +289,11 @@ export function useViews({ resource, state, visit }: ViewsProps): Views | null {
                 <ViewOptionsMenu
                   tab={tab}
                   onChoose={(kind) => {
+                    // The popover closes as its dialog opens, so the dialog hands the focus back to Views.
+                    if (where === 'menu') {
+                      trigger.current?.focus();
+                    }
+
                     setOpen(false);
                     setDialog({ kind, tab });
                   }}
@@ -333,6 +338,10 @@ export function useViews({ resource, state, visit }: ViewsProps): Views | null {
             type="button"
             className="lathe-tab lathe-save-view"
             onClick={() => {
+              if (where === 'menu') {
+                trigger.current?.focus();
+              }
+
               setOpen(false);
               setDialog({ kind: 'save' });
             }}

@@ -279,6 +279,24 @@ describe('views menu', () => {
     expect(screen.queryByRole('dialog', { name: 'Views' })).toBeNull();
   });
 
+  // The popover closes as the dialog opens, taking the options button with it, so the focus goes back to Views.
+  it('gives the focus back to Views when a dialog opened from the popover closes', async () => {
+    renderOrders();
+    const views = screen.getByRole('button', { name: 'Views Pending' });
+    fireEvent.click(views);
+    const popover = screen.getByRole('dialog', { name: 'Views' });
+    fireEvent.click(within(popover).getByRole('button', { name: 'Options for Paid' }));
+
+    fireEvent.click(within(popover).getByRole('menuitem', { name: 'Rename' }));
+    const dialog = await screen.findByRole('dialog', { name: 'Rename view' });
+    fireEvent.keyDown(within(dialog).getByLabelText('Name'), { key: 'Escape' });
+
+    await vi.waitFor(() => {
+      expect(screen.queryByRole('dialog', { name: 'Rename view' })).toBeNull();
+    });
+    expect(document.activeElement).toBe(screen.getByRole('button', { name: 'Views Pending' }));
+  });
+
   it('renames a saved view from the popover, whose menu Escape closes alone', async () => {
     answer(200, { id: 7 });
     const reload = mockReload();
