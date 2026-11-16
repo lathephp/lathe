@@ -154,7 +154,7 @@ describe('a dashboard return within 60 s', () => {
     visitSales();
     await pass(300);
 
-    fireEvent.click(screen.getByRole('radio', { name: '7 days' }));
+    fireEvent.click(screen.getByRole('button', { name: '7 days' }));
     await pass(300);
 
     expect(within(card('orders')).getByText('1,241')).toBeTruthy();

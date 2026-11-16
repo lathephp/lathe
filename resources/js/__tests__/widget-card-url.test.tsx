@@ -125,7 +125,7 @@ describe('the dashboard range', () => {
     await waitFor(() => {
       expect(within(card('revenue')).getByText('30')).toBeTruthy();
     });
-    fireEvent.click(screen.getByRole('radio', { name: '12 months' }));
+    fireEvent.click(screen.getByRole('button', { name: '12 months' }));
 
     await waitFor(() => {
       expect(within(card('orders')).getByText('365')).toBeTruthy();
@@ -133,7 +133,7 @@ describe('the dashboard range', () => {
     });
     expect(calls(fetch, 'range=365').sort()).toEqual(['/lathe/api/dashboards/main/widgets/orders?range=365', '/lathe/api/dashboards/main/widgets/revenue?range=365']);
     expect(window.location.pathname + window.location.search).toBe('/lathe?range=365');
-    expect(screen.getByRole('radio', { name: '12 months' }).getAttribute('aria-checked')).toBe('true');
+    expect(screen.getByRole('button', { name: '12 months' }).getAttribute('aria-pressed')).toBe('true');
     expect(reload).not.toHaveBeenCalled();
   });
 });

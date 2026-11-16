@@ -41,7 +41,7 @@ function strip() {
     {},
   );
 
-  return screen.getByRole('radiogroup', { name: 'Range' });
+  return screen.getByRole('group', { name: 'Range' });
 }
 
 function scrollTo(group: HTMLElement, left: number, width: number, visible: number) {

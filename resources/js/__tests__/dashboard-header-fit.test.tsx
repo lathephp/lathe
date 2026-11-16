@@ -73,7 +73,7 @@ describe('a dashboard header too narrow for one row', () => {
     const header = screen.getByRole('heading', { level: 1, name: 'Main' }).closest('.lathe-dashboard-header');
 
     expect(header).not.toBeNull();
-    expect(header?.contains(screen.getByRole('radiogroup', { name: 'Range' }))).toBe(true);
+    expect(header?.contains(screen.getByRole('group', { name: 'Range' }))).toBe(true);
     expect(header?.contains(screen.getByRole('button', { name: 'Refresh' }))).toBe(true);
     expect(header?.querySelector('.lathe-dashboard-actions')?.contains(screen.getByRole('button', { name: 'Customize' }))).toBe(true);
   });
@@ -86,6 +86,6 @@ describe('a dashboard header too narrow for one row', () => {
     expect(narrow).toContain('@container dashboard-header (width < 48rem)');
     expect(narrow).toMatch(/\.lathe-dashboard-header \.lathe-page-header \{[^}]*flex-wrap/);
     expect(narrow).toMatch(/\.lathe-dashboard-header \.lathe-page-actions,\s*\.lathe-dashboard-header \.lathe-dashboard-actions \{[^}]*contents/);
-    expect(narrow).toMatch(/\.lathe-dashboard-header \[role='radiogroup'\] \{[^}]*order-last[^}]*basis-full[^}]*overflow-x-auto/);
+    expect(narrow).toMatch(/\.lathe-dashboard-header \[data-slot='toggle-group'\] \{[^}]*order-last[^}]*basis-full[^}]*overflow-x-auto/);
   });
 });

@@ -60,8 +60,8 @@ describe('the dashboard range control on a phone', () => {
       {},
     );
 
-    const group = screen.getByRole('radiogroup', { name: 'Range' });
-    const button = within(group).getByRole('radio', { name: '12 months' });
+    const group = screen.getByRole('group', { name: 'Range' });
+    const button = within(group).getByRole('button', { name: '12 months' });
 
     expect(group.className).toContain('max-md:overflow-x-auto');
     expect(button.className).toContain('shrink-0');

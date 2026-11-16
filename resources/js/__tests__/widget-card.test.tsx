@@ -205,11 +205,25 @@ describe('the dashboard range', () => {
     answer(() => 1);
     renderDashboard([descriptor('orders', { ranges }), descriptor('revenue')]);
 
-    const picker = screen.getByRole('radiogroup', { name: 'Range' });
-    expect(within(picker).getAllByRole('radio').map((radio) => radio.textContent)).toEqual(['7 days', '30 days', '12 months']);
-    expect(within(picker).getByRole('radio', { name: '30 days' }).getAttribute('aria-checked')).toBe('true');
-    expect(within(picker).getByRole('radio', { name: '7 days' }).getAttribute('aria-checked')).toBe('false');
+    const picker = screen.getByRole('group', { name: 'Range' });
+    expect(within(picker).getAllByRole('button').map((choice) => choice.textContent)).toEqual(['7 days', '30 days', '12 months']);
+    expect(within(picker).getByRole('button', { name: '30 days' }).getAttribute('aria-pressed')).toBe('true');
+    expect(within(picker).getByRole('button', { name: '7 days' }).getAttribute('aria-pressed')).toBe('false');
     expect(screen.queryByRole('combobox', { name: 'Range' })).toBeNull();
+  });
+
+  it("is the style's toggle group, and ArrowRight moves the focus to the next choice", () => {
+    answer(() => 1);
+    renderDashboard([descriptor('orders', { ranges }), descriptor('revenue')]);
+
+    const picker = screen.getByRole('group', { name: 'Range' });
+    const thirty = within(picker).getByRole('button', { name: '30 days' });
+    expect(picker.classList.contains('cn-toggle-group')).toBe(true);
+    expect(within(picker).getAllByRole('button').every((choice) => choice.classList.contains('cn-toggle-group-item'))).toBe(true);
+
+    thirty.focus();
+    fireEvent.keyDown(thirty, { key: 'ArrowRight' });
+    expect(document.activeElement).toBe(within(picker).getByRole('button', { name: '12 months' }));
   });
 
   it('names the range a card fell back to', async () => {
@@ -226,7 +240,7 @@ describe('the dashboard range', () => {
     await waitFor(() => {
       expect(within(card('orders')).getByText('1')).toBeTruthy();
     });
-    fireEvent.click(screen.getByRole('radio', { name: '7 days' }));
+    fireEvent.click(screen.getByRole('button', { name: '7 days' }));
 
     await waitFor(() => {
       expect(within(card('orders')).getByText('5')).toBeTruthy();
@@ -248,7 +262,7 @@ describe('the dashboard range', () => {
     await waitFor(() => {
       expect(within(card('orders')).getByText('1,234')).toBeTruthy();
     });
-    fireEvent.click(screen.getByRole('radio', { name: '7 days' }));
+    fireEvent.click(screen.getByRole('button', { name: '7 days' }));
 
     await waitFor(() => {
       expect(within(card('orders')).getByText('Updating…')).toBeTruthy();
@@ -270,7 +284,7 @@ describe('the dashboard range', () => {
     await waitFor(() => {
       expect(within(card('orders')).getByText('1')).toBeTruthy();
     });
-    fireEvent.click(screen.getByRole('radio', { name: '12 months' }));
+    fireEvent.click(screen.getByRole('button', { name: '12 months' }));
 
     await waitFor(() => {
       expect(within(card('orders')).getByText('Orders could not load')).toBeTruthy();

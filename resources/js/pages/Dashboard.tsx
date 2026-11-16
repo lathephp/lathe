@@ -1,11 +1,11 @@
 import { Head, router, usePage } from '@inertiajs/react';
 import { useLathe, useTranslation } from '@lathephp/core';
 import { RefreshCw, SlidersHorizontal } from 'lucide-react';
-import { type KeyboardEvent, Suspense, useEffect, useRef, useState } from 'react';
+import { Suspense, useEffect, useRef, useState } from 'react';
 import { AfterDelay, skeletonBar } from '../lib/instant';
-import { cn } from '../lib/cn';
 import { Button } from '../components/ui/Button';
 import { Card } from '../components/ui/Card';
+import { ToggleGroup, ToggleGroupItem } from '../components/ui/ToggleGroup';
 import { AddPanel, CustomizeBanner, CustomizeHeader, EditCardHeader, preloadCustomize } from '../widgets/customize/lazy';
 import type { LayoutDraft, WidgetDescriptor } from '../widgets/types';
 import { WidgetGrid } from '../widgets/WidgetGrid';
@@ -210,22 +210,6 @@ function DashboardPage({ dashboard, widgets, hiddenWidgets = [] }: DashboardProp
 /** The header's segmented range control; below 768 px it takes a full-width row of its own. */
 function RangePicker({ ranges, value, onPick }: { ranges: RangeOption[]; value: string | undefined; onPick: (value: number | string) => void }) {
   const { __ } = useTranslation();
-  const steps: Record<string, number> = { ArrowRight: 1, ArrowDown: 1, ArrowLeft: -1, ArrowUp: -1 };
-
-  // Arrow keys pick the next option and move focus to it, as a radio group does.
-  const move = (event: KeyboardEvent<HTMLButtonElement>, at: number) => {
-    const step = steps[event.key];
-
-    if (step === undefined) {
-      return;
-    }
-
-    event.preventDefault();
-    const next = event.currentTarget.parentElement?.children[(at + step + ranges.length) % ranges.length] as HTMLElement | undefined;
-    next?.focus();
-    next?.click();
-  };
-
   // A fade at each edge that has more to scroll, so a clipped "12 months" reads as scrollable.
   const [fade, setFade] = useState({ start: false, end: false });
   const strip = useRef<HTMLDivElement>(null);
@@ -260,43 +244,29 @@ function RangePicker({ ranges, value, onPick }: { ranges: RangeOption[]; value: 
   }, []);
 
   return (
-    <div
+    <ToggleGroup
       ref={strip}
-      role="radiogroup"
       aria-label={__('Range')}
       data-fade-start={fade.start ? '' : undefined}
       data-fade-end={fade.end ? '' : undefined}
       onScroll={(event) => {
         measure(event.currentTarget);
       }}
-      className="grid auto-cols-fr grid-flow-col gap-0.5 rounded-lg bg-muted p-0.5 max-md:flex-1 max-md:overflow-x-auto max-md:[mask-image:linear-gradient(to_right,rgb(0_0_0/var(--fade-start,1)),#000_1.5rem,#000_calc(100%-1.5rem),rgb(0_0_0/var(--fade-end,1)))] max-md:data-fade-end:[--fade-end:0] max-md:data-fade-start:[--fade-start:0] md:inline-grid md:border"
+      className="grid auto-cols-fr grid-flow-col max-md:w-auto max-md:flex-1 max-md:overflow-x-auto max-md:[mask-image:linear-gradient(to_right,rgb(0_0_0/var(--fade-start,1)),#000_1.5rem,#000_calc(100%-1.5rem),rgb(0_0_0/var(--fade-end,1)))] max-md:data-fade-end:[--fade-end:0] max-md:data-fade-start:[--fade-start:0] md:inline-grid"
     >
-      {ranges.map((option, at) => {
-        const checked = String(option.value) === value;
-
-        return (
-          <button
-            key={String(option.value)}
-            type="button"
-            role="radio"
-            aria-checked={checked}
-            tabIndex={checked ? 0 : -1}
-            className={cn(
-              'h-9 shrink-0 rounded-md px-2.5 text-sm font-medium whitespace-nowrap md:h-7 md:text-[13px]',
-              checked ? 'bg-card text-foreground shadow-xs' : 'text-muted-foreground hover:text-foreground',
-            )}
-            onClick={() => {
-              onPick(option.value);
-            }}
-            onKeyDown={(event) => {
-              move(event, at);
-            }}
-          >
-            {option.label}
-          </button>
-        );
-      })}
-    </div>
+      {ranges.map((option) => (
+        <ToggleGroupItem
+          key={String(option.value)}
+          pressed={String(option.value) === value}
+          className="max-md:h-9 max-md:text-sm"
+          onClick={() => {
+            onPick(option.value);
+          }}
+        >
+          {option.label}
+        </ToggleGroupItem>
+      ))}
+    </ToggleGroup>
   );
 }
 

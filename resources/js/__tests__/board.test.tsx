@@ -139,6 +139,26 @@ describe('the Board', () => {
   });
 });
 
+describe('the layout switch', () => {
+  it("is the style's toggle group: pressed choice marked, arrows move the focus without switching", () => {
+    boardServer();
+    renderPage('Resources/Index', orders(), { url: '/lathe/resources/orders' });
+    const group = screen.getByRole('group', { name: 'Layout' });
+    const [table, board] = within(group).getAllByRole('button');
+
+    expect(group.classList.contains('cn-toggle-group')).toBe(true);
+    expect([table, board].map((item) => [item?.classList.contains('cn-toggle-group-item'), item?.getAttribute('aria-pressed')])).toEqual([
+      [true, 'true'],
+      [true, 'false'],
+    ]);
+
+    table?.focus();
+    fireEvent.keyDown(table as HTMLElement, { key: 'ArrowRight' });
+    expect(document.activeElement).toBe(board);
+    expect(table?.getAttribute('aria-pressed')).toBe('true');
+  });
+});
+
 describe('where the Board is not offered', () => {
   it('shows the switch on a Resource with a board, and none on a lens or without one', () => {
     boardServer();

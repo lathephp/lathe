@@ -3,6 +3,7 @@ import { request, useLathe, useShortcut, useTranslation } from '@lathephp/core';
 import { X } from 'lucide-react';
 import type { ReactNode } from 'react';
 import { Button } from '../components/ui/Button';
+import { ToggleGroup, ToggleGroupItem } from '../components/ui/ToggleGroup';
 import { FilterBar } from './FilterBar';
 import { activeFilters } from './FilterChips';
 import { GroupMenu } from './GroupMenu';
@@ -74,21 +75,19 @@ function LayoutSwitch({ uriKey, layout }: { uriKey: string; layout: Layout }) {
   }
 
   return (
-    <div role="group" aria-label={__('Layout')} className="inline-flex rounded-md bg-muted p-0.5 max-md:hidden">
+    <ToggleGroup aria-label={__('Layout')} className="flex max-md:hidden">
       {(['table', 'board'] as const).map((each) => (
-        <button
+        <ToggleGroupItem
           key={each}
-          type="button"
-          aria-pressed={layout === each}
+          pressed={layout === each}
           onClick={() => {
             choose(each);
           }}
-          className="h-[26px] rounded-[5px] px-2.5 text-[13px] font-medium text-muted-foreground outline-none focus-visible:ring-2 focus-visible:ring-ring aria-pressed:bg-card aria-pressed:text-foreground aria-pressed:shadow-xs"
         >
           {each === 'table' ? __('Table') : __('Board')}
-        </button>
+        </ToggleGroupItem>
       ))}
-    </div>
+    </ToggleGroup>
   );
 }
 

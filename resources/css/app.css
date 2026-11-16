@@ -514,7 +514,7 @@
         @apply contents;
       }
 
-      .lathe-dashboard-header [role='radiogroup'] {
+      .lathe-dashboard-header [data-slot='toggle-group'] {
         @apply order-last basis-full overflow-x-auto;
       }
     }

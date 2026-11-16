@@ -26,6 +26,7 @@ All notable changes to Lathe are listed here. The format follows [Keep a Changel
 - [api] The kit's `DropdownMenuContent` takes a `collisionPadding`, the space it keeps from the edges of the box it stays inside, and a `collisionBoundary`, that box when it is not the window.
 - [api] The kit's `ChartTooltipContent` takes a `className`, and its box takes its border, corners, padding and shadow from the style's `cn-chart-tooltip`.
 - [api] A boolean field's switch and checkbox, and a boolean group's boxes, draw with the active style's `cn-switch` and `cn-checkbox` and carry the kit's `data-slot`, `data-checked`, `data-unchecked` and `data-indeterminate` attributes, through the panel's new first-paint `Switch` and `Checkbox` in `components/ui`, which stay out of the kit's code. The checkbox is a `role="checkbox"` button rather than a native input; a nullable boolean with no value reads as mixed.
+- The Orders Table/Board switch and the dashboard's range picker draw as the active style's segmented toggle group, with `cn-toggle-group` and `cn-toggle-group-item`, through the panel's new first-paint `ToggleGroup` and `ToggleGroupItem` in `components/ui`. Each choice is a toggle button with `aria-pressed`; the range picker is no longer a radio group, so the arrow keys move the focus between ranges and Enter or Space picks one, as with the kit's toggle group.
 
 ### Fixed
 
