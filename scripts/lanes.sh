@@ -7,7 +7,8 @@
 # so a milestone meets every driver before CI.
 # changed octane runs scripts/octane-lane.sh when a file under workbench/ or tests/Octane differs.
 # changed scaffold runs the scaffold group, which composer test leaves out, when a stub, a console
-# command or an ESLint config differs: those decide what the generators write and how it is linted.
+# command, an ESLint config or rule, the packages the rendered stubs type-check against, or one of
+# the group's own tests differs: those decide what the generators write and how it is checked.
 # These containers are Lathe's. Never reuse another project's database container.
 set -uo pipefail
 
@@ -142,7 +143,7 @@ case ${1:-} in
         [[ ${2:-} == octane || ${2:-} == scaffold || ( -n ${2:-} && -n $(selected "$2") ) ]] || { echo "usage: lanes.sh changed <mysql|mariadb|pgsql|octane|scaffold>" >&2; exit 2; }
         cd "$(dirname "$0")/.." || exit 1
         if [[ $2 == scaffold ]]; then
-            paths=(stubs src/Console eslint.config.js packages/vite-plugin/eslint)
+            paths=(stubs src/Console eslint.config.js eslint-rules packages/vite-plugin/eslint tsconfig.base.json packages/core/src packages/ui/src tests/Feature/Scaffold tests/Feature/Console/InstallCommandTest.php)
             if [[ -z $({ git diff --name-only origin/main -- "${paths[@]}"; git ls-files --others --exclude-standard -- "${paths[@]}"; }) ]]; then
                 echo "no stub, console or ESLint file differs from origin/main"
                 exit 0

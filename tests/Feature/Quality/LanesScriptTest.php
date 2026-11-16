@@ -88,12 +88,18 @@ it('runs the scaffold group when a stub, console, or ESLint file differs from or
     $frontend = $run();
     File::put("{$repo}/stubs/page-react.stub", "export {}\n");
     $stub = $run();
+    File::delete("{$repo}/stubs/page-react.stub");
+    File::ensureDirectoryExists("{$repo}/eslint-rules");
+    File::put("{$repo}/eslint-rules/rule.js", "export {}\n");
+    Process::path($repo)->run('git add -A && git commit -qm "Add a lint rule"')->throw();
+    $committed = $run();
 
     expect($quiet->exitCode())->toBe(0)
         ->and($quiet->output())->toContain('no stub, console or ESLint file differs from origin/main')
         ->and($frontend->output())->not->toContain('--group=scaffold')
         ->and($stub->exitCode())->toBe(0, $stub->errorOutput())
-        ->and($stub->output())->toContain('php vendor/bin/pest --group=scaffold');
+        ->and($stub->output())->toContain('php vendor/bin/pest --group=scaffold')
+        ->and($committed->output())->toContain('php vendor/bin/pest --group=scaffold');
 
     File::deleteDirectory($repo);
 });
