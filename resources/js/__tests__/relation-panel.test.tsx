@@ -592,7 +592,8 @@ describe('a customer\'s Orders panel', () => {
   const ordersBlock = relationBlock({ key: 'orders', attribute: 'orders', label: 'Orders', relationship: 'orders', resource: 'orders', singularLabel: 'Order', pluralLabel: 'Orders' });
 
   /** Answers the panel's endpoints with the workbench Orders table, and records every URL asked for. */
-  function answerOrders(filters: unknown[] = []) {
+  // A list URL holding `emptyWhen` answers no rows, as a filter that matches nothing does.
+  function answerOrders(filters: unknown[] = [], emptyWhen?: string) {
     const { columns: orderColumns, rows: orderRows } = indexTable('orders');
 
     return vi.spyOn(globalThis, 'fetch').mockImplementation((input) => {
@@ -604,7 +605,7 @@ describe('a customer\'s Orders panel', () => {
           : {
               columns: orderColumns,
               sortKeys: ['number', 'customer.name', 'total_cents', 'placed_at'],
-              rows: orderRows.map((row) => ({ ...row, related_id: row.id })),
+              rows: emptyWhen !== undefined && decodeURIComponent(url).includes(emptyWhen) ? [] : orderRows.map((row) => ({ ...row, related_id: row.id })),
               count: null,
               page: 1,
               perPage: 25,
@@ -662,6 +663,26 @@ describe('a customer\'s Orders panel', () => {
       expect(orderCalls(fetch).at(-1)).toBe('/lathe/api/resources/customers/3/orders?sort=number&filter[status]=pending');
     });
     expect(screen.getByRole('columnheader', { name: 'Number' }).getAttribute('aria-sort')).toBe('ascending');
+  });
+
+  it('keeps the sort when Clear filters empties a filtered panel', async () => {
+    const fetch = answerOrders([statusFilter], 'filter[status]');
+    renderCustomer();
+    await screen.findByText('ORD-00000002');
+
+    fireEvent.click(screen.getByRole('button', { name: 'Number' }));
+    await waitFor(() => {
+      expect(orderCalls(fetch).at(-1)).toBe('/lathe/api/resources/customers/3/orders?sort=number');
+    });
+    const input = await focusBar('Search orders');
+    fireEvent.change(input, { target: { value: 'status:pending' } });
+    fireEvent.keyDown(input, { key: 'Enter' });
+    fireEvent.click(await screen.findByRole('button', { name: 'Clear filters' }));
+
+    await waitFor(() => {
+      expect(orderCalls(fetch).at(-1)).toBe('/lathe/api/resources/customers/3/orders?sort=number');
+    });
+    expect(await screen.findByText('ORD-00000002')).toBeTruthy();
   });
 
   it('sorts by Number ascending then descending, keeping its chips, with no page visit', async () => {

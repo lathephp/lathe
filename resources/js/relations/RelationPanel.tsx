@@ -294,8 +294,9 @@ function PanelBody({ parent, field, bodyId, onToggle, tab }: RelationPanelProps 
             label={field.label}
             filtered={filtered}
             createHref={canCreate && !filtered ? createHref : null}
+            // As on the index: the search and filters go, the sort stays.
             onClear={() => {
-              setState({});
+              change({ q: undefined, filter: undefined });
             }}
           />
         ) : (
