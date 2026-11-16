@@ -155,8 +155,17 @@ describe('column picker', () => {
       { url: '/lathe/api/resources/orders/columns', method: 'PUT', body: { order: keys, hidden: ['customer'], pinned: [] } },
       { url: '/lathe/api/resources/orders/columns', method: 'PUT', body: { order: keys, hidden: ['customer'], pinned: ['total_cents'] } },
     ]);
-    expect(within(picker).getByRole('checkbox', { name: 'Customer' })).toHaveProperty('checked', false);
+    expect(within(picker).getByRole('checkbox', { name: 'Customer' }).getAttribute('aria-checked')).toBe('false');
     expect(within(picker).getByRole('button', { name: 'Pin Total' }).getAttribute('aria-pressed')).toBe('true');
+  });
+
+  it('draws each column box as the kit checkbox', () => {
+    renderOrders();
+
+    const box = within(openPicker()).getByRole('checkbox', { name: 'Customer' });
+
+    expect(box.getAttribute('data-slot')).toBe('checkbox');
+    expect(box.classList.contains('cn-checkbox')).toBe(true);
   });
 
   it('sends a second change only once the first has saved, so they land in order', async () => {
@@ -213,14 +222,14 @@ describe('column picker', () => {
     renderOrders({ columnChoice: { order: keys, hidden: ['customer'], pinned: [] } });
 
     const picker = openPicker();
-    expect(within(picker).getByRole('checkbox', { name: 'Customer' })).toHaveProperty('checked', false);
+    expect(within(picker).getByRole('checkbox', { name: 'Customer' }).getAttribute('aria-checked')).toBe('false');
     fireEvent.click(within(picker).getByRole('button', { name: 'Reset to default' }));
 
     await waitFor(() => {
       expect(reload).toHaveBeenCalledWith({ only: ['table'] });
     });
     expect(calls(fetch)).toEqual([{ url: '/lathe/api/resources/orders/columns', method: 'DELETE', body: undefined }]);
-    expect(within(picker).getByRole('checkbox', { name: 'Customer' })).toHaveProperty('checked', true);
+    expect(within(picker).getByRole('checkbox', { name: 'Customer' }).getAttribute('aria-checked')).toBe('true');
   });
 
   it('moves a column down with Alt+ArrowDown on its grip and says so', async () => {

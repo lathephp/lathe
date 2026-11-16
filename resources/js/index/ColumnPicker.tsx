@@ -1,5 +1,6 @@
 import { router } from '@inertiajs/react';
 import { request, toast, useLathe, useTranslation } from '@lathephp/core';
+import { Checkbox } from '@lathephp/ui';
 import { GripVertical, Pin } from 'lucide-react';
 import { useEffect, useRef, useState, type DragEvent, type KeyboardEvent } from 'react';
 import { cn } from '../lib/cn';
@@ -192,12 +193,10 @@ export function ColumnPicker({ uriKey, columns, choice, trigger, onClose }: Colu
                 </button>
               )}
               <label className="flex min-w-0 flex-1 items-center gap-2">
-                <input
-                  type="checkbox"
-                  className="size-4 shrink-0"
+                <Checkbox
                   checked={!current.hidden.includes(column.key)}
                   disabled={locked}
-                  onChange={() => {
+                  onCheckedChange={() => {
                     toggle('hidden', column.key);
                   }}
                 />
