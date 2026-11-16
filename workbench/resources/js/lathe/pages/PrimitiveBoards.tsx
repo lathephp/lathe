@@ -51,7 +51,11 @@ function Board({ name, title, description, children }: { name: string; title: st
         <h2 className="m-0 text-[22px] leading-7 font-[650] tracking-[-0.01em]">{title}</h2>
         <p className="m-0 text-sm text-muted-foreground">{description}</p>
       </div>
-      {children}
+      {/* The boards are drawn at desktop width; a narrower screen scrolls each one sideways inside
+          itself. w-0 with min-w-full keeps that width out of the page's own layout. */}
+      <div className="w-0 min-w-full overflow-x-auto p-1">
+        <div className="flex min-w-[1000px] flex-col gap-8">{children}</div>
+      </div>
     </section>
   );
 }

@@ -1,6 +1,6 @@
 import { useTranslation } from '@lathephp/core';
 import { Button, Input, Skeleton } from '@lathephp/ui';
-import { lazy, useState, type ComponentType, type LazyExoticComponent } from 'react';
+import { lazy, useEffect, useRef, useState, type ComponentType, type LazyExoticComponent, type ReactNode } from 'react';
 
 const fruits = ['Apple', 'Banana', 'Cherry'];
 const sales = [
@@ -8,6 +8,41 @@ const sales = [
   { day: 'Tue', orders: 18 },
   { day: 'Wed', orders: 9 },
 ];
+
+/** Renders its children once the whole box is on screen, and keeps them from then on. */
+function OnScreen({ className, children }: { className: string; children: ReactNode }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const [shown, setShown] = useState(false);
+
+  useEffect(() => {
+    const box = ref.current;
+
+    if (box === null) {
+      return;
+    }
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry?.isIntersecting === true) {
+          setShown(true);
+          observer.disconnect();
+        }
+      },
+      { threshold: 1 },
+    );
+    observer.observe(box);
+
+    return () => {
+      observer.disconnect();
+    };
+  }, []);
+
+  return (
+    <div ref={ref} className={className}>
+      {shown && children}
+    </div>
+  );
+}
 
 // Each subpath loads through the import map when the gallery first renders it, so neither the
 // boot module nor any other page fetches it.
@@ -113,7 +148,7 @@ export const subpathDemos: [string, LazyExoticComponent<ComponentType>][] = [
         XAxis,
         YAxis,
       } = await import('@lathephp/ui/chart');
-      const shares = sales.map((row, index) => ({ ...row, fill: `var(--chart-${String(index + 1)})` }));
+      const shares = sales.map((row, index) => ({ ...row, name: row.day, fill: `var(--chart-${String(index + 1)})` }));
 
       return function ChartDemo() {
         const { __ } = useTranslation();
@@ -136,7 +171,7 @@ export const subpathDemos: [string, LazyExoticComponent<ComponentType>][] = [
             </ChartContainer>
             <ChartContainer className="h-40 w-full">
               <AreaChart data={sales}>
-                <XAxis dataKey="day" />
+                <XAxis dataKey="day" padding={{ left: 16, right: 16 }} interval={0} />
                 {tooltip}
                 {legend}
                 <Area dataKey="orders" name={__('Orders')} stroke="var(--chart-2)" fill="var(--chart-2)" fillOpacity={0.3} />
@@ -144,7 +179,7 @@ export const subpathDemos: [string, LazyExoticComponent<ComponentType>][] = [
             </ChartContainer>
             <ChartContainer className="h-40 w-full">
               <LineChart data={sales}>
-                <XAxis dataKey="day" />
+                <XAxis dataKey="day" padding={{ left: 16, right: 16 }} interval={0} />
                 {tooltip}
                 {legend}
                 <Line dataKey="orders" name={__('Orders')} stroke="var(--chart-3)" />
@@ -171,7 +206,7 @@ export const subpathDemos: [string, LazyExoticComponent<ComponentType>][] = [
               <RadialBarChart data={shares} innerRadius="30%" outerRadius="100%">
                 {tooltip}
                 {legend}
-                <RadialBar dataKey="orders" background />
+                <RadialBar dataKey="orders" name={__('Orders')} background />
               </RadialBarChart>
             </ChartContainer>
           </div>
@@ -295,7 +330,9 @@ export const subpathDemos: [string, LazyExoticComponent<ComponentType>][] = [
 
         return (
           <div className="flex w-full flex-col gap-3">
-            <Command className="rounded-lg border">
+            {/* An inline Command scrolls its first item into view as it mounts, so it mounts once on screen. */}
+            <OnScreen className="min-h-72">
+              <Command className="rounded-lg border">
               <CommandInput placeholder={__('Search')} />
               <CommandList>
                 <CommandEmpty>{__('No results')}</CommandEmpty>
@@ -311,15 +348,19 @@ export const subpathDemos: [string, LazyExoticComponent<ComponentType>][] = [
                   <CommandItem>{__('Profile')}</CommandItem>
                 </CommandGroup>
               </CommandList>
-            </Command>
+              </Command>
+            </OnScreen>
             <Button variant="outline" className="self-start" onClick={() => setOpen(true)}>
               {__('Open palette')}
             </Button>
+            {/* As shadcn's, the dialog holds a Command root of its own. */}
             <CommandDialog open={open} onOpenChange={setOpen}>
-              <CommandInput placeholder={__('Search')} />
-              <CommandList>
-                <CommandItem>{__('Dashboard')}</CommandItem>
-              </CommandList>
+              <Command>
+                <CommandInput placeholder={__('Search')} />
+                <CommandList>
+                  <CommandItem>{__('Dashboard')}</CommandItem>
+                </CommandList>
+              </Command>
             </CommandDialog>
           </div>
         );
