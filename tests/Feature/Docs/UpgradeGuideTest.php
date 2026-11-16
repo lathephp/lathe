@@ -382,14 +382,28 @@ it('names in the 1.0.0-beta.14 section every English string added or removed sin
         ->and(array_values(array_diff($changed, $named[1])))->toBe([]);
 })->group('frontend');
 
-it('opens with 1.0.0-beta.15 and its toast changes, then tells a 1.0.0-beta.12 app each change of 1.0.0-beta.14 that can break it', function () {
+it('opens with 1.0.0-beta.16 and the UI round a plugin meets, then tells a 1.0.0-beta.12 app each change of 1.0.0-beta.14 that can break it', function () {
     $guide = File::get(dirname(__DIR__, 3).'/docs/getting-started/upgrade.md');
-    $newest = explode("\n## ", explode("## From 1.0.0-beta.14 to 1.0.0-beta.15\n", $guide, 2)[1] ?? '', 2)[0];
+    $newest = explode("\n## ", explode("## From 1.0.0-beta.15 to 1.0.0-beta.16\n", $guide, 2)[1] ?? '', 2)[0];
+    $toasts = explode("\n## ", explode("## From 1.0.0-beta.14 to 1.0.0-beta.15\n", $guide, 2)[1] ?? '', 2)[0];
     $section = explode("\n## ", explode("## From 1.0.0-beta.12 to 1.0.0-beta.14\n", $guide, 2)[1] ?? '', 2)[0];
     preg_match('/^## From .*$/m', $guide, $heading);
 
-    expect($heading[0] ?? null)->toBe('## From 1.0.0-beta.14 to 1.0.0-beta.15')
+    expect($heading[0] ?? null)->toBe('## From 1.0.0-beta.15 to 1.0.0-beta.16')
         ->and($newest)->toContain(
+            'The panel\'s first-paint `Button` takes every variant and size of the kit `Button`',
+            'The panel\'s first-paint `Badge` takes a `variant`',
+            '`lathe-button-default`',
+            'The panel stylesheet\'s `lathe-input` keeps only an input\'s layout',
+            'The panel stylesheet\'s `[data-lathe-card]` look rules',
+            '`@lathephp/ui/combobox` exports `ComboboxClear`',
+            'takes a `label` prop to change it',
+            '`@lathephp/core` exports `PageHeader` and `Icon`',
+            '`@lathephp/vite-plugin/eslint` exports the `lathe/no-raw-ui` rule',
+            'A custom widget\'s component draws only its body',
+            'with `<Card className="p-6">` and a hand-styled heading',
+        )
+        ->and($toasts)->toContain(
             'wraps it in `ToastContent`',
             'Toasts stack like shadcn\'s Base UI toast',
         )
