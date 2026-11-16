@@ -1,4 +1,5 @@
 import { useTranslation } from '@lathephp/core';
+import { RadioGroup, RadioGroupItem, Switch } from '@lathephp/ui';
 import { useId, useState } from 'react';
 import { Modal, ModalFooter, ModalHeader, ModalTitle } from '../components/Modal';
 import { Button } from '../components/ui/Button';
@@ -69,43 +70,30 @@ export function SaveTabDialog({ onSave, onClose }: SaveTabDialogProps) {
         </div>
         <label className="flex items-center justify-between gap-3 text-sm font-medium">
           {__('Show count')}
-          <button
-            type="button"
-            role="switch"
-            aria-checked={showCount}
-            className={cn(
-              'relative h-5 w-9 rounded-full outline-none focus-visible:ring-2 focus-visible:ring-ring',
-              showCount ? 'bg-primary' : 'bg-muted',
-            )}
-            onClick={() => {
-              setShowCount(!showCount);
+          <Switch
+            checked={showCount}
+            onCheckedChange={(checked) => {
+              setShowCount(checked);
             }}
-          >
-            <span
-              aria-hidden="true"
-              className={cn('absolute top-0.5 size-4 rounded-full bg-background transition-[inset-inline-start]', showCount ? 'start-4.5' : 'start-0.5')}
-            />
-          </button>
+          />
         </label>
         <fieldset className="space-y-1">
           <legend className="text-sm font-medium">{__('Badge colour')}</legend>
-          <div className="flex gap-3">
+          <RadioGroup
+            value={badgeType}
+            className="flex gap-3"
+            onValueChange={(value) => {
+              setBadgeType(value as BadgeColour);
+            }}
+          >
             {colours.map((colour) => (
               <label key={colour.value} className="flex items-center gap-1.5 text-sm">
-                <input
-                  type="radio"
-                  name={`${id}-badge`}
-                  value={colour.value}
-                  checked={badgeType === colour.value}
-                  onChange={() => {
-                    setBadgeType(colour.value);
-                  }}
-                />
+                <RadioGroupItem value={colour.value} />
                 <span aria-hidden="true" className={cn('size-2.5 rounded-full', colour.swatch)} />
                 {colour.label}
               </label>
             ))}
-          </div>
+          </RadioGroup>
         </fieldset>
         <ModalFooter>
           <Button variant="outline" onClick={onClose}>

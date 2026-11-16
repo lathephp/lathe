@@ -349,6 +349,39 @@ describe('saving a view', () => {
     expect(reload.mock.calls[0]?.[0]).toMatchObject({ only: ['tabs', 'tabCounts'] });
     expect(screen.queryByRole('dialog', { name: 'Save view' })).toBeNull();
   });
+
+  it('draws the colour choices and the count switch with the kit parts', () => {
+    renderOrders();
+
+    fireEvent.click(within(rail()).getByRole('button', { name: 'Save view' }));
+    const dialog = screen.getByRole('dialog', { name: 'Save view' });
+
+    expect(within(dialog).getAllByRole('radio').map((radio) => radio.getAttribute('data-slot'))).toEqual([
+      'radio-group-item',
+      'radio-group-item',
+      'radio-group-item',
+    ]);
+    const count = within(dialog).getByRole('switch', { name: 'Show count' });
+
+    expect(count.getAttribute('data-slot')).toBe('switch');
+    expect(count.classList.contains('cn-switch')).toBe(true);
+  });
+
+  it('traps Tab inside the dialog, from the last control to the first and back', () => {
+    renderOrders();
+
+    fireEvent.click(within(rail()).getByRole('button', { name: 'Save view' }));
+    const dialog = screen.getByRole('dialog', { name: 'Save view' });
+    const first = within(dialog).getByLabelText('Name');
+    const last = within(dialog).getByRole('button', { name: 'Save' });
+
+    last.focus();
+    fireEvent.keyDown(document, { key: 'Tab' });
+    expect(document.activeElement).toBe(first);
+
+    fireEvent.keyDown(document, { key: 'Tab', shiftKey: true });
+    expect(document.activeElement).toBe(last);
+  });
 });
 
 describe('saved tab menu keys and look', () => {
