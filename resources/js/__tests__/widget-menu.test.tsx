@@ -206,6 +206,15 @@ describe('a dashboard widget menu', () => {
     expect(document.activeElement).toBe(open);
   });
 
+  it('closes when Tab takes the focus out of it, as a kit menu does', async () => {
+    renderDashboard([descriptor('orders')], { orders: [value('orders', 12)] });
+    await openMenu('orders', 'Orders');
+
+    fireEvent.keyDown(document.activeElement ?? document.body, { key: 'Tab' });
+
+    expect(screen.queryByRole('menu')).toBeNull();
+  });
+
   it('closes on a press outside it', async () => {
     renderDashboard([descriptor('orders')], { orders: [value('orders', 12)] });
     await openMenu('orders', 'Orders');

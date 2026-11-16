@@ -14,8 +14,8 @@ const items = (root: HTMLElement | null): HTMLElement[] => [...(root?.querySelec
  * is the `[aria-haspopup="menu"]` button inside it. The first item takes focus when the menu opens.
  * The arrow keys wrap, Home and End go to the ends, and a typed letter goes to the next item that
  * starts with it (letters typed within 500 ms add up). The item under the pointer takes the focus,
- * so it lights up as a kit item does. Escape closes the menu and focuses the trigger; a press
- * outside the element closes it. The keys it uses stop at the menu, so a page shortcut never sees them.
+ * so it lights up as a kit item does. Escape closes the menu and focuses the trigger; Tab and a
+ * press outside the element close it. The keys it uses stop at the menu, so a page shortcut never sees them.
  */
 export function useMenuKeys(root: RefObject<HTMLElement | null>, open: boolean, close: () => void): void {
   // On first paint in the shell and the index, where the compiler's cache would only add bytes.
@@ -26,6 +26,13 @@ export function useMenuKeys(root: RefObject<HTMLElement | null>, open: boolean, 
     const list = items(root.current);
     const at = list.indexOf(document.activeElement as HTMLElement);
     let to: HTMLElement | undefined;
+
+    if (key === 'Tab') {
+      // Tab leaves the menu as it would leave any control, and the menu closes behind it.
+      close();
+
+      return;
+    }
 
     if (key === 'Escape') {
       close();
