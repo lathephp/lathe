@@ -1,7 +1,7 @@
 import { type Translator, useTranslation } from '@lathephp/core';
 import { Link, router, usePage } from '@inertiajs/react';
 import { Columns3, Eye, Pencil } from 'lucide-react';
-import { Fragment, Suspense, useLayoutEffect, useRef, useState, type MouseEvent } from 'react';
+import { Fragment, Suspense, useLayoutEffect, useRef, useState, type CSSProperties, type MouseEvent } from 'react';
 import { optionsOf } from '../fields/choice/options';
 import { shown } from '../fields/choice/SelectFields';
 import type { Cell, FieldSchema } from '../fields/types';
@@ -52,7 +52,54 @@ const endEdge = 'shadow-[-6px_0_8px_-6px_rgb(0_0_0/0.2)] rtl:shadow-[6px_0_8px_-
 const rowLink = `${buttonClass('ghost', 'icon-sm')} opacity-0 group-hover:opacity-100 group-focus-within:opacity-100`;
 
 // The cell cursor: the focused cell, outlined inside its edges.
-const cursorCell = 'focus:outline-2 focus:-outline-offset-2 focus:outline-ring';
+export const cursorCell = 'focus:outline-2 focus:-outline-offset-2 focus:outline-ring';
+
+/** A body row's classes at a table density, on a list and on a relation table. */
+export function rowClass(density: keyof typeof rowHeights, striped: boolean): string {
+  return cn('border-b border-border last:border-0', rowHeights[density], striped && 'even:bg-muted/50');
+}
+
+interface HeaderCellProps {
+  column: Column;
+  /** The sort keys the server accepts; a sortable column outside them draws a plain label. */
+  sortKeys: string[];
+  /** The current sort, `-total_cents,placed_at`. */
+  sort: string | undefined;
+  /** A header click, with whether Shift was held to add the column to the sort. */
+  onSort: (append: boolean) => void;
+  className?: string;
+  style?: CSSProperties;
+}
+
+/** A column's header cell, on a list and on a relation table: its label, or a sort button with both arrows. */
+export function HeaderCell({ column, sortKeys, sort, onSort, className, style }: HeaderCellProps) {
+  const sortable = column.sortable && sortKeys.includes(column.sortKey);
+  const sorted = sortable ? direction(sort, column.sortKey) : 'none';
+
+  return (
+    <th scope="col" aria-sort={sortable ? sorted : undefined} style={style} className={cn('px-3 whitespace-nowrap', alignClass(column), className)}>
+      {sortable ? (
+        <Button
+          variant="ghost"
+          size="xs"
+          className="lathe-sort h-auto"
+          onClick={(event) => {
+            onSort(event.shiftKey);
+          }}
+        >
+          {column.label}
+          {/* Both arrows always; the one of the current direction is drawn in the text colour. */}
+          <svg aria-hidden="true" width="8" height="14" viewBox="0 0 8 14">
+            <path d="M4 1 7.5 5.5h-7z" />
+            <path d="M4 13 .5 8.5h7z" />
+          </svg>
+        </Button>
+      ) : (
+        column.label
+      )}
+    </th>
+  );
+}
 
 interface ResourceTableProps extends Pick<IndexProps, 'resource' | 'table' | 'state'> {
   loading: boolean;
@@ -130,12 +177,8 @@ export function ResourceTable({ resource, table, state, loading, selection, sort
   const { summaries, groups, lens } = usePage<Pick<IndexProps, 'summaries' | 'groups' | 'lens'>>().props;
   // The keys of the groups folded shut.
   const [collapsed, setCollapsed] = useState<string[]>([]);
-  const rowClass = cn(
-    'border-b border-border last:border-0',
-    // TableStyle tight forces the compact height whatever the panel density.
-    rowHeights[resource.definition.tableStyle === 'tight' ? 'compact' : tableStyle.density],
-    tableStyle.striped && 'even:bg-muted/50',
-  );
+  // TableStyle tight forces the compact height whatever the panel density.
+  const bodyRow = rowClass(resource.definition.tableStyle === 'tight' ? 'compact' : tableStyle.density, tableStyle.striped);
   const border = showColumnBorders && 'border-e border-border last:border-e-0';
   // A lens has no picker, nor the error page, which sends no allColumns.
   const picker = (table.allColumns ?? []).length > 0;
@@ -347,41 +390,20 @@ export function ResourceTable({ resource, table, state, loading, selection, sort
                 }}
               />
             </th>
-            {columns.map((column, index) => {
-              const sortable = column.sortable && table.sortKeys.includes(column.sortKey);
-              const sorted = sortable ? direction(sort, column.sortKey) : 'none';
-
-              return (
-                <th
-                  key={column.key}
-                  scope="col"
-                  aria-sort={sortable ? sorted : undefined}
-                  // No most on the header: a label wider than the column widens it, so it never runs into the next one.
-                  style={{ ...columnWidth(column), maxWidth: undefined, ...pins[index]?.style }}
-                  className={cn('px-3 whitespace-nowrap', alignClass(column), pins[index]?.className, border)}
-                >
-                  {sortable ? (
-                    <Button
-                      variant="ghost"
-                      size="xs"
-                      className="lathe-sort h-auto"
-                      onClick={(event) => {
-                        onSort(nextSort(sort, column.sortKey, event.shiftKey));
-                      }}
-                    >
-                      {column.label}
-                      {/* Both arrows always; the one of the current direction is drawn in the text colour. */}
-                      <svg aria-hidden="true" width="8" height="14" viewBox="0 0 8 14">
-                        <path d="M4 1 7.5 5.5h-7z" />
-                        <path d="M4 13 .5 8.5h7z" />
-                      </svg>
-                    </Button>
-                  ) : (
-                    column.label
-                  )}
-                </th>
-              );
-            })}
+            {columns.map((column, index) => (
+              <HeaderCell
+                key={column.key}
+                column={column}
+                sortKeys={table.sortKeys}
+                sort={sort}
+                onSort={(append) => {
+                  onSort(nextSort(sort, column.sortKey, append));
+                }}
+                // No most on the header: a label wider than the column widens it, so it never runs into the next one.
+                style={{ ...columnWidth(column), maxWidth: undefined, ...pins[index]?.style }}
+                className={cn(pins[index]?.className, border)}
+              />
+            ))}
             {withMenu && (
               <th scope="col" className={cn('z-20 w-12 px-3', menuClass, border)}>
                 <span className="sr-only">{__('Actions')}</span>
@@ -393,7 +415,7 @@ export function ResourceTable({ resource, table, state, loading, selection, sort
         <tbody>
           {loading
             ? Array.from({ length: state.perPage }, (_, index) => (
-                <tr key={index} data-skeleton="" aria-hidden="true" className={rowClass}>
+                <tr key={index} data-skeleton="" aria-hidden="true" className={bodyRow}>
                   <td className={cn(checkboxColumn, border)} />
                   {columns.map((column) => (
                     <td key={column.key} className={cn('px-3', border)}>
@@ -429,7 +451,7 @@ export function ResourceTable({ resource, table, state, loading, selection, sort
                       />
                     )}
                     {!folded && (
-                      <tr data-row={row.id} className={cn('group', rowClass)}>
+                      <tr data-row={row.id} className={cn('group', bodyRow)}>
                         <td tabIndex={stop(row, 0)} className={cn(checkboxColumn, border, cursorCell)}>
                           {/* eslint-disable-next-line lathe/no-raw-ui -- the table's selection boxes stay native, the shipped design of a row's tick */}
                           <input

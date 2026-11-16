@@ -1,7 +1,7 @@
-import { Link, router } from '@inertiajs/react';
+import { Link, router, usePage } from '@inertiajs/react';
 import { ApiError, QueryClientProvider, queryClient, request, toast, useLathe, useQuery, useTranslation } from '@lathephp/core';
 import { Button, Card } from '@lathephp/ui';
-import { ArrowDown, ArrowUp, ChevronDown, Plus } from 'lucide-react';
+import { ChevronDown, Plus } from 'lucide-react';
 import { lazy, Suspense, useEffect, useId, useRef, useState, type MouseEvent } from 'react';
 import { createPortal } from 'react-dom';
 import type { FieldSchema, RelationFieldSchema } from '../fields/types';
@@ -11,15 +11,17 @@ import { type BarHost, FilterBar } from '../index/FilterBar';
 import { filterVisits } from '../index/FilterChips';
 import { countText } from '../index/countText';
 import { Pagination } from '../index/Pagination';
-import { alignClass, direction, inlineName, nextSort } from '../index/ResourceTable';
+import { alignClass, cursorCell, HeaderCell, inlineName, nextSort, rowClass } from '../index/ResourceTable';
 import type { IndexFilter } from '../index/types';
 import { applyChanges, type IndexUrlState } from '../index/useIndexState';
 import { useRowSelection } from '../index/useRowSelection';
 import { Modal, ModalFooter, ModalHeader, ModalTitle } from '../components/Modal';
+import { CollapsibleTrigger } from '../components/ui/Button';
 import { Select } from '../components/ui/Select';
 import { cn } from '../lib/cn';
 import { TableCell } from '../table/cells';
 import { useGrid } from '../table/useGrid';
+import type { SharedProps } from '../types';
 import { AttachRelationModal } from './AttachRelationModal';
 import { UpdatePivotModal } from './UpdatePivotModal';
 import { useRelationActions } from './useRelationActions';
@@ -36,9 +38,6 @@ const pivotKinds = ['belongsToMany', 'morphToMany', 'morphedByMany'];
 
 // A click on these does its own thing, never the row's link.
 const ownClick = 'a, button, input, label, select';
-
-// The cell cursor: the focused cell, outlined inside its edges.
-const cursorCell = 'focus:outline-2 focus:-outline-offset-2 focus:outline-ring';
 
 /**
  * A row's React key: its id, and how many rows above share it. A record attached twice to a pivot
@@ -95,9 +94,8 @@ function Heading({ field, open, bodyId, count, onToggle }: { field: RelationFiel
   return (
     <h2 className="flex items-center gap-2 text-base font-semibold">
       {field.collapsible ? (
-        <button
-          type="button"
-          aria-expanded={open}
+        <CollapsibleTrigger
+          open={open}
           aria-controls={bodyId}
           className="flex items-center gap-1"
           onClick={() => {
@@ -106,7 +104,7 @@ function Heading({ field, open, bodyId, count, onToggle }: { field: RelationFiel
         >
           <ChevronDown aria-hidden="true" className={cn('size-4 transition-transform', !open && '-rotate-90 rtl:rotate-90')} />
           {field.label}
-        </button>
+        </CollapsibleTrigger>
       ) : (
         field.label
       )}
@@ -118,6 +116,9 @@ function Heading({ field, open, bodyId, count, onToggle }: { field: RelationFiel
 function PanelBody({ parent, field, bodyId, onToggle, tab }: RelationPanelProps & { bodyId: string; onToggle: (open: boolean) => void }) {
   const { __ } = useTranslation();
   const { basePath, apiPath } = useLathe();
+  const { tableStyle } = usePage<SharedProps>().props;
+  // The rows take the list's height at the panel's density.
+  const bodyRow = rowClass(tableStyle.density, tableStyle.striped);
   const [state, setState] = useState<IndexUrlState>({});
   // The tab's own wait for a chip change, so another tab's change never drops it.
   const [visits] = useState(filterVisits);
@@ -305,8 +306,9 @@ function PanelBody({ parent, field, bodyId, onToggle, tab }: RelationPanelProps 
             {/* A grid of one tab stop, as on the Resource's own list. */}
             <table ref={grid} role="grid" aria-rowcount={-1} data-lathe-table className="w-full text-sm [&_tr>*:first-child]:ps-5 [&_tr>*:last-child]:pe-5">
               <thead>
-                <tr className="h-10 border-b border-border bg-muted text-start text-[11px] font-semibold tracking-[0.04em] text-muted-foreground uppercase">
+                <tr>
                   <th scope="col" className="w-10 px-3">
+                    {/* eslint-disable-next-line lathe/no-raw-ui -- the table's selection boxes stay native, the shipped design of a row's tick */}
                     <input
                       type="checkbox"
                       aria-label={__('Select all')}
@@ -322,30 +324,18 @@ function PanelBody({ parent, field, bodyId, onToggle, tab }: RelationPanelProps 
                       }}
                     />
                   </th>
-                  {(data?.columns ?? []).map((column) => {
-                    const sortable = column.sortable && data?.sortKeys.includes(column.sortKey) === true;
-                    const sorted = sortable ? direction(state.sort, column.sortKey) : 'none';
-
-                    return (
-                      <th key={column.key} scope="col" aria-sort={sortable ? sorted : undefined} className={cn('px-3 whitespace-nowrap', alignClass(column))}>
-                        {sortable ? (
-                          <button
-                            type="button"
-                            className="-mx-1 inline-flex items-center gap-1 rounded px-1 uppercase outline-none hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring"
-                            onClick={() => {
-                              change({ sort: nextSort(state.sort, column.sortKey, false) });
-                            }}
-                          >
-                            {column.label}
-                            {sorted === 'ascending' && <ArrowUp aria-hidden="true" className="size-3.5" />}
-                            {sorted === 'descending' && <ArrowDown aria-hidden="true" className="size-3.5" />}
-                          </button>
-                        ) : (
-                          column.label
-                        )}
-                      </th>
-                    );
-                  })}
+                  {(data?.columns ?? []).map((column) => (
+                    <HeaderCell
+                      key={column.key}
+                      column={column}
+                      sortKeys={data?.sortKeys ?? []}
+                      sort={state.sort}
+                      // The panel sorts by one column at a time, so Shift adds nothing.
+                      onSort={() => {
+                        change({ sort: nextSort(state.sort, column.sortKey, false) });
+                      }}
+                    />
+                  ))}
                   {rowActions ? (
                     <th scope="col" className="px-3">
                       <span className="sr-only">{__('Actions')}</span>
@@ -355,8 +345,9 @@ function PanelBody({ parent, field, bodyId, onToggle, tab }: RelationPanelProps 
               </thead>
               <tbody>
                 {rows.map((row, position) => (
-                  <tr key={rowKey(rows, position)} data-row="" className="h-12 border-b border-border last:border-0">
+                  <tr key={rowKey(rows, position)} data-row="" className={bodyRow}>
                     <td tabIndex={-1} className={cn('w-10 px-3', cursorCell)}>
+                      {/* eslint-disable-next-line lathe/no-raw-ui -- the table's selection boxes stay native, the shipped design of a row's tick */}
                       <input
                         type="checkbox"
                         tabIndex={-1}

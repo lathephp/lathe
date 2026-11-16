@@ -585,3 +585,94 @@ describe('relation panel', () => {
     expect(screen.queryByRole('link', { name: 'Create' })).toBeNull();
   });
 });
+
+describe('a customer\'s Orders panel', () => {
+  const customers = { uriKey: 'customers', label: 'Customers', singularLabel: 'Customer', abilities: { create: true } };
+  const ordersBlock = relationBlock({ key: 'orders', attribute: 'orders', label: 'Orders', relationship: 'orders', resource: 'orders', singularLabel: 'Order', pluralLabel: 'Orders' });
+
+  /** Answers the panel's endpoints with the workbench Orders table, and records every URL asked for. */
+  function answerOrders(filters: unknown[] = []) {
+    const { columns: orderColumns, rows: orderRows } = indexTable('orders');
+
+    return vi.spyOn(globalThis, 'fetch').mockImplementation((input) => {
+      const url = typeof input === 'string' ? input : '';
+      const body = url.includes('/relate-authorization')
+        ? { orders: { add: false, attach: false, attachAny: false } }
+        : url.includes('/filters')
+          ? { filters }
+          : {
+              columns: orderColumns,
+              sortKeys: ['number', 'customer.name', 'total_cents', 'placed_at'],
+              rows: orderRows.map((row) => ({ ...row, related_id: row.id })),
+              count: null,
+              page: 1,
+              perPage: 25,
+              perPageOptions: [25],
+              hasMore: false,
+              searchable: true,
+            };
+
+      return Promise.resolve(new Response(JSON.stringify(body), { status: 200 }));
+    });
+  }
+
+  function orderCalls(fetch: ReturnType<typeof answerOrders>): string[] {
+    return fetch.mock.calls
+      .map(([input]) => (typeof input === 'string' ? decodeURIComponent(input) : ''))
+      .filter((url) => url.startsWith('/lathe/api/resources/customers/3/orders'));
+  }
+
+  function renderCustomer() {
+    return renderPage('Resources/Detail', {
+      resource: customers,
+      record: { id: 3, title: 'Grace Hopper', subtitle: '', avatar: null, fields: [], layout: [ordersBlock], abilities: { view: true, update: false, delete: false, replicate: false, restore: false, forceDelete: false }, trashed: false },
+      breadcrumbs: [],
+    });
+  }
+
+  it('draws its rows in the index\'s grid, a sortable header through the index\'s sort button', async () => {
+    answerOrders();
+    renderCustomer();
+    await screen.findByText('ORD-00000002');
+
+    expect(screen.getByRole('grid').hasAttribute('data-lathe-table')).toBe(true);
+    const number = screen.getByRole('columnheader', { name: 'Number' });
+    const button = within(number).getByRole('button', { name: 'Number' });
+    expect(number.getAttribute('aria-sort')).toBe('none');
+    expect(screen.getByRole('columnheader', { name: 'Status' }).hasAttribute('aria-sort')).toBe(false);
+    expect(button.parentElement).toBe(number);
+    expect(button.classList.contains('lathe-sort')).toBe(true);
+    expect(Array.from(button.querySelectorAll('svg path'), (path) => path.getAttribute('d'))).toEqual(['M4 1 7.5 5.5h-7z', 'M4 13 .5 8.5h7z']);
+  });
+
+  it('sorts by Number ascending then descending, keeping its chips, with no page visit', async () => {
+    const fetch = answerOrders([statusFilter]);
+    const visit = vi.spyOn(router, 'visit');
+    const get = vi.spyOn(router, 'get');
+    renderCustomer();
+    await screen.findByText('ORD-00000002');
+
+    const input = await focusBar('Search orders');
+    fireEvent.change(input, { target: { value: 'status:pending' } });
+    fireEvent.keyDown(input, { key: 'Enter' });
+    expect(await screen.findByText('Status: Pending')).toBeTruthy();
+    await waitFor(() => {
+      expect(orderCalls(fetch).at(-1)).toBe('/lathe/api/resources/customers/3/orders?filter[status]=pending');
+    });
+
+    fireEvent.click(screen.getByRole('button', { name: 'Number' }));
+    await waitFor(() => {
+      expect(orderCalls(fetch).at(-1)).toBe('/lathe/api/resources/customers/3/orders?sort=number&filter[status]=pending');
+    });
+    expect(screen.getByRole('columnheader', { name: 'Number' }).getAttribute('aria-sort')).toBe('ascending');
+
+    fireEvent.click(screen.getByRole('button', { name: 'Number' }));
+    await waitFor(() => {
+      expect(orderCalls(fetch).at(-1)).toBe('/lathe/api/resources/customers/3/orders?sort=-number&filter[status]=pending');
+    });
+    expect(screen.getByRole('columnheader', { name: 'Number' }).getAttribute('aria-sort')).toBe('descending');
+    expect(screen.getByText('Status: Pending')).toBeTruthy();
+    expect(visit).not.toHaveBeenCalled();
+    expect(get).not.toHaveBeenCalled();
+  });
+});

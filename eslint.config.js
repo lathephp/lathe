@@ -33,7 +33,6 @@ const notYetSwept = [
   'resources/js/fields/rich/TiptapEditor.tsx',
   'resources/js/fields/slug/SlugInput.tsx',
   'resources/js/fields/upload/FileControl.tsx',
-  'resources/js/relations/RelationPanel.tsx',
 ];
 
 export default defineConfig([
