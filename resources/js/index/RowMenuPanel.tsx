@@ -191,7 +191,8 @@ export function RowMenuPanel({ uriKey, row, label, fromKeyboard }: RowMenuPanelP
             </DropdownMenuItem>
           )}
           {/* The row's inline actions come before Delete, so Delete stays the menu's last entry. */}
-          {inline?.actions.map((action) => (
+          {/* Filtered here, so a row reloaded after a run lists what it may run now. */}
+          {inline?.actions.filter((action) => row.actions?.includes(action.uriKey) === true).map((action) => (
             <DropdownMenuItem
               key={action.uriKey}
               variant={action.destructive ? 'destructive' : 'default'}

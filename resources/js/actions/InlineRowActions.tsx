@@ -6,7 +6,7 @@ import type { ActionList, ActionMeta } from './types';
 import { useActionRunner } from './useActionRunner';
 import { reloadIndexRows } from '../lib/instant';
 
-/** The row's inline actions, with what runs one; the row menu draws them as its items. */
+/** The resource's table-row actions, with what runs one on the row; the row menu lists those the row may run now. */
 export interface InlineActions {
   actions: ActionMeta[];
   run: (action: ActionMeta) => void;
@@ -37,7 +37,7 @@ export function InlineRowActions({ uriKey, row, onLoad }: InlineRowActionsProps)
   });
   const loaded = useEffectEvent((actions: ActionMeta[]) => {
     onLoad({
-      actions: actions.filter((action) => row.actions?.includes(action.uriKey) === true),
+      actions,
       run: (action) => {
         start(action);
       },
