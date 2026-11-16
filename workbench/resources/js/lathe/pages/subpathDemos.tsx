@@ -204,7 +204,12 @@ export const subpathDemos: [string, LazyExoticComponent<ComponentType>][] = [
             </ChartContainer>
             <ChartContainer className="h-40 w-full">
               <RadialBarChart data={shares} innerRadius="30%" outerRadius="100%">
-                {tooltip}
+                {/* A radial chart labels a bar by its index, so the tooltip names the day itself. */}
+                <ChartTooltip
+                  content={({ active, payload }) => (
+                    <ChartTooltipContent active={active} payload={payload} heading={(payload?.[0]?.payload as { day?: string } | undefined)?.day} />
+                  )}
+                />
                 {legend}
                 <RadialBar dataKey="orders" name={__('Orders')} background />
               </RadialBarChart>
@@ -333,21 +338,21 @@ export const subpathDemos: [string, LazyExoticComponent<ComponentType>][] = [
             {/* An inline Command scrolls its first item into view as it mounts, so it mounts once on screen. */}
             <OnScreen className="min-h-72">
               <Command className="rounded-lg border">
-              <CommandInput placeholder={__('Search')} />
-              <CommandList>
-                <CommandEmpty>{__('No results')}</CommandEmpty>
-                <CommandGroup heading={__('Pages')}>
-                  <CommandItem>
-                    {__('Dashboard')}
-                    <CommandShortcut>D</CommandShortcut>
-                  </CommandItem>
-                  <CommandItem>{__('Orders')}</CommandItem>
-                </CommandGroup>
-                <CommandSeparator />
-                <CommandGroup heading={__('Account')}>
-                  <CommandItem>{__('Profile')}</CommandItem>
-                </CommandGroup>
-              </CommandList>
+                <CommandInput placeholder={__('Search')} />
+                <CommandList>
+                  <CommandEmpty>{__('No results')}</CommandEmpty>
+                  <CommandGroup heading={__('Pages')}>
+                    <CommandItem>
+                      {__('Dashboard')}
+                      <CommandShortcut>D</CommandShortcut>
+                    </CommandItem>
+                    <CommandItem>{__('Orders')}</CommandItem>
+                  </CommandGroup>
+                  <CommandSeparator />
+                  <CommandGroup heading={__('Account')}>
+                    <CommandItem>{__('Profile')}</CommandItem>
+                  </CommandGroup>
+                </CommandList>
               </Command>
             </OnScreen>
             <Button variant="outline" className="self-start" onClick={() => setOpen(true)}>
