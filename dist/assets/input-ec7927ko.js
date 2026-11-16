@@ -1,0 +1,1 @@
+import{jsx as e}from"react/jsx-runtime";var t=`lathe-input cn-input`,n=`lathe-input cn-textarea`;function r({className:n,...r}){return e(`input`,{"data-slot":`input`,className:`${t} ${n??``}`,...r})}function i({className:t,...r}){return e(`textarea`,{"data-slot":`textarea`,className:`${n} ${t??``}`,...r})}export{i as n,t as r,r as t};

@@ -1,0 +1,1 @@
+import{n as e,t}from"./owner-nfk4rtkg.js";var n=`lathe-draft:`;function r(r){t(()=>window.sessionStorage,`lathe-draft-owner`,r,t=>{e(t,n)})}export{n,r as t};

@@ -1,0 +1,1 @@
+import{c as e}from"react/compiler-runtime";import{jsxs as t}from"react/jsx-runtime";function n(n){let r=e(4),{id:i,message:a,icon:o}=n;if(a===void 0)return null;let s;return r[0]!==o||r[1]!==i||r[2]!==a?(s=t(`p`,{id:i,role:`alert`,"data-slot":`field-error`,className:`cn-field-error flex gap-1`,children:[o,a]}),r[0]=o,r[1]=i,r[2]=a,r[3]=s):s=r[3],s}export{n as t};
