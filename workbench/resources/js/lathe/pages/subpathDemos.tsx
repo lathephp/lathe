@@ -643,7 +643,7 @@ export const subpathDemos: [string, LazyExoticComponent<ComponentType>][] = [
         const { __ } = useTranslation();
 
         return (
-          <SidebarProvider className="h-72 min-h-0 w-full overflow-hidden rounded-md border">
+          <SidebarProvider className="h-72 min-h-0 w-0 min-w-full overflow-hidden rounded-md border">
             <Sidebar collapsible="none" className="h-full">
               <SidebarHeader>
                 <SidebarInput aria-label={__('Search')} placeholder={__('Search')} />
