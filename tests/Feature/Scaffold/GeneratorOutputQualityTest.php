@@ -279,3 +279,31 @@ it('takes every component prop type from @lathephp/core and draws no raw field o
         }
     }
 });
+
+it('reports a raw button and a palette colour on a generated page once the app adds the printed lines', function () {
+    $base = $this->generatorApp();
+    app()->instance('lathe.host_path', $base);
+    $this->artisan('lathe:page', ['name' => 'Reports'])->assertExitCode(0);
+
+    $page = "{$base}/resources/js/lathe/pages/Reports.tsx";
+    File::put($page, str_replace('<CardContent>', '<CardContent><button className="bg-gray-100">Go</button>', File::get($page)));
+
+    // The printed import, resolved to this checkout's file in place of the app's node_modules; the
+    // app's own block parses TSX.
+    File::put("{$base}/eslint.config.mjs", implode("\n", [
+        'import tseslint from '.json_encode('file://'.qualityRepo().'/node_modules/typescript-eslint/dist/index.js').';',
+        'import lathe from '.json_encode('file://'.qualityRepo().'/packages/vite-plugin/eslint/index.js').';',
+        '',
+        'export default [',
+        '  { files: ["**/*.tsx"], languageOptions: { parser: tseslint.parser, parserOptions: { ecmaFeatures: { jsx: true } } } },',
+        '  ...lathe,',
+        '];',
+        '',
+    ]));
+    File::put("{$base}/package.json", '{"private": true}');
+
+    $eslint = runQualityTool([qualityRepo().'/node_modules/.bin/eslint', '--format', 'json', 'resources/js/lathe/pages/Reports.tsx'], $base);
+    $messages = json_decode($eslint->getOutput(), true)[0]['messages'] ?? [];
+
+    expect(array_count_values(array_column($messages, 'ruleId')))->toBe(['lathe/no-raw-ui' => 2], $eslint->getOutput().$eslint->getErrorOutput());
+});

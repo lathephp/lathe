@@ -174,6 +174,11 @@ abstract class GeneratorCommand extends Command
         $this->addDevDependencies($files);
 
         $this->components->warn('Frontend set up in resources/js/lathe. Run: '.$this->installCommand());
+
+        // The app's ESLint config is its own, so the scaffold prints the lines that add the kit's rule.
+        $this->components->info('To lint resources/js/lathe with the kit\'s raw-UI rule, add these two lines to your eslint.config.js, then run ESLint:');
+        $this->line("  import lathe from '@lathephp/vite-plugin/eslint';");
+        $this->line('  ...lathe, // inside the exported config array');
     }
 
     /**
