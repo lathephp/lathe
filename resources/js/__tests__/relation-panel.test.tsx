@@ -554,6 +554,14 @@ describe('relation panel', () => {
     });
   });
 
+  it('draws an empty panel as the style empty state', async () => {
+    answer({ rows: [] });
+    renderDetail([relationBlock()]);
+
+    const empty = (await screen.findByText('No Items yet')).closest('.cn-empty');
+    expect(empty?.getAttribute('data-slot')).toBe('empty');
+  });
+
   it('hides Create when the user may not add', async () => {
     const fetch = answer({ rows: [], add: false });
     renderDetail([relationBlock()]);

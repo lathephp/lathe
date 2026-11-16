@@ -5,6 +5,7 @@ import { ArrowDown, ArrowUp, ChevronDown, Plus } from 'lucide-react';
 import { lazy, Suspense, useEffect, useId, useRef, useState, type MouseEvent } from 'react';
 import { createPortal } from 'react-dom';
 import type { FieldSchema, RelationFieldSchema } from '../fields/types';
+import { EmptyState } from '../index/EmptyState';
 import { InlineCell } from '../index/InlineCell';
 import { type BarHost, FilterBar } from '../index/FilterBar';
 import { filterVisits } from '../index/FilterChips';
@@ -291,10 +292,14 @@ function PanelBody({ parent, field, bodyId, onToggle, tab }: RelationPanelProps 
             </Button>
           </div>
         ) : empty ? (
-          <div className="space-y-4 p-12 text-center text-sm text-muted-foreground">
-            <p>{filtered ? __('No results match your filters') : __('No :resource yet', { resource: field.label })}</p>
-            {canCreate && !filtered ? create : null}
-          </div>
+          <EmptyState
+            label={field.label}
+            filtered={filtered}
+            createHref={canCreate && !filtered ? createHref : null}
+            onClear={() => {
+              setState({});
+            }}
+          />
         ) : (
           <div className="relative overflow-x-auto" role="region" aria-label={__(':resource table', { resource: field.label })}>
             {/* A grid of one tab stop, as on the Resource's own list. */}

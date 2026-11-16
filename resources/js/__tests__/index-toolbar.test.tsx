@@ -246,18 +246,21 @@ describe('filtered empty state', () => {
     expect(screen.queryByRole('link', { name: 'Create' })).toBeNull();
 
     // The empty state's button, not the one that ends the chips row.
-    const empty = screen.getByText('No results match your filters').parentElement as HTMLElement;
+    const empty = screen.getByText('No results match your filters').closest('.cn-empty') as HTMLElement;
     fireEvent.click(within(empty).getByRole('button', { name: 'Clear filters' }));
 
     expect((visit.mock.calls[0]?.[1] as { data: Record<string, unknown> }).data).toEqual({ sort: '-total_cents' });
   });
 
-  it('leads with the search-x icon in a round badge and titles the state in the text colour', () => {
+  it('draws the style empty state, led by the search-x icon', () => {
     renderOrders({ url: '/lathe/resources/orders?q=zzzz', rows: [] });
     const title = screen.getByText('No results match your filters');
+    const empty = title.closest('.cn-empty');
 
-    expect(title.className).toBe('lathe-empty-title');
-    expect(title.parentElement?.querySelector('svg')?.getAttribute('class')).toContain('lucide-search-x');
+    expect(empty?.getAttribute('data-slot')).toBe('empty');
+    expect(title.className).toContain('cn-empty-title');
+    expect(empty?.querySelector('.cn-empty-media svg')?.getAttribute('class')).toContain('lucide-search-x');
+    expect(within(empty as HTMLElement).getByRole('button', { name: 'Clear filters' })).toBeTruthy();
   });
 
   it('empties the search box once the cleared URL lands', () => {

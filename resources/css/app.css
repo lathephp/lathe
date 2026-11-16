@@ -675,23 +675,6 @@
     @apply text-[15px] leading-5 font-medium text-foreground tabular-nums;
   }
 
-  /* Nothing to list: a round icon badge, a 16 px title and the next steps, centred. */
-  .lathe-empty {
-    @apply flex flex-col items-center gap-3 px-6 py-12 text-center text-sm text-muted-foreground;
-  }
-
-  .lathe-empty > span:first-child {
-    @apply grid size-10 place-items-center rounded-full bg-muted text-foreground;
-  }
-
-  .lathe-empty > span[data-tone="primary"] {
-    @apply bg-primary-subtle text-primary-subtle-foreground;
-  }
-
-  .lathe-empty-title {
-    @apply text-base font-semibold text-foreground;
-  }
-
   /* The views rail: 220 px on the page ground at the card's left, one view per 32 px row, its count at
      the row's end. Below 1100 px, beside an open preview panel, or beside a table too wide to fit next to
      it, the toolbar's Views menu holds it. */

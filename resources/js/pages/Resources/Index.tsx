@@ -187,7 +187,7 @@ function IndexPage({ resource, table, state, count, error, lens, actions, widget
             </div>
           ) : table.rows.length === 0 ? (
             <EmptyState
-              label={resource.label}
+              label={resource.label.toLowerCase()}
               filtered={filtered}
               createHref={createHref}
               onClear={() => {
@@ -292,17 +292,17 @@ function IndexPage({ resource, table, state, count, error, lens, actions, widget
           <div className="lathe-index-body">
           {hint?.tabs === true && (
             <div aria-hidden="true" data-skeleton-tabs="" className="lathe-views lathe-views-rail w-[220px] shrink-0">
-              <div className={`h-32 ${skeletonBar}`} />
+              <div data-slot="skeleton" className={`h-32 ${skeletonBar}`} />
             </div>
           )}
           <Card aria-hidden="true" data-lathe-card="" className="gap-0 overflow-hidden py-0 max-md:rounded-none max-md:bg-transparent max-md:shadow-none max-md:ring-0">
             <div data-lathe-toolbar="" className={toolbarRow}>
-              <div className={`h-9 w-96 max-w-full ${skeletonBar}`} />
+              <div data-slot="skeleton" className={`h-9 w-96 max-w-full ${skeletonBar}`} />
             </div>
             <div className="h-10 border-b border-border" />
             {Array.from({ length: 10 }, (_, index) => (
               <div key={index} data-skeleton-row="" className={`flex items-center border-b border-border px-3 last:border-0 ${rowHeights[tableStyle.density]}`}>
-                <span className={`h-3 w-full ${skeletonBar}`} />
+                <span data-slot="skeleton" className={`h-3 w-full ${skeletonBar}`} />
               </div>
             ))}
           </Card>

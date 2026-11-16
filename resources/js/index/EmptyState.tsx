@@ -12,7 +12,7 @@ interface EmptyStateProps {
   onClear: () => void;
 }
 
-// The icon in a 40 px round badge, the title, then the next steps; the looks live in app.css.
+// The kit Empty's class names and slots, written by hand: this paints on first load, which the kit stays out of.
 export function EmptyState({ label, filtered, createHref, onClear }: EmptyStateProps) {
   const { __ } = useTranslation();
 
@@ -23,30 +23,32 @@ export function EmptyState({ label, filtered, createHref, onClear }: EmptyStateP
       </Link>
     );
 
-  if (!filtered) {
-    return (
-      <div className="lathe-empty">
-        <span data-tone="primary">
-          <Inbox aria-hidden="true" className="size-[18px]" />
-        </span>
-        <p className="lathe-empty-title">{__('No :resource yet', { resource: label.toLowerCase() })}</p>
-        {create}
-      </div>
-    );
-  }
-
   return (
-    <div className="lathe-empty">
-      <span>
-        <SearchX aria-hidden="true" className="size-[18px]" />
-      </span>
-      <p className="lathe-empty-title">{__('No results match your filters')}</p>
-      <div className="flex flex-wrap justify-center gap-2">
-        <Button variant="outline" size="sm" onClick={onClear}>
-          {__('Clear filters')}
-        </Button>
-        {create}
+    <div data-slot="empty" className="cn-empty flex w-full min-w-0 flex-1 flex-col items-center justify-center text-center text-balance">
+      <div data-slot="empty-header" className="cn-empty-header flex max-w-sm flex-col items-center">
+        <div data-slot="empty-icon" data-variant="icon" className="cn-empty-media cn-empty-media-icon flex shrink-0 items-center justify-center">
+          {filtered ? <SearchX aria-hidden="true" className="size-4" /> : <Inbox aria-hidden="true" className="size-4" />}
+        </div>
+        <div data-slot="empty-title" className="cn-empty-title cn-font-heading">
+          {filtered ? __('No results match your filters') : __('No :resource yet', { resource: label })}
+        </div>
       </div>
+      {filtered ? (
+        <div data-slot="empty-content" className="cn-empty-content flex w-full min-w-0 max-w-sm flex-col items-center text-balance">
+          <div className="flex flex-wrap justify-center gap-2">
+            <Button variant="outline" size="sm" onClick={onClear}>
+              {__('Clear filters')}
+            </Button>
+            {create}
+          </div>
+        </div>
+      ) : (
+        create && (
+          <div data-slot="empty-content" className="cn-empty-content flex w-full min-w-0 max-w-sm flex-col items-center text-balance">
+            {create}
+          </div>
+        )
+      )}
     </div>
   );
 }
