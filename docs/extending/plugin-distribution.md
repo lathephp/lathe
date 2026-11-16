@@ -26,10 +26,14 @@ The entry imports from `@lathephp/core` and registers its components as it loads
 
 ```tsx
 import { plugin } from '@lathephp/core';
-import { Card } from '@lathephp/ui';
+import { Card, CardContent } from '@lathephp/ui';
 
 function Page() {
-  return <Card className="p-6">Heartbeat</Card>;
+  return (
+    <Card>
+      <CardContent>Heartbeat</CardContent>
+    </Card>
+  );
 }
 
 plugin('heartbeat', Page);
