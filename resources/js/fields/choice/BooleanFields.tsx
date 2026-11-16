@@ -68,6 +68,7 @@ export function BooleanGroupForm({ field, value, onChange, id, describedBy, inva
         <label key={option.value} className="flex items-center gap-2 text-sm">
           <Checkbox
             checked={state[option.value] === true}
+            disabled={disabled}
             onCheckedChange={(checked) => {
               onChange(Object.fromEntries(options.map((item) => [item.value, item.value === option.value ? checked : state[item.value] === true])));
             }}

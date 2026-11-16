@@ -348,6 +348,13 @@ describe('boolean-field', () => {
 describe('boolean-group-field', () => {
   const group = { options: [{ value: 'email', label: 'Email' }, { value: 'sms', label: 'SMS' }] };
 
+  it('marks each box of a disabled group as disabled, so the style dims it', () => {
+    const Form = registries.form.get('boolean-group-field');
+    render(Form === undefined ? null : <Form {...formProps('boolean-group-field', { email: true, sms: false }, group, vi.fn())} disabled />);
+
+    expect(screen.getAllByRole('checkbox').map((box) => box.hasAttribute('data-disabled'))).toEqual([true, true]);
+  });
+
   it('reports the whole object when one box changes', () => {
     const onChange = vi.fn();
     renderForm('boolean-group-field', { email: true, sms: false }, group, onChange);
