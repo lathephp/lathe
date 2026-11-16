@@ -275,8 +275,16 @@ it('takes every component prop type from @lathephp/core and draws no raw field o
 
     foreach (['fields', 'filters'] as $folder) {
         foreach (renderedTsx($base, "resources/js/lathe/{$folder}") as $contents) {
-            expect($contents)->not->toContain('<input')->not->toContain('<button');
+            expect($contents)->not->toContain('<input')->not->toContain('<button')->toContain('<Input');
         }
+    }
+
+    foreach (renderedTsx($base, 'resources/js/lathe/fields') as $contents) {
+        expect($contents)->toContain('aria-invalid={invalid || undefined}', 'aria-describedby={describedBy}');
+    }
+
+    foreach (renderedTsx($base, 'resources/js/lathe/filters') as $contents) {
+        expect($contents)->toContain('<Button');
     }
 });
 
