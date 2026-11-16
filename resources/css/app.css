@@ -469,6 +469,12 @@
     @apply flex items-center gap-4 md:flex-wrap;
   }
 
+  /* A phone's title sits in the top bar, but a badge beside it, such as Editing layout, stays here:
+     it takes a row of its own, so the controls never run over it. */
+  .lathe-page-header:has(> .lathe-page-heading > div > h1 + *) {
+    @apply max-md:flex-wrap max-md:gap-y-3;
+  }
+
   .lathe-page-heading {
     @apply flex min-w-0 flex-col gap-1;
   }

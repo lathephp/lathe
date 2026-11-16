@@ -88,4 +88,10 @@ describe('a dashboard header too narrow for one row', () => {
     expect(narrow).toMatch(/\.lathe-dashboard-header \.lathe-page-actions,\s*\.lathe-dashboard-header \.lathe-dashboard-actions \{[^}]*contents/);
     expect(narrow).toMatch(/\.lathe-dashboard-header \[data-slot='toggle-group'\] \{[^}]*order-last[^}]*basis-full[^}]*overflow-x-auto/);
   });
+
+  // jsdom does no layout: at 390 px in maia and vega the Customize controls filled the row and
+  // drew Reset to default over the Editing layout badge.
+  it("gives a phone header's title badge a row of its own above the controls", () => {
+    expect(css).toMatch(/\.lathe-page-header:has\(> \.lathe-page-heading > div > h1 \+ \*\) \{[^}]*max-md:flex-wrap/);
+  });
 });

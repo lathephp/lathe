@@ -4,6 +4,10 @@ All notable changes to Lathe are listed here. The format follows [Keep a Changel
 
 ## [Unreleased]
 
+### Fixed
+
+- On a phone, a page title's badge, such as a dashboard's Editing layout in Customize mode, takes a row of its own above the page's controls, where in maia and vega the larger buttons ran Reset to default over it.
+
 ## [1.0.0-beta.16] - 2026-11-16
 
 ### Changed
